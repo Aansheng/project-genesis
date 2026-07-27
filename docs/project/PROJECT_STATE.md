@@ -13,26 +13,26 @@
 
 ## Current Status
 
-| Item | Status |
-|------|--------|
-| Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.47 (Sprint 5) |
-| Architecture Status | **Evolving** — Semantic Context Consumption (WO-S5-012) integrated. SemanticContext consumed by Prompt Builder pipeline. |
-| Runtime Status | Stable (Action Registry + Query Layer) |
-| Renderer Status | Stable (Canvas Renderer) |
-| Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
-| AI Status | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + Intent Prompt Integration + **Entity Recognition Foundation + Rule-Based Entity Analyzer + Entity Consumption + Entity Rendering Foundation + Entity Prompt Integration + Semantic Context Foundation + Semantic Context Consumption** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
-| Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer (with intent + entity)** → AIRequest |
-| Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
-| Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Semantic Layer | **Consumed** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder. Integrated into Prompt Builder pipeline via Phase 0.8. Written to metadata.promptAssembly.semantic. |
-| Validator | StructuredOutputValidator — unified response validation for all providers |
-| Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
-| Current Provider | ProviderFactory (configured via AIConfiguration) |
-| Backend Status | None |
-| Networking Status | None |
-| Development Standards | **Established** — AI_DEVELOPMENT_STANDARD.md v1.0 |
-| Architecture Principles | **Established** — ARCHITECTURE_PRINCIPLES.md v1.0 |
+| Item                    | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Status                  | Sprint 5 **In Progress**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Architecture Version    | v0.48 (Sprint 5)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Architecture Status     | **Evolving** — Semantic Context Rendering (WO-S5-013) added. SemanticContextRenderer + DefaultSemanticContextRenderer integrated.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Runtime Status          | Stable (Action Registry + Query Layer)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Renderer Status         | Stable (Canvas Renderer)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Planner Status          | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| AI Status               | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + Intent Prompt Integration + **Entity Recognition Foundation + Rule-Based Entity Analyzer + Entity Consumption + Entity Rendering Foundation + Entity Prompt Integration + Semantic Context Foundation + Semantic Context Consumption** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
+| Prompt Pipeline         | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer (with intent + entity)** → AIRequest                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Intent Layer            | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Entity Layer            | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Semantic Layer          | **Rendered** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Rendered into metadata.promptAssembly.semanticRendered.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Validator               | StructuredOutputValidator — unified response validation for all providers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Streaming               | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Current Provider        | ProviderFactory (configured via AIConfiguration)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Backend Status          | None                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Networking Status       | None                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Development Standards   | **Established** — AI_DEVELOPMENT_STANDARD.md v1.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Architecture Principles | **Established** — ARCHITECTURE_PRINCIPLES.md v1.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ---
 
@@ -40,103 +40,104 @@
 
 ### Sprint 1 — Runtime Foundation
 
-| ID | Title |
-|----|-------|
-| WO-S1-001 | Create Entity |
-| WO-S1-002 | Runtime Owns World |
-| WO-S1-003 | Move Entity |
+| ID        | Title                   |
+| --------- | ----------------------- |
+| WO-S1-001 | Create Entity           |
+| WO-S1-002 | Runtime Owns World      |
+| WO-S1-003 | Move Entity             |
 | WO-S1-004 | Runtime Action Registry |
-| WO-S1-005 | Runtime Unit Tests |
-| WO-S1-006 | Runtime Query Layer |
-| WO-S1-007 | Planner Interface |
-| WO-S1-008 | PlannerResult |
-| WO-S1-009 | Sprint 1 Freeze |
+| WO-S1-005 | Runtime Unit Tests      |
+| WO-S1-006 | Runtime Query Layer     |
+| WO-S1-007 | Planner Interface       |
+| WO-S1-008 | PlannerResult           |
+| WO-S1-009 | Sprint 1 Freeze         |
 
 ### Sprint 2 — AI Foundation
 
-| ID | Title |
-|----|-------|
-| WO-S2-001 | AI Pipeline Interface |
-| WO-S2-002 | PipelineContext |
-| WO-S2-003 | AIRequest |
-| WO-S2-004 | PromptBuilder |
-| WO-S2-005 | Pipeline Events |
-| WO-S2-006 | Prompt Modules |
-| WO-S2-007 | Memory Interface |
-| WO-S2-008 | Memory Integration |
-| WO-S2-009 | Planner Provider |
-| WO-S2-010 | AI Configuration |
-| WO-S2-011 | OpenAI Planner Provider |
-| WO-S2-012 | Responses API Migration |
-| WO-S2-013 | DeepSeek Planner Provider |
-| WO-S2-014 | Provider Factory |
+| ID        | Title                       |
+| --------- | --------------------------- |
+| WO-S2-001 | AI Pipeline Interface       |
+| WO-S2-002 | PipelineContext             |
+| WO-S2-003 | AIRequest                   |
+| WO-S2-004 | PromptBuilder               |
+| WO-S2-005 | Pipeline Events             |
+| WO-S2-006 | Prompt Modules              |
+| WO-S2-007 | Memory Interface            |
+| WO-S2-008 | Memory Integration          |
+| WO-S2-009 | Planner Provider            |
+| WO-S2-010 | AI Configuration            |
+| WO-S2-011 | OpenAI Planner Provider     |
+| WO-S2-012 | Responses API Migration     |
+| WO-S2-013 | DeepSeek Planner Provider   |
+| WO-S2-014 | Provider Factory            |
 | WO-S2-015 | Structured Output Validator |
-| WO-S2-016 | Environment Configuration |
-| WO-S2-017 | Pipeline Integration Tests |
-| WO-S2-018 | Prompt Snapshot Tests |
-| WO-S2-019 | System Prompt Module |
-| WO-S2-020 | World State Prompt Module |
+| WO-S2-016 | Environment Configuration   |
+| WO-S2-017 | Pipeline Integration Tests  |
+| WO-S2-018 | Prompt Snapshot Tests       |
+| WO-S2-019 | System Prompt Module        |
+| WO-S2-020 | World State Prompt Module   |
 
 ### Sprint 3 — AI Integration & Polish
 
-| ID | Title |
-|----|-------|
-| WO-S3-001 | Streaming Provider Interface |
-| WO-S3-002 | Streaming Pipeline |
-| WO-S3-003 | Streaming UI Integration |
-| WO-S3-004 | Planner Retry & Self-Healing |
-| WO-S3-005 | Tool Calling Foundation |
-| WO-S3-006 | Runtime Tool Execution |
-| WO-S3-007 | Provider-native Tool Calling |
-| WO-S3-008 | Agent Loop Foundation |
+| ID        | Title                           |
+| --------- | ------------------------------- |
+| WO-S3-001 | Streaming Provider Interface    |
+| WO-S3-002 | Streaming Pipeline              |
+| WO-S3-003 | Streaming UI Integration        |
+| WO-S3-004 | Planner Retry & Self-Healing    |
+| WO-S3-005 | Tool Calling Foundation         |
+| WO-S3-006 | Runtime Tool Execution          |
+| WO-S3-007 | Provider-native Tool Calling    |
+| WO-S3-008 | Agent Loop Foundation           |
 | WO-S3-009 | Pipeline Agent Loop Integration |
-| WO-S3-010 | Multi-Step Agent Loop |
-| WO-S3-011 | Structured Observation Context |
-| WO-S3-012 | Planner Observation Awareness |
-| WO-S3-013 | Reflection Foundation |
-| WO-S3-014 | Reflection Prompt Integration |
-| WO-S3-015 | Structured Prompt Context |
-| WO-S3-016 | Prompt Renderer Foundation |
-| WO-S3-017 | Context Compression Foundation |
-| WO-S3-018 | Prompt Budget Foundation |
-| WO-S3-019 | Memory Ranking Foundation |
-| WO-S3-020 | Prompt Assembly Integration |
-| WO-S3-021 | Sprint 3 Freeze |
+| WO-S3-010 | Multi-Step Agent Loop           |
+| WO-S3-011 | Structured Observation Context  |
+| WO-S3-012 | Planner Observation Awareness   |
+| WO-S3-013 | Reflection Foundation           |
+| WO-S3-014 | Reflection Prompt Integration   |
+| WO-S3-015 | Structured Prompt Context       |
+| WO-S3-016 | Prompt Renderer Foundation      |
+| WO-S3-017 | Context Compression Foundation  |
+| WO-S3-018 | Prompt Budget Foundation        |
+| WO-S3-019 | Memory Ranking Foundation       |
+| WO-S3-020 | Prompt Assembly Integration     |
+| WO-S3-021 | Sprint 3 Freeze                 |
 
 ### Sprint 4 — AI Polish & Production Readiness
 
-| ID | Title |
-|----|-------|
+| ID        | Title                                    |
+| --------- | ---------------------------------------- |
 | WO-S4-000 | Project Development Standards Foundation |
-| WO-S4-001 | Prompt Selection Foundation |
-| WO-S4-002 | Prompt Selection Consumption |
-| WO-S4-003 | Prompt Compression Consumption |
-| WO-S4-004 | Prompt Budget Token Estimation |
-| WO-S4-005 | Provider Budget Foundation |
-| WO-S4-006 | Provider Budget Consumption |
-| WO-S4-007 | AI Configuration Foundation |
-| WO-S4-008 | AI Configuration Consumption |
-| WO-S4-009 | BuilderOptions Foundation |
-| WO-S4-010 | BuilderOptions Consumption |
-| WO-S4-011 | Sprint 4 Architecture Review |
-| WO-S4-012 | Sprint 4 Freeze |
+| WO-S4-001 | Prompt Selection Foundation              |
+| WO-S4-002 | Prompt Selection Consumption             |
+| WO-S4-003 | Prompt Compression Consumption           |
+| WO-S4-004 | Prompt Budget Token Estimation           |
+| WO-S4-005 | Provider Budget Foundation               |
+| WO-S4-006 | Provider Budget Consumption              |
+| WO-S4-007 | AI Configuration Foundation              |
+| WO-S4-008 | AI Configuration Consumption             |
+| WO-S4-009 | BuilderOptions Foundation                |
+| WO-S4-010 | BuilderOptions Consumption               |
+| WO-S4-011 | Sprint 4 Architecture Review             |
+| WO-S4-012 | Sprint 4 Freeze                          |
 
 ### Sprint 5 — Post-Freeze Capabilities
 
-| ID | Title |
-|----|-------|
-| WO-S5-001 | Intent Analysis Foundation |
-| WO-S5-002 | Rule-Based Intent Analyzer |
-| WO-S5-003 | Intent Consumption |
-| WO-S5-004 | Intent Rendering Foundation |
-| WO-S5-005 | Intent Prompt Integration |
-| WO-S5-006 | Entity Recognition Foundation |
-| WO-S5-007 | Rule-Based Entity Analyzer |
-| WO-S5-008 | Entity Consumption |
-| WO-S5-009 | Entity Rendering Foundation |
-| WO-S5-010 | Entity Prompt Integration |
-| WO-S5-011 | Semantic Context Foundation |
-| WO-S5-012 | Semantic Context Consumption |
+| ID        | Title                                 |
+| --------- | ------------------------------------- |
+| WO-S5-001 | Intent Analysis Foundation            |
+| WO-S5-002 | Rule-Based Intent Analyzer            |
+| WO-S5-003 | Intent Consumption                    |
+| WO-S5-004 | Intent Rendering Foundation           |
+| WO-S5-005 | Intent Prompt Integration             |
+| WO-S5-006 | Entity Recognition Foundation         |
+| WO-S5-007 | Rule-Based Entity Analyzer            |
+| WO-S5-008 | Entity Consumption                    |
+| WO-S5-009 | Entity Rendering Foundation           |
+| WO-S5-010 | Entity Prompt Integration             |
+| WO-S5-011 | Semantic Context Foundation           |
+| WO-S5-012 | Semantic Context Consumption          |
+| WO-S5-013 | Semantic Context Rendering Foundation |
 
 ---
 
@@ -154,17 +155,17 @@ Runtime()
 
 ### Action Types
 
-| Action | Fields |
-|--------|--------|
+| Action         | Fields                                         |
+| -------------- | ---------------------------------------------- |
 | `CreateEntity` | `entityType: string`, `x: number`, `y: number` |
-| `MoveEntity` | `id: string`, `x: number`, `y: number` |
+| `MoveEntity`   | `id: string`, `x: number`, `y: number`         |
 
 ### Handler Registry
 
-| Action Type | Handler |
-|-------------|---------|
+| Action Type    | Handler               |
+| -------------- | --------------------- |
 | `CreateEntity` | `CreateEntityHandler` |
-| `MoveEntity` | `MoveEntityHandler` |
+| `MoveEntity`   | `MoveEntityHandler`   |
 
 ---
 
@@ -221,9 +222,15 @@ interface PlannerProvider {
   complete(request: AIRequest): Promise<PlannerResult>
 }
 
-class MockPlannerProvider implements PlannerProvider { /* keyword matching */ }
-class OpenAIPlannerProvider implements PlannerProvider { /* OpenAI Responses API */ }
-class DeepSeekPlannerProvider implements PlannerProvider { /* DeepSeek via OpenAI-compatible Chat Completions */ }
+class MockPlannerProvider implements PlannerProvider {
+  /* keyword matching */
+}
+class OpenAIPlannerProvider implements PlannerProvider {
+  /* OpenAI Responses API */
+}
+class DeepSeekPlannerProvider implements PlannerProvider {
+  /* DeepSeek via OpenAI-compatible Chat Completions */
+}
 
 class ProviderFactory {
   static create(config: AIConfiguration): PlannerProvider
@@ -370,7 +377,9 @@ interface StreamingPlannerProvider extends PlannerProvider {
   stream(request: AIRequest): AsyncIterable<string>
 }
 
-class MockStreamingProvider implements PlannerProvider, StreamingPlannerProvider { /* char-by-char streaming */ }
+class MockStreamingProvider implements PlannerProvider, StreamingPlannerProvider {
+  /* char-by-char streaming */
+}
 ```
 
 ### Observation
@@ -485,7 +494,7 @@ class DefaultMemory implements Memory {
 
 ---
 
-## Current Architecture (v0.47)
+## Current Architecture (v0.48)
 
 ```
 User Natural Language
@@ -564,6 +573,7 @@ RetryPlanner (decorator, implements Planner)
 ```
 
 Provider selection is handled by `ProviderFactory.create(config)` based on `config.provider`:
+
 - `"mock"` → MockPlannerProvider
 - `"openai"` → OpenAIPlannerProvider
 - `"deepseek"` → DeepSeekPlannerProvider
@@ -630,9 +640,11 @@ Modules execute in-order. Each module produces both a string fragment (via build
 See [TECH_DEBT.md](./TECH_DEBT.md) for full list.
 
 Resolved during Sprint 1:
+
 - ~~Planner Interface~~ (WO-S1-007)
 
 Resolved during Sprint 2:
+
 - ~~AI Pipeline Abstraction~~ (WO-S2-001, WO-S2-002)
 - ~~AIRequest Input Model~~ (WO-S2-003)
 - ~~PromptBuilder~~ (WO-S2-004)
@@ -654,6 +666,7 @@ Resolved during Sprint 2:
 - ~~World State Prompt Module~~ (WO-S2-020)
 
 Key remaining items:
+
 - Renderer uses inline switch on entity type (no Renderer Registry)
 - World uses flat `Entity[]` array (no Entity Map)
 - No undo / replay / snapshot support
@@ -678,52 +691,63 @@ Key remaining items:
 
 ## ADRs Created
 
-| ADR | Title | File |
-|-----|-------|------|
-| ADR-0006 | AI Pipeline | `docs/adr/ADR-0006-ai-pipeline.md` |
-| ADR-0007 | AIRequest Input Model | `docs/adr/ADR-0007-airequest.md` |
-| ADR-0008 | PromptBuilder | `docs/adr/ADR-0008-prompt-builder.md` |
-| ADR-0009 | Prompt Modules | `docs/adr/ADR-0009-prompt-modules.md` |
-| ADR-0010 | Pipeline Events | `docs/adr/ADR-0010-pipeline-events.md` |
-| ADR-0011 | Memory Interface | `docs/adr/ADR-0011-memory-interface.md` |
-| ADR-0012 | Planner Provider | `docs/adr/ADR-0012-planner-provider.md` |
-| ADR-0013 | AI Configuration | `docs/adr/ADR-0013-ai-configuration.md` |
-| ADR-0014 | Provider Factory | `docs/adr/ADR-0014-provider-factory.md` |
-| ADR-0015 | World State Prompt | `docs/adr/ADR-0015-world-state-prompt.md` |
-| ADR-0016 | Structured Output Validator | `docs/adr/ADR-0016-structured-output-validator.md` |
-| ADR-0017 | Environment Configuration | `docs/adr/ADR-0017-environment-configuration.md` |
-| ADR-0018 | System Prompt Module | `docs/adr/ADR-0018-system-prompt-module.md` |
-| ADR-0019 | Responses API Migration | `docs/adr/ADR-0019-responses-api-migration.md` |
-| ADR-0020 | Streaming UI Integration | `docs/adr/ADR-0020-streaming-ui-integration.md` |
-| ADR-0021 | Planner Retry & Self-Healing | `docs/adr/ADR-0021-planner-retry.md` |
-| ADR-0022 | Tool Calling Foundation | `docs/adr/ADR-0022-tool-calling.md` |
-| ADR-0023 | Runtime Tool Execution | `docs/adr/ADR-0023-runtime-tool-execution.md` |
-| ADR-0024 | Provider-native Tool Calling | `docs/adr/ADR-0024-provider-native-tool-calling.md` |
-| ADR-0025 | Agent Loop Foundation | `docs/adr/ADR-0025-agent-loop-foundation.md` |
+| ADR      | Title                           | File                                                   |
+| -------- | ------------------------------- | ------------------------------------------------------ |
+| ADR-0006 | AI Pipeline                     | `docs/adr/ADR-0006-ai-pipeline.md`                     |
+| ADR-0007 | AIRequest Input Model           | `docs/adr/ADR-0007-airequest.md`                       |
+| ADR-0008 | PromptBuilder                   | `docs/adr/ADR-0008-prompt-builder.md`                  |
+| ADR-0009 | Prompt Modules                  | `docs/adr/ADR-0009-prompt-modules.md`                  |
+| ADR-0010 | Pipeline Events                 | `docs/adr/ADR-0010-pipeline-events.md`                 |
+| ADR-0011 | Memory Interface                | `docs/adr/ADR-0011-memory-interface.md`                |
+| ADR-0012 | Planner Provider                | `docs/adr/ADR-0012-planner-provider.md`                |
+| ADR-0013 | AI Configuration                | `docs/adr/ADR-0013-ai-configuration.md`                |
+| ADR-0014 | Provider Factory                | `docs/adr/ADR-0014-provider-factory.md`                |
+| ADR-0015 | World State Prompt              | `docs/adr/ADR-0015-world-state-prompt.md`              |
+| ADR-0016 | Structured Output Validator     | `docs/adr/ADR-0016-structured-output-validator.md`     |
+| ADR-0017 | Environment Configuration       | `docs/adr/ADR-0017-environment-configuration.md`       |
+| ADR-0018 | System Prompt Module            | `docs/adr/ADR-0018-system-prompt-module.md`            |
+| ADR-0019 | Responses API Migration         | `docs/adr/ADR-0019-responses-api-migration.md`         |
+| ADR-0020 | Streaming UI Integration        | `docs/adr/ADR-0020-streaming-ui-integration.md`        |
+| ADR-0021 | Planner Retry & Self-Healing    | `docs/adr/ADR-0021-planner-retry.md`                   |
+| ADR-0022 | Tool Calling Foundation         | `docs/adr/ADR-0022-tool-calling.md`                    |
+| ADR-0023 | Runtime Tool Execution          | `docs/adr/ADR-0023-runtime-tool-execution.md`          |
+| ADR-0024 | Provider-native Tool Calling    | `docs/adr/ADR-0024-provider-native-tool-calling.md`    |
+| ADR-0025 | Agent Loop Foundation           | `docs/adr/ADR-0025-agent-loop-foundation.md`           |
 | ADR-0026 | Pipeline Agent Loop Integration | `docs/adr/ADR-0026-pipeline-agent-loop-integration.md` |
-| ADR-0027 | Multi-Step Agent Loop | `docs/adr/ADR-0027-multi-step-agent-loop.md` |
-| ADR-0028 | Structured Observation Context | `docs/adr/ADR-0028-structured-observation-context.md` |
-| ADR-0029 | Planner Observation Awareness | `docs/adr/ADR-0029-planner-observation-awareness.md` |
-| ADR-0030 | Reflection Foundation | `docs/adr/ADR-0030-reflection-foundation.md` |
-| ADR-0031 | Reflection Prompt Integration | `docs/adr/ADR-0031-reflection-prompt-integration.md` |
-| ADR-0032 | Structured Prompt Context | `docs/adr/ADR-0032-structured-prompt-context.md` |
-| ADR-0033 | Prompt Renderer Foundation | `docs/adr/ADR-0033-prompt-renderer-foundation.md` |
-| ADR-0034 | Context Compression Foundation | `docs/adr/ADR-0034-context-compression-foundation.md` |
-| ADR-0035 | Prompt Budget Foundation | `docs/adr/ADR-0035-prompt-budget-foundation.md` |
-| ADR-0036 | Memory Ranking Foundation | `docs/adr/ADR-0036-memory-ranking-foundation.md` |
-| ADR-0037 | Prompt Assembly Integration | `docs/adr/ADR-0037-prompt-assembly-integration.md` |
-| ADR-0038 | Prompt Selection Foundation | `docs/adr/ADR-0038-prompt-selection-foundation.md` |
-| ADR-0039 | Prompt Selection Consumption | `docs/adr/ADR-0039-prompt-selection-consumption.md` |
-| ADR-0040 | Prompt Compression Consumption | `docs/adr/ADR-0040-prompt-compression-consumption.md` |
-| ADR-0041 | Prompt Budget Token Estimation |
-| ADR-0042 | Provider Budget Foundation | `docs/adr/ADR-0042-provider-budget-foundation.md` |
-| ADR-0043 | Provider Budget Consumption | `docs/adr/ADR-0043-provider-budget-consumption.md` |
-| ADR-0044 | AI Configuration Foundation | `docs/adr/ADR-0044-ai-configuration-foundation.md` |
-| ADR-0045 | AI Configuration Consumption | `docs/adr/ADR-0045-ai-configuration-consumption.md` |
-| ADR-0046 | BuilderOptions Foundation | `docs/adr/ADR-0046-builder-options-foundation.md` |
-| ADR-0047 | Sprint 4 Freeze | `docs/adr/ADR-0047-sprint4-freeze.md` |
-| ADR-0048 | Intent Analysis Foundation | `docs/adr/ADR-0048-intent-analysis-foundation.md` |
-| ADR-0049 | Rule-Based Intent Analyzer | `docs/adr/ADR-0049-rule-based-intent-analyzer.md` |
+| ADR-0027 | Multi-Step Agent Loop           | `docs/adr/ADR-0027-multi-step-agent-loop.md`           |
+| ADR-0028 | Structured Observation Context  | `docs/adr/ADR-0028-structured-observation-context.md`  |
+| ADR-0029 | Planner Observation Awareness   | `docs/adr/ADR-0029-planner-observation-awareness.md`   |
+| ADR-0030 | Reflection Foundation           | `docs/adr/ADR-0030-reflection-foundation.md`           |
+| ADR-0031 | Reflection Prompt Integration   | `docs/adr/ADR-0031-reflection-prompt-integration.md`   |
+| ADR-0032 | Structured Prompt Context       | `docs/adr/ADR-0032-structured-prompt-context.md`       |
+| ADR-0033 | Prompt Renderer Foundation      | `docs/adr/ADR-0033-prompt-renderer-foundation.md`      |
+| ADR-0034 | Context Compression Foundation  | `docs/adr/ADR-0034-context-compression-foundation.md`  |
+| ADR-0035 | Prompt Budget Foundation        | `docs/adr/ADR-0035-prompt-budget-foundation.md`        |
+| ADR-0036 | Memory Ranking Foundation       | `docs/adr/ADR-0036-memory-ranking-foundation.md`       |
+| ADR-0037 | Prompt Assembly Integration     | `docs/adr/ADR-0037-prompt-assembly-integration.md`     |
+| ADR-0038 | Prompt Selection Foundation     | `docs/adr/ADR-0038-prompt-selection-foundation.md`     |
+| ADR-0039 | Prompt Selection Consumption    | `docs/adr/ADR-0039-prompt-selection-consumption.md`    |
+| ADR-0040 | Prompt Compression Consumption  | `docs/adr/ADR-0040-prompt-compression-consumption.md`  |
+| ADR-0041 | Prompt Budget Token Estimation  | `docs/adr/ADR-0041-prompt-budget-token-estimation.md`  |
+| ADR-0042 | Provider Budget Foundation      | `docs/adr/ADR-0042-provider-budget-foundation.md`      |
+| ADR-0043 | Provider Budget Consumption     | `docs/adr/ADR-0043-provider-budget-consumption.md`     |
+| ADR-0044 | AI Configuration Foundation     | `docs/adr/ADR-0044-ai-configuration-foundation.md`     |
+| ADR-0045 | AI Configuration Consumption    | `docs/adr/ADR-0045-ai-configuration-consumption.md`    |
+| ADR-0046 | BuilderOptions Foundation       | `docs/adr/ADR-0046-builder-options-foundation.md`      |
+| ADR-0047 | Sprint 4 Freeze                 | `docs/adr/ADR-0047-sprint4-freeze.md`                  |
+| ADR-0048 | Intent Analysis Foundation      | `docs/adr/ADR-0048-intent-analysis-foundation.md`      |
+| ADR-0049 | Rule-Based Intent Analyzer      | `docs/adr/ADR-0049-rule-based-intent-analyzer.md`      |
+| ADR-0050 | Intent Consumption               | `docs/adr/ADR-0050-intent-consumption.md`              |
+| ADR-0051 | Intent Rendering Foundation      | `docs/adr/ADR-0051-intent-rendering-foundation.md`     |
+| ADR-0052 | Intent Prompt Integration        | `docs/adr/ADR-0052-intent-prompt-integration.md`       |
+| ADR-0053 | Entity Recognition Foundation    | `docs/adr/ADR-0053-entity-recognition-foundation.md`   |
+| ADR-0054 | Rule-Based Entity Analyzer       | `docs/adr/ADR-0054-rule-based-entity-analyzer.md`      |
+| ADR-0055 | Entity Consumption               | `docs/adr/ADR-0055-entity-consumption.md`              |
+| ADR-0056 | Entity Rendering Foundation      | `docs/adr/ADR-0056-entity-rendering-foundation.md`     |
+| ADR-0057 | Entity Prompt Integration        | `docs/adr/ADR-0057-entity-prompt-integration.md`       |
+| ADR-0058 | Semantic Context Foundation      | `docs/adr/ADR-0058-semantic-context-foundation.md`     |
+| ADR-0059 | Semantic Context Consumption     | `docs/adr/ADR-0059-semantic-context-consumption.md`    |
+| ADR-0060 | Semantic Context Rendering Foundation | `docs/adr/ADR-0060-semantic-context-rendering-foundation.md` |
 
 ---
 
@@ -734,26 +758,26 @@ Key remaining items:
 
 ### Audit Summary
 
-| Item | Result |
-|------|--------|
-| Duplicate code | Minor — `parseResponse()` 5-line duplication between OpenAI/DeepSeek |
-| Dependency direction violations | None found |
-| Over-abstraction | None found — all interfaces justified by ADRs |
-| Prompt Pipeline conformance | Fully conformant — System→User→Memory→World order matches docs |
-| Provider conformance | Fully conformant — Planner→PlannerProvider→Concrete Provider |
-| Validation uniformity | LLM providers use StructuredOutputValidator ✅ — Mock bypasses it (correct) |
-| Public API cleanliness | Missing `@genesis/ai` in web package.json; concrete providers exported (borderline) |
-| Documentation gaps | 4 ADRs missing for Sprint 2 decisions |
+| Item                            | Result                                                                              |
+| ------------------------------- | ----------------------------------------------------------------------------------- |
+| Duplicate code                  | Minor — `parseResponse()` 5-line duplication between OpenAI/DeepSeek                |
+| Dependency direction violations | None found                                                                          |
+| Over-abstraction                | None found — all interfaces justified by ADRs                                       |
+| Prompt Pipeline conformance     | Fully conformant — System→User→Memory→World order matches docs                      |
+| Provider conformance            | Fully conformant — Planner→PlannerProvider→Concrete Provider                        |
+| Validation uniformity           | LLM providers use StructuredOutputValidator ✅ — Mock bypasses it (correct)         |
+| Public API cleanliness          | Missing `@genesis/ai` in web package.json; concrete providers exported (borderline) |
+| Documentation gaps              | 4 ADRs missing for Sprint 2 decisions                                               |
 
 ### Key Recommendations
 
-| Priority | Item |
-|----------|------|
-| ~~P0~~ | ~~Add `@genesis/ai` to `apps/web/package.json` dependencies~~ **Done** |
-| ~~P0~~ | ~~Write missing ADRs (ADR-0016 through ADR-0019)~~ **Done** |
-| P1 | Rename `MockPlanner` → `DefaultPlanner` |
-| P1 | Remove dead `apps/web/src/planner/` directory |
-| ~~P1~~ | ~~Add TECH_DEBT entries for audit findings~~ **Done** |
-| P2 | Consider marking concrete providers as `@internal` |
-| P2 | Add validation enforcement for new providers |
-| ~~P2~~ | ~~Reference `AI_INTEGRATION.md` from other docs~~ **Done** |
+| Priority | Item                                                                   |
+| -------- | ---------------------------------------------------------------------- |
+| ~~P0~~   | ~~Add `@genesis/ai` to `apps/web/package.json` dependencies~~ **Done** |
+| ~~P0~~   | ~~Write missing ADRs (ADR-0016 through ADR-0019)~~ **Done**            |
+| P1       | Rename `MockPlanner` → `DefaultPlanner`                                |
+| P1       | Remove dead `apps/web/src/planner/` directory                          |
+| ~~P1~~   | ~~Add TECH_DEBT entries for audit findings~~ **Done**                  |
+| P2       | Consider marking concrete providers as `@internal`                     |
+| P2       | Add validation enforcement for new providers                           |
+| ~~P2~~   | ~~Reference `AI_INTEGRATION.md` from other docs~~ **Done**             |

@@ -25,6 +25,7 @@ import type { EntityResult } from '../entity/EntityResult'
 import type { EntityRenderer } from '../entity/EntityRenderer'
 import type { SemanticContext } from '../semantic/SemanticContext'
 import type { SemanticContextBuilder } from '../semantic/SemanticContextBuilder'
+import type { SemanticContextRenderer } from '../semantic/SemanticContextRenderer'
 import { DefaultPromptRenderer } from './DefaultPromptRenderer'
 import { DefaultPromptCompression } from './DefaultPromptCompression'
 import { DefaultMemoryRanking } from './DefaultMemoryRanking'
@@ -47,6 +48,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly entityAnalyzer?: EntityAnalyzer
   private readonly entityRenderer?: EntityRenderer
   private readonly semanticContextBuilder?: SemanticContextBuilder
+  private readonly semanticContextRenderer?: SemanticContextRenderer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -104,6 +106,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.entityAnalyzer = opts.entityAnalyzer
       this.entityRenderer = opts.entityRenderer
       this.semanticContextBuilder = opts.semanticContextBuilder
+      this.semanticContextRenderer = opts.semanticContextRenderer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -118,6 +121,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.entityAnalyzer = undefined
       this.entityRenderer = undefined
       this.semanticContextBuilder = undefined
+      this.semanticContextRenderer = undefined
     }
   }
 
@@ -171,6 +175,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
       semanticContext = this.semanticContextBuilder.build(intentResult, entityResult)
     }
 
+    // Phase 0.85: SemanticContextRenderer — format semantic context as string
+    let semanticRendered: string | undefined
+    if (semanticContext !== undefined && this.semanticContextRenderer !== undefined) {
+      semanticRendered = this.semanticContextRenderer.render(semanticContext)
+    }
+
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
     const rankingResult: MemoryRankingResult = this.ranking.rank(promptContext)
 
@@ -219,6 +229,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(entityResult !== undefined ? { entity: entityResult } : {}),
         ...(entityRendered !== undefined ? { entityRendered } : {}),
         ...(semanticContext !== undefined ? { semantic: semanticContext } : {}),
+        ...(semanticRendered !== undefined ? { semanticRendered } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

@@ -2005,3 +2005,47 @@
 - No modifications to Pipeline, Planner, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, IntentRenderer, EntityAnalyzer, EntityRenderer, or any existing component
 - No breaking changes to any Public API
 - Architecture version v0.47
+
+### WO-S5-013 — Semantic Context Rendering Foundation
+
+- **Created `SemanticContextRenderer` interface** in `packages/ai/src/semantic/SemanticContextRenderer.ts`
+  - Single method: `render(context: SemanticContext): string`
+  - Pure function contract, no dependencies
+- **Created `DefaultSemanticContextRenderer` class** in `packages/ai/src/semantic/DefaultSemanticContextRenderer.ts`
+  - Rendering rules: empty → `""`, intent only → `"Semantic Context:\n\nIntent:\n- {type}"`, entity only → `"Semantic Context:\n\nEntities:\n- {type}"`, both → combined format
+  - Pure, stateless, deterministic, immutable
+- **Added `semanticContextRenderer?: SemanticContextRenderer` field to `BuilderOptions`**
+  - Fully optional — no breaking changes, default behavior identical
+- **Added SemanticContextRenderer consumption in `DefaultPromptBuilder.build()`**
+  - New Phase 0.85: `SemanticContextRenderer.render(semanticContext)` after SemanticContextBuilder and before MemoryRanking
+  - Writes result to `AIRequest.metadata.promptAssembly.semanticRendered`
+  - All existing fields preserved: `semantic`, `intent`, `intentRendered`, `entity`, `entityRendered`
+  - No modifications to PromptRenderer, PromptContext, PromptCompression, or any Sprint 4 Frozen Interface
+  - No new prompt sections — semanticRendered is metadata-only
+- Created ADR-0060: Semantic Context Rendering Foundation
+- All existing tests pass with zero modifications
+- New test file `SemanticContextRenderingFoundation.test.ts` (64 tests, 19 groups):
+  - SemanticContextRenderer interface (2 tests)
+  - Empty context (4 tests)
+  - Intent only (4 tests)
+  - Entity only (4 tests)
+  - Both intent and entity (4 tests)
+  - Deterministic (2 tests)
+  - Stateless (2 tests)
+  - Pure / immutability (2 tests)
+  - Exports (4 tests)
+  - BuilderOptions — semanticContextRenderer field (5 tests)
+  - metadata.promptAssembly.semanticRendered (7 tests)
+  - SemanticContextRenderer invocation (4 tests)
+  - Architecture Compliance — no prompt modification (7 tests)
+  - Builder Compatibility (2 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - Coexistence (2 tests)
+- All 1932 tests pass (1868 existing + 64 new)
+- TypeScript 0 errors, ESLint 0 new errors
+- No modifications to Pipeline, Planner, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, IntentRenderer, EntityAnalyzer, EntityRenderer, or any existing component
+- No breaking changes to any Public API
+- Architecture version v0.48

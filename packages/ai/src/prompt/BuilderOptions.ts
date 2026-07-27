@@ -10,6 +10,7 @@ import type { IntentRenderer } from '../intent/IntentRenderer'
 import type { EntityAnalyzer } from '../entity/EntityAnalyzer'
 import type { EntityRenderer } from '../entity/EntityRenderer'
 import type { SemanticContextBuilder } from '../semantic/SemanticContextBuilder'
+import type { SemanticContextRenderer } from '../semantic/SemanticContextRenderer'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -24,6 +25,7 @@ import type { SemanticContextBuilder } from '../semantic/SemanticContextBuilder'
  * Since WO-S5-008, BuilderOptions also accepts an optional EntityAnalyzer.
  * Since WO-S5-009, BuilderOptions also accepts an optional EntityRenderer.
  * Since WO-S5-012, BuilderOptions also accepts an optional SemanticContextBuilder.
+ * Since WO-S5-013, BuilderOptions also accepts an optional SemanticContextRenderer.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -58,4 +60,6 @@ export interface BuilderOptions {
   entityRenderer?: EntityRenderer
   /** Optional SemanticContextBuilder (defaults to undefined — no semantic context) */
   semanticContextBuilder?: SemanticContextBuilder
+  /** Optional SemanticContextRenderer (defaults to undefined — no semantic rendering) */
+  semanticContextRenderer?: SemanticContextRenderer
 }
