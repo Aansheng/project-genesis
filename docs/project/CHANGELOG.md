@@ -2120,3 +2120,37 @@
 - All tests pass, TypeScript 0 errors, ESLint 0 new errors
 - No breaking changes to any Public API
 - Architecture version v0.50
+
+### WO-S5-016 — Prompt Strategy Consumption
+
+- **Extended `BuilderOptions`** — added two optional fields:
+  - `strategySelector?: PromptStrategySelector` — strategy selector for context-aware selection
+  - `strategies?: readonly PromptStrategy[]` — ordered list of strategies to evaluate
+- **Updated `DefaultPromptBuilder`** — added Phase 0.9 between Phase 0.85 and Phase 1:
+  - After `SemanticContextRenderer` → `PromptStrategySelector.select(strategies, semanticContext)`
+  - Falls back to `DefaultPromptStrategy` when selector or strategies are absent
+  - Passes empty `{}` context when no `semanticContextBuilder` is injected
+- **Stored selected strategy** in `AIRequest.metadata.promptAssembly.strategy` as `{ name: string }`:
+  - Example: `{ name: "default" }`
+  - Metadata only — not added to `PromptContext`, not in prompt string
+- **No modifications to**: `PromptRenderer`, `PromptCompression`, `Pipeline`, `Planner`, `Runtime`, `AgentLoop`, `PromptContext`, `AIRequest`
+- **No behavior changes** — strategy selection does not alter prompt assembly output
+- Created ADR-0063: Prompt Strategy Consumption
+- All existing tests pass with zero modifications
+- New test file `PromptStrategyConsumption.test.ts` (43 tests, 13 groups):
+  - BuilderOptions — strategySelector field (6 tests)
+  - Strategy selection — selector invocation (4 tests)
+  - Strategy selection — fallback (6 tests)
+  - Strategy selection — metadata (5 tests)
+  - Strategy selection — deterministic (2 tests)
+  - Strategy selection — stateless (2 tests)
+  - Builder compatibility (4 tests)
+  - Pipeline compatibility (2 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - No modifications to existing components (4 tests)
+- All tests pass, TypeScript 0 errors, ESLint 0 new errors
+- No breaking changes to any Public API
+- Architecture version v0.51

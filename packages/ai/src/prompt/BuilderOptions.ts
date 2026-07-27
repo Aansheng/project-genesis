@@ -11,6 +11,8 @@ import type { EntityAnalyzer } from '../entity/EntityAnalyzer'
 import type { EntityRenderer } from '../entity/EntityRenderer'
 import type { SemanticContextBuilder } from '../semantic/SemanticContextBuilder'
 import type { SemanticContextRenderer } from '../semantic/SemanticContextRenderer'
+import type { PromptStrategy } from '../strategy/PromptStrategy'
+import type { PromptStrategySelector } from '../strategy/PromptStrategySelector'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -26,6 +28,7 @@ import type { SemanticContextRenderer } from '../semantic/SemanticContextRendere
  * Since WO-S5-009, BuilderOptions also accepts an optional EntityRenderer.
  * Since WO-S5-012, BuilderOptions also accepts an optional SemanticContextBuilder.
  * Since WO-S5-013, BuilderOptions also accepts an optional SemanticContextRenderer.
+ * Since WO-S5-016, BuilderOptions also accepts optional strategySelector and strategies.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -62,4 +65,8 @@ export interface BuilderOptions {
   semanticContextBuilder?: SemanticContextBuilder
   /** Optional SemanticContextRenderer (defaults to undefined — no semantic rendering) */
   semanticContextRenderer?: SemanticContextRenderer
+  /** Optional PromptStrategySelector (defaults to undefined — no strategy selection, uses DefaultPromptStrategy) */
+  strategySelector?: PromptStrategySelector
+  /** Optional list of PromptStrategy to select from (defaults to undefined) */
+  strategies?: readonly PromptStrategy[]
 }
