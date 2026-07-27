@@ -1966,3 +1966,42 @@
 - No modifications to Planner, Pipeline, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, BuilderOptions, IntentAnalyzer, EntityAnalyzer, or any existing component
 - No breaking changes to any Public API
 - Architecture version v0.46
+
+### WO-S5-012 — Semantic Context Consumption
+
+- **Added `semanticContextBuilder?: SemanticContextBuilder` field to `BuilderOptions`**
+  - Fully optional — no breaking changes, default behavior identical
+  - Injectable via BuilderOptions form only (no new positional parameter)
+- **Added SemanticContextBuilder consumption in `DefaultPromptBuilder.build()`**
+  - New Phase 0.8: `SemanticContextBuilder.build(intentResult, entityResult)` between EntityRenderer and MemoryRanking
+  - Writes result to `AIRequest.metadata.promptAssembly.semantic`
+  - All existing fields preserved: `intent`, `intentRendered`, `entity`, `entityRendered`
+  - No modifications to PromptRenderer, PromptContext, PromptCompression, or any Sprint 4 Frozen Interface
+  - No new prompt sections — semantic is metadata-only
+- Created ADR-0059: Semantic Context Consumption
+- All existing tests pass with zero modifications
+- New test file `SemanticContextConsumption.test.ts` (50 tests, 16 groups):
+  - BuilderOptions — semanticContextBuilder field (5 tests)
+  - BuilderOptions — default behavior (3 tests)
+  - SemanticContextBuilder injection (5 tests)
+  - metadata.promptAssembly.semantic (6 tests)
+  - Empty SemanticContext (3 tests)
+  - Intent Only (2 tests)
+  - Entity Only (2 tests)
+  - Intent + Entity (2 tests)
+  - DefaultSemanticContextBuilder integration (2 tests)
+  - Builder Compatibility (5 tests)
+  - Pipeline Compatibility (3 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - Deterministic (2 tests)
+  - Stateless (2 tests)
+  - Immutability (2 tests)
+  - Architecture Compliance (11 tests)
+- All 1868 tests pass (1802 existing + 66 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to Pipeline, Planner, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, IntentRenderer, EntityAnalyzer, EntityRenderer, or any existing component
+- No breaking changes to any Public API
+- Architecture version v0.47

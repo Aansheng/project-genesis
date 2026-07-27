@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.46)
+> Project Genesis — AI Architecture Reference (v0.47)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -18,12 +18,13 @@ interface BuilderOptions {
   configuration?: AIConfiguration
   intentAnalyzer?: IntentAnalyzer       // ← WO-S5-003
   intentRenderer?: IntentRenderer       // ← WO-S5-004
-  entityAnalyzer?: EntityAnalyzer       // ← WO-S5-008
-  entityRenderer?: EntityRenderer       // ← WO-S5-009
+  entityAnalyzer?: EntityAnalyzer            // ← WO-S5-008
+  entityRenderer?: EntityRenderer            // ← WO-S5-009
+  semanticContextBuilder?: SemanticContextBuilder  // ← WO-S5-012
 }
 ```
 
-**Current status:** Fully consumed by `DefaultPromptBuilder` since WO-S4-010. Both legacy positional and BuilderOptions forms coexist. `intentAnalyzer`, `intentRenderer`, and `entityAnalyzer` only available via BuilderOptions form — no new positional parameter added.
+**Current status:** Fully consumed by `DefaultPromptBuilder` since WO-S4-010. Both legacy positional and BuilderOptions forms coexist. `intentAnalyzer`, `intentRenderer`, `entityAnalyzer`, `entityRenderer`, and `semanticContextBuilder` only available via BuilderOptions form — no new positional parameter added.
 
 **Design principles:**
 - All fields are optional
@@ -251,7 +252,7 @@ The Semantic Layer is the unified semantic representation layer, combining inten
 
 ### Architecture Status
 
-**Foundation** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder. NOT yet integrated into Pipeline, PromptBuilder, Planner, or AgentLoop.
+**Consumed** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder. Integrated into PromptBuilder pipeline via Phase 0.8 (WO-S5-012). Written to metadata.promptAssembly.semantic. NOT yet rendered in prompt or passed to Planner.
 
 ### Component Responsibilities
 
@@ -302,7 +303,7 @@ class DefaultSemanticContextBuilder implements SemanticContextBuilder {
 
 | Capability | Interface | Mechanism |
 |-----------|-----------|-----------|
-| SemanticContext → PromptAssembly | `BuilderOptions` | Add semanticBuilder to BuilderOptions |
+| ~~SemanticContext → PromptAssembly~~ | `BuilderOptions` | ~~Add semanticBuilder to BuilderOptions~~ **Done in WO-S5-012** |
 | SemanticContext → Planner | `Planner` | Pass SemanticContext to Planner |
 | Semantic Rendering | `PromptContext` | Render semantic context in prompt |
 | Sentiment Analysis | `SemanticContext` | Add sentiment field |
@@ -329,6 +330,12 @@ PromptContext (structured intermediate)
 IntentAnalyzer.analyze()              ← pure intent analysis (WO-S5-003)
     ↓
 IntentRenderer.render()               ← pure intent rendering (WO-S5-004)
+    ↓
+EntityAnalyzer.analyze()               ← pure entity analysis (WO-S5-008)
+    ↓
+EntityRenderer.render()                ← pure entity rendering (WO-S5-009)
+    ↓
+SemanticContextBuilder.build()         ← pure composition (WO-S5-012)
     ↓
 MemoryRanking.rank()                 ← determines section priority (pure measurement)
     ↓
@@ -426,7 +433,7 @@ interface PromptBuilder {
   5. `PromptSelection.select()` — decides which sections to preserve (pure decision, does not modify context)
   6. `PromptCompression.compress()` — cleans/strips context (returns new PromptContext)
   7. `PromptRenderer.render()` — converts compressed context to string (includes intentRendered section when present)
-- Attaches intent, intentRendered, ranking, budget, and selection results to `AIRequest.metadata.promptAssembly`
+- Attaches intent, intentRendered, entity, entityRendered, semantic, ranking, budget, and selection results to `AIRequest.metadata.promptAssembly`
 - Also exposes `buildContext(context): Promise<PromptContext>` for structured access (compressed)
 - The builder is the **only** component that constructs `AIRequest`
 - Cannot render strings — that is the Renderer's sole responsibility
@@ -467,6 +474,9 @@ interface BuilderOptions {
   configuration?: AIConfiguration
   intentAnalyzer?: IntentAnalyzer       // ← WO-S5-003
   intentRenderer?: IntentRenderer       // ← NEW (WO-S5-004)
+  entityAnalyzer?: EntityAnalyzer       // ← WO-S5-008
+  entityRenderer?: EntityRenderer       // ← WO-S5-009
+  semanticContextBuilder?: SemanticContextBuilder  // ← WO-S5-012
 }
 ```
 
@@ -531,6 +541,10 @@ PromptModule[6]
        [IntentRenderer.render()]          ← pure rendering → stored in metadata + PromptContext (WO-S5-004/005)
                       ↓
        [EntityAnalyzer.analyze()]          ← pure analysis → stored in metadata (WO-S5-008)
+                      ↓
+       [EntityRenderer.render()]           ← pure rendering → stored in metadata + PromptContext (WO-S5-009)
+                      ↓
+       [SemanticContextBuilder.build()]    ← pure composition → stored in metadata.promptAssembly.semantic (WO-S5-012)
                       ↓
        [MemoryRanking.rank()]            ← pure measurement → stored in metadata
                       ↓

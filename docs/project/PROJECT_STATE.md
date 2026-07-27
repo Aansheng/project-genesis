@@ -16,16 +16,16 @@
 | Item | Status |
 |------|--------|
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.46 (Sprint 5) |
-| Architecture Status | **Evolving** — Semantic Context Foundation (WO-S5-011) added. New Semantic Layer abstraction established. |
+| Architecture Version | v0.47 (Sprint 5) |
+| Architecture Status | **Evolving** — Semantic Context Consumption (WO-S5-012) integrated. SemanticContext consumed by Prompt Builder pipeline. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
-| AI Status | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + Intent Prompt Integration + **Entity Recognition Foundation + Rule-Based Entity Analyzer + Entity Consumption + Entity Rendering Foundation + Entity Prompt Integration + Semantic Context Foundation** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
-| Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer (with intent + entity)** → AIRequest |
+| AI Status | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + Intent Prompt Integration + **Entity Recognition Foundation + Rule-Based Entity Analyzer + Entity Consumption + Entity Rendering Foundation + Entity Prompt Integration + Semantic Context Foundation + Semantic Context Consumption** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
+| Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer (with intent + entity)** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Semantic Layer | **Foundation** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder. Not yet integrated into Pipeline. |
+| Semantic Layer | **Consumed** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder. Integrated into Prompt Builder pipeline via Phase 0.8. Written to metadata.promptAssembly.semantic. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
 | Current Provider | ProviderFactory (configured via AIConfiguration) |
@@ -136,6 +136,7 @@
 | WO-S5-009 | Entity Rendering Foundation |
 | WO-S5-010 | Entity Prompt Integration |
 | WO-S5-011 | Semantic Context Foundation |
+| WO-S5-012 | Semantic Context Consumption |
 
 ---
 
@@ -484,7 +485,7 @@ class DefaultMemory implements Memory {
 
 ---
 
-## Current Architecture (v0.40)
+## Current Architecture (v0.47)
 
 ```
 User Natural Language
@@ -493,17 +494,20 @@ Pipeline.execute(context)
     ↓
 PipelineContext { input, memory?, metadata?, worldState? }
     ↓
-PromptBuilder.build(context)         ← uses PromptModule[] + IntentAnalyzer + IntentRenderer
+PromptBuilder.build(context)         ← uses PromptModule[] + IntentAnalyzer + IntentRenderer + EntityAnalyzer + EntityRenderer + SemanticContextBuilder
     ├── IntentAnalyzer.analyze(input) ← consumed: IntentResult → metadata.promptAssembly.intent
     ├── IntentRenderer.render(intent) ← rendered: intentRendered → PromptContext + metadata
+    ├── EntityAnalyzer.analyze(input) ← consumed: EntityResult → metadata.promptAssembly.entity
+    ├── EntityRenderer.render(entity) ← rendered: entityRendered → PromptContext + metadata
+    ├── SemanticContextBuilder.build() ← combined: SemanticContext → metadata.promptAssembly.semantic
     ├── SystemPromptModule            ← Project Genesis system instructions
     ├── UserInputModule               ← returns context.input
     ├── MemoryPromptModule            ← reads "conversation" from Memory
     └── WorldStatePromptModule        ← reads context.worldState
     ↓
-DefaultPromptRenderer.render(context) ← renders intentRendered as "User Intent:" section
+DefaultPromptRenderer.render(context) ← renders intentRendered as "User Intent:" + entityRendered as "Entities:" section
     ↓
-AIRequest { prompt: "User Intent:\n- Create\n\nYou are...\n\nUser Input:\n...", metadata.promptAssembly }
+AIRequest { prompt: "User Intent:\n- Create\n\nEntities:\n- Tree\n\nYou are...\n\nUser Input:\n...", metadata.promptAssembly }
     ↓
 Planner.plan(request)
     ↓
@@ -582,7 +586,9 @@ PromptBuilder composition flow:
     ├── Merge into unified PromptContext
     ├── IntentAnalyzer → pure analysis (user intents) ← (WO-S5-003)
     ├── IntentRenderer → pure rendering (intent as string) ← (WO-S5-004)
-    ├── DefaultPromptRenderer → renders intent in final prompt ← (WO-S5-005)
+    ├── EntityAnalyzer → pure analysis (entity references) ← (WO-S5-008)
+    ├── EntityRenderer → pure rendering (entities as string) ← (WO-S5-009)
+    ├── SemanticContextBuilder → pure composition (intent + entity) ← (WO-S5-012)
     ├── MemoryRanking → pure measurement (ranks sections)
     ├── PromptBudget → pure measurement (measures sizes)
     ├── ProviderBudget → pure lookup (provider/model token capacity)
