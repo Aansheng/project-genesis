@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.43)
+> Project Genesis — AI Architecture Reference (v0.44)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, and `entityAnalyzer` in WO-S5-008.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, and `entityRenderer` in WO-S5-009.
 
 ```typescript
 interface BuilderOptions {
@@ -19,6 +19,7 @@ interface BuilderOptions {
   intentAnalyzer?: IntentAnalyzer       // ← WO-S5-003
   intentRenderer?: IntentRenderer       // ← WO-S5-004
   entityAnalyzer?: EntityAnalyzer       // ← WO-S5-008
+  entityRenderer?: EntityRenderer       // ← WO-S5-009
 }
 ```
 
@@ -137,7 +138,7 @@ The Entity Layer is the second semantic understanding layer, responsible for rec
 
 ### Architecture Status
 
-**Production V1** — RuleBasedEntityAnalyzer. Character entity type added. NOT yet integrated into Pipeline, PromptBuilder, Planner, or AgentLoop.
+**Production V2** — RuleBasedEntityAnalyzer + DefaultEntityRenderer. Entity consumption and rendering integrated into Prompt Assembly pipeline.
 
 ### Component Responsibilities
 
@@ -149,6 +150,8 @@ The Entity Layer is the second semantic understanding layer, responsible for rec
 | `EntityAnalyzer` | Interface | Contract for extracting entities from natural language: `analyze(input: string): EntityResult` |
 | `DefaultEntityAnalyzer` | Class | Placeholder implementation returning empty `{ entities: [] }` |
 | `RuleBasedEntityAnalyzer` | Class | Production V1 — keyword-based entity detection |
+| `EntityRenderer` | Interface | Contract for converting EntityResult to formatted string: `render(entity: EntityResult): string` |
+| `DefaultEntityRenderer` | Class | Default implementation — "Entities:\n- Tree" format |
 
 ### Entity Types
 
@@ -208,6 +211,22 @@ analyze(input):
   6. Return EntityResult
 ```
 
+### DefaultEntityRenderer
+
+Default entity renderer. Introduced in WO-S5-009.
+
+**Rendering rules:**
+- Empty `EntityResult` → empty string `""`
+- Single entity → `"Entities:\n- Tree"`
+- Multiple entities → `"Entities:\n- Tree\n- Flower\n- House"`
+- Preserves `EntityResult` order (no sorting)
+- No localization (always uses English entity type names)
+
+**Properties:**
+- Pure, stateless, deterministic — no side effects, no state, no I/O
+- No dependencies on Planner, Runtime, Provider, Memory, or any other component
+- Mirrors `IntentRenderer` architecture
+
 ### Dependency Rules
 
 - `EntityAnalyzer` must NOT depend on Planner, Runtime, Provider, Memory, Intent, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
@@ -220,9 +239,10 @@ analyze(input):
 | Capability | Interface | Mechanism |
 |-----------|-----------|-----------|
 | ~~RuleBasedEntityAnalyzer~~ | `EntityAnalyzer` | ~~New class, same interface~~ **Done in WO-S5-007** |
+| ~~Entity → PromptAssembly~~ | `PromptContext` | ~~Add entity to PromptContext~~ **Consumption done in WO-S5-008** |
+| ~~Entity Rendering~~ | `EntityRenderer` | ~~Entity rendering foundation~~ **Done in WO-S5-009** |
 | LLMEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
-| Entity → PromptAssembly | `PromptContext` | Add entity to PromptContext |
-| Entity Rendering | `PromptContext` | Render entities in prompt |
+| Entity Prompt Integration | `PromptContext` | Inject entityRendered into final prompt |
 | Entity Payload | `Entity` | Add quantity/position fields |
 
 ---

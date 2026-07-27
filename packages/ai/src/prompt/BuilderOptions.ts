@@ -8,6 +8,7 @@ import type { AIConfiguration } from '../config'
 import type { IntentAnalyzer } from '../intent/IntentAnalyzer'
 import type { IntentRenderer } from '../intent/IntentRenderer'
 import type { EntityAnalyzer } from '../entity/EntityAnalyzer'
+import type { EntityRenderer } from '../entity/EntityRenderer'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -20,6 +21,7 @@ import type { EntityAnalyzer } from '../entity/EntityAnalyzer'
  * Since WO-S5-003, BuilderOptions also accepts an optional IntentAnalyzer.
  * Since WO-S5-004, BuilderOptions also accepts an optional IntentRenderer.
  * Since WO-S5-008, BuilderOptions also accepts an optional EntityAnalyzer.
+ * Since WO-S5-009, BuilderOptions also accepts an optional EntityRenderer.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -50,4 +52,6 @@ export interface BuilderOptions {
   intentRenderer?: IntentRenderer
   /** Optional EntityAnalyzer (defaults to undefined — no entity analysis) */
   entityAnalyzer?: EntityAnalyzer
+  /** Optional EntityRenderer (defaults to undefined — no entity rendering) */
+  entityRenderer?: EntityRenderer
 }

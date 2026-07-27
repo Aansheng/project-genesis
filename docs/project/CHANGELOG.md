@@ -1810,3 +1810,62 @@
 - No modifications to Planner, Pipeline (interface), Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, or EntityAnalyzer
 - No breaking changes to any Public API
 - Architecture version v0.43
+
+### WO-S5-009 — Entity Rendering Foundation
+
+- **Created `EntityRenderer` interface** — new abstraction for converting EntityResult to formatted string
+  - Single method: `render(entity: EntityResult): string`
+  - Pure, stateless, deterministic — consistent with all pipeline components
+  - No dependencies on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
+- **Created `DefaultEntityRenderer`** — default implementation with "Entities:" format
+  - Empty EntityResult → empty string
+  - Single entity → `"Entities:\\n- Tree"`
+  - Multiple entities → `"Entities:\\n- Tree\\n- Flower\\n- House"`
+  - Preserves EntityResult order (no sorting)
+  - Pure function, no side effects, stateless, deterministic
+  - No dependencies on any component
+- **Integrated into Prompt Assembly pipeline**
+  - Added `entityRenderer?: EntityRenderer` field to `BuilderOptions` interface
+  - Updated `DefaultPromptBuilder` to call EntityRenderer after EntityAnalyzer
+  - Pipeline order: Prompt Modules → IntentAnalyzer → IntentRenderer → EntityAnalyzer → **EntityRenderer** → MemoryRanking → ... → PromptRenderer
+  - No new positional constructor parameters — only BuilderOptions form
+- **Metadata storage**
+  - `entityRendered` stored in `AIRequest.metadata.promptAssembly.entityRendered`
+  - Only present when both EntityAnalyzer and EntityRenderer are injected via BuilderOptions
+  - NOT injected into PromptContext (deferred)
+  - NOT rendered into final prompt string (deferred)
+- **No modifications to existing components**
+  - PromptRenderer unchanged
+  - PromptContext unchanged
+  - EntityAnalyzer unchanged
+  - All Entity Layer interfaces unchanged
+- **Backward compatible**
+  - Builder without EntityRenderer behaves identically
+  - Existing prompts unchanged
+  - Existing metadata unchanged (except new entityRendered field)
+  - All legacy constructor signatures preserved
+- Created ADR-0056: Entity Rendering Foundation
+- All existing tests pass with zero modifications
+- New test file `EntityRenderingFoundation.test.ts` (45 tests, 13 groups):
+  - EntityRenderer interface (1 test)
+  - DefaultEntityRenderer — empty (2 tests)
+  - DefaultEntityRenderer — single entity (7 tests, all 7 EntityTypes)
+  - DefaultEntityRenderer — multiple entities (3 tests)
+  - DefaultEntityRenderer — order preservation (2 tests)
+  - DefaultEntityRenderer — deterministic (2 tests)
+  - DefaultEntityRenderer — stateless (2 tests)
+  - DefaultEntityRenderer — pure (2 tests)
+  - BuilderOptions — EntityRenderer field (3 tests)
+  - Metadata — entityRendered (5 tests)
+  - Metadata — entity and entityRendered coexist (2 tests)
+  - Metadata — all fields coexist (2 tests): intent + entity + rendered values
+  - Exports (4 tests): from entity/index and package root
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 1717 tests pass (1672 existing + 45 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to Planner, Pipeline (interface), Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, or EntityAnalyzer
+- No breaking changes to any Public API
+- Architecture version v0.44

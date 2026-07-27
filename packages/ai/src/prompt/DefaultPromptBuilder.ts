@@ -22,6 +22,7 @@ import type { IntentResult } from '../intent/IntentResult'
 import type { IntentRenderer } from '../intent/IntentRenderer'
 import type { EntityAnalyzer } from '../entity/EntityAnalyzer'
 import type { EntityResult } from '../entity/EntityResult'
+import type { EntityRenderer } from '../entity/EntityRenderer'
 import { DefaultPromptRenderer } from './DefaultPromptRenderer'
 import { DefaultPromptCompression } from './DefaultPromptCompression'
 import { DefaultMemoryRanking } from './DefaultMemoryRanking'
@@ -42,6 +43,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly intentAnalyzer?: IntentAnalyzer
   private readonly intentRenderer?: IntentRenderer
   private readonly entityAnalyzer?: EntityAnalyzer
+  private readonly entityRenderer?: EntityRenderer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -97,6 +99,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.intentAnalyzer = opts.intentAnalyzer
       this.intentRenderer = opts.intentRenderer
       this.entityAnalyzer = opts.entityAnalyzer
+      this.entityRenderer = opts.entityRenderer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -109,6 +112,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.intentAnalyzer = undefined
       this.intentRenderer = undefined
       this.entityAnalyzer = undefined
+      this.entityRenderer = undefined
     }
   }
 
@@ -148,6 +152,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
     let entityResult: EntityResult | undefined
     if (this.entityAnalyzer !== undefined) {
       entityResult = this.entityAnalyzer.analyze(context.input)
+    }
+
+    // Phase 0.875: EntityRenderer — format entities as string (pure rendering)
+    let entityRendered: string | undefined
+    if (entityResult !== undefined && this.entityRenderer !== undefined) {
+      entityRendered = this.entityRenderer.render(entityResult)
     }
 
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
@@ -193,6 +203,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(intentResult !== undefined ? { intent: intentResult } : {}),
         ...(intentRendered !== undefined ? { intentRendered } : {}),
         ...(entityResult !== undefined ? { entity: entityResult } : {}),
+        ...(entityRendered !== undefined ? { entityRendered } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,
