@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.45)
+> Project Genesis — AI Architecture Reference (v0.46)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -242,6 +242,70 @@ Default entity renderer. Introduced in WO-S5-009.
 | ~~Entity Prompt Integration~~ | `PromptContext` | ~~Inject entityRendered into final prompt~~ **Done in WO-S5-010** |
 | LLMEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
 | Entity Payload | `Entity` | Add quantity/position fields |
+
+---
+
+## Semantic Layer
+
+The Semantic Layer is the unified semantic representation layer, combining intent analysis and entity recognition into a single abstraction. Introduced in WO-S5-011 (Sprint 5).
+
+### Architecture Status
+
+**Foundation** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder. NOT yet integrated into Pipeline, PromptBuilder, Planner, or AgentLoop.
+
+### Component Responsibilities
+
+| Component | Type | Purpose |
+|-----------|------|---------|
+| `SemanticContext` | Interface | Unified semantic representation: `{ intent?, entity? }` |
+| `SemanticContextBuilder` | Interface | Contract for building SemanticContext: `build(intent?, entity?): SemanticContext` |
+| `DefaultSemanticContextBuilder` | Class | Default implementation — pure composition |
+
+### SemanticContext
+
+```typescript
+interface SemanticContext {
+  readonly intent?: IntentResult
+  readonly entity?: EntityResult
+}
+```
+
+- Pure immutable data — no methods, no behavior
+- readonly — immutable by design
+- Optional fields — intent and entity are independently optional
+- Extensible — future fields can be added without breaking changes
+
+### DefaultSemanticContextBuilder
+
+```typescript
+class DefaultSemanticContextBuilder implements SemanticContextBuilder {
+  build(intent?: IntentResult, entity?: EntityResult): SemanticContext {
+    return {
+      ...(intent !== undefined ? { intent } : {}),
+      ...(entity !== undefined ? { entity } : {}),
+    }
+  }
+}
+```
+
+- Pure composition — no inference, no modification, no filtering
+- Pure, deterministic, stateless, no side effects
+- No dependencies on Planner, Runtime, Provider, Memory, Intent, Entity, ToolCalling, or AgentLoop
+
+### Dependency Rules
+
+- `SemanticContext` must NOT depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
+- `SemanticContext` is pure data — no behavior, no methods
+- `DefaultSemanticContextBuilder` is a simple pass-through — zero logic beyond the contract
+
+### Future (Not Yet Implemented)
+
+| Capability | Interface | Mechanism |
+|-----------|-----------|-----------|
+| SemanticContext → PromptAssembly | `BuilderOptions` | Add semanticBuilder to BuilderOptions |
+| SemanticContext → Planner | `Planner` | Pass SemanticContext to Planner |
+| Semantic Rendering | `PromptContext` | Render semantic context in prompt |
+| Sentiment Analysis | `SemanticContext` | Add sentiment field |
 
 ---
 

@@ -1922,3 +1922,47 @@
 - No modifications to PromptRenderer interface, PromptBuilder interface, EntityAnalyzer, EntityRenderer, Planner, Pipeline (interface), Provider, Runtime, AgentLoop
 - No breaking changes to any Public API
 - Architecture version v0.45
+
+### WO-S5-011 — Semantic Context Foundation
+
+- **Created `packages/ai/src/semantic/` module** — new semantic layer abstraction
+  - `SemanticContext.ts` — unified interface: `{ readonly intent?: IntentResult, readonly entity?: EntityResult }`
+  - `SemanticContextBuilder.ts` — interface: `build(intent?, entity?): SemanticContext`
+  - `DefaultSemanticContextBuilder.ts` — class: pure composition, no inference, no filtering
+  - `index.ts` — barrel exports for all semantic types
+- **Public exports** — all semantic types exported from:
+  - `packages/ai/src/semantic/index.ts`
+  - `packages/ai/src/index.ts` (package root)
+- **No dependencies on Planner, Runtime, Provider, Memory, Intent, Entity, ToolCalling, AgentLoop, PromptBuilder, or Pipeline**
+- **No integration** — SemanticContext is NOT wired into Pipeline, PromptBuilder, BuilderOptions, or any other component
+- **Architecture compliance verified:**
+  - Pure: no side effects, no mutation of inputs
+  - Deterministic: same input always produces same output
+  - Stateless: no internal state between calls
+  - Immutable: all SemanticContext fields are readonly
+  - No dependencies on any existing component
+- Created ADR-0058: Semantic Context Foundation
+- All existing tests pass with zero modifications
+- New test file `SemanticContextFoundation.test.ts` (50 tests, 12 groups):
+  - SemanticContext (5 tests): empty, intent only, entity only, both, frozen
+  - SemanticContextBuilder interface (1 test): build method defined
+  - DefaultSemanticContextBuilder — empty (2 tests): no args, undefined args
+  - DefaultSemanticContextBuilder — intent only (2 tests): single, multi-intent
+  - DefaultSemanticContextBuilder — entity only (2 tests): single, multi-entity
+  - DefaultSemanticContextBuilder — both (2 tests): both present, original data preserved
+  - DefaultSemanticContextBuilder — deterministic (2 tests): same inputs, 10 calls
+  - DefaultSemanticContextBuilder — stateless (2 tests): no state between calls, independent instances
+  - DefaultSemanticContextBuilder — immutability (3 tests): input unchanged, new result per call
+  - DefaultSemanticContextBuilder — pure (1 test): no side effects
+  - Exports (6 tests): from semantic/index and package root (types + class)
+  - Architecture Compliance (11 tests): no dependencies on Planner/Runtime/Provider/Memory/ToolCalling/AgentLoop/PromptBuilder/Pipeline, pure, stateless, non-mutating
+  - Coexistence (3 tests): works with RuleBasedIntentAnalyzer, RuleBasedEntityAnalyzer, combined
+  - RetryPlanner Compatibility (2 tests): works with RetryPlanner
+  - ToolCallPlanner Compatibility (2 tests): works with ToolCallPlanner
+  - Streaming Compatibility (2 tests): works with StreamingProvider
+  - AgentLoop Compatibility (2 tests): works with DefaultAgentLoop
+- All 1802 tests pass (1752 existing + 50 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to Planner, Pipeline, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, BuilderOptions, IntentAnalyzer, EntityAnalyzer, or any existing component
+- No breaking changes to any Public API
+- Architecture version v0.46
