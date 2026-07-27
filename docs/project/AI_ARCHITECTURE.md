@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.40)
+> Project Genesis — AI Architecture Reference (v0.41)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -127,6 +127,72 @@ analyze(input):
 | Intent → Pipeline | `PipelineContext` | Add intent to PipelineContext |
 | Intent Routing | `Planner` | Route intents to different executors |
 | Custom IntentRenderer | `IntentRenderer` | Alternative rendering formats |
+
+---
+
+## Entity Layer
+
+The Entity Layer is the second semantic understanding layer, responsible for recognizing entity types from user input. Introduced in WO-S5-006 (Sprint 5).
+
+### Architecture Status
+
+**Foundation** — DefaultEntityAnalyzer (placeholder). NOT yet integrated into Pipeline, PromptBuilder, Planner, or AgentLoop.
+
+### Component Responsibilities
+
+| Component | Type | Purpose |
+|-----------|------|---------|
+| `EntityType` | String union | Recognized entity types: `Tree`, `Flower`, `House`, `Rock`, `Water`, `Grass`, `Unknown` |
+| `Entity` | Interface | Minimal immutable data object with `readonly type: EntityType` |
+| `EntityResult` | Interface | Container for multiple entities: `{ entities: Entity[] }` |
+| `EntityAnalyzer` | Interface | Contract for extracting entities from natural language: `analyze(input: string): EntityResult` |
+| `DefaultEntityAnalyzer` | Class | Placeholder implementation returning empty `{ entities: [] }` |
+
+### Entity Types
+
+```typescript
+type EntityType =
+  | 'Tree'
+  | 'Flower'
+  | 'House'
+  | 'Rock'
+  | 'Water'
+  | 'Grass'
+  | 'Unknown'
+```
+
+Future types are added via string union extension — no breaking changes.
+
+### DefaultEntityAnalyzer
+
+```typescript
+class DefaultEntityAnalyzer implements EntityAnalyzer {
+  analyze(_input: string): EntityResult {
+    return { entities: [] }
+  }
+}
+```
+
+- Foundation only — no parsing, no AI, no heuristics
+- Pure, deterministic, stateless, no side effects
+- No dependencies on Planner, Runtime, Provider, Memory, Intent, ToolCalling, or AgentLoop
+
+### Dependency Rules
+
+- `EntityAnalyzer` must NOT depend on Planner, Runtime, Provider, Memory, Intent, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
+- `Entity` is pure data — no behavior, no methods
+- `EntityResult` is pure data — no behavior, no methods
+- `DefaultEntityAnalyzer` is a placeholder — zero logic beyond the contract
+
+### Future (Not Yet Implemented)
+
+| Capability | Interface | Mechanism |
+|-----------|-----------|-----------|
+| RuleBasedEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
+| LLMEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
+| Entity → PromptAssembly | `PromptContext` | Add entity to PromptContext |
+| Entity Rendering | `PromptContext` | Render entities in prompt |
+| Entity Payload | `Entity` | Add quantity/position fields |
 
 ---
 

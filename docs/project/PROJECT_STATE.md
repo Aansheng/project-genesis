@@ -16,14 +16,15 @@
 | Item | Status |
 |------|--------|
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.40 (Sprint 5) |
-| Architecture Status | **Evolving** — Intent Prompt Integration (WO-S5-005) added. Intent section rendered in final prompt. |
+| Architecture Version | v0.41 (Sprint 5) |
+| Architecture Status | **Evolving** — Entity Recognition Foundation (WO-S5-006) added. New Entity Layer abstraction established. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
-| AI Status | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + **Intent Prompt Integration** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
+| AI Status | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + Intent Prompt Integration + **Entity Recognition Foundation** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer (with intent)** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
+| Entity Layer | **Foundation** — EntityAnalyzer interface + DefaultEntityAnalyzer (empty placeholder). Not yet integrated into Pipeline. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
 | Current Provider | ProviderFactory (configured via AIConfiguration) |
@@ -128,6 +129,7 @@
 | WO-S5-003 | Intent Consumption |
 | WO-S5-004 | Intent Rendering Foundation |
 | WO-S5-005 | Intent Prompt Integration |
+| WO-S5-006 | Entity Recognition Foundation |
 
 ---
 

@@ -1667,3 +1667,39 @@
 - No modifications to PromptRenderer interface, PromptBuilder interface, IntentAnalyzer, IntentRenderer, Planner, Pipeline (interface), Provider, Runtime, AgentLoop
 - No breaking changes to any Public API
 - Architecture version v0.40
+
+### WO-S5-006 — Entity Recognition Foundation
+
+- **Created `packages/ai/src/entity/` module** — new entity recognition abstraction layer
+  - `EntityType.ts` — extensible string union: `'Tree' | 'Flower' | 'House' | 'Rock' | 'Water' | 'Grass' | 'Unknown'`
+  - `Entity.ts` — minimal immutable interface: `{ readonly type: EntityType }`
+  - `EntityResult.ts` — container interface: `{ readonly entities: readonly Entity[] }`
+  - `EntityAnalyzer.ts` — interface: `analyze(input: string): EntityResult`
+  - `DefaultEntityAnalyzer.ts` — placeholder implementation returning `{ entities: [] }`
+  - `index.ts` — barrel exports for all entity types
+- **Public exports** — all entity types exported from:
+  - `packages/ai/src/entity/index.ts`
+  - `packages/ai/src/index.ts` (package root)
+- **No dependencies on Planner, Runtime, Provider, Memory, Intent, ToolCalling, AgentLoop, PromptBuilder, or Pipeline**
+- **No integration** — EntityAnalyzer is NOT wired into Pipeline, PromptBuilder, BuilderOptions, or any other component
+- **Architecture compliance verified:**
+  - Pure: no side effects, no mutation of inputs
+  - Deterministic: same input always produces same output
+  - Stateless: no internal state between calls
+  - Immutable: all Entity/EntityResult fields are readonly
+  - No dependencies on any existing component
+- Created ADR-0053: Entity Recognition Foundation
+- All existing tests pass with zero modifications
+- New test file `EntityRecognitionFoundation.test.ts` (55 tests, 8 groups):
+  - EntityType (8 tests): each type, string union extensibility
+  - Entity (7 tests): each type creation
+  - EntityResult (6 tests): empty, single, multiple, all types, frozen, empty valid
+  - DefaultEntityAnalyzer (11 tests): interface impl, empty/non-empty/complex input, deterministic, idempotent, stateless, no side effects, type structure, entities field
+  - Exports (11 tests): from entity/index and package root (types + class)
+  - Backward Compatibility (2 tests): existing interfaces, IntentAnalyzer coexistence
+  - Architecture Compliance (11 tests): no dependencies on Planner/Runtime/Provider/Memory/ToolCalling/AgentLoop/PromptBuilder/Pipeline/Intent, pure, stateless, non-mutating
+- All 1481 tests pass (1426 AI + 15 Web + 55 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to Planner, Pipeline, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, BuilderOptions, IntentAnalyzer, or any existing component
+- No breaking changes to any Public API
+- Architecture version v0.41
