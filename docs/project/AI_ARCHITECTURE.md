@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.41)
+> Project Genesis — AI Architecture Reference (v0.42)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -136,17 +136,18 @@ The Entity Layer is the second semantic understanding layer, responsible for rec
 
 ### Architecture Status
 
-**Foundation** — DefaultEntityAnalyzer (placeholder). NOT yet integrated into Pipeline, PromptBuilder, Planner, or AgentLoop.
+**Production V1** — RuleBasedEntityAnalyzer. Character entity type added. NOT yet integrated into Pipeline, PromptBuilder, Planner, or AgentLoop.
 
 ### Component Responsibilities
 
 | Component | Type | Purpose |
 |-----------|------|---------|
-| `EntityType` | String union | Recognized entity types: `Tree`, `Flower`, `House`, `Rock`, `Water`, `Grass`, `Unknown` |
+| `EntityType` | String union | Recognized entity types: `Tree`, `Flower`, `House`, `Rock`, `Water`, `Grass`, `Character`, `Unknown` |
 | `Entity` | Interface | Minimal immutable data object with `readonly type: EntityType` |
 | `EntityResult` | Interface | Container for multiple entities: `{ entities: Entity[] }` |
 | `EntityAnalyzer` | Interface | Contract for extracting entities from natural language: `analyze(input: string): EntityResult` |
 | `DefaultEntityAnalyzer` | Class | Placeholder implementation returning empty `{ entities: [] }` |
+| `RuleBasedEntityAnalyzer` | Class | Production V1 — keyword-based entity detection |
 
 ### Entity Types
 
@@ -158,6 +159,7 @@ type EntityType =
   | 'Rock'
   | 'Water'
   | 'Grass'
+  | 'Character'
   | 'Unknown'
 ```
 
@@ -177,6 +179,34 @@ class DefaultEntityAnalyzer implements EntityAnalyzer {
 - Pure, deterministic, stateless, no side effects
 - No dependencies on Planner, Runtime, Provider, Memory, Intent, ToolCalling, or AgentLoop
 
+### RuleBasedEntityAnalyzer
+
+Production V1 entity analyzer using keyword matching. Introduced in WO-S5-007.
+
+**Keyword Mapping:**
+
+| EntityType | Chinese Keywords | English Keywords |
+|-----------|-----------------|------------------|
+| `Tree` | 树, 树木, 大树, 小树 | tree |
+| `Flower` | 花, 鲜花, 花朵 | flower |
+| `Grass` | 草, 草地 | grass |
+| `House` | 房子, 房屋, 建筑 | house |
+| `Rock` | 石头, 岩石 | rock |
+| `Water` | 河, 河流, 水, 湖, 海 | river, water, lake, sea |
+| `Character` | 人, 人物, 女孩, 男孩, 动物 | person, girl, boy, animal |
+
+**Algorithm:**
+
+```
+analyze(input):
+  1. Trim — return empty if blank
+  2. Normalize — remove punctuation, collapse whitespace, convert to lowercase
+  3. Scan — find all keyword matches with position tracking
+  4. Sort by position (first occurrence preserved)
+  5. Deduplicate — first occurrence of each entity type wins
+  6. Return EntityResult
+```
+
 ### Dependency Rules
 
 - `EntityAnalyzer` must NOT depend on Planner, Runtime, Provider, Memory, Intent, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
@@ -188,7 +218,7 @@ class DefaultEntityAnalyzer implements EntityAnalyzer {
 
 | Capability | Interface | Mechanism |
 |-----------|-----------|-----------|
-| RuleBasedEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
+| ~~RuleBasedEntityAnalyzer~~ | `EntityAnalyzer` | ~~New class, same interface~~ **Done in WO-S5-007** |
 | LLMEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
 | Entity → PromptAssembly | `PromptContext` | Add entity to PromptContext |
 | Entity Rendering | `PromptContext` | Render entities in prompt |

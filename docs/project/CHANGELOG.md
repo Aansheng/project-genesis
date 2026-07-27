@@ -1703,3 +1703,57 @@
 - No modifications to Planner, Pipeline, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, BuilderOptions, IntentAnalyzer, or any existing component
 - No breaking changes to any Public API
 - Architecture version v0.41
+
+### WO-S5-007 — Rule-Based Entity Analyzer
+
+- **Created `RuleBasedEntityAnalyzer`** — production V1 keyword-based entity detector
+  - `packages/ai/src/entity/RuleBasedEntityAnalyzer.ts`
+  - Detects all 7 foundation entity types: Tree, Flower, Grass, House, Rock, Water, Character
+  - Chinese keywords: 树, 树木, 大树, 小树, 花, 鲜花, 花朵, 草, 草地, 房子, 房屋, 建筑, 石头, 岩石, 河, 河流, 水, 湖, 海, 人, 人物, 女孩, 男孩, 动物
+  - English keywords: tree, flower, grass, house, rock, river, water, lake, sea, person, girl, boy, animal
+  - Position-based scanning for multi-entity detection
+  - Duplicate removal preserving input order (first occurrence wins)
+  - Case-insensitive English matching
+  - Punctuation and whitespace ignored
+  - Unknown/empty input returns `{ entities: [] }` (never throws)
+  - Pure, stateless, deterministic — no I/O, no LLM, no external dependencies
+- **Extended EntityType** — added `'Character'` to string union (additive, non-breaking)
+- **Public exports** — `RuleBasedEntityAnalyzer` exported from:
+  - `packages/ai/src/entity/index.ts`
+  - `packages/ai/src/index.ts` (package root)
+- **No modifications to existing interfaces** — Entity, EntityType, EntityResult, EntityAnalyzer unchanged (Character added additively)
+- **DefaultEntityAnalyzer unaffected** — continues working unchanged
+- Created ADR-0054: Rule-Based Entity Analyzer
+- All existing tests pass with zero modifications
+- New test file `RuleBasedEntityAnalyzer.test.ts` (142 tests, 22 groups):
+  - Tree recognition (5 tests): all 4 Chinese + 1 English keyword
+  - Flower recognition (4 tests): all 3 Chinese + 1 English keyword
+  - Grass recognition (3 tests): all 2 Chinese + 1 English keyword
+  - House recognition (4 tests): all 3 Chinese + 1 English keyword
+  - Rock recognition (3 tests): all 2 Chinese + 1 English keyword
+  - Water recognition (9 tests): all 5 Chinese + 4 English keywords
+  - Character recognition (9 tests): all 5 Chinese + 4 English keywords
+  - Case Insensitivity (8 tests): UPPERCASE, Capitalized, lowercase, mixed, all entity types
+  - Duplicate Removal (7 tests): Chinese dedup, English dedup, mixed dedup, multiple variants
+  - Multiple Entities (10 tests): all pairwise combinations, full set, Chinese multi-entity
+  - Mixed Language (4 tests): Chinese+English, mixed conjunctions
+  - Unknown Input (15 tests): empty, whitespace, tabs, newlines, emoji, special chars, numbers, gibberish, greeting, null-like, long strings, unknown Chinese, punctuation-only
+  - Whitespace (4 tests): leading, trailing, multiple spaces, mixed tabs
+  - Punctuation (7 tests): Chinese comma/period, English comma/period, exclamation, question, parentheses, quotes
+  - Input Order (5 tests): order preservation across entity combinations
+  - Deterministic (3 tests): same input repeated, each Chinese type, idempotent across 10 calls
+  - Stateless (3 tests): no state between calls, independent instances, shared state
+  - Immutability (3 tests): input unchanged, new result per call, fresh result objects
+  - Architecture Compliance (14 tests): implements EntityAnalyzer, analyze method, EntityResult type, pure, stateless, exports, type from root, no dependencies on Planner/Runtime/Provider/Memory/ToolCalling/AgentLoop/PromptBuilder/Pipeline/Intent
+  - DefaultEntityAnalyzer Unaffected (2 tests): still returns empty
+  - Contextual Input (6 tests): full sentences, Chinese sentences, complex Chinese, specific entities in context
+  - Compatibility (3 tests): alongside IntentAnalyzer, RuleBasedIntentAnalyzer, all entity types together
+  - RetryPlanner Compatibility (2 tests): works with RetryPlanner
+  - ToolCallPlanner Compatibility (2 tests): works with ToolCallPlanner
+  - Streaming Compatibility (2 tests): works with StreamingProvider
+  - AgentLoop Compatibility (2 tests): works with DefaultAgentLoop
+- All 1623 tests pass (1481 existing + 142 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to Planner, Pipeline, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, BuilderOptions, IntentAnalyzer, or any existing component
+- No breaking changes to any Public API
+- Architecture version v0.42
