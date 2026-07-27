@@ -186,10 +186,13 @@ export class DefaultPromptBuilder implements PromptBuilder {
     // Phase 4: PromptCompression — clean up context (consumes selection result)
     const compressed = this.compression.compress(promptContext, selectionResult)
 
-    // Build render context with intentRendered first (ensures correct insertion order)
+    // Build render context with intentRendered and entityRendered first (ensures correct insertion order)
     const renderContext: PromptContext = {}
     if (intentRendered !== undefined && intentRendered.length > 0) {
       renderContext.intentRendered = intentRendered
+    }
+    if (entityRendered !== undefined && entityRendered.length > 0) {
+      renderContext.entityRendered = entityRendered
     }
     Object.assign(renderContext, compressed)
 

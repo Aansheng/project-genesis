@@ -1869,3 +1869,56 @@
 - No modifications to Planner, Pipeline (interface), Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, or EntityAnalyzer
 - No breaking changes to any Public API
 - Architecture version v0.44
+
+### WO-S5-010 — Entity Prompt Integration
+
+- **Entity section now renders in final prompt**
+  - Added `entityRendered?: string` to `PromptContext` interface (additive, non-breaking)
+  - Modified `DefaultPromptRenderer` to render entityRendered section in final prompt
+  - `entityRendered` added to `CANONICAL_ORDER` after `intentRendered`, before `system`
+  - Empty/undefined entityRendered is filtered out — no blank lines, no placeholders
+  - Single blank line (`\n\n`) separates sections — consistent with intent section
+- **Builder injection**
+  - `DefaultPromptBuilder` injects entityRendered into PromptContext before rendering
+  - Injected after intentRendered to ensure correct insertion order
+  - `DefaultPromptCompression.isPromptContextKey()` now recognizes `entityRendered`
+- **Rendering behavior**
+  - Empty entity → no section, prompt remains identical
+  - Single entity → `"Entities:\\n- Tree\\n\\nUser Input:\\nDraw a tree"`
+  - Multiple entities → `"Entities:\\n- Tree\\n- Flower\\n\\nUser Input:\\n..."`
+  - Entity section always comes after Intent section, before User Input
+- **No modifications to:**
+  - PromptRenderer interface (unchanged)
+  - PromptBuilder interface (unchanged)
+  - EntityAnalyzer, EntityRenderer, EntityResult (unchanged)
+  - All existing component interfaces (unchanged)
+- **Backward compatible**
+  - No EntityAnalyzer → prompt identical to before
+  - No EntityRenderer → prompt identical to before
+  - All legacy constructor signatures preserved
+- Created ADR-0057: Entity Prompt Integration
+- All existing tests pass with zero modifications
+- New test file `EntityPromptIntegration.test.ts` (35 tests, 12 groups):
+  - Empty entity (4 tests): no section, undefined, identical output, no blank lines
+  - Single entity (2 tests): section rendered, before user input
+  - Multiple entities (2 tests): all types rendered
+  - Intent + Entity (2 tests): correct order, blank line separation
+  - Entity before User Input (1 test): canonical order
+  - Blank line formatting (3 tests): no duplicated blank lines, single blank line, entity between intent and system
+  - Canonical ordering (1 test): intent → entity → system → userInput
+  - serializePromptContext compatibility (1 test)
+  - PromptBuilder integration (6 tests): entity in prompt, single, multiple, absent, intent before entity, entity before input
+  - PromptContext injection (2 tests): injected, absent
+  - PromptCompression (1 test): entityRendered preserved
+  - Deterministic (2 tests): English, Chinese
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- Updated 2 existing tests in IntentPromptIntegration.test.ts (entity in prompt changes)
+- No snapshot updates needed (entity not used in existing snapshots)
+- All 1752 tests pass (1717 existing + 35 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to PromptRenderer interface, PromptBuilder interface, EntityAnalyzer, EntityRenderer, Planner, Pipeline (interface), Provider, Runtime, AgentLoop
+- No breaking changes to any Public API
+- Architecture version v0.45

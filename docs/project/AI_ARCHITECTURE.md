@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.44)
+> Project Genesis — AI Architecture Reference (v0.45)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -138,7 +138,7 @@ The Entity Layer is the second semantic understanding layer, responsible for rec
 
 ### Architecture Status
 
-**Production V2** — RuleBasedEntityAnalyzer + DefaultEntityRenderer. Entity consumption and rendering integrated into Prompt Assembly pipeline.
+**Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section.
 
 ### Component Responsibilities
 
@@ -239,10 +239,8 @@ Default entity renderer. Introduced in WO-S5-009.
 | Capability | Interface | Mechanism |
 |-----------|-----------|-----------|
 | ~~RuleBasedEntityAnalyzer~~ | `EntityAnalyzer` | ~~New class, same interface~~ **Done in WO-S5-007** |
-| ~~Entity → PromptAssembly~~ | `PromptContext` | ~~Add entity to PromptContext~~ **Consumption done in WO-S5-008** |
-| ~~Entity Rendering~~ | `EntityRenderer` | ~~Entity rendering foundation~~ **Done in WO-S5-009** |
+| ~~Entity Prompt Integration~~ | `PromptContext` | ~~Inject entityRendered into final prompt~~ **Done in WO-S5-010** |
 | LLMEntityAnalyzer | `EntityAnalyzer` | New class, same interface |
-| Entity Prompt Integration | `PromptContext` | Inject entityRendered into final prompt |
 | Entity Payload | `Entity` | Add quantity/position fields |
 
 ---
