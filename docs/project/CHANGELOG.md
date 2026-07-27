@@ -1757,3 +1757,56 @@
 - No modifications to Planner, Pipeline, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, BuilderOptions, IntentAnalyzer, or any existing component
 - No breaking changes to any Public API
 - Architecture version v0.42
+
+### WO-S5-008 — Entity Consumption
+
+- **Integrated EntityAnalyzer into Prompt Assembly pipeline**
+  - Added `entityAnalyzer?: EntityAnalyzer` field to `BuilderOptions` interface
+  - Updated `DefaultPromptBuilder` to accept and invoke EntityAnalyzer from BuilderOptions
+  - No new positional constructor parameters — only BuilderOptions form
+  - Pipeline execution order: Prompt Modules → IntentAnalyzer → IntentRenderer → **EntityAnalyzer** → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection → PromptCompression → PromptRenderer
+- **Metadata storage**
+  - EntityResult stored in `AIRequest.metadata.promptAssembly.entity`
+  - Conditional: only present when EntityAnalyzer is injected via BuilderOptions
+  - Not injected into PromptContext (deferred to future WO)
+  - Not rendered into prompt string (deferred to future WO)
+- **No modifications to existing components**
+  - PromptSelection unchanged
+  - PromptCompression unchanged
+  - PromptRenderer unchanged
+  - PromptBudget unchanged
+  - ProviderBudget unchanged
+  - MemoryRanking unchanged
+  - Runtime unchanged
+  - Planner unchanged
+  - Provider unchanged
+- **Backward compatible**
+  - Builder without EntityAnalyzer behaves identically
+  - Existing prompts unchanged
+  - Existing metadata unchanged (except new entity field)
+  - All legacy constructor signatures preserved
+- Created ADR-0055: Entity Consumption
+- All existing tests pass with zero modifications
+- New test file `EntityConsumption.test.ts` (49 tests, 14 groups):
+  - BuilderOptions — EntityAnalyzer field (4 tests): accept DefaultEntityAnalyzer, accept RuleBasedEntityAnalyzer, empty options, backward compatible
+  - EntityAnalyzer Invocation (4 tests): invoked once, correct input, not invoked when absent, stateless across calls
+  - EntityResult in Metadata (8 tests): stored in promptAssembly.entity, correct types (Tree, multiple, Tree+Flower+House), absent when not injected, preserves other metadata, coexists with IntentAnalyzer
+  - Empty Entity Result (3 tests): DefaultEntityAnalyzer, empty input, unknown input
+  - Builder Compatibility (5 tests): legacy positional, BuilderOptions w/o entity, BuilderOptions w/ entity, same prompt output, same buildContext output
+  - Deterministic (3 tests): same English input, same Chinese input, 5 repeated calls
+  - Stateless (2 tests): no state between builds, independent builder instances
+  - Immutability (2 tests): PipelineContext unmodified, PromptContext unmodified
+  - Pipeline Execution Order (1 test): EntityAnalyzer called after IntentAnalyzer
+  - DefaultEntityAnalyzer in Pipeline (1 test): returns empty result
+  - RuleBasedEntityAnalyzer Integration (3 tests): Chinese Tree, English Flower, mixed multi-entity
+  - DefaultPipeline Integration (3 tests): execute, stream, without analyzer
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - Edge Cases (3 tests): empty string, blank input, null-like input
+- All 1672 tests pass (1623 existing + 49 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No modifications to Planner, Pipeline (interface), Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, or EntityAnalyzer
+- No breaking changes to any Public API
+- Architecture version v0.43

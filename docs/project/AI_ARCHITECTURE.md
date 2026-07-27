@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.42)
+> Project Genesis — AI Architecture Reference (v0.43)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003 and `intentRenderer` in WO-S5-004.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, and `entityAnalyzer` in WO-S5-008.
 
 ```typescript
 interface BuilderOptions {
@@ -17,11 +17,12 @@ interface BuilderOptions {
   providerBudget?: ProviderBudget
   configuration?: AIConfiguration
   intentAnalyzer?: IntentAnalyzer       // ← WO-S5-003
-  intentRenderer?: IntentRenderer       // ← NEW (WO-S5-004)
+  intentRenderer?: IntentRenderer       // ← WO-S5-004
+  entityAnalyzer?: EntityAnalyzer       // ← WO-S5-008
 }
 ```
 
-**Current status:** Fully consumed by `DefaultPromptBuilder` since WO-S4-010. Both legacy positional and BuilderOptions forms coexist. `intentAnalyzer` and `intentRenderer` only available via BuilderOptions form — no new positional parameter added.
+**Current status:** Fully consumed by `DefaultPromptBuilder` since WO-S4-010. Both legacy positional and BuilderOptions forms coexist. `intentAnalyzer`, `intentRenderer`, and `entityAnalyzer` only available via BuilderOptions form — no new positional parameter added.
 
 **Design principles:**
 - All fields are optional
@@ -446,6 +447,8 @@ PromptModule[6]
        [IntentAnalyzer.analyze()]          ← pure analysis → stored in metadata
                       ↓
        [IntentRenderer.render()]          ← pure rendering → stored in metadata + PromptContext (WO-S5-004/005)
+                      ↓
+       [EntityAnalyzer.analyze()]          ← pure analysis → stored in metadata (WO-S5-008)
                       ↓
        [MemoryRanking.rank()]            ← pure measurement → stored in metadata
                       ↓

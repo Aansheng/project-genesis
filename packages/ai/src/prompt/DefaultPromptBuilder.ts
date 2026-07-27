@@ -20,6 +20,8 @@ import type { BuilderOptions } from './BuilderOptions'
 import type { IntentAnalyzer } from '../intent/IntentAnalyzer'
 import type { IntentResult } from '../intent/IntentResult'
 import type { IntentRenderer } from '../intent/IntentRenderer'
+import type { EntityAnalyzer } from '../entity/EntityAnalyzer'
+import type { EntityResult } from '../entity/EntityResult'
 import { DefaultPromptRenderer } from './DefaultPromptRenderer'
 import { DefaultPromptCompression } from './DefaultPromptCompression'
 import { DefaultMemoryRanking } from './DefaultMemoryRanking'
@@ -39,6 +41,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly configuration?: AIConfiguration
   private readonly intentAnalyzer?: IntentAnalyzer
   private readonly intentRenderer?: IntentRenderer
+  private readonly entityAnalyzer?: EntityAnalyzer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -93,6 +96,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.configuration = opts.configuration
       this.intentAnalyzer = opts.intentAnalyzer
       this.intentRenderer = opts.intentRenderer
+      this.entityAnalyzer = opts.entityAnalyzer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -104,6 +108,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.configuration = configuration
       this.intentAnalyzer = undefined
       this.intentRenderer = undefined
+      this.entityAnalyzer = undefined
     }
   }
 
@@ -137,6 +142,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
     // Inject intentRendered into PromptContext for rendering
     if (intentRendered !== undefined) {
       promptContext.intentRendered = intentRendered
+    }
+
+    // Phase 0.75: EntityAnalyzer — extract entity references (pure analysis)
+    let entityResult: EntityResult | undefined
+    if (this.entityAnalyzer !== undefined) {
+      entityResult = this.entityAnalyzer.analyze(context.input)
     }
 
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
@@ -181,6 +192,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       promptAssembly: {
         ...(intentResult !== undefined ? { intent: intentResult } : {}),
         ...(intentRendered !== undefined ? { intentRendered } : {}),
+        ...(entityResult !== undefined ? { entity: entityResult } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,
