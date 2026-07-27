@@ -181,6 +181,11 @@ export class DefaultPromptBuilder implements PromptBuilder {
       semanticRendered = this.semanticContextRenderer.render(semanticContext)
     }
 
+    // Inject semanticRendered into PromptContext for rendering
+    if (semanticRendered !== undefined && semanticRendered.length > 0) {
+      promptContext.semanticRendered = semanticRendered
+    }
+
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
     const rankingResult: MemoryRankingResult = this.ranking.rank(promptContext)
 
@@ -207,13 +212,16 @@ export class DefaultPromptBuilder implements PromptBuilder {
     // Phase 4: PromptCompression — clean up context (consumes selection result)
     const compressed = this.compression.compress(promptContext, selectionResult)
 
-    // Build render context with intentRendered and entityRendered first (ensures correct insertion order)
+    // Build render context with intentRendered, entityRendered, semanticRendered first (ensures correct insertion order)
     const renderContext: PromptContext = {}
     if (intentRendered !== undefined && intentRendered.length > 0) {
       renderContext.intentRendered = intentRendered
     }
     if (entityRendered !== undefined && entityRendered.length > 0) {
       renderContext.entityRendered = entityRendered
+    }
+    if (semanticRendered !== undefined && semanticRendered.length > 0) {
+      renderContext.semanticRendered = semanticRendered
     }
     Object.assign(renderContext, compressed)
 

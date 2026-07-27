@@ -18,6 +18,7 @@ import { DefaultPromptRenderer } from './DefaultPromptRenderer'
  * @property system — System prompt instructions (from SystemPromptModule)
  * @property intentRendered — Formatted user intent text (from IntentRenderer)
  * @property entityRendered — Formatted entity references text (from EntityRenderer)
+ * @property semanticRendered — Formatted semantic context text (from SemanticContextRenderer)
  * @property userInput — Raw user input text (from UserInputModule)
  * @property memory — Conversation history (from MemoryPromptModule)
  * @property worldState — Current world snapshot (from WorldStatePromptModule)
@@ -33,6 +34,9 @@ export interface PromptContext {
 
   /** Formatted entity references text */
   entityRendered?: string
+
+  /** Formatted semantic context text */
+  semanticRendered?: string
 
   /** Raw user input text */
   userInput?: string

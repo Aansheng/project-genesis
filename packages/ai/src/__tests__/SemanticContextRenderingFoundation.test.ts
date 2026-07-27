@@ -546,7 +546,7 @@ describe('SemanticContextRenderer invocation', () => {
 // ---------------------------------------------------------------------------
 
 describe('Architecture Compliance — no prompt modification', () => {
-  it('should not modify PromptContext with semanticRendered', async () => {
+  it('should inject semanticRendered into PromptContext for rendering', async () => {
     const builder = new DefaultPromptBuilder(createDefaultModules(), {
       intentAnalyzer: new RuleBasedIntentAnalyzer(),
       entityAnalyzer: new RuleBasedEntityAnalyzer(),
@@ -554,12 +554,11 @@ describe('Architecture Compliance — no prompt modification', () => {
       semanticContextRenderer: new DefaultSemanticContextRenderer(),
     })
     const request = await builder.build(createPipelineContext({ input: 'create a tree' }))
-    // semanticRendered is in metadata only, not in promptContext
-    expect(request.prompt).not.toContain('Semantic Context')
-    expect(request.prompt).not.toContain('semanticRendered')
+    // semanticRendered is now injected into PromptContext for rendering
+    expect(request.prompt).toContain('Semantic Context')
   })
 
-  it('should not add semanticRendered section to prompt text', async () => {
+  it('should include semanticRendered in both metadata and prompt text', async () => {
     const builder = new DefaultPromptBuilder(createDefaultModules(), {
       intentAnalyzer: new RuleBasedIntentAnalyzer(),
       entityAnalyzer: new RuleBasedEntityAnalyzer(),
@@ -567,10 +566,10 @@ describe('Architecture Compliance — no prompt modification', () => {
       semanticContextRenderer: new DefaultSemanticContextRenderer(),
     })
     const request = await builder.build(createPipelineContext({ input: 'create a tree' }))
-    // The rendered string is only in metadata, not in the prompt itself
+    // semanticRendered is in both metadata and the prompt
     const assembly = request.metadata?.promptAssembly as Record<string, unknown>
     expect(assembly.semanticRendered).toBeDefined()
-    expect(request.prompt).not.toContain('Semantic Context')
+    expect(request.prompt).toContain('Semantic Context')
   })
 
   it('should not modify PromptRenderer interface', () => {

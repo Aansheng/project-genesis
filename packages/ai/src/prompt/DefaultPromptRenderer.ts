@@ -24,6 +24,7 @@ export class DefaultPromptRenderer implements PromptRenderer {
   static readonly CANONICAL_ORDER: Array<keyof PromptContext> = [
     'intentRendered',
     'entityRendered',
+    'semanticRendered',
     'system',
     'userInput',
     'memory',

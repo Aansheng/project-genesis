@@ -2049,3 +2049,33 @@
 - No modifications to Pipeline, Planner, Provider, Runtime, AgentLoop, PromptModule, PromptRenderer, PromptBudget, PromptSelection, PromptCompression, MemoryRanking, ProviderBudget, AIConfiguration, IntentAnalyzer, IntentRenderer, EntityAnalyzer, EntityRenderer, or any existing component
 - No breaking changes to any Public API
 - Architecture version v0.48
+
+### WO-S5-014 — Semantic Context Prompt Integration
+
+- **Extended `PromptContext`** with optional `semanticRendered?: string` field
+- **Updated `DefaultPromptRenderer.CANONICAL_ORDER`** — added `'semanticRendered'` between `entityRendered` and `system`
+- **Updated `DefaultPromptCompression.isPromptContextKey()`** — added `'semanticRendered'` to valid keys
+- **Updated `DefaultPromptBuilder`**:
+  - Injects `semanticRendered` into `promptContext` after Phase 0.85 (SemanticContextRenderer)
+  - Injects `semanticRendered` into `renderContext` for canonical insertion order
+- **Canonical prompt order**: Intent → Entity → Semantic Context → System → User Input → Memory → Reflection → World State → Observations
+- **No modifications to**: `PromptRenderer` interface, `PromptBuilder` interface, `Pipeline`, `Planner`, `Runtime`, `Provider`, `Memory`, `AgentLoop`, `BuilderOptions`, `SemanticContextBuilder`, `SemanticContextRenderer`, or any Sprint 4 Frozen Interface
+- Created ADR-0061: Semantic Context Prompt Integration
+- All existing tests pass with zero modifications
+- New test file `SemanticContextPromptIntegration.test.ts` (32 tests, 11 groups):
+  - Empty Semantic Context (4 tests)
+  - Semantic only (3 tests)
+  - Intent + Entity + Semantic canonical order (3 tests)
+  - DefaultPromptCompression — semantic context (4 tests)
+  - PromptBuilder integration — semantic only (4 tests)
+  - Complete canonical order (2 tests)
+  - CANONICAL_ORDER membership (3 tests)
+  - Deterministic (1 test)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 1964 tests pass (1932 existing + 32 new)
+- TypeScript 0 errors, ESLint 0 new errors
+- No breaking changes to any Public API
+- Architecture version v0.49

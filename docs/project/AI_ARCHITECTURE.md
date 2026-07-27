@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.48)
+> Project Genesis — AI Architecture Reference (v0.49)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -253,7 +253,7 @@ The Semantic Layer is the unified semantic representation layer, combining inten
 
 ### Architecture Status
 
-**Rendered** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. SemanticContextRenderer integrated into PromptBuilder pipeline via Phase 0.85 (WO-S5-013). Written to metadata.promptAssembly.semanticRendered. NOT yet rendered in prompt.
+**Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. SemanticContextRenderer integrated into PromptBuilder pipeline via Phase 0.85 (WO-S5-013). Semantic Context rendered as official Prompt section (WO-S5-014).
 
 ### Component Responsibilities
 
