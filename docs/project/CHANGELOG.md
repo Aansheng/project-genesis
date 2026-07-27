@@ -2079,3 +2079,44 @@
 - TypeScript 0 errors, ESLint 0 new errors
 - No breaking changes to any Public API
 - Architecture version v0.49
+
+### WO-S5-015 — Prompt Strategy Foundation
+
+- **Created `packages/ai/src/strategy/`** — new Strategy Layer directory
+- **Created `PromptStrategy` interface** — contract for context-aware prompt assembly strategies:
+  - `readonly name: string` — Unique strategy identifier
+  - `applies(context: SemanticContext): boolean` — Pure predicate for strategy matching
+- **Created `DefaultPromptStrategy`** — always-applies baseline strategy (`name = 'default'`)
+- **Created `PromptStrategySelector` interface** — contract for strategy selection from ordered list
+- **Created `DefaultPromptStrategySelector`** — first-match wins with default fallback
+- **Created `strategy/index.ts`** — all strategy types exported
+- **Updated `src/index.ts`** — exports all strategy types from package root
+- **No integration into Builder yet** — Strategy Layer is established but not consumed by DefaultPromptBuilder
+- **No BuilderOptions changes** — strategySelector not yet added to BuilderOptions
+- **No Prompt changes** — Prompt, PromptContext, AIRequest unchanged
+- **No Pipeline changes** — Pipeline interface, DefaultPipeline unchanged
+- **No modifications to** any Sprint 4 frozen interfaces
+- Created ADR-0062: Prompt Strategy Foundation
+- All existing tests pass with zero modifications
+- New test file `PromptStrategyFoundation.test.ts` (64 tests):
+  - PromptStrategy interface (4 tests)
+  - DefaultPromptStrategy (6 tests)
+  - Deterministic (2 tests)
+  - Stateless (2 tests)
+  - Pure / no side effects (2 tests)
+  - Custom PromptStrategy implementations (5 tests)
+  - PromptStrategySelector interface (3 tests)
+  - First-match wins (5 tests)
+  - Default fallback (5 tests)
+  - Stateless (2 tests)
+  - Deterministic (2 tests)
+  - Pure / no side effects (3 tests)
+  - Exports (8 tests)
+  - Architecture compliance (11 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All tests pass, TypeScript 0 errors, ESLint 0 new errors
+- No breaking changes to any Public API
+- Architecture version v0.50

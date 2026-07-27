@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.49)
+> Project Genesis — AI Architecture Reference (v0.50)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013. PromptStrategy Layer established in WO-S5-015 but not yet integrated into BuilderOptions.
 
 ```typescript
 interface BuilderOptions {
@@ -314,6 +314,88 @@ class DefaultSemanticContextBuilder implements SemanticContextBuilder {
 
 ---
 
+## Strategy Layer
+
+The Strategy Layer determines how prompts should be assembled for different semantic contexts. Introduced in WO-S5-015 (Sprint 5).
+
+### Architecture Status
+
+**Foundation** — Strategy abstraction established. PromptStrategy interface + DefaultPromptStrategy + PromptStrategySelector interface + DefaultPromptStrategySelector. Not yet integrated into Builder.
+
+### Component Responsibilities
+
+| Component | Type | Purpose |
+|-----------|------|---------|
+| `PromptStrategy` | Interface | Contract for context-aware strategy selection: `name` + `applies(context)` |
+| `DefaultPromptStrategy` | Class | Always-applies baseline strategy — `applies()` always returns `true` |
+| `PromptStrategySelector` | Interface | Contract for selecting a strategy from an ordered list |
+| `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
+
+### PromptStrategy
+
+```typescript
+interface PromptStrategy {
+  readonly name: string
+  applies(context: SemanticContext): boolean
+}
+```
+
+- `name` — Unique identifier for the strategy
+- `applies()` — Pure predicate, returns `boolean`
+- No methods beyond the contract
+- No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+
+### DefaultPromptStrategy
+
+```typescript
+class DefaultPromptStrategy implements PromptStrategy {
+  readonly name = 'default'
+  applies(_context: SemanticContext): boolean {
+    return true
+  }
+}
+```
+
+- Always applies — returns `true` for any `SemanticContext`
+- Preserves existing behavior as the baseline strategy
+- Pure, stateless, deterministic — no side effects
+
+### DefaultPromptStrategySelector
+
+```typescript
+class DefaultPromptStrategySelector implements PromptStrategySelector {
+  select(strategies, context): PromptStrategy {
+    for (const strategy of strategies) {
+      if (strategy.applies(context)) return strategy
+    }
+    return new DefaultPromptStrategy()
+  }
+}
+```
+
+- **First-match wins** — Returns first strategy whose `applies()` returns `true`
+- **Default fallback** — Returns `DefaultPromptStrategy` when no strategy matches
+- Pure, stateless, deterministic, complete (never returns `null` or `undefined`)
+
+### Dependency Rules
+
+- `PromptStrategy` is independent — no dependencies on any existing component
+- `DefaultPromptStrategy` depends only on `PromptStrategy` and `SemanticContext`
+- `PromptStrategySelector` depends only on `PromptStrategy` and `SemanticContext`
+- `DefaultPromptStrategySelector` depends only on `PromptStrategySelector`, `PromptStrategy`, `DefaultPromptStrategy`, and `SemanticContext`
+- None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
+
+### Future (Not Yet Implemented)
+
+| Capability | Interface | Mechanism |
+|-----------|-----------|-----------|
+| Strategy → Builder | `BuilderOptions` | Add strategySelector to BuilderOptions |
+| Strategy-Based Prompt Assembly | `PromptBuilder` | Use selected strategy to guide assembly |
+| Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
+| Strategy Configuration | `PromptStrategy` | Add priority, config fields |
+
+---
+
 ## High-Level Architecture
 
 ```
@@ -342,6 +424,8 @@ EntityRenderer.render()                ← pure entity rendering (WO-S5-009)
 SemanticContextBuilder.build()         ← pure composition (WO-S5-012)
     ↓
 SemanticContextRenderer.render()       ← pure rendering (WO-S5-013)
+    ↓
+PromptStrategySelector.select()        ← context-aware strategy selection (WO-S5-015)
     ↓
 MemoryRanking.rank()                 ← determines section priority (pure measurement)
     ↓
