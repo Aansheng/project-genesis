@@ -207,6 +207,11 @@ export class DefaultPromptBuilder implements PromptBuilder {
     const strategyRenderer = this.strategyRenderer ?? new DefaultPromptStrategyRenderer()
     const strategyRendered: string | undefined = strategyRenderer.render(selectedStrategy)
 
+    // Inject strategyRendered into PromptContext for rendering
+    if (strategyRendered !== undefined && strategyRendered.length > 0) {
+      promptContext.strategyRendered = strategyRendered
+    }
+
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
     const rankingResult: MemoryRankingResult = this.ranking.rank(promptContext)
 
@@ -243,6 +248,9 @@ export class DefaultPromptBuilder implements PromptBuilder {
     }
     if (semanticRendered !== undefined && semanticRendered.length > 0) {
       renderContext.semanticRendered = semanticRendered
+    }
+    if (strategyRendered !== undefined && strategyRendered.length > 0) {
+      renderContext.strategyRendered = strategyRendered
     }
     Object.assign(renderContext, compressed)
 

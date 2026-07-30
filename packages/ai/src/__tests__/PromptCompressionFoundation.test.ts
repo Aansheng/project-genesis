@@ -225,7 +225,8 @@ describe('DefaultPromptBuilder — Compression Integration', () => {
       new UpperCaseCompression(),
     )
     const request = await builder.build({ input: 'hello' })
-    expect(request.prompt).toBe('HELLO')
+    // Now includes strategy section before module content
+    expect(request.prompt).toContain('HELLO')
   })
 
   it('should produce identical output with default compression (backward compat)', async () => {
@@ -257,11 +258,12 @@ describe('DefaultPromptBuilder — Compression Integration', () => {
     ])
     // build() with input should include userInput after compression
     const request = await builder.build({ input: 'hello' })
-    expect(request.prompt).toBe('hello')
+    // Now includes strategy section before module content
+    expect(request.prompt).toContain('hello')
 
-    // build() with empty input — userInput='' gets stripped by compression
+    // build() with empty input — userInput='' gets stripped by compression, but strategyRendered remains
     const emptyRequest = await builder.build({ input: '' })
-    expect(emptyRequest.prompt).toBe('')
+    expect(emptyRequest.prompt).toBe('Prompt Strategy:\n\n- default')
   })
 })
 
@@ -483,7 +485,7 @@ describe('Compression — Backward Compatibility (Legacy Modules)', () => {
     }
     const builder = new DefaultPromptBuilder([new LegacyModule()])
     const request = await builder.build({ input: '' })
-    expect(request.prompt).toBe('legacy output')
+    expect(request.prompt).toContain('legacy output')
   })
 
   it('should mix legacy and context-aware modules', async () => {

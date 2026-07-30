@@ -2196,3 +2196,32 @@
 - All tests pass, TypeScript 0 errors, ESLint 0 new errors
 - No breaking changes to any Public API
 - Architecture version v0.52
+
+### WO-S5-018 — Prompt Strategy Prompt Integration
+
+- **Extended `PromptContext`** — added optional `strategyRendered?: string` field
+- **Updated `DefaultPromptRenderer.CANONICAL_ORDER`** — added `'strategyRendered'` between `'semanticRendered'` and `'system'`
+- **Updated `DefaultPromptCompression.isPromptContextKey()`** — added `'strategyRendered'` to valid keys
+- **Updated `DefaultPromptBuilder`**:
+  - Injects `strategyRendered` into `promptContext` after Phase 0.95 (StrategyRenderer)
+  - Injects `strategyRendered` into `renderContext` for correct insertion order
+- **Canonical prompt order**: Intent → Entity → Semantic Context → Prompt Strategy → System → User Input → Memory → Reflection → World State → Observations
+- **No modifications to**: `PromptRenderer` interface, `PromptBuilder` interface, `Pipeline`, `Planner`, `Runtime`, `Provider`, `Memory`, `AgentLoop`, `BuilderOptions`, `PromptStrategyRenderer`, or any Sprint 4 Frozen Interface
+- Created ADR-0065: Prompt Strategy Prompt Integration
+- All existing tests pass with updated assertions (prompt output now includes strategy section)
+- New test file `PromptStrategyPromptIntegration.test.ts` (21 tests, 11 groups):
+  - PromptContext — strategyRendered field (2 tests)
+  - DefaultPromptRenderer — CANONICAL_ORDER (3 tests)
+  - DefaultPromptCompression — strategyRendered support (3 tests)
+  - DefaultPromptBuilder — strategy in prompt (2 tests)
+  - Canonical order — strategyRendered (3 tests)
+  - PromptBuilder integration (3 tests)
+  - Strategy prompt integration — deterministic (1 test)
+  - RetryPlanner Compatibility (1 test)
+  - ToolCallPlanner Compatibility (1 test)
+  - Streaming Compatibility (1 test)
+  - AgentLoop Compatibility (1 test)
+- All 2142 tests pass (2121 existing + 21 new)
+- TypeScript 0 errors, ESLint 0 new errors
+- No breaking changes to any Public API
+- Architecture version v0.53

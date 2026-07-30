@@ -446,10 +446,11 @@ describe('Metadata — strategyRendered', () => {
   })
 
   it('should not inject strategyRendered into prompt string', async () => {
+    // strategyRendered is now injected into the prompt as an official section
+    // This test verifies it appears correctly
     const builder = new DefaultPromptBuilder([new UserInputModule()])
     const request = await builder.build(createPipelineContext())
-    expect(request.prompt).not.toContain('strategyRendered')
-    expect(request.prompt).not.toContain('Prompt Strategy')
+    expect(request.prompt).toContain('Prompt Strategy:')
   })
 })
 

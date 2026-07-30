@@ -485,7 +485,7 @@ describe('DefaultPromptBuilder — backward compatibility', () => {
       intentAnalyzer: new RuleBasedIntentAnalyzer(),
     })
     const request = await builder.build({ input: 'draw a tree' })
-    expect(request.prompt).toBe('draw a tree')
+    expect(request.prompt).toContain('draw a tree')
     const assembly = request.metadata?.promptAssembly as Record<string, unknown>
     const intentResult = assembly.intent as IntentResult
     expect(intentResult.intents[0].type).toBe('Create')

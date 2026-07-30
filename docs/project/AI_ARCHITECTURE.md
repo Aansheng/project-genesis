@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.52)
+> Project Genesis — AI Architecture Reference (v0.53)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -323,7 +323,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Consumed + Rendered** — PromptStrategy now integrated into PromptBuilder pipeline. Strategy selection runs as Phase 0.9 between SemanticContextRenderer and MemoryRanking. Strategy rendering runs as Phase 0.95 after selection. Selected strategy name and rendered string stored in `metadata.promptAssembly.{strategy, strategyRendered}`.
+**Prompt Integrated** — PromptStrategy now integrated into PromptBuilder pipeline. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. strategyRendered is an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 

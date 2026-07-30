@@ -1,7 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`PromptBuilder Snapshot > should match snapshot for SystemPromptModule only 1`] = `
-"You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
+"Prompt Strategy:
+
+- default
+
+You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
 
 Available actions:
 
@@ -23,7 +27,11 @@ If the input cannot be translated to actions, return {"actions": []}."
 `;
 
 exports[`PromptBuilder Snapshot > should match snapshot for SystemPromptModule with UserInputModule 1`] = `
-"You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
+"Prompt Strategy:
+
+- default
+
+You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
 
 Available actions:
 
@@ -47,7 +55,11 @@ If the input cannot be translated to actions, return {"actions": []}.
 `;
 
 exports[`PromptBuilder Snapshot > should match snapshot for all modules with multiple memory entries 1`] = `
-"You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
+"Prompt Strategy:
+
+- default
+
+You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
 
 Available actions:
 
@@ -89,7 +101,11 @@ position: (2,2)"
 `;
 
 exports[`PromptBuilder Snapshot > should match snapshot for all modules with single memory 1`] = `
-"You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
+"Prompt Strategy:
+
+- default
+
+You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
 
 Available actions:
 
@@ -123,7 +139,11 @@ position: (3,5)"
 `;
 
 exports[`PromptBuilder Snapshot > should not include "Previous conversation" when memory is empty, and skip world when empty 1`] = `
-"You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
+"Prompt Strategy:
+
+- default
+
+You are a game action planner for Project Genesis. Translate natural language descriptions into structured game actions.
 
 Available actions:
 

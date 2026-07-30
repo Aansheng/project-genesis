@@ -199,7 +199,7 @@ describe('Legacy Module (no buildContext)', () => {
 
     const builder = new DefaultPromptBuilder([new LegacyModule()])
     const request = await builder.build({ input: '' })
-    expect(request.prompt).toBe('legacy output')
+    expect(request.prompt).toContain('legacy output')
   })
 
   it('should mix legacy and context-aware modules', async () => {

@@ -101,7 +101,7 @@ describe('DefaultPipeline Integration', () => {
     const promptBuiltEvent = receivedEvents[1]
     expect(promptBuiltEvent.type).toBe('PromptBuilt')
     expect(promptBuiltEvent.payload).toBeDefined()
-    expect(promptBuiltEvent.payload!.prompt).toBe('tree')
+    expect(promptBuiltEvent.payload!.prompt).toContain('tree')
   })
 
   // --- Test 4: PromptBuilder is called ---

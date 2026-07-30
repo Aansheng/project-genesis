@@ -236,7 +236,9 @@ describe('DefaultPromptBuilder — Renderer Integration', () => {
       new UpperCaseRenderer(),
     )
     const request = await builder.build({ input: 'hello' })
-    expect(request.prompt).toBe('HELLO')
+    // Now includes strategy section rendered to uppercase
+    expect(request.prompt).toContain('HELLO')
+    expect(request.prompt).toContain('PROMPT STRATEGY:')
   })
 
   it('should produce identical output to previous version', async () => {
@@ -514,7 +516,7 @@ describe('Backward Compatibility — Legacy Modules', () => {
     }
     const builder = new DefaultPromptBuilder([new LegacyModule()])
     const request = await builder.build({ input: '' })
-    expect(request.prompt).toBe('legacy output')
+    expect(request.prompt).toContain('legacy output')
   })
 
   it('should mix legacy and context-aware modules', async () => {

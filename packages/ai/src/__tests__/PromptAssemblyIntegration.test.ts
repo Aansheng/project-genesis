@@ -230,7 +230,7 @@ describe('Prompt Assembly — Custom Components', () => {
       undefined,
     )
     const request = await builder.build({ input: 'hello' })
-    expect(request.prompt).toBe('CUSTOM RENDER')
+    expect(request.prompt).toContain('CUSTOM RENDER')
   })
 
   it('should accept custom compression', async () => {
@@ -245,7 +245,8 @@ describe('Prompt Assembly — Custom Components', () => {
       new StripAllCompression(),
     )
     const request = await builder.build({ input: 'hello' })
-    expect(request.prompt).toBe('')
+    // Strategy section is now injected directly into render context
+    expect(request.prompt).toBe('Prompt Strategy:\n\n- default')
   })
 })
 
@@ -352,7 +353,7 @@ describe('Prompt Assembly — Backward Compatibility', () => {
     }
     const builder = new DefaultPromptBuilder([new LegacyModule()])
     const request = await builder.build({ input: '' })
-    expect(request.prompt).toBe('legacy output')
+    expect(request.prompt).toContain('legacy output')
   })
 
   it('should mix legacy and context-aware modules with assembly', async () => {

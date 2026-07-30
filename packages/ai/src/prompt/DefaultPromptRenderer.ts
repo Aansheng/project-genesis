@@ -25,6 +25,7 @@ export class DefaultPromptRenderer implements PromptRenderer {
     'intentRendered',
     'entityRendered',
     'semanticRendered',
+    'strategyRendered',
     'system',
     'userInput',
     'memory',
