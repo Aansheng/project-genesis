@@ -28,7 +28,9 @@ import type { SemanticContextBuilder } from '../semantic/SemanticContextBuilder'
 import type { SemanticContextRenderer } from '../semantic/SemanticContextRenderer'
 import type { PromptStrategy } from '../strategy/PromptStrategy'
 import type { PromptStrategySelector } from '../strategy/PromptStrategySelector'
+import type { PromptStrategyRenderer } from '../strategy/PromptStrategyRenderer'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
+import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultPromptRenderer } from './DefaultPromptRenderer'
 import { DefaultPromptCompression } from './DefaultPromptCompression'
 import { DefaultMemoryRanking } from './DefaultMemoryRanking'
@@ -54,6 +56,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly semanticContextRenderer?: SemanticContextRenderer
   private readonly strategySelector?: PromptStrategySelector
   private readonly strategies?: readonly PromptStrategy[]
+  private readonly strategyRenderer?: PromptStrategyRenderer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -114,6 +117,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.semanticContextRenderer = opts.semanticContextRenderer
       this.strategySelector = opts.strategySelector
       this.strategies = opts.strategies
+      this.strategyRenderer = opts.strategyRenderer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -199,6 +203,10 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ? this.strategySelector.select(this.strategies, semanticContext ?? {})
         : new DefaultPromptStrategy()
 
+    // Phase 0.95: PromptStrategyRenderer — render strategy as string
+    const strategyRenderer = this.strategyRenderer ?? new DefaultPromptStrategyRenderer()
+    const strategyRendered: string | undefined = strategyRenderer.render(selectedStrategy)
+
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
     const rankingResult: MemoryRankingResult = this.ranking.rank(promptContext)
 
@@ -252,6 +260,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(semanticContext !== undefined ? { semantic: semanticContext } : {}),
         ...(semanticRendered !== undefined ? { semanticRendered } : {}),
         strategy: { name: selectedStrategy.name },
+        ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

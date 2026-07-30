@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.51)
+> Project Genesis — AI Architecture Reference (v0.52)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016. PromptStrategy Layer established in WO-S5-015 and consumed in WO-S5-016.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, and `strategyRenderer` in WO-S5-017.
 
 ```typescript
 interface BuilderOptions {
@@ -24,6 +24,7 @@ interface BuilderOptions {
   semanticContextRenderer?: SemanticContextRenderer  // ← WO-S5-013
   strategySelector?: PromptStrategySelector          // ← WO-S5-016
   strategies?: readonly PromptStrategy[]               // ← WO-S5-016
+  strategyRenderer?: PromptStrategyRenderer            // ← WO-S5-017
 }
 ```
 
@@ -322,7 +323,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Consumed** — PromptStrategy now integrated into PromptBuilder pipeline. Strategy selection runs as Phase 0.9 between SemanticContextRenderer and MemoryRanking. Selected strategy name stored in `metadata.promptAssembly.strategy`.
+**Consumed + Rendered** — PromptStrategy now integrated into PromptBuilder pipeline. Strategy selection runs as Phase 0.9 between SemanticContextRenderer and MemoryRanking. Strategy rendering runs as Phase 0.95 after selection. Selected strategy name and rendered string stored in `metadata.promptAssembly.{strategy, strategyRendered}`.
 
 ### Component Responsibilities
 
@@ -334,6 +335,8 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `DefaultPromptStrategy` | Class | Always-applies baseline strategy — `applies()` always returns `true` |
 | `PromptStrategySelector` | Interface | Contract for selecting a strategy from an ordered list |
 | `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
+| `PromptStrategyRenderer` | Interface | Contract for rendering PromptStrategy to string: `render(strategy)` |
+| `DefaultPromptStrategyRenderer` | Class | Default rendering — `"Prompt Strategy:\\n\\n- {name}"` |
 
 ### PromptStrategy
 
@@ -381,6 +384,34 @@ class DefaultPromptStrategySelector implements PromptStrategySelector {
 - **Default fallback** — Returns `DefaultPromptStrategy` when no strategy matches
 - Pure, stateless, deterministic, complete (never returns `null` or `undefined`)
 
+### DefaultPromptStrategyRenderer
+
+```typescript
+class DefaultPromptStrategyRenderer implements PromptStrategyRenderer {
+  render(strategy: PromptStrategy): string {
+    if (strategy === undefined || strategy === null) return ''
+    const name = strategy.name
+    if (name === undefined || name === null || name.trim().length === 0) return ''
+    return `Prompt Strategy:\n\n- ${name}`
+  }
+}
+```
+
+- Default strategy → `"Prompt Strategy:\n\n- default"`
+- Custom strategy → `"Prompt Strategy:\n\n- {name}"`
+- Empty/blank/null/undefined → `""`
+- Pure, stateless, deterministic — no side effects
+
+### Phase 0.95: Strategy Rendering
+
+```
+Phase 0.9:  PromptStrategySelector.select(strategies, context) → selectedStrategy
+    ↓
+Phase 0.95: PromptStrategyRenderer.render(selectedStrategy) → strategyRendered
+    ↓             → metadata.promptAssembly.strategyRendered
+Phase 1:    MemoryRanking.rank()
+```
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -394,6 +425,7 @@ class DefaultPromptStrategySelector implements PromptStrategySelector {
 | Capability | Interface | Mechanism |
 |-----------|-----------|-----------|
 | ~~Strategy → Builder~~ | `BuilderOptions` | ~~Add strategySelector to BuilderOptions~~ **Done in WO-S5-016** |
+| ~~Strategy Renderer~~ | `BuilderOptions` | ~~Add strategyRenderer to BuilderOptions~~ **Done in WO-S5-017** |
 | Strategy-Based Prompt Assembly | `PromptBuilder` | Use selected strategy to guide assembly |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
@@ -430,6 +462,8 @@ SemanticContextBuilder.build()         ← pure composition (WO-S5-012)
 SemanticContextRenderer.render()       ← pure rendering (WO-S5-013)
     ↓
 PromptStrategySelector.select()        ← context-aware strategy selection (WO-S5-015)
+    ↓
+PromptStrategyRenderer.render()        ← strategy rendering (WO-S5-017)
     ↓
 MemoryRanking.rank()                 ← determines section priority (pure measurement)
     ↓
@@ -645,6 +679,8 @@ PromptModule[6]
        [SemanticContextRenderer.render()]  ← pure rendering → stored in metadata.promptAssembly.semanticRendered (WO-S5-013)
                       ↓
        [PromptStrategySelector.select()]  ← strategy selection → stored in metadata.promptAssembly.strategy (WO-S5-016)
+                      ↓
+       [PromptStrategyRenderer.render()]  ← strategy rendering → stored in metadata.promptAssembly.strategyRendered (WO-S5-017)
                       ↓
        [MemoryRanking.rank()]            ← pure measurement → stored in metadata
                       ↓

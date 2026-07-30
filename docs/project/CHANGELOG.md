@@ -2154,3 +2154,45 @@
 - All tests pass, TypeScript 0 errors, ESLint 0 new errors
 - No breaking changes to any Public API
 - Architecture version v0.51
+
+### WO-S5-017 — Prompt Strategy Rendering Foundation
+
+- **Created `PromptStrategyRenderer` interface** — contract for rendering PromptStrategy to human-readable string:
+  - `render(strategy: PromptStrategy): string` — Pure rendering function
+- **Created `DefaultPromptStrategyRenderer`** — default implementation:
+  - Default strategy → `"Prompt Strategy:\\n\\n- default"`
+  - Custom strategy → `"Prompt Strategy:\\n\\n- {name}"`
+  - Empty/blank/null/undefined → `""`
+  - Pure, stateless, deterministic — no side effects
+- **Extended `strategy/index.ts`** — exports `PromptStrategyRenderer` type and `DefaultPromptStrategyRenderer` class
+- **Extended `src/index.ts`** — exports both from package root
+- **Extended `BuilderOptions`** — added optional `strategyRenderer?: PromptStrategyRenderer`
+- **Updated `DefaultPromptBuilder`** — added Phase 0.95 after Phase 0.9:
+  - `strategyRenderer.render(selectedStrategy)` → stored in `metadata.promptAssembly.strategyRendered`
+  - Uses `DefaultPromptStrategyRenderer` when no renderer is injected
+  - Only stores non-empty rendered strings in metadata
+- **No modifications to**: `PromptRenderer`, `PromptCompression`, `Pipeline`, `Planner`, `Runtime`, `AgentLoop`, `PromptContext`, `AIRequest`
+- **No behavior changes** — strategy rendering does not alter prompt assembly output
+- Created ADR-0064: Prompt Strategy Rendering Foundation
+- All existing tests pass with zero modifications
+- New test file `PromptStrategyRenderingFoundation.test.ts` (52 tests, 16 groups):
+  - PromptStrategyRenderer interface (3 tests)
+  - DefaultPromptStrategyRenderer — default strategy (4 tests)
+  - DefaultPromptStrategyRenderer — custom strategy (3 tests)
+  - DefaultPromptStrategyRenderer — empty strategy (6 tests)
+  - DefaultPromptStrategyRenderer — deterministic (2 tests)
+  - DefaultPromptStrategyRenderer — stateless (2 tests)
+  - DefaultPromptStrategyRenderer — pure / no side effects (3 tests)
+  - Strategy renderer exports (4 tests)
+  - BuilderOptions — strategyRenderer field (5 tests)
+  - BuilderOptions — renderer invocation (3 tests)
+  - Metadata — strategyRendered (8 tests)
+  - Selector + Renderer coexistence (2 tests)
+  - Strategy rendering — deterministic (1 test)
+  - RetryPlanner Compatibility (1 test)
+  - ToolCallPlanner Compatibility (1 test)
+  - Streaming Compatibility (1 test)
+  - AgentLoop Compatibility (1 test)
+- All tests pass, TypeScript 0 errors, ESLint 0 new errors
+- No breaking changes to any Public API
+- Architecture version v0.52
