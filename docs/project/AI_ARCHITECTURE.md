@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.54)
+> Project Genesis — AI Architecture Reference (v0.55)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -93,7 +93,7 @@ Production V1 intent analyzer using keyword matching. Introduced in WO-S5-002.
 | `Delete` | 删除, 移除, 清除 | remove, delete |
 | `Move` | 移动, 挪 | move, translate |
 | `Modify` | 修改, 改变, 编辑 | replace, change |
-| `Query` | 查询, 看看, 有什么 | what, show, list |
+| `Query` | 查询, 查看, 显示, 列出, 获取, 有什么, 多少, 哪些, 看看 | query, what, show, list, get, find, which, how many |
 
 **Algorithm:**
 
@@ -323,7 +323,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Prompt Integrated + Create Strategy** — PromptStrategy now integrated into PromptBuilder pipeline. CreateStrategy introduced as first business-specific strategy. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. strategyRendered is an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Prompt Integrated + Create Strategy + Query Strategy** — PromptStrategy now integrated into PromptBuilder pipeline. CreateStrategy for Create intent, QueryStrategy for Query intent. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. strategyRendered is an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -334,6 +334,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `PromptStrategy` | Interface | Contract for context-aware strategy selection: `name` + `applies(context)` |
 | `DefaultPromptStrategy` | Class | Always-applies baseline strategy — `applies()` always returns `true` |
 | `CreateStrategy` | Class | Creation-oriented strategy — `applies()` returns `true` when SemanticContext contains Create intent |
+| `QueryStrategy` | Class | Query-oriented strategy — `applies()` returns `true` when SemanticContext contains Query intent |
 | `PromptStrategySelector` | Interface | Contract for selecting a strategy from an ordered list |
 | `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
 | `PromptStrategyRenderer` | Interface | Contract for rendering PromptStrategy to string: `render(strategy)` |
@@ -385,6 +386,35 @@ class CreateStrategy implements PromptStrategy {
 - Pure, stateless, deterministic — no side effects
 - Selected before DefaultPromptStrategy (first-match wins in DefaultPromptStrategySelector)
 - When CreateStrategy does not match, DefaultPromptStrategy remains fallback
+
+### QueryStrategy
+
+```typescript
+class QueryStrategy implements PromptStrategy {
+  readonly name = 'query'
+  applies(context: SemanticContext): boolean {
+    return context.intent?.intents.some(i => i.type === 'Query') ?? false
+  }
+}
+```
+
+- Applies when SemanticContext contains a `Query` intent
+- Second business-specific strategy — follows the same pattern as CreateStrategy
+- Leverages existing intent analysis pipeline (not raw text matching)
+- Pure, stateless, deterministic — no side effects
+- Coexists with CreateStrategy — both independent, neither affects the other
+- Selected before DefaultPromptStrategy (first-match wins in DefaultPromptStrategySelector)
+- When QueryStrategy does not match, DefaultPromptStrategy remains fallback
+
+### Strategy Selection Precedence
+
+When strategies are ordered `[CreateStrategy, QueryStrategy, DefaultPromptStrategy]`:
+
+| Input | Intent | Selected Strategy |
+|-------|--------|-------------------|
+| 创建一棵树 | Create | CreateStrategy |
+| 列出所有树 | Query | QueryStrategy |
+| 移动树 | Move | DefaultPromptStrategy |
 
 ### DefaultPromptStrategySelector
 
@@ -447,6 +477,7 @@ Phase 1:    MemoryRanking.rank()
 | ~~Strategy Renderer~~ | `BuilderOptions` | ~~Add strategyRenderer to BuilderOptions~~ **Done in WO-S5-017** |
 | ~~Strategy-Based Prompt Assembly~~ | `PromptBuilder` | ~~Use selected strategy to guide assembly~~ **Deferred** |
 | ~~Create Strategy~~ | `PromptStrategy` | ~~New class, same interface~~ **Done in WO-S5-019** |
+| ~~Query Strategy~~ | `PromptStrategy` | ~~New class for query intent~~ **Done in WO-S5-020** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

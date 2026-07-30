@@ -2276,3 +2276,59 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.54
+
+### WO-S5-020 — Query Strategy
+
+- **Created `QueryStrategy`** — second business-specific PromptStrategy implementation
+  - `packages/ai/src/strategy/QueryStrategy.ts`
+  - `readonly name = 'query'`
+  - `applies(context)` returns `true` when `SemanticContext` contains a `Query` intent
+  - Leverages existing intent analysis pipeline (RuleBasedIntentAnalyzer → SemanticContext) rather than re-parsing raw text
+  - Pure, stateless, deterministic — no side effects
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **Added 11 keywords to `RuleBasedIntentAnalyzer`** (strictly additive):
+  - Chinese: 查看, 显示, 列出, 获取, 多少, 哪些 → `Query` intent
+  - English: query, get, find, which, how many → `Query` intent
+  - No existing keywords removed or modified
+- **Selection precedence** — QueryStrategy selected before DefaultPromptStrategy (first-match wins):
+  - `selector.select([CreateStrategy, QueryStrategy, DefaultPromptStrategy], context)` → `QueryStrategy` when Query intent detected
+  - `selector.select([CreateStrategy, QueryStrategy, DefaultPromptStrategy], context)` → `CreateStrategy` when Create intent detected (first-match wins)
+  - `selector.select([CreateStrategy, QueryStrategy, DefaultPromptStrategy], context)` → `DefaultPromptStrategy` for all other intents
+- **Coexistence with CreateStrategy** — both strategies are independent, neither affects the other:
+  - Create requests → CreateStrategy (name = 'create')
+  - Query requests → QueryStrategy (name = 'query')
+  - Other requests → DefaultPromptStrategy (name = 'default')
+- **Rendering** — `DefaultPromptStrategyRenderer.render(QueryStrategy)` → `"Prompt Strategy:\n\n- query"`
+- **Updated exports**:
+  - `strategy/index.ts`: exports `QueryStrategy`
+  - `src/index.ts`: exports `QueryStrategy` from package root
+- **No modifications to**: `PromptStrategy` interface, `PromptStrategySelector`, `DefaultPromptStrategySelector`, `PromptStrategyRenderer`, `DefaultPromptStrategyRenderer`, `PromptBuilder`, `Pipeline`, `Planner`, `Runtime`, `Provider`, `Memory`, `AgentLoop`, `BuilderOptions`, `PromptContext`, `CreateStrategy`, or any Sprint 4 Frozen Interface
+- **No breaking changes** — CreateStrategy unaffected, DefaultPromptStrategy remains fallback
+- Created ADR-0067: Query Strategy
+- All existing tests pass with zero modifications
+- New test file `QueryStrategy.test.ts` (89 tests, 20 groups):
+  - QueryStrategy — identity (2 tests): name, interface conformance
+  - QueryStrategy — applies() with Query intent (3 tests): single, multiple including Query, Query as second
+  - QueryStrategy — applies() without Query intent (7 tests): empty, entity-only, Create, Delete, Move, Modify, empty intents
+  - QueryStrategy — Chinese keywords (9 tests): 查询, 查看, 显示, 列出, 获取, 有什么, 多少, 哪些, 看看
+  - QueryStrategy — English keywords (8 tests): query, show, list, get, find, what, which, how many
+  - QueryStrategy — case insensitivity (9 tests): UPPERCASE, Capitalized, lowercase, mixed, SHOW, LIST, FIND, GET, HOW MANY
+  - QueryStrategy — punctuation (5 tests): period, comma, exclamation, question, parentheses
+  - QueryStrategy — whitespace (4 tests): leading, trailing, multiple spaces, tabs
+  - QueryStrategy — deterministic (3 tests): repeated calls, idempotent, consistently false
+  - QueryStrategy — stateless (2 tests): no state between calls, independent instances
+  - QueryStrategy — pure / no side effects (2 tests): no mutation, no instance changes
+  - Selector integration (4 tests): select for Query, fallback for non-Query, end-to-end pipeline, non-query inputs
+  - Rendering integration (2 tests): renders as query, different from default and create
+  - Default fallback (2 tests): remains fallback, always applies
+  - Coexistence with CreateStrategy (6 tests): Create still wins for Create, Query wins for Query, Default for Move, end-to-end Chinese, end-to-end English, independent strategies
+  - Exports (2 tests): from strategy/index, from package root
+  - Architecture compliance (11 tests): no dependencies on Planner/Runtime/Provider/Memory/ToolCalling/AgentLoop/PromptBuilder/Pipeline, pure, stateless, non-mutating
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 2314 tests pass (2225 existing + 89 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.55

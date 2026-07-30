@@ -47,11 +47,22 @@ const KEYWORD_MAP: Record<string, IntentType> = {
 
   // Query
   查询: 'Query',
-  看看: 'Query',
+  查看: 'Query',
+  显示: 'Query',
+  列出: 'Query',
+  获取: 'Query',
   有什么: 'Query',
-  what: 'Query',
+  多少: 'Query',
+  哪些: 'Query',
+  看看: 'Query',
+  query: 'Query',
   show: 'Query',
   list: 'Query',
+  get: 'Query',
+  find: 'Query',
+  what: 'Query',
+  which: 'Query',
+  'how many': 'Query',
 }
 
 /**
