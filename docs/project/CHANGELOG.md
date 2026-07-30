@@ -2332,3 +2332,65 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.55
+
+### WO-S5-021 — Modify Strategy
+
+- **Created `ModifyStrategy`** — third business-specific PromptStrategy implementation
+  - `packages/ai/src/strategy/ModifyStrategy.ts`
+  - `readonly name = 'modify'`
+  - `applies(context)` returns `true` when `SemanticContext` contains `IntentType 'Move'` OR `IntentType 'Modify'`
+  - Combines Move and Modify into a single "modify" strategy — both are transformation-oriented operations
+  - Leverages existing intent analysis pipeline rather than re-parsing raw text
+  - Pure, stateless, deterministic — no side effects
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **Added 6 keywords to `RuleBasedIntentAnalyzer`** (strictly additive):
+  - Chinese: 调整, 替换, 更新 → `Modify` intent
+  - English: modify, update, adjust → `Modify` intent
+  - No existing keywords removed or modified
+- **Selection precedence** — full strategy routing:
+  - Create intent → CreateStrategy (name = 'create')
+  - Query intent → QueryStrategy (name = 'query')
+  - Move/Modify intent → ModifyStrategy (name = 'modify')
+  - Other → DefaultPromptStrategy (name = 'default')
+- **Coexistence** — all strategies are independent:
+  - CreateStrategy unaffected — still wins for Create requests
+  - QueryStrategy unaffected — still wins for Query requests
+  - ModifyStrategy wins for both Move and Modify requests
+  - DefaultPromptStrategy remains fallback for Delete and other intents
+- **Rendering** — `DefaultPromptStrategyRenderer.render(ModifyStrategy)` → `"Prompt Strategy:\n\n- modify"`
+- **Updated exports**:
+  - `strategy/index.ts`: exports `ModifyStrategy`
+  - `src/index.ts`: exports `ModifyStrategy` from package root
+- **No modifications to**: `PromptStrategy` interface, `PromptStrategySelector`, `DefaultPromptStrategySelector`, `PromptStrategyRenderer`, `DefaultPromptStrategyRenderer`, `PromptBuilder`, `Pipeline`, `Planner`, `Runtime`, `Provider`, `Memory`, `AgentLoop`, `BuilderOptions`, `PromptContext`, `CreateStrategy`, `QueryStrategy`, or any Sprint 4 Frozen Interface
+- **No breaking changes** — all existing behavior preserved
+- Created ADR-0068: Modify Strategy
+- All existing tests pass with zero modifications
+- New test file `ModifyStrategy.test.ts` (97 tests, 21 groups):
+  - ModifyStrategy — identity (2 tests): name, interface conformance
+  - ModifyStrategy — applies() with Move intent (2 tests): single, multiple including Move
+  - ModifyStrategy — applies() with Modify intent (3 tests): single, multiple including Modify, both Move+Modify
+  - ModifyStrategy — applies() without Move/Modify intent (6 tests): empty, entity-only, Create, Delete, Query, empty intents
+  - ModifyStrategy — Chinese keywords (6 tests): 移动, 修改, 改变, 调整, 替换, 更新
+  - ModifyStrategy — English keywords (6 tests): move, modify, change, update, replace, adjust
+  - ModifyStrategy — case insensitivity (9 tests): UPPERCASE, Capitalized, lowercase, mixed, MOVE, UPDATE, CHANGE, ADJUST, REPLACE
+  - ModifyStrategy — punctuation (5 tests): period, comma, exclamation, question, parentheses
+  - ModifyStrategy — whitespace (4 tests): leading, trailing, multiple spaces, tabs
+  - ModifyStrategy — deterministic (3 tests): repeated calls, idempotent, consistently false
+  - ModifyStrategy — stateless (2 tests): no state between calls, independent instances
+  - ModifyStrategy — pure / no side effects (2 tests): no mutation, no instance changes
+  - Selector integration (4 tests): select for Modify, select for Move, fallback, end-to-end pipeline
+  - Rendering integration (2 tests): renders as modify, different from all others
+  - Default fallback (2 tests): remains fallback, always applies
+  - Coexistence with CreateStrategy (2 tests): Create still wins, Create over Modify
+  - Coexistence with QueryStrategy (4 tests): Query still wins, Modify for Move, Modify for Modify, Default for Delete
+  - Full routing (12 tests): Chinese/English end-to-end for create/query/modify/move/delete
+  - Exports (2 tests): from strategy/index, from package root
+  - Architecture compliance (11 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 2411 tests pass (2314 existing + 97 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.56

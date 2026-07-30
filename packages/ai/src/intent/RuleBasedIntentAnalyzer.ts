@@ -42,8 +42,14 @@ const KEYWORD_MAP: Record<string, IntentType> = {
   修改: 'Modify',
   改变: 'Modify',
   编辑: 'Modify',
+  调整: 'Modify',
+  替换: 'Modify',
+  更新: 'Modify',
   replace: 'Modify',
   change: 'Modify',
+  modify: 'Modify',
+  update: 'Modify',
+  adjust: 'Modify',
 
   // Query
   查询: 'Query',
