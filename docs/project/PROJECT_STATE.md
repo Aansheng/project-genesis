@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.53 (Sprint 5) |
-| Architecture Status | **Evolving** — Prompt Strategy Prompt Integration (WO-S5-018) complete. strategyRendered added to PromptContext. Strategy is now an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations. |
+| Architecture Version | v0.54 (Sprint 5) |
+| Architecture Status | **Evolving** — Create Strategy (WO-S5-019) complete. CreateStrategy introduced as first business-specific strategy. Selected before DefaultPromptStrategy when Create intent detected. Prompt shows "- create" for creation requests. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Prompt Integrated** — PromptStrategy + DefaultPromptStrategy + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer. Strategy selected as Phase 0.9, rendered as Phase 0.95. Strategy rendered as official Prompt section. |
+| Strategy Layer | **Prompt Integrated + Create Strategy** — PromptStrategy + DefaultPromptStrategy + **CreateStrategy** + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer. CreateStrategy selected when Create intent detected. Default remains fallback. Strategy rendered as official Prompt section. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -144,6 +144,7 @@
 | WO-S5-016 | Prompt Strategy Consumption          |
 | WO-S5-017 | Prompt Strategy Rendering Foundation |
 | WO-S5-018 | Prompt Strategy Prompt Integration   |
+| WO-S5-019 | Create Strategy                        |
 
 ---
 

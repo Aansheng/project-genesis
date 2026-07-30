@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.53)
+> Project Genesis — AI Architecture Reference (v0.54)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -89,7 +89,7 @@ Production V1 intent analyzer using keyword matching. Introduced in WO-S5-002.
 
 | IntentType | Chinese Keywords | English Keywords |
 |-----------|-----------------|------------------|
-| `Create` | 创建, 生成, 画, 添加, 放一个, 放一棵 | spawn, create, draw, add, make |
+| `Create` | 创建, 生成, 画, 添加, 新建, 制造, 放一个, 放一棵 | spawn, create, generate, draw, add, build, make |
 | `Delete` | 删除, 移除, 清除 | remove, delete |
 | `Move` | 移动, 挪 | move, translate |
 | `Modify` | 修改, 改变, 编辑 | replace, change |
@@ -323,7 +323,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Prompt Integrated** — PromptStrategy now integrated into PromptBuilder pipeline. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. strategyRendered is an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Prompt Integrated + Create Strategy** — PromptStrategy now integrated into PromptBuilder pipeline. CreateStrategy introduced as first business-specific strategy. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. strategyRendered is an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -333,6 +333,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 |-----------|------|---------|
 | `PromptStrategy` | Interface | Contract for context-aware strategy selection: `name` + `applies(context)` |
 | `DefaultPromptStrategy` | Class | Always-applies baseline strategy — `applies()` always returns `true` |
+| `CreateStrategy` | Class | Creation-oriented strategy — `applies()` returns `true` when SemanticContext contains Create intent |
 | `PromptStrategySelector` | Interface | Contract for selecting a strategy from an ordered list |
 | `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
 | `PromptStrategyRenderer` | Interface | Contract for rendering PromptStrategy to string: `render(strategy)` |
@@ -366,6 +367,24 @@ class DefaultPromptStrategy implements PromptStrategy {
 - Always applies — returns `true` for any `SemanticContext`
 - Preserves existing behavior as the baseline strategy
 - Pure, stateless, deterministic — no side effects
+
+### CreateStrategy
+
+```typescript
+class CreateStrategy implements PromptStrategy {
+  readonly name = 'create'
+  applies(context: SemanticContext): boolean {
+    return context.intent?.intents.some(i => i.type === 'Create') ?? false
+  }
+}
+```
+
+- Applies when SemanticContext contains a `Create` intent
+- First business-specific strategy — demonstrates strategy selection pattern
+- Leverages existing intent analysis pipeline (not raw text matching)
+- Pure, stateless, deterministic — no side effects
+- Selected before DefaultPromptStrategy (first-match wins in DefaultPromptStrategySelector)
+- When CreateStrategy does not match, DefaultPromptStrategy remains fallback
 
 ### DefaultPromptStrategySelector
 
@@ -426,7 +445,8 @@ Phase 1:    MemoryRanking.rank()
 |-----------|-----------|-----------|
 | ~~Strategy → Builder~~ | `BuilderOptions` | ~~Add strategySelector to BuilderOptions~~ **Done in WO-S5-016** |
 | ~~Strategy Renderer~~ | `BuilderOptions` | ~~Add strategyRenderer to BuilderOptions~~ **Done in WO-S5-017** |
-| Strategy-Based Prompt Assembly | `PromptBuilder` | Use selected strategy to guide assembly |
+| ~~Strategy-Based Prompt Assembly~~ | `PromptBuilder` | ~~Use selected strategy to guide assembly~~ **Deferred** |
+| ~~Create Strategy~~ | `PromptStrategy` | ~~New class, same interface~~ **Done in WO-S5-019** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

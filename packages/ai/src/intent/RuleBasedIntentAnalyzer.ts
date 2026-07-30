@@ -13,12 +13,16 @@ const KEYWORD_MAP: Record<string, IntentType> = {
   生成: 'Create',
   画: 'Create',
   添加: 'Create',
+  新建: 'Create',
+  制造: 'Create',
   '放一个': 'Create',
   '放一棵': 'Create',
   spawn: 'Create',
   create: 'Create',
+  generate: 'Create',
   draw: 'Create',
   add: 'Create',
+  build: 'Create',
   make: 'Create',
 
   // Delete

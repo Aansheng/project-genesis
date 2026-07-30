@@ -1,5 +1,6 @@
 export type { PromptStrategy } from './PromptStrategy'
 export { DefaultPromptStrategy } from './DefaultPromptStrategy'
+export { CreateStrategy } from './CreateStrategy'
 export type { PromptStrategySelector } from './PromptStrategySelector'
 export { DefaultPromptStrategySelector } from './DefaultPromptStrategySelector'
 export type { PromptStrategyRenderer } from './PromptStrategyRenderer'

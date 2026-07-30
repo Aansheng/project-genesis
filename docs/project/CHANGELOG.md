@@ -2225,3 +2225,54 @@
 - TypeScript 0 errors, ESLint 0 new errors
 - No breaking changes to any Public API
 - Architecture version v0.53
+
+### WO-S5-019 — Create Strategy
+
+- **Created `CreateStrategy`** — first business-specific PromptStrategy implementation
+  - `packages/ai/src/strategy/CreateStrategy.ts`
+  - `readonly name = 'create'`
+  - `applies(context)` returns `true` when `SemanticContext` contains a `Create` intent
+  - Leverages existing intent analysis pipeline (RuleBasedIntentAnalyzer → SemanticContext) rather than re-parsing raw text
+  - Pure, stateless, deterministic — no side effects
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **Added 4 keywords to `RuleBasedIntentAnalyzer`** (strictly additive):
+  - Chinese: 新建, 制造 → `Create` intent
+  - English: generate, build → `Create` intent
+  - No existing keywords removed or modified
+- **Selection precedence** — CreateStrategy selected before DefaultPromptStrategy (first-match wins):
+  - `selector.select([CreateStrategy, DefaultPromptStrategy], context)` → `CreateStrategy` when Create intent detected
+  - `selector.select([CreateStrategy, DefaultPromptStrategy], context)` → `DefaultPromptStrategy` for all other contexts
+- **Rendering** — `DefaultPromptStrategyRenderer.render(CreateStrategy)` → `"Prompt Strategy:\n\n- create"`
+- **Updated exports**:
+  - `strategy/index.ts`: exports `CreateStrategy`
+  - `src/index.ts`: exports `CreateStrategy` from package root
+- **No modifications to**: `PromptStrategy` interface, `PromptStrategySelector`, `DefaultPromptStrategySelector`, `PromptStrategyRenderer`, `DefaultPromptStrategyRenderer`, `PromptBuilder`, `Pipeline`, `Planner`, `Runtime`, `Provider`, `Memory`, `AgentLoop`, `BuilderOptions`, `PromptContext`, or any Sprint 4 Frozen Interface
+- **No breaking changes** — DefaultPromptStrategy remains fallback, all existing behavior preserved
+- Created ADR-0066: Create Strategy
+- All existing tests pass with zero modifications
+- New test file `CreateStrategy.test.ts` (83 tests, 18 groups):
+  - CreateStrategy — identity (2 tests): name, interface conformance
+  - CreateStrategy — applies() with Create intent (3 tests): single, multiple including Create, Create as second
+  - CreateStrategy — applies() without Create intent (7 tests): empty, entity-only, Delete, Move, Modify, Query, empty intents
+  - CreateStrategy — Chinese keywords (6 tests): 创建, 生成, 画, 添加, 新建, 制造
+  - CreateStrategy — English keywords (6 tests): create, generate, draw, add, spawn, build
+  - CreateStrategy — case insensitivity (9 tests): UPPERCASE, Capitalized, lowercase, mixed, GENERATE, DRAW, SPAWN, BUILD, ADD
+  - CreateStrategy — punctuation (5 tests): period, comma, exclamation, question, parentheses
+  - CreateStrategy — whitespace (4 tests): leading, trailing, multiple spaces, tabs
+  - CreateStrategy — deterministic (3 tests): repeated calls, idempotent, consistently false
+  - CreateStrategy — stateless (2 tests): no state between calls, independent instances
+  - CreateStrategy — pure / no side effects (2 tests): no mutation, no instance changes
+  - CreateStrategy — ordering precedence (4 tests): before default, first in list, non-Create context, empty context
+  - Selector integration (5 tests): select for Create, fallback for non-Create, first-match wins, end-to-end pipeline, non-creation inputs
+  - Default fallback (2 tests): remains fallback, always applies
+  - Rendering (2 tests): renders as create, different from default
+  - Exports (2 tests): from strategy/index, from package root
+  - Architecture compliance (11 tests): no dependencies on Planner/Runtime/Provider/Memory/ToolCalling/AgentLoop/PromptBuilder/Pipeline, pure, stateless, non-mutating
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 2225 tests pass (2142 existing + 83 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.54
