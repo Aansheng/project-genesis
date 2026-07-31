@@ -2394,3 +2394,66 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.56
+
+### WO-S5-022 — Delete Strategy
+
+- **Created `DeleteStrategy`** — fourth business-specific PromptStrategy implementation
+  - `packages/ai/src/strategy/DeleteStrategy.ts`
+  - `readonly name = 'delete'`
+  - `applies(context)` returns `true` when `SemanticContext` contains `IntentType 'Delete'`
+  - Leverages existing intent analysis pipeline rather than re-parsing raw text
+  - Pure, stateless, deterministic — no side effects
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **Added 6 keywords to `RuleBasedIntentAnalyzer`** (strictly additive):
+  - Chinese: 销毁, 干掉, 消灭 → `Delete` intent
+  - English: destroy, clear, erase → `Delete` intent
+  - No existing keywords removed or modified
+- **Complete intent routing** — all five IntentTypes now have dedicated strategies:
+  - Create intent → CreateStrategy (name = 'create')
+  - Query intent → QueryStrategy (name = 'query')
+  - Move/Modify intent → ModifyStrategy (name = 'modify')
+  - Delete intent → DeleteStrategy (name = 'delete')
+  - No match → DefaultPromptStrategy (name = 'default')
+- **Coexistence** — all strategies independent:
+  - CreateStrategy unaffected — still wins for Create requests
+  - QueryStrategy unaffected — still wins for Query requests
+  - ModifyStrategy unaffected — still wins for Move/Modify requests
+  - DeleteStrategy wins for Delete requests
+  - DefaultPromptStrategy remains fallback for unmatched intents
+- **Rendering** — `DefaultPromptStrategyRenderer.render(DeleteStrategy)` → `"Prompt Strategy:\n\n- delete"`
+- **Updated exports**:
+  - `strategy/index.ts`: exports `DeleteStrategy`
+  - `src/index.ts`: exports `DeleteStrategy` from package root
+- **No modifications to**: `PromptStrategy` interface, `PromptStrategySelector`, `DefaultPromptStrategySelector`, `PromptStrategyRenderer`, `DefaultPromptStrategyRenderer`, `PromptBuilder`, `Pipeline`, `Planner`, `Runtime`, `Provider`, `Memory`, `AgentLoop`, `BuilderOptions`, `PromptContext`, `CreateStrategy`, `QueryStrategy`, `ModifyStrategy`, or any Sprint 4 Frozen Interface
+- **No breaking changes** — all existing behavior preserved
+- Created ADR-0069: Delete Strategy
+- All existing tests pass with zero modifications
+- New test file `DeleteStrategy.test.ts` (93 tests, 22 groups):
+  - DeleteStrategy — identity (2 tests): name, interface conformance
+  - DeleteStrategy — applies() with Delete intent (3 tests): single, multiple including Delete, Delete as second
+  - DeleteStrategy — applies() without Delete intent (7 tests): empty, entity-only, Create, Move, Modify, Query, empty intents
+  - DeleteStrategy — Chinese keywords (6 tests): 删除, 移除, 销毁, 清除, 干掉, 消灭
+  - DeleteStrategy — English keywords (5 tests): delete, remove, destroy, clear, erase
+  - DeleteStrategy — case insensitivity (8 tests): UPPERCASE, Capitalized, lowercase, mixed, REMOVE, DESTROY, CLEAR, ERASE
+  - DeleteStrategy — punctuation (5 tests): period, comma, exclamation, question, parentheses
+  - DeleteStrategy — whitespace (4 tests): leading, trailing, multiple spaces, tabs
+  - DeleteStrategy — deterministic (3 tests): repeated calls, idempotent, consistently false
+  - DeleteStrategy — stateless (2 tests): no state between calls, independent instances
+  - DeleteStrategy — pure / no side effects (2 tests): no mutation, no instance changes
+  - Selector integration (3 tests): select for Delete, fallback, end-to-end pipeline
+  - Rendering integration (2 tests): renders as delete, different from all others
+  - Default fallback (2 tests): remains fallback, always applies
+  - Coexistence with CreateStrategy (1 test): Create still wins
+  - Coexistence with QueryStrategy (1 test): Query still wins
+  - Coexistence with ModifyStrategy (3 tests): Modify for Move, Modify for Modify, Delete for Delete
+  - Full routing (13 tests): Chinese/English end-to-end for create/query/modify/move/delete/destroy
+  - Exports (2 tests): from strategy/index, from package root
+  - Architecture compliance (11 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 2504 tests pass (2411 existing + 93 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.57

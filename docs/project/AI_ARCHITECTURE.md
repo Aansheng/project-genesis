@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.56)
+> Project Genesis — AI Architecture Reference (v0.57)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -90,7 +90,7 @@ Production V1 intent analyzer using keyword matching. Introduced in WO-S5-002.
 | IntentType | Chinese Keywords | English Keywords |
 |-----------|-----------------|------------------|
 | `Create` | 创建, 生成, 画, 添加, 新建, 制造, 放一个, 放一棵 | spawn, create, generate, draw, add, build, make |
-| `Delete` | 删除, 移除, 清除 | remove, delete |
+| `Delete` | 删除, 移除, 销毁, 清除, 干掉, 消灭 | delete, remove, destroy, clear, erase |
 | `Move` | 移动, 挪 | move, translate |
 | `Modify` | 修改, 改变, 编辑, 调整, 替换, 更新 | replace, change, modify, update, adjust |
 | `Query` | 查询, 查看, 显示, 列出, 获取, 有什么, 多少, 哪些, 看看 | query, what, show, list, get, find, which, how many |
@@ -323,7 +323,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Prompt Integrated + Create + Query + Modify Strategies** — PromptStrategy integrated into PromptBuilder pipeline. CreateStrategy for Create intent, QueryStrategy for Query intent, ModifyStrategy for Move+Modify intents. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. strategyRendered is an official Prompt section. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Complete Intent Routing** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -336,6 +336,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `CreateStrategy` | Class | Creation-oriented strategy — `applies()` returns `true` when SemanticContext contains Create intent |
 | `QueryStrategy` | Class | Query-oriented strategy — `applies()` returns `true` when SemanticContext contains Query intent |
 | `ModifyStrategy` | Class | Modification-oriented strategy — `applies()` returns `true` when SemanticContext contains Move or Modify intent |
+| `DeleteStrategy` | Class | Deletion-oriented strategy — `applies()` returns `true` when SemanticContext contains Delete intent |
 | `PromptStrategySelector` | Interface | Contract for selecting a strategy from an ordered list |
 | `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
 | `PromptStrategyRenderer` | Interface | Contract for rendering PromptStrategy to string: `render(strategy)` |
@@ -426,9 +427,26 @@ class ModifyStrategy implements PromptStrategy {
 - Coexists with CreateStrategy and QueryStrategy — all independent
 - When ModifyStrategy does not match, DefaultPromptStrategy remains fallback
 
+### DeleteStrategy
+
+```typescript
+class DeleteStrategy implements PromptStrategy {
+  readonly name = 'delete'
+  applies(context: SemanticContext): boolean {
+    return context.intent?.intents.some(i => i.type === 'Delete') ?? false
+  }
+}
+```
+
+- Applies when SemanticContext contains a `Delete` intent
+- Fourth business-specific strategy — completes the intent → strategy mapping
+- Leverages existing intent analysis pipeline (not raw text matching)
+- Pure, stateless, deterministic — no side effects
+- When DeleteStrategy does not match, DefaultPromptStrategy remains fallback
+
 ### Strategy Selection Precedence
 
-When strategies are ordered `[CreateStrategy, QueryStrategy, ModifyStrategy, DefaultPromptStrategy]`:
+When strategies are ordered `[CreateStrategy, QueryStrategy, ModifyStrategy, DeleteStrategy, DefaultPromptStrategy]`:
 
 | Input | Intent | Selected Strategy |
 |-------|--------|-------------------|
@@ -436,7 +454,8 @@ When strategies are ordered `[CreateStrategy, QueryStrategy, ModifyStrategy, Def
 | 列出所有树 | Query | QueryStrategy |
 | 移动树到左边 | Move | ModifyStrategy |
 | 修改房子颜色 | Modify | ModifyStrategy |
-| 删除树 | Delete | DefaultPromptStrategy |
+| 删除树 | Delete | DeleteStrategy |
+| (no match) | — | DefaultPromptStrategy |
 
 ### DefaultPromptStrategySelector
 
@@ -501,6 +520,7 @@ Phase 1:    MemoryRanking.rank()
 | ~~Create Strategy~~ | `PromptStrategy` | ~~New class, same interface~~ **Done in WO-S5-019** |
 | ~~Query Strategy~~ | `PromptStrategy` | ~~New class for query intent~~ **Done in WO-S5-020** |
 | ~~Modify Strategy~~ | `PromptStrategy` | ~~New class for move+modify intent~~ **Done in WO-S5-021** |
+| ~~Delete Strategy~~ | `PromptStrategy` | ~~New class for delete intent~~ **Done in WO-S5-022** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

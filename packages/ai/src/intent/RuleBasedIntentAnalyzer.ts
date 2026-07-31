@@ -28,9 +28,15 @@ const KEYWORD_MAP: Record<string, IntentType> = {
   // Delete
   删除: 'Delete',
   移除: 'Delete',
+  销毁: 'Delete',
   清除: 'Delete',
-  remove: 'Delete',
+  干掉: 'Delete',
+  消灭: 'Delete',
   delete: 'Delete',
+  remove: 'Delete',
+  destroy: 'Delete',
+  clear: 'Delete',
+  erase: 'Delete',
 
   // Move
   移动: 'Move',
