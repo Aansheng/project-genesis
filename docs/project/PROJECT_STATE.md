@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.61 (Sprint 5) |
-| Architecture Status | **Evolving** — Strategy Module Prompt Integration (WO-S5-026) complete. `strategyModuleRendered` is now a formal PromptContext field and prompt section. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations. |
+| Architecture Version | v0.62 (Sprint 5) |
+| Architecture Status | **Evolving** — Dynamic Strategy Selection Foundation (WO-S5-027) complete. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + DefaultStrategyEvaluator introduced. Foundation for future AI-based dynamic strategy routing. No behavior changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -152,6 +152,7 @@
 | WO-S5-024 | Strategy Module Consumption            |
 | WO-S5-025 | Strategy Module Rendering Foundation   |
 | WO-S5-026 | Strategy Module Prompt Integration      |
+| WO-S5-027 | Dynamic Strategy Selection Foundation   |
 
 ---
 
@@ -775,6 +776,7 @@ Key remaining items:
 | ADR-0071 | Strategy Module Consumption | `docs/adr/ADR-0071-strategy-module-consumption.md` |
 | ADR-0072 | Strategy Module Rendering Foundation | `docs/adr/ADR-0072-strategy-module-rendering-foundation.md` |
 | ADR-0073 | Strategy Module Prompt Integration | `docs/adr/ADR-0073-strategy-module-prompt-integration.md` |
+| ADR-0074 | Dynamic Strategy Selection Foundation | `docs/adr/ADR-0074-dynamic-strategy-selection-foundation.md` |
 
 ---
 

@@ -2660,4 +2660,39 @@
 - All 2710 tests pass (2684 existing + 26 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-027 — Dynamic Strategy Selection Foundation
+
+- **Created `StrategyCandidate` interface** — `{ readonly strategy: PromptStrategy; readonly score: number }`
+  - Pairs a strategy with a numeric evaluation score (0–100 convention)
+- **Created `StrategySelectionResult` interface** — `{ readonly selected: PromptStrategy; readonly candidates: readonly StrategyCandidate[] }`
+  - Contains the winning strategy and all evaluated candidates for transparency
+- **Created `StrategyEvaluator` interface** — `evaluate(strategy: PromptStrategy, context: SemanticContext): number`
+  - Pluggable scoring interface for future AI-based dynamic strategy routing
+- **Created `DefaultStrategyEvaluator` class** — implements StrategyEvaluator
+  - `applies() === true` → score 100
+  - `applies() === false` → score 0
+  - Preserves exact parity with existing `DefaultPromptStrategySelector` behavior
+- **No modifications to**: PromptBuilder, Pipeline, Planner, Runtime, AgentLoop, PromptRenderer, PromptContext, PromptCompression
+- **No behavior changes** — current strategy selection results and prompt output remain identical
+- **Foundation only** — not consumed by any existing component yet
+- Created ADR-0074: Dynamic Strategy Selection Foundation
+- New test file `DynamicStrategySelectionFoundation.test.ts` (42 tests, 13 groups):
+  - StrategyCandidate (4 tests): hold strategy+score, preserve score, zero score, readonly
+  - StrategySelectionResult (5 tests): hold selected+candidates, preserve selected, preserve candidates, empty candidates, readonly
+  - StrategyEvaluator interface (2 tests): method shape, custom implementation
+  - DefaultStrategyEvaluator — applies=true → 100 (6 tests): Create, Query, Modify, Move, Delete, Default
+  - DefaultStrategyEvaluator — applies=false → 0 (5 tests): cross-intent, empty context
+  - Deterministic (2 tests): same inputs same score, cross-instance
+  - Stateless (1 test): no retained state between calls
+  - Pure (2 tests): no modify strategy, no modify context
+  - Exports (4 tests): strategy index, class, package root, class instance
+  - Architecture compliance (7 tests): zero Planner/Runtime/Provider/Pipeline/AgentLoop deps, no behavior change, no prompt change
+  - RetryPlanner compatibility (1 test)
+  - ToolCallPlanner compatibility (1 test)
+  - Streaming compatibility (1 test)
+  - AgentLoop compatibility (1 test)
+- All 2752 tests pass (2710 existing + 42 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57
