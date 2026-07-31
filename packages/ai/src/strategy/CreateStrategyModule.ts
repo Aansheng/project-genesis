@@ -18,6 +18,8 @@ const CREATE_GUIDELINES = `Creation Guidelines:
  * Foundation only — not consumed by PromptBuilder yet.
  */
 export class CreateStrategyModule implements StrategyModule {
+  readonly name = 'create'
+
   async build(_context: PipelineContext): Promise<string> {
     return CREATE_GUIDELINES
   }

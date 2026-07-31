@@ -17,6 +17,8 @@ const QUERY_GUIDELINES = `Query Guidelines:
  * Foundation only — not consumed by PromptBuilder yet.
  */
 export class QueryStrategyModule implements StrategyModule {
+  readonly name = 'query'
+
   async build(_context: PipelineContext): Promise<string> {
     return QUERY_GUIDELINES
   }

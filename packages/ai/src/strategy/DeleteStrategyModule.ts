@@ -18,6 +18,8 @@ const DELETE_GUIDELINES = `Deletion Guidelines:
  * Foundation only — not consumed by PromptBuilder yet.
  */
 export class DeleteStrategyModule implements StrategyModule {
+  readonly name = 'delete'
+
   async build(_context: PipelineContext): Promise<string> {
     return DELETE_GUIDELINES
   }

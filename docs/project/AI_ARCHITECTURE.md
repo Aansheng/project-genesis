@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.58)
+> Project Genesis — AI Architecture Reference (v0.59)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, and `strategyRenderer` in WO-S5-017.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, and `strategyModules` in WO-S5-024.
 
 ```typescript
 interface BuilderOptions {
@@ -25,6 +25,7 @@ interface BuilderOptions {
   strategySelector?: PromptStrategySelector          // ← WO-S5-016
   strategies?: readonly PromptStrategy[]               // ← WO-S5-016
   strategyRenderer?: PromptStrategyRenderer            // ← WO-S5-017
+  strategyModules?: readonly StrategyModule[]           // ← WO-S5-024
 }
 ```
 
@@ -390,7 +391,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Complete Intent Routing + Module Foundation** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. StrategyModule abstraction introduced with four concrete modules producing guideline content. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Complete Intent Routing + Module Consumption** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, StrategyModule resolution at Phase 0.925, rendering as Phase 0.95. StrategyModule output stored in metadata.promptAssembly.strategyModule. Canonical order: Intent → Entity → Semantic → Strategy → StrategyModule → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -562,15 +563,20 @@ class DefaultPromptStrategyRenderer implements PromptStrategyRenderer {
 - Empty/blank/null/undefined → `""`
 - Pure, stateless, deterministic — no side effects
 
-### Phase 0.95: Strategy Rendering
+### Phase 0.925: StrategyModule Resolution
 
 ```
-Phase 0.9:  PromptStrategySelector.select(strategies, context) → selectedStrategy
+Phase 0.9:   PromptStrategySelector.select(strategies, context) → selectedStrategy
     ↓
-Phase 0.95: PromptStrategyRenderer.render(selectedStrategy) → strategyRendered
+Phase 0.925: StrategyModule resolution — find module where module.name === strategy.name
+    ↓             module.build(context) → strategyModule (string)
+    ↓             → metadata.promptAssembly.strategyModule
+Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendered
     ↓             → metadata.promptAssembly.strategyRendered
 Phase 1:    MemoryRanking.rank()
 ```
+
+Resolution rule: iterate `strategyModules`, find first module where `module.name === selectedStrategy.name`, call `module.build(context)`, store result in `metadata.promptAssembly.strategyModule`. If no match: skip — field absent from metadata.
 
 ### Dependency Rules
 
@@ -594,7 +600,8 @@ Phase 1:    MemoryRanking.rank()
 | ~~Modify Strategy~~ | `PromptStrategy` | ~~New class for move+modify intent~~ **Done in WO-S5-021** |
 | ~~Delete Strategy~~ | `PromptStrategy` | ~~New class for delete intent~~ **Done in WO-S5-022** |
 | ~~StrategyModule Foundation~~ | `StrategyModule` | ~~Strategy-specific PromptModule abstraction~~ **Done in WO-S5-023** |
-| Strategy Module Consumption | `PromptBuilder` | Wire StrategyModule to PromptBuilder based on selected strategy |
+| ~~Strategy Module Consumption~~ | `PromptBuilder` | ~~Wire StrategyModule to PromptBuilder based on selected strategy~~ **Done in WO-S5-024** |
+| Strategy Module → Prompt | `PromptContext` | Inject strategyModule text into final prompt string |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

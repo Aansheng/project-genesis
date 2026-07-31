@@ -2507,4 +2507,53 @@
 - All 2604 tests pass (2504 existing + 100 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-024 — Strategy Module Consumption
+
+- **Added `name` property to `StrategyModule` interface** — `readonly name: string`
+  - Each module's `name` matches its corresponding `PromptStrategy.name`
+  - `CreateStrategyModule.name = 'create'`
+  - `QueryStrategyModule.name = 'query'`
+  - `ModifyStrategyModule.name = 'modify'`
+  - `DeleteStrategyModule.name = 'delete'`
+- **Added `strategyModules` to `BuilderOptions`** — `strategyModules?: readonly StrategyModule[]`
+  - Optional field — no breaking changes to existing constructors
+- **Added Phase 0.925: StrategyModule resolution** to `DefaultPromptBuilder.build()`
+  - Between Phase 0.9 (strategy selection) and Phase 0.95 (strategy rendering)
+  - Resolution rule: iterate `strategyModules`, find module where `module.name === selectedStrategy.name`
+  - Call `module.build(context)`, store result string in `metadata.promptAssembly.strategyModule`
+  - If no match: skip — field absent from metadata
+- **Metadata structure:**
+  ```typescript
+  metadata.promptAssembly = {
+    strategy: { name: 'create' },
+    strategyRendered: 'Prompt Strategy:\n\n- create',
+    strategyModule: 'Creation Guidelines:\n\n- Prefer creating new entities\n- Avoid modifying existing entities',
+    // ... other fields
+  }
+  ```
+- **Prompt unchanged** — `strategyModule` stored in metadata only, not injected into the rendered prompt string
+- **No modifications to**: `PromptContext`, `PromptRenderer`, `PromptCompression`, `Pipeline`, `Planner`, `Runtime`, `AgentLoop`, `PromptStrategy`, `PromptStrategyRenderer`, `StrategyModule` (only extended with `name`)
+- **No breaking changes** — all existing behavior preserved
+- Created ADR-0071: Strategy Module Consumption
+- All existing tests pass with zero modifications
+- New test file `StrategyModuleConsumption.test.ts` (41 tests, 13 groups):
+  - BuilderOptions — strategyModules (5 tests): optional, empty array, single, multiple, legacy constructor
+  - Create: CreateStrategy → CreateStrategyModule (3 tests): resolve, guidelines, name match
+  - Query: QueryStrategy → QueryStrategyModule (3 tests): resolve, guidelines, name match
+  - Modify: ModifyStrategy → ModifyStrategyModule (4 tests): Move intent, Modify intent, guidelines, name match
+  - Delete: DeleteStrategy → DeleteStrategyModule (3 tests): resolve, guidelines, name match
+  - No match — strategyModule not in metadata (4 tests): default strategy, empty array, undefined, no error
+  - Metadata coexistence (5 tests): all three fields, partial fields, name-content match, strategyRendered, type check
+  - Prompt unchanged (2 tests): no strategyModule in prompt, prompt identical with/without modules
+  - Deterministic (2 tests): repeated calls, cross-instance
+  - Stateless (1 test): no state between calls
+  - RetryPlanner compatibility (1 test)
+  - ToolCallPlanner compatibility (1 test)
+  - Streaming compatibility (1 test)
+  - AgentLoop compatibility (1 test)
+  - Module name property (5 tests): each module name, all names match strategy names
+- All 2645 tests pass (2604 existing + 41 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57

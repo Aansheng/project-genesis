@@ -18,6 +18,8 @@ const MODIFY_GUIDELINES = `Modification Guidelines:
  * Foundation only — not consumed by PromptBuilder yet.
  */
 export class ModifyStrategyModule implements StrategyModule {
+  readonly name = 'modify'
+
   async build(_context: PipelineContext): Promise<string> {
     return MODIFY_GUIDELINES
   }

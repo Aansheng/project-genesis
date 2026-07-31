@@ -4,15 +4,18 @@ import type { PromptModule } from '../prompt/modules/PromptModule'
  * StrategyModule — strategy-specific PromptModule.
  *
  * Extends PromptModule to allow each strategy to contribute prompt content.
- * This is the foundation that connects the Strategy Layer to the Prompt
- * Assembly pipeline.
+ * Each StrategyModule has a `name` that matches its corresponding PromptStrategy's
+ * `name`, enabling the PromptBuilder to resolve the correct module for the
+ * selected strategy.
+ *
+ * Resolution rule: `module.name === strategy.name`
  *
  * Each concrete strategy module produces deterministic guideline text
  * that shapes LLM behavior for its intent category:
- * - CreateStrategyModule  → "Creation Guidelines: …"
- * - QueryStrategyModule   → "Query Guidelines: …"
- * - ModifyStrategyModule  → "Modification Guidelines: …"
- * - DeleteStrategyModule  → "Deletion Guidelines: …"
+ * - CreateStrategyModule  → name='create', "Creation Guidelines: …"
+ * - QueryStrategyModule   → name='query', "Query Guidelines: …"
+ * - ModifyStrategyModule  → name='modify', "Modification Guidelines: …"
+ * - DeleteStrategyModule  → name='delete', "Deletion Guidelines: …"
  *
  * Properties:
  * - Pure: same PipelineContext always produces same output string
@@ -20,7 +23,8 @@ import type { PromptModule } from '../prompt/modules/PromptModule'
  * - Deterministic: no randomness or external factors
  * - No side effects: does not modify context or external state
  * - Zero dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
- *
- * Foundation only — no consumption by PromptBuilder yet.
  */
-export interface StrategyModule extends PromptModule {}
+export interface StrategyModule extends PromptModule {
+  /** Strategy name — matches PromptStrategy.name for module resolution */
+  readonly name: string
+}

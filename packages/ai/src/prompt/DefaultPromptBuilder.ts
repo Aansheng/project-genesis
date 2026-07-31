@@ -29,6 +29,7 @@ import type { SemanticContextRenderer } from '../semantic/SemanticContextRendere
 import type { PromptStrategy } from '../strategy/PromptStrategy'
 import type { PromptStrategySelector } from '../strategy/PromptStrategySelector'
 import type { PromptStrategyRenderer } from '../strategy/PromptStrategyRenderer'
+import type { StrategyModule } from '../strategy/StrategyModule'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultPromptRenderer } from './DefaultPromptRenderer'
@@ -57,6 +58,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly strategySelector?: PromptStrategySelector
   private readonly strategies?: readonly PromptStrategy[]
   private readonly strategyRenderer?: PromptStrategyRenderer
+  private readonly strategyModules?: readonly StrategyModule[]
 
   /**
    * Create a DefaultPromptBuilder.
@@ -118,6 +120,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategySelector = opts.strategySelector
       this.strategies = opts.strategies
       this.strategyRenderer = opts.strategyRenderer
+      this.strategyModules = opts.strategyModules
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -203,6 +206,17 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ? this.strategySelector.select(this.strategies, semanticContext ?? {})
         : new DefaultPromptStrategy()
 
+    // Phase 0.925: StrategyModule resolution — find module matching selected strategy
+    let strategyModuleOutput: string | undefined
+    if (this.strategyModules !== undefined) {
+      for (const module of this.strategyModules) {
+        if (module.name === selectedStrategy.name) {
+          strategyModuleOutput = await module.build(context)
+          break
+        }
+      }
+    }
+
     // Phase 0.95: PromptStrategyRenderer — render strategy as string
     const strategyRenderer = this.strategyRenderer ?? new DefaultPromptStrategyRenderer()
     const strategyRendered: string | undefined = strategyRenderer.render(selectedStrategy)
@@ -269,6 +283,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(semanticRendered !== undefined ? { semanticRendered } : {}),
         strategy: { name: selectedStrategy.name },
         ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
+        ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

@@ -514,6 +514,7 @@ describe('StrategyModule conformance', () => {
 describe('Custom StrategyModule implementation', () => {
   it('should allow custom StrategyModule', async () => {
     const custom: StrategyModule = {
+      name: 'custom',
       async build(_context: PipelineContext): Promise<string> {
         return 'Custom Strategy Guidelines:\n\n- Custom rule'
       },
