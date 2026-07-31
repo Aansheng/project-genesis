@@ -237,6 +237,11 @@ export class DefaultPromptBuilder implements PromptBuilder {
       promptContext.strategyRendered = strategyRendered
     }
 
+    // Inject strategyModuleRendered into PromptContext for rendering
+    if (strategyModuleRendered !== undefined && strategyModuleRendered.length > 0) {
+      promptContext.strategyModuleRendered = strategyModuleRendered
+    }
+
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
     const rankingResult: MemoryRankingResult = this.ranking.rank(promptContext)
 
@@ -273,6 +278,9 @@ export class DefaultPromptBuilder implements PromptBuilder {
     }
     if (semanticRendered !== undefined && semanticRendered.length > 0) {
       renderContext.semanticRendered = semanticRendered
+    }
+    if (strategyModuleRendered !== undefined && strategyModuleRendered.length > 0) {
+      renderContext.strategyModuleRendered = strategyModuleRendered
     }
     if (strategyRendered !== undefined && strategyRendered.length > 0) {
       renderContext.strategyRendered = strategyRendered

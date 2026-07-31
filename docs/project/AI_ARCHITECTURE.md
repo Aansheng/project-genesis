@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.60)
+> Project Genesis — AI Architecture Reference (v0.61)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -392,7 +392,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Complete Intent Routing + Module Rendering** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, StrategyModule resolution at Phase 0.925, StrategyModule rendering at Phase 0.94, strategy rendering as Phase 0.95. Both strategyModule and strategyModuleRendered stored in metadata. Canonical order: Intent → Entity → Semantic → Strategy → StrategyModule → System → User Input → Memory → Reflection → World State → Observations.
+**Complete Strategy Module Pipeline** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, StrategyModule resolution at Phase 0.925, StrategyModule rendering at Phase 0.94, strategy rendering as Phase 0.95. `strategyModuleRendered` is now a formal PromptContext field and prompt section. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -605,7 +605,7 @@ Resolution rule: iterate `strategyModules`, find first module where `module.name
 | ~~StrategyModule Foundation~~ | `StrategyModule` | ~~Strategy-specific PromptModule abstraction~~ **Done in WO-S5-023** |
 | ~~Strategy Module Consumption~~ | `PromptBuilder` | ~~Wire StrategyModule to PromptBuilder based on selected strategy~~ **Done in WO-S5-024** |
 | ~~Strategy Module Rendering Foundation~~ | `StrategyModuleRenderer` | ~~StrategyModule rendering abstraction~~ **Done in WO-S5-025** |
-| Strategy Module → Prompt | `PromptContext` | Inject strategyModuleRendered text into final prompt string |
+| ~~Strategy Module → Prompt~~ | `PromptContext` | ~~Inject strategyModuleRendered text into final prompt string~~ **Done in WO-S5-026** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

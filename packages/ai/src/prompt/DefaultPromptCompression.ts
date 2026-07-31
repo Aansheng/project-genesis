@@ -76,6 +76,7 @@ export class DefaultPromptCompression implements PromptCompression {
       'intentRendered',
       'entityRendered',
       'semanticRendered',
+      'strategyModuleRendered',
       'strategyRendered',
       'userInput',
       'memory',

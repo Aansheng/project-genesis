@@ -317,15 +317,15 @@ describe('Metadata — strategy, strategyRendered, strategyModule coexist', () =
 // Prompt Unchanged
 // ---------------------------------------------------------------------------
 
-describe('Prompt unchanged by strategyModule', () => {
-  it('prompt output should not include strategyModule text', async () => {
+describe('Prompt includes strategyModule content', () => {
+  it('prompt output should include strategyModule rendered text', async () => {
     const builder = createBuilderWithStrategyModules('创建一棵树')
     const result = await builder.build(createPipelineContext('创建一棵树'))
-    // strategyModule goes to metadata only, not into prompt string
-    expect(result.prompt).not.toContain('Creation Guidelines:')
+    // strategyModuleRendered is now injected into the prompt
+    expect(result.prompt).toContain('Strategy Module:')
   })
 
-  it('prompt with strategyModules should match prompt without strategyModules', async () => {
+  it('prompt with strategyModules should differ from prompt without strategyModules', async () => {
     const builderWithModules = createBuilderWithStrategyModules('创建一棵树')
     const intentAnalyzer = new RuleBasedIntentAnalyzer()
     const strategySelector = new DefaultPromptStrategySelector()
@@ -348,7 +348,9 @@ describe('Prompt unchanged by strategyModule', () => {
 
     const r1 = await builderWithModules.build(createPipelineContext('创建一棵树'))
     const r2 = await builderWithoutModules.build(createPipelineContext('创建一棵树'))
-    expect(r1.prompt).toBe(r2.prompt)
+    // Prompt with modules includes Strategy Module section, without does not
+    expect(r1.prompt).toContain('Strategy Module:')
+    expect(r2.prompt).not.toContain('Strategy Module:')
   })
 })
 

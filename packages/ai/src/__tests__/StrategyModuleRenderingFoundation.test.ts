@@ -318,14 +318,15 @@ describe('BuilderOptions — strategyModuleRenderer', () => {
 // Prompt Unchanged
 // ---------------------------------------------------------------------------
 
-describe('Prompt unchanged by strategyModuleRendered', () => {
-  it('prompt should not include strategyModuleRendered text', async () => {
+describe('Prompt includes strategyModuleRendered', () => {
+  it('prompt should include strategyModuleRendered text', async () => {
     const builder = createBuilderWithAll('创建一棵树')
     const result = await builder.build(createPipelineContext('创建一棵树'))
-    expect(result.prompt).not.toContain('Strategy Module:')
+    // strategyModuleRendered is now injected into the prompt
+    expect(result.prompt).toContain('Strategy Module:')
   })
 
-  it('prompt should be identical with and without strategyModuleRenderer', async () => {
+  it('prompt with explicit renderer should match default renderer', async () => {
     const intentAnalyzer = new RuleBasedIntentAnalyzer()
     const strategySelector = new DefaultPromptStrategySelector()
     const strategyRenderer = new DefaultPromptStrategyRenderer()
@@ -354,6 +355,7 @@ describe('Prompt unchanged by strategyModuleRendered', () => {
 
     const r1 = await builderWithRenderer.build(createPipelineContext('创建一棵树'))
     const r2 = await builderWithoutRenderer.build(createPipelineContext('创建一棵树'))
+    // Both use DefaultStrategyModuleRenderer — same prompt
     expect(r1.prompt).toBe(r2.prompt)
   })
 })

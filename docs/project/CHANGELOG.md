@@ -2606,4 +2606,58 @@
 - All 2684 tests pass (2645 existing + 39 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-026 — Strategy Module Prompt Integration
+
+- **Added `strategyModuleRendered?: string` to `PromptContext`** — formal prompt section field
+  - Optional — no breaking changes to existing interfaces
+- **Updated `DefaultPromptRenderer.CANONICAL_ORDER`** — added `strategyModuleRendered` at position 3 (before `strategyRendered`)
+  - New order: `intentRendered → entityRendered → semanticRendered → strategyModuleRendered → strategyRendered → system → userInput → memory → reflections → worldState → observations`
+- **Updated `DefaultPromptCompression.isPromptContextKey()`** — added `'strategyModuleRendered'` to valid keys
+- **Updated `DefaultPromptBuilder`** — injects `strategyModuleRendered` into both `promptContext` and `renderContext`
+  - Strategy Module appears in prompt after Semantic Context, before Prompt Strategy
+- **Updated existing tests** in `StrategyModuleConsumption.test.ts` and `StrategyModuleRenderingFoundation.test.ts`
+  - Changed "prompt unchanged" assertions to "prompt includes Strategy Module" to reflect new behavior
+- **Prompt output example:**
+  ```
+  User Intent:
+  - Create
+
+  Entities:
+  - Tree
+
+  Semantic Context:
+  Intent:
+  - Create
+  Entities:
+  - Tree
+
+  Strategy Module:
+  Creation Guidelines:
+  - Prefer creating new entities
+  - Avoid modifying existing entities
+
+  Prompt Strategy:
+  - create
+
+  You are a game action planner...
+  ```
+- **No modifications to**: Pipeline, Planner, Runtime, AgentLoop, PromptStrategy, StrategyModule, StrategyModuleRenderer
+- **No changes to**: Metadata structure, BuilderOptions API
+- **No breaking changes** — all existing behavior preserved (with/without modules)
+- Created ADR-0073: Strategy Module Prompt Integration
+- New test file `StrategyModulePromptIntegration.test.ts` (26 tests, 9 groups):
+  - PromptContext — strategyModuleRendered (3 tests): optional, undefined, coexist with strategyRendered
+  - PromptRenderer — CANONICAL_ORDER (4 tests): includes, before strategyRendered, after semanticRendered, renders in order
+  - PromptCompression — strategyModuleRendered (4 tests): preserve, remove empty, remove undefined, survive with other fields
+  - PromptBuilder — strategyModuleRendered in prompt (6 tests): create, query, modify, delete, no match, metadata
+  - Canonical Order (3 tests): rendered order, CANONICAL_ORDER sequence, index position
+  - Deterministic (2 tests): same prompt, same metadata
+  - RetryPlanner compatibility (1 test)
+  - ToolCallPlanner compatibility (1 test)
+  - Streaming compatibility (1 test)
+  - AgentLoop compatibility (1 test)
+- All 2710 tests pass (2684 existing + 26 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57

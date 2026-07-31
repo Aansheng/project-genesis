@@ -20,6 +20,7 @@ import { DefaultPromptRenderer } from './DefaultPromptRenderer'
  * @property entityRendered — Formatted entity references text (from EntityRenderer)
  * @property semanticRendered — Formatted semantic context text (from SemanticContextRenderer)
  * @property strategyRendered — Formatted strategy text (from PromptStrategyRenderer)
+ * @property strategyModuleRendered — Formatted strategy module text (from StrategyModuleRenderer)
  * @property userInput — Raw user input text (from UserInputModule)
  * @property memory — Conversation history (from MemoryPromptModule)
  * @property worldState — Current world snapshot (from WorldStatePromptModule)
@@ -41,6 +42,9 @@ export interface PromptContext {
 
   /** Formatted strategy text */
   strategyRendered?: string
+
+  /** Formatted strategy module text */
+  strategyModuleRendered?: string
 
   /** Raw user input text */
   userInput?: string
