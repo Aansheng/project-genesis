@@ -30,8 +30,10 @@ import type { PromptStrategy } from '../strategy/PromptStrategy'
 import type { PromptStrategySelector } from '../strategy/PromptStrategySelector'
 import type { PromptStrategyRenderer } from '../strategy/PromptStrategyRenderer'
 import type { StrategyModule } from '../strategy/StrategyModule'
+import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
+import { DefaultStrategyModuleRenderer } from '../strategy/DefaultStrategyModuleRenderer'
 import { DefaultPromptRenderer } from './DefaultPromptRenderer'
 import { DefaultPromptCompression } from './DefaultPromptCompression'
 import { DefaultMemoryRanking } from './DefaultMemoryRanking'
@@ -59,6 +61,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly strategies?: readonly PromptStrategy[]
   private readonly strategyRenderer?: PromptStrategyRenderer
   private readonly strategyModules?: readonly StrategyModule[]
+  private readonly strategyModuleRenderer?: StrategyModuleRenderer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -121,6 +124,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategies = opts.strategies
       this.strategyRenderer = opts.strategyRenderer
       this.strategyModules = opts.strategyModules
+      this.strategyModuleRenderer = opts.strategyModuleRenderer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -217,6 +221,13 @@ export class DefaultPromptBuilder implements PromptBuilder {
       }
     }
 
+    // Phase 0.94: StrategyModuleRenderer — render module content as formatted string
+    let strategyModuleRendered: string | undefined
+    if (strategyModuleOutput !== undefined) {
+      const moduleRenderer = this.strategyModuleRenderer ?? new DefaultStrategyModuleRenderer()
+      strategyModuleRendered = moduleRenderer.render(strategyModuleOutput)
+    }
+
     // Phase 0.95: PromptStrategyRenderer — render strategy as string
     const strategyRenderer = this.strategyRenderer ?? new DefaultPromptStrategyRenderer()
     const strategyRendered: string | undefined = strategyRenderer.render(selectedStrategy)
@@ -284,6 +295,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         strategy: { name: selectedStrategy.name },
         ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
         ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
+        ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

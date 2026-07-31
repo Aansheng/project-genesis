@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.59 (Sprint 5) |
-| Architecture Status | **Evolving** — Strategy Module Consumption (WO-S5-024) complete. PromptBuilder resolves StrategyModule by name match and stores in metadata.promptAssembly.strategyModule. Phase 0.925 added between strategy selection (0.9) and rendering (0.95). |
+| Architecture Version | v0.60 (Sprint 5) |
+| Architecture Status | **Evolving** — Strategy Module Rendering Foundation (WO-S5-025) complete. StrategyModuleRenderer + DefaultStrategyModuleRenderer introduced. Phase 0.94 renders strategyModule → strategyModuleRendered in metadata. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Module Consumed** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule. PromptBuilder resolves StrategyModule at Phase 0.925 and stores in metadata. |
+| Strategy Layer | **Module Rendered** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer. Phase 0.925 resolves, Phase 0.94 renders, both stored in metadata. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -150,6 +150,7 @@
 | WO-S5-022 | Delete Strategy                        |
 | WO-S5-023 | Strategy Module Foundation             |
 | WO-S5-024 | Strategy Module Consumption            |
+| WO-S5-025 | Strategy Module Rendering Foundation   |
 
 ---
 
@@ -771,6 +772,7 @@ Key remaining items:
 | ADR-0069 | Delete Strategy | `docs/adr/ADR-0069-delete-strategy.md` |
 | ADR-0070 | Strategy Module Foundation | `docs/adr/ADR-0070-strategy-module-foundation.md` |
 | ADR-0071 | Strategy Module Consumption | `docs/adr/ADR-0071-strategy-module-consumption.md` |
+| ADR-0072 | Strategy Module Rendering Foundation | `docs/adr/ADR-0072-strategy-module-rendering-foundation.md` |
 
 ---
 

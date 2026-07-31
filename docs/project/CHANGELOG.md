@@ -2556,4 +2556,54 @@
 - All 2645 tests pass (2604 existing + 41 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-025 — Strategy Module Rendering Foundation
+
+- **Created `StrategyModuleRenderer` interface** — `render(moduleContent: string): string`
+- **Created `DefaultStrategyModuleRenderer`** — prepends `"Strategy Module:\n\n"` header to raw module content
+  - Empty string, whitespace, null, undefined → returns `""`
+  - Non-empty content → `"Strategy Module:\n\n{content}"`
+- **Added `strategyModuleRenderer` to `BuilderOptions`** — `strategyModuleRenderer?: StrategyModuleRenderer`
+  - Optional field — no breaking changes to existing constructors
+  - Falls back to `DefaultStrategyModuleRenderer` when not provided
+- **Added Phase 0.94: StrategyModuleRenderer.render()** to `DefaultPromptBuilder.build()`
+  - Between Phase 0.925 (module resolution) and Phase 0.95 (strategy rendering)
+  - Renders `strategyModule` → `strategyModuleRendered`
+  - Stores in `metadata.promptAssembly.strategyModuleRendered`
+  - If no module matched at Phase 0.925, Phase 0.94 is skipped entirely
+- **Metadata structure:**
+  ```typescript
+  metadata.promptAssembly = {
+    strategy: { name: 'create' },
+    strategyRendered: 'Prompt Strategy:\n\n- create',
+    strategyModule: 'Creation Guidelines:\n\n- Prefer creating new entities\n- Avoid modifying existing entities',
+    strategyModuleRendered: 'Strategy Module:\n\nCreation Guidelines:\n\n- Prefer creating new entities\n- Avoid modifying existing entities',
+    // ... other fields
+  }
+  ```
+- **Prompt unchanged** — `strategyModuleRendered` stored in metadata only, not injected into the rendered prompt string
+- **No modifications to**: PromptContext, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, StrategyModule, PromptStrategy, PromptStrategyRenderer
+- **No breaking changes** — all existing behavior preserved
+- Created ADR-0072: Strategy Module Rendering Foundation
+- All existing tests pass with zero modifications
+- New test file `StrategyModuleRenderingFoundation.test.ts` (39 tests, 14 groups):
+  - StrategyModuleRenderer interface (3 tests): render method, type, custom implementation
+  - DefaultStrategyModuleRenderer — Create (3 tests): render, header, guidelines
+  - DefaultStrategyModuleRenderer — Query (2 tests): render, guidelines
+  - DefaultStrategyModuleRenderer — Modify (2 tests): render, guidelines
+  - DefaultStrategyModuleRenderer — Delete (2 tests): render, guidelines
+  - Empty input handling (4 tests): empty, whitespace, null, undefined
+  - Metadata — strategyModuleRendered storage (6 tests): stored, absent, coexist, header, type, raw vs rendered
+  - BuilderOptions — strategyModuleRenderer (4 tests): optional, accept, default fallback, legacy constructor
+  - Prompt unchanged (2 tests): no strategyModuleRendered in prompt, identical with/without renderer
+  - Deterministic (2 tests): same input same output, repeated builder calls
+  - Stateless (2 tests): no state between renders, no state between builder calls
+  - RetryPlanner compatibility (1 test)
+  - ToolCallPlanner compatibility (1 test)
+  - Streaming compatibility (1 test)
+  - AgentLoop compatibility (1 test)
+  - Exports (3 tests): strategy index, strategy index class, package root
+- All 2684 tests pass (2645 existing + 39 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57
