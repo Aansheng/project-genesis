@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.62 (Sprint 5) |
-| Architecture Status | **Evolving** — Dynamic Strategy Selection Foundation (WO-S5-027) complete. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + DefaultStrategyEvaluator introduced. Foundation for future AI-based dynamic strategy routing. No behavior changes. |
+| Architecture Version | v0.63 (Sprint 5) |
+| Architecture Status | **Evolving** — Score Based Strategy Selection (WO-S5-028) complete. DefaultPromptStrategySelector upgraded from first-match-wins to highest-score-wins. Backward compatible — identical results with DefaultStrategyEvaluator. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -153,6 +153,7 @@
 | WO-S5-025 | Strategy Module Rendering Foundation   |
 | WO-S5-026 | Strategy Module Prompt Integration      |
 | WO-S5-027 | Dynamic Strategy Selection Foundation   |
+| WO-S5-028 | Score Based Strategy Selection           |
 
 ---
 
@@ -777,6 +778,7 @@ Key remaining items:
 | ADR-0072 | Strategy Module Rendering Foundation | `docs/adr/ADR-0072-strategy-module-rendering-foundation.md` |
 | ADR-0073 | Strategy Module Prompt Integration | `docs/adr/ADR-0073-strategy-module-prompt-integration.md` |
 | ADR-0074 | Dynamic Strategy Selection Foundation | `docs/adr/ADR-0074-dynamic-strategy-selection-foundation.md` |
+| ADR-0075 | Score Based Strategy Selection | `docs/adr/ADR-0075-score-based-strategy-selection.md` |
 
 ---
 

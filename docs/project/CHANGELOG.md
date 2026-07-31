@@ -2695,4 +2695,34 @@
 - All 2752 tests pass (2710 existing + 42 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-028 — Score Based Strategy Selection
+
+- **Upgraded `DefaultPromptStrategySelector`** from first-match-wins to highest-score-wins
+  - New constructor: `constructor(evaluator: StrategyEvaluator = new DefaultStrategyEvaluator())`
+  - Evaluates ALL strategies using injected `StrategyEvaluator`
+  - Collects `StrategyCandidate[]` entries with scores
+  - Selects candidate with highest score; ties broken by array order (first occurrence wins)
+  - Falls back to `DefaultPromptStrategy` if all scores are 0
+- **Backward compatible** — with `DefaultStrategyEvaluator`, produces identical results:
+  - `applies() = true` → score 100 → selected (same as first-match-wins)
+  - `applies() = false` → score 0 → skipped
+  - All zero → `DefaultPromptStrategy` fallback (identical)
+- **All 2752 existing tests pass with zero modifications**
+- **No modifications to**: PromptBuilder, Pipeline, Planner, Runtime, AgentLoop, PromptRenderer, PromptContext, PromptCompression, Strategy interfaces, StrategyModule, StrategyRenderer
+- Created ADR-0075: Score Based Strategy Selection
+- New test file `ScoreBasedStrategySelection.test.ts` (30 tests, 10 groups):
+  - Highest score wins (4 tests): Create/Query/Delete/Modify selected by score
+  - Tie breaking (3 tests): first occurrence wins, all tied at 50
+  - All zero → default fallback (3 tests): no intent, empty array, custom zero evaluator
+  - Deterministic (2 tests): same inputs, cross-instance
+  - Stateless (1 test): no retained state between calls
+  - Pure (2 tests): no modify strategies, no modify context
+  - Candidate generation (2 tests): every strategy evaluated, even when first matches
+  - Backward compatibility (6 tests): Create/Query/Modify/Move/Delete/no intent
+  - Exports (3 tests): strategy index, evaluator constructor, no-args constructor
+  - RetryPlanner/ToolCallPlanner/Streaming/AgentLoop compatibility (4 tests)
+- All 2782 tests pass (2752 existing + 30 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57

@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.62)
+> Project Genesis — AI Architecture Reference (v0.63)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -392,7 +392,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Complete Strategy Module Pipeline + Dynamic Selection Foundation** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, StrategyModule resolution at Phase 0.925, StrategyModule rendering at Phase 0.94, strategy rendering as Phase 0.95. `strategyModuleRendered` is a formal PromptContext field and prompt section. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + DefaultStrategyEvaluator establish foundation for future AI-based dynamic strategy routing. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Score-Based Strategy Selection** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector now uses highest-score-wins (with StrategyEvaluator) instead of first-match-wins. Backward compatible — DefaultStrategyEvaluator produces identical results. StrategyCandidate + StrategySelectionResult + StrategyEvaluator enable future AI-based dynamic routing. Strategy selection: Phase 0.9, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
