@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.57 (Sprint 5) |
-| Architecture Status | **Evolving** — Delete Strategy (WO-S5-022) complete. All five IntentTypes now have dedicated strategies. Full routing: Create → create, Query → query, Move/Modify → modify, Delete → delete, Other → default. |
+| Architecture Version | v0.58 (Sprint 5) |
+| Architecture Status | **Evolving** — Strategy Module Foundation (WO-S5-023) complete. StrategyModule abstraction introduced with four concrete modules (Create, Query, Modify, Delete). Foundation only — no PromptBuilder consumption yet. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Complete Intent Routing** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + **DeleteStrategy** + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer. All five IntentTypes routed: Create→create, Query→query, Move+Modify→modify, Delete→delete. Default remains fallback. |
+| Strategy Layer | **Module Foundation** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer + **StrategyModule** + **CreateStrategyModule** + **QueryStrategyModule** + **ModifyStrategyModule** + **DeleteStrategyModule**. All five IntentTypes routed. Strategy modules produce guideline content — not consumed by PromptBuilder yet. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -148,6 +148,7 @@
 | WO-S5-020 | Query Strategy                         |
 | WO-S5-021 | Modify Strategy                        |
 | WO-S5-022 | Delete Strategy                        |
+| WO-S5-023 | Strategy Module Foundation             |
 
 ---
 
@@ -758,6 +759,16 @@ Key remaining items:
 | ADR-0058 | Semantic Context Foundation      | `docs/adr/ADR-0058-semantic-context-foundation.md`     |
 | ADR-0059 | Semantic Context Consumption     | `docs/adr/ADR-0059-semantic-context-consumption.md`    |
 | ADR-0060 | Semantic Context Rendering Foundation | `docs/adr/ADR-0060-semantic-context-rendering-foundation.md` |
+| ADR-0061 | Semantic Context Prompt Integration | `docs/adr/ADR-0061-semantic-context-prompt-integration.md` |
+| ADR-0062 | Prompt Strategy Foundation | `docs/adr/ADR-0062-prompt-strategy-foundation.md` |
+| ADR-0063 | Prompt Strategy Consumption | `docs/adr/ADR-0063-prompt-strategy-consumption.md` |
+| ADR-0064 | Prompt Strategy Rendering Foundation | `docs/adr/ADR-0064-prompt-strategy-rendering-foundation.md` |
+| ADR-0065 | Prompt Strategy Prompt Integration | `docs/adr/ADR-0065-prompt-strategy-prompt-integration.md` |
+| ADR-0066 | Create Strategy | `docs/adr/ADR-0066-create-strategy.md` |
+| ADR-0067 | Query Strategy | `docs/adr/ADR-0067-query-strategy.md` |
+| ADR-0068 | Modify Strategy | `docs/adr/ADR-0068-modify-strategy.md` |
+| ADR-0069 | Delete Strategy | `docs/adr/ADR-0069-delete-strategy.md` |
+| ADR-0070 | Strategy Module Foundation | `docs/adr/ADR-0070-strategy-module-foundation.md` |
 
 ---
 

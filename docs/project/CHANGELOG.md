@@ -2456,4 +2456,55 @@
 - All 2504 tests pass (2411 existing + 93 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-023 — Strategy Module Foundation
+
+- **Created `StrategyModule` interface** — strategy-specific PromptModule abstraction
+  - `packages/ai/src/strategy/StrategyModule.ts`
+  - Extends `PromptModule` — marker interface inheriting `build()` and optional `buildContext()`
+  - Semantic category for strategy-specific prompt content modules
+  - Foundation only — no consumption by PromptBuilder yet
+- **Created four concrete StrategyModule implementations:**
+  - `CreateStrategyModule` — `"Creation Guidelines:\n\n- Prefer creating new entities\n- Avoid modifying existing entities"`
+  - `QueryStrategyModule` — `"Query Guidelines:\n\n- Focus on retrieving information\n- Avoid changing world state"`
+  - `ModifyStrategyModule` — `"Modification Guidelines:\n\n- Preserve entity identity\n- Modify only requested properties"`
+  - `DeleteStrategyModule` — `"Deletion Guidelines:\n\n- Confirm target existence\n- Remove only requested entities"`
+  - Each implements `StrategyModule` (which extends `PromptModule`)
+  - Each provides `build()` returning guideline string and `buildContext()` returning `{ strategyRendered }`
+  - Pure, stateless, deterministic — same output regardless of PipelineContext
+  - Input-independent — ignores context content entirely
+- **Updated exports:**
+  - `strategy/index.ts`: exports `StrategyModule` type, `CreateStrategyModule`, `QueryStrategyModule`, `ModifyStrategyModule`, `DeleteStrategyModule`
+  - `src/index.ts`: exports all from package root
+- **No modifications to**: `PromptBuilder`, `PromptRenderer`, `PromptContext`, `PromptCompression`, `Pipeline`, `Planner`, `PromptStrategy`, `PromptStrategySelector`, `DefaultPromptStrategySelector`, `PromptStrategyRenderer`, `DefaultPromptStrategyRenderer`, or any Sprint 4 Frozen Interface
+- **No breaking changes** — all existing behavior preserved
+- Created ADR-0070: Strategy Module Foundation
+- All existing tests pass with zero modifications
+- New test file `StrategyModuleFoundation.test.ts` (100 tests, 25 groups):
+  - StrategyModule interface (4 tests): extends PromptModule, subtype, buildContext, compatibility
+  - CreateStrategyModule — build() output (5 tests): content, header, guidelines, string type
+  - QueryStrategyModule — build() output (5 tests): content, header, guidelines, string type
+  - ModifyStrategyModule — build() output (5 tests): content, header, guidelines, string type
+  - DeleteStrategyModule — build() output (5 tests): content, header, guidelines, string type
+  - buildContext() output (6 tests): strategyRendered for all 4, build matches buildContext, Partial type
+  - Input independence (5 tests): ignore input for all 4 modules, ignore metadata
+  - Deterministic (5 tests): repeated calls, idempotent, cross-instance, buildContext
+  - Stateless (3 tests): no state between calls, independent instances, no side effects
+  - Pure / No side effects (3 tests): no mutation of context, no external state changes
+  - Distinct output per strategy (5 tests): all 4 unique, no cross-contamination
+  - PromptModule conformance (5 tests): all 4 implement PromptModule, all have buildContext
+  - StrategyModule conformance (4 tests): all 4 implement StrategyModule
+  - Custom StrategyModule implementation (2 tests): custom module, PromptModule compatibility
+  - Architecture compliance (11 tests): no Planner/Runtime/Provider/Memory/ToolCalling/AgentLoop/PromptBuilder/Pipeline deps, pure, stateless, non-mutating
+  - RetryPlanner compatibility (2 tests)
+  - ToolCallPlanner compatibility (2 tests)
+  - Streaming compatibility (2 tests)
+  - AgentLoop compatibility (2 tests)
+  - Exports — strategy/index (5 tests): all types and classes
+  - Exports — package root (5 tests): all types and classes from root
+  - No PromptBuilder changes (6 tests): no modifications to Builder/Renderer/Context/Compression/Pipeline/Planner
+  - Foundation only — no consumption (3 tests): modules not wired, produce output independently, instantiable
+- All 2604 tests pass (2504 existing + 100 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57

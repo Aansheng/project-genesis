@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.57)
+> Project Genesis — AI Architecture Reference (v0.58)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -116,6 +116,73 @@ analyze(input):
 - Duplicate removal preserves input order
 - Unknown/empty input returns `{ intents: [] }` (never throws)
 - Implements `IntentAnalyzer` interface — no modifications to existing interfaces
+
+### StrategyModule
+
+```typescript
+interface StrategyModule extends PromptModule {}
+```
+
+- Marker extension of `PromptModule` — inherits `build()` and optional `buildContext()`
+- Semantic category for strategy-specific prompt content modules
+- Each concrete module produces deterministic guideline text
+- Foundation only — not consumed by PromptBuilder yet
+
+### CreateStrategyModule
+
+```typescript
+class CreateStrategyModule implements StrategyModule {
+  async build(_context: PipelineContext): Promise<string> {
+    return `Creation Guidelines:\n\n- Prefer creating new entities\n- Avoid modifying existing entities`
+  }
+  async buildContext(_context: PipelineContext): Promise<Partial<PromptContext>> {
+    return { strategyRendered: `Creation Guidelines:...` }
+  }
+}
+```
+
+- Produces creation-oriented behavioral guidelines
+- Pure, stateless, deterministic — same output regardless of input
+- Input-independent — ignores PipelineContext content
+
+### QueryStrategyModule
+
+```typescript
+class QueryStrategyModule implements StrategyModule {
+  async build(_context: PipelineContext): Promise<string> {
+    return `Query Guidelines:\n\n- Focus on retrieving information\n- Avoid changing world state`
+  }
+}
+```
+
+- Produces query-oriented behavioral guidelines
+- Pure, stateless, deterministic — same output regardless of input
+
+### ModifyStrategyModule
+
+```typescript
+class ModifyStrategyModule implements StrategyModule {
+  async build(_context: PipelineContext): Promise<string> {
+    return `Modification Guidelines:\n\n- Preserve entity identity\n- Modify only requested properties`
+  }
+}
+```
+
+- Produces modification-oriented behavioral guidelines
+- Pure, stateless, deterministic — same output regardless of input
+
+### DeleteStrategyModule
+
+```typescript
+class DeleteStrategyModule implements StrategyModule {
+  async build(_context: PipelineContext): Promise<string> {
+    return `Deletion Guidelines:\n\n- Confirm target existence\n- Remove only requested entities`
+  }
+}
+```
+
+- Produces deletion-oriented behavioral guidelines
+- Pure, stateless, deterministic — same output regardless of input
 
 ### Dependency Rules
 
@@ -323,9 +390,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Complete Intent Routing** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
-
-### Component Responsibilities
+**Complete Intent Routing + Module Foundation** — All five IntentTypes have dedicated strategies. CreateStrategy for Create, QueryStrategy for Query, ModifyStrategy for Move+Modify, DeleteStrategy for Delete. Strategy selection runs as Phase 0.9, rendering as Phase 0.95. StrategyModule abstraction introduced with four concrete modules producing guideline content. Canonical order: Intent → Entity → Semantic → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -341,6 +406,11 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
 | `PromptStrategyRenderer` | Interface | Contract for rendering PromptStrategy to string: `render(strategy)` |
 | `DefaultPromptStrategyRenderer` | Class | Default rendering — `"Prompt Strategy:\\n\\n- {name}"` |
+| `StrategyModule` | Interface | Strategy-specific PromptModule — extends PromptModule for guideline content |
+| `CreateStrategyModule` | Class | Creation guidelines — "Prefer creating new entities" |
+| `QueryStrategyModule` | Class | Query guidelines — "Focus on retrieving information" |
+| `ModifyStrategyModule` | Class | Modification guidelines — "Preserve entity identity" |
+| `DeleteStrategyModule` | Class | Deletion guidelines — "Confirm target existence" |
 
 ### PromptStrategy
 
@@ -508,6 +578,8 @@ Phase 1:    MemoryRanking.rank()
 - `DefaultPromptStrategy` depends only on `PromptStrategy` and `SemanticContext`
 - `PromptStrategySelector` depends only on `PromptStrategy` and `SemanticContext`
 - `DefaultPromptStrategySelector` depends only on `PromptStrategySelector`, `PromptStrategy`, `DefaultPromptStrategy`, and `SemanticContext`
+- `StrategyModule` depends only on `PromptModule` — marker extension
+- `CreateStrategyModule`, `QueryStrategyModule`, `ModifyStrategyModule`, `DeleteStrategyModule` depend only on `StrategyModule`, `PipelineContext`, and `PromptContext`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -521,6 +593,8 @@ Phase 1:    MemoryRanking.rank()
 | ~~Query Strategy~~ | `PromptStrategy` | ~~New class for query intent~~ **Done in WO-S5-020** |
 | ~~Modify Strategy~~ | `PromptStrategy` | ~~New class for move+modify intent~~ **Done in WO-S5-021** |
 | ~~Delete Strategy~~ | `PromptStrategy` | ~~New class for delete intent~~ **Done in WO-S5-022** |
+| ~~StrategyModule Foundation~~ | `StrategyModule` | ~~Strategy-specific PromptModule abstraction~~ **Done in WO-S5-023** |
+| Strategy Module Consumption | `PromptBuilder` | Wire StrategyModule to PromptBuilder based on selected strategy |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 
