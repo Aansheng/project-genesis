@@ -2762,4 +2762,36 @@
 - All 2818 tests pass (2782 existing + 36 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
-- Architecture version v0.57
+- Architecture version v0.64
+
+### WO-S5-030 — Weighted Strategy Evaluator
+
+- **Created `WeightedStrategyEvaluator`** — continuous scoring strategy evaluator
+  - Implements `StrategyEvaluator` interface
+  - Produces weighted scores (0–100) based on intent-strategy relevance
+  - Unlike binary `DefaultStrategyEvaluator` (100/0), provides cross-strategy weighting
+- **Score Table V1** (architecture validation):
+  - Create intent: Create=100, Query=20, Modify=10, Delete=0
+  - Query intent: Query=100, Create=20, Modify=10, Delete=0
+  - Modify intent: Modify=100, Delete=20, Create=10, Query=10
+  - Move intent: maps to Modify scoring (Modify=100, Delete=20, Create=10, Query=10)
+  - Delete intent: Delete=100, Modify=20, Query=0, Create=0
+  - Unknown intent: all 0
+- **Pluggable** — can be injected into `DefaultPromptStrategySelector` or `BuilderOptions.strategyEvaluator`
+- **No modifications to**: PromptBuilder, Pipeline, Planner, Runtime, AgentLoop, PromptRenderer, PromptContext, PromptCompression
+- Created ADR-0077: Weighted Strategy Evaluator
+- New test file `WeightedStrategyEvaluator.test.ts` (26 tests, 9 groups):
+  - Create intent (3 tests): Create > Query, Create > Modify, Create > Delete
+  - Query intent (3 tests): Query > Create, Query > Modify, Query > Delete
+  - Modify intent (3 tests): Modify > Create, Modify > Query, Modify > Delete
+  - Delete intent (3 tests): Delete > Modify, Delete > Query, Delete > Create
+  - Unknown intent (3 tests): no intent, empty intents, default strategy
+  - Move intent (1 test): Move maps to Modify scoring
+  - Deterministic (2 tests): same inputs, cross-instance
+  - Stateless (1 test): no retained state between calls
+  - Pure (2 tests): no modify context, no modify strategy
+  - Compatibility (5 tests): DefaultPromptStrategySelector, RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 2844 tests pass (2818 existing + 26 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.65

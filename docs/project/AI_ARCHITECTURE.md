@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.64)
+> Project Genesis — AI Architecture Reference (v0.65)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -393,7 +393,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Score-Based Strategy Selection + Metadata** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector uses highest-score-wins (with StrategyEvaluator). StrategySelectionMetadata captures selected strategy + all candidate scores in `metadata.promptAssembly.strategySelection`. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + StrategySelectionMetadata enable future AI-based dynamic routing. Strategy selection: Phase 0.9, StrategySelectionMetadata: Phase 0.91, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Weighted Strategy Scoring** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector uses highest-score-wins (with StrategyEvaluator). WeightedStrategyEvaluator provides continuous scoring with cross-strategy weighting. StrategySelectionMetadata captures selected strategy + all candidate scores in `metadata.promptAssembly.strategySelection`. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata enable AI-based dynamic routing. Strategy selection: Phase 0.9, StrategySelectionMetadata: Phase 0.91, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -406,7 +406,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `ModifyStrategy` | Class | Modification-oriented strategy — `applies()` returns `true` when SemanticContext contains Move or Modify intent |
 | `DeleteStrategy` | Class | Deletion-oriented strategy — `applies()` returns `true` when SemanticContext contains Delete intent |
 | `PromptStrategySelector` | Interface | Contract for selecting a strategy from an ordered list |
-| `DefaultPromptStrategySelector` | Class | First-match wins selection with DefaultPromptStrategy fallback |
+| `DefaultPromptStrategySelector` | Class | Score-based selection with StrategyEvaluator + DefaultPromptStrategy fallback |
 | `PromptStrategyRenderer` | Interface | Contract for rendering PromptStrategy to string: `render(strategy)` |
 | `DefaultPromptStrategyRenderer` | Class | Default rendering — `"Prompt Strategy:\\n\\n- {name}"` |
 | `StrategyModule` | Interface | Strategy-specific PromptModule — extends PromptModule for guideline content |
@@ -415,6 +415,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `ModifyStrategyModule` | Class | Modification guidelines — "Preserve entity identity" |
 | `StrategyEvaluator` | Interface | Contract for scoring a strategy against a SemanticContext: `evaluate(strategy, context): number` |
 | `DefaultStrategyEvaluator` | Class | Default implementation — applies() → 100/0 scoring |
+| `WeightedStrategyEvaluator` | Class | Weighted implementation — continuous scoring with cross-strategy weighting |
 | `StrategyCandidate` | Interface | Strategy paired with its evaluation score |
 | `StrategySelectionResult` | Interface | Selected strategy + all candidates with scores (object-graph) |
 | `StrategySelectionMetadata` | Interface | Selected strategy name + candidate scores (metadata-friendly, serializable) |
@@ -539,18 +540,54 @@ When strategies are ordered `[CreateStrategy, QueryStrategy, ModifyStrategy, Del
 
 ```typescript
 class DefaultPromptStrategySelector implements PromptStrategySelector {
+  constructor(
+    private readonly evaluator: StrategyEvaluator =
+      new DefaultStrategyEvaluator()
+  ) {}
+
   select(strategies, context): PromptStrategy {
-    for (const strategy of strategies) {
-      if (strategy.applies(context)) return strategy
-    }
-    return new DefaultPromptStrategy()
+    // Evaluates ALL strategies using StrategyEvaluator
+    // Selects candidate with highest score
+    // Ties broken by array order (first occurrence wins)
+    // Falls back to DefaultPromptStrategy if all scores are 0
   }
 }
 ```
 
-- **First-match wins** — Returns first strategy whose `applies()` returns `true`
-- **Default fallback** — Returns `DefaultPromptStrategy` when no strategy matches
+- **Highest-score wins** — Evaluates all strategies, selects highest score
+- **Default fallback** — Returns `DefaultPromptStrategy` when all scores are 0
+- **Tie breaking** — First occurrence wins when scores are equal
+- **Pluggable evaluator** — Accepts optional `StrategyEvaluator` (defaults to `DefaultStrategyEvaluator`)
 - Pure, stateless, deterministic, complete (never returns `null` or `undefined`)
+- Backward compatible — with `DefaultStrategyEvaluator`, identical results to first-match-wins
+
+### WeightedStrategyEvaluator
+
+```typescript
+class WeightedStrategyEvaluator implements StrategyEvaluator {
+  evaluate(strategy: PromptStrategy, context: SemanticContext): number
+}
+```
+
+Continuous scoring implementation with cross-strategy weighting.
+
+**Score Table (V1):**
+
+| Intent  | Create | Query | Modify | Delete |
+|---------|--------|-------|--------|--------|
+| Create  | 100    | 20    | 10     | 0      |
+| Query   | 20     | 100   | 10     | 0      |
+| Modify  | 10     | 10    | 100    | 20     |
+| Move    | 10     | 10    | 100    | 20     |
+| Delete  | 0      | 0     | 20     | 100    |
+| Unknown | 0      | 0     | 0      | 0      |
+
+- **Continuous scoring** — non-primary strategies get partial scores (not just 0)
+- **Cross-strategy weighting** — Create scores 20 for Query intent, etc.
+- **Unknown = 0** — strategies not in the table always score 0
+- **Move → Modify** — Move intent maps to Modify scoring (same semantic category)
+- Pure, stateless, deterministic — no side effects
+- No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
 
 ### DefaultPromptStrategyRenderer
 
@@ -616,6 +653,7 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Strategy Module Rendering Foundation~~ | `StrategyModuleRenderer` | ~~StrategyModule rendering abstraction~~ **Done in WO-S5-025** |
 | ~~Strategy Module → Prompt~~ | `PromptContext` | ~~Inject strategyModuleRendered text into final prompt string~~ **Done in WO-S5-026** |
 | ~~Strategy Selection Result~~ | `BuilderOptions` | ~~Add strategyEvaluator to capture metadata~~ **Done in WO-S5-029** |
+| ~~Weighted Strategy Evaluator~~ | `StrategyEvaluator` | ~~Continuous scoring with cross-strategy weighting~~ **Done in WO-S5-030** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 
