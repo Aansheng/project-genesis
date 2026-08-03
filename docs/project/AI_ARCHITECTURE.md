@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.72)
+> Project Genesis — AI Architecture Reference (v0.73)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, and `strategyEvaluator` in WO-S5-029.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, and `strategySelectionRenderer` in WO-S5-038.
 
 ```typescript
 interface BuilderOptions {
@@ -615,6 +615,8 @@ Phase 0.9:   PromptStrategySelector.select(strategies, context) → selectedStra
 Phase 0.91:  StrategyEvaluator.evaluate() for each strategy
     ↓             → StrategySelectionMetadata { selected, candidates[] }
     ↓             → metadata.promptAssembly.strategySelection
+Phase 0.915: StrategySelectionRenderer.render(metadata) → strategySelectionRendered
+    ↓             → metadata.promptAssembly.strategySelectionRendered
 Phase 0.925: StrategyModule resolution — find module where module.name === strategy.name
     ↓             module.build(context) → strategyModule (string)
     ↓             → metadata.promptAssembly.strategyModule
@@ -639,6 +641,9 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 - `DefaultPromptStrategySelector` depends only on `PromptStrategySelector`, `PromptStrategy`, `DefaultPromptStrategy`, and `SemanticContext`
 - `StrategyModule` depends only on `PromptModule` — marker extension
 - `CreateStrategyModule`, `QueryStrategyModule`, `ModifyStrategyModule`, `DeleteStrategyModule` depend only on `StrategyModule`, `PipelineContext`, and `PromptContext`
+- `StrategySelectionMetadata` is independent — no dependencies on any existing component
+- `StrategySelectionRenderer` depends only on `StrategySelectionMetadata`
+- `DefaultStrategySelectionRenderer` depends only on `StrategySelectionRenderer` and `StrategySelectionMetadata`
 - `PromptAssemblyStrategy` is independent — no dependencies on any existing component
 - `DefaultPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `CreatePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
@@ -674,6 +679,7 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Query Prompt Assembly Strategy~~ | `QueryPromptAssemblyStrategy` | ~~Second business-specific assembly strategy~~ **Done in WO-S5-035** |
 | ~~Modify Prompt Assembly Strategy~~ | `ModifyPromptAssemblyStrategy` | ~~Third business-specific assembly strategy~~ **Done in WO-S5-036** |
 | ~~Delete Prompt Assembly Strategy~~ | `DeletePromptAssemblyStrategy` | ~~Fourth business-specific assembly strategy~~ **Done in WO-S5-037** |
+| ~~Strategy Selection Rendering Foundation~~ | `StrategySelectionRenderer` | ~~Render strategy selection metadata~~ **Done in WO-S5-038** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 
@@ -855,6 +861,7 @@ interface BuilderOptions {
   strategySelector?: PromptStrategySelector          // ← WO-S5-016
   strategies?: readonly PromptStrategy[]               // ← WO-S5-016
   strategyEvaluator?: StrategyEvaluator                // ← WO-S5-029
+  strategySelectionRenderer?: StrategySelectionRenderer  // ← WO-S5-038
   promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver  // ← WO-S5-032
 }
 ```

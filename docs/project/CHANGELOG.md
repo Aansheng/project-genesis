@@ -3066,3 +3066,53 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.72
+
+### WO-S5-038 — Strategy Selection Rendering Foundation
+
+- **Created `StrategySelectionRenderer` interface** — renders StrategySelectionMetadata into a formatted string
+  - `render(metadata: StrategySelectionMetadata): string`
+  - Pure, stateless, deterministic
+- **Created `DefaultStrategySelectionRenderer`** — default implementation
+  - Produces human-readable format:
+    ```
+    Strategy Selection:
+
+    Selected:
+    - create (100)
+
+    Candidates:
+    - create: 100
+    - query: 20
+    - modify: 10
+    - delete: 0
+    ```
+  - Handles empty candidates gracefully
+  - Pure, stateless, deterministic
+- **Updated `BuilderOptions`** — added `strategySelectionRenderer?: StrategySelectionRenderer`
+  - Optional field, backward compatible
+- **Updated `DefaultPromptBuilder`** — wired renderer through constructor
+  - Added Phase 0.915: after StrategySelectionMetadata (Phase 0.91), before StrategyModule resolution (Phase 0.925)
+  - Stores `strategySelectionRendered` in `metadata.promptAssembly.strategySelectionRendered`
+  - Metadata only — no impact on prompt output
+- **Exported** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- **No modifications to**: PromptRenderer, PromptCompression, PromptContext, Pipeline, Planner
+- **No prompt behavior changes** — metadata only
+- Created ADR-0085: Strategy Selection Rendering Foundation
+- New test file `StrategySelectionRenderingFoundation.test.ts` (49 tests, 12 groups):
+  - Interface (3 tests): render method, parameter, return type
+  - Default rendering (6 tests): exact format, selected with score, all candidates, header, matching score, unknown candidate
+  - Empty candidates (2 tests): no Candidates section, no score
+  - Deterministic (3 tests): repeated calls, idempotent x10, cross-instance
+  - Stateless (2 tests): no retained state, independent
+  - Pure / no side effects (3 tests): frozen input, no mutate, no side effects
+  - Builder integration — metadata storage (4 tests): stored when present, matches selection, absent when no renderer, only when both evaluator and renderer
+  - Builder integration — prompt output unchanged (2 tests): identical prompt, not in prompt text
+  - BuilderOptions wiring (3 tests): accepts field, optional, coexists
+  - Architecture compliance (7 tests): no Planner, Runtime, Provider, Memory, AgentLoop, pure, stateless
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Exports (5 tests): strategy/index type + class, package root type + class, render from root
+  - No behavior changes (5 tests): no PromptContext, PromptRenderer, PromptCompression, Pipeline, prompt output
+- All 3454 tests pass (3405 existing + 49 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.73

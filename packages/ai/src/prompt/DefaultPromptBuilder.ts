@@ -33,6 +33,7 @@ import type { StrategyModule } from '../strategy/StrategyModule'
 import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
 import type { StrategyEvaluator } from '../strategy/StrategyEvaluator'
 import type { StrategySelectionMetadata } from '../strategy/StrategySelectionMetadata'
+import type { StrategySelectionRenderer } from '../strategy/StrategySelectionRenderer'
 import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyStrategyResolver'
 import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
@@ -67,6 +68,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly strategyModules?: readonly StrategyModule[]
   private readonly strategyModuleRenderer?: StrategyModuleRenderer
   private readonly strategyEvaluator?: StrategyEvaluator
+  private readonly strategySelectionRenderer?: StrategySelectionRenderer
   private readonly promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver
 
   /**
@@ -132,6 +134,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategyModules = opts.strategyModules
       this.strategyModuleRenderer = opts.strategyModuleRenderer
       this.strategyEvaluator = opts.strategyEvaluator
+      this.strategySelectionRenderer = opts.strategySelectionRenderer
       this.promptAssemblyStrategyResolver = opts.promptAssemblyStrategyResolver
     } else {
       // Legacy positional form
@@ -149,6 +152,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.semanticContextBuilder = undefined
       this.semanticContextRenderer = undefined
       this.strategyEvaluator = undefined
+      this.strategySelectionRenderer = undefined
       this.promptAssemblyStrategyResolver = undefined
     }
   }
@@ -233,6 +237,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
         selected: selectedStrategy.name,
         candidates,
       }
+    }
+
+    // Phase 0.915: StrategySelectionRenderer — render selection metadata for metadata storage
+    let strategySelectionRendered: string | undefined
+    if (strategySelectionMetadata !== undefined && this.strategySelectionRenderer !== undefined) {
+      strategySelectionRendered = this.strategySelectionRenderer.render(strategySelectionMetadata)
     }
 
     // Phase 0.925: StrategyModule resolution — find module matching selected strategy
@@ -360,6 +370,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(semanticRendered !== undefined ? { semanticRendered } : {}),
         strategy: { name: selectedStrategy.name },
         ...(strategySelectionMetadata !== undefined ? { strategySelection: strategySelectionMetadata } : {}),
+        ...(strategySelectionRendered !== undefined && strategySelectionRendered.length > 0 ? { strategySelectionRendered } : {}),
         ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
         ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
