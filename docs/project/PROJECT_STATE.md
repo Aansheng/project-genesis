@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.69 (Sprint 5) |
-| Architecture Status | **Evolving** — Create Prompt Assembly Strategy Consumption (WO-S5-034) complete. CreatePromptAssemblyStrategy now actively reorders prompt sections. userInput→worldState→strategyModuleRendered→strategyRendered priority. DefaultPromptBuilder Phase 0.96 applies reordering. Non-create behavior unchanged. No breaking changes. |
+| Architecture Version | v0.70 (Sprint 5) |
+| Architecture Status | **Evolving** — Query Prompt Assembly Strategy (WO-S5-035) complete. QueryPromptAssemblyStrategy introduced as second business-specific strategy. Resolver routes 'query' to QueryPromptAssemblyStrategy. Priority: userInput→worldState→memory→observations→strategyModuleRendered→strategyRendered. No breaking changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Weighted Scoring + Assembly Consumption + Create Assembly Reordering** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result in metadata. Phase 0.96 resolves + applies assembly strategy reordering. Continuous scoring enabled. Create assembly reorders sections by priority (userInput→worldState→strategyModuleRendered→strategyRendered). Non-create strategies unchanged. |
+| Strategy Layer | **Weighted Scoring + Assembly Consumption + Create + Query Assembly Reordering** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result in metadata. Phase 0.96 resolves + applies assembly strategy reordering. Continuous scoring enabled. Create: userInput→worldState→strategyModuleRendered→strategyRendered. Query: userInput→worldState→memory→observations→strategyModuleRendered→strategyRendered. Non-create strategies unchanged. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -160,6 +160,7 @@
 | WO-S5-032 | Strategy-Aware Prompt Assembly Consumption |
 | WO-S5-033 | Create Prompt Assembly Strategy |
 | WO-S5-034 | Create Prompt Assembly Strategy Consumption |
+| WO-S5-035 | Query Prompt Assembly Strategy |
 
 ---
 
@@ -791,6 +792,7 @@ Key remaining items:
 | ADR-0079 | Prompt Assembly Strategy Consumption | `docs/adr/ADR-0079-prompt-assembly-strategy-consumption.md` |
 | ADR-0080 | Create Prompt Assembly Strategy | `docs/adr/ADR-0080-create-prompt-assembly-strategy.md` |
 | ADR-0081 | Create Prompt Assembly Consumption | `docs/adr/ADR-0081-create-prompt-assembly-consumption.md` |
+| ADR-0082 | Query Prompt Assembly Strategy | `docs/adr/ADR-0082-query-prompt-assembly-strategy.md` |
 
 ---
 

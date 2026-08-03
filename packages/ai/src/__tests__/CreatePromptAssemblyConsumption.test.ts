@@ -3,6 +3,7 @@ import { DefaultPromptBuilder } from '../prompt/DefaultPromptBuilder'
 import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyStrategyResolver'
 import { CreatePromptAssemblyStrategy } from '../strategy/CreatePromptAssemblyStrategy'
+import { QueryPromptAssemblyStrategy } from '../strategy/QueryPromptAssemblyStrategy'
 import { DefaultPromptAssemblyStrategy } from '../strategy/DefaultPromptAssemblyStrategy'
 import { DefaultPromptAssemblyStrategyResolver } from '../strategy/DefaultPromptAssemblyStrategyResolver'
 import { DefaultPromptStrategySelector } from '../strategy/DefaultPromptStrategySelector'
@@ -371,10 +372,10 @@ describe('Assembly application — builder integration with create strategy', ()
 
   it('non-create resolver returns DefaultPromptAssemblyStrategy (identity)', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const queryStrategy = resolver.resolve('query')
-    expect(queryStrategy).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+    const modifyStrategy = resolver.resolve('modify')
+    expect(modifyStrategy).toBeInstanceOf(DefaultPromptAssemblyStrategy)
     const sections = ['b', 'a', 'c']
-    expect(queryStrategy.apply(sections)).toEqual(['b', 'a', 'c'])
+    expect(modifyStrategy.apply(sections)).toEqual(['b', 'a', 'c'])
   })
 
   it('DefaultPromptAssemblyStrategy does not reorder', () => {
@@ -501,9 +502,9 @@ describe('Non-create strategies unchanged', () => {
 // ---------------------------------------------------------------------------
 
 describe('Resolver non-create routing unchanged', () => {
-  it('should return DefaultPromptAssemblyStrategy for "query"', () => {
+  it('should return QueryPromptAssemblyStrategy for "query"', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('query')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
   })
 
   it('should return DefaultPromptAssemblyStrategy for "modify"', () => {
@@ -731,7 +732,7 @@ describe('No behavior changes — non-create strategies', () => {
   it('resolver returns correct strategy based on name', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
     expect(resolver.resolve('create')).toBeInstanceOf(CreatePromptAssemblyStrategy)
-    expect(resolver.resolve('query')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
     expect(resolver.resolve('modify')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
     expect(resolver.resolve('delete')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
     expect(resolver.resolve('default')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
@@ -754,7 +755,7 @@ describe('No behavior changes — non-create strategies', () => {
 
   it('non-create resolver preserves identity behavior', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const nonCreateNames = ['query', 'modify', 'delete', 'default', 'unknown', '']
+    const nonCreateNames = ['modify', 'delete', 'default', 'unknown', '']
     for (const name of nonCreateNames) {
       const strategy = resolver.resolve(name)
       expect(strategy).toBeInstanceOf(DefaultPromptAssemblyStrategy)
