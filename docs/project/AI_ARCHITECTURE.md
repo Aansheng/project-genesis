@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.68)
+> Project Genesis — AI Architecture Reference (v0.69)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -624,6 +624,8 @@ Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendere
     ↓             → metadata.promptAssembly.strategyRendered
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
+    ↓             → apply() reorders renderContext sections by priority
+                 (CreatePromptAssemblyStrategy: userInput > worldState > strategyModuleRendered > strategyRendered)
 Phase 1:    MemoryRanking.rank()
 ```
 
@@ -665,6 +667,7 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Prompt Assembly Strategy Resolver~~ | `PromptAssemblyStrategyResolver` | ~~Resolve assembly strategy by name~~ **Done in WO-S5-031** |
 | ~~Prompt Assembly Strategy Consumption~~ | `BuilderOptions` | ~~Add promptAssemblyStrategyResolver to BuilderOptions~~ **Done in WO-S5-032** |
 | ~~Create Prompt Assembly Strategy~~ | `CreatePromptAssemblyStrategy` | ~~First business-specific assembly strategy~~ **Done in WO-S5-033** |
+| ~~Create Prompt Assembly Consumption~~ | `DefaultPromptBuilder` | ~~Apply assembly strategy to reorder sections~~ **Done in WO-S5-034** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

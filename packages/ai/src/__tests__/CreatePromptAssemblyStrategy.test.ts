@@ -61,11 +61,12 @@ describe('CreatePromptAssemblyStrategy — interface', () => {
     expect(result).toEqual(['a', 'b', 'c'])
   })
 
-  it('should return the same array reference (identity)', () => {
+  it('should return a new array reference (not identity)', () => {
     const strategy = new CreatePromptAssemblyStrategy()
     const sections = ['a', 'b'] as readonly string[]
     const result = strategy.apply(sections)
-    expect(result).toBe(sections)
+    // Create strategy reorders sections, so it returns a new array
+    expect(result).not.toBe(sections)
   })
 })
 
@@ -300,11 +301,13 @@ describe('CreatePromptAssemblyStrategy — pure / no side effects', () => {
     expect(strategy.apply(sections)).toEqual(sections)
   })
 
-  it('should return same reference for frozen arrays (identity)', () => {
+  it('should return a new array for frozen arrays (creates copy)', () => {
     const strategy = new CreatePromptAssemblyStrategy()
     const sections = Object.freeze(['a', 'b', 'c'])
     const result = strategy.apply(sections)
-    expect(result).toBe(sections)
+    // Create strategy returns a new array (not identity)
+    expect(result).not.toBe(sections)
+    expect(result).toEqual(['a', 'b', 'c'])
   })
 })
 

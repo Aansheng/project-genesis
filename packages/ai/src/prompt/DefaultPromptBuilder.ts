@@ -34,6 +34,7 @@ import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
 import type { StrategyEvaluator } from '../strategy/StrategyEvaluator'
 import type { StrategySelectionMetadata } from '../strategy/StrategySelectionMetadata'
 import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyStrategyResolver'
+import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultStrategyModuleRenderer } from '../strategy/DefaultStrategyModuleRenderer'
@@ -266,11 +267,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
       promptContext.strategyModuleRendered = strategyModuleRendered
     }
 
-    // Phase 0.96: PromptAssemblyStrategyResolver — resolve assembly strategy for metadata
-    let promptAssemblyStrategy: { strategyName: string } | undefined
+    // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
+    let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
+    let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
     if (this.promptAssemblyStrategyResolver !== undefined) {
-      const assemblyStrategy = this.promptAssemblyStrategyResolver.resolve(selectedStrategy.name)
-      promptAssemblyStrategy = { strategyName: assemblyStrategy.strategyName }
+      resolvedAssemblyStrategy = this.promptAssemblyStrategyResolver.resolve(selectedStrategy.name)
+      promptAssemblyStrategyMetadata = { strategyName: resolvedAssemblyStrategy.strategyName }
     }
 
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
@@ -318,6 +320,31 @@ export class DefaultPromptBuilder implements PromptBuilder {
     }
     Object.assign(renderContext, compressed)
 
+    // Phase 0.96 (continued): Apply assembly strategy section reordering
+    if (resolvedAssemblyStrategy !== undefined) {
+      const sectionKeys = DefaultPromptRenderer.CANONICAL_ORDER.filter(
+        key => renderContext[key] !== undefined && renderContext[key] !== '',
+      )
+      if (sectionKeys.length > 0) {
+        const reorderedKeys = resolvedAssemblyStrategy.apply(sectionKeys as readonly string[])
+        const reordered: PromptContext = {} as PromptContext
+        for (const key of reorderedKeys as Array<keyof PromptContext>) {
+          reordered[key] = renderContext[key]
+        }
+        // Add non-canonical keys (not in CANONICAL_ORDER) preserving order
+        for (const key of Object.keys(renderContext) as Array<keyof PromptContext>) {
+          if (!(key in reordered)) {
+            reordered[key] = renderContext[key]
+          }
+        }
+        // Replace render context preserving reference for downstream code
+        for (const key of Object.keys(renderContext) as Array<keyof PromptContext>) {
+          delete (renderContext as Record<string, unknown>)[key as string]
+        }
+        Object.assign(renderContext, reordered)
+      }
+    }
+
     // Phase 6: PromptRenderer — convert to string
     const rendered = this.renderer.render(renderContext)
 
@@ -336,7 +363,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
         ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
-        ...(promptAssemblyStrategy !== undefined ? { promptAssemblyStrategy } : {}),
+        ...(promptAssemblyStrategyMetadata !== undefined ? { promptAssemblyStrategy: promptAssemblyStrategyMetadata } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

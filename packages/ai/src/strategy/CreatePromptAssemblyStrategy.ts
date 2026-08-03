@@ -4,14 +4,14 @@ import type { PromptAssemblyStrategy } from './PromptAssemblyStrategy'
  * CreatePromptAssemblyStrategy — create-specific implementation of
  * PromptAssemblyStrategy.
  *
- * Currently behaves as an identity transformation: returns the input
- * sections unchanged. This preserves the current behavior where all
- * strategies produce the same prompt structure.
+ * Reorders prompt sections by priority for create-oriented requests:
+ *   1. userInput
+ *   2. worldState
+ *   3. strategyModuleRendered
+ *   4. strategyRendered
  *
- * Future work orders will introduce actual prompt assembly
- * optimization for create-oriented requests (e.g., reordering
- * sections to prioritize system instructions, or filtering
- * irrelevant context).
+ * All remaining sections keep their original relative order.
+ * No sections are removed, filtered, or modified.
  *
  * Properties:
  * - Pure: same sections always produce same result
@@ -19,13 +19,35 @@ import type { PromptAssemblyStrategy } from './PromptAssemblyStrategy'
  * - Deterministic: no randomness or external factors
  * - Immutable: never modifies input sections
  * - Zero dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
- *
- * Foundation only — no prompt behavior changes.
  */
 export class CreatePromptAssemblyStrategy implements PromptAssemblyStrategy {
   readonly strategyName = 'create'
 
+  /** Priority-ordered section identifiers — highest priority first */
+  private readonly PRIORITY_ORDER: readonly string[] = [
+    'userInput',
+    'worldState',
+    'strategyModuleRendered',
+    'strategyRendered',
+  ]
+
   apply(sections: readonly string[]): readonly string[] {
-    return sections
+    const priority: string[] = []
+    const remaining: string[] = []
+
+    for (const section of sections) {
+      if (this.PRIORITY_ORDER.includes(section)) {
+        priority.push(section)
+      } else {
+        remaining.push(section)
+      }
+    }
+
+    // Sort priority items to match priority order
+    priority.sort(
+      (a, b) => this.PRIORITY_ORDER.indexOf(a) - this.PRIORITY_ORDER.indexOf(b),
+    )
+
+    return [...priority, ...remaining]
   }
 }

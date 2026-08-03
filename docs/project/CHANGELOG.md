@@ -2908,3 +2908,45 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.68
+
+### WO-S5-034 — Create Prompt Assembly Strategy Consumption
+
+- **Modified `CreatePromptAssemblyStrategy.apply()`** — priority-based section reordering
+  - Reorders sections: userInput → worldState → strategyModuleRendered → strategyRendered
+  - All remaining sections keep original relative order
+  - No sections removed, filtered, or modified
+  - Pure, stateless, deterministic
+- **Modified `DefaultPromptBuilder` Phase 0.96** — applies assembly strategy reordering
+  - Resolver called once per build (stored for metadata + reordering)
+  - Section keys collected from renderContext using CANONICAL_ORDER
+  - Reordered via `assemblyStrategy.apply()` before rendering
+  - Non-canonical keys appended at end
+- **No modifications to**: PromptRenderer, PromptCompression, PromptContext, Pipeline, Planner, PromptStrategy, StrategyModule, PromptAssemblyStrategy interface, PromptAssemblyStrategyResolver interface
+- **Non-create behavior unchanged** — Query, Modify, Delete, Default strategies still use identity
+- Created ADR-0081: Create Prompt Assembly Consumption
+- New test file `CreatePromptAssemblyConsumption.test.ts` (67 tests, 14 groups):
+  - Reordering behavior (11 tests): priority ordering, relative order preservation, no removal, duplicates, all canonical
+  - Priority verification (6 tests): userInput before worldState, worldState before strategyModuleRendered, etc.
+  - Deterministic (3 tests): repeated calls, idempotent x10, cross-instance
+  - Stateless (2 tests): no retained state, independent
+  - Pure / no side effects (4 tests): no modify input, no mutate, frozen arrays, new reference
+  - DefaultPromptAssemblyStrategy unchanged (3 tests): identity, order preservation
+  - Assembly application — builder integration (3 tests)
+  - Builder — actual prompt output (2 tests)
+  - Non-create strategies unchanged (4 tests): query, modify, delete, default
+  - Resolver non-create routing unchanged (5 tests): query, modify, delete, default, unknown
+  - Builder metadata (3 tests): create resolver, default resolver, no resolver
+  - RetryPlanner Compatibility (3 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - Backward compatibility — full builder flow (2 tests)
+  - No behavior changes — non-create (4 tests)
+  - Section reordering interaction (2 tests)
+  - Stateless across builds (1 test)
+  - Pure — no mutation (2 tests)
+- **Updated existing tests** — `CreatePromptAssemblyStrategy.test.ts` (2 tests updated for new array reference behavior)
+- All 3138 tests pass (3071 existing + 67 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.69
