@@ -2871,3 +2871,40 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.67
+
+### WO-S5-033 — Create Prompt Assembly Strategy
+
+- **Created `CreatePromptAssemblyStrategy`** — first business-specific PromptAssemblyStrategy implementation
+  - `strategyName = 'create'`
+  - `apply()` returns sections unchanged (identity function)
+  - Pure, stateless, deterministic
+  - No modifications, no reordering, no filtering, no mutation
+- **Updated `DefaultPromptAssemblyStrategyResolver`** — routes 'create' to CreatePromptAssemblyStrategy
+  - `'create'` → CreatePromptAssemblyStrategy
+  - everything else → DefaultPromptAssemblyStrategy
+- **Exported** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptCompression, PromptContext, Pipeline, Planner, PromptAssemblyStrategy interface, PromptAssemblyStrategyResolver interface
+- **No prompt behavior changes** — prompt output identical
+- Created ADR-0080: Create Prompt Assembly Strategy
+- New test file `CreatePromptAssemblyStrategy.test.ts` (50+ tests, 15 groups):
+  - Interface conformance (8 tests): implements interface, strategyName, apply, parameter, return type, identity, reference
+  - Identity behavior (16 tests): single, multiple, order, reversed, duplicates, consecutive dups, special chars, unicode, long strings, newlines/tabs, empty sections, all-empty, empty array, no add/remove, no content change
+  - Deterministic (5 tests): repeated calls, idempotent x10, consistent, varying counts, idempotent x100
+  - Stateless (4 tests): no state, independent, no shared state, many instances
+  - Pure / no side effects (6 tests): no modify input, no mutate, no side effects, frozen arrays, many frozen, same reference
+  - Create routing (9 tests): create→CreatePromptAssemblyStrategy, create→strategyName, query→default, modify→default, delete→default, default→default, unknown→default, case-sensitive, only 'create'
+  - Resolver deterministic (4 tests): repeated create, repeated query, idempotent create, idempotent unknown
+  - Resolver stateless (3 tests): no state, independent, no shared state
+  - Resolver pure (2 tests): no side effects, no modify input
+  - Exports (8 tests): strategy/index, package root, strategyName from root, type export, resolver type, default class, default resolver, resolver integration
+  - Architecture compliance (11 tests): no Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, Pipeline, pure, stateless, non-mutating
+  - Resolver integration (7 tests): create, query, modify, delete, unknown, default, empty
+  - RetryPlanner Compatibility (3 tests)
+  - ToolCallPlanner Compatibility (3 tests)
+  - Streaming Compatibility (3 tests)
+  - AgentLoop Compatibility (3 tests)
+  - No behavior changes (12 tests): identity, default unchanged, unknown→default, create→CreatePromptAssemblyStrategy, no PromptBuilder, no PromptRenderer, no PromptContext, no Pipeline, no existing tests break, non-create unchanged, prompt output identical, same output as default
+- All existing tests pass (zero modifications)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.68

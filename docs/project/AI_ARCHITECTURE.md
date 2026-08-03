@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.65)
+> Project Genesis — AI Architecture Reference (v0.68)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -639,8 +639,9 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 - `CreateStrategyModule`, `QueryStrategyModule`, `ModifyStrategyModule`, `DeleteStrategyModule` depend only on `StrategyModule`, `PipelineContext`, and `PromptContext`
 - `PromptAssemblyStrategy` is independent — no dependencies on any existing component
 - `DefaultPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
+- `CreatePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `PromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategy`
-- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, and `DefaultPromptAssemblyStrategy`
+- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, and `CreatePromptAssemblyStrategy`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -663,6 +664,7 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Prompt Assembly Strategy Foundation~~ | `PromptAssemblyStrategy` | ~~Strategy-aware prompt assembly abstraction~~ **Done in WO-S5-031** |
 | ~~Prompt Assembly Strategy Resolver~~ | `PromptAssemblyStrategyResolver` | ~~Resolve assembly strategy by name~~ **Done in WO-S5-031** |
 | ~~Prompt Assembly Strategy Consumption~~ | `BuilderOptions` | ~~Add promptAssemblyStrategyResolver to BuilderOptions~~ **Done in WO-S5-032** |
+| ~~Create Prompt Assembly Strategy~~ | `CreatePromptAssemblyStrategy` | ~~First business-specific assembly strategy~~ **Done in WO-S5-033** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

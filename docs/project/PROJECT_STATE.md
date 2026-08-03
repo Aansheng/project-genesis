@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.67 (Sprint 5) |
-| Architecture Status | **Evolving** — Prompt Assembly Strategy Consumption (WO-S5-032) complete. PromptAssemblyStrategyResolver integrated into DefaultPromptBuilder. Phase 0.96 resolves assembly strategy. Metadata-only. No prompt behavior changes. No breaking changes. |
+| Architecture Version | v0.68 (Sprint 5) |
+| Architecture Status | **Evolving** — Create Prompt Assembly Strategy (WO-S5-033) complete. CreatePromptAssemblyStrategy introduced as first business-specific PromptAssemblyStrategy. Resolver routes 'create' to CreatePromptAssemblyStrategy. No prompt behavior changes. No breaking changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Weighted Scoring + Assembly Consumption** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result in metadata. Phase 0.96 resolves assembly strategy. Continuous scoring enabled. Assembly strategy resolver consumed by DefaultPromptBuilder. |
+| Strategy Layer | **Weighted Scoring + Assembly Consumption + Create Assembly Strategy** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result in metadata. Phase 0.96 resolves assembly strategy. Continuous scoring enabled. Assembly strategy resolver consumed by DefaultPromptBuilder. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -158,6 +158,7 @@
 | WO-S5-030 | Weighted Strategy Evaluator             |
 | WO-S5-031 | Strategy-Aware Prompt Assembly Foundation |
 | WO-S5-032 | Strategy-Aware Prompt Assembly Consumption |
+| WO-S5-033 | Create Prompt Assembly Strategy |
 
 ---
 
@@ -787,6 +788,7 @@ Key remaining items:
 | ADR-0077 | Weighted Strategy Evaluator | `docs/adr/ADR-0077-weighted-strategy-evaluator.md` |
 | ADR-0078 | Prompt Assembly Strategy Foundation | `docs/adr/ADR-0078-prompt-assembly-strategy-foundation.md` |
 | ADR-0079 | Prompt Assembly Strategy Consumption | `docs/adr/ADR-0079-prompt-assembly-strategy-consumption.md` |
+| ADR-0080 | Create Prompt Assembly Strategy | `docs/adr/ADR-0080-create-prompt-assembly-strategy.md` |
 
 ---
 

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import { DefaultPromptAssemblyStrategy } from '../strategy/DefaultPromptAssemblyStrategy'
+import { CreatePromptAssemblyStrategy } from '../strategy/CreatePromptAssemblyStrategy'
 import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyStrategyResolver'
 import { DefaultPromptAssemblyStrategyResolver } from '../strategy/DefaultPromptAssemblyStrategyResolver'
 import type {
@@ -298,27 +299,33 @@ describe('DefaultPromptAssemblyStrategyResolver', () => {
     expect(result).toBeInstanceOf(DefaultPromptAssemblyStrategy)
   })
 
-  it('should return DefaultPromptAssemblyStrategy for any name', () => {
+  it('should return DefaultPromptAssemblyStrategy for non-create names', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const names = ['create', 'query', 'modify', 'delete', 'unknown', '', 'custom-123']
+    const names = ['query', 'modify', 'delete', 'unknown', '', 'custom-123']
     for (const name of names) {
       const result = resolver.resolve(name)
       expect(result).toBeInstanceOf(DefaultPromptAssemblyStrategy)
     }
   })
 
-  it('should return a strategy with strategyName "default"', () => {
+  it('should return CreatePromptAssemblyStrategy for "create" name', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
     const result = resolver.resolve('create')
+    expect(result).toBeInstanceOf(CreatePromptAssemblyStrategy)
+  })
+
+  it('should return a strategy with strategyName "default" for non-create names', () => {
+    const resolver = new DefaultPromptAssemblyStrategyResolver()
+    const result = resolver.resolve('query')
     expect(result.strategyName).toBe('default')
   })
 
-  it('should always return same type regardless of input', () => {
+  it('should return default type and create type for appropriate inputs', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
     const r1 = resolver.resolve('create')
     const r2 = resolver.resolve('query')
     const r3 = resolver.resolve('')
-    expect(r1.strategyName).toBe('default')
+    expect(r1.strategyName).toBe('create')
     expect(r2.strategyName).toBe('default')
     expect(r3.strategyName).toBe('default')
   })
@@ -575,10 +582,16 @@ describe('No behavior changes', () => {
     expect(strategy.apply(sections)).toEqual(sections)
   })
 
-  it('DefaultPromptAssemblyStrategyResolver always returns DefaultPromptAssemblyStrategy', () => {
+  it('DefaultPromptAssemblyStrategyResolver returns correct strategies', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const names = ['create', 'query', 'modify', 'delete', 'default', 'unknown']
-    for (const name of names) {
+    const createNames = ['create']
+    const nonCreateNames = ['query', 'modify', 'delete', 'default', 'unknown']
+    for (const name of createNames) {
+      const result = resolver.resolve(name)
+      expect(result).toBeInstanceOf(CreatePromptAssemblyStrategy)
+      expect(result.strategyName).toBe('create')
+    }
+    for (const name of nonCreateNames) {
       const result = resolver.resolve(name)
       expect(result).toBeInstanceOf(DefaultPromptAssemblyStrategy)
       expect(result.strategyName).toBe('default')
