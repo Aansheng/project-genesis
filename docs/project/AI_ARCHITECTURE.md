@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.71)
+> Project Genesis — AI Architecture Reference (v0.72)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -644,8 +644,9 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 - `CreatePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `QueryPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `ModifyPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
+- `DeletePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `PromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategy`
-- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, `CreatePromptAssemblyStrategy`, `QueryPromptAssemblyStrategy`, and `ModifyPromptAssemblyStrategy`
+- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, `CreatePromptAssemblyStrategy`, `QueryPromptAssemblyStrategy`, `ModifyPromptAssemblyStrategy`, and `DeletePromptAssemblyStrategy`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -671,6 +672,8 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Create Prompt Assembly Strategy~~ | `CreatePromptAssemblyStrategy` | ~~First business-specific assembly strategy~~ **Done in WO-S5-033** |
 | ~~Create Prompt Assembly Consumption~~ | `DefaultPromptBuilder` | ~~Apply assembly strategy to reorder sections~~ **Done in WO-S5-034** |
 | ~~Query Prompt Assembly Strategy~~ | `QueryPromptAssemblyStrategy` | ~~Second business-specific assembly strategy~~ **Done in WO-S5-035** |
+| ~~Modify Prompt Assembly Strategy~~ | `ModifyPromptAssemblyStrategy` | ~~Third business-specific assembly strategy~~ **Done in WO-S5-036** |
+| ~~Delete Prompt Assembly Strategy~~ | `DeletePromptAssemblyStrategy` | ~~Fourth business-specific assembly strategy~~ **Done in WO-S5-037** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

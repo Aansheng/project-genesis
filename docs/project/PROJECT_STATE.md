@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.71 (Sprint 5) |
-| Architecture Status | **Evolving** — Modify Prompt Assembly Strategy (WO-S5-036) complete. ModifyPromptAssemblyStrategy introduced as third business-specific strategy. Resolver routes 'modify' to ModifyPromptAssemblyStrategy. Priority: userInput→worldState→entityRendered→memory→observations→strategyModuleRendered→strategyRendered. No breaking changes. |
+| Architecture Version | v0.72 (Sprint 5) |
+| Architecture Status | **Evolving** — Delete Prompt Assembly Strategy (WO-S5-037) complete. DeletePromptAssemblyStrategy introduced as fourth business-specific strategy. Resolver routes 'delete' to DeletePromptAssemblyStrategy. Priority: userInput→worldState→entityRendered→observations→memory→strategyModuleRendered→strategyRendered. All four business strategies now have dedicated assembly. No breaking changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Weighted Scoring + Assembly Consumption + Create + Query + Modify Assembly Reordering** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result in metadata. Phase 0.96 resolves + applies assembly strategy reordering. Continuous scoring enabled. Create: userInput→worldState→strategyModuleRendered→strategyRendered. Query: userInput→worldState→memory→observations→strategyModuleRendered→strategyRendered. Modify: userInput→worldState→entityRendered→memory→observations→strategyModuleRendered→strategyRendered. Non-create strategies unchanged. |
+| Strategy Layer | **Weighted Scoring + Assembly Consumption + All Four Business Strategies** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result in metadata. Phase 0.96 resolves + applies assembly strategy reordering. Continuous scoring enabled. All four business strategies (create, query, modify, delete) have dedicated assembly. Non-known strategies use default. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -162,6 +162,7 @@
 | WO-S5-034 | Create Prompt Assembly Strategy Consumption |
 | WO-S5-035 | Query Prompt Assembly Strategy |
 | WO-S5-036 | Modify Prompt Assembly Strategy |
+| WO-S5-037 | Delete Prompt Assembly Strategy |
 
 ---
 
@@ -795,6 +796,7 @@ Key remaining items:
 | ADR-0081 | Create Prompt Assembly Consumption | `docs/adr/ADR-0081-create-prompt-assembly-consumption.md` |
 | ADR-0082 | Query Prompt Assembly Strategy | `docs/adr/ADR-0082-query-prompt-assembly-strategy.md` |
 | ADR-0083 | Modify Prompt Assembly Strategy | `docs/adr/ADR-0083-modify-prompt-assembly-strategy.md` |
+| ADR-0084 | Delete Prompt Assembly Strategy | `docs/adr/ADR-0084-delete-prompt-assembly-strategy.md` |
 
 ---
 

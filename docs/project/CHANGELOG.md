@@ -3031,3 +3031,38 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.71
+
+### WO-S5-037 — Delete Prompt Assembly Strategy
+
+- **Created `DeletePromptAssemblyStrategy`** — fourth business-specific PromptAssemblyStrategy implementation
+  - `strategyName = 'delete'`
+  - Reorders sections: userInput → worldState → entityRendered → observations → memory → strategyModuleRendered → strategyRendered
+  - All remaining sections keep original relative order
+  - No sections removed, filtered, or modified
+  - Pure, stateless, deterministic
+- **Updated `DefaultPromptAssemblyStrategyResolver`** — routes 'delete' to DeletePromptAssemblyStrategy
+  - All four business strategies now routed: create, query, modify, delete
+  - everything else → DefaultPromptAssemblyStrategy
+- **Exported** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptCompression, PromptContext, Pipeline, Planner, PromptAssemblyStrategy interface, PromptAssemblyStrategyResolver interface
+- **No prompt behavior changes** for non-delete strategies
+- Created ADR-0084: Delete Prompt Assembly Strategy
+- New test file `DeletePromptAssemblyStrategy.test.ts` (87 tests, 14 groups):
+  - Interface conformance (6 tests)
+  - Reordering behavior (10 tests)
+  - Priority verification (7 tests)
+  - Deterministic (3 tests)
+  - Stateless (2 tests)
+  - Pure / no side effects (4 tests)
+  - Resolver integration (9 tests)
+  - Resolver deterministic & stateless (3 tests)
+  - Architecture compliance (11 tests)
+  - Exports (9 tests)
+  - Backward compatibility — all strategies unchanged (6 tests)
+  - RetryPlanner, ToolCallPlanner, Streaming, AgentLoop Compatibility (8 tests)
+  - No behavior changes (10 tests)
+- **Updated existing tests**: 5 test files updated for new resolver routing
+- All 3405 tests pass (3319 existing + 87 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.72

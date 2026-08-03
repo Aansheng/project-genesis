@@ -4,6 +4,7 @@ import { DefaultPromptAssemblyStrategy } from './DefaultPromptAssemblyStrategy'
 import { CreatePromptAssemblyStrategy } from './CreatePromptAssemblyStrategy'
 import { QueryPromptAssemblyStrategy } from './QueryPromptAssemblyStrategy'
 import { ModifyPromptAssemblyStrategy } from './ModifyPromptAssemblyStrategy'
+import { DeletePromptAssemblyStrategy } from './DeletePromptAssemblyStrategy'
 
 /**
  * DefaultPromptAssemblyStrategyResolver — default implementation of
@@ -13,6 +14,7 @@ import { ModifyPromptAssemblyStrategy } from './ModifyPromptAssemblyStrategy'
  * - 'create' → CreatePromptAssemblyStrategy
  * - 'query' → QueryPromptAssemblyStrategy
  * - 'modify' → ModifyPromptAssemblyStrategy
+ * - 'delete' → DeletePromptAssemblyStrategy
  * - everything else → DefaultPromptAssemblyStrategy
  *
  * Properties:
@@ -31,6 +33,8 @@ export class DefaultPromptAssemblyStrategyResolver implements PromptAssemblyStra
         return new QueryPromptAssemblyStrategy()
       case 'modify':
         return new ModifyPromptAssemblyStrategy()
+      case 'delete':
+        return new DeletePromptAssemblyStrategy()
       default:
         return new DefaultPromptAssemblyStrategy()
     }
