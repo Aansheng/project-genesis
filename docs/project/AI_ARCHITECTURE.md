@@ -393,7 +393,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Weighted Strategy Scoring** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector uses highest-score-wins (with StrategyEvaluator). WeightedStrategyEvaluator provides continuous scoring with cross-strategy weighting. StrategySelectionMetadata captures selected strategy + all candidate scores in `metadata.promptAssembly.strategySelection`. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata enable AI-based dynamic routing. Strategy selection: Phase 0.9, StrategySelectionMetadata: Phase 0.91, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Weighted Strategy Scoring** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector uses highest-score-wins (with StrategyEvaluator). WeightedStrategyEvaluator provides continuous scoring with cross-strategy weighting. StrategySelectionMetadata captures selected strategy + all candidate scores in `metadata.promptAssembly.strategySelection`. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata enable AI-based dynamic routing. Strategy selection: Phase 0.9, StrategySelectionMetadata: Phase 0.91, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95, assembly strategy resolution: Phase 0.96. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -622,6 +622,8 @@ Phase 0.94:  StrategyModuleRenderer.render(strategyModule) → strategyModuleRen
     ↓             → metadata.promptAssembly.strategyModuleRendered
 Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendered
     ↓             → metadata.promptAssembly.strategyRendered
+Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
+    ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
 Phase 1:    MemoryRanking.rank()
 ```
 
@@ -660,6 +662,7 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Weighted Strategy Evaluator~~ | `StrategyEvaluator` | ~~Continuous scoring with cross-strategy weighting~~ **Done in WO-S5-030** |
 | ~~Prompt Assembly Strategy Foundation~~ | `PromptAssemblyStrategy` | ~~Strategy-aware prompt assembly abstraction~~ **Done in WO-S5-031** |
 | ~~Prompt Assembly Strategy Resolver~~ | `PromptAssemblyStrategyResolver` | ~~Resolve assembly strategy by name~~ **Done in WO-S5-031** |
+| ~~Prompt Assembly Strategy Consumption~~ | `BuilderOptions` | ~~Add promptAssemblyStrategyResolver to BuilderOptions~~ **Done in WO-S5-032** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 
@@ -841,6 +844,7 @@ interface BuilderOptions {
   strategySelector?: PromptStrategySelector          // ← WO-S5-016
   strategies?: readonly PromptStrategy[]               // ← WO-S5-016
   strategyEvaluator?: StrategyEvaluator                // ← WO-S5-029
+  promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver  // ← WO-S5-032
 }
 ```
 

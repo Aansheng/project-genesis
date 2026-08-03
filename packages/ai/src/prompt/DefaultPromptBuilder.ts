@@ -33,6 +33,7 @@ import type { StrategyModule } from '../strategy/StrategyModule'
 import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
 import type { StrategyEvaluator } from '../strategy/StrategyEvaluator'
 import type { StrategySelectionMetadata } from '../strategy/StrategySelectionMetadata'
+import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyStrategyResolver'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultStrategyModuleRenderer } from '../strategy/DefaultStrategyModuleRenderer'
@@ -65,6 +66,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly strategyModules?: readonly StrategyModule[]
   private readonly strategyModuleRenderer?: StrategyModuleRenderer
   private readonly strategyEvaluator?: StrategyEvaluator
+  private readonly promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver
 
   /**
    * Create a DefaultPromptBuilder.
@@ -129,6 +131,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategyModules = opts.strategyModules
       this.strategyModuleRenderer = opts.strategyModuleRenderer
       this.strategyEvaluator = opts.strategyEvaluator
+      this.promptAssemblyStrategyResolver = opts.promptAssemblyStrategyResolver
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -145,6 +148,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.semanticContextBuilder = undefined
       this.semanticContextRenderer = undefined
       this.strategyEvaluator = undefined
+      this.promptAssemblyStrategyResolver = undefined
     }
   }
 
@@ -262,6 +266,13 @@ export class DefaultPromptBuilder implements PromptBuilder {
       promptContext.strategyModuleRendered = strategyModuleRendered
     }
 
+    // Phase 0.96: PromptAssemblyStrategyResolver — resolve assembly strategy for metadata
+    let promptAssemblyStrategy: { strategyName: string } | undefined
+    if (this.promptAssemblyStrategyResolver !== undefined) {
+      const assemblyStrategy = this.promptAssemblyStrategyResolver.resolve(selectedStrategy.name)
+      promptAssemblyStrategy = { strategyName: assemblyStrategy.strategyName }
+    }
+
     // Phase 1: MemoryRanking — determine section priority (pure measurement)
     const rankingResult: MemoryRankingResult = this.ranking.rank(promptContext)
 
@@ -325,6 +336,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
         ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
+        ...(promptAssemblyStrategy !== undefined ? { promptAssemblyStrategy } : {}),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

@@ -2833,3 +2833,41 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.66
+
+### WO-S5-032 — Strategy-Aware Prompt Assembly Consumption
+
+- **Updated `BuilderOptions`** — added `promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver`
+  - Optional field, backward compatible
+  - Defaults to undefined (no assembly strategy resolution)
+- **Updated `DefaultPromptBuilder`** — wired resolver through constructor
+  - `private readonly promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver`
+  - BuilderOptions form: `opts.promptAssemblyStrategyResolver`
+  - Legacy form: `undefined`
+- **Added Phase 0.96** — PromptAssemblyStrategyResolver resolution
+  - After Phase 0.95 (PromptStrategyRenderer), before Phase 1 (MemoryRanking)
+  - `resolver.resolve(selectedStrategy.name)` → assembly strategy
+  - Metadata stored: `metadata.promptAssembly.promptAssemblyStrategy = { strategyName }`
+- **No modifications to**: PromptRenderer, PromptCompression, PromptContext, Pipeline, Planner
+- **No prompt behavior changes** — prompt output identical with and without resolver
+- Created ADR-0079: Prompt Assembly Strategy Consumption
+- New test file `PromptAssemblyStrategyConsumption.test.ts` (47 tests, 15 groups):
+  - BuilderOptions (4 tests): optional field, backward compatible, alongside other options
+  - Resolver invocation (5 tests): called once, receives strategy name, not called when absent, correct per build
+  - Metadata (5 tests): stored when resolver present, strategyName "default", absent when no resolver, correct name, plain object
+  - Metadata coexistence (6 tests): strategy, strategyRendered, strategyModule, strategyModuleRendered, strategySelection, all fields
+  - Deterministic (3 tests): same inputs, cross-instance, repeated calls
+  - Stateless (2 tests): no retained state, no previous build state
+  - Pure (3 tests): no modify context, no modify resolver, no modify builder
+  - No prompt changes (6 tests): identical output, with strategies, with evaluator, no alter sections, no reorder, no filter
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - No PromptRenderer modification (1 test)
+  - No PromptCompression modification (1 test)
+  - No PromptContext modification (1 test)
+  - Legacy constructor compatibility (2 tests)
+- All 2962 tests pass (2915 existing + 47 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.67
