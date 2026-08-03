@@ -3,6 +3,7 @@ import type { PromptAssemblyStrategy } from './PromptAssemblyStrategy'
 import { DefaultPromptAssemblyStrategy } from './DefaultPromptAssemblyStrategy'
 import { CreatePromptAssemblyStrategy } from './CreatePromptAssemblyStrategy'
 import { QueryPromptAssemblyStrategy } from './QueryPromptAssemblyStrategy'
+import { ModifyPromptAssemblyStrategy } from './ModifyPromptAssemblyStrategy'
 
 /**
  * DefaultPromptAssemblyStrategyResolver — default implementation of
@@ -11,6 +12,7 @@ import { QueryPromptAssemblyStrategy } from './QueryPromptAssemblyStrategy'
  * Routes strategy names to their corresponding PromptAssemblyStrategy:
  * - 'create' → CreatePromptAssemblyStrategy
  * - 'query' → QueryPromptAssemblyStrategy
+ * - 'modify' → ModifyPromptAssemblyStrategy
  * - everything else → DefaultPromptAssemblyStrategy
  *
  * Properties:
@@ -27,6 +29,8 @@ export class DefaultPromptAssemblyStrategyResolver implements PromptAssemblyStra
         return new CreatePromptAssemblyStrategy()
       case 'query':
         return new QueryPromptAssemblyStrategy()
+      case 'modify':
+        return new ModifyPromptAssemblyStrategy()
       default:
         return new DefaultPromptAssemblyStrategy()
     }

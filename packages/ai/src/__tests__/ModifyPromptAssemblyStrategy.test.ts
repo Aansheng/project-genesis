@@ -1,55 +1,56 @@
 import { describe, it, expect } from 'vitest'
 import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
-import { QueryPromptAssemblyStrategy } from '../strategy/QueryPromptAssemblyStrategy'
-import { CreatePromptAssemblyStrategy } from '../strategy/CreatePromptAssemblyStrategy'
 import { ModifyPromptAssemblyStrategy } from '../strategy/ModifyPromptAssemblyStrategy'
+import { CreatePromptAssemblyStrategy } from '../strategy/CreatePromptAssemblyStrategy'
+import { QueryPromptAssemblyStrategy } from '../strategy/QueryPromptAssemblyStrategy'
 import { DefaultPromptAssemblyStrategy } from '../strategy/DefaultPromptAssemblyStrategy'
 import { DefaultPromptAssemblyStrategyResolver } from '../strategy/DefaultPromptAssemblyStrategyResolver'
 import type {
   PromptAssemblyStrategy as StrategyFromRoot,
 } from '../index'
 import {
+  ModifyPromptAssemblyStrategy as ModifyFromRoot,
+  CreatePromptAssemblyStrategy as CreateFromRoot,
   QueryPromptAssemblyStrategy as QueryFromRoot,
   DefaultPromptAssemblyStrategy as DefaultFromRoot,
   DefaultPromptAssemblyStrategyResolver as DefaultResolverFromRoot,
-  CreatePromptAssemblyStrategy as CreateFromRoot,
 } from '../index'
 
 // ---------------------------------------------------------------------------
-// QueryPromptAssemblyStrategy — Interface Conformance
+// ModifyPromptAssemblyStrategy — Interface Conformance
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy — interface', () => {
+describe('ModifyPromptAssemblyStrategy — interface', () => {
   it('should implement PromptAssemblyStrategy interface', () => {
-    const strategy: PromptAssemblyStrategy = new QueryPromptAssemblyStrategy()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    const strategy: PromptAssemblyStrategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should define a strategyName property', () => {
-    const strategy: PromptAssemblyStrategy = new QueryPromptAssemblyStrategy()
+    const strategy: PromptAssemblyStrategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.strategyName).toBeDefined()
     expect(typeof strategy.strategyName).toBe('string')
   })
 
-  it('should have strategyName "query"', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy.strategyName).toBe('query')
+  it('should have strategyName "modify"', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy.strategyName).toBe('modify')
   })
 
   it('should define an apply method', () => {
-    const strategy: PromptAssemblyStrategy = new QueryPromptAssemblyStrategy()
+    const strategy: PromptAssemblyStrategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply).toBeDefined()
     expect(typeof strategy.apply).toBe('function')
   })
 
   it('should accept readonly string array as apply parameter', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections: readonly string[] = ['a', 'b', 'c']
     expect(() => strategy.apply(sections)).not.toThrow()
   })
 
   it('should return readonly string array from apply', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const result = strategy.apply(['a', 'b'])
     expect(Array.isArray(result)).toBe(true)
     for (const item of result) {
@@ -59,89 +60,90 @@ describe('QueryPromptAssemblyStrategy — interface', () => {
 })
 
 // ---------------------------------------------------------------------------
-// QueryPromptAssemblyStrategy — Reordering Behavior
+// ModifyPromptAssemblyStrategy — Reordering Behavior
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy — reordering', () => {
+describe('ModifyPromptAssemblyStrategy — reordering', () => {
   it('should place priority items first in priority order', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = [
-      'semanticRendered',
       'strategyRendered',
+      'entityRendered',
       'observations',
-      'memory',
       'userInput',
       'worldState',
+      'memory',
       'strategyModuleRendered',
     ]
     const result = strategy.apply(sections)
     expect(result[0]).toBe('userInput')
     expect(result[1]).toBe('worldState')
-    expect(result[2]).toBe('memory')
-    expect(result[3]).toBe('observations')
-    expect(result[4]).toBe('strategyModuleRendered')
-    expect(result[5]).toBe('strategyRendered')
+    expect(result[2]).toBe('entityRendered')
+    expect(result[3]).toBe('memory')
+    expect(result[4]).toBe('observations')
+    expect(result[5]).toBe('strategyModuleRendered')
+    expect(result[6]).toBe('strategyRendered')
   })
 
   it('should preserve relative order of remaining items', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = [
       'intentRendered',
       'entityRendered',
+      'observations',
       'semanticRendered',
       'userInput',
-      'strategyRendered',
-      'system',
-      'memory',
       'worldState',
+      'memory',
       'reflections',
-      'observations',
+      'system',
+      'strategyRendered',
     ]
     const result = strategy.apply(sections)
-    // Remaining items (non-priority): intentRendered, entityRendered, semanticRendered, system, reflections
-    const priority = ['userInput', 'worldState', 'memory', 'observations', 'strategyRendered']
+    // Remaining (non-priority): intentRendered, semanticRendered, reflections, system
+    const priority = ['userInput', 'worldState', 'entityRendered', 'memory', 'observations', 'strategyRendered']
     const remaining = result.filter(s => !priority.includes(s))
-    expect(remaining).toEqual(['intentRendered', 'entityRendered', 'semanticRendered', 'system', 'reflections'])
+    expect(remaining).toEqual(['intentRendered', 'semanticRendered', 'reflections', 'system'])
   })
 
   it('should keep all sections — no removal', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const sections = ['a', 'userInput', 'b', 'worldState', 'c', 'memory', 'd', 'observations', 'e', 'strategyModuleRendered', 'strategyRendered', 'f']
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const sections = ['a', 'userInput', 'b', 'worldState', 'c', 'entityRendered', 'd', 'memory', 'e', 'observations', 'f', 'strategyModuleRendered', 'strategyRendered', 'g']
     const result = strategy.apply(sections)
     expect(result.length).toBe(sections.length)
     expect([...result].sort()).toEqual([...sections].sort())
   })
 
   it('should handle sections with only priority items', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const sections = ['strategyRendered', 'observations', 'memory', 'userInput', 'worldState', 'strategyModuleRendered']
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const sections = ['strategyRendered', 'observations', 'memory', 'entityRendered', 'userInput', 'worldState', 'strategyModuleRendered']
     const result = strategy.apply(sections)
-    expect(result).toEqual(['userInput', 'worldState', 'memory', 'observations', 'strategyModuleRendered', 'strategyRendered'])
+    expect(result).toEqual(['userInput', 'worldState', 'entityRendered', 'memory', 'observations', 'strategyModuleRendered', 'strategyRendered'])
   })
 
   it('should handle sections with only non-priority items', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = ['a', 'b', 'c']
     expect(strategy.apply(sections)).toEqual(['a', 'b', 'c'])
   })
 
   it('should handle empty sections array', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply([])).toEqual([])
   })
 
   it('should handle single item that is priority', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply(['userInput'])).toEqual(['userInput'])
   })
 
   it('should handle single item that is not priority', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply(['memory'])).toEqual(['memory'])
   })
 
   it('should preserve duplicates', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = ['a', 'userInput', 'b', 'userInput', 'c']
     const result = strategy.apply(sections)
     expect(result[0]).toBe('userInput')
@@ -149,7 +151,7 @@ describe('QueryPromptAssemblyStrategy — reordering', () => {
   })
 
   it('should reorder correctly with all canonical sections', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = [
       'intentRendered',
       'entityRendered',
@@ -164,17 +166,17 @@ describe('QueryPromptAssemblyStrategy — reordering', () => {
       'observations',
     ]
     const result = strategy.apply(sections)
-    // Expected: userInput, worldState, memory, observations, strategyModuleRendered, strategyRendered, then rest
+    // Expected: userInput, worldState, entityRendered, memory, observations, strategyModuleRendered, strategyRendered, then rest
     expect(result[0]).toBe('userInput')
     expect(result[1]).toBe('worldState')
-    expect(result[2]).toBe('memory')
-    expect(result[3]).toBe('observations')
-    expect(result[4]).toBe('strategyModuleRendered')
-    expect(result[5]).toBe('strategyRendered')
+    expect(result[2]).toBe('entityRendered')
+    expect(result[3]).toBe('memory')
+    expect(result[4]).toBe('observations')
+    expect(result[5]).toBe('strategyModuleRendered')
+    expect(result[6]).toBe('strategyRendered')
     // Remaining keep original relative order
-    expect(result.slice(6)).toEqual([
+    expect(result.slice(7)).toEqual([
       'intentRendered',
-      'entityRendered',
       'semanticRendered',
       'system',
       'reflections',
@@ -183,68 +185,68 @@ describe('QueryPromptAssemblyStrategy — reordering', () => {
 })
 
 // ---------------------------------------------------------------------------
-// QueryPromptAssemblyStrategy — Priority Verification
+// ModifyPromptAssemblyStrategy — Priority Verification
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy — priority verification', () => {
+describe('ModifyPromptAssemblyStrategy — priority verification', () => {
   it('userInput should come before worldState', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const result = strategy.apply(['worldState', 'userInput'])
     expect(result[0]).toBe('userInput')
     expect(result[1]).toBe('worldState')
   })
 
-  it('worldState should come before memory', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const result = strategy.apply(['memory', 'worldState'])
+  it('worldState should come before entityRendered', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const result = strategy.apply(['entityRendered', 'worldState'])
     expect(result[0]).toBe('worldState')
+    expect(result[1]).toBe('entityRendered')
+  })
+
+  it('entityRendered should come before memory', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const result = strategy.apply(['memory', 'entityRendered'])
+    expect(result[0]).toBe('entityRendered')
     expect(result[1]).toBe('memory')
   })
 
   it('memory should come before observations', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const result = strategy.apply(['observations', 'memory'])
     expect(result[0]).toBe('memory')
     expect(result[1]).toBe('observations')
   })
 
   it('observations should come before strategyModuleRendered', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const result = strategy.apply(['strategyModuleRendered', 'observations'])
     expect(result[0]).toBe('observations')
     expect(result[1]).toBe('strategyModuleRendered')
   })
 
   it('strategyModuleRendered should come before strategyRendered', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const result = strategy.apply(['strategyRendered', 'strategyModuleRendered'])
     expect(result[0]).toBe('strategyModuleRendered')
     expect(result[1]).toBe('strategyRendered')
   })
 
-  it('memory should come before strategyRendered', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const result = strategy.apply(['strategyRendered', 'memory'])
-    expect(result[0]).toBe('memory')
-    expect(result[1]).toBe('strategyRendered')
-  })
-
-  it('observations should come before strategyRendered', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const result = strategy.apply(['strategyRendered', 'observations'])
-    expect(result[0]).toBe('observations')
-    expect(result[1]).toBe('strategyRendered')
+  it('entityRendered should come before observations', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const result = strategy.apply(['observations', 'entityRendered'])
+    expect(result[0]).toBe('entityRendered')
+    expect(result[1]).toBe('observations')
   })
 })
 
 // ---------------------------------------------------------------------------
-// QueryPromptAssemblyStrategy — Deterministic
+// ModifyPromptAssemblyStrategy — Deterministic
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy — deterministic', () => {
+describe('ModifyPromptAssemblyStrategy — deterministic', () => {
   it('should return same result for same sections across repeated calls', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const sections = ['b', 'userInput', 'a', 'worldState', 'memory', 'c']
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const sections = ['b', 'userInput', 'entityRendered', 'a', 'worldState', 'memory', 'c']
     const r1 = strategy.apply(sections)
     const r2 = strategy.apply(sections)
     const r3 = strategy.apply(sections)
@@ -253,33 +255,33 @@ describe('QueryPromptAssemblyStrategy — deterministic', () => {
   })
 
   it('should be idempotent across ten calls', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const sections = ['a', 'userInput', 'worldState', 'memory', 'b']
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const sections = ['a', 'userInput', 'worldState', 'entityRendered', 'b']
     for (let i = 0; i < 10; i++) {
       const result = strategy.apply(sections)
       expect(result[0]).toBe('userInput')
       expect(result[1]).toBe('worldState')
-      expect(result[2]).toBe('memory')
+      expect(result[2]).toBe('entityRendered')
     }
   })
 
   it('should produce same result across many instances', () => {
-    const sections = ['x', 'userInput', 'y', 'worldState', 'memory', 'z']
-    const r1 = new QueryPromptAssemblyStrategy().apply(sections)
-    const r2 = new QueryPromptAssemblyStrategy().apply(sections)
-    const r3 = new QueryPromptAssemblyStrategy().apply(sections)
+    const sections = ['x', 'userInput', 'y', 'worldState', 'entityRendered', 'z']
+    const r1 = new ModifyPromptAssemblyStrategy().apply(sections)
+    const r2 = new ModifyPromptAssemblyStrategy().apply(sections)
+    const r3 = new ModifyPromptAssemblyStrategy().apply(sections)
     expect(r1).toEqual(r2)
     expect(r2).toEqual(r3)
   })
 })
 
 // ---------------------------------------------------------------------------
-// QueryPromptAssemblyStrategy — Stateless
+// ModifyPromptAssemblyStrategy — Stateless
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy — stateless', () => {
+describe('ModifyPromptAssemblyStrategy — stateless', () => {
   it('should not retain state between calls', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections1 = ['userInput', 'a']
     const sections2 = ['b', 'worldState']
     const sections3 = ['userInput', 'a']
@@ -289,27 +291,27 @@ describe('QueryPromptAssemblyStrategy — stateless', () => {
   })
 
   it('should be independent across multiple instances', () => {
-    const s1 = new QueryPromptAssemblyStrategy()
-    const s2 = new QueryPromptAssemblyStrategy()
+    const s1 = new ModifyPromptAssemblyStrategy()
+    const s2 = new ModifyPromptAssemblyStrategy()
     const sections = ['x', 'userInput', 'y', 'worldState', 'z']
     expect(s1.apply(sections)).toEqual(s2.apply(sections))
   })
 })
 
 // ---------------------------------------------------------------------------
-// QueryPromptAssemblyStrategy — Pure / No Side Effects
+// ModifyPromptAssemblyStrategy — Pure / No Side Effects
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy — pure / no side effects', () => {
+describe('ModifyPromptAssemblyStrategy — pure / no side effects', () => {
   it('should not modify the input sections array', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = ['userInput', 'a', 'worldState']
     const frozen = Object.freeze([...sections])
     expect(() => strategy.apply(frozen)).not.toThrow()
   })
 
   it('should not mutate the original array reference', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const original = ['x', 'userInput', 'y']
     const copy = [...original]
     strategy.apply(original)
@@ -317,13 +319,13 @@ describe('QueryPromptAssemblyStrategy — pure / no side effects', () => {
   })
 
   it('should support frozen input arrays', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const frozen = Object.freeze(['userInput', 'worldState', 'other'])
     expect(() => strategy.apply(frozen)).not.toThrow()
   })
 
   it('should return a new array reference (not identity)', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = ['a', 'userInput', 'b']
     const result = strategy.apply(sections)
     expect(result).not.toBe(sections)
@@ -335,33 +337,24 @@ describe('QueryPromptAssemblyStrategy — pure / no side effects', () => {
 // ---------------------------------------------------------------------------
 
 describe('Resolver integration', () => {
-  it('should return QueryPromptAssemblyStrategy for "query"', () => {
+  it('should return ModifyPromptAssemblyStrategy for "modify"', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
-  it('should return QueryPromptAssemblyStrategy with strategyName "query"', () => {
+  it('should return ModifyPromptAssemblyStrategy with strategyName "modify"', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result.strategyName).toBe('query')
+    expect(resolver.resolve('modify').strategyName).toBe('modify')
   })
 
   it('should return CreatePromptAssemblyStrategy for "create"', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('create')
-    expect(result).toBeInstanceOf(CreatePromptAssemblyStrategy)
+    expect(resolver.resolve('create')).toBeInstanceOf(CreatePromptAssemblyStrategy)
   })
 
-  it('should return CreatePromptAssemblyStrategy with strategyName "create"', () => {
+  it('should return QueryPromptAssemblyStrategy for "query"', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('create')
-    expect(result.strategyName).toBe('create')
-  })
-
-  it('should return ModifyPromptAssemblyStrategy for "modify"', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
+    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
   })
 
   it('should return DefaultPromptAssemblyStrategy for "delete"', () => {
@@ -376,20 +369,15 @@ describe('Resolver integration', () => {
 
   it('should return DefaultPromptAssemblyStrategy for unknown names', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const names = ['unknown', '', 'custom-123', 'read', 'update']
+    const names = ['unknown', '', 'custom-123']
     for (const name of names) {
       expect(resolver.resolve(name)).toBeInstanceOf(DefaultPromptAssemblyStrategy)
     }
   })
 
-  it('should return DefaultPromptAssemblyStrategy for "Query" (case-sensitive)', () => {
+  it('should return DefaultPromptAssemblyStrategy for "Modify" (case-sensitive)', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('Query')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
-  })
-
-  it('should return DefaultPromptAssemblyStrategy for "QUERY" (case-sensitive)', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('QUERY')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+    expect(resolver.resolve('Modify')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
   })
 
   it('should route create, query, modify correctly and everything else to default', () => {
@@ -407,32 +395,22 @@ describe('Resolver integration', () => {
 // ---------------------------------------------------------------------------
 
 describe('Resolver — deterministic', () => {
-  it('should return same strategy type for "query" across repeated calls', () => {
+  it('should return same strategy type for "modify" across repeated calls', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const r1 = resolver.resolve('query')
-    const r2 = resolver.resolve('query')
-    const r3 = resolver.resolve('query')
-    expect(r1).toBeInstanceOf(QueryPromptAssemblyStrategy)
-    expect(r2).toBeInstanceOf(QueryPromptAssemblyStrategy)
-    expect(r3).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    const r1 = resolver.resolve('modify')
+    const r2 = resolver.resolve('modify')
+    const r3 = resolver.resolve('modify')
+    expect(r1).toBeInstanceOf(ModifyPromptAssemblyStrategy)
+    expect(r2).toBeInstanceOf(ModifyPromptAssemblyStrategy)
+    expect(r3).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
-  it('should return same strategy type for "create" across repeated calls', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const r1 = resolver.resolve('create')
-    const r2 = resolver.resolve('create')
-    const r3 = resolver.resolve('create')
-    expect(r1).toBeInstanceOf(CreatePromptAssemblyStrategy)
-    expect(r2).toBeInstanceOf(CreatePromptAssemblyStrategy)
-    expect(r3).toBeInstanceOf(CreatePromptAssemblyStrategy)
-  })
-
-  it('should be idempotent for "query" across ten calls', () => {
+  it('should be idempotent for "modify" across ten calls', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
     for (let i = 0; i < 10; i++) {
-      const result = resolver.resolve('query')
-      expect(result).toBeInstanceOf(QueryPromptAssemblyStrategy)
-      expect(result.strategyName).toBe('query')
+      const result = resolver.resolve('modify')
+      expect(result).toBeInstanceOf(ModifyPromptAssemblyStrategy)
+      expect(result.strategyName).toBe('modify')
     }
   })
 })
@@ -451,14 +429,6 @@ describe('Resolver — stateless', () => {
     const result = resolver.resolve('default')
     expect(result).toBeInstanceOf(DefaultPromptAssemblyStrategy)
   })
-
-  it('should be independent across multiple instances', () => {
-    const r1 = new DefaultPromptAssemblyStrategyResolver()
-    const r2 = new DefaultPromptAssemblyStrategyResolver()
-    expect(r1.resolve('query').strategyName).toBe(r2.resolve('query').strategyName)
-    expect(r1.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
-    expect(r2.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
-  })
 })
 
 // ---------------------------------------------------------------------------
@@ -467,48 +437,48 @@ describe('Resolver — stateless', () => {
 
 describe('Architecture compliance', () => {
   it('should not depend on Planner', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply([])).toEqual([])
   })
 
   it('should not depend on Runtime', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should not depend on Provider', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should not depend on Memory', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply(['a'])).toEqual(['a'])
   })
 
   it('should not depend on ToolCalling', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('query').strategyName).toBe('query')
+    expect(resolver.resolve('modify').strategyName).toBe('modify')
   })
 
   it('should not depend on AgentLoop', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply(['a', 'b'])).toEqual(['a', 'b'])
   })
 
   it('should not depend on PromptBuilder', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy.strategyName).toBe('query')
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy.strategyName).toBe('modify')
   })
 
   it('should not depend on Pipeline', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result.strategyName).toBe('query')
+    const result = resolver.resolve('modify')
+    expect(result.strategyName).toBe('modify')
   })
 
   it('should be pure — no side effects on input', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = ['a', 'b']
     const before = JSON.stringify(sections)
     strategy.apply(sections)
@@ -516,13 +486,13 @@ describe('Architecture compliance', () => {
   })
 
   it('should be stateless — no internal state', () => {
-    const s1 = new QueryPromptAssemblyStrategy()
-    const s2 = new QueryPromptAssemblyStrategy()
+    const s1 = new ModifyPromptAssemblyStrategy()
+    const s2 = new ModifyPromptAssemblyStrategy()
     expect(s1.apply(['x'])).toEqual(s2.apply(['x']))
   })
 
   it('should be non-mutating — never modifies inputs', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const sections = Object.freeze(['a', 'b', 'c'])
     expect(() => strategy.apply(sections)).not.toThrow()
   })
@@ -532,30 +502,35 @@ describe('Architecture compliance', () => {
 // Exports
 // ---------------------------------------------------------------------------
 
-describe('QueryPromptAssemblyStrategy exports', () => {
-  it('should export QueryPromptAssemblyStrategy class from strategy/index', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+describe('ModifyPromptAssemblyStrategy exports', () => {
+  it('should export ModifyPromptAssemblyStrategy class from strategy/index', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
-  it('should export QueryPromptAssemblyStrategy class from package root', () => {
-    const strategy = new QueryFromRoot()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+  it('should export ModifyPromptAssemblyStrategy class from package root', () => {
+    const strategy = new ModifyFromRoot()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
-  it('should export QueryPromptAssemblyStrategy with strategyName "query" from package root', () => {
-    const strategy = new QueryFromRoot()
-    expect(strategy.strategyName).toBe('query')
+  it('should export ModifyPromptAssemblyStrategy with strategyName "modify" from package root', () => {
+    const strategy = new ModifyFromRoot()
+    expect(strategy.strategyName).toBe('modify')
   })
 
   it('should still export PromptAssemblyStrategy type from package root', () => {
-    const strategy: StrategyFromRoot = new QueryPromptAssemblyStrategy()
-    expect(strategy.strategyName).toBe('query')
+    const strategy: StrategyFromRoot = new ModifyPromptAssemblyStrategy()
+    expect(strategy.strategyName).toBe('modify')
   })
 
   it('should still export CreatePromptAssemblyStrategy from package root', () => {
     const strategy = new CreateFromRoot()
     expect(strategy).toBeInstanceOf(CreatePromptAssemblyStrategy)
+  })
+
+  it('should still export QueryPromptAssemblyStrategy from package root', () => {
+    const strategy = new QueryFromRoot()
+    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
   })
 
   it('should still export DefaultPromptAssemblyStrategy from package root', () => {
@@ -570,17 +545,26 @@ describe('QueryPromptAssemblyStrategy exports', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Backward Compatibility — Create/Default Unchanged
+// Backward Compatibility — Create, Query, Default Unchanged
 // ---------------------------------------------------------------------------
 
-describe('Backward compatibility — create and default unchanged', () => {
+describe('Backward compatibility — create, query, default unchanged', () => {
   it('CreatePromptAssemblyStrategy still reorders correctly', () => {
     const strategy = new CreatePromptAssemblyStrategy()
     const sections = ['semantic', 'userInput', 'memory', 'worldState']
     const result = strategy.apply(sections)
     expect(result[0]).toBe('userInput')
     expect(result[1]).toBe('worldState')
-    // strategyModuleRendered and strategyRendered are not in this input
+  })
+
+  it('QueryPromptAssemblyStrategy still reorders correctly', () => {
+    const strategy = new QueryPromptAssemblyStrategy()
+    const sections = ['observations', 'memory', 'userInput', 'worldState']
+    const result = strategy.apply(sections)
+    expect(result[0]).toBe('userInput')
+    expect(result[1]).toBe('worldState')
+    expect(result[2]).toBe('memory')
+    expect(result[3]).toBe('observations')
   })
 
   it('DefaultPromptAssemblyStrategy still returns identity', () => {
@@ -589,38 +573,49 @@ describe('Backward compatibility — create and default unchanged', () => {
     expect(strategy.apply(sections)).toEqual(['a', 'b', 'c'])
   })
 
-  it('Query strategy is different from Create strategy', () => {
-    const query = new QueryPromptAssemblyStrategy()
+  it('Modify strategy differs from Create strategy', () => {
+    const modify = new ModifyPromptAssemblyStrategy()
     const create = new CreatePromptAssemblyStrategy()
     const sections = [
       'observations',
-      'strategyRendered',
-      'userInput',
+      'entityRendered',
       'memory',
+      'userInput',
       'worldState',
-      'strategyModuleRendered',
     ]
-    const queryResult = query.apply(sections)
+    const modifyResult = modify.apply(sections)
     const createResult = create.apply(sections)
     // Both have userInput first, worldState second
-    expect(queryResult[0]).toBe('userInput')
+    expect(modifyResult[0]).toBe('userInput')
     expect(createResult[0]).toBe('userInput')
-    // But query has memory and observations higher priority
-    expect(queryResult.indexOf('memory')).toBeLessThan(createResult.indexOf('memory'))
-    expect(queryResult.indexOf('observations')).toBeLessThan(createResult.indexOf('observations'))
+    // But modify has entityRendered and memory higher priority
+    expect(modifyResult.indexOf('entityRendered')).toBeLessThan(createResult.indexOf('entityRendered'))
   })
 
-  it('Resolver still routes create correctly', () => {
+  it('Modify strategy differs from Query strategy', () => {
+    const modify = new ModifyPromptAssemblyStrategy()
+    const query = new QueryPromptAssemblyStrategy()
+    const sections = [
+      'entityRendered',
+      'observations',
+      'memory',
+      'userInput',
+      'worldState',
+    ]
+    const modifyResult = modify.apply(sections)
+    const queryResult = query.apply(sections)
+    // Both have same first 2
+    expect(modifyResult[0]).toBe('userInput')
+    expect(queryResult[0]).toBe('userInput')
+    // Modify puts entityRendered before memory, query puts memory before entityRendered
+    expect(modifyResult.indexOf('entityRendered')).toBeLessThan(modifyResult.indexOf('memory'))
+  })
+
+  it('Resolver still routes create and query correctly', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
     expect(resolver.resolve('create')).toBeInstanceOf(CreatePromptAssemblyStrategy)
-  })
-
-  it('Resolver still routes default correctly for unknown names', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const names = ['delete', '', 'unknown']
-    for (const name of names) {
-      expect(resolver.resolve(name)).toBeInstanceOf(DefaultPromptAssemblyStrategy)
-    }
+    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 })
 
@@ -630,23 +625,16 @@ describe('Backward compatibility — create and default unchanged', () => {
 
 describe('RetryPlanner Compatibility', () => {
   it('should work with RetryPlanner — strategy is independent', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should not affect RetryPlanner behavior', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const sections = ['system', 'userInput', 'worldState']
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const sections = ['system', 'userInput', 'entityRendered']
     const result = strategy.apply(sections)
     expect(result[0]).toBe('userInput')
-    expect(result[1]).toBe('worldState')
-  })
-
-  it('resolver can route "query" when used with RetryPlanner', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result).toBeInstanceOf(QueryPromptAssemblyStrategy)
-    expect(result.apply(['retry', 'userInput'])[0]).toBe('userInput')
+    expect(result[1]).toBe('entityRendered')
   })
 })
 
@@ -657,18 +645,12 @@ describe('RetryPlanner Compatibility', () => {
 describe('ToolCallPlanner Compatibility', () => {
   it('should work with ToolCallPlanner — strategy is independent', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should not affect ToolCallPlanner tool execution', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     expect(strategy.apply(['prompt'])).toEqual(['prompt'])
-  })
-
-  it('resolver can route "query" when used with ToolCallPlanner', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result.apply(['tool', 'userInput'])[0]).toBe('userInput')
   })
 })
 
@@ -678,20 +660,14 @@ describe('ToolCallPlanner Compatibility', () => {
 
 describe('Streaming Compatibility', () => {
   it('should work with StreamingProvider — strategy is independent', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should not affect streaming', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
+    const result = resolver.resolve('modify')
     expect(result.apply(['chunk'])).toEqual(['chunk'])
-  })
-
-  it('resolver can route "query" when used with streaming', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result.apply(['stream', 'userInput'])[0]).toBe('userInput')
   })
 })
 
@@ -701,20 +677,14 @@ describe('Streaming Compatibility', () => {
 
 describe('AgentLoop Compatibility', () => {
   it('should work with AgentLoop — strategy is independent', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy).toBeInstanceOf(ModifyPromptAssemblyStrategy)
   })
 
   it('should not affect AgentLoop iteration', () => {
     const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
+    const result = resolver.resolve('modify')
     expect(result.apply(['observation', 'action'])[0]).toBe('observation')
-  })
-
-  it('resolver can route "query" when used with AgentLoop', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const result = resolver.resolve('query')
-    expect(result.apply(['agent', 'userInput'])[0]).toBe('userInput')
   })
 })
 
@@ -723,13 +693,11 @@ describe('AgentLoop Compatibility', () => {
 // ---------------------------------------------------------------------------
 
 describe('No behavior changes', () => {
-  it('QueryPromptAssemblyStrategy.apply is not identity', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    const sections = ['z', 'userInput', 'y', 'worldState', 'x']
+  it('ModifyPromptAssemblyStrategy.apply is not identity when priority items present', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    const sections = ['z', 'userInput', 'y']
     const result = strategy.apply(sections)
-    // userInput and worldState are moved to front
     expect(result[0]).toBe('userInput')
-    expect(result[1]).toBe('worldState')
   })
 
   it('DefaultPromptAssemblyStrategy is unchanged', () => {
@@ -741,59 +709,38 @@ describe('No behavior changes', () => {
   it('CreatePromptAssemblyStrategy is unchanged', () => {
     const strategy = new CreatePromptAssemblyStrategy()
     expect(strategy.strategyName).toBe('create')
-    const result = strategy.apply(['memory', 'userInput'])
-    expect(result[0]).toBe('userInput')
   })
 
-  it('Resolver still returns DefaultPromptAssemblyStrategy for non-create-non-query-non-modify names', () => {
-    const resolver = new DefaultPromptAssemblyStrategyResolver()
-    const names = ['delete', 'default', 'unknown']
-    for (const name of names) {
-      const result = resolver.resolve(name)
-      expect(result).toBeInstanceOf(DefaultPromptAssemblyStrategy)
-    }
-  })
-
-  it('does not modify PromptBuilder behavior', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
-    expect(strategy.apply(['system', 'userInput'])[0]).toBe('userInput')
-  })
-
-  it('does not modify PromptRenderer behavior', () => {
+  it('QueryPromptAssemblyStrategy is unchanged', () => {
     const strategy = new QueryPromptAssemblyStrategy()
     expect(strategy.strategyName).toBe('query')
   })
 
+  it('Resolver routing is correct for all known names', () => {
+    const resolver = new DefaultPromptAssemblyStrategyResolver()
+    expect(resolver.resolve('create')).toBeInstanceOf(CreatePromptAssemblyStrategy)
+    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
+    expect(resolver.resolve('delete')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+    expect(resolver.resolve('default')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+    expect(resolver.resolve('unknown')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
+  })
+
+  it('does not modify PromptBuilder behavior', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy.apply(['system', 'userInput'])[0]).toBe('userInput')
+  })
+
+  it('does not modify PromptRenderer behavior', () => {
+    const strategy = new ModifyPromptAssemblyStrategy()
+    expect(strategy.strategyName).toBe('modify')
+  })
+
   it('does not modify Pipeline behavior', () => {
-    const strategy = new QueryPromptAssemblyStrategy()
+    const strategy = new ModifyPromptAssemblyStrategy()
     const resolver = new DefaultPromptAssemblyStrategyResolver()
     expect(strategy.apply([])).toEqual([])
-    expect(resolver.resolve('query')).toBeInstanceOf(QueryPromptAssemblyStrategy)
+    expect(resolver.resolve('modify')).toBeInstanceOf(ModifyPromptAssemblyStrategy)
     expect(resolver.resolve('pipeline')).toBeInstanceOf(DefaultPromptAssemblyStrategy)
-  })
-
-  it('Query strategy output differs from Default strategy output', () => {
-    const query = new QueryPromptAssemblyStrategy()
-    const def = new DefaultPromptAssemblyStrategy()
-    const sections = ['observations', 'memory', 'userInput']
-    const queryResult = query.apply(sections)
-    const defaultResult = def.apply(sections)
-    expect(queryResult).not.toEqual(defaultResult)
-    expect(queryResult[0]).toBe('userInput')
-    expect(defaultResult[0]).toBe('observations')
-  })
-
-  it('QueryPromptAssemblyStrategy produces same output as CreatePromptAssemblyStrategy for non-overlapping priorities', () => {
-    const query = new QueryPromptAssemblyStrategy()
-    const create = new CreatePromptAssemblyStrategy()
-    // When only shared priorities are present, output should differ for memory/observations
-    const sections = ['memory', 'observations', 'x', 'y']
-    const queryResult = query.apply(sections)
-    const createResult = create.apply(sections)
-    // Create doesn't reorder memory/observations, query does
-    expect(queryResult[0]).toBe('memory')
-    expect(queryResult[1]).toBe('observations')
-    expect(createResult[0]).toBe('memory') // memory stays first since it's not in create's priority
-    expect(createResult[1]).toBe('observations') // same
   })
 })

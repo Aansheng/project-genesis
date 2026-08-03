@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.70)
+> Project Genesis — AI Architecture Reference (v0.71)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -643,8 +643,9 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 - `DefaultPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `CreatePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `QueryPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
+- `ModifyPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `PromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategy`
-- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, `CreatePromptAssemblyStrategy`, and `QueryPromptAssemblyStrategy`
+- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, `CreatePromptAssemblyStrategy`, `QueryPromptAssemblyStrategy`, and `ModifyPromptAssemblyStrategy`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)

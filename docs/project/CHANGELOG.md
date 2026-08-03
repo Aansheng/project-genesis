@@ -2990,3 +2990,44 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.70
+
+### WO-S5-036 — Modify Prompt Assembly Strategy
+
+- **Created `ModifyPromptAssemblyStrategy`** — third business-specific PromptAssemblyStrategy implementation
+  - `strategyName = 'modify'`
+  - Reorders sections: userInput → worldState → entityRendered → memory → observations → strategyModuleRendered → strategyRendered
+  - All remaining sections keep original relative order
+  - No sections removed, filtered, or modified
+  - Pure, stateless, deterministic
+- **Updated `DefaultPromptAssemblyStrategyResolver`** — routes 'modify' to ModifyPromptAssemblyStrategy
+  - `'create'` → CreatePromptAssemblyStrategy
+  - `'query'` → QueryPromptAssemblyStrategy
+  - `'modify'` → ModifyPromptAssemblyStrategy
+  - everything else → DefaultPromptAssemblyStrategy
+- **Exported** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptCompression, PromptContext, Pipeline, Planner, PromptAssemblyStrategy interface, PromptAssemblyStrategyResolver interface
+- **No prompt behavior changes** for non-modify strategies — create, query, and default behavior unchanged
+- Created ADR-0083: Modify Prompt Assembly Strategy
+- New test file `ModifyPromptAssemblyStrategy.test.ts` (85 tests, 14 groups):
+  - Interface conformance (6 tests)
+  - Reordering behavior (10 tests): priority ordering, relative order preservation, no removal, duplicates, all canonical
+  - Priority verification (7 tests): userInput, worldState, entityRendered, memory, observations, strategyModuleRendered, strategyRendered
+  - Deterministic (3 tests): repeated calls, idempotent x10, cross-instance
+  - Stateless (2 tests): no retained state, independent
+  - Pure / no side effects (4 tests): no modify input, no mutate, frozen arrays, new reference
+  - Resolver integration (9 tests): modify→ModifyPromptAssemblyStrategy, create unchanged, query unchanged, case-sensitive, routing
+  - Resolver deterministic (2 tests): repeated modify, idempotent modify
+  - Resolver stateless (1 test): no retained state
+  - Architecture compliance (11 tests): no Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, Pipeline, pure, stateless, non-mutating
+  - Exports (8 tests): strategy/index, package root, strategyName, type export, create, query, default, resolver
+  - Backward compatibility — create, query, default unchanged (6 tests)
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+  - No behavior changes (9 tests): default unchanged, create unchanged, query unchanged, routing, Pipeline, PromptBuilder, PromptRenderer
+- **Updated existing tests**: 4 test files updated for new resolver routing (PromptAssemblyStrategyFoundation.test.ts, CreatePromptAssemblyStrategy.test.ts, QueryPromptAssemblyStrategy.test.ts, CreatePromptAssemblyConsumption.test.ts)
+- All 3319 tests pass (3234 existing + 85 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.71
