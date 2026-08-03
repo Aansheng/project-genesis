@@ -31,6 +31,8 @@ import type { PromptStrategySelector } from '../strategy/PromptStrategySelector'
 import type { PromptStrategyRenderer } from '../strategy/PromptStrategyRenderer'
 import type { StrategyModule } from '../strategy/StrategyModule'
 import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
+import type { StrategyEvaluator } from '../strategy/StrategyEvaluator'
+import type { StrategySelectionMetadata } from '../strategy/StrategySelectionMetadata'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultStrategyModuleRenderer } from '../strategy/DefaultStrategyModuleRenderer'
@@ -62,6 +64,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly strategyRenderer?: PromptStrategyRenderer
   private readonly strategyModules?: readonly StrategyModule[]
   private readonly strategyModuleRenderer?: StrategyModuleRenderer
+  private readonly strategyEvaluator?: StrategyEvaluator
 
   /**
    * Create a DefaultPromptBuilder.
@@ -125,6 +128,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategyRenderer = opts.strategyRenderer
       this.strategyModules = opts.strategyModules
       this.strategyModuleRenderer = opts.strategyModuleRenderer
+      this.strategyEvaluator = opts.strategyEvaluator
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -140,6 +144,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.entityRenderer = undefined
       this.semanticContextBuilder = undefined
       this.semanticContextRenderer = undefined
+      this.strategyEvaluator = undefined
     }
   }
 
@@ -209,6 +214,21 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategySelector !== undefined && this.strategies !== undefined
         ? this.strategySelector.select(this.strategies, semanticContext ?? {})
         : new DefaultPromptStrategy()
+
+    // Phase 0.91: StrategySelectionMetadata — capture full selection result for metadata
+    let strategySelectionMetadata: StrategySelectionMetadata | undefined
+    if (this.strategyEvaluator !== undefined && this.strategies !== undefined) {
+      const evaluator = this.strategyEvaluator
+      const ctx = semanticContext ?? {}
+      const candidates = this.strategies.map(s => ({
+        strategy: s.name,
+        score: evaluator.evaluate(s, ctx),
+      }))
+      strategySelectionMetadata = {
+        selected: selectedStrategy.name,
+        candidates,
+      }
+    }
 
     // Phase 0.925: StrategyModule resolution — find module matching selected strategy
     let strategyModuleOutput: string | undefined
@@ -301,6 +321,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(semanticContext !== undefined ? { semantic: semanticContext } : {}),
         ...(semanticRendered !== undefined ? { semanticRendered } : {}),
         strategy: { name: selectedStrategy.name },
+        ...(strategySelectionMetadata !== undefined ? { strategySelection: strategySelectionMetadata } : {}),
         ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
         ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),

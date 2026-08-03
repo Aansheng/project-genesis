@@ -2725,4 +2725,41 @@
 - All 2782 tests pass (2752 existing + 30 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
+
+### WO-S5-029 — Strategy Selection Result Consumption
+
+- **Created `StrategySelectionMetadata`** interface — lightweight metadata snapshot of strategy selection result
+  - `selected: string` — name of the selected strategy
+  - `candidates: readonly { strategy: string; score: number }[]` — all evaluated candidates with scores
+  - Pure data, immutable, serializable (only string + number primitives)
+- **Extended `BuilderOptions`** with optional `strategyEvaluator?: StrategyEvaluator` field
+  - Defaults to `undefined` — no candidate scoring metadata when absent
+  - Available only via BuilderOptions form (no new positional parameter)
+- **Extended `DefaultPromptBuilder`** Phase 0.91 — StrategySelectionMetadata capture
+  - After Phase 0.9 (strategy selection), if both `strategyEvaluator` and `strategies` are provided:
+    - Evaluates each strategy via the evaluator
+    - Builds `StrategySelectionMetadata { selected, candidates }`
+    - Writes to `metadata.promptAssembly.strategySelection`
+  - Metadata coexists with existing `strategy`, `strategyRendered`, `strategyModule`, `strategyModuleRendered`
+- **Prompt output unchanged** — this WO adds metadata only, no prompt text changes
+- **Backward compatible** — identical prompt output with and without `strategyEvaluator`
+- **No modifications to**: PromptContext, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, StrategyModule, StrategyRenderer
+- Created ADR-0076: Strategy Selection Result Consumption
+- New test file `StrategySelectionResultConsumption.test.ts` (36 tests, 13 groups):
+  - Metadata Created (3 tests): with evaluator+strategies, without evaluator, without strategies
+  - Selected Strategy Stored (3 tests): selected name, matching selector output, matching strategy metadata
+  - Candidate Scores Stored (6 tests): all candidates, names, numeric scores, default evaluator, custom evaluator, order preservation
+  - Empty Strategy List (2 tests): empty array creates empty candidates, strategy metadata still present
+  - Deterministic (2 tests): same inputs, cross-instance
+  - Stateless (1 test): no retained state between builds
+  - Pure (2 tests): no modify strategies, no modify context
+  - Metadata Coexistence (5 tests): with strategy, strategyRendered, strategyModule, strategyModuleRendered, all together
+  - Backward Compatibility (4 tests): identical prompts with/without evaluator, with/without metadata, existing strategy metadata preserved
+  - RetryPlanner Compatibility (2 tests)
+  - ToolCallPlanner Compatibility (2 tests)
+  - Streaming Compatibility (2 tests)
+  - AgentLoop Compatibility (2 tests)
+- All 2818 tests pass (2782 existing + 36 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
 - Architecture version v0.57

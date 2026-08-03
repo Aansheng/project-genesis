@@ -15,6 +15,7 @@ import type { PromptStrategy } from '../strategy/PromptStrategy'
 import type { PromptStrategySelector } from '../strategy/PromptStrategySelector'
 import type { PromptStrategyRenderer } from '../strategy/PromptStrategyRenderer'
 import type { StrategyModule } from '../strategy/StrategyModule'
+import type { StrategyEvaluator } from '../strategy/StrategyEvaluator'
 import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
 
 /**
@@ -35,6 +36,7 @@ import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
  * Since WO-S5-017, BuilderOptions also accepts an optional strategyRenderer.
  * Since WO-S5-024, BuilderOptions also accepts optional strategyModules.
  * Since WO-S5-025, BuilderOptions also accepts an optional strategyModuleRenderer.
+ * Since WO-S5-029, BuilderOptions also accepts an optional strategyEvaluator.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -81,4 +83,6 @@ export interface BuilderOptions {
   strategyModules?: readonly StrategyModule[]
   /** Optional StrategyModuleRenderer (defaults to undefined — uses DefaultStrategyModuleRenderer when needed) */
   strategyModuleRenderer?: StrategyModuleRenderer
+  /** Optional StrategyEvaluator (defaults to undefined — no candidate scoring metadata) */
+  strategyEvaluator?: StrategyEvaluator
 }

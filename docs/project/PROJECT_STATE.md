@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.63 (Sprint 5) |
-| Architecture Status | **Evolving** — Score Based Strategy Selection (WO-S5-028) complete. DefaultPromptStrategySelector upgraded from first-match-wins to highest-score-wins. Backward compatible — identical results with DefaultStrategyEvaluator. |
+| Architecture Version | v0.64 (Sprint 5) |
+| Architecture Status | **Evolving** — Strategy Selection Result Consumption (WO-S5-029) complete. StrategySelectionMetadata captures selected strategy + all candidate scores in metadata.promptAssembly.strategySelection. BuilderOptions extended with strategyEvaluator. Prompt output unchanged. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Module Rendered** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer. Phase 0.925 resolves, Phase 0.94 renders, both stored in metadata. |
+| Strategy Layer | **Metadata-Enriched** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + StrategySelectionMetadata. Phase 0.91 captures full selection result in metadata. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -154,6 +154,7 @@
 | WO-S5-026 | Strategy Module Prompt Integration      |
 | WO-S5-027 | Dynamic Strategy Selection Foundation   |
 | WO-S5-028 | Score Based Strategy Selection           |
+| WO-S5-029 | Strategy Selection Result Consumption   |
 
 ---
 
@@ -779,6 +780,7 @@ Key remaining items:
 | ADR-0073 | Strategy Module Prompt Integration | `docs/adr/ADR-0073-strategy-module-prompt-integration.md` |
 | ADR-0074 | Dynamic Strategy Selection Foundation | `docs/adr/ADR-0074-dynamic-strategy-selection-foundation.md` |
 | ADR-0075 | Score Based Strategy Selection | `docs/adr/ADR-0075-score-based-strategy-selection.md` |
+| ADR-0076 | Strategy Selection Result Consumption | `docs/adr/ADR-0076-strategy-selection-result-consumption.md` |
 
 ---
 

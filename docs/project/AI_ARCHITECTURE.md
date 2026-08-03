@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.63)
+> Project Genesis — AI Architecture Reference (v0.64)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, and `strategyModuleRenderer` in WO-S5-025.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, and `strategyEvaluator` in WO-S5-029.
 
 ```typescript
 interface BuilderOptions {
@@ -27,10 +27,11 @@ interface BuilderOptions {
   strategyRenderer?: PromptStrategyRenderer            // ← WO-S5-017
   strategyModules?: readonly StrategyModule[]           // ← WO-S5-024
   strategyModuleRenderer?: StrategyModuleRenderer       // ← WO-S5-025
+  strategyEvaluator?: StrategyEvaluator                 // ← WO-S5-029
 }
 ```
 
-**Current status:** Fully consumed by `DefaultPromptBuilder` since WO-S4-010. Both legacy positional and BuilderOptions forms coexist. `intentAnalyzer`, `intentRenderer`, `entityAnalyzer`, `entityRenderer`, `semanticContextBuilder`, and `semanticContextRenderer` only available via BuilderOptions form — no new positional parameter added.
+**Current status:** Fully consumed by `DefaultPromptBuilder` since WO-S4-010. Both legacy positional and BuilderOptions forms coexist. `intentAnalyzer`, `intentRenderer`, `entityAnalyzer`, `entityRenderer`, `semanticContextBuilder`, `semanticContextRenderer`, `strategyEvaluator` only available via BuilderOptions form — no new positional parameter added.
 
 **Design principles:**
 - All fields are optional
@@ -392,7 +393,7 @@ The Strategy Layer determines how prompts should be assembled for different sema
 
 ### Architecture Status
 
-**Score-Based Strategy Selection** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector now uses highest-score-wins (with StrategyEvaluator) instead of first-match-wins. Backward compatible — DefaultStrategyEvaluator produces identical results. StrategyCandidate + StrategySelectionResult + StrategyEvaluator enable future AI-based dynamic routing. Strategy selection: Phase 0.9, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
+**Score-Based Strategy Selection + Metadata** — All five IntentTypes have dedicated strategies. DefaultPromptStrategySelector uses highest-score-wins (with StrategyEvaluator). StrategySelectionMetadata captures selected strategy + all candidate scores in `metadata.promptAssembly.strategySelection`. StrategyCandidate + StrategySelectionResult + StrategyEvaluator + StrategySelectionMetadata enable future AI-based dynamic routing. Strategy selection: Phase 0.9, StrategySelectionMetadata: Phase 0.91, StrategyModule resolution: Phase 0.925, StrategyModule rendering: Phase 0.94, strategy rendering: Phase 0.95. Canonical order: Intent → Entity → Semantic → Strategy Module → Strategy → System → User Input → Memory → Reflection → World State → Observations.
 
 ### Component Responsibilities
 
@@ -412,6 +413,11 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `CreateStrategyModule` | Class | Creation guidelines — "Prefer creating new entities" |
 | `QueryStrategyModule` | Class | Query guidelines — "Focus on retrieving information" |
 | `ModifyStrategyModule` | Class | Modification guidelines — "Preserve entity identity" |
+| `StrategyEvaluator` | Interface | Contract for scoring a strategy against a SemanticContext: `evaluate(strategy, context): number` |
+| `DefaultStrategyEvaluator` | Class | Default implementation — applies() → 100/0 scoring |
+| `StrategyCandidate` | Interface | Strategy paired with its evaluation score |
+| `StrategySelectionResult` | Interface | Selected strategy + all candidates with scores (object-graph) |
+| `StrategySelectionMetadata` | Interface | Selected strategy name + candidate scores (metadata-friendly, serializable) |
 | `DeleteStrategyModule` | Class | Deletion guidelines — "Confirm target existence" |
 
 ### PromptStrategy
@@ -564,11 +570,14 @@ class DefaultPromptStrategyRenderer implements PromptStrategyRenderer {
 - Empty/blank/null/undefined → `""`
 - Pure, stateless, deterministic — no side effects
 
-### Phase 0.94: StrategyModule Rendering
+### Phase 0.91: StrategySelectionMetadata
 
 ```
 Phase 0.9:   PromptStrategySelector.select(strategies, context) → selectedStrategy
     ↓
+Phase 0.91:  StrategyEvaluator.evaluate() for each strategy
+    ↓             → StrategySelectionMetadata { selected, candidates[] }
+    ↓             → metadata.promptAssembly.strategySelection
 Phase 0.925: StrategyModule resolution — find module where module.name === strategy.name
     ↓             module.build(context) → strategyModule (string)
     ↓             → metadata.promptAssembly.strategyModule
@@ -579,7 +588,7 @@ Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendere
 Phase 1:    MemoryRanking.rank()
 ```
 
-Resolution rule: iterate `strategyModules`, find first module where `module.name === selectedStrategy.name`, call `module.build(context)`, store result in `metadata.promptAssembly.strategyModule`. If match found, render via `StrategyModuleRenderer.render(strategyModule)`, store in `metadata.promptAssembly.strategyModuleRendered`. If no match: skip — both fields absent from metadata.
+StrategySelectionMetadata is produced when both `strategyEvaluator` and `strategies` are provided in BuilderOptions. It captures the full candidate score table for inspection and future Multi Strategy Routing. Prompt output is unchanged — this is metadata-only.
 
 ### Dependency Rules
 
@@ -606,6 +615,7 @@ Resolution rule: iterate `strategyModules`, find first module where `module.name
 | ~~Strategy Module Consumption~~ | `PromptBuilder` | ~~Wire StrategyModule to PromptBuilder based on selected strategy~~ **Done in WO-S5-024** |
 | ~~Strategy Module Rendering Foundation~~ | `StrategyModuleRenderer` | ~~StrategyModule rendering abstraction~~ **Done in WO-S5-025** |
 | ~~Strategy Module → Prompt~~ | `PromptContext` | ~~Inject strategyModuleRendered text into final prompt string~~ **Done in WO-S5-026** |
+| ~~Strategy Selection Result~~ | `BuilderOptions` | ~~Add strategyEvaluator to capture metadata~~ **Done in WO-S5-029** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 
@@ -786,6 +796,7 @@ interface BuilderOptions {
   semanticContextBuilder?: SemanticContextBuilder  // ← WO-S5-012
   strategySelector?: PromptStrategySelector          // ← WO-S5-016
   strategies?: readonly PromptStrategy[]               // ← WO-S5-016
+  strategyEvaluator?: StrategyEvaluator                // ← WO-S5-029
 }
 ```
 
