@@ -635,6 +635,10 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 - `DefaultPromptStrategySelector` depends only on `PromptStrategySelector`, `PromptStrategy`, `DefaultPromptStrategy`, and `SemanticContext`
 - `StrategyModule` depends only on `PromptModule` — marker extension
 - `CreateStrategyModule`, `QueryStrategyModule`, `ModifyStrategyModule`, `DeleteStrategyModule` depend only on `StrategyModule`, `PipelineContext`, and `PromptContext`
+- `PromptAssemblyStrategy` is independent — no dependencies on any existing component
+- `DefaultPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
+- `PromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategy`
+- `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, and `DefaultPromptAssemblyStrategy`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -654,6 +658,8 @@ StrategySelectionMetadata is produced when both `strategyEvaluator` and `strateg
 | ~~Strategy Module → Prompt~~ | `PromptContext` | ~~Inject strategyModuleRendered text into final prompt string~~ **Done in WO-S5-026** |
 | ~~Strategy Selection Result~~ | `BuilderOptions` | ~~Add strategyEvaluator to capture metadata~~ **Done in WO-S5-029** |
 | ~~Weighted Strategy Evaluator~~ | `StrategyEvaluator` | ~~Continuous scoring with cross-strategy weighting~~ **Done in WO-S5-030** |
+| ~~Prompt Assembly Strategy Foundation~~ | `PromptAssemblyStrategy` | ~~Strategy-aware prompt assembly abstraction~~ **Done in WO-S5-031** |
+| ~~Prompt Assembly Strategy Resolver~~ | `PromptAssemblyStrategyResolver` | ~~Resolve assembly strategy by name~~ **Done in WO-S5-031** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 

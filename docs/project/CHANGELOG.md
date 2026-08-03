@@ -2795,3 +2795,41 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.65
+
+### WO-S5-031 — Strategy-Aware Prompt Assembly Foundation
+
+- **Created `PromptAssemblyStrategy` interface** — strategy-aware prompt assembly abstraction
+  - `strategyName: string` — identifies which strategy this assembly strategy belongs to
+  - `apply(sections: readonly string[]): readonly string[]` — applies assembly transformation to prompt sections
+- **Created `DefaultPromptAssemblyStrategy`** — identity implementation (returns sections unchanged)
+  - `strategyName = 'default'`
+  - `apply()` returns sections without modification
+  - Pure, stateless, deterministic
+- **Created `PromptAssemblyStrategyResolver` interface** — resolves strategy name to PromptAssemblyStrategy
+  - `resolve(strategyName: string): PromptAssemblyStrategy`
+- **Created `DefaultPromptAssemblyStrategyResolver`** — always returns DefaultPromptAssemblyStrategy
+  - Ignores strategyName, always returns default strategy
+  - Pure, stateless, deterministic
+- **Exported** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptContext, PromptCompression, Pipeline, Planner
+- Created ADR-0078: Prompt Assembly Strategy Foundation
+- New test file `PromptAssemblyStrategyFoundation.test.ts` (50+ tests, 14 groups):
+  - PromptAssemblyStrategy interface (4 tests): strategyName, apply, parameter, return type
+  - DefaultPromptAssemblyStrategy (6 tests): strategyName, empty, single, multiple, order, special chars
+  - DefaultPromptAssemblyStrategy deterministic (3 tests): repeated calls, idempotent, consistent
+  - DefaultPromptAssemblyStrategy stateless (3 tests): no state, independent, no shared state
+  - DefaultPromptAssemblyStrategy pure (4 tests): no modify input, no mutate, no side effects, new reference
+  - Custom implementations (6 tests): reverse, filter-empty, prefix strategies
+  - PromptAssemblyStrategyResolver interface (3 tests): resolve method, parameter, return type
+  - DefaultPromptAssemblyStrategyResolver (4 tests): default name, any name, strategyName, same type
+  - DefaultPromptAssemblyStrategyResolver deterministic (2 tests): repeated calls, idempotent
+  - DefaultPromptAssemblyStrategyResolver stateless (2 tests): no state, independent
+  - DefaultPromptAssemblyStrategyResolver pure (1 test): no side effects
+  - Exports (8 tests): strategy/index and package root exports
+  - Architecture compliance (11 tests): no deps, pure, stateless, non-mutating
+  - Compatibility (8 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - No behavior changes (6 tests): identity, resolver, PromptBuilder, PromptRenderer, PromptContext, Pipeline
+- All existing tests pass (zero modifications)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.66
