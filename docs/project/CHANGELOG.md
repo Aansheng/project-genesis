@@ -3258,3 +3258,41 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.77
+
+### WO-S5-043 — Strategy-Aware Prompt Assembly Planner
+
+- **Created `StrategyAwarePromptAssemblyPlanner`** — strategy-aware implementation of `PromptAssemblyPlanner`
+  - Produces distinct priority plans per strategy (create, query, modify, delete)
+  - Uses static `STRATEGY_PRIORITY_TABLE` mapping strategy → section → priority
+  - Sections not in the strategy's table receive priority 0
+  - Unknown strategy names fall back to all sections priority 100
+  - Pure, stateless, deterministic — no side effects
+  - Zero dependencies on Planner, Runtime, Provider, Memory, or AgentLoop
+- **Priority rules:**
+  - Create: userInput 100, worldState 90, strategyModuleRendered 80, strategyRendered 70, memory 30, observations 20
+  - Query: userInput 100, worldState 90, memory 80, observations 70, strategyModuleRendered 60, strategyRendered 50
+  - Modify: userInput 100, worldState 90, entityRendered 85, memory 70, observations 60, strategyModuleRendered 50, strategyRendered 40
+  - Delete: userInput 100, worldState 90, entityRendered 85, observations 80, memory 70, strategyModuleRendered 50, strategyRendered 40
+  - Default/unknown: all sections priority 100
+- **Drop-in replacement** — same interface, no changes to BuilderOptions or DefaultPromptBuilder
+- **No modifications to**: PromptRenderer, PromptCompression, PromptContext, BuilderOptions, DefaultPromptBuilder, Runtime, Planner, AgentLoop
+- Created ADR-0090: Strategy-Aware Prompt Assembly Planner
+- New test file `StrategyAwarePromptAssemblyPlanner.test.ts` (47 tests, 13 groups):
+  - Create priorities (7 tests): all create-specific priorities verified
+  - Query priorities (7 tests): all query-specific priorities verified
+  - Modify priorities (7 tests): all modify-specific priorities verified
+  - Delete priorities (7 tests): all delete-specific priorities verified
+  - Default priorities (2 tests): all sections 100, order preserved
+  - Unknown strategy (1 test): falls back to default
+  - Different strategies produce different plans (4 tests): cross-strategy comparison
+  - Deterministic (2 tests): cross-call, cross-instance
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): unchanged input, new object
+  - Missing sections (2 tests): empty sections for all strategies
+  - Unknown sections (2 tests): priority 0 for unknown, 100 for default
+  - Integration with DefaultPromptBuilder (1 test): plan produced via builder
+  - Exports (2 tests): strategy index, package root
+- All 3630 tests pass (3583 existing + 47 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.78
