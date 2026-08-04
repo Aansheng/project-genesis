@@ -3696,3 +3696,41 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.87
+
+### WO-S5-054 — Prompt Inspector Rendering Foundation
+
+- **Created `PromptInspectorRenderer` interface** in `packages/ai/src/strategy/PromptInspectorRenderer.ts`
+  - Single method: `render(inspector: PromptInspector): string`
+  - Depends only on PromptInspector
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptInspectorRenderer`** in `packages/ai/src/strategy/DefaultPromptInspectorRenderer.ts`
+  - Renders inspector header: "Prompt Inspector"
+  - Strategy block rendered only when strategy is defined: `Strategy:\n<value>`
+  - No sections produces: "No Sections"
+  - Sections rendered as bullet list preserving input order
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptInspectorRenderer` and `DefaultPromptInspectorRenderer` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptInspector, PromptInspectorBuilder
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0101: Prompt Inspector Rendering Foundation
+- New test file `PromptInspectorRenderingFoundation.test.ts` (74 tests):
+  - Interface contract (4 tests): method, return type, custom implementation, single method
+  - Empty inspector (5 tests): header, No Sections, no strategy, exact format x2
+  - Strategy rendering (7 tests): present strategies, before sections, different strategies, omitted when undefined
+  - Single section (4 tests): section title, Sections header, Prompt Plan, Rendered Plan
+  - Multiple sections (4 tests): two sections, all 7 standard, custom titles, three sections with strategy
+  - Ordering (4 tests): preserve order, original order, strategy before sections, header before list
+  - Deterministic (5 tests): cross-call, cross-instance, cross-input, empty, strategy-only
+  - Stateless (2 tests): state isolation, independent results
+  - Pure (4 tests): strategy unchanged, sections unchanged, content unchanged, full immutable
+  - Exact output format (8 tests): empty, strategy only, single section no strategy, strategy with section, strategy with two sections, three sections, blank after Sections, blank after Strategy
+  - Various section titles (4 tests): empty title, special chars, long title, numeric title
+  - Exports (6 tests): type + class from strategy index, type + class from package root, class instantiation, interface conformance
+  - Architecture compliance (13 tests): no deps, no modifications
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4232 tests pass (4158 existing + 74 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.88

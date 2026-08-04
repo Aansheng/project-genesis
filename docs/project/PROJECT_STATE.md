@@ -822,7 +822,11 @@ Key remaining items:
 | ADR-0094 | Prompt Assembly Optimizer Consumption |
 | ADR-0095 | Prompt Assembly Plan Diff Foundation |
 | ADR-0096 | Prompt Assembly Plan Diff Consumption |
-| ADR-0097 | Prompt Assembly Snapshot Foundation | `docs/adr/ADR-0092-prompt-assembly-plan-rendering-consumption.md` |
+| ADR-0097 | Prompt Assembly Snapshot Foundation | `docs/adr/ADR-0097-prompt-assembly-snapshot-foundation.md` |
+| ADR-0098 | Prompt Assembly Snapshot Consumption | `docs/adr/ADR-0098-prompt-assembly-snapshot-consumption.md` |
+| ADR-0099 | Prompt Inspector Foundation | `docs/adr/ADR-0099-prompt-inspector-foundation.md` |
+| ADR-0100 | Prompt Inspector Consumption | `docs/adr/ADR-0100-prompt-inspector-consumption.md` |
+| ADR-0101 | Prompt Inspector Rendering Foundation | `docs/adr/ADR-0101-prompt-inspector-rendering-foundation.md` |
 
 ---
 

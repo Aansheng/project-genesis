@@ -679,6 +679,8 @@ Since WO-S5-052 (v0.87), `PromptInspector`, `PromptInspectorSection`, `PromptIns
 
 Since WO-S5-053 (v0.87), Phase 0.959 integrates `PromptInspectorBuilder` into `DefaultPromptBuilder`. When both a snapshot (from Phase 0.958) and an inspector builder are configured, the builder converts the snapshot into a `PromptInspector` stored at `metadata.promptAssembly.inspector`. The inspector is additive — it coexists with all existing fields including snapshot. Metadata only — no prompt injection, no behavioral changes.
 
+Since WO-S5-054 (v0.88), `PromptInspectorRenderer` and `DefaultPromptInspectorRenderer` provide a human-readable text rendering of `PromptInspector`. The renderer produces a structured report with an optional strategy block and a bullet list of section titles. Foundation only — no consumption, no builder changes, no metadata changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -714,6 +716,8 @@ Since WO-S5-053 (v0.87), Phase 0.959 integrates `PromptInspectorBuilder` into `D
 - `PromptInspectorSection` is independent — no dependencies on any existing component
 - `PromptInspectorBuilder` depends only on `PromptAssemblySnapshot` and `PromptInspector`
 - `DefaultPromptInspectorBuilder` depends only on `PromptInspectorBuilder`, `PromptInspector`, `PromptInspectorSection`, and `PromptAssemblySnapshot`
+- `PromptInspectorRenderer` depends only on `PromptInspector`
+- `DefaultPromptInspectorRenderer` depends only on `PromptInspectorRenderer` and `PromptInspector`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -748,6 +752,8 @@ Since WO-S5-053 (v0.87), Phase 0.959 integrates `PromptInspectorBuilder` into `D
 | ~~Prompt Assembly Snapshot Foundation~~ | `PromptAssemblySnapshot` | ~~Unified diagnostics snapshot~~ **Done in WO-S5-050** |
 | ~~Snapshot Consumption~~ | `BuilderOptions` | ~~Wire snapshot builder into PromptBuilder pipeline~~ **Done in WO-S5-051** |
 | ~~Prompt Inspector Foundation~~ | `PromptInspector` | ~~Domain model for snapshot inspection~~ **Done in WO-S5-052** |
+| ~~Prompt Inspector Consumption~~ | `BuilderOptions` | ~~Wire inspector builder into PromptBuilder pipeline~~ **Done in WO-S5-053** |
+| ~~Prompt Inspector Rendering Foundation~~ | `PromptInspectorRenderer` | ~~Human-readable inspector report~~ **Done in WO-S5-054** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
