@@ -38,6 +38,7 @@ import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyS
 import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import type { PromptAssemblyPlanner } from '../strategy/PromptAssemblyPlanner'
 import type { PromptAssemblyPlan } from '../strategy/PromptAssemblyPlan'
+import type { PromptAssemblyPlanRenderer } from '../strategy/PromptAssemblyPlanRenderer'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -74,6 +75,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly strategySelectionRenderer?: StrategySelectionRenderer
   private readonly promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver
   private readonly promptAssemblyPlanner?: PromptAssemblyPlanner
+  private readonly promptAssemblyPlanRenderer?: PromptAssemblyPlanRenderer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -141,6 +143,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategySelectionRenderer = opts.strategySelectionRenderer
       this.promptAssemblyStrategyResolver = opts.promptAssemblyStrategyResolver
       this.promptAssemblyPlanner = opts.promptAssemblyPlanner
+      this.promptAssemblyPlanRenderer = opts.promptAssemblyPlanRenderer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -160,6 +163,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.strategySelectionRenderer = undefined
       this.promptAssemblyStrategyResolver = undefined
       this.promptAssemblyPlanner = undefined
+      this.promptAssemblyPlanRenderer = undefined
     }
   }
 
@@ -317,6 +321,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
       )
     }
 
+    // Phase 0.957: PromptAssemblyPlanRenderer — render plan for metadata storage
+    let promptAssemblyPlanRendered: string | undefined
+    if (promptAssemblyPlan !== undefined && this.promptAssemblyPlanRenderer !== undefined) {
+      promptAssemblyPlanRendered = this.promptAssemblyPlanRenderer.render(promptAssemblyPlan)
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -433,6 +443,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
         ...(promptAssemblyStrategyMetadata !== undefined ? { promptAssemblyStrategy: promptAssemblyStrategyMetadata } : {}),
         ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
+        ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,

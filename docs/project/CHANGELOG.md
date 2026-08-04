@@ -3340,3 +3340,40 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.79
+
+### WO-S5-045 — Prompt Assembly Plan Rendering Consumption
+
+- **Updated `BuilderOptions`** — added `promptAssemblyPlanRenderer?: PromptAssemblyPlanRenderer`
+  - Optional field, backward compatible
+  - Imported `PromptAssemblyPlanRenderer` type from strategy module
+- **Updated `DefaultPromptBuilder`** — wired renderer through constructor
+  - Added `private readonly promptAssemblyPlanRenderer?: PromptAssemblyPlanRenderer`
+  - BuilderOptions form: reads from `opts.promptAssemblyPlanRenderer`
+  - Legacy positional form: sets `undefined` (no renderer available)
+- **Added Phase 0.957** — between Phase 0.955 (PromptAssemblyPlanner) and Phase 0.96 (PromptAssemblyStrategy)
+  - Invokes `promptAssemblyPlanRenderer.render(promptAssemblyPlan)` when both exist
+  - Stores result in `metadata.promptAssembly.planRendered`
+  - Metadata only — no impact on prompt output
+- **No modifications to**: PromptRenderer, PromptContext, PromptCompression, PromptAssemblyPlan, PromptAssemblyPlanRenderer, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — metadata only
+- Created ADR-0092: Prompt Assembly Plan Rendering Consumption
+- New test file `PromptAssemblyPlanRenderingConsumption.test.ts` (41 tests, 15 groups):
+  - BuilderOptions (3 tests): field acceptance, undefined, field omission
+  - Renderer invocation (4 tests): invoked, not invoked without planner, plan passed, custom output
+  - Metadata creation (4 tests): created with both, absent without renderer, absent without planner, absent without both
+  - Metadata content (5 tests): string type, header, section entries, plan coexistence, StrategyAwarePlanner
+  - Metadata coexistence (4 tests): strategy, strategyRendered, plan, all strategy fields
+  - Deterministic (3 tests): cross-build, cross-instance, concurrent builds
+  - Stateless (1 test): no retained state between builds
+  - Pure (2 tests): pipeline context unchanged, plan unchanged
+  - No prompt changes (3 tests): identical prompt with/without renderer, identical prompt minimal/full, no planRendered in prompt
+  - Custom renderer integration (1 test): custom output stored
+  - Legacy constructor compatibility (2 tests): legacy positional, BuilderOptions
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Exports (1 test): package root
+  - Edge cases (2 tests): empty plan, no plan with renderer
+  - Deterministic extras (1 test): numbered sections + priority values
+- All 3711 tests pass (3670 existing + 41 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.80

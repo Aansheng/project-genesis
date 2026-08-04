@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.79)
+> Project Genesis — AI Architecture Reference (v0.80)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -629,6 +629,8 @@ Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendere
 Phase 0.955: PromptAssemblyPlanner.buildPlan(strategyName, promptContext keys)
     ↓             → PromptAssemblyPlan { priorities[] }
     ↓             → metadata.promptAssembly.plan
+Phase 0.957: PromptAssemblyPlanRenderer.render(plan)
+    ↓             → metadata.promptAssembly.planRendered
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
     ↓             → apply() reorders renderContext sections by priority
@@ -643,6 +645,8 @@ Since WO-S5-042 (v0.77), Phase 0.96 checks whether the resolved strategy impleme
 Since WO-S5-043 (v0.78), the `StrategyAwarePromptAssemblyPlanner` is available as a drop-in replacement for `DefaultPromptAssemblyPlanner`. It produces distinct priority plans per strategy (create/query/modify/delete), enabling differentiated section ordering based on semantic intent. The default strategy still assigns all sections priority 100.
 
 Since WO-S5-044 (v0.79), `PromptAssemblyPlanRenderer` and `DefaultPromptAssemblyPlanRenderer` provide human-readable rendering of PromptAssemblyPlan. The rendered output uses priority-descending ordering with stable tie-breaking. Foundation only — no integration with PromptBuilder yet.
+
+Since WO-S5-045 (v0.80), Phase 0.957 invokes PromptAssemblyPlanRenderer.render() when both a plan and a renderer are configured, storing the result in `metadata.promptAssembly.planRendered`. Metadata only — no prompt injection.
 
 ### Dependency Rules
 
