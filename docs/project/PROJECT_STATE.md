@@ -827,6 +827,7 @@ Key remaining items:
 | ADR-0099 | Prompt Inspector Foundation | `docs/adr/ADR-0099-prompt-inspector-foundation.md` |
 | ADR-0100 | Prompt Inspector Consumption | `docs/adr/ADR-0100-prompt-inspector-consumption.md` |
 | ADR-0101 | Prompt Inspector Rendering Foundation | `docs/adr/ADR-0101-prompt-inspector-rendering-foundation.md` |
+| ADR-0102 | Prompt Inspector Rendering Consumption | `docs/adr/ADR-0102-prompt-inspector-rendering-consumption.md` |
 
 ---
 

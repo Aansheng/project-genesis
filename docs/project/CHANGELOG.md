@@ -3734,3 +3734,34 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.88
+
+### WO-S5-055 — Prompt Inspector Rendering Consumption
+
+- **Added `promptInspectorRenderer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptInspectorRenderer?: PromptInspectorRenderer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9595 inserted between Phase 0.959 and Phase 0.96
+  - Converts inspector → rendered string via PromptInspectorRenderer
+  - Executed only when both inspector and renderer exist
+  - Rendered string stored at `metadata.promptAssembly.inspectorRendered`
+- **Additive rendering** — coexists with all existing fields: inspector, snapshot, plan, optimizedPlan, planDiff, planRendered, strategy, strategyRendered, ranking, budget, selection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptInspector, PromptInspectorBuilder, PromptInspectorRenderer
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0102: Prompt Inspector Rendering Consumption
+- New test file `PromptInspectorRenderingConsumption.test.ts` (46 tests):
+  - BuilderOptions (5 tests): provided, omitted, undefined, requires inspector, requires snapshot
+  - Renderer invocation (6 tests): invoked, not without inspector, not without renderer, receives inspector, receives sections, custom output stored
+  - Metadata (8 tests): stored, absent without renderer, content preserved, strategy name, section titles, Optimized/Plan Diff/Rendered Plan sections, strategy block, matches default renderer
+  - Metadata coexistence (10 tests): snapshot, inspector, plan, optimizedPlan, planDiff, planRendered, all fields, no removal, strategy metadata, ranking/budget/selection
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, inspector unchanged
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - No prompt changes (4 tests): identical prompt with/without renderer, with all components, no injection, snapshot only
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4278 tests pass (4232 existing + 46 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.89

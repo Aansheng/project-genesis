@@ -681,6 +681,8 @@ Since WO-S5-053 (v0.87), Phase 0.959 integrates `PromptInspectorBuilder` into `D
 
 Since WO-S5-054 (v0.88), `PromptInspectorRenderer` and `DefaultPromptInspectorRenderer` provide a human-readable text rendering of `PromptInspector`. The renderer produces a structured report with an optional strategy block and a bullet list of section titles. Foundation only — no consumption, no builder changes, no metadata changes.
 
+Since WO-S5-055 (v0.89), Phase 0.9595 integrates `PromptInspectorRenderer` into `DefaultPromptBuilder`. When both an inspector (from Phase 0.959) and a renderer are configured, the renderer converts the inspector into a human-readable string stored at `metadata.promptAssembly.inspectorRendered`. The rendered output is additive — it coexists with all existing fields including inspector, snapshot, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -754,6 +756,7 @@ Since WO-S5-054 (v0.88), `PromptInspectorRenderer` and `DefaultPromptInspectorRe
 | ~~Prompt Inspector Foundation~~ | `PromptInspector` | ~~Domain model for snapshot inspection~~ **Done in WO-S5-052** |
 | ~~Prompt Inspector Consumption~~ | `BuilderOptions` | ~~Wire inspector builder into PromptBuilder pipeline~~ **Done in WO-S5-053** |
 | ~~Prompt Inspector Rendering Foundation~~ | `PromptInspectorRenderer` | ~~Human-readable inspector report~~ **Done in WO-S5-054** |
+| ~~Prompt Inspector Rendering Consumption~~ | `BuilderOptions` | ~~Wire renderer into PromptBuilder pipeline~~ **Done in WO-S5-055** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
