@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.78)
+> Project Genesis — AI Architecture Reference (v0.79)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -641,6 +641,8 @@ Since WO-S5-041 (v0.76), Phase 0.955 invokes PromptAssemblyPlanner.buildPlan() w
 Since WO-S5-042 (v0.77), Phase 0.96 checks whether the resolved strategy implements `PriorityAwarePromptAssemblyStrategy`. When both a plan and a priority-aware strategy exist, the builder uses `applyPlan()` instead of `apply()`, enabling priority-based section ordering. The `planApplied` boolean in metadata indicates whether priority-aware ordering was active.
 
 Since WO-S5-043 (v0.78), the `StrategyAwarePromptAssemblyPlanner` is available as a drop-in replacement for `DefaultPromptAssemblyPlanner`. It produces distinct priority plans per strategy (create/query/modify/delete), enabling differentiated section ordering based on semantic intent. The default strategy still assigns all sections priority 100.
+
+Since WO-S5-044 (v0.79), `PromptAssemblyPlanRenderer` and `DefaultPromptAssemblyPlanRenderer` provide human-readable rendering of PromptAssemblyPlan. The rendered output uses priority-descending ordering with stable tie-breaking. Foundation only — no integration with PromptBuilder yet.
 
 ### Dependency Rules
 

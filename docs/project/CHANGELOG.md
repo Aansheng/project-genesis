@@ -3296,3 +3296,47 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.78
+
+### WO-S5-044 — Prompt Assembly Plan Rendering Foundation
+
+- **Created `PromptAssemblyPlanRenderer` interface** — renders PromptAssemblyPlan into a formatted string
+  - `render(plan: PromptAssemblyPlan): string`
+  - Pure, stateless, deterministic
+- **Created `DefaultPromptAssemblyPlanRenderer`** — default implementation
+  - Produces human-readable format:
+    ```
+    Prompt Assembly Plan
+
+    1. userInput (100)
+    2. worldState (90)
+    3. memory (80)
+    ```
+  - Empty plan produces `(no sections)`
+  - Sections sorted by priority descending, original order as tie-breaker (stable sort)
+  - Sequential numbering (1, 2, 3, ...)
+  - Pure, stateless, deterministic — no side effects
+  - Zero dependencies on Planner, Runtime, Provider, Memory, or AgentLoop
+- **Updated exports** — both interface and class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptCompression, BuilderOptions, Runtime, Planner, AgentLoop, or any existing component
+- **No prompt behavior changes** — foundation only, no PromptBuilder integration
+- Created ADR-0091: Prompt Assembly Plan Rendering Foundation
+- New test file `PromptAssemblyPlanRenderingFoundation.test.ts` (40 tests, 15 groups):
+  - Interface contract (2 tests): render method, parameter/return types
+  - Header (2 tests): header presence, header position
+  - Single section (2 tests): section with number/priority, different priority value
+  - Multiple sections (2 tests): all sections present, sequential numbering
+  - Empty plan (3 tests): (no sections) text, header, no numbered entries
+  - Ordering — priority descending (2 tests): sorted by priority, highest first
+  - Ordering — stable tie-breaking (2 tests): equal priorities preserve order, mixed priorities
+  - Deterministic (3 tests): cross-call, cross-instance, cross-plan
+  - Stateless (1 test): no retained state between calls
+  - Pure (2 tests): input plan unchanged, entries unchanged
+  - Output format (4 tests): exact string matches for single, multi, empty, sorted
+  - Various priority values (3 tests): zero, negative, large
+  - Architecture compliance (5 tests): no Planner, Runtime, Provider, Memory, AgentLoop
+  - Exports (3 tests): strategy index type + class, package root
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 3670 tests pass (3630 existing + 40 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.79
