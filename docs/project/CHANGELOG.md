@@ -3835,3 +3835,42 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.91
+
+### WO-S5-058 — Prompt Assembly Trace Foundation
+
+- **Created `PromptAssemblyTrace` interface** in `packages/ai/src/strategy/PromptAssemblyTrace.ts`
+  - Aggregates: strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported
+  - All fields are readonly and optional
+  - Pure data structure — no methods, no behavior
+- **Created `PromptAssemblyTraceBuilder` interface** in `packages/ai/src/strategy/PromptAssemblyTraceBuilder.ts`
+  - Single method: `build(metadata: Record<string, unknown>): PromptAssemblyTrace`
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyTraceBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyTraceBuilder.ts`
+  - Reads known fields from metadata: strategy ({ name }), strategySelection (selected + candidates), plan (priorities), optimizedPlan (priorities), planDiff (added/removed/changed), snapshot (non-empty object), inspector (sections array), inspectorRendered (string), inspectorExported (string)
+  - Uses type-narrowing guards for safe coercion
+  - Silently ignores unknown fields
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblyTrace`, `PromptAssemblyTraceBuilder`, and `DefaultPromptAssemblyTraceBuilder` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptInspector, PromptInspectorBuilder, PromptInspectorRenderer, PromptInspectorExporter, PromptAssemblySnapshot, PromptAssemblySnapshotBuilder
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0105: Prompt Assembly Trace Foundation
+- New test file `PromptAssemblyTraceFoundation.test.ts` (90 tests):
+  - Interface contract — PromptAssemblyTrace (12 tests): empty, accept all fields, readonly, optional strings
+  - Interface contract — PromptAssemblyTraceBuilder (5 tests): build method, return type, Record param, custom implementation, single method
+  - Empty metadata (5 tests): empty, unknown fields, all undefined, null values
+  - Trace construction (10 tests): strategy strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported, all fields
+  - Optional fields (7 tests): all absent, only present, absent fields, empty strings
+  - Unknown field ignoring (10 tests): extra fields, known only, unknown only, malformed strategy, malformed plan, malformed inspector, malformed snapshot, arrays, primitives
+  - Deterministic (6 tests): cross-call, cross-instance, cross-input, empty, partial, call order
+  - Stateless (4 tests): state isolation, no class state, independent results, no instance properties
+  - Pure (5 tests): input unchanged, nested unchanged, no side effects, same output, arrays unchanged
+  - Immutable (5 tests): readonly fields, new objects, reference isolation, no mutation methods
+  - Exports (8 tests): type + class from strategy index, type + class from package root, class instantiation, interface conformance
+  - Architecture compliance (8 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4493 tests pass (4403 existing + 90 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.92

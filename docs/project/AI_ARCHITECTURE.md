@@ -695,6 +695,8 @@ Since WO-S5-056 (v0.90), `PromptInspectorExporter` and `DefaultPromptInspectorEx
 
 Since WO-S5-057 (v0.91), Phase 0.9597 integrates `PromptInspectorExporter` into `DefaultPromptBuilder`. When both an inspector (from Phase 0.959) and an exporter are configured, the exporter converts the inspector into a stable external representation stored at `metadata.promptAssembly.inspectorExported`. The exported output is additive — it coexists with all existing fields including inspector, inspectorRendered, snapshot, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
 
+Since WO-S5-058 (v0.92), `PromptAssemblyTrace`, `PromptAssemblyTraceBuilder`, and `DefaultPromptAssemblyTraceBuilder` provide a unified trace domain model aggregating all prompt assembly diagnostic artifacts (strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported) into a single structure. The builder reads known metadata fields from `metadata.promptAssembly` and silently ignores unknown fields. Foundation only — no consumption, no builder changes, no metadata changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -734,6 +736,9 @@ Since WO-S5-057 (v0.91), Phase 0.9597 integrates `PromptInspectorExporter` into 
 - `DefaultPromptInspectorRenderer` depends only on `PromptInspectorRenderer` and `PromptInspector`
 - `PromptInspectorExporter` depends only on `PromptInspector`
 - `DefaultPromptInspectorExporter` depends only on `PromptInspectorExporter` and `PromptInspector`
+- `PromptAssemblyTrace` is independent — no dependencies on any existing component
+- `PromptAssemblyTraceBuilder` depends only on `PromptAssemblyTrace`
+- `DefaultPromptAssemblyTraceBuilder` depends only on `PromptAssemblyTraceBuilder` and `PromptAssemblyTrace`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -773,6 +778,7 @@ Since WO-S5-057 (v0.91), Phase 0.9597 integrates `PromptInspectorExporter` into 
 | ~~Prompt Inspector Rendering Consumption~~ | `BuilderOptions` | ~~Wire renderer into PromptBuilder pipeline~~ **Done in WO-S5-055** |
 | ~~Prompt Inspector Export Foundation~~ | `PromptInspectorExporter` | ~~JSON export of inspector~~ **Done in WO-S5-056** |
 | ~~Prompt Inspector Export Consumption~~ | `BuilderOptions` | ~~Wire exporter into PromptBuilder pipeline~~ **Done in WO-S5-057** |
+| ~~Prompt Assembly Trace Foundation~~ | `PromptAssemblyTrace` | ~~Unified trace domain model for prompt assembly lifecycle~~ **Done in WO-S5-058** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
