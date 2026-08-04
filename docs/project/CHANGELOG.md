@@ -3765,3 +3765,39 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.89
+
+### WO-S5-056 — Prompt Inspector Export Foundation
+
+- **Created `PromptInspectorExporter` interface** in `packages/ai/src/strategy/PromptInspectorExporter.ts`
+  - Single method: `export(inspector: PromptInspector): string`
+  - Depends only on PromptInspector
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptInspectorExporter`** in `packages/ai/src/strategy/DefaultPromptInspectorExporter.ts`
+  - Exports inspector as pretty-printed JSON: `JSON.stringify(inspector, null, 2)`
+  - Preserves strategy + sections structure
+  - Handles all content types: string, object, array, number, boolean, null
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptInspectorExporter` and `DefaultPromptInspectorExporter` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptInspector, PromptInspectorBuilder, PromptInspectorRenderer
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0103: Prompt Inspector Export Foundation
+- New test file `PromptInspectorExportFoundation.test.ts` (75 tests):
+  - Interface contract (4 tests): method, return type, custom implementation, single method
+  - JSON export — empty inspector (5 tests): empty sections, no strategy key, valid JSON, matches JSON.stringify, pretty-printed
+  - JSON export — strategy only (6 tests): strategy field, empty sections, query/modify/delete, matches JSON.stringify
+  - JSON export — sections only (7 tests): single section, multiple sections, object content, string content, numeric content, array content, matches JSON.stringify
+  - JSON export — strategy + sections (5 tests): both fields, 7 section types, order preserved, complex nested content, matches JSON.stringify
+  - Deterministic (6 tests): cross-call, cross-instance, cross-input, empty, strategy-only, 10 identical calls
+  - Stateless (2 tests): state isolation, independent results
+  - Pure (4 tests): strategy unchanged, sections unchanged, content unchanged, inspector unchanged
+  - Exact JSON output (7 tests): empty, strategy only, single section, multiple sections, object content, valid output, pretty printing
+  - Various section content types (5 tests): null, boolean, empty string, deeply nested, mixed array
+  - Exports (6 tests): type + class from strategy index, type + class from package root, class instantiation, interface conformance
+  - Architecture compliance (14 tests): no deps, no modifications to any component
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4353 tests pass (4278 existing + 75 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.90
