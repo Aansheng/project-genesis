@@ -3184,3 +3184,36 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.75
+
+### WO-S5-041 — Prompt Assembly Planner Consumption
+
+- **Updated `BuilderOptions`** — added `promptAssemblyPlanner?: PromptAssemblyPlanner`
+  - Optional field, backward compatible
+  - Imported `PromptAssemblyPlanner` type from strategy module
+- **Updated `DefaultPromptBuilder`** — wired planner through constructor
+  - Added `private readonly promptAssemblyPlanner?: PromptAssemblyPlanner`
+  - BuilderOptions form: reads from `opts.promptAssemblyPlanner`
+  - Legacy positional form: sets `undefined` (no planner available)
+- **Added Phase 0.955** — between Phase 0.95 (Strategy Rendering) and Phase 0.96 (Prompt Assembly Strategy)
+  - Invokes `promptAssemblyPlanner.buildPlan(selectedStrategy.name, Object.keys(promptContext))`
+  - Stores result in `PromptAssemblyPlan`
+  - Plan stored in `metadata.promptAssembly.plan`
+  - Metadata only — no impact on prompt output
+- **No modifications to**: PromptContext, PromptRenderer, PromptCompression, PromptAssemblyStrategy, PromptAssemblyStrategyResolver, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — metadata only
+- Created ADR-0088: Prompt Assembly Planner Consumption
+- New test file `PromptAssemblyPlannerConsumption.test.ts` (28 tests, 10 groups):
+  - Planner Invocation (4 tests): planner called, strategy name passed, section keys passed, not called when absent
+  - Metadata Creation (3 tests): plan created, absent when no planner, stored under correct path
+  - Plan Storage (4 tests): all priorities stored, default priority 100, section order, correct structure
+  - Deterministic (2 tests): cross-build, cross-instance
+  - Stateless (1 test): no retained state between builds
+  - Pure (2 tests): no context mutation, no promptContext mutation
+  - Coexistence with Strategy Metadata (4 tests): strategy, strategyRendered, all fields, promptAssemblyStrategy
+  - Compatibility (3 tests): identical prompt output, legacy constructor, minimal vs full config
+  - BuilderOptions Wiring (3 tests): field acceptance, undefined, field omission
+  - Custom Planner Integration (2 tests): custom priority scheme, custom output in metadata
+- All 3553 tests pass (3525 existing + 28 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.76

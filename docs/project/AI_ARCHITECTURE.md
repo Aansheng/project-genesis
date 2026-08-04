@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.75)
+> Project Genesis — AI Architecture Reference (v0.76)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -626,6 +626,9 @@ Phase 0.94:  StrategyModuleRenderer.render(strategyModule) → strategyModuleRen
     ↓             → metadata.promptAssembly.strategyModuleRendered
 Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendered
     ↓             → metadata.promptAssembly.strategyRendered
+Phase 0.955: PromptAssemblyPlanner.buildPlan(strategyName, promptContext keys)
+    ↓             → PromptAssemblyPlan { priorities[] }
+    ↓             → metadata.promptAssembly.plan
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
     ↓             → apply() reorders renderContext sections by priority
@@ -633,7 +636,7 @@ Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → a
 Phase 1:    MemoryRanking.rank()
 ```
 
-Since WO-S5-039 (v0.74), Phase 0.9 uses `StrategyEvaluator` as the authoritative scoring mechanism. The evaluator is promoted to a first-class selection dependency: it evaluates all strategies, generates scores, selects the highest-scoring strategy, and produces `StrategySelectionMetadata` in a single unified pass. When `strategyEvaluator` is not provided but `strategySelector` is, the selector fallback is used (backward compatible). Phase 0.91 is merged into Phase 0.9 — no separate metadata generation step.
+Since WO-S5-041 (v0.76), Phase 0.955 invokes PromptAssemblyPlanner.buildPlan() with the current strategy name and available section keys, storing the resulting PromptAssemblyPlan in `metadata.promptAssembly.plan`. Metadata only — no prompt behavior changes. The planner is consumed via the optional `promptAssemblyPlanner` field in BuilderOptions.
 
 ### Dependency Rules
 

@@ -19,6 +19,7 @@ import type { StrategyEvaluator } from '../strategy/StrategyEvaluator'
 import type { StrategyModuleRenderer } from '../strategy/StrategyModuleRenderer'
 import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyStrategyResolver'
 import type { StrategySelectionRenderer } from '../strategy/StrategySelectionRenderer'
+import type { PromptAssemblyPlanner } from '../strategy/PromptAssemblyPlanner'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -41,6 +42,7 @@ import type { StrategySelectionRenderer } from '../strategy/StrategySelectionRen
  * Since WO-S5-029, BuilderOptions also accepts an optional strategyEvaluator.
  * Since WO-S5-032, BuilderOptions also accepts an optional promptAssemblyStrategyResolver.
  * Since WO-S5-038, BuilderOptions also accepts an optional strategySelectionRenderer.
+ * Since WO-S5-041, BuilderOptions also accepts an optional promptAssemblyPlanner.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -93,4 +95,6 @@ export interface BuilderOptions {
   promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver
   /** Optional StrategySelectionRenderer (defaults to undefined — no strategy selection rendering) */
   strategySelectionRenderer?: StrategySelectionRenderer
+  /** Optional PromptAssemblyPlanner (defaults to undefined — no assembly plan generation) */
+  promptAssemblyPlanner?: PromptAssemblyPlanner
 }
