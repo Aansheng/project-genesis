@@ -39,6 +39,7 @@ import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import type { PromptAssemblyPlanner } from '../strategy/PromptAssemblyPlanner'
 import type { PromptAssemblyPlan } from '../strategy/PromptAssemblyPlan'
 import type { PromptAssemblyPlanRenderer } from '../strategy/PromptAssemblyPlanRenderer'
+import type { PromptAssemblyOptimizer } from '../strategy/PromptAssemblyOptimizer'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -76,6 +77,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver
   private readonly promptAssemblyPlanner?: PromptAssemblyPlanner
   private readonly promptAssemblyPlanRenderer?: PromptAssemblyPlanRenderer
+  private readonly promptAssemblyOptimizer?: PromptAssemblyOptimizer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -144,6 +146,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyStrategyResolver = opts.promptAssemblyStrategyResolver
       this.promptAssemblyPlanner = opts.promptAssemblyPlanner
       this.promptAssemblyPlanRenderer = opts.promptAssemblyPlanRenderer
+      this.promptAssemblyOptimizer = opts.promptAssemblyOptimizer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -164,6 +167,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyStrategyResolver = undefined
       this.promptAssemblyPlanner = undefined
       this.promptAssemblyPlanRenderer = undefined
+      this.promptAssemblyOptimizer = undefined
     }
   }
 
@@ -321,10 +325,17 @@ export class DefaultPromptBuilder implements PromptBuilder {
       )
     }
 
-    // Phase 0.957: PromptAssemblyPlanRenderer — render plan for metadata storage
+    // Phase 0.956: PromptAssemblyOptimizer — optimize plan (identity passthrough by default)
+    let optimizedPlan: PromptAssemblyPlan | undefined
+    if (promptAssemblyPlan !== undefined && this.promptAssemblyOptimizer !== undefined) {
+      optimizedPlan = this.promptAssemblyOptimizer.optimize(promptAssemblyPlan)
+    }
+
+    // Phase 0.957: PromptAssemblyPlanRenderer — render optimized plan for metadata storage
     let promptAssemblyPlanRendered: string | undefined
-    if (promptAssemblyPlan !== undefined && this.promptAssemblyPlanRenderer !== undefined) {
-      promptAssemblyPlanRendered = this.promptAssemblyPlanRenderer.render(promptAssemblyPlan)
+    const planForRendering = optimizedPlan ?? promptAssemblyPlan
+    if (planForRendering !== undefined && this.promptAssemblyPlanRenderer !== undefined) {
+      promptAssemblyPlanRendered = this.promptAssemblyPlanRenderer.render(planForRendering)
     }
 
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
@@ -392,12 +403,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
         let reorderedKeys: readonly string[]
 
         if (
-          promptAssemblyPlan !== undefined &&
+          planForRendering !== undefined &&
           'applyPlan' in resolvedAssemblyStrategy
         ) {
           // Priority-aware ordering using plan
           const priorityStrategy = resolvedAssemblyStrategy as unknown as PriorityAwarePromptAssemblyStrategy
-          reorderedKeys = priorityStrategy.applyPlan(sectionKeys as readonly string[], promptAssemblyPlan)
+          reorderedKeys = priorityStrategy.applyPlan(sectionKeys as readonly string[], planForRendering)
           planApplied = true
         } else {
           // Standard ordering (backward compatible)
@@ -443,6 +454,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
         ...(promptAssemblyStrategyMetadata !== undefined ? { promptAssemblyStrategy: promptAssemblyStrategyMetadata } : {}),
         ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
+        ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
         ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,

@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.80)
+> Project Genesis — AI Architecture Reference (v0.82)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -420,6 +420,8 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `StrategySelectionResult` | Interface | Selected strategy + all candidates with scores (object-graph) |
 | `StrategySelectionMetadata` | Interface | Selected strategy name + candidate scores (metadata-friendly, serializable) |
 | `DeleteStrategyModule` | Class | Deletion guidelines — "Confirm target existence" |
+| `PromptAssemblyOptimizer` | Interface | Contract for optimizing a PromptAssemblyPlan: `optimize(plan)` |
+| `DefaultPromptAssemblyOptimizer` | Class | Identity implementation — returns the plan unchanged |
 
 ### PromptStrategy
 
@@ -629,7 +631,11 @@ Phase 0.95:  PromptStrategyRenderer.render(selectedStrategy) → strategyRendere
 Phase 0.955: PromptAssemblyPlanner.buildPlan(strategyName, promptContext keys)
     ↓             → PromptAssemblyPlan { priorities[] }
     ↓             → metadata.promptAssembly.plan
-Phase 0.957: PromptAssemblyPlanRenderer.render(plan)
+Phase 0.956: PromptAssemblyOptimizer.optimize(plan)
+    ↓             → optimizedPlan (identity passthrough by default)
+    ↓             → metadata.promptAssembly.optimizedPlan
+    ↓             → downstream phases use optimizedPlan ?? plan
+Phase 0.957: PromptAssemblyPlanRenderer.render(optimizedPlan ?? plan)
     ↓             → metadata.promptAssembly.planRendered
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
@@ -647,6 +653,10 @@ Since WO-S5-043 (v0.78), the `StrategyAwarePromptAssemblyPlanner` is available a
 Since WO-S5-044 (v0.79), `PromptAssemblyPlanRenderer` and `DefaultPromptAssemblyPlanRenderer` provide human-readable rendering of PromptAssemblyPlan. The rendered output uses priority-descending ordering with stable tie-breaking. Foundation only — no integration with PromptBuilder yet.
 
 Since WO-S5-045 (v0.80), Phase 0.957 invokes PromptAssemblyPlanRenderer.render() when both a plan and a renderer are configured, storing the result in `metadata.promptAssembly.planRendered`. Metadata only — no prompt injection.
+
+Since WO-S5-046 (v0.81), `PromptAssemblyOptimizer` and `DefaultPromptAssemblyOptimizer` provide an identity optimization layer between `PromptAssemblyPlan` and `PriorityAwarePromptAssemblyStrategy`. The optimizer returns the plan unchanged — foundation only.
+
+Since WO-S5-047 (v0.82), Phase 0.956 integrates the optimizer into `DefaultPromptBuilder`. When both a plan and an optimizer exist, the optimizer transforms the plan and the result (`optimizedPlan`) is used for all downstream phases (renderer and assembly strategy). The identity optimizer (`DefaultPromptAssemblyOptimizer`) preserves all existing behavior — no prompt output changes. The `optimizedPlan` is stored in `metadata.promptAssembly.optimizedPlan` only when the optimizer exists.
 
 ### Dependency Rules
 
@@ -671,6 +681,8 @@ Since WO-S5-045 (v0.80), Phase 0.957 invokes PromptAssemblyPlanRenderer.render()
 - `DeletePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `PromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategy`
 - `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, `CreatePromptAssemblyStrategy`, `QueryPromptAssemblyStrategy`, `ModifyPromptAssemblyStrategy`, and `DeletePromptAssemblyStrategy`
+- `PromptAssemblyOptimizer` depends only on `PromptAssemblyPlan`
+- `DefaultPromptAssemblyOptimizer` depends only on `PromptAssemblyOptimizer` and `PromptAssemblyPlan`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -700,8 +712,12 @@ Since WO-S5-045 (v0.80), Phase 0.957 invokes PromptAssemblyPlanRenderer.render()
 | ~~Delete Prompt Assembly Strategy~~ | `DeletePromptAssemblyStrategy` | ~~Fourth business-specific assembly strategy~~ **Done in WO-S5-037** |
 | ~~Strategy Selection Rendering Foundation~~ | `StrategySelectionRenderer` | ~~Render strategy selection metadata~~ **Done in WO-S5-038** |
 | ~~Section Priority Foundation~~ | `PromptAssemblyPlanner` | ~~Plan section priorities for assembly~~ **Done in WO-S5-040** |
+| ~~Prompt Assembly Optimizer Foundation~~ | `PromptAssemblyOptimizer` | ~~Identity optimization passthrough~~ **Done in WO-S5-046** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
+| Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
+| Compressing Optimizer | `PromptAssemblyOptimizer` | Replace sections with compressed variants |
+| Optimizer Consumption | `BuilderOptions` | Wire optimizer into PromptBuilder pipeline |
 
 ---
 

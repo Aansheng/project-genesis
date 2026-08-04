@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.80 (Sprint 5) |
-| Architecture Status | **Evolving** — Prompt Assembly Plan Rendering Consumption (WO-S5-045) complete. PromptAssemblyPlanRenderer consumed in DefaultPromptBuilder Phase 0.957. planRendered stored in metadata.promptAssembly.planRendered. BuilderOptions accepts optional promptAssemblyPlanRenderer. Metadata only. No prompt behavior changes. No breaking changes. |
+| Architecture Version | v0.82 (Sprint 5) |
+| Architecture Status | **Evolving** — Prompt Assembly Optimizer Foundation (WO-S5-046) complete. Prompt Assembly Optimizer Consumption (WO-S5-047) complete — Phase 0.956 integrated into DefaultPromptBuilder. optimizedPlan stored in metadata.promptAssembly.optimizedPlan. Optimizer consumed via BuilderOptions.promptAssemblyOptimizer. Downstream phases use optimized plan. Identity optimizer preserves existing behavior. No breaking changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **StrategyEvaluator** → **PromptStrategySelector** (fallback) → **PromptAssemblyPlanner** → **PromptStrategyRenderer** → **PromptAssemblyStrategy** (resolver + reorder) → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Evaluator-Driven Scoring + Strategy-Aware Plans + Rendering** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + StrategySelectionRenderer + DefaultStrategySelectionRenderer + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver + **PromptSectionPriority + PromptAssemblyPlan + PromptAssemblyPlanner + DefaultPromptAssemblyPlanner + PriorityAwarePromptAssemblyStrategy + DefaultPriorityAwarePromptAssemblyStrategy + StrategyAwarePromptAssemblyPlanner + PromptAssemblyPlanRenderer + DefaultPromptAssemblyPlanRenderer**. Phase 0.9 evaluates strategies → generates scores → selects highest → produces metadata (evaluator-driven since v0.74). Phase 0.915 renders selection to strategySelectionRendered. Phase 0.955 invokes PromptAssemblyPlanner (strategy-aware since v0.78), stores plan. Phase 0.957 renders plan to planRendered (v0.80+). Phase 0.96 uses plan-aware ordering when available. All four business strategies have dedicated assembly. |
+| Strategy Layer | **Evaluator-Driven Scoring + Strategy-Aware Plans + Rendering + Optimization** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + StrategySelectionRenderer + DefaultStrategySelectionRenderer + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver + **PromptSectionPriority + PromptAssemblyPlan + PromptAssemblyPlanner + DefaultPromptAssemblyPlanner + PriorityAwarePromptAssemblyStrategy + DefaultPriorityAwarePromptAssemblyStrategy + StrategyAwarePromptAssemblyPlanner + PromptAssemblyPlanRenderer + DefaultPromptAssemblyPlanRenderer + PromptAssemblyOptimizer + DefaultPromptAssemblyOptimizer**. Phase 0.9 evaluates strategies → generates scores → selects highest → produces metadata (evaluator-driven since v0.74). Phase 0.915 renders selection to strategySelectionRendered. Phase 0.955 invokes PromptAssemblyPlanner (strategy-aware since v0.78), stores plan. Phase 0.956 invokes PromptAssemblyOptimizer (v0.82+), stores optimizedPlan. Phase 0.957 renders plan (uses optimized plan when available). Phase 0.96 uses optimized plan for priority-aware ordering. All four business strategies have dedicated assembly. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -171,6 +171,8 @@
 | WO-S5-043 | Strategy-Aware Prompt Assembly Planner |
 | WO-S5-044 | Prompt Assembly Plan Rendering Foundation |
 | WO-S5-045 | Prompt Assembly Plan Rendering Consumption |
+| WO-S5-046 | Prompt Assembly Optimizer Foundation |
+| WO-S5-047 | Prompt Assembly Optimizer Consumption |
 
 ---
 
@@ -812,7 +814,9 @@ Key remaining items:
 | ADR-0089 | Priority-Aware Prompt Assembly | `docs/adr/ADR-0089-priority-aware-prompt-assembly.md` |
 | ADR-0090 | Strategy-Aware Prompt Assembly Planner | `docs/adr/ADR-0090-strategy-aware-prompt-assembly-planner.md` |
 | ADR-0091 | Prompt Assembly Plan Rendering Foundation | `docs/adr/ADR-0091-prompt-assembly-plan-rendering-foundation.md` |
-| ADR-0092 | Prompt Assembly Plan Rendering Consumption | `docs/adr/ADR-0092-prompt-assembly-plan-rendering-consumption.md` |
+| ADR-0092 | Prompt Assembly Plan Rendering Consumption |
+| ADR-0093 | Prompt Assembly Optimizer Foundation |
+| ADR-0094 | Prompt Assembly Optimizer Consumption | `docs/adr/ADR-0092-prompt-assembly-plan-rendering-consumption.md` |
 
 ---
 

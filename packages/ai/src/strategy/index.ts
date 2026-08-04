@@ -40,3 +40,5 @@ export { DefaultPriorityAwarePromptAssemblyStrategy } from './DefaultPriorityAwa
 export { StrategyAwarePromptAssemblyPlanner } from './StrategyAwarePromptAssemblyPlanner'
 export type { PromptAssemblyPlanRenderer } from './PromptAssemblyPlanRenderer'
 export { DefaultPromptAssemblyPlanRenderer } from './DefaultPromptAssemblyPlanRenderer'
+export type { PromptAssemblyOptimizer } from './PromptAssemblyOptimizer'
+export { DefaultPromptAssemblyOptimizer } from './DefaultPromptAssemblyOptimizer'

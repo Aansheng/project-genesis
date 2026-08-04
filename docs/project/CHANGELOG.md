@@ -3377,3 +3377,75 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.80
+
+### WO-S5-046 — Prompt Assembly Optimizer Foundation
+
+- **Created `PromptAssemblyOptimizer` interface** in `packages/ai/src/strategy/PromptAssemblyOptimizer.ts`
+  - Single method: `optimize(plan: PromptAssemblyPlan): PromptAssemblyPlan`
+  - Positioned between PromptAssemblyPlan and PriorityAwarePromptAssemblyStrategy
+  - Extension point for future trimming, compression, and priority adjustment
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyOptimizer`** in `packages/ai/src/strategy/DefaultPromptAssemblyOptimizer.ts`
+  - Identity implementation — returns the plan unchanged (same reference)
+  - Zero-cost passthrough (no copying, no allocation)
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblyOptimizer` type and `DefaultPromptAssemblyOptimizer` class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptAssemblyPlan, PromptAssemblyPlanner, PriorityAwarePromptAssemblyStrategy, PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — optimizer is not consumed, returns plan unchanged
+- Created ADR-0093: Prompt Assembly Optimizer Foundation
+- New test file `PromptAssemblyOptimizerFoundation.test.ts` (40+ tests, 13 groups):
+  - Interface contract (4 tests): method definition, return type, identity reference, custom implementation
+  - Identity — single section (4 tests): unchanged, zero priority, negative, large
+  - Identity — multiple sections (4 tests): count, order, priorities, full plan
+  - Identity — empty plan (2 tests): empty unchanged, same array reference
+  - Same reference — object identity (3 tests): same object, same priorities, same entries
+  - Deterministic (4 tests): cross-call, cross-instance, cross-plan, identical plans
+  - Stateless (2 tests): no retained state, different plans
+  - Pure (3 tests): input unchanged, entries unchanged, array reference unchanged
+  - Compatibility — PromptAssemblyPlan shape (3 tests): any shape, frozen, preserve frozen
+  - Exports (4 tests): strategy index type + class, package root, class instantiation
+  - Architecture compliance (11 tests): no dependencies on Planner/Runtime/Provider/Memory/AgentLoop, no modifications to PromptBuilder/PromptRenderer/PromptCompression/PromptAssemblyPlan/Planner/Runtime/AgentLoop
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 3751+ tests pass (3711 existing + 40 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.81
+
+### WO-S5-047 — Prompt Assembly Optimizer Consumption
+
+- **Updated `BuilderOptions`** — added `promptAssemblyOptimizer?: PromptAssemblyOptimizer`
+  - Optional field, backward compatible
+  - Imported `PromptAssemblyOptimizer` type from strategy module
+- **Updated `DefaultPromptBuilder`** — wired optimizer through constructor
+  - Added `private readonly promptAssemblyOptimizer?: PromptAssemblyOptimizer`
+  - BuilderOptions form: reads from `opts.promptAssemblyOptimizer`
+  - Legacy positional form: sets `undefined`
+- **Added Phase 0.956** — between Phase 0.955 (PromptAssemblyPlanner) and Phase 0.957 (PromptAssemblyPlanRenderer)
+  - Invokes `promptAssemblyOptimizer.optimize(promptAssemblyPlan)` when both exist
+  - Stores result as `optimizedPlan`
+  - Downstream phases (0.957 renderer, 0.96 assembly strategy) use `optimizedPlan ?? promptAssemblyPlan`
+- **Metadata** — stores `optimizedPlan` in `metadata.promptAssembly.optimizedPlan`
+  - Only stored when optimizer exists and plan exists
+  - Coexists with `plan`, `planRendered`, `strategy`, `strategySelection`
+- **No modifications to**: PromptRenderer, PromptContext, PromptCompression, PromptAssemblyPlan, PromptAssemblyOptimizer, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — identity optimizer produces identical prompts
+- Created ADR-0094: Prompt Assembly Optimizer Consumption
+- New test file `PromptAssemblyOptimizerConsumption.test.ts` (42 tests, 13 groups):
+  - BuilderOptions (4 tests): field acceptance, undefined, omitted, planner missing
+  - Optimizer invocation (5 tests): invoked, not invoked without planner, plan passed, custom plan passed to renderer, identity output
+  - Metadata — optimizedPlan (7 tests): created/not created conditions, shape, priority content, section count
+  - Metadata — coexistence (6 tests): with plan, planRendered, strategy, strategySelection, all key fields
+  - Deterministic (3 tests): cross-build, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (1 test): pipeline context unchanged
+  - No prompt changes (4 tests): identical prompt with/without optimizer, no renderer, minimal config, no optimizedPlan in prompt
+  - Legacy constructor compatibility (3 tests): legacy positional, BuilderOptions, full legacy
+  - StrategyAwarePlanner compatibility (2 tests): works with StrategyAwarePlanner, captures its output
+  - Exports (2 tests): strategy index, package root
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 3802 tests pass (3760 existing + 42 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.82
