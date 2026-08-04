@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.83 (Sprint 5) |
-| Architecture Status | **Evolving** — Prompt Assembly Optimizer Consumption (WO-S5-047) complete. Prompt Assembly Plan Diff Foundation (WO-S5-048) complete — PromptAssemblyPlanDiff + PromptAssemblyPlanDiffer + DefaultPromptAssemblyPlanDiffer. Diff model detects added/removed sections and priority changes. Foundation only — not consumed by PromptBuilder. No behavioral changes. No breaking changes. |
+| Architecture Version | v0.85 (Sprint 5) |
+| Architecture Status | **Evolving** — Prompt Assembly Plan Diff Consumption (WO-S5-049) complete. Prompt Assembly Snapshot Foundation (WO-S5-050) complete — PromptAssemblySnapshot + PromptAssemblySnapshotBuilder + DefaultPromptAssemblySnapshotBuilder. Unified snapshot consolidates all prompt assembly diagnostics. Foundation only — not consumed by PromptBuilder. No behavioral changes. No breaking changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -25,7 +25,7 @@
 | Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **StrategyEvaluator** → **PromptStrategySelector** (fallback) → **PromptAssemblyPlanner** → **PromptStrategyRenderer** → **PromptAssemblyStrategy** (resolver + reorder) → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Evaluator-Driven Scoring + Strategy-Aware Plans + Rendering + Optimization + Diff** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + StrategySelectionRenderer + DefaultStrategySelectionRenderer + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver + **PromptSectionPriority + PromptAssemblyPlan + PromptAssemblyPlanner + DefaultPromptAssemblyPlanner + PriorityAwarePromptAssemblyStrategy + DefaultPriorityAwarePromptAssemblyStrategy + StrategyAwarePromptAssemblyPlanner + PromptAssemblyPlanRenderer + DefaultPromptAssemblyPlanRenderer + PromptAssemblyOptimizer + DefaultPromptAssemblyOptimizer + PromptAssemblyPlanDiff + PromptAssemblyPlanDiffer + DefaultPromptAssemblyPlanDiffer**. Phase 0.9 evaluates strategies → generates scores → selects highest → produces metadata (evaluator-driven since v0.74). Phase 0.915 renders selection to strategySelectionRendered. Phase 0.955 invokes PromptAssemblyPlanner (strategy-aware since v0.78), stores plan. Phase 0.956 invokes PromptAssemblyOptimizer (v0.82+), stores optimizedPlan. Phase 0.957 renders plan (uses optimized plan when available). Phase 0.96 uses optimized plan for priority-aware ordering. PromptAssemblyPlanDiffer (v0.83+) provides diff model for inspecting plan changes — foundation only. All four business strategies have dedicated assembly. |
+| Strategy Layer | **Evaluator-Driven Scoring + Strategy-Aware Plans + Rendering + Optimization + Diff + Snapshot** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + StrategySelectionRenderer + DefaultStrategySelectionRenderer + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver + **PromptSectionPriority + PromptAssemblyPlan + PromptAssemblyPlanner + DefaultPromptAssemblyPlanner + PriorityAwarePromptAssemblyStrategy + DefaultPriorityAwarePromptAssemblyStrategy + StrategyAwarePromptAssemblyPlanner + PromptAssemblyPlanRenderer + DefaultPromptAssemblyPlanRenderer + PromptAssemblyOptimizer + DefaultPromptAssemblyOptimizer + PromptAssemblyPlanDiff + PromptAssemblyPlanDiffer + DefaultPromptAssemblyPlanDiffer + PromptAssemblySnapshot + PromptAssemblySnapshotBuilder + DefaultPromptAssemblySnapshotBuilder**. Phase 0.9 evaluates strategies → generates scores → selects highest → produces metadata (evaluator-driven since v0.74). Phase 0.915 renders selection to strategySelectionRendered. Phase 0.955 invokes PromptAssemblyPlanner (strategy-aware since v0.78), stores plan. Phase 0.956 invokes PromptAssemblyOptimizer (v0.82+), stores optimizedPlan. Phase 0.9565 invokes PromptAssemblyPlanDiffer (v0.84+), stores planDiff. Phase 0.957 renders plan (uses optimized plan when available). Phase 0.96 uses optimized plan for priority-aware ordering. PromptAssemblySnapshot (v0.85+) provides unified diagnostics structure — foundation only. All four business strategies have dedicated assembly. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -174,6 +174,8 @@
 | WO-S5-046 | Prompt Assembly Optimizer Foundation |
 | WO-S5-047 | Prompt Assembly Optimizer Consumption |
 | WO-S5-048 | Prompt Assembly Plan Diff Foundation |
+| WO-S5-049 | Prompt Assembly Plan Diff Consumption |
+| WO-S5-050 | Prompt Assembly Snapshot Foundation |
 
 ---
 
@@ -818,7 +820,9 @@ Key remaining items:
 | ADR-0092 | Prompt Assembly Plan Rendering Consumption |
 | ADR-0093 | Prompt Assembly Optimizer Foundation |
 | ADR-0094 | Prompt Assembly Optimizer Consumption |
-| ADR-0095 | Prompt Assembly Plan Diff Foundation | `docs/adr/ADR-0092-prompt-assembly-plan-rendering-consumption.md` |
+| ADR-0095 | Prompt Assembly Plan Diff Foundation |
+| ADR-0096 | Prompt Assembly Plan Diff Consumption |
+| ADR-0097 | Prompt Assembly Snapshot Foundation | `docs/adr/ADR-0092-prompt-assembly-plan-rendering-consumption.md` |
 
 ---
 

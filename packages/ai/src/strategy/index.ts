@@ -45,3 +45,6 @@ export { DefaultPromptAssemblyOptimizer } from './DefaultPromptAssemblyOptimizer
 export type { PromptAssemblyPlanDiff } from './PromptAssemblyPlanDiff'
 export type { PromptAssemblyPlanDiffer } from './PromptAssemblyPlanDiffer'
 export { DefaultPromptAssemblyPlanDiffer } from './DefaultPromptAssemblyPlanDiffer'
+export type { PromptAssemblySnapshot } from './PromptAssemblySnapshot'
+export type { PromptAssemblySnapshotBuilder } from './PromptAssemblySnapshotBuilder'
+export { DefaultPromptAssemblySnapshotBuilder } from './DefaultPromptAssemblySnapshotBuilder'

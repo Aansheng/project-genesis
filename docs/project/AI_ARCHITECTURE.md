@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.83)
+> Project Genesis — AI Architecture Reference (v0.85)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -425,6 +425,9 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `PromptAssemblyPlanDiff` | Interface | Diff result: added, removed, changed sections |
 | `PromptAssemblyPlanDiffer` | Interface | Contract for diffing two plans: `diff(before, after)` |
 | `DefaultPromptAssemblyPlanDiffer` | Class | Default implementation — detects added/removed/changed |
+| `PromptAssemblySnapshot` | Interface | Unified diagnostics snapshot: strategy, plan, diff, rendered |
+| `PromptAssemblySnapshotBuilder` | Interface | Contract for building a snapshot: `build(metadata)` |
+| `DefaultPromptAssemblySnapshotBuilder` | Class | Default implementation — reads known fields, ignores unknown |
 
 ### PromptStrategy
 
@@ -638,6 +641,9 @@ Phase 0.956: PromptAssemblyOptimizer.optimize(plan)
     ↓             → optimizedPlan (identity passthrough by default)
     ↓             → metadata.promptAssembly.optimizedPlan
     ↓             → downstream phases use optimizedPlan ?? plan
+Phase 0.9565: PromptAssemblyPlanDiffer.diff(plan, optimizedPlan)
+    ↓             → planDiff (added, removed, changed)
+    ↓             → metadata.promptAssembly.planDiff
 Phase 0.957: PromptAssemblyPlanRenderer.render(optimizedPlan ?? plan)
     ↓             → metadata.promptAssembly.planRendered
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
@@ -662,6 +668,10 @@ Since WO-S5-046 (v0.81), `PromptAssemblyOptimizer` and `DefaultPromptAssemblyOpt
 Since WO-S5-047 (v0.82), Phase 0.956 integrates the optimizer into `DefaultPromptBuilder`. When both a plan and an optimizer exist, the optimizer transforms the plan and the result (`optimizedPlan`) is used for all downstream phases (renderer and assembly strategy). The identity optimizer (`DefaultPromptAssemblyOptimizer`) preserves all existing behavior — no prompt output changes. The `optimizedPlan` is stored in `metadata.promptAssembly.optimizedPlan` only when the optimizer exists.
 
 Since WO-S5-048 (v0.83), `PromptAssemblyPlanDiff`, `PromptAssemblyPlanDiffer`, and `DefaultPromptAssemblyPlanDiffer` provide a structured diff model for inspecting changes between two plans. The differ detects added sections, removed sections, and priority changes. Foundation only — not yet consumed by PromptBuilder. This enables future diagnostics and optimization verification.
+
+Since WO-S5-049 (v0.84), Phase 0.9565 integrates the differ into `DefaultPromptBuilder`. When plan, optimizedPlan, and differ all exist, the differ produces a `planDiff` stored in `metadata.promptAssembly.planDiff`. The diff shows added/removed sections and priority changes. Metadata only — no prompt injection. With the identity optimizer, the diff is always empty (identical before/after plans).
+
+Since WO-S5-050 (v0.85), `PromptAssemblySnapshot`, `PromptAssemblySnapshotBuilder`, and `DefaultPromptAssemblySnapshotBuilder` provide a unified snapshot structure consolidating all prompt assembly diagnostics (strategy, strategySelection, strategyRendered, strategyModule, strategyModuleRendered, plan, optimizedPlan, planDiff, planRendered). The builder reads known metadata fields and ignores unknown ones. Foundation only — not yet consumed by PromptBuilder.
 
 ### Dependency Rules
 
@@ -691,6 +701,9 @@ Since WO-S5-048 (v0.83), `PromptAssemblyPlanDiff`, `PromptAssemblyPlanDiffer`, a
 - `PromptAssemblyPlanDiff` is independent — no dependencies on any existing component
 - `PromptAssemblyPlanDiffer` depends only on `PromptAssemblyPlan` and `PromptAssemblyPlanDiff`
 - `DefaultPromptAssemblyPlanDiffer` depends only on `PromptAssemblyPlanDiffer`, `PromptAssemblyPlan`, and `PromptAssemblyPlanDiff`
+- `PromptAssemblySnapshot` depends only on `StrategySelectionMetadata`, `PromptAssemblyPlan`, and `PromptAssemblyPlanDiff`
+- `PromptAssemblySnapshotBuilder` depends only on `PromptAssemblySnapshot`
+- `DefaultPromptAssemblySnapshotBuilder` depends only on `PromptAssemblySnapshotBuilder`, `PromptAssemblySnapshot`, `StrategySelectionMetadata`, `PromptAssemblyPlan`, and `PromptAssemblyPlanDiff`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -722,12 +735,14 @@ Since WO-S5-048 (v0.83), `PromptAssemblyPlanDiff`, `PromptAssemblyPlanDiffer`, a
 | ~~Section Priority Foundation~~ | `PromptAssemblyPlanner` | ~~Plan section priorities for assembly~~ **Done in WO-S5-040** |
 | ~~Prompt Assembly Optimizer Foundation~~ | `PromptAssemblyOptimizer` | ~~Identity optimization passthrough~~ **Done in WO-S5-046** |
 | ~~Prompt Assembly Plan Diff Foundation~~ | `PromptAssemblyPlanDiffer` | ~~Structured diff of plan changes~~ **Done in WO-S5-048** |
+| ~~Prompt Assembly Snapshot Foundation~~ | `PromptAssemblySnapshot` | ~~Unified diagnostics snapshot~~ **Done in WO-S5-050** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
 | Compressing Optimizer | `PromptAssemblyOptimizer` | Replace sections with compressed variants |
 | Optimizer Consumption | `BuilderOptions` | Wire optimizer into PromptBuilder pipeline |
 | Diff Consumption | `BuilderOptions` | Wire differ into PromptBuilder pipeline |
+| Snapshot Consumption | `BuilderOptions` | Wire snapshot builder into PromptBuilder pipeline |
 
 ---
 

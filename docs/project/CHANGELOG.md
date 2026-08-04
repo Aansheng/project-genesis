@@ -3493,3 +3493,85 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.83
+
+### WO-S5-049 — Prompt Assembly Plan Diff Consumption
+
+- **Updated `BuilderOptions`** — added `promptAssemblyPlanDiffer?: PromptAssemblyPlanDiffer`
+  - Optional field, backward compatible
+  - Imported `PromptAssemblyPlanDiffer` type from strategy module
+- **Updated `DefaultPromptBuilder`** — wired differ through constructor
+  - Added `private readonly promptAssemblyPlanDiffer?: PromptAssemblyPlanDiffer`
+  - BuilderOptions form: reads from `opts.promptAssemblyPlanDiffer`
+  - Legacy positional form: sets `undefined`
+  - Added `PromptAssemblyPlanDiff` type import for planDiff variable
+- **Added Phase 0.9565** — between Phase 0.956 (PromptAssemblyOptimizer) and Phase 0.957 (PromptAssemblyPlanRenderer)
+  - Invokes `promptAssemblyPlanDiffer.diff(originalPlan, optimizedPlan)` when plan, optimizedPlan, and differ all exist
+  - Stores result as `planDiff`
+- **Metadata** — stores `planDiff` in `metadata.promptAssembly.planDiff`
+  - Only stored when planner, optimizer, and differ all exist
+  - Coexists with `plan`, `optimizedPlan`, `planRendered`, `strategy`
+  - With identity optimizer: empty diff (added/removed/changed all empty)
+- **No modifications to**: PromptRenderer, PromptContext, PromptCompression, PromptAssemblyPlan, PromptAssemblyOptimizer, PromptAssemblyPlanDiffer, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — identity optimizer + empty diff, no prompt injection
+- Created ADR-0096: Prompt Assembly Plan Diff Consumption
+- New test file `PromptAssemblyPlanDiffConsumption.test.ts` (46 tests, 14 groups):
+  - BuilderOptions (5 tests): field acceptance, undefined, omitted, no optimizer, no planner
+  - Differ invocation (7 tests): invoked, not invoked scenarios, plan passing, identity reference, custom result
+  - Metadata — planDiff (7 tests): created/not created conditions, shape, empty diff with identity
+  - Metadata — coexistence (6 tests): with plan, optimizedPlan, planRendered, strategy, all key fields, plan+optimizedPlan+planRendered+planDiff
+  - Deterministic (3 tests): cross-build, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, plan unchanged
+  - No prompt changes (5 tests): identical with/without differ, no renderer, minimal config, no planDiff in prompt, differ+renderer together
+  - Legacy constructor compatibility (3 tests): legacy positional, BuilderOptions, full legacy
+  - StrategyAwarePlanner compatibility (1 test): works with StrategyAwarePlanner
+  - Exports (2 tests): strategy index, package root
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 3908 tests pass (3862 existing + 46 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.84
+
+### WO-S5-050 — Prompt Assembly Snapshot Foundation
+
+- **Created `PromptAssemblySnapshot` interface** in `packages/ai/src/strategy/PromptAssemblySnapshot.ts`
+  - Unified diagnostics structure consolidating all prompt assembly metadata
+  - 9 optional fields: strategy, strategySelection, strategyRendered, strategyModule, strategyModuleRendered, plan, optimizedPlan, planDiff, planRendered
+  - Depends only on StrategySelectionMetadata, PromptAssemblyPlan, and PromptAssemblyPlanDiff
+  - All fields readonly — immutable by design
+- **Created `PromptAssemblySnapshotBuilder` interface** in `packages/ai/src/strategy/PromptAssemblySnapshotBuilder.ts`
+  - Single method: `build(metadata: Record<string, unknown>): PromptAssemblySnapshot`
+  - Reads known promptAssembly metadata fields
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblySnapshotBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblySnapshotBuilder.ts`
+  - Extracts strategy name from `{ name }` strategy object
+  - Type-safe coercion via guard functions (isStrategy, isStrategySelectionMetadata, isPromptAssemblyPlan, isPromptAssemblyPlanDiff)
+  - Ignores unknown fields silently, skips empty strings and malformed structures
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblySnapshot`, `PromptAssemblySnapshotBuilder`, and `DefaultPromptAssemblySnapshotBuilder` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptAssemblyPlan, PromptAssemblyOptimizer, PromptAssemblyPlanDiffer, PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — builder is not consumed, foundation only
+- Created ADR-0097: Prompt Assembly Snapshot Foundation
+- New test file `PromptAssemblySnapshotFoundation.test.ts` (79 tests, 15 groups):
+  - Snapshot structure (11 tests): all 9 fields individually + combined
+  - Builder — empty metadata (2 tests): empty object, null-like
+  - Builder — strategy (6 tests): extraction, different strategies, malformed inputs
+  - Builder — strategySelection (5 tests): extraction, multi-candidate, malformed inputs
+  - Builder — string fields (9 tests): all 4 string fields, empty skip, non-string skip
+  - Builder — plan (5 tests): extraction, malformed inputs
+  - Builder — optimizedPlan (2 tests): extraction, malformed
+  - Builder — planDiff (4 tests): extraction, empty arrays, malformed
+  - Builder — full metadata (1 test): all 9 fields extracted
+  - Builder — unknown fields ignored (2 tests): only known, known + unknown mix
+  - Interface contract (3 tests): method, return type, custom implementation
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): metadata unchanged, plan unchanged
+  - Exports (5 tests): strategy index types + class, package root, class instantiation
+  - Architecture compliance (14 tests): no deps, no modifications to any component
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 3987 tests pass (3908 existing + 79 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.85

@@ -40,6 +40,8 @@ import type { PromptAssemblyPlanner } from '../strategy/PromptAssemblyPlanner'
 import type { PromptAssemblyPlan } from '../strategy/PromptAssemblyPlan'
 import type { PromptAssemblyPlanRenderer } from '../strategy/PromptAssemblyPlanRenderer'
 import type { PromptAssemblyOptimizer } from '../strategy/PromptAssemblyOptimizer'
+import type { PromptAssemblyPlanDiffer } from '../strategy/PromptAssemblyPlanDiffer'
+import type { PromptAssemblyPlanDiff } from '../strategy/PromptAssemblyPlanDiff'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -78,6 +80,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyPlanner?: PromptAssemblyPlanner
   private readonly promptAssemblyPlanRenderer?: PromptAssemblyPlanRenderer
   private readonly promptAssemblyOptimizer?: PromptAssemblyOptimizer
+  private readonly promptAssemblyPlanDiffer?: PromptAssemblyPlanDiffer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -147,6 +150,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyPlanner = opts.promptAssemblyPlanner
       this.promptAssemblyPlanRenderer = opts.promptAssemblyPlanRenderer
       this.promptAssemblyOptimizer = opts.promptAssemblyOptimizer
+      this.promptAssemblyPlanDiffer = opts.promptAssemblyPlanDiffer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -168,6 +172,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyPlanner = undefined
       this.promptAssemblyPlanRenderer = undefined
       this.promptAssemblyOptimizer = undefined
+      this.promptAssemblyPlanDiffer = undefined
     }
   }
 
@@ -331,6 +336,16 @@ export class DefaultPromptBuilder implements PromptBuilder {
       optimizedPlan = this.promptAssemblyOptimizer.optimize(promptAssemblyPlan)
     }
 
+    // Phase 0.9565: PromptAssemblyPlanDiffer — diff original vs optimized plan
+    let planDiff: PromptAssemblyPlanDiff | undefined
+    if (
+      promptAssemblyPlan !== undefined &&
+      optimizedPlan !== undefined &&
+      this.promptAssemblyPlanDiffer !== undefined
+    ) {
+      planDiff = this.promptAssemblyPlanDiffer.diff(promptAssemblyPlan, optimizedPlan)
+    }
+
     // Phase 0.957: PromptAssemblyPlanRenderer — render optimized plan for metadata storage
     let promptAssemblyPlanRendered: string | undefined
     const planForRendering = optimizedPlan ?? promptAssemblyPlan
@@ -455,6 +470,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(promptAssemblyStrategyMetadata !== undefined ? { promptAssemblyStrategy: promptAssemblyStrategyMetadata } : {}),
         ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
         ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
+        ...(planDiff !== undefined ? { planDiff } : {}),
         ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
