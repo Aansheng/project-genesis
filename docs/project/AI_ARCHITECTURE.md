@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.76)
+> Project Genesis — AI Architecture Reference (v0.77)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -637,6 +637,8 @@ Phase 1:    MemoryRanking.rank()
 ```
 
 Since WO-S5-041 (v0.76), Phase 0.955 invokes PromptAssemblyPlanner.buildPlan() with the current strategy name and available section keys, storing the resulting PromptAssemblyPlan in `metadata.promptAssembly.plan`. Metadata only — no prompt behavior changes. The planner is consumed via the optional `promptAssemblyPlanner` field in BuilderOptions.
+
+Since WO-S5-042 (v0.77), Phase 0.96 checks whether the resolved strategy implements `PriorityAwarePromptAssemblyStrategy`. When both a plan and a priority-aware strategy exist, the builder uses `applyPlan()` instead of `apply()`, enabling priority-based section ordering. The `planApplied` boolean in metadata indicates whether priority-aware ordering was active.
 
 ### Dependency Rules
 

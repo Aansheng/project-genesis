@@ -38,6 +38,7 @@ import type { PromptAssemblyStrategyResolver } from '../strategy/PromptAssemblyS
 import type { PromptAssemblyStrategy } from '../strategy/PromptAssemblyStrategy'
 import type { PromptAssemblyPlanner } from '../strategy/PromptAssemblyPlanner'
 import type { PromptAssemblyPlan } from '../strategy/PromptAssemblyPlan'
+import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultStrategyModuleRenderer } from '../strategy/DefaultStrategyModuleRenderer'
@@ -370,12 +371,29 @@ export class DefaultPromptBuilder implements PromptBuilder {
     Object.assign(renderContext, compressed)
 
     // Phase 0.96 (continued): Apply assembly strategy section reordering
+    // When a PromptAssemblyPlan and a PriorityAwarePromptAssemblyStrategy are both
+    // available, use applyPlan() for priority-based ordering instead of apply().
+    let planApplied = false
     if (resolvedAssemblyStrategy !== undefined) {
       const sectionKeys = DefaultPromptRenderer.CANONICAL_ORDER.filter(
         key => renderContext[key] !== undefined && renderContext[key] !== '',
       )
       if (sectionKeys.length > 0) {
-        const reorderedKeys = resolvedAssemblyStrategy.apply(sectionKeys as readonly string[])
+        let reorderedKeys: readonly string[]
+
+        if (
+          promptAssemblyPlan !== undefined &&
+          'applyPlan' in resolvedAssemblyStrategy
+        ) {
+          // Priority-aware ordering using plan
+          const priorityStrategy = resolvedAssemblyStrategy as unknown as PriorityAwarePromptAssemblyStrategy
+          reorderedKeys = priorityStrategy.applyPlan(sectionKeys as readonly string[], promptAssemblyPlan)
+          planApplied = true
+        } else {
+          // Standard ordering (backward compatible)
+          reorderedKeys = resolvedAssemblyStrategy.apply(sectionKeys as readonly string[])
+        }
+
         const reordered: PromptContext = {} as PromptContext
         for (const key of reorderedKeys as Array<keyof PromptContext>) {
           reordered[key] = renderContext[key]
@@ -415,6 +433,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
         ...(promptAssemblyStrategyMetadata !== undefined ? { promptAssemblyStrategy: promptAssemblyStrategyMetadata } : {}),
         ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
+        ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,
         selection: selectionResult,

@@ -3217,3 +3217,44 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.76
+
+### WO-S5-042 — Priority-Aware Prompt Assembly
+
+- **Created `PriorityAwarePromptAssemblyStrategy` interface** — extends `PromptAssemblyStrategy` with plan-aware section ordering
+  - `applyPlan(sections: readonly string[], plan: PromptAssemblyPlan): readonly string[]`
+  - Sections ordered by priority descending (higher priority first)
+  - Stable sort: when priorities tie, original relative order preserved
+  - Sections not in plan receive priority 0 (placed at end)
+  - Pure, stateless, deterministic, no dependencies
+- **Created `DefaultPriorityAwarePromptAssemblyStrategy`** — default implementation
+  - `applyPlan()`: priority-descending sort with stable tie-breaking
+  - `apply()`: identity (returns sections unchanged — no-op without plan)
+  - `strategyName = 'priority-aware'`
+  - Deterministic, stateless, pure — no side effects
+  - Zero dependencies on Planner, Runtime, Provider, Memory, or AgentLoop
+- **Updated `DefaultPromptBuilder`** — Phase 0.96 now detects plan-aware strategies
+  - When both `PromptAssemblyPlan` and `PriorityAwarePromptAssemblyStrategy` are available: uses `applyPlan()` instead of `apply()`
+  - Stores `planApplied: true` in `metadata.promptAssembly.planApplied`
+  - When unavailable: uses existing `apply()` behavior, stores `planApplied: false`
+  - Backward compatible — all existing strategies continue working unchanged
+- **Updated exports** — both new interface and class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptRenderer, PromptCompression, PromptContext, BuilderOptions, Runtime, Planner, AgentLoop
+- **No prompt behavior changes** with default configuration (all priorities 100 → stable sort → same order)
+- Created ADR-0089: Priority-Aware Prompt Assembly
+- New test file `PriorityAwarePromptAssembly.test.ts` (30 tests, 12 groups):
+  - Sorting (4 tests): priority descending, highest first, lowest last, reverse input
+  - Stable sorting (3 tests): tie preservation, all same priority, no change
+  - Empty plan (2 tests): empty plan, empty sections + empty plan
+  - Missing sections (2 tests): unknown sections at end, all unknown
+  - Deterministic (2 tests): cross-call, cross-instance
+  - Stateless (1 test): no retained state between calls
+  - Pure (3 tests): input sections unchanged, input plan unchanged, new array
+  - apply() identity (2 tests): original order, new reference
+  - Interface conformance (3 tests): PromptAssemblyStrategy, PriorityAwarePromptAssemblyStrategy, strategyName
+  - Builder integration — metadata (4 tests): planApplied true/false with/without plan/priority strategy/resolver
+  - Builder integration — compatibility (2 tests): identical prompt output, plan+planApplied coexistence
+  - Exports (2 tests): strategy index, package root
+- All 3583 tests pass (3553 existing + 30 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.77
