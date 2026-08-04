@@ -3116,3 +3116,34 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.73
+
+### WO-S5-039 — Dynamic Strategy Selection Consumption
+
+- **Refactored DefaultPromptBuilder Phase 0.9** — promoted StrategyEvaluator to authoritative scoring mechanism
+  - Phase 0.9 now: evaluate strategies → generate scores → select highest → produce StrategySelectionMetadata
+  - Phase 0.91 merged into Phase 0.9 — no separate metadata generation step
+  - Evaluator evaluates each strategy exactly once per build (single pass, no re-evaluation)
+  - Tie-breaking: first occurrence wins (array order, deterministic)
+  - Zero-score fallback: all scores ≤ 0 → DefaultPromptStrategy (unchanged)
+- **When evaluator is present**: the `strategySelector` is not called — the evaluator drives selection directly
+- **When evaluator is absent** but selector is provided: selector fallback used (backward compatible)
+- **When both evaluator and selector are absent**: DefaultPromptStrategy fallback (unchanged)
+- **No API breaking changes** — `BuilderOptions.strategyEvaluator?` field unchanged
+- **No prompt output changes** — metadata only
+- Created ADR-0086: Dynamic Strategy Selection Consumption
+- New test file `DynamicStrategySelectionConsumption.test.ts` (44 tests, 11 groups):
+  - Evaluator-Driven Selection (7 tests): highest score wins, all strategies evaluated, zero-score fallback, metadata production, selector bypassed
+  - Weighted Evaluator Integration (5 tests): weighted scoring, cross-strategy ranking, candidate scores in metadata
+  - Custom Evaluator Integration (3 tests): custom scoring logic, negative scores threshold
+  - Tie-Breaking — First Occurrence Wins (4 tests): equal scores, all 100, tied highest, single positive
+  - Deterministic (3 tests): cross-build consistency, cross-instance consistency, same scores
+  - Stateless (1 test): no retained state between builds
+  - Metadata Consistency (6 tests): selected name matches, all scores stored, order preserved, empty strategies, absent evaluator, absent strategies
+  - Compatibility (6 tests): identical output, evaluator presence, all strategy config, metadata coexistence, immutability
+  - Metadata Coexistence (4 tests): strategy, strategyRendered, strategyModule, all combined
+  - Backward Compatibility (Selector Fallback) (3 tests): selector fallback, both absent, legacy constructor
+  - Architecture Compliance (2 tests): evaluator authoritative, exactly one evaluation per build
+- All 3498 tests pass (3454 existing + 44 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.74

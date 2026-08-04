@@ -218,25 +218,49 @@ export class DefaultPromptBuilder implements PromptBuilder {
       promptContext.semanticRendered = semanticRendered
     }
 
-    // Phase 0.9: PromptStrategySelector — determine prompt assembly strategy
-    const selectedStrategy: PromptStrategy =
-      this.strategySelector !== undefined && this.strategies !== undefined
-        ? this.strategySelector.select(this.strategies, semanticContext ?? {})
-        : new DefaultPromptStrategy()
-
-    // Phase 0.91: StrategySelectionMetadata — capture full selection result for metadata
+    // Phase 0.9: StrategyEvaluator-driven strategy selection
+    // Evaluate strategies → generate scores → select highest → produce metadata
+    let selectedStrategy: PromptStrategy
     let strategySelectionMetadata: StrategySelectionMetadata | undefined
+
     if (this.strategyEvaluator !== undefined && this.strategies !== undefined) {
-      const evaluator = this.strategyEvaluator
+      // Evaluator-driven selection: score all strategies, pick highest
       const ctx = semanticContext ?? {}
-      const candidates = this.strategies.map(s => ({
-        strategy: s.name,
-        score: evaluator.evaluate(s, ctx),
-      }))
-      strategySelectionMetadata = {
-        selected: selectedStrategy.name,
-        candidates,
+
+      if (this.strategies.length > 0) {
+        const evaluatedCandidates = this.strategies.map(s => ({
+          strategy: s,
+          score: this.strategyEvaluator!.evaluate(s, ctx),
+        }))
+
+        // Select highest-scoring strategy (tie-break by array order — first wins)
+        let bestCandidate = evaluatedCandidates[0]
+        for (let i = 1; i < evaluatedCandidates.length; i++) {
+          if (evaluatedCandidates[i].score > bestCandidate.score) {
+            bestCandidate = evaluatedCandidates[i]
+          }
+        }
+
+        selectedStrategy = bestCandidate.score > 0 ? bestCandidate.strategy : new DefaultPromptStrategy()
+
+        // Build metadata from evaluator output (strategy objects → names for serializability)
+        strategySelectionMetadata = {
+          selected: selectedStrategy.name,
+          candidates: evaluatedCandidates.map(c => ({ strategy: c.strategy.name, score: c.score })),
+        }
+      } else {
+        // Empty strategies array — fallback to default, metadata with empty candidates
+        selectedStrategy = new DefaultPromptStrategy()
+        strategySelectionMetadata = {
+          selected: 'default',
+          candidates: [],
+        }
       }
+    } else if (this.strategySelector !== undefined && this.strategies !== undefined) {
+      // Fallback: selector-driven (backward compatibility — no evaluator provided)
+      selectedStrategy = this.strategySelector.select(this.strategies, semanticContext ?? {})
+    } else {
+      selectedStrategy = new DefaultPromptStrategy()
     }
 
     // Phase 0.915: StrategySelectionRenderer — render selection metadata for metadata storage

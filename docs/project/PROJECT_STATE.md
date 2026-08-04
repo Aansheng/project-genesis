@@ -16,16 +16,16 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 5 **In Progress** |
-| Architecture Version | v0.73 (Sprint 5) |
-| Architecture Status | **Evolving** — Strategy Selection Rendering Foundation (WO-S5-038) complete. StrategySelectionRenderer + DefaultStrategySelectionRenderer added. Phase 0.915 renders strategySelectionMetadata to strategySelectionRendered. Metadata only. No prompt behavior changes. No breaking changes. |
+| Architecture Version | v0.74 (Sprint 5) |
+| Architecture Status | **Evolving** — Dynamic Strategy Selection Consumption (WO-S5-039) complete. StrategyEvaluator promoted to authoritative scoring mechanism. Phase 0.9 now uses evaluator to drive scoring, selection, and metadata generation in a single pass. Phase 0.91 merged into Phase 0.9. Prompt output unchanged. No breaking changes. |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
 | AI Status | Provider Architecture Complete + Streaming Pipeline + Provider Native Tool Calling + Agent Loop Foundation + Pipeline-AgentLoop Integration + Multi-Step Agent Loop + Structured Observation Context + Planner Observation Awareness + Reflection Foundation + Structured Prompt Context + Prompt Renderer Foundation + Context Compression Foundation + Prompt Budget Foundation (Token Estimation) + Memory Ranking Foundation + Prompt Selection Foundation + Prompt Selection Consumption + Prompt Compression Consumption + Prompt Assembly Integration + Provider Budget Foundation + Provider Budget Consumption + AI Configuration Foundation + AI Configuration Consumption + BuilderOptions Foundation + BuilderOptions Consumption + Architecture Review + Intent Analysis Foundation + Rule-Based Intent Analyzer + Intent Consumption + Intent Rendering Foundation + Intent Prompt Integration + **Entity Recognition Foundation + Rule-Based Entity Analyzer + Entity Consumption + Entity Rendering Foundation + Entity Prompt Integration + Semantic Context Foundation + Semantic Context Consumption + Semantic Context Rendering Foundation + Semantic Context Prompt Integration + Prompt Strategy Foundation + Prompt Strategy Consumption + Prompt Strategy Rendering Foundation + Prompt Strategy Prompt Integration** — Mock / OpenAI / DeepSeek Providers + ProviderFactory + StructuredOutputValidator + StreamingPlannerProvider + ToolCallingProvider + AgentLoop (Multi-Step, Structured Observations, Reflection) |
-| Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **PromptStrategySelector** → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
+| Prompt Pipeline | **Evolving** — Structured Prompt Context (PromptContext) → PromptModule[] → **IntentAnalyzer** → **IntentRenderer** → **EntityAnalyzer** → **EntityRenderer** → **SemanticContextBuilder** → **SemanticContextRenderer** → **StrategyEvaluator** → **PromptStrategySelector** (fallback) → **PromptStrategyRenderer** → Builder → MemoryRanking → PromptBudget → ProviderBudget → PromptSelection (consumes Ranking + Budget + ProviderBudget) → PromptCompression (consumes Selection) → **PromptRenderer** → AIRequest |
 | Intent Layer | **Integrated** — IntentAnalyzer + IntentRenderer + DefaultPromptRenderer. Intent rendered in final prompt as "User Intent:" section. |
 | Entity Layer | **Prompt Integrated** — EntityAnalyzer + EntityRenderer + DefaultPromptRenderer. Entity rendered in final prompt as "Entities:" section. |
-| Strategy Layer | **Weighted Scoring + Assembly Consumption + Selection Rendering** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + StrategySelectionRenderer + DefaultStrategySelectionRenderer + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.91 captures full selection result. Phase 0.915 renders selection to strategySelectionRendered. Phase 0.96 resolves + applies assembly strategy reordering. All four business strategies have dedicated assembly. |
+| Strategy Layer | **Evaluator-Driven Scoring** — PromptStrategy + DefaultPromptStrategy + CreateStrategy + QueryStrategy + ModifyStrategy + DeleteStrategy + PromptStrategySelector + DefaultPromptStrategySelector (score-based) + PromptStrategyRenderer + DefaultPromptStrategyRenderer + StrategyModule + CreateStrategyModule + QueryStrategyModule + ModifyStrategyModule + DeleteStrategyModule + StrategyModuleRenderer + DefaultStrategyModuleRenderer + StrategyEvaluator + DefaultStrategyEvaluator + WeightedStrategyEvaluator + StrategySelectionMetadata + StrategySelectionRenderer + DefaultStrategySelectionRenderer + PromptAssemblyStrategy + DefaultPromptAssemblyStrategy + CreatePromptAssemblyStrategy + QueryPromptAssemblyStrategy + ModifyPromptAssemblyStrategy + DeletePromptAssemblyStrategy + PromptAssemblyStrategyResolver + DefaultPromptAssemblyStrategyResolver. Phase 0.9 evaluates strategies → generates scores → selects highest → produces metadata in a single pass (evaluator-driven since v0.74). Phase 0.915 renders selection to strategySelectionRendered. Phase 0.96 resolves + applies assembly strategy reordering. All four business strategies have dedicated assembly. |
 | Semantic Layer | **Prompt Integrated** — SemanticContext + SemanticContextBuilder + DefaultSemanticContextBuilder + SemanticContextRenderer + DefaultSemanticContextRenderer. Semantic Context rendered as official Prompt section. |
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
@@ -164,6 +164,7 @@
 | WO-S5-036 | Modify Prompt Assembly Strategy |
 | WO-S5-037 | Delete Prompt Assembly Strategy |
 | WO-S5-038 | Strategy Selection Rendering Foundation |
+| WO-S5-039 | Dynamic Strategy Selection Consumption |
 
 ---
 
@@ -799,6 +800,7 @@ Key remaining items:
 | ADR-0083 | Modify Prompt Assembly Strategy | `docs/adr/ADR-0083-modify-prompt-assembly-strategy.md` |
 | ADR-0084 | Delete Prompt Assembly Strategy | `docs/adr/ADR-0084-delete-prompt-assembly-strategy.md` |
 | ADR-0085 | Strategy Selection Rendering Foundation | `docs/adr/ADR-0085-strategy-selection-rendering-foundation.md` |
+| ADR-0086 | Dynamic Strategy Selection Consumption | `docs/adr/ADR-0086-dynamic-strategy-selection-consumption.md` |
 
 ---
 

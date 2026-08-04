@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.73)
+> Project Genesis — AI Architecture Reference (v0.74)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -607,12 +607,14 @@ class DefaultPromptStrategyRenderer implements PromptStrategyRenderer {
 - Empty/blank/null/undefined → `""`
 - Pure, stateless, deterministic — no side effects
 
-### Phase 0.91: StrategySelectionMetadata
+### Phase 0.9: StrategyEvaluator-Driven Selection (v0.74+)
 
 ```
-Phase 0.9:   PromptStrategySelector.select(strategies, context) → selectedStrategy
+Phase 0.9:   StrategyEvaluator.evaluate() for each strategy → scores
     ↓
-Phase 0.91:  StrategyEvaluator.evaluate() for each strategy
+    ↓         Select highest-scoring strategy (tie-break by order)
+    ↓         Fallback to DefaultPromptStrategy when all scores ≤ 0
+    ↓             → selectedStrategy
     ↓             → StrategySelectionMetadata { selected, candidates[] }
     ↓             → metadata.promptAssembly.strategySelection
 Phase 0.915: StrategySelectionRenderer.render(metadata) → strategySelectionRendered
@@ -631,7 +633,7 @@ Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → a
 Phase 1:    MemoryRanking.rank()
 ```
 
-StrategySelectionMetadata is produced when both `strategyEvaluator` and `strategies` are provided in BuilderOptions. It captures the full candidate score table for inspection and future Multi Strategy Routing. Prompt output is unchanged — this is metadata-only.
+Since WO-S5-039 (v0.74), Phase 0.9 uses `StrategyEvaluator` as the authoritative scoring mechanism. The evaluator is promoted to a first-class selection dependency: it evaluates all strategies, generates scores, selects the highest-scoring strategy, and produces `StrategySelectionMetadata` in a single unified pass. When `strategyEvaluator` is not provided but `strategySelector` is, the selector fallback is used (backward compatible). Phase 0.91 is merged into Phase 0.9 — no separate metadata generation step.
 
 ### Dependency Rules
 
