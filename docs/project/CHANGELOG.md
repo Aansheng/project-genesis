@@ -3575,3 +3575,35 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.85
+
+### WO-S5-051 — Prompt Assembly Snapshot Consumption
+
+- **Added `promptAssemblySnapshotBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblySnapshotBuilder?: PromptAssemblySnapshotBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.958 inserted between Phase 0.957 and Phase 0.96
+  - Collects individual promptAssembly metadata fields → passes to builder → stores result
+  - Snapshot stored at `metadata.promptAssembly.snapshot`
+- **Additive snapshots** — coexists with all existing fields: strategy, strategySelection, strategyRendered, strategyModule, strategyModuleRendered, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptContext, PromptCompression, Planner, Runtime, AgentLoop
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0098: Prompt Assembly Snapshot Consumption
+- New test file `PromptAssemblySnapshotConsumption.test.ts` (47 tests):
+  - BuilderOptions (3 tests): accept field, undefined, omitted
+  - SnapshotBuilder invocation (7 tests): invoked when configured, not invoked without, passes metadata, passes strategy+all fields, strategy name object, even without assembly components
+  - Snapshot creation (10 tests): strategy, plan, optimizedPlan, planDiff, planRendered, all fields, empty snapshot, custom builder, strategySelection
+  - Snapshot coexistence (10 tests): with strategy, plan, optimizedPlan, planDiff, planRendered, all fields simultaneously, strategyRendered, strategySelection, no field removal
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, metadata unchanged
+  - No prompt changes (3 tests): prompt identical, snapshot not in prompt
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - StrategyAwarePlanner compatibility (1 test)
+  - Exports (2 tests): strategy index, package root
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4034 tests pass (3987 existing + 47 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.86

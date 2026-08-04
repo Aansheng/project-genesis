@@ -42,6 +42,8 @@ import type { PromptAssemblyPlanRenderer } from '../strategy/PromptAssemblyPlanR
 import type { PromptAssemblyOptimizer } from '../strategy/PromptAssemblyOptimizer'
 import type { PromptAssemblyPlanDiffer } from '../strategy/PromptAssemblyPlanDiffer'
 import type { PromptAssemblyPlanDiff } from '../strategy/PromptAssemblyPlanDiff'
+import type { PromptAssemblySnapshotBuilder } from '../strategy/PromptAssemblySnapshotBuilder'
+import type { PromptAssemblySnapshot } from '../strategy/PromptAssemblySnapshot'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -81,6 +83,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyPlanRenderer?: PromptAssemblyPlanRenderer
   private readonly promptAssemblyOptimizer?: PromptAssemblyOptimizer
   private readonly promptAssemblyPlanDiffer?: PromptAssemblyPlanDiffer
+  private readonly promptAssemblySnapshotBuilder?: PromptAssemblySnapshotBuilder
 
   /**
    * Create a DefaultPromptBuilder.
@@ -151,6 +154,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyPlanRenderer = opts.promptAssemblyPlanRenderer
       this.promptAssemblyOptimizer = opts.promptAssemblyOptimizer
       this.promptAssemblyPlanDiffer = opts.promptAssemblyPlanDiffer
+      this.promptAssemblySnapshotBuilder = opts.promptAssemblySnapshotBuilder
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -173,6 +177,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyPlanRenderer = undefined
       this.promptAssemblyOptimizer = undefined
       this.promptAssemblyPlanDiffer = undefined
+      this.promptAssemblySnapshotBuilder = undefined
     }
   }
 
@@ -353,6 +358,23 @@ export class DefaultPromptBuilder implements PromptBuilder {
       promptAssemblyPlanRendered = this.promptAssemblyPlanRenderer.render(planForRendering)
     }
 
+    // Phase 0.958: PromptAssemblySnapshotBuilder — build unified diagnostics snapshot
+    let promptAssemblySnapshot: PromptAssemblySnapshot | undefined
+    if (this.promptAssemblySnapshotBuilder !== undefined) {
+      const snapshotMetadata: Record<string, unknown> = {
+        strategy: { name: selectedStrategy.name },
+        ...(strategySelectionMetadata !== undefined ? { strategySelection: strategySelectionMetadata } : {}),
+        ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
+        ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
+        ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
+        ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
+        ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
+        ...(planDiff !== undefined ? { planDiff } : {}),
+        ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
+      }
+      promptAssemblySnapshot = this.promptAssemblySnapshotBuilder.build(snapshotMetadata)
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -472,6 +494,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
         ...(planDiff !== undefined ? { planDiff } : {}),
         ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
+        ...(promptAssemblySnapshot !== undefined ? { snapshot: promptAssemblySnapshot } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,

@@ -23,6 +23,7 @@ import type { PromptAssemblyPlanner } from '../strategy/PromptAssemblyPlanner'
 import type { PromptAssemblyPlanRenderer } from '../strategy/PromptAssemblyPlanRenderer'
 import type { PromptAssemblyOptimizer } from '../strategy/PromptAssemblyOptimizer'
 import type { PromptAssemblyPlanDiffer } from '../strategy/PromptAssemblyPlanDiffer'
+import type { PromptAssemblySnapshotBuilder } from '../strategy/PromptAssemblySnapshotBuilder'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -49,6 +50,7 @@ import type { PromptAssemblyPlanDiffer } from '../strategy/PromptAssemblyPlanDif
  * Since WO-S5-045, BuilderOptions also accepts an optional promptAssemblyPlanRenderer.
  * Since WO-S5-047, BuilderOptions also accepts an optional promptAssemblyOptimizer.
  * Since WO-S5-049, BuilderOptions also accepts an optional promptAssemblyPlanDiffer.
+ * Since WO-S5-051, BuilderOptions also accepts an optional promptAssemblySnapshotBuilder.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -109,4 +111,6 @@ export interface BuilderOptions {
   promptAssemblyOptimizer?: PromptAssemblyOptimizer
   /** Optional PromptAssemblyPlanDiffer (defaults to undefined — no plan diff) */
   promptAssemblyPlanDiffer?: PromptAssemblyPlanDiffer
+  /** Optional PromptAssemblySnapshotBuilder (defaults to undefined — no snapshot) */
+  promptAssemblySnapshotBuilder?: PromptAssemblySnapshotBuilder
 }

@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.85)
+> Project Genesis — AI Architecture Reference (v0.86)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -673,6 +673,8 @@ Since WO-S5-049 (v0.84), Phase 0.9565 integrates the differ into `DefaultPromptB
 
 Since WO-S5-050 (v0.85), `PromptAssemblySnapshot`, `PromptAssemblySnapshotBuilder`, and `DefaultPromptAssemblySnapshotBuilder` provide a unified snapshot structure consolidating all prompt assembly diagnostics (strategy, strategySelection, strategyRendered, strategyModule, strategyModuleRendered, plan, optimizedPlan, planDiff, planRendered). The builder reads known metadata fields and ignores unknown ones. Foundation only — not yet consumed by PromptBuilder.
 
+Since WO-S5-051 (v0.86), Phase 0.958 integrates `PromptAssemblySnapshotBuilder` into `DefaultPromptBuilder`. When configured, it collects the individual promptAssembly metadata fields, passes them to the builder, and stores the resulting `PromptAssemblySnapshot` at `metadata.promptAssembly.snapshot`. The snapshot is additive — it coexists with all existing fields. Metadata only — no prompt injection, no behavioral changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -736,13 +738,14 @@ Since WO-S5-050 (v0.85), `PromptAssemblySnapshot`, `PromptAssemblySnapshotBuilde
 | ~~Prompt Assembly Optimizer Foundation~~ | `PromptAssemblyOptimizer` | ~~Identity optimization passthrough~~ **Done in WO-S5-046** |
 | ~~Prompt Assembly Plan Diff Foundation~~ | `PromptAssemblyPlanDiffer` | ~~Structured diff of plan changes~~ **Done in WO-S5-048** |
 | ~~Prompt Assembly Snapshot Foundation~~ | `PromptAssemblySnapshot` | ~~Unified diagnostics snapshot~~ **Done in WO-S5-050** |
+| ~~Snapshot Consumption~~ | `BuilderOptions` | ~~Wire snapshot builder into PromptBuilder pipeline~~ **Done in WO-S5-051** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
 | Compressing Optimizer | `PromptAssemblyOptimizer` | Replace sections with compressed variants |
 | Optimizer Consumption | `BuilderOptions` | Wire optimizer into PromptBuilder pipeline |
-| Diff Consumption | `BuilderOptions` | Wire differ into PromptBuilder pipeline |
-| Snapshot Consumption | `BuilderOptions` | Wire snapshot builder into PromptBuilder pipeline |
+| ~~Diff Consumption~~ | `BuilderOptions` | ~~Wire differ into PromptBuilder pipeline~~ **Done in WO-S5-049** |
+| ~~Snapshot Consumption~~ | `BuilderOptions` | ~~Wire snapshot builder into PromptBuilder pipeline~~ **Done in WO-S5-051** |
 
 ---
 
