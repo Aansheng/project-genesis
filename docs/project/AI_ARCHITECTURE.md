@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.86)
+> Project Genesis — AI Architecture Reference (v0.87)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -675,6 +675,8 @@ Since WO-S5-050 (v0.85), `PromptAssemblySnapshot`, `PromptAssemblySnapshotBuilde
 
 Since WO-S5-051 (v0.86), Phase 0.958 integrates `PromptAssemblySnapshotBuilder` into `DefaultPromptBuilder`. When configured, it collects the individual promptAssembly metadata fields, passes them to the builder, and stores the resulting `PromptAssemblySnapshot` at `metadata.promptAssembly.snapshot`. The snapshot is additive — it coexists with all existing fields. Metadata only — no prompt injection, no behavioral changes.
 
+Since WO-S5-052 (v0.87), `PromptInspector`, `PromptInspectorSection`, `PromptInspectorBuilder`, and `DefaultPromptInspectorBuilder` provide a domain model for converting `PromptAssemblySnapshot` into a human-readable section-based format. The inspector maps 7 snapshot fields to labeled sections with a consistent ordering (Rendered Strategy, Strategy Selection, Strategy Module, Prompt Plan, Optimized Plan, Plan Diff, Rendered Plan). Foundation only — not yet consumed by PromptBuilder.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -706,6 +708,10 @@ Since WO-S5-051 (v0.86), Phase 0.958 integrates `PromptAssemblySnapshotBuilder` 
 - `PromptAssemblySnapshot` depends only on `StrategySelectionMetadata`, `PromptAssemblyPlan`, and `PromptAssemblyPlanDiff`
 - `PromptAssemblySnapshotBuilder` depends only on `PromptAssemblySnapshot`
 - `DefaultPromptAssemblySnapshotBuilder` depends only on `PromptAssemblySnapshotBuilder`, `PromptAssemblySnapshot`, `StrategySelectionMetadata`, `PromptAssemblyPlan`, and `PromptAssemblyPlanDiff`
+- `PromptInspector` depends only on `PromptInspectorSection`
+- `PromptInspectorSection` is independent — no dependencies on any existing component
+- `PromptInspectorBuilder` depends only on `PromptAssemblySnapshot` and `PromptInspector`
+- `DefaultPromptInspectorBuilder` depends only on `PromptInspectorBuilder`, `PromptInspector`, `PromptInspectorSection`, and `PromptAssemblySnapshot`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -739,6 +745,7 @@ Since WO-S5-051 (v0.86), Phase 0.958 integrates `PromptAssemblySnapshotBuilder` 
 | ~~Prompt Assembly Plan Diff Foundation~~ | `PromptAssemblyPlanDiffer` | ~~Structured diff of plan changes~~ **Done in WO-S5-048** |
 | ~~Prompt Assembly Snapshot Foundation~~ | `PromptAssemblySnapshot` | ~~Unified diagnostics snapshot~~ **Done in WO-S5-050** |
 | ~~Snapshot Consumption~~ | `BuilderOptions` | ~~Wire snapshot builder into PromptBuilder pipeline~~ **Done in WO-S5-051** |
+| ~~Prompt Inspector Foundation~~ | `PromptInspector` | ~~Domain model for snapshot inspection~~ **Done in WO-S5-052** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |

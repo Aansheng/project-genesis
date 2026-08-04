@@ -48,3 +48,7 @@ export { DefaultPromptAssemblyPlanDiffer } from './DefaultPromptAssemblyPlanDiff
 export type { PromptAssemblySnapshot } from './PromptAssemblySnapshot'
 export type { PromptAssemblySnapshotBuilder } from './PromptAssemblySnapshotBuilder'
 export { DefaultPromptAssemblySnapshotBuilder } from './DefaultPromptAssemblySnapshotBuilder'
+export type { PromptInspector } from './PromptInspector'
+export type { PromptInspectorSection } from './PromptInspectorSection'
+export type { PromptInspectorBuilder } from './PromptInspectorBuilder'
+export { DefaultPromptInspectorBuilder } from './DefaultPromptInspectorBuilder'

@@ -3607,3 +3607,59 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.86
+
+### WO-S5-052 — Prompt Inspector Foundation
+
+- **Created `PromptInspector` interface** in `packages/ai/src/strategy/PromptInspector.ts`
+  - Domain model for prompt assembly inspection
+  - Fields: `readonly strategy?: string` + `readonly sections: readonly PromptInspectorSection[]`
+  - Depends only on PromptInspectorSection
+- **Created `PromptInspectorSection` interface** in `packages/ai/src/strategy/PromptInspectorSection.ts`
+  - Fields: `readonly title: string` + `readonly content: unknown`
+  - Independent — no dependencies on any existing component
+- **Created `PromptInspectorBuilder` interface** in `packages/ai/src/strategy/PromptInspectorBuilder.ts`
+  - Single method: `build(snapshot: PromptAssemblySnapshot): PromptInspector`
+  - Depends only on PromptAssemblySnapshot and PromptInspector
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptInspectorBuilder`** in `packages/ai/src/strategy/DefaultPromptInspectorBuilder.ts`
+  - Maps 7 snapshot fields to labeled sections with consistent ordering:
+    - `strategyRendered` → "Rendered Strategy"
+    - `strategySelection` → "Strategy Selection"
+    - `strategyModule` → "Strategy Module"
+    - `plan` → "Prompt Plan"
+    - `optimizedPlan` → "Optimized Plan"
+    - `planDiff` → "Plan Diff"
+    - `planRendered` → "Rendered Plan"
+  - `strategy` field mapped to `inspector.strategy` (not a section)
+  - Unknown fields (e.g., `strategyModuleRendered`) silently ignored
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptInspector`, `PromptInspectorSection`, `PromptInspectorBuilder`, and `DefaultPromptInspectorBuilder` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — foundation only
+- Created ADR-0099: Prompt Inspector Foundation
+- New test file `PromptInspectorFoundation.test.ts` (74 tests):
+  - Inspector structure (5 tests): strategy, sections array, undefined strategy, multiple sections, readonly
+  - Section structure (4 tests): title, content, string content, object content
+  - Builder — empty snapshot (3 tests): empty sections, strategy undefined, strategy-only
+  - Builder — strategyRendered (3 tests): section creation, empty skip, undefined skip
+  - Builder — strategySelection (3 tests): section creation, candidates content, undefined skip
+  - Builder — strategyModule (3 tests): section creation, empty skip, undefined skip
+  - Builder — plan (3 tests): section creation, priorities content, undefined skip
+  - Builder — optimizedPlan (3 tests): section creation, priorities content, undefined skip
+  - Builder — planDiff (3 tests): section creation, diff data, undefined skip
+  - Builder — planRendered (3 tests): section creation, empty skip, undefined skip
+  - Builder — full snapshot (2 tests): all 7 fields, content values preserved
+  - Section ordering (3 tests): consistent order, all 7 sections, partial ordering
+  - Unknown fields ignored (2 tests): strategyModuleRendered not mapped
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): snapshot unchanged, content objects unchanged
+  - Interface contract (3 tests): method, return type, custom implementation
+  - Exports (6 tests): class + 3 types from strategy index, package root, class instantiation
+  - Architecture compliance (15 tests): no deps, no modifications to any component
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4108 tests pass (4034 existing + 74 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.87
