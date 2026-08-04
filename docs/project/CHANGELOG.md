@@ -3449,3 +3449,47 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.82
+
+### WO-S5-048 — Prompt Assembly Plan Diff Foundation
+
+- **Created `PromptAssemblyPlanDiff` interface** in `packages/ai/src/strategy/PromptAssemblyPlanDiff.ts`
+  - Pure data structure: `{ added, removed, changed }`
+  - `added: readonly string[]` — sections present in "after" but not in "before"
+  - `removed: readonly string[]` — sections present in "before" but not in "after"
+  - `changed: readonly { section, before, after }[]` — sections with different priority
+  - All fields readonly — immutable by design
+  - No dependencies on Planner, Runtime, Provider, or Pipeline
+- **Created `PromptAssemblyPlanDiffer` interface** in `packages/ai/src/strategy/PromptAssemblyPlanDiffer.ts`
+  - Single method: `diff(before: PromptAssemblyPlan, after: PromptAssemblyPlan): PromptAssemblyPlanDiff`
+  - Pure, stateless, deterministic, no side effects
+  - No dependencies on Planner, Runtime, Provider, Memory, or AgentLoop
+- **Created `DefaultPromptAssemblyPlanDiffer`** in `packages/ai/src/strategy/DefaultPromptAssemblyPlanDiffer.ts`
+  - Detects added sections, removed sections, and priority changes
+  - Order preserved from input plans (no sorting, no reordering)
+  - O(1) lookup via Set/Map for section detection
+  - Result is frozen at runtime for immutability
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblyPlanDiff`, `PromptAssemblyPlanDiffer`, and `DefaultPromptAssemblyPlanDiffer` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptAssemblyPlan, PromptAssemblyOptimizer, PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop
+- **No prompt behavior changes** — differ is not consumed, foundation only
+- Created ADR-0095: Prompt Assembly Plan Diff Foundation
+- New test file `PromptAssemblyPlanDiffFoundation.test.ts` (60 tests, 14 groups):
+  - Interface contract (3 tests): method definition, return type, custom implementation
+  - PromptAssemblyPlanDiff structure (4 tests): added, removed, changed shape, multiple changed
+  - Added sections (5 tests): single, multiple, none, order preserved, case sensitivity
+  - Removed sections (4 tests): single, multiple, none, order preserved
+  - Changed priorities (7 tests): single, multiple, increasing, decreasing, mixed, order preserved, none
+  - Unchanged plans (2 tests): identical reference, identical content
+  - Empty plans (3 tests): both empty, before empty, after empty
+  - Combined changes (3 tests): all three types, add+change, remove+change
+  - Deterministic (3 tests): cross-call, cross-instance, cross-plan
+  - Stateless (1 test): no retained state
+  - Pure (3 tests): before unchanged, after unchanged, entries unchanged
+  - Exports (5 tests): strategy index types + class, package root, class instantiation
+  - Architecture compliance (12 tests): no Planner/Runtime/Provider/Memory/AgentLoop deps, no modifications to PromptBuilder/PromptRenderer/PromptCompression/PromptAssemblyOptimizer/PromptAssemblyPlan/Planner/Runtime/AgentLoop
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 3862 tests pass (3802 existing + 60 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.83

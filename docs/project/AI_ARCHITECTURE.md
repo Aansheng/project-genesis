@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.82)
+> Project Genesis — AI Architecture Reference (v0.83)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -422,6 +422,9 @@ The Strategy Layer determines how prompts should be assembled for different sema
 | `DeleteStrategyModule` | Class | Deletion guidelines — "Confirm target existence" |
 | `PromptAssemblyOptimizer` | Interface | Contract for optimizing a PromptAssemblyPlan: `optimize(plan)` |
 | `DefaultPromptAssemblyOptimizer` | Class | Identity implementation — returns the plan unchanged |
+| `PromptAssemblyPlanDiff` | Interface | Diff result: added, removed, changed sections |
+| `PromptAssemblyPlanDiffer` | Interface | Contract for diffing two plans: `diff(before, after)` |
+| `DefaultPromptAssemblyPlanDiffer` | Class | Default implementation — detects added/removed/changed |
 
 ### PromptStrategy
 
@@ -658,6 +661,8 @@ Since WO-S5-046 (v0.81), `PromptAssemblyOptimizer` and `DefaultPromptAssemblyOpt
 
 Since WO-S5-047 (v0.82), Phase 0.956 integrates the optimizer into `DefaultPromptBuilder`. When both a plan and an optimizer exist, the optimizer transforms the plan and the result (`optimizedPlan`) is used for all downstream phases (renderer and assembly strategy). The identity optimizer (`DefaultPromptAssemblyOptimizer`) preserves all existing behavior — no prompt output changes. The `optimizedPlan` is stored in `metadata.promptAssembly.optimizedPlan` only when the optimizer exists.
 
+Since WO-S5-048 (v0.83), `PromptAssemblyPlanDiff`, `PromptAssemblyPlanDiffer`, and `DefaultPromptAssemblyPlanDiffer` provide a structured diff model for inspecting changes between two plans. The differ detects added sections, removed sections, and priority changes. Foundation only — not yet consumed by PromptBuilder. This enables future diagnostics and optimization verification.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -683,6 +688,9 @@ Since WO-S5-047 (v0.82), Phase 0.956 integrates the optimizer into `DefaultPromp
 - `DefaultPromptAssemblyStrategyResolver` depends only on `PromptAssemblyStrategyResolver`, `PromptAssemblyStrategy`, `DefaultPromptAssemblyStrategy`, `CreatePromptAssemblyStrategy`, `QueryPromptAssemblyStrategy`, `ModifyPromptAssemblyStrategy`, and `DeletePromptAssemblyStrategy`
 - `PromptAssemblyOptimizer` depends only on `PromptAssemblyPlan`
 - `DefaultPromptAssemblyOptimizer` depends only on `PromptAssemblyOptimizer` and `PromptAssemblyPlan`
+- `PromptAssemblyPlanDiff` is independent — no dependencies on any existing component
+- `PromptAssemblyPlanDiffer` depends only on `PromptAssemblyPlan` and `PromptAssemblyPlanDiff`
+- `DefaultPromptAssemblyPlanDiffer` depends only on `PromptAssemblyPlanDiffer`, `PromptAssemblyPlan`, and `PromptAssemblyPlanDiff`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -713,11 +721,13 @@ Since WO-S5-047 (v0.82), Phase 0.956 integrates the optimizer into `DefaultPromp
 | ~~Strategy Selection Rendering Foundation~~ | `StrategySelectionRenderer` | ~~Render strategy selection metadata~~ **Done in WO-S5-038** |
 | ~~Section Priority Foundation~~ | `PromptAssemblyPlanner` | ~~Plan section priorities for assembly~~ **Done in WO-S5-040** |
 | ~~Prompt Assembly Optimizer Foundation~~ | `PromptAssemblyOptimizer` | ~~Identity optimization passthrough~~ **Done in WO-S5-046** |
+| ~~Prompt Assembly Plan Diff Foundation~~ | `PromptAssemblyPlanDiffer` | ~~Structured diff of plan changes~~ **Done in WO-S5-048** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
 | Compressing Optimizer | `PromptAssemblyOptimizer` | Replace sections with compressed variants |
 | Optimizer Consumption | `BuilderOptions` | Wire optimizer into PromptBuilder pipeline |
+| Diff Consumption | `BuilderOptions` | Wire differ into PromptBuilder pipeline |
 
 ---
 
