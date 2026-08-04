@@ -677,6 +677,8 @@ Since WO-S5-051 (v0.86), Phase 0.958 integrates `PromptAssemblySnapshotBuilder` 
 
 Since WO-S5-052 (v0.87), `PromptInspector`, `PromptInspectorSection`, `PromptInspectorBuilder`, and `DefaultPromptInspectorBuilder` provide a domain model for converting `PromptAssemblySnapshot` into a human-readable section-based format. The inspector maps 7 snapshot fields to labeled sections with a consistent ordering (Rendered Strategy, Strategy Selection, Strategy Module, Prompt Plan, Optimized Plan, Plan Diff, Rendered Plan). Foundation only — not yet consumed by PromptBuilder.
 
+Since WO-S5-053 (v0.87), Phase 0.959 integrates `PromptInspectorBuilder` into `DefaultPromptBuilder`. When both a snapshot (from Phase 0.958) and an inspector builder are configured, the builder converts the snapshot into a `PromptInspector` stored at `metadata.promptAssembly.inspector`. The inspector is additive — it coexists with all existing fields including snapshot. Metadata only — no prompt injection, no behavioral changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
