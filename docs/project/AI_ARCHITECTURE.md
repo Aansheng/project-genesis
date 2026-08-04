@@ -646,6 +646,14 @@ Phase 0.9565: PromptAssemblyPlanDiffer.diff(plan, optimizedPlan)
     ↓             → metadata.promptAssembly.planDiff
 Phase 0.957: PromptAssemblyPlanRenderer.render(optimizedPlan ?? plan)
     ↓             → metadata.promptAssembly.planRendered
+Phase 0.958: PromptAssemblySnapshotBuilder.build(metadata)
+    ↓             → metadata.promptAssembly.snapshot
+Phase 0.959: PromptInspectorBuilder.build(snapshot)
+    ↓             → metadata.promptAssembly.inspector
+Phase 0.9595: PromptInspectorRenderer.render(inspector)
+    ↓             → metadata.promptAssembly.inspectorRendered
+Phase 0.9597: PromptInspectorExporter.export(inspector)
+    ↓             → metadata.promptAssembly.inspectorExported
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
     ↓             → apply() reorders renderContext sections by priority
@@ -684,6 +692,8 @@ Since WO-S5-054 (v0.88), `PromptInspectorRenderer` and `DefaultPromptInspectorRe
 Since WO-S5-055 (v0.89), Phase 0.9595 integrates `PromptInspectorRenderer` into `DefaultPromptBuilder`. When both an inspector (from Phase 0.959) and a renderer are configured, the renderer converts the inspector into a human-readable string stored at `metadata.promptAssembly.inspectorRendered`. The rendered output is additive — it coexists with all existing fields including inspector, snapshot, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
 
 Since WO-S5-056 (v0.90), `PromptInspectorExporter` and `DefaultPromptInspectorExporter` provide a JSON export of `PromptInspector`. The exporter uses `JSON.stringify(inspector, null, 2)` to produce a pretty-printed JSON string, preserving the strategy and sections structure. Foundation only — no consumption, no builder changes, no metadata changes.
+
+Since WO-S5-057 (v0.91), Phase 0.9597 integrates `PromptInspectorExporter` into `DefaultPromptBuilder`. When both an inspector (from Phase 0.959) and an exporter are configured, the exporter converts the inspector into a stable external representation stored at `metadata.promptAssembly.inspectorExported`. The exported output is additive — it coexists with all existing fields including inspector, inspectorRendered, snapshot, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
 
 ### Dependency Rules
 
@@ -762,6 +772,7 @@ Since WO-S5-056 (v0.90), `PromptInspectorExporter` and `DefaultPromptInspectorEx
 | ~~Prompt Inspector Rendering Foundation~~ | `PromptInspectorRenderer` | ~~Human-readable inspector report~~ **Done in WO-S5-054** |
 | ~~Prompt Inspector Rendering Consumption~~ | `BuilderOptions` | ~~Wire renderer into PromptBuilder pipeline~~ **Done in WO-S5-055** |
 | ~~Prompt Inspector Export Foundation~~ | `PromptInspectorExporter` | ~~JSON export of inspector~~ **Done in WO-S5-056** |
+| ~~Prompt Inspector Export Consumption~~ | `BuilderOptions` | ~~Wire exporter into PromptBuilder pipeline~~ **Done in WO-S5-057** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |

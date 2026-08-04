@@ -47,6 +47,7 @@ import type { PromptAssemblySnapshot } from '../strategy/PromptAssemblySnapshot'
 import type { PromptInspectorBuilder } from '../strategy/PromptInspectorBuilder'
 import type { PromptInspector } from '../strategy/PromptInspector'
 import type { PromptInspectorRenderer } from '../strategy/PromptInspectorRenderer'
+import type { PromptInspectorExporter } from '../strategy/PromptInspectorExporter'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -89,6 +90,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblySnapshotBuilder?: PromptAssemblySnapshotBuilder
   private readonly promptInspectorBuilder?: PromptInspectorBuilder
   private readonly promptInspectorRenderer?: PromptInspectorRenderer
+  private readonly promptInspectorExporter?: PromptInspectorExporter
 
   /**
    * Create a DefaultPromptBuilder.
@@ -162,6 +164,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblySnapshotBuilder = opts.promptAssemblySnapshotBuilder
       this.promptInspectorBuilder = opts.promptInspectorBuilder
       this.promptInspectorRenderer = opts.promptInspectorRenderer
+      this.promptInspectorExporter = opts.promptInspectorExporter
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -187,6 +190,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblySnapshotBuilder = undefined
       this.promptInspectorBuilder = undefined
       this.promptInspectorRenderer = undefined
+      this.promptInspectorExporter = undefined
     }
   }
 
@@ -396,6 +400,16 @@ export class DefaultPromptBuilder implements PromptBuilder {
       inspectorRendered = this.promptInspectorRenderer.render(promptInspector)
     }
 
+    // Phase 0.9597: PromptInspectorExporter — export inspector to external representation
+    let inspectorExported: string | undefined
+    if (
+      promptInspector !== undefined &&
+      this.promptInspectorExporter !== undefined
+    ) {
+      inspectorExported =
+        this.promptInspectorExporter.export(promptInspector)
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -518,6 +532,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(promptAssemblySnapshot !== undefined ? { snapshot: promptAssemblySnapshot } : {}),
         ...(promptInspector !== undefined ? { inspector: promptInspector } : {}),
         ...(inspectorRendered !== undefined && inspectorRendered.length > 0 ? { inspectorRendered } : {}),
+        ...(inspectorExported !== undefined ? { inspectorExported } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,

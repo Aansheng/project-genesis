@@ -3801,3 +3801,37 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.90
+
+### WO-S5-057 — Prompt Inspector Export Consumption
+
+- **Added `promptInspectorExporter` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptInspectorExporter?: PromptInspectorExporter`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9597 inserted between Phase 0.9595 and Phase 0.96
+  - Converts inspector → exported string via PromptInspectorExporter
+  - Executed only when both inspector and exporter exist
+  - Exported string stored at `metadata.promptAssembly.inspectorExported`
+- **Additive export** — coexists with all existing fields: inspector, inspectorRendered, snapshot, plan, optimizedPlan, planDiff, planRendered, strategy, strategyRendered, ranking, budget, selection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptInspector, PromptInspectorBuilder, PromptInspectorRenderer, PromptInspectorExporter
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0104: Prompt Inspector Export Consumption
+- New test file `PromptInspectorExportConsumption.test.ts` (50 tests):
+  - BuilderOptions (4 tests): provided, omitted, undefined, requires inspector
+  - Exporter invocation (6 tests): invoked, exactly once, not without inspector, not without exporter, receives inspector, receives sections
+  - Metadata creation (6 tests): stored, absent without exporter, absent without inspector, custom output preserved, typeof string, parseable JSON with strategy
+  - Metadata coexistence (8 tests): snapshot, inspector, inspectorRendered, plan, optimizedPlan, planDiff, all fields, strategy + ranking/budget/selection
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, inspector unchanged
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - No prompt changes (4 tests): identical prompt with/without exporter, with all components, no injection, snapshot only
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Exports (3 tests): strategy index, package root, class instantiation
+  - Snapshot dependency (3 tests): no snapshot → no invocation, snapshot only → no metadata, full chain required
+  - Inspector dependency (3 tests): no inspector builder → no invocation, same inspector exported as stored, output only when inspector exists
+- All 4403 tests pass (4353 existing + 50 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.91
