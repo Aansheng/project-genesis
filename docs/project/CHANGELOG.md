@@ -3147,3 +3147,40 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.74
+
+### WO-S5-040 — Section Priority Foundation
+
+- **Created `PromptSectionPriority` interface** — atomic priority unit pairing a section key with a numeric priority value
+  - `readonly section: string` — section key name matching PromptContext fields
+  - `readonly priority: number` — priority value (higher = more important, default 100)
+  - Immutable, pure data, no dependencies
+- **Created `PromptAssemblyPlan` interface** — output of the planning phase, containing ordered section priorities
+  - `readonly priorities: readonly PromptSectionPriority[]`
+- **Created `PromptAssemblyPlanner` interface** — planning interface that produces PromptAssemblyPlan
+  - `buildPlan(strategyName: string, sections: readonly string[]): PromptAssemblyPlan`
+  - Pure, stateless, deterministic, no dependencies
+- **Created `DefaultPromptAssemblyPlanner`** — default implementation
+  - Preserves section order from input
+  - All sections assigned priority 100 (neutral default)
+  - `DEFAULT_PRIORITY = 100` static constant
+  - Deterministic, stateless, pure — no side effects
+  - Zero dependencies on Planner, Runtime, Provider, Memory, or AgentLoop
+- **Updated exports** — all new types and class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, PromptRenderer, PromptCompression, BuilderOptions, Planner, Runtime, AgentLoop, or any existing component
+- **No prompt behavior changes** — foundation only, no integration with DefaultPromptBuilder
+- Created ADR-0087: Section Priority Foundation
+- New test file `PromptAssemblyPlannerFoundation.test.ts` (27 tests, 10 groups):
+  - PromptSectionPriority interface (3 tests): section field, priority field, various values
+  - PromptAssemblyPlan interface (2 tests): priorities array, Priority entries
+  - PromptAssemblyPlanner interface (2 tests): buildPlan method, parameter acceptance
+  - DefaultPromptAssemblyPlanner (6 tests): order preservation, default priority 100, single section, empty sections, any strategy name, no mutation
+  - Deterministic (3 tests): cross-call, cross-instance, cross-strategy
+  - Stateless (1 test): no retained state between calls
+  - Pure (2 tests): input unchanged, new object per call
+  - Architecture Compliance (5 tests): no Planner, Runtime, Provider, Memory, AgentLoop
+  - DEFAULT_PRIORITY constant (1 test): value is 100
+  - Exports (2 tests): strategy index, package root
+- All 3525 tests pass (3498 existing + 27 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.75

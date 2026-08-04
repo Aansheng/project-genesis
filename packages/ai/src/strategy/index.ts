@@ -31,3 +31,7 @@ export type { PromptAssemblyStrategyResolver } from './PromptAssemblyStrategyRes
 export { DefaultPromptAssemblyStrategyResolver } from './DefaultPromptAssemblyStrategyResolver'
 export type { StrategySelectionRenderer } from './StrategySelectionRenderer'
 export { DefaultStrategySelectionRenderer } from './DefaultStrategySelectionRenderer'
+export type { PromptSectionPriority } from './PromptSectionPriority'
+export type { PromptAssemblyPlan } from './PromptAssemblyPlan'
+export type { PromptAssemblyPlanner } from './PromptAssemblyPlanner'
+export { DefaultPromptAssemblyPlanner } from './DefaultPromptAssemblyPlanner'

@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.74)
+> Project Genesis — AI Architecture Reference (v0.75)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -646,6 +646,10 @@ Since WO-S5-039 (v0.74), Phase 0.9 uses `StrategyEvaluator` as the authoritative
 - `StrategySelectionMetadata` is independent — no dependencies on any existing component
 - `StrategySelectionRenderer` depends only on `StrategySelectionMetadata`
 - `DefaultStrategySelectionRenderer` depends only on `StrategySelectionRenderer` and `StrategySelectionMetadata`
+- `PromptSectionPriority` is independent — no dependencies on any existing component
+- `PromptAssemblyPlan` depends only on `PromptSectionPriority`
+- `PromptAssemblyPlanner` depends only on `PromptAssemblyPlan`
+- `DefaultPromptAssemblyPlanner` depends only on `PromptAssemblyPlanner`, `PromptAssemblyPlan`, and `PromptSectionPriority`
 - `PromptAssemblyStrategy` is independent — no dependencies on any existing component
 - `DefaultPromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
 - `CreatePromptAssemblyStrategy` depends only on `PromptAssemblyStrategy`
@@ -682,6 +686,7 @@ Since WO-S5-039 (v0.74), Phase 0.9 uses `StrategyEvaluator` as the authoritative
 | ~~Modify Prompt Assembly Strategy~~ | `ModifyPromptAssemblyStrategy` | ~~Third business-specific assembly strategy~~ **Done in WO-S5-036** |
 | ~~Delete Prompt Assembly Strategy~~ | `DeletePromptAssemblyStrategy` | ~~Fourth business-specific assembly strategy~~ **Done in WO-S5-037** |
 | ~~Strategy Selection Rendering Foundation~~ | `StrategySelectionRenderer` | ~~Render strategy selection metadata~~ **Done in WO-S5-038** |
+| ~~Section Priority Foundation~~ | `PromptAssemblyPlanner` | ~~Plan section priorities for assembly~~ **Done in WO-S5-040** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 
