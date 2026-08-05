@@ -4058,3 +4058,37 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.97
+
+### WO-S5-064 — Prompt Assembly Trace Export Foundation
+
+- **Created `PromptAssemblyTraceExporter`** in `packages/ai/src/strategy/PromptAssemblyTraceExporter.ts`
+  - Interface with single `export(trace): string` method
+  - Pure, stateless, deterministic — same trace always produces same string
+  - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
+- **Created `DefaultPromptAssemblyTraceExporter`** in `packages/ai/src/strategy/DefaultPromptAssemblyTraceExporter.ts`
+  - Uses `JSON.stringify(trace, null, 2)` for pretty-printed JSON output
+  - 2-space indentation, preserves full trace structure exactly
+  - Pure, stateless, deterministic, never mutates input
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblyTraceExporter` and `DefaultPromptAssemblyTraceExporter` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0111: Prompt Assembly Trace Export Foundation
+- New test file `PromptAssemblyTraceExportFoundation.test.ts` (80 tests):
+  - Interface contract (3 tests): export method, return type, custom implementation
+  - JSON export (12 tests): empty, strategy only, inspectorRendered, inspectorExported, strategySelection, plan, planDiff, snapshot, inspector, optimizedPlan, full trace, mixed fields, nested structures
+  - Exact output (5 tests): equals JSON.stringify for empty, strategy, full, mixed, parseable
+  - Deterministic (4 tests): cross-call, cross-instance, identical traces, empty traces
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (3 tests): input unchanged, nested unchanged, no side effects
+  - JSON formatting (6 tests): 2-space indent, newlines, parseable, key order, deeply nested, empty arrays
+  - Edge cases (10 tests): undefined, single field, large structure, multiple strings, complex changes, empty strings, strategy+exported, all string fields, inspector sections, empty sections
+  - Various content types (10 tests): arrays, objects, null, boolean, numbers, empty strings, long strings, special chars, unicode, empty arrays
+  - Exports (6 tests): type + class from strategy index and package root
+  - Architecture compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4907 tests pass (4827 existing + 80 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.98

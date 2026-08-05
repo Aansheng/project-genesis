@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.97)
+> Project Genesis — AI Architecture Reference (v0.98)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -709,6 +709,8 @@ Since WO-S5-062 (v0.96), `PromptAssemblyTraceRenderer` and `DefaultPromptAssembl
 
 Since WO-S5-063 (v0.97), Phase 0.9599 integrates `PromptAssemblyTraceRenderer` into `DefaultPromptBuilder`. When both a trace (from Phase 0.9598) and a renderer are configured, the renderer converts the trace into a human-readable string stored at `metadata.promptAssembly.traceRendered`. The rendered output is additive — it coexists with all existing fields including trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, and planDiff. Metadata only — no prompt injection, no behavioral changes.
 
+Since WO-S5-064 (v0.98), `PromptAssemblyTraceExporter` and `DefaultPromptAssemblyTraceExporter` provide JSON export of `PromptAssemblyTrace` instances. The exporter uses `JSON.stringify(trace, null, 2)` to produce a pretty-printed JSON string with 2-space indentation, preserving the full trace structure exactly. The implementation is pure, stateless, deterministic, and never mutates the input trace. Foundation only — no consumption, no builder changes, no metadata changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -756,6 +758,8 @@ Since WO-S5-063 (v0.97), Phase 0.9599 integrates `PromptAssemblyTraceRenderer` i
 - `DefaultPromptAssemblyTraceDiffer` depends only on `PromptAssemblyTrace`, `PromptAssemblyTraceDiff`, and `PromptAssemblyTraceDiffer`
 - `PromptAssemblyTraceRenderer` depends only on `PromptAssemblyTrace`
 - `DefaultPromptAssemblyTraceRenderer` depends only on `PromptAssemblyTrace` and `PromptAssemblyTraceRenderer`
+- `PromptAssemblyTraceExporter` depends only on `PromptAssemblyTrace`
+- `DefaultPromptAssemblyTraceExporter` depends only on `PromptAssemblyTrace` and `PromptAssemblyTraceExporter`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -801,6 +805,7 @@ Since WO-S5-063 (v0.97), Phase 0.9599 integrates `PromptAssemblyTraceRenderer` i
 | ~~Prompt Assembly Trace Diff Consumption~~ | `BuilderOptions` | ~~Wire trace differ into PromptBuilder pipeline~~ **Done in WO-S5-061** |
 | ~~Prompt Assembly Trace Rendering Foundation~~ | `PromptAssemblyTraceRenderer` | ~~Human-readable trace rendering~~ **Done in WO-S5-062** |
 | ~~Prompt Assembly Trace Renderer Consumption~~ | `BuilderOptions` | ~~Wire trace renderer into PromptBuilder pipeline~~ **Done in WO-S5-063** |
+| ~~Prompt Assembly Trace Export Foundation~~ | `PromptAssemblyTraceExporter` | ~~JSON export of trace~~ **Done in WO-S5-064** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
