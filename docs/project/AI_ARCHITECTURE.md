@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.02)
+> Project Genesis — AI Architecture Reference (v1.03)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceDiffer` in WO-S5-061, `promptAssemblyTraceRenderer` in WO-S5-063, and `promptAssemblyTraceExporter` in WO-S5-065. Timeline model introduced independently in WO-S5-066 and consumed by DefaultPromptBuilder in WO-S5-067 via Phase 0.95996.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceDiffer` in WO-S5-061, `promptAssemblyTraceRenderer` in WO-S5-063, and `promptAssemblyTraceExporter` in WO-S5-065. Timeline model introduced independently in WO-S5-066 and consumed by DefaultPromptBuilder in WO-S5-067 via Phase 0.95996. Timeline differ introduced in WO-S5-068 foundation and consumed in WO-S5-069 via Phase 0.95997.
 
 ```typescript
 interface BuilderOptions {

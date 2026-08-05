@@ -4252,3 +4252,34 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.02
+
+### WO-S5-069 — Prompt Assembly Timeline Diff Consumption
+
+- **Added `promptAssemblyTimelineDiffer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTimelineDiffer?: PromptAssemblyTimelineDiffer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95997 inserted between Phase 0.95996 and Phase 0.96
+  - Diffs empty timeline (`{ entries: [] }`) vs current timeline via PromptAssemblyTimelineDiffer
+  - Timeline diff stored at `metadata.promptAssembly.timelineDiff`
+- **Additive timelineDiff** — coexists with all existing fields: strategy, strategySelection, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, inspectorRendered, inspectorExported, trace, traceDiff, traceRendered, traceExported, timeline
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyTimeline, PromptAssemblyTimelineEntry, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder, PromptAssemblyTimelineDiff, PromptAssemblyTimelineDiffer, DefaultPromptAssemblyTimelineDiffer
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0116: Prompt Assembly Timeline Diff Consumption
+- New test file `PromptAssemblyTimelineDiffConsumption.test.ts` (60 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Differ Invocation (7 tests): invoked, not without timeline builder, not without trace builder, not without differ, empty baseline, correct after timeline, custom diff preserved
+  - Metadata Creation (6 tests): stored, absent without differ, absent without timeline builder, absent without trace builder, valid structure, all entries added
+  - Metadata Coexistence — timeline, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, strategy, strategySelection, all fields (15 tests)
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (3 tests): no retained state, independent results, fresh per build
+  - Pure (3 tests): context unchanged, metadata unchanged, prompt unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, all components, metadata only
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Timeline Diff Validation (6 tests): empty baseline, all entries added, removed empty, changed empty, diff structure, timelineDiff key
+- All 5267+ tests pass (5207 + 60 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.03

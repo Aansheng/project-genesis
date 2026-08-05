@@ -55,6 +55,7 @@ import type { PromptAssemblyTraceDiff } from '../strategy/PromptAssemblyTraceDif
 import type { PromptAssemblyTraceRenderer } from '../strategy/PromptAssemblyTraceRenderer'
 import type { PromptAssemblyTraceExporter } from '../strategy/PromptAssemblyTraceExporter'
 import type { PromptAssemblyTimelineBuilder } from '../strategy/PromptAssemblyTimelineBuilder'
+import type { PromptAssemblyTimelineDiffer } from '../strategy/PromptAssemblyTimelineDiffer'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -103,6 +104,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyTraceRenderer?: PromptAssemblyTraceRenderer
   private readonly promptAssemblyTraceExporter?: PromptAssemblyTraceExporter
   private readonly promptAssemblyTimelineBuilder?: PromptAssemblyTimelineBuilder
+  private readonly promptAssemblyTimelineDiffer?: PromptAssemblyTimelineDiffer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -182,6 +184,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyTraceRenderer = opts.promptAssemblyTraceRenderer
       this.promptAssemblyTraceExporter = opts.promptAssemblyTraceExporter
       this.promptAssemblyTimelineBuilder = opts.promptAssemblyTimelineBuilder
+      this.promptAssemblyTimelineDiffer = opts.promptAssemblyTimelineDiffer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -213,6 +216,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyTraceRenderer = undefined
       this.promptAssemblyTraceExporter = undefined
       this.promptAssemblyTimelineBuilder = undefined
+      this.promptAssemblyTimelineDiffer = undefined
     }
   }
 
@@ -478,6 +482,15 @@ export class DefaultPromptBuilder implements PromptBuilder {
       timeline = this.promptAssemblyTimelineBuilder.build([trace])
     }
 
+    // Phase 0.95997: PromptAssemblyTimelineDiffer — diff empty timeline vs current timeline
+    let timelineDiff: import('../strategy/PromptAssemblyTimelineDiff').PromptAssemblyTimelineDiff | undefined
+    if (timeline !== undefined && this.promptAssemblyTimelineDiffer !== undefined) {
+      timelineDiff = this.promptAssemblyTimelineDiffer.diff(
+        { entries: [] },
+        timeline,
+      )
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -606,6 +619,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(traceRendered !== undefined && traceRendered.length > 0 ? { traceRendered } : {}),
         ...(traceExported !== undefined && traceExported.length > 0 ? { traceExported } : {}),
         ...(timeline !== undefined ? { timeline } : {}),
+        ...(timelineDiff !== undefined ? { timelineDiff } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,
