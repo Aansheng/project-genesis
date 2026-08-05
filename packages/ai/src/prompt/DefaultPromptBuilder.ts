@@ -50,6 +50,8 @@ import type { PromptInspectorRenderer } from '../strategy/PromptInspectorRendere
 import type { PromptInspectorExporter } from '../strategy/PromptInspectorExporter'
 import type { PromptAssemblyTraceBuilder } from '../strategy/PromptAssemblyTraceBuilder'
 import type { PromptAssemblyTrace } from '../strategy/PromptAssemblyTrace'
+import type { PromptAssemblyTraceDiffer } from '../strategy/PromptAssemblyTraceDiffer'
+import type { PromptAssemblyTraceDiff } from '../strategy/PromptAssemblyTraceDiff'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -94,6 +96,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptInspectorRenderer?: PromptInspectorRenderer
   private readonly promptInspectorExporter?: PromptInspectorExporter
   private readonly promptAssemblyTraceBuilder?: PromptAssemblyTraceBuilder
+  private readonly promptAssemblyTraceDiffer?: PromptAssemblyTraceDiffer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -169,6 +172,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptInspectorRenderer = opts.promptInspectorRenderer
       this.promptInspectorExporter = opts.promptInspectorExporter
       this.promptAssemblyTraceBuilder = opts.promptAssemblyTraceBuilder
+      this.promptAssemblyTraceDiffer = opts.promptAssemblyTraceDiffer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -196,6 +200,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptInspectorRenderer = undefined
       this.promptInspectorExporter = undefined
       this.promptAssemblyTraceBuilder = undefined
+      this.promptAssemblyTraceDiffer = undefined
     }
   }
 
@@ -436,6 +441,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
       trace = this.promptAssemblyTraceBuilder.build(promptAssemblyMetadata)
     }
 
+    // Phase 0.95985: PromptAssemblyTraceDiffer — diff empty trace vs current trace
+    let traceDiff: PromptAssemblyTraceDiff | undefined
+    if (trace !== undefined && this.promptAssemblyTraceDiffer !== undefined) {
+      traceDiff = this.promptAssemblyTraceDiffer.diff({}, trace)
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -559,7 +570,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(promptInspector !== undefined ? { inspector: promptInspector } : {}),
         ...(inspectorRendered !== undefined && inspectorRendered.length > 0 ? { inspectorRendered } : {}),
         ...(inspectorExported !== undefined ? { inspectorExported } : {}),
-        ...(trace !== undefined ? { trace } : {}),
+        ...((trace as PromptAssemblyTrace | undefined) !== undefined ? { trace } : {}),
+        ...(traceDiff !== undefined ? { traceDiff } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,

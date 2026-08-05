@@ -3952,3 +3952,38 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.94
+
+### WO-S5-061 — Prompt Assembly Trace Diff Consumption
+
+- **Added `promptAssemblyTraceDiffer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTraceDiffer?: PromptAssemblyTraceDiffer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95985 inserted between Phase 0.9598 and Phase 0.96
+  - Compares empty trace `{}` vs current trace via PromptAssemblyTraceDiffer
+  - Executed only when both trace and differ are configured
+  - traceDiff stored at `metadata.promptAssembly.traceDiff`
+- **Additive traceDiff** — coexists with all existing fields: trace, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0108: Prompt Assembly Trace Diff Consumption
+- New test file `PromptAssemblyTraceDiffConsumption.test.ts` (56 tests):
+  - BuilderOptions (4 tests): provided, omitted, undefined, trace without differ
+  - Differ invocation (6 tests): called once, empty before, trace after, not without trace, not without differ, both present
+  - Metadata creation (6 tests): stored, has fields, object, all fields added, absent without differ, absent without trace
+  - Metadata coexistence (9 tests): trace, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, all fields
+  - Deterministic (3 tests): cross-call, cross-instance, same input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, metadata unchanged
+  - Legacy constructor (3 tests): no diff, BuilderOptions form, mixed
+  - No prompt changes (4 tests): identical with/without differ, no injection, module only, no rendering change
+  - Trace dependency (3 tests): no diff without trace, both present, all added
+  - Custom differ (3 tests): custom output, preserved across builds, empty diff
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - TraceDiff validation (7 tests): strategy, inspectorRendered, inspectorExported, plan, all fields, empty removed
+  - Exports (2 tests): type and class from package root
+- All 4690 tests pass (4634 existing + 56 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.95

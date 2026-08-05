@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.94)
+> Project Genesis — AI Architecture Reference (v0.95)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, and `strategySelectionRenderer` in WO-S5-038.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, and `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceBuilder` in WO-S5-059, `promptAssemblyTraceDiffer` in WO-S5-061.
 
 ```typescript
 interface BuilderOptions {
@@ -703,6 +703,8 @@ Since WO-S5-059 (v0.93), Phase 0.9598 integrates `PromptAssemblyTraceBuilder` in
 
 Since WO-S5-060 (v0.94), `PromptAssemblyTraceDiff`, `PromptAssemblyTraceDiffer`, and `DefaultPromptAssemblyTraceDiffer` provide a unified diff model for comparing two `PromptAssemblyTrace` instances. The differ examines 9 known trace fields (strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported) and classifies each as added, removed, or changed based on presence and value equality. The implementation is pure, stateless, deterministic, and produces frozen (Object.freeze'd) results. Foundation only — no consumption, no builder changes, no metadata changes.
 
+Since WO-S5-061 (v0.95), Phase 0.95985 integrates `PromptAssemblyTraceDiffer` into `DefaultPromptBuilder`. When both a trace (from Phase 0.9598) and a differ are configured, the differ compares the current trace against an empty baseline `{}` and stores the result at `metadata.promptAssembly.traceDiff`. The traceDiff is additive — it coexists with all existing fields. Metadata only — no prompt injection, no behavioral changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -790,6 +792,7 @@ Since WO-S5-060 (v0.94), `PromptAssemblyTraceDiff`, `PromptAssemblyTraceDiffer`,
 | ~~Prompt Assembly Trace Foundation~~ | `PromptAssemblyTrace` | ~~Unified trace domain model for prompt assembly lifecycle~~ **Done in WO-S5-058** |
 | ~~Prompt Assembly Trace Consumption~~ | `BuilderOptions` | ~~Wire trace builder into PromptBuilder pipeline~~ **Done in WO-S5-059** |
 | ~~Prompt Assembly Trace Diff Foundation~~ | `PromptAssemblyTraceDiff` | ~~Unified diff model for trace comparison~~ **Done in WO-S5-060** |
+| ~~Prompt Assembly Trace Diff Consumption~~ | `BuilderOptions` | ~~Wire trace differ into PromptBuilder pipeline~~ **Done in WO-S5-061** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
