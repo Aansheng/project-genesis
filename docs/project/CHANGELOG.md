@@ -4024,3 +4024,37 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.96
+
+### WO-S5-063 — Prompt Assembly Trace Renderer Consumption
+
+- **Added `promptAssemblyTraceRenderer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTraceRenderer?: PromptAssemblyTraceRenderer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599 inserted between Phase 0.95985 and Phase 0.96
+  - Renders trace via PromptAssemblyTraceRenderer when both trace and renderer are configured
+  - traceRendered stored at `metadata.promptAssembly.traceRendered`
+  - Empty string from renderer is not stored (length > 0 guard)
+- **Additive traceRendered** — coexists with all existing fields: trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, strategy, strategySelection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0110: Prompt Assembly Trace Renderer Consumption
+- New test file `PromptAssemblyTraceRenderingConsumption.test.ts` (55 tests):
+  - BuilderOptions (4 tests): provided, omitted, undefined, trace without renderer
+  - Renderer invocation (5 tests): called once, correct trace, not without trace, not without renderer, custom output preserved
+  - Metadata creation (5 tests): stored, string, absent without renderer, absent without trace, content validation
+  - Metadata coexistence (11 tests): trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, strategy+strategySelection, all fields
+  - Deterministic (3 tests): cross-call, cross-instance, same input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, metadata unchanged
+  - Legacy constructor (3 tests): no renderer, BuilderOptions form, mixed
+  - No prompt changes (5 tests): identical with/without renderer, no injection, module only, no rendering change, no trace content in prompt
+  - Trace dependency (5 tests): no trace, both present, all three, default content, component names
+  - Custom renderer (4 tests): custom output, persistent, empty string, multi-line
+  - Exports (3 tests): type and class from package root
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4827 tests pass (4772 existing + 55 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.97

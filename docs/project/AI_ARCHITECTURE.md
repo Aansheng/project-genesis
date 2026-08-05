@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.96)
+> Project Genesis — AI Architecture Reference (v0.97)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -707,6 +707,8 @@ Since WO-S5-061 (v0.95), Phase 0.95985 integrates `PromptAssemblyTraceDiffer` in
 
 Since WO-S5-062 (v0.96), `PromptAssemblyTraceRenderer` and `DefaultPromptAssemblyTraceRenderer` provide human-readable rendering of `PromptAssemblyTrace` instances. The renderer produces a formatted string with a strategy header section (when present) and a bullet list of all present component fields in declaration order (strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported). Empty traces render as "Prompt Assembly Trace\n\nNo Components". The implementation is pure, stateless, deterministic, and never mutates the input trace. Foundation only — no consumption, no builder changes, no metadata changes.
 
+Since WO-S5-063 (v0.97), Phase 0.9599 integrates `PromptAssemblyTraceRenderer` into `DefaultPromptBuilder`. When both a trace (from Phase 0.9598) and a renderer are configured, the renderer converts the trace into a human-readable string stored at `metadata.promptAssembly.traceRendered`. The rendered output is additive — it coexists with all existing fields including trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, and planDiff. Metadata only — no prompt injection, no behavioral changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -798,6 +800,7 @@ Since WO-S5-062 (v0.96), `PromptAssemblyTraceRenderer` and `DefaultPromptAssembl
 | ~~Prompt Assembly Trace Diff Foundation~~ | `PromptAssemblyTraceDiff` | ~~Unified diff model for trace comparison~~ **Done in WO-S5-060** |
 | ~~Prompt Assembly Trace Diff Consumption~~ | `BuilderOptions` | ~~Wire trace differ into PromptBuilder pipeline~~ **Done in WO-S5-061** |
 | ~~Prompt Assembly Trace Rendering Foundation~~ | `PromptAssemblyTraceRenderer` | ~~Human-readable trace rendering~~ **Done in WO-S5-062** |
+| ~~Prompt Assembly Trace Renderer Consumption~~ | `BuilderOptions` | ~~Wire trace renderer into PromptBuilder pipeline~~ **Done in WO-S5-063** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
