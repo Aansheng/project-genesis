@@ -3874,3 +3874,38 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.92
+
+### WO-S5-059 — Prompt Assembly Trace Consumption
+
+- **Added `promptAssemblyTraceBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTraceBuilder?: PromptAssemblyTraceBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9598 inserted between Phase 0.9597 and Phase 0.96
+  - Builds trace from full promptAssembly metadata via PromptAssemblyTraceBuilder
+  - Executed only when trace builder is configured
+  - Trace stored at `metadata.promptAssembly.trace`
+- **Additive trace** — coexists with all existing fields: strategy, strategySelection, strategyRendered, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, inspectorRendered, inspectorExported, ranking, budget, selection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptInspector, PromptInspectorBuilder, PromptInspectorRenderer, PromptInspectorExporter, PromptAssemblyTrace, PromptAssemblyTraceBuilder, DefaultPromptAssemblyTraceBuilder
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0106: Prompt Assembly Trace Consumption
+- New test file `PromptAssemblyTraceConsumption.test.ts` (54 tests):
+  - BuilderOptions (4 tests): provided, omitted, undefined, without inspector
+  - TraceBuilder invocation (6 tests): invoked, exactly once, not without builder, receives metadata, receives inspector fields, custom output stored
+  - Metadata creation (6 tests): stored, absent without builder, default content preserved, typeof object, strategy name, inspectorExported in trace
+  - Metadata coexistence (9 tests): snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, all fields, strategy + ranking/budget/selection
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, metadata unchanged
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - No prompt changes (4 tests): identical prompt with/without trace builder, with all components, no injection, snapshot only
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Snapshot dependency (3 tests): trace without snapshot, snapshot in trace, full chain
+  - Inspector dependency (2 tests): trace without inspector, inspector fields in trace
+  - Export dependency (2 tests): trace without exporter, inspectorExported in trace
+  - Trace content validation (5 tests): strategy name, inspectorRendered, inspectorExported, plan present, all fields present
+- All 4547 tests pass (4493 existing + 54 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.93

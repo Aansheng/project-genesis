@@ -654,6 +654,8 @@ Phase 0.9595: PromptInspectorRenderer.render(inspector)
     ↓             → metadata.promptAssembly.inspectorRendered
 Phase 0.9597: PromptInspectorExporter.export(inspector)
     ↓             → metadata.promptAssembly.inspectorExported
+Phase 0.9598: PromptAssemblyTraceBuilder.build(metadata)
+    ↓             → metadata.promptAssembly.trace
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
     ↓             → apply() reorders renderContext sections by priority
@@ -696,6 +698,8 @@ Since WO-S5-056 (v0.90), `PromptInspectorExporter` and `DefaultPromptInspectorEx
 Since WO-S5-057 (v0.91), Phase 0.9597 integrates `PromptInspectorExporter` into `DefaultPromptBuilder`. When both an inspector (from Phase 0.959) and an exporter are configured, the exporter converts the inspector into a stable external representation stored at `metadata.promptAssembly.inspectorExported`. The exported output is additive — it coexists with all existing fields including inspector, inspectorRendered, snapshot, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
 
 Since WO-S5-058 (v0.92), `PromptAssemblyTrace`, `PromptAssemblyTraceBuilder`, and `DefaultPromptAssemblyTraceBuilder` provide a unified trace domain model aggregating all prompt assembly diagnostic artifacts (strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported) into a single structure. The builder reads known metadata fields from `metadata.promptAssembly` and silently ignores unknown fields. Foundation only — no consumption, no builder changes, no metadata changes.
+
+Since WO-S5-059 (v0.93), Phase 0.9598 integrates `PromptAssemblyTraceBuilder` into `DefaultPromptBuilder`. When configured, the trace builder receives the full promptAssembly metadata object and produces a `PromptAssemblyTrace` stored at `metadata.promptAssembly.trace`. The trace is additive — it coexists with all existing fields including snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
 
 ### Dependency Rules
 
@@ -779,6 +783,7 @@ Since WO-S5-058 (v0.92), `PromptAssemblyTrace`, `PromptAssemblyTraceBuilder`, an
 | ~~Prompt Inspector Export Foundation~~ | `PromptInspectorExporter` | ~~JSON export of inspector~~ **Done in WO-S5-056** |
 | ~~Prompt Inspector Export Consumption~~ | `BuilderOptions` | ~~Wire exporter into PromptBuilder pipeline~~ **Done in WO-S5-057** |
 | ~~Prompt Assembly Trace Foundation~~ | `PromptAssemblyTrace` | ~~Unified trace domain model for prompt assembly lifecycle~~ **Done in WO-S5-058** |
+| ~~Prompt Assembly Trace Consumption~~ | `BuilderOptions` | ~~Wire trace builder into PromptBuilder pipeline~~ **Done in WO-S5-059** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |

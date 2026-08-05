@@ -48,6 +48,8 @@ import type { PromptInspectorBuilder } from '../strategy/PromptInspectorBuilder'
 import type { PromptInspector } from '../strategy/PromptInspector'
 import type { PromptInspectorRenderer } from '../strategy/PromptInspectorRenderer'
 import type { PromptInspectorExporter } from '../strategy/PromptInspectorExporter'
+import type { PromptAssemblyTraceBuilder } from '../strategy/PromptAssemblyTraceBuilder'
+import type { PromptAssemblyTrace } from '../strategy/PromptAssemblyTrace'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -91,6 +93,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptInspectorBuilder?: PromptInspectorBuilder
   private readonly promptInspectorRenderer?: PromptInspectorRenderer
   private readonly promptInspectorExporter?: PromptInspectorExporter
+  private readonly promptAssemblyTraceBuilder?: PromptAssemblyTraceBuilder
 
   /**
    * Create a DefaultPromptBuilder.
@@ -165,6 +168,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptInspectorBuilder = opts.promptInspectorBuilder
       this.promptInspectorRenderer = opts.promptInspectorRenderer
       this.promptInspectorExporter = opts.promptInspectorExporter
+      this.promptAssemblyTraceBuilder = opts.promptAssemblyTraceBuilder
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -191,6 +195,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptInspectorBuilder = undefined
       this.promptInspectorRenderer = undefined
       this.promptInspectorExporter = undefined
+      this.promptAssemblyTraceBuilder = undefined
     }
   }
 
@@ -410,6 +415,27 @@ export class DefaultPromptBuilder implements PromptBuilder {
         this.promptInspectorExporter.export(promptInspector)
     }
 
+    // Phase 0.9598: PromptAssemblyTraceBuilder — build unified trace from promptAssembly metadata
+    let trace: PromptAssemblyTrace | undefined
+    if (this.promptAssemblyTraceBuilder !== undefined) {
+      const promptAssemblyMetadata: Record<string, unknown> = {
+        strategy: { name: selectedStrategy.name },
+        ...(strategySelectionMetadata !== undefined ? { strategySelection: strategySelectionMetadata } : {}),
+        ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
+        ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
+        ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
+        ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
+        ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
+        ...(planDiff !== undefined ? { planDiff } : {}),
+        ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
+        ...(promptAssemblySnapshot !== undefined ? { snapshot: promptAssemblySnapshot } : {}),
+        ...(promptInspector !== undefined ? { inspector: promptInspector } : {}),
+        ...(inspectorRendered !== undefined && inspectorRendered.length > 0 ? { inspectorRendered } : {}),
+        ...(inspectorExported !== undefined ? { inspectorExported } : {}),
+      }
+      trace = this.promptAssemblyTraceBuilder.build(promptAssemblyMetadata)
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -533,6 +559,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(promptInspector !== undefined ? { inspector: promptInspector } : {}),
         ...(inspectorRendered !== undefined && inspectorRendered.length > 0 ? { inspectorRendered } : {}),
         ...(inspectorExported !== undefined ? { inspectorExported } : {}),
+        ...(trace !== undefined ? { trace } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,
