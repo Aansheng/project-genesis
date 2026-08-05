@@ -4283,3 +4283,44 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.03
+
+### WO-S5-070 — Prompt Assembly Timeline Renderer Foundation
+
+- **Created `PromptAssemblyTimelineRenderer`** in `packages/ai/src/strategy/PromptAssemblyTimelineRenderer.ts`
+  - Interface with single `render(timeline): string` method
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyTimelineRenderer`** in `packages/ai/src/strategy/DefaultPromptAssemblyTimelineRenderer.ts`
+  - Renders non-empty timeline as: "Prompt Assembly Timeline\\n\\nEntries:\\n\\n#0 create\\n#1 modify"
+  - Renders empty timeline as: "Prompt Assembly Timeline\\n\\nNo Entries"
+  - Extracts strategy name from `entry.trace.strategy?.name` — falls back to "unknown"
+  - Preserves timeline order — no sorting
+  - Pure, stateless, deterministic, immutable
+- **Updated exports** — both type and class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTimeline, PromptAssemblyTimelineEntry, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder, PromptAssemblyTimelineDiff, PromptAssemblyTimelineDiffer, DefaultPromptAssemblyTimelineDiffer
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0117: Prompt Assembly Timeline Renderer Foundation
+- New test file `PromptAssemblyTimelineRenderingFoundation.test.ts` (80 tests):
+  - Interface Contract (5 tests): render method, return type, custom impl, entries, empty
+  - Empty Timeline (3 tests): No Entries, exact output, no Entries header
+  - Single Entry — create (2 tests): entry rendered, Entries header
+  - Single Entry — query (1 test): query strategy
+  - Single Entry — modify (1 test): modify strategy
+  - Single Entry — delete (1 test): delete strategy
+  - Single Entry — unknown (4 tests): no strategy, no name, non-string name, null strategy
+  - Multiple Entries — preserve order (3 tests): timeline order, insertion order, non-sequential
+  - Multiple Entries — mixed strategies (2 tests): different strategies, repeated strategies
+  - Multiple Entries — unknown entries (2 tests): all unknown, mixed known/unknown
+  - Formatting (10 tests): header, blank lines, Entries label, entry format, no trailing newline, exact output, many entries
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (3 tests): no retained state, independent results, sequential calls
+  - Pure (3 tests): timeline unchanged, entries unchanged, traces unchanged
+  - Immutable (3 tests): new string, not frozen, entries reference
+  - Export Validation (6 tests): strategy index, type-only, package root, class, type, instance
+  - Architecture Compliance (10 tests): no deps on Runtime, Planner, Pipeline, Provider, Memory, AgentLoop, PromptBuilder, DefaultPromptBuilder, PromptRenderer
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (13 tests): 100 entries, duplicate names, unknown, additional properties, string strategy, consistent format, large index, negative index, special chars, all unknown, 200 entries, hash format, empty strategy
+- All 5347+ tests pass (5267 + 80 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.04
