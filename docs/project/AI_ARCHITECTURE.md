@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.98)
+> Project Genesis — AI Architecture Reference (v0.99)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, and `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceBuilder` in WO-S5-059, `promptAssemblyTraceDiffer` in WO-S5-061.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceDiffer` in WO-S5-061, `promptAssemblyTraceRenderer` in WO-S5-063, and `promptAssemblyTraceExporter` in WO-S5-065.
 
 ```typescript
 interface BuilderOptions {
@@ -656,6 +656,15 @@ Phase 0.9597: PromptInspectorExporter.export(inspector)
     ↓             → metadata.promptAssembly.inspectorExported
 Phase 0.9598: PromptAssemblyTraceBuilder.build(metadata)
     ↓             → metadata.promptAssembly.trace
+Phase 0.95985: PromptAssemblyTraceDiffer.diff(trace, trace)  — added/removed/changed fields
+    ↓             → traceDiff
+    ↓             → metadata.promptAssembly.traceDiff
+Phase 0.9599:  PromptAssemblyTraceRenderer.render(trace)  — human-readable rendering
+    ↓             → traceRendered
+    ↓             → metadata.promptAssembly.traceRendered
+Phase 0.95995: PromptAssemblyTraceExporter.export(trace)  — serialized JSON export
+    ↓             → traceExported
+    ↓             → metadata.promptAssembly.traceExported
 Phase 0.96:  PromptAssemblyStrategyResolver.resolve(selectedStrategy.name) → assemblyStrategy
     ↓             → metadata.promptAssembly.promptAssemblyStrategy { strategyName }
     ↓             → apply() reorders renderContext sections by priority
@@ -703,13 +712,15 @@ Since WO-S5-059 (v0.93), Phase 0.9598 integrates `PromptAssemblyTraceBuilder` in
 
 Since WO-S5-060 (v0.94), `PromptAssemblyTraceDiff`, `PromptAssemblyTraceDiffer`, and `DefaultPromptAssemblyTraceDiffer` provide a unified diff model for comparing two `PromptAssemblyTrace` instances. The differ examines 9 known trace fields (strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported) and classifies each as added, removed, or changed based on presence and value equality. The implementation is pure, stateless, deterministic, and produces frozen (Object.freeze'd) results. Foundation only — no consumption, no builder changes, no metadata changes.
 
-Since WO-S5-061 (v0.95), Phase 0.95985 integrates `PromptAssemblyTraceDiffer` into `DefaultPromptBuilder`. When both a trace (from Phase 0.9598) and a differ are configured, the differ compares the current trace against an empty baseline `{}` and stores the result at `metadata.promptAssembly.traceDiff`. The traceDiff is additive — it coexists with all existing fields. Metadata only — no prompt injection, no behavioral changes.
+Since WO-S5-061 (v0.95), Phase 0.95985 integrates `PromptAssemblyTraceDiffer` into `DefaultPromptBuilder`. When configured, the differ receives the current trace and produces a `PromptAssemblyTraceDiff` stored at `metadata.promptAssembly.traceDiff`. Metadata only — no prompt injection, no behavioral changes.
 
-Since WO-S5-062 (v0.96), `PromptAssemblyTraceRenderer` and `DefaultPromptAssemblyTraceRenderer` provide human-readable rendering of `PromptAssemblyTrace` instances. The renderer produces a formatted string with a strategy header section (when present) and a bullet list of all present component fields in declaration order (strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported). Empty traces render as "Prompt Assembly Trace\n\nNo Components". The implementation is pure, stateless, deterministic, and never mutates the input trace. Foundation only — no consumption, no builder changes, no metadata changes.
+Since WO-S5-062 (v0.96), `PromptAssemblyTraceRenderer` and `DefaultPromptAssemblyTraceRenderer` provide a human-readable rendering of `PromptAssemblyTrace`. The renderer produces a formatted string with each trace field labeled and rendered. Foundation only — no consumption, no builder changes, no metadata changes.
 
-Since WO-S5-063 (v0.97), Phase 0.9599 integrates `PromptAssemblyTraceRenderer` into `DefaultPromptBuilder`. When both a trace (from Phase 0.9598) and a renderer are configured, the renderer converts the trace into a human-readable string stored at `metadata.promptAssembly.traceRendered`. The rendered output is additive — it coexists with all existing fields including trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, and planDiff. Metadata only — no prompt injection, no behavioral changes.
+Since WO-S5-063 (v0.97), Phase 0.9599 integrates `PromptAssemblyTraceRenderer` into `DefaultPromptBuilder`. When configured, the renderer receives the current trace and produces a human-readable string stored at `metadata.promptAssembly.traceRendered`. Metadata only — no prompt injection, no behavioral changes.
 
-Since WO-S5-064 (v0.98), `PromptAssemblyTraceExporter` and `DefaultPromptAssemblyTraceExporter` provide JSON export of `PromptAssemblyTrace` instances. The exporter uses `JSON.stringify(trace, null, 2)` to produce a pretty-printed JSON string with 2-space indentation, preserving the full trace structure exactly. The implementation is pure, stateless, deterministic, and never mutates the input trace. Foundation only — no consumption, no builder changes, no metadata changes.
+Since WO-S5-064 (v0.98), `PromptAssemblyTraceExporter` and `DefaultPromptAssemblyTraceExporter` provide a JSON export of `PromptAssemblyTrace`. The exporter uses `JSON.stringify(trace, null, 2)` to produce a pretty-printed JSON string, preserving the full trace structure. Foundation only — no consumption, no builder changes, no metadata changes.
+
+Since WO-S5-065 (v0.99), Phase 0.95995 integrates `PromptAssemblyTraceExporter` into `DefaultPromptBuilder`. When configured, the exporter receives the current trace and produces a serialized JSON string stored at `metadata.promptAssembly.traceExported`. Metadata only — no prompt injection, no behavioral changes.
 
 ### Dependency Rules
 
@@ -757,9 +768,9 @@ Since WO-S5-064 (v0.98), `PromptAssemblyTraceExporter` and `DefaultPromptAssembl
 - `PromptAssemblyTraceDiffer` depends only on `PromptAssemblyTrace` and `PromptAssemblyTraceDiff`
 - `DefaultPromptAssemblyTraceDiffer` depends only on `PromptAssemblyTrace`, `PromptAssemblyTraceDiff`, and `PromptAssemblyTraceDiffer`
 - `PromptAssemblyTraceRenderer` depends only on `PromptAssemblyTrace`
-- `DefaultPromptAssemblyTraceRenderer` depends only on `PromptAssemblyTrace` and `PromptAssemblyTraceRenderer`
+- `DefaultPromptAssemblyTraceRenderer` depends only on `PromptAssemblyTraceRenderer` and `PromptAssemblyTrace`
 - `PromptAssemblyTraceExporter` depends only on `PromptAssemblyTrace`
-- `DefaultPromptAssemblyTraceExporter` depends only on `PromptAssemblyTrace` and `PromptAssemblyTraceExporter`
+- `DefaultPromptAssemblyTraceExporter` depends only on `PromptAssemblyTraceExporter` and `PromptAssemblyTrace`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -806,6 +817,7 @@ Since WO-S5-064 (v0.98), `PromptAssemblyTraceExporter` and `DefaultPromptAssembl
 | ~~Prompt Assembly Trace Rendering Foundation~~ | `PromptAssemblyTraceRenderer` | ~~Human-readable trace rendering~~ **Done in WO-S5-062** |
 | ~~Prompt Assembly Trace Renderer Consumption~~ | `BuilderOptions` | ~~Wire trace renderer into PromptBuilder pipeline~~ **Done in WO-S5-063** |
 | ~~Prompt Assembly Trace Export Foundation~~ | `PromptAssemblyTraceExporter` | ~~JSON export of trace~~ **Done in WO-S5-064** |
+| ~~Prompt Assembly Trace Export Consumption~~ | `BuilderOptions` | ~~Wire trace exporter into PromptBuilder pipeline~~ **Done in WO-S5-065** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
@@ -994,6 +1006,9 @@ interface BuilderOptions {
   strategyEvaluator?: StrategyEvaluator                // ← WO-S5-029
   strategySelectionRenderer?: StrategySelectionRenderer  // ← WO-S5-038
   promptAssemblyStrategyResolver?: PromptAssemblyStrategyResolver  // ← WO-S5-032
+  promptAssemblyTraceDiffer?: PromptAssemblyTraceDiffer  // ← WO-S5-061
+  promptAssemblyTraceRenderer?: PromptAssemblyTraceRenderer  // ← WO-S5-063
+  promptAssemblyTraceExporter?: PromptAssemblyTraceExporter  // ← WO-S5-065
 }
 ```
 

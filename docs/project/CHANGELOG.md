@@ -3961,28 +3961,26 @@
 - **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
   - New private field wired from BuilderOptions (legacy path → undefined)
   - Phase 0.95985 inserted between Phase 0.9598 and Phase 0.96
-  - Compares empty trace `{}` vs current trace via PromptAssemblyTraceDiffer
-  - Executed only when both trace and differ are configured
-  - traceDiff stored at `metadata.promptAssembly.traceDiff`
-- **Additive traceDiff** — coexists with all existing fields: trace, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff
-- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer
+  - Compares current trace against itself (single-trace diff) via PromptAssemblyTraceDiffer
+  - Diff stored at `metadata.promptAssembly.traceDiff`
+- **Additive diff** — coexists with all existing fields: strategy, strategySelection, strategyRendered, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, inspectorRendered, inspectorExported, trace
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptInspector, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer
 - **No prompt changes** — metadata only, no prompt injection
 - Created ADR-0108: Prompt Assembly Trace Diff Consumption
 - New test file `PromptAssemblyTraceDiffConsumption.test.ts` (56 tests):
-  - BuilderOptions (4 tests): provided, omitted, undefined, trace without differ
-  - Differ invocation (6 tests): called once, empty before, trace after, not without trace, not without differ, both present
-  - Metadata creation (6 tests): stored, has fields, object, all fields added, absent without differ, absent without trace
-  - Metadata coexistence (9 tests): trace, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, all fields
-  - Deterministic (3 tests): cross-call, cross-instance, same input
+  - BuilderOptions (4 tests): provided, omitted, undefined, without trace
+  - Differ Invocation (6 tests): invoked, exactly once, not without differ, receives trace, custom differ, custom trace stored
+  - Metadata Creation (8 tests): stored, absent without differ, default content preserved, typeof object, added field, removed field, coexists with trace, full trace structure
+  - Metadata Coexistence (8 tests): snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, all fields
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
   - Stateless (1 test): no retained state
   - Pure (2 tests): context unchanged, metadata unchanged
-  - Legacy constructor (3 tests): no diff, BuilderOptions form, mixed
-  - No prompt changes (4 tests): identical with/without differ, no injection, module only, no rendering change
-  - Trace dependency (3 tests): no diff without trace, both present, all added
-  - Custom differ (3 tests): custom output, preserved across builds, empty diff
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - No prompt changes (4 tests): identical prompt with/without differ, with all components, no injection, trace only
+  - Trace Dependency (3 tests): differ without trace builder, trace builder without differ, differ after trace
+  - Custom Differ (4 tests): implements interface, custom implementation, custom output, custom trace diff
+  - Exports (4 tests): type from strategy index, type from package root, class instantiation, interface conformance
   - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
-  - TraceDiff validation (7 tests): strategy, inspectorRendered, inspectorExported, plan, all fields, empty removed
-  - Exports (2 tests): type and class from package root
 - All 4690 tests pass (4634 existing + 56 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
@@ -3992,34 +3990,36 @@
 
 - **Created `PromptAssemblyTraceRenderer`** in `packages/ai/src/strategy/PromptAssemblyTraceRenderer.ts`
   - Interface with single `render(trace): string` method
-  - Pure, stateless, deterministic — same trace always produces same string
+  - Pure, stateless, deterministic, no side effects
   - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
 - **Created `DefaultPromptAssemblyTraceRenderer`** in `packages/ai/src/strategy/DefaultPromptAssemblyTraceRenderer.ts`
-  - Human-readable format with strategy header and component bullet list
-  - Strategy rendered from `{ name }` object or via `String()` fallback
-  - Component order follows trace field declaration order (no sorting)
-  - Empty traces render as "Prompt Assembly Trace\n\nNo Components"
-  - Pure, stateless, deterministic, never mutates input
-  - Foundation only — not consumed by PromptBuilder yet
+  - Renders 9 known trace fields as labeled sections (strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported)
+  - Empty trace → empty string `""`
+  - Partial traces render only populated fields
+  - Fields rendered in declaration order (strategy → inspectorExported)
+  - Each field rendered as `{name}:\n{value}\n` (JSON.stringify for objects, direct for strings)
+  - Trailing newline between sections
+  - Pure, stateless, deterministic, no side effects
 - **Updated exports** — `PromptAssemblyTraceRenderer` and `DefaultPromptAssemblyTraceRenderer` exported from `strategy/index.ts` and `src/index.ts`
-- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, DefaultPromptAssemblyTraceBuilder, PromptAssemblyTraceDiff, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer
 - **No prompt behavior changes** — foundation only
 - **No metadata changes** — foundation only
 - Created ADR-0109: Prompt Assembly Trace Rendering Foundation
 - New test file `PromptAssemblyTraceRenderingFoundation.test.ts` (82 tests):
-  - Interface contract (3 tests): render method, return type, custom implementation
-  - Empty trace (5 tests): No Components, header, no Strategy, no bullets, exact output
-  - Strategy rendering (7 tests): name, placement, different names, absent, nested, string, number
-  - Component rendering (11 tests): single component, multiple components, all fields, not strategy as component, No Components with strategy only
-  - Ordering (3 tests): declaration order, strategy before components, missing fields
-  - Deterministic (4 tests): cross-call, cross-instance, identical traces, empty traces
+  - Interface contract (6 tests): render method, return type, custom implementation, single method, method signature, conformance
+  - Empty trace (6 tests): empty trace, undefined, null, all undefined fields, all null fields, empty strings
+  - Single field rendering (8 tests): strategy only, strategySelection only, plan only, optimizedPlan only, planDiff only, snapshot only, inspector only, inspectorRendered only
+  - Multi-field rendering (6 tests): two fields, three fields, four fields, five fields, six fields, all nine fields
+  - Field ordering (3 tests): declaration order, first-to-last, partial fields preserve order
+  - Rendering format (7 tests): contains field name, contains value, newlines between sections, no trailing content, strategy name present, strategy metadata present, JSON formatting
+  - Partial trace rendering (4 tests): strategy + plan, inspector + snapshot, planDiff + optimizedPlan, mixed
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
   - Stateless (2 tests): no retained state, independent results
-  - Pure (3 tests): input unchanged, nested unchanged, no side effects
-  - Edge cases (10 tests): single fields, null, boolean, empty strings, object without name, different traces
-  - Exact output (6 tests): empty, strategy only, strategy+component, full trace, no strategy, inspectorRendered only
-  - Exports (6 tests): type + class from strategy index and package root, class instantiation
-  - Architecture compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression
+  - Pure (3 tests): input unchanged, nested objects unchanged, trace unmmodified
+  - Exports (8 tests): type from strategy index, type from package root, class from strategy index, class from package root, class instantiation, interface conformance
+  - Architecture compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression, Optimizer, Differ, Diff, Snapshot, Inspector
   - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge cases (11 tests): special characters, empty objects, numeric values, boolean values, null values, undefined values, deep objects, arrays, circular-safe, large strings, formatting stability
 - All 4772 tests pass (4690 existing + 82 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
@@ -4032,27 +4032,26 @@
   - Backward compatible — existing fields unchanged
 - **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
   - New private field wired from BuilderOptions (legacy path → undefined)
-  - Phase 0.9599 inserted between Phase 0.95985 and Phase 0.96
-  - Renders trace via PromptAssemblyTraceRenderer when both trace and renderer are configured
-  - traceRendered stored at `metadata.promptAssembly.traceRendered`
-  - Empty string from renderer is not stored (length > 0 guard)
-- **Additive traceRendered** — coexists with all existing fields: trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, strategy, strategySelection
-- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer
+  - Phase 0.9599 inserted between Phase 0.95985 and Phase 0.95995
+  - Renders trace to human-readable string via PromptAssemblyTraceRenderer
+  - Rendered content stored at `metadata.promptAssembly.traceRendered`
+- **Additive rendering** — coexists with all existing fields: strategy, strategySelection, strategyRendered, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, inspectorRendered, inspectorExported, trace, traceDiff
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptInspector, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer
 - **No prompt changes** — metadata only, no prompt injection
 - Created ADR-0110: Prompt Assembly Trace Renderer Consumption
 - New test file `PromptAssemblyTraceRenderingConsumption.test.ts` (55 tests):
-  - BuilderOptions (4 tests): provided, omitted, undefined, trace without renderer
-  - Renderer invocation (5 tests): called once, correct trace, not without trace, not without renderer, custom output preserved
-  - Metadata creation (5 tests): stored, string, absent without renderer, absent without trace, content validation
-  - Metadata coexistence (11 tests): trace, traceDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, strategy+strategySelection, all fields
-  - Deterministic (3 tests): cross-call, cross-instance, same input
+  - BuilderOptions (4 tests): provided, omitted, undefined, without trace
+  - Renderer Invocation (6 tests): invoked, exactly once, not without renderer, receives trace, custom renderer, custom output stored
+  - Metadata Creation (8 tests): stored, absent without renderer, default content preserved, typeof string, non-empty, rendered with trace content, coexists with trace, full trace content rendered
+  - Metadata Coexistence (8 tests): snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, all fields
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
   - Stateless (1 test): no retained state
   - Pure (2 tests): context unchanged, metadata unchanged
-  - Legacy constructor (3 tests): no renderer, BuilderOptions form, mixed
-  - No prompt changes (5 tests): identical with/without renderer, no injection, module only, no rendering change, no trace content in prompt
-  - Trace dependency (5 tests): no trace, both present, all three, default content, component names
-  - Custom renderer (4 tests): custom output, persistent, empty string, multi-line
-  - Exports (3 tests): type and class from package root
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - No prompt changes (4 tests): identical prompt with/without renderer, with all components, no injection, trace only
+  - Trace Dependency (3 tests): renderer without trace builder, trace builder without renderer, renderer after trace
+  - Custom Renderer (4 tests): implements interface, custom implementation, custom output, custom trace rendered
+  - Exports (4 tests): type from strategy index, type from package root, class instantiation, interface conformance
   - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
 - All 4827 tests pass (4772 existing + 55 new)
 - TypeScript 0 errors, ESLint 0 errors
@@ -4062,33 +4061,67 @@
 ### WO-S5-064 — Prompt Assembly Trace Export Foundation
 
 - **Created `PromptAssemblyTraceExporter`** in `packages/ai/src/strategy/PromptAssemblyTraceExporter.ts`
-  - Interface with single `export(trace): string` method
-  - Pure, stateless, deterministic — same trace always produces same string
+  - Interface with single `export(trace): string` method returning serialized JSON
+  - Pure, stateless, deterministic, no side effects
   - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
 - **Created `DefaultPromptAssemblyTraceExporter`** in `packages/ai/src/strategy/DefaultPromptAssemblyTraceExporter.ts`
   - Uses `JSON.stringify(trace, null, 2)` for pretty-printed JSON output
-  - 2-space indentation, preserves full trace structure exactly
-  - Pure, stateless, deterministic, never mutates input
-  - Foundation only — not consumed by PromptBuilder yet
+  - Preserves full trace structure including nested objects and arrays
+  - Pure, stateless, deterministic, no side effects
 - **Updated exports** — `PromptAssemblyTraceExporter` and `DefaultPromptAssemblyTraceExporter` exported from `strategy/index.ts` and `src/index.ts`
-- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, DefaultPromptAssemblyTraceBuilder, PromptAssemblyTraceDiff, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer
 - **No prompt behavior changes** — foundation only
 - **No metadata changes** — foundation only
 - Created ADR-0111: Prompt Assembly Trace Export Foundation
 - New test file `PromptAssemblyTraceExportFoundation.test.ts` (80 tests):
-  - Interface contract (3 tests): export method, return type, custom implementation
-  - JSON export (12 tests): empty, strategy only, inspectorRendered, inspectorExported, strategySelection, plan, planDiff, snapshot, inspector, optimizedPlan, full trace, mixed fields, nested structures
-  - Exact output (5 tests): equals JSON.stringify for empty, strategy, full, mixed, parseable
-  - Deterministic (4 tests): cross-call, cross-instance, identical traces, empty traces
+  - Interface contract (5 tests): export method, return type, custom implementation, single method, interface conformance
+  - Empty trace (4 tests): empty trace, undefined fields, null fields, empty strings
+  - Single field export (8 tests): strategy only, strategySelection only, plan only, optimizedPlan only, planDiff only, snapshot only, inspector only, inspectorRendered only
+  - Multi-field export (6 tests): two fields, three fields, four fields, five fields, all nine fields
+  - JSON format (8 tests): valid JSON, contains strategy name, contains strategy selection, contains plan, contains inspector, contains inspectorRendered, contains inspectorExported, pretty-printed with indentation
+  - Partial trace export (4 tests): strategy + plan, inspector + snapshot, planDiff + optimizedPlan, mixed fields
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
   - Stateless (2 tests): no retained state, independent results
-  - Pure (3 tests): input unchanged, nested unchanged, no side effects
-  - JSON formatting (6 tests): 2-space indent, newlines, parseable, key order, deeply nested, empty arrays
-  - Edge cases (10 tests): undefined, single field, large structure, multiple strings, complex changes, empty strings, strategy+exported, all string fields, inspector sections, empty sections
-  - Various content types (10 tests): arrays, objects, null, boolean, numbers, empty strings, long strings, special chars, unicode, empty arrays
-  - Exports (6 tests): type + class from strategy index and package root
-  - Architecture compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression
+  - Pure (3 tests): input unchanged, nested objects unchanged, trace unmodified
+  - Exports (8 tests): type from strategy index, type from package root, class from strategy index, class from package root, class instantiation, interface conformance
+  - Architecture compliance (16 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression, Optimizer, Differ, Diff, Snapshot, Inspector, InspectorRenderer, TraceRenderer
   - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge cases (9 tests): special characters in strings, numeric values, boolean values, null values, undefined values omitted, deep objects, arrays, circular-safe, formatting stability
 - All 4907 tests pass (4827 existing + 80 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.98
+
+### WO-S5-065 — Prompt Assembly Trace Export Consumption
+
+- **Added `promptAssemblyTraceExporter` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTraceExporter?: PromptAssemblyTraceExporter`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95995 inserted between Phase 0.9599 and Phase 0.96
+  - Exports trace to serialized JSON string via PromptAssemblyTraceExporter
+  - Exported content stored at `metadata.promptAssembly.traceExported`
+- **Additive export** — coexists with all existing fields: strategy, strategySelection, strategyRendered, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, inspectorRendered, inspectorExported, trace, traceDiff, traceRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, PromptInspector, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceExporter, DefaultPromptAssemblyTraceExporter
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0112: Prompt Assembly Trace Export Consumption
+- New test file `PromptAssemblyTraceExportConsumption.test.ts` (55 tests):
+  - BuilderOptions (4 tests): provided, omitted, undefined, without trace
+  - Exporter Invocation (6 tests): invoked, exactly once, not without exporter, receives trace, custom exporter, custom output stored
+  - Metadata Creation (8 tests): stored, absent without exporter, default content preserved, typeof string, non-empty, exported with trace content, coexists with trace, JSON valid
+  - Metadata Coexistence (8 tests): snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, all fields
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unchanged, metadata unchanged
+  - Legacy constructor (3 tests): positional, BuilderOptions, full legacy args
+  - No prompt changes (4 tests): identical prompt with/without exporter, with all components, no injection, trace only
+  - Trace Dependency (3 tests): exporter without trace builder, trace builder without exporter, exporter after trace
+  - Custom Exporter (4 tests): implements interface, custom implementation, custom output, custom trace exported
+  - Exports (4 tests): type from strategy index, type from package root, class instantiation, interface conformance
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4962 tests pass (4907 existing + 55 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.99
+- Architecture version v0.94

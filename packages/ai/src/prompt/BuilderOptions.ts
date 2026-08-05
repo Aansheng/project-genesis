@@ -30,6 +30,7 @@ import type { PromptInspectorExporter } from '../strategy/PromptInspectorExporte
 import type { PromptAssemblyTraceBuilder } from '../strategy/PromptAssemblyTraceBuilder'
 import type { PromptAssemblyTraceDiffer } from '../strategy/PromptAssemblyTraceDiffer'
 import type { PromptAssemblyTraceRenderer } from '../strategy/PromptAssemblyTraceRenderer'
+import type { PromptAssemblyTraceExporter } from '../strategy/PromptAssemblyTraceExporter'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -63,6 +64,7 @@ import type { PromptAssemblyTraceRenderer } from '../strategy/PromptAssemblyTrac
  * Since WO-S5-059, BuilderOptions also accepts an optional promptAssemblyTraceBuilder.
  * Since WO-S5-061, BuilderOptions also accepts an optional promptAssemblyTraceDiffer.
  * Since WO-S5-063, BuilderOptions also accepts an optional promptAssemblyTraceRenderer.
+ * Since WO-S5-065, BuilderOptions also accepts an optional promptAssemblyTraceExporter.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -137,4 +139,6 @@ export interface BuilderOptions {
   promptAssemblyTraceDiffer?: PromptAssemblyTraceDiffer
   /** Optional PromptAssemblyTraceRenderer (defaults to undefined — no trace rendering) */
   promptAssemblyTraceRenderer?: PromptAssemblyTraceRenderer
+  /** Optional PromptAssemblyTraceExporter (defaults to undefined — no trace export) */
+  promptAssemblyTraceExporter?: PromptAssemblyTraceExporter
 }
