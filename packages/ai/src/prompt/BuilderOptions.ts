@@ -31,6 +31,7 @@ import type { PromptAssemblyTraceBuilder } from '../strategy/PromptAssemblyTrace
 import type { PromptAssemblyTraceDiffer } from '../strategy/PromptAssemblyTraceDiffer'
 import type { PromptAssemblyTraceRenderer } from '../strategy/PromptAssemblyTraceRenderer'
 import type { PromptAssemblyTraceExporter } from '../strategy/PromptAssemblyTraceExporter'
+import type { PromptAssemblyTimelineBuilder } from '../strategy/PromptAssemblyTimelineBuilder'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -65,6 +66,7 @@ import type { PromptAssemblyTraceExporter } from '../strategy/PromptAssemblyTrac
  * Since WO-S5-061, BuilderOptions also accepts an optional promptAssemblyTraceDiffer.
  * Since WO-S5-063, BuilderOptions also accepts an optional promptAssemblyTraceRenderer.
  * Since WO-S5-065, BuilderOptions also accepts an optional promptAssemblyTraceExporter.
+ * Since WO-S5-067, BuilderOptions also accepts an optional promptAssemblyTimelineBuilder.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -141,4 +143,6 @@ export interface BuilderOptions {
   promptAssemblyTraceRenderer?: PromptAssemblyTraceRenderer
   /** Optional PromptAssemblyTraceExporter (defaults to undefined — no trace export) */
   promptAssemblyTraceExporter?: PromptAssemblyTraceExporter
+  /** Optional PromptAssemblyTimelineBuilder (defaults to undefined — no timeline) */
+  promptAssemblyTimelineBuilder?: PromptAssemblyTimelineBuilder
 }

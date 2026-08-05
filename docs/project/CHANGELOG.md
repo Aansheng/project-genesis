@@ -4171,3 +4171,34 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.00
+
+### WO-S5-067 — Prompt Assembly Timeline Consumption
+
+- **Added `promptAssemblyTimelineBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTimelineBuilder?: PromptAssemblyTimelineBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95996 inserted between Phase 0.95995 and Phase 0.96
+  - Builds a single-entry timeline from the current trace via PromptAssemblyTimelineBuilder
+  - Timeline stored at `metadata.promptAssembly.timeline`
+- **Additive timeline** — coexists with all existing fields: strategy, strategySelection, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, inspectorRendered, inspectorExported, trace, traceDiff, traceRendered, traceExported
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyTimeline, PromptAssemblyTimelineEntry, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0114: Prompt Assembly Timeline Consumption
+- New test file `PromptAssemblyTimelineConsumption.test.ts` (60 tests):
+  - BuilderOptions (4 tests): provided, omitted, undefined, custom builder in full setup
+  - Timeline Invocation (6 tests): called, called once, not without builder, correct trace passed, not without trace, custom output preserved
+  - Metadata Creation (6 tests): stored, absent without builder, absent without trace, valid entries, single entry, entry trace matches metadata
+  - Metadata Coexistence (12 tests): trace, traceDiff, traceRendered, traceExported, snapshot, inspector, plan, optimizedPlan, planDiff, strategy, strategySelection, all fields
+  - Deterministic (4 tests): cross-call, cross-instance, entries equality, cross-input
+  - Stateless (3 tests): no retained state, independent results, no accumulation
+  - Pure (4 tests): context unchanged, metadata unmmodified, prompt unchanged, context metadata unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full legacy args, explicit timeline
+  - No Prompt Changes (5 tests): identical prompt, no timeline injection, all components, no timeline in prompt, no entries in prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Timeline Validation (8 tests): index 0, trace preserved, length 1, entries array, index+trace keys, index type, trace present, timeline shape
+- All 5117 tests pass (5057 existing + 60 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.01
