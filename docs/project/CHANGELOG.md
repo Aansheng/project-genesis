@@ -4124,4 +4124,50 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.99
-- Architecture version v0.94
+
+### WO-S5-066 — Prompt Assembly Timeline Foundation
+
+- **Created `PromptAssemblyTimelineEntry`** in `packages/ai/src/strategy/PromptAssemblyTimelineEntry.ts`
+  - Interface with `readonly index: number`, `readonly trace: PromptAssemblyTrace`
+  - Pure data structure — no methods, no behavior
+  - Immutable — all fields are readonly
+  - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
+- **Created `PromptAssemblyTimeline`** in `packages/ai/src/strategy/PromptAssemblyTimeline.ts`
+  - Interface with `readonly entries: readonly PromptAssemblyTimelineEntry[]`
+  - Ordered collection of timeline entries in build order
+  - Pure data structure — no methods, no behavior
+  - Immutable — all fields are readonly
+- **Created `PromptAssemblyTimelineBuilder`** in `packages/ai/src/strategy/PromptAssemblyTimelineBuilder.ts`
+  - Interface with single `build(traces): PromptAssemblyTimeline` method
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyTimelineBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyTimelineBuilder.ts`
+  - Maps each trace to a timeline entry with zero-based index
+  - Preserves insertion order — no sorting, no filtering, no deduplication
+  - Uses `Object.freeze()` for runtime immutability
+  - Pure, stateless, deterministic, immutable
+- **Updated exports** — all 4 types/classes exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, DefaultPromptAssemblyTraceBuilder, PromptAssemblyTraceDiff, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer, PromptAssemblyTraceRenderer, DefaultPromptAssemblyTraceRenderer, PromptAssemblyTraceExporter, DefaultPromptAssemblyTraceExporter
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0113: Prompt Assembly Timeline Foundation
+- New test file `PromptAssemblyTimelineFoundation.test.ts` (95 tests):
+  - Timeline Entry (6 tests): index, trace, readonly contract, custom index, fully formed trace, plain object shape
+  - Timeline Interface (6 tests): empty entries, single entry, multiple entries, order preserved, readonly from builder, entries non-nullable
+  - Builder Interface Contract (5 tests): build method, return type, custom implementation, empty traces, method signature
+  - Default Builder — Empty Traces (4 tests): returns timeline, empty entries, length 0, no errors
+  - Default Builder — Single Trace (6 tests): one entry, index 0, trace preserved, correct shape, trace property, index property
+  - Default Builder — Multiple Traces (6 tests): two, three, five, ten traces, sequential indices, content preservation
+  - Default Builder — Large Timeline (3 tests): 100 traces, correct indices, all traces preserved
+  - Order Preservation (5 tests): insertion order, no sorting, no reordering, first index 0, last index N-1
+  - Deterministic (5 tests): cross-call, cross-instance, same input same output, different input different output, order stability
+  - Stateless (4 tests): no retained state, independent results, reusable, no accumulation
+  - Pure (5 tests): input unchanged, array unmodified, nested objects unchanged, same result twice, reference identity
+  - Immutable (6 tests): entries frozen, result frozen, push throws, reassign throws, entries frozen individually, index freeze throws
+  - Export Validation (10 tests): types and classes from strategy index and package root
+  - Architecture Compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression, Optimizer, Differ, Diff, Snapshot, Inspector
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (6 tests): repeated trace, same reference, all identical, single element, many traces, mixed complexity
+- All 5057 tests pass (4962 existing + 95 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.00

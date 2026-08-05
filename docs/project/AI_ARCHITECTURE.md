@@ -1,11 +1,11 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.99)
+> Project Genesis — AI Architecture Reference (v1.00)
 > Primary reference for all AI development.
 
 ### BuilderOptions
 
-`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceDiffer` in WO-S5-061, `promptAssemblyTraceRenderer` in WO-S5-063, and `promptAssemblyTraceExporter` in WO-S5-065.
+`BuilderOptions` is a consolidated options interface for `DefaultPromptBuilder`, introduced in WO-S4-009. Extended with `intentAnalyzer` in WO-S5-003, `intentRenderer` in WO-S5-004, `entityAnalyzer` in WO-S5-008, `entityRenderer` in WO-S5-009, `semanticContextBuilder` in WO-S5-012, and `semanticContextRenderer` in WO-S5-013, `strategySelector` and `strategies` in WO-S5-016, `strategyRenderer` in WO-S5-017, `strategyModules` in WO-S5-024, `strategyModuleRenderer` in WO-S5-025, `strategyEvaluator` in WO-S5-029, `strategySelectionRenderer` in WO-S5-038, `promptAssemblyTraceDiffer` in WO-S5-061, `promptAssemblyTraceRenderer` in WO-S5-063, and `promptAssemblyTraceExporter` in WO-S5-065. Timeline model introduced independently in WO-S5-066 — foundation only, not consumed by BuilderOptions.
 
 ```typescript
 interface BuilderOptions {
@@ -722,6 +722,8 @@ Since WO-S5-064 (v0.98), `PromptAssemblyTraceExporter` and `DefaultPromptAssembl
 
 Since WO-S5-065 (v0.99), Phase 0.95995 integrates `PromptAssemblyTraceExporter` into `DefaultPromptBuilder`. When configured, the exporter receives the current trace and produces a serialized JSON string stored at `metadata.promptAssembly.traceExported`. Metadata only — no prompt injection, no behavioral changes.
 
+Since WO-S5-066 (v1.00), `PromptAssemblyTimelineEntry`, `PromptAssemblyTimeline`, `PromptAssemblyTimelineBuilder`, and `DefaultPromptAssemblyTimelineBuilder` provide a timeline model for representing multiple `PromptAssemblyTrace` entries across builds. The timeline preserves insertion order with zero-based sequential indices. The implementation is pure, stateless, deterministic, and produces frozen (Object.freeze'd) results. Foundation only — no consumption, no builder changes, no metadata changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -771,6 +773,10 @@ Since WO-S5-065 (v0.99), Phase 0.95995 integrates `PromptAssemblyTraceExporter` 
 - `DefaultPromptAssemblyTraceRenderer` depends only on `PromptAssemblyTraceRenderer` and `PromptAssemblyTrace`
 - `PromptAssemblyTraceExporter` depends only on `PromptAssemblyTrace`
 - `DefaultPromptAssemblyTraceExporter` depends only on `PromptAssemblyTraceExporter` and `PromptAssemblyTrace`
+- `PromptAssemblyTimelineEntry` is independent — no dependencies on any existing component
+- `PromptAssemblyTimeline` depends only on `PromptAssemblyTimelineEntry`
+- `PromptAssemblyTimelineBuilder` depends only on `PromptAssemblyTrace` and `PromptAssemblyTimeline`
+- `DefaultPromptAssemblyTimelineBuilder` depends only on `PromptAssemblyTimelineBuilder`, `PromptAssemblyTrace`, and `PromptAssemblyTimeline`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -818,6 +824,7 @@ Since WO-S5-065 (v0.99), Phase 0.95995 integrates `PromptAssemblyTraceExporter` 
 | ~~Prompt Assembly Trace Renderer Consumption~~ | `BuilderOptions` | ~~Wire trace renderer into PromptBuilder pipeline~~ **Done in WO-S5-063** |
 | ~~Prompt Assembly Trace Export Foundation~~ | `PromptAssemblyTraceExporter` | ~~JSON export of trace~~ **Done in WO-S5-064** |
 | ~~Prompt Assembly Trace Export Consumption~~ | `BuilderOptions` | ~~Wire trace exporter into PromptBuilder pipeline~~ **Done in WO-S5-065** |
+| ~~Prompt Assembly Timeline Foundation~~ | `PromptAssemblyTimeline` | ~~Timeline model for multi-build trace history~~ **Done in WO-S5-066** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
