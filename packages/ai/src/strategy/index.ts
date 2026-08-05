@@ -62,3 +62,5 @@ export { DefaultPromptAssemblyTraceBuilder } from './DefaultPromptAssemblyTraceB
 export type { PromptAssemblyTraceDiff } from './PromptAssemblyTraceDiff'
 export type { PromptAssemblyTraceDiffer } from './PromptAssemblyTraceDiffer'
 export { DefaultPromptAssemblyTraceDiffer } from './DefaultPromptAssemblyTraceDiffer'
+export type { PromptAssemblyTraceRenderer } from './PromptAssemblyTraceRenderer'
+export { DefaultPromptAssemblyTraceRenderer } from './DefaultPromptAssemblyTraceRenderer'

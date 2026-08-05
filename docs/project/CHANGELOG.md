@@ -3987,3 +3987,40 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.95
+
+### WO-S5-062 — Prompt Assembly Trace Rendering Foundation
+
+- **Created `PromptAssemblyTraceRenderer`** in `packages/ai/src/strategy/PromptAssemblyTraceRenderer.ts`
+  - Interface with single `render(trace): string` method
+  - Pure, stateless, deterministic — same trace always produces same string
+  - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
+- **Created `DefaultPromptAssemblyTraceRenderer`** in `packages/ai/src/strategy/DefaultPromptAssemblyTraceRenderer.ts`
+  - Human-readable format with strategy header and component bullet list
+  - Strategy rendered from `{ name }` object or via `String()` fallback
+  - Component order follows trace field declaration order (no sorting)
+  - Empty traces render as "Prompt Assembly Trace\n\nNo Components"
+  - Pure, stateless, deterministic, never mutates input
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblyTraceRenderer` and `DefaultPromptAssemblyTraceRenderer` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, PromptAssemblyTraceDiffer, DefaultPromptAssemblyTraceDiffer
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0109: Prompt Assembly Trace Rendering Foundation
+- New test file `PromptAssemblyTraceRenderingFoundation.test.ts` (82 tests):
+  - Interface contract (3 tests): render method, return type, custom implementation
+  - Empty trace (5 tests): No Components, header, no Strategy, no bullets, exact output
+  - Strategy rendering (7 tests): name, placement, different names, absent, nested, string, number
+  - Component rendering (11 tests): single component, multiple components, all fields, not strategy as component, No Components with strategy only
+  - Ordering (3 tests): declaration order, strategy before components, missing fields
+  - Deterministic (4 tests): cross-call, cross-instance, identical traces, empty traces
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (3 tests): input unchanged, nested unchanged, no side effects
+  - Edge cases (10 tests): single fields, null, boolean, empty strings, object without name, different traces
+  - Exact output (6 tests): empty, strategy only, strategy+component, full trace, no strategy, inspectorRendered only
+  - Exports (6 tests): type + class from strategy index and package root, class instantiation
+  - Architecture compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 4772 tests pass (4690 existing + 82 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.96
