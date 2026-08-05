@@ -4202,3 +4202,53 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.01
+
+### WO-S5-068 — Prompt Assembly Timeline Diff Foundation
+
+- **Created `PromptAssemblyTimelineDiff`** in `packages/ai/src/strategy/PromptAssemblyTimelineDiff.ts`
+  - Interface with `readonly added: readonly number[]`, `readonly removed: readonly number[]`, `readonly changed: readonly number[]`
+  - Pure data structure — no methods, no behavior
+  - Immutable — all fields are readonly
+  - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
+- **Created `PromptAssemblyTimelineDiffer`** in `packages/ai/src/strategy/PromptAssemblyTimelineDiffer.ts`
+  - Interface with single `diff(before, after): PromptAssemblyTimelineDiff` method
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyTimelineDiffer`** in `packages/ai/src/strategy/DefaultPromptAssemblyTimelineDiffer.ts`
+  - Compares two timelines by iterating entries and classifying by index
+  - Added: indexes in "after" but not in "before" (preserves after order)
+  - Removed: indexes in "before" but not in "after" (preserves before order)
+  - Changed: same index but different trace reference (preserves before order)
+  - Uses `Object.freeze()` for runtime immutability on result and all arrays
+  - Pure, stateless, deterministic, immutable, no sorting
+- **Updated exports** — all 3 types/classes exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTimeline, PromptAssemblyTimelineEntry, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0115: Prompt Assembly Timeline Diff Foundation
+- New test file `PromptAssemblyTimelineDiffFoundation.test.ts` (90+ tests):
+  - Interface Contract — TimelineDiff (5 tests): readonly fields, multiple entries, empty arrays
+  - Interface Contract — TimelineDiffer (5 tests): diff method, return type, custom implementation, entries acceptance, same timeline
+  - Added — single (2 tests): first entry, non-zero index
+  - Added — multiple (2 tests): multiple entries, empty before
+  - Added — order preserved (2 tests): sequential, non-sequential
+  - Removed — single (2 tests): only entry, from middle
+  - Removed — multiple (2 tests): multiple entries, all removed
+  - Removed — order preserved (2 tests): sequential, non-sequential
+  - Changed — single (2 tests): different trace, different content
+  - Changed — multiple (2 tests): all changed, some unchanged
+  - Changed — mixed (2 tests): same reference, partial change
+  - Unchanged (3 tests): same timeline, same references, empty/empty
+  - Empty Timelines (4 tests): empty/empty, empty/non-empty, non-empty/empty, empty to single
+  - Combined Changes (4 tests): added+removed+changed, added+removed, removed+changed, all three
+  - Deterministic (4 tests): cross-call, cross-instance, cross-pair, many calls
+  - Stateless (4 tests): no retained state, independent results, no accumulation, argument order
+  - Pure (5 tests): before unchanged, after unchanged, entries unchanged, traces unchanged, no side effects
+  - Immutable (6 tests): result frozen, added frozen, removed frozen, changed frozen, reassign throws, empty arrays frozen
+  - Export Validation (8 tests): strategy index, type exports, package root, class instantiation, type conformance, interface conformance, usable instance
+  - Architecture Compliance (10 tests): no deps on Runtime, Planner, Pipeline, Provider, Memory, AgentLoop, PromptBuilder, DefaultPromptBuilder, PromptRenderer
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (6 tests): many entries, non-sequential indexes, duplicate trace, single entry, identical content, empty timelines
+- All 5207+ tests pass (5117 existing + 90+ new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.02
