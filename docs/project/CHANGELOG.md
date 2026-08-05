@@ -3909,3 +3909,46 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v0.93
+
+### WO-S5-060 — Prompt Assembly Trace Diff Foundation
+
+- **Created `PromptAssemblyTraceDiff`** in `packages/ai/src/strategy/PromptAssemblyTraceDiff.ts`
+  - Interface with `readonly added: readonly string[]`, `readonly removed: readonly string[]`, `readonly changed: readonly string[]`
+  - Pure data structure — no methods, no behavior
+  - Immutable — all fields are readonly
+  - Independent — no dependencies on Planner, Runtime, Provider, or Pipeline
+- **Created `PromptAssemblyTraceDiffer`** in `packages/ai/src/strategy/PromptAssemblyTraceDiffer.ts`
+  - Interface with single `diff(before, after): PromptAssemblyTraceDiff` method
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyTraceDiffer`** in `packages/ai/src/strategy/DefaultPromptAssemblyTraceDiffer.ts`
+  - Compares 9 known trace fields: strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported
+  - Field missing → present: `added`; Present → missing: `removed`; Present in both but different: `changed`; Equal: no output
+  - Preserves field declaration order in output arrays
+  - Uses `Object.freeze()` for runtime immutability
+  - Pure, stateless, deterministic, immutable
+  - Foundation only — not consumed by PromptBuilder yet
+- **Updated exports** — `PromptAssemblyTraceDiff`, `PromptAssemblyTraceDiffer`, and `DefaultPromptAssemblyTraceDiffer` exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTrace, PromptAssemblyTraceBuilder, DefaultPromptAssemblyTraceBuilder
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0107: Prompt Assembly Trace Diff Foundation
+- New test file `PromptAssemblyTraceDiffFoundation.test.ts` (87 tests):
+  - Interface contract (7 tests): diff method, return type, custom implementation, readonly fields
+  - Empty traces (6 tests): both empty, all added, all removed, no changes
+  - Added fields (7 tests): single, multiple, not reported for unchanged
+  - Removed fields (6 tests): single, multiple, not reported for unchanged
+  - Changed fields (7 tests): single, multiple, not reported for equal values
+  - Mixed changes (6 tests): add+remove+change, add+change, remove+change, add+remove
+  - Ordering (3 tests): declaration order in added, removed, changed
+  - Deterministic (4 tests): cross-call, cross-instance, cross-input, repeated calls
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (4 tests): input unchanged, nested objects unchanged
+  - Immutable (5 tests): frozen result, frozen arrays, mutation throws
+  - Exports (9 tests): types and class from strategy index and package root
+  - Architecture compliance (14 tests): no deps on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, PromptBuilder, Renderer, Compression
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge cases (4 tests): undefined values, empty strings, null-like, type switching
+- All 4634 tests pass (4547 existing + 87 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v0.94

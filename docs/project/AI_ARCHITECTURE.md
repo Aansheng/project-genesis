@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v0.87)
+> Project Genesis — AI Architecture Reference (v0.94)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -701,6 +701,8 @@ Since WO-S5-058 (v0.92), `PromptAssemblyTrace`, `PromptAssemblyTraceBuilder`, an
 
 Since WO-S5-059 (v0.93), Phase 0.9598 integrates `PromptAssemblyTraceBuilder` into `DefaultPromptBuilder`. When configured, the trace builder receives the full promptAssembly metadata object and produces a `PromptAssemblyTrace` stored at `metadata.promptAssembly.trace`. The trace is additive — it coexists with all existing fields including snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, and planRendered. Metadata only — no prompt injection, no behavioral changes.
 
+Since WO-S5-060 (v0.94), `PromptAssemblyTraceDiff`, `PromptAssemblyTraceDiffer`, and `DefaultPromptAssemblyTraceDiffer` provide a unified diff model for comparing two `PromptAssemblyTrace` instances. The differ examines 9 known trace fields (strategy, strategySelection, plan, optimizedPlan, planDiff, snapshot, inspector, inspectorRendered, inspectorExported) and classifies each as added, removed, or changed based on presence and value equality. The implementation is pure, stateless, deterministic, and produces frozen (Object.freeze'd) results. Foundation only — no consumption, no builder changes, no metadata changes.
+
 ### Dependency Rules
 
 - `PromptStrategy` is independent — no dependencies on any existing component
@@ -743,6 +745,9 @@ Since WO-S5-059 (v0.93), Phase 0.9598 integrates `PromptAssemblyTraceBuilder` in
 - `PromptAssemblyTrace` is independent — no dependencies on any existing component
 - `PromptAssemblyTraceBuilder` depends only on `PromptAssemblyTrace`
 - `DefaultPromptAssemblyTraceBuilder` depends only on `PromptAssemblyTraceBuilder` and `PromptAssemblyTrace`
+- `PromptAssemblyTraceDiff` is independent — no dependencies on any existing component
+- `PromptAssemblyTraceDiffer` depends only on `PromptAssemblyTrace` and `PromptAssemblyTraceDiff`
+- `DefaultPromptAssemblyTraceDiffer` depends only on `PromptAssemblyTrace`, `PromptAssemblyTraceDiff`, and `PromptAssemblyTraceDiffer`
 - None of the strategy components depend on Planner, Runtime, Provider, Memory, ToolCalling, AgentLoop, PromptBuilder, or Pipeline
 
 ### Future (Not Yet Implemented)
@@ -784,6 +789,7 @@ Since WO-S5-059 (v0.93), Phase 0.9598 integrates `PromptAssemblyTraceBuilder` in
 | ~~Prompt Inspector Export Consumption~~ | `BuilderOptions` | ~~Wire exporter into PromptBuilder pipeline~~ **Done in WO-S5-057** |
 | ~~Prompt Assembly Trace Foundation~~ | `PromptAssemblyTrace` | ~~Unified trace domain model for prompt assembly lifecycle~~ **Done in WO-S5-058** |
 | ~~Prompt Assembly Trace Consumption~~ | `BuilderOptions` | ~~Wire trace builder into PromptBuilder pipeline~~ **Done in WO-S5-059** |
+| ~~Prompt Assembly Trace Diff Foundation~~ | `PromptAssemblyTraceDiff` | ~~Unified diff model for trace comparison~~ **Done in WO-S5-060** |
 | Multi-Strategy Pipeline | `PromptStrategySelector` | Strategy selection with context routing |
 | Strategy Configuration | `PromptStrategy` | Add priority, config fields |
 | Trimming Optimizer | `PromptAssemblyOptimizer` | Remove low-priority sections |
