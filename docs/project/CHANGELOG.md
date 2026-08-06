@@ -4532,6 +4532,47 @@
 - No breaking changes to any Public API
 - Architecture version v1.10
 
+## Sprint 5 — Post-Freeze Capabilities (Upcoming)
+
+### WO-S5-078 — Prompt Assembly History Diff Foundation
+
+- Defined `PromptAssemblyHistoryDiff` interface with `added`, `removed`, `changed` array fields
+- Defined `PromptAssemblyHistoryDiffer` interface with `diff(before, after)` method
+- Implemented `DefaultPromptAssemblyHistoryDiffer` using `Map<number, PromptAssemblyHistoryEntry>` for O(1) lookup
+- Comparison rules:
+  - Added: index present in `after` but not in `before`
+  - Removed: index present in `before` but not in `after`
+  - Changed: index present in both but with different trace reference (`!==`)
+  - Unchanged: same trace reference → ignored
+- Ordering rules: added preserves after order; removed/changed preserve before order; no sorting
+- **Pure, Stateless, Deterministic, Immutable** — result and arrays are `Object.frozen`
+- **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- New exports from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0125: Prompt Assembly History Diff Foundation
+- New test file `PromptAssemblyHistoryDiffFoundation.test.ts` (111 tests):
+  - Interface Contract (7 tests): diff method, return type, custom implementation, field types
+  - Diff Structure — added/removed/changed (9 tests): array type, empty, inclusion
+  - Added Entries (6 tests): single, multiple, order, dedup, low/high index
+  - Removed Entries (6 tests): single, multiple, order, dedup, non-contiguous
+  - Changed Entries (6 tests): single, multiple, order, dedup, trace ref, equal refs
+  - Mixed Changes (8 tests): all three categories, partial combinations, complex scenarios
+  - Unchanged Histories (4 tests): identical refs, equal content, same entries, shared refs
+  - Empty Histories (5 tests): empty→empty, empty→non-empty, non-empty→empty
+  - Ordering Rules (6 tests): after order for added, before order for removed/changed, no sort
+  - Deterministic (5 tests): cross-call, cross-instance, identical pairs, large histories
+  - Stateless (4 tests): no retained state, independent results, sequential calls
+  - Pure (5 tests): before/after unmodified, indices preserved, trace refs preserved, nested objects
+  - Immutable (6 tests): frozen result, frozen arrays, mutation prevention
+  - Exports (9 tests): strategy index, package root, class instance, type usage
+  - Architecture Compliance (13 tests): no planner/runtime/provider/memory/agentloop/pipeline deps
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (5 tests): large index gaps, all changed, single entry, non-sequential indices
+  - O(1) Lookup Verification (3 tests): large histories, non-contiguous sets, duplicate-safe
+- All 5986+ tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.11 → v1.12
+
 ### WO-S5-077 — Prompt Assembly History Consumption
 - **Added `promptAssemblyHistoryBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
   - New optional field: `promptAssemblyHistoryBuilder?: PromptAssemblyHistoryBuilder`
