@@ -4324,3 +4324,34 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.04
+
+### WO-S5-071 — Prompt Assembly Timeline Renderer Consumption
+
+- **Added `promptAssemblyTimelineRenderer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTimelineRenderer?: PromptAssemblyTimelineRenderer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.959975 inserted between Phase 0.95997 and Phase 0.96
+  - Renders timeline to human-readable string via DefaultPromptAssemblyTimelineRenderer
+  - Rendered text stored at `metadata.promptAssembly.timelineRendered`
+- **Additive timelineRendered** — coexists with all existing fields: strategy, strategySelection, plan, optimizedPlan, planDiff, planRendered, snapshot, inspector, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyTimeline, PromptAssemblyTimelineEntry, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder, PromptAssemblyTimelineDiff, PromptAssemblyTimelineDiffer, DefaultPromptAssemblyTimelineDiffer, PromptAssemblyTimelineRenderer, DefaultPromptAssemblyTimelineRenderer
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0118: Prompt Assembly Timeline Renderer Consumption
+- New test file `PromptAssemblyTimelineRenderingConsumption.test.ts` (60 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Renderer Invocation (6 tests): invoked, not without timeline builder, not without trace builder, not without renderer, correct timeline passed, custom rendering preserved
+  - Metadata Creation (5 tests): stored, absent without renderer, absent without timeline builder, absent without trace builder, valid string
+  - Metadata Coexistence — timeline, timelineDiff, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (15 tests)
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (3 tests): no retained state, independent results, fresh per build
+  - Pure (3 tests): context unchanged, metadata unchanged, prompt unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, not in prompt text
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Timeline Rendering Validation (8 tests): matches renderer, valid format, entry at index 0, strategy name, Entries section, hash prefix, exact strategy name, header line
+- All 5407+ tests pass (5347 + 60 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.05
