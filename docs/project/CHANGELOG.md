@@ -4355,3 +4355,35 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.05
+
+### WO-S5-072 — Prompt Assembly Timeline Export Foundation
+- **Created `PromptAssemblyTimelineExporter`** in `packages/ai/src/strategy/PromptAssemblyTimelineExporter.ts`
+  - Interface with single `export(timeline): string` method
+  - Pure, stateless, deterministic, no side effects
+- **Created `DefaultPromptAssemblyTimelineExporter`** in `packages/ai/src/strategy/DefaultPromptAssemblyTimelineExporter.ts`
+  - Exports timeline as pretty-printed JSON via `JSON.stringify(timeline, null, 2)`
+  - Output identical to `JSON.stringify(timeline, null, 2)`
+  - Pure, stateless, deterministic, immutable
+- **Updated exports** — both type and class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTimeline, PromptAssemblyTimelineEntry, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder, PromptAssemblyTimelineDiff, PromptAssemblyTimelineDiffer, DefaultPromptAssemblyTimelineDiffer, PromptAssemblyTimelineRenderer, DefaultPromptAssemblyTimelineRenderer
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0119: Prompt Assembly Timeline Export Foundation
+- New test file `PromptAssemblyTimelineExportFoundation.test.ts` (80+ tests):
+  - Interface Contract (3 tests): export method, return type, custom implementation
+  - Empty Timeline (3 tests): empty entries, exact output, entries array
+  - Single Entry (6 tests): create, query, modify, delete, unknown, full trace
+  - Multiple Entries (5 tests): preserve order, mixed strategies, non-sequential indices, repeated strategies, varying trace detail
+  - JSON Validation (11 tests): valid JSON, parseable, exact stringify match, pretty printed, 2-space indentation, round-trip
+  - Deterministic (4 tests): cross-call, cross-instance, cross-input, identical timelines
+  - Stateless (3 tests): no retained state, independent results, alternating calls
+  - Pure (3 tests): timeline unchanged, nested objects unchanged, no side effects
+  - Immutable (3 tests): new string, entries unchanged, no mutation
+  - Export Validation (6 tests): strategy index, type-only, class, type, package root
+  - Architecture Compliance (13 tests): no deps on Runtime, Planner, Pipeline, Provider, Memory, AgentLoop, PromptBuilder, DefaultPromptBuilder, PromptRenderer, PromptCompression
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (13 tests): undefined entries, no trace strategy, 100 entries, deeply nested, special characters, empty string name, null strategy, large index, unicode, array values, boolean values, numeric values, special chars, empty trace objects
+- All 5487+ tests pass (5407 + 80 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.06

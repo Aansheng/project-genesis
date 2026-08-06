@@ -75,3 +75,5 @@ export type { PromptAssemblyTimelineDiffer } from './PromptAssemblyTimelineDiffe
 export { DefaultPromptAssemblyTimelineDiffer } from './DefaultPromptAssemblyTimelineDiffer'
 export type { PromptAssemblyTimelineRenderer } from './PromptAssemblyTimelineRenderer'
 export { DefaultPromptAssemblyTimelineRenderer } from './DefaultPromptAssemblyTimelineRenderer'
+export type { PromptAssemblyTimelineExporter } from './PromptAssemblyTimelineExporter'
+export { DefaultPromptAssemblyTimelineExporter } from './DefaultPromptAssemblyTimelineExporter'
