@@ -45,6 +45,9 @@ import type {
 import type {
   PromptAssemblyHistorySnapshotBuilder,
 } from '../strategy/PromptAssemblyHistorySnapshotBuilder'
+import type {
+  PromptAssemblyObservatoryBuilder,
+} from '../strategy/PromptAssemblyObservatoryBuilder'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -89,6 +92,7 @@ import type {
  * Since WO-S5-081, BuilderOptions also accepts an optional promptAssemblyHistoryRenderer.
  * Since WO-S5-083, BuilderOptions also accepts an optional promptAssemblyHistoryExporter.
  * Since WO-S5-085, BuilderOptions also accepts an optional promptAssemblyHistorySnapshotBuilder.
+ * Since WO-S5-087, BuilderOptions also accepts an optional promptAssemblyObservatoryBuilder.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -196,4 +200,8 @@ export interface BuilderOptions {
   /** Optional PromptAssemblyHistorySnapshotBuilder (defaults to undefined — no history snapshot) */
   promptAssemblyHistorySnapshotBuilder?:
     PromptAssemblyHistorySnapshotBuilder
+
+  /** Optional PromptAssemblyObservatoryBuilder (defaults to undefined — no observatory) */
+  promptAssemblyObservatoryBuilder?:
+    PromptAssemblyObservatoryBuilder
 }
