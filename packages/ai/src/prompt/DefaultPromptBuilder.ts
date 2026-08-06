@@ -64,6 +64,9 @@ import type { PromptAssemblyHistory } from '../strategy/PromptAssemblyHistory'
 import type { PromptAssemblyHistoryDiffer } from '../strategy/PromptAssemblyHistoryDiffer'
 import type { PromptAssemblyHistoryDiff } from '../strategy/PromptAssemblyHistoryDiff'
 import type { PromptAssemblyHistoryRenderer } from '../strategy/PromptAssemblyHistoryRenderer'
+import type {
+  PromptAssemblyHistoryExporter,
+} from '../strategy/PromptAssemblyHistoryExporter'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -119,6 +122,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyHistoryBuilder?: PromptAssemblyHistoryBuilder
   private readonly promptAssemblyHistoryDiffer?: PromptAssemblyHistoryDiffer
   private readonly promptAssemblyHistoryRenderer?: PromptAssemblyHistoryRenderer
+  private readonly promptAssemblyHistoryExporter?:
+    PromptAssemblyHistoryExporter
 
   /**
    * Create a DefaultPromptBuilder.
@@ -205,6 +210,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyHistoryBuilder = opts.promptAssemblyHistoryBuilder
       this.promptAssemblyHistoryDiffer = opts.promptAssemblyHistoryDiffer
       this.promptAssemblyHistoryRenderer = opts.promptAssemblyHistoryRenderer
+      this.promptAssemblyHistoryExporter =
+        opts.promptAssemblyHistoryExporter
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -243,6 +250,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyHistoryBuilder = undefined
       this.promptAssemblyHistoryDiffer = undefined
       this.promptAssemblyHistoryRenderer = undefined
+      this.promptAssemblyHistoryExporter =
+        undefined
     }
   }
 
@@ -559,6 +568,12 @@ export class DefaultPromptBuilder implements PromptBuilder {
       historyRendered = this.promptAssemblyHistoryRenderer.render(history)
     }
 
+    // Phase 0.9599769: PromptAssemblyHistoryExporter — export history as JSON string
+    let historyExported: string | undefined
+    if (history !== undefined && this.promptAssemblyHistoryExporter !== undefined) {
+      historyExported = this.promptAssemblyHistoryExporter.export(history)
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -694,6 +709,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(history !== undefined ? { history } : {}),
         ...(historyDiff !== undefined ? { historyDiff } : {}),
         ...(historyRendered !== undefined && historyRendered.length > 0 ? { historyRendered } : {}),
+        ...(historyExported !== undefined ? { historyExported } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,
