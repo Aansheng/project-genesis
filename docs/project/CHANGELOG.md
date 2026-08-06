@@ -4417,3 +4417,47 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.07
+
+### WO-S5-074 — Prompt Assembly Timeline Snapshot Foundation
+- **Created `PromptAssemblyTimelineSnapshot`** in `packages/ai/src/strategy/PromptAssemblyTimelineSnapshot.ts`
+  - Interface with: entryCount, firstStrategy, lastStrategy, strategies, rendered, exported
+  - All fields readonly — immutable pure data
+- **Created `PromptAssemblyTimelineSnapshotBuilder`** in `packages/ai/src/strategy/PromptAssemblyTimelineSnapshotBuilder.ts`
+  - Interface with single `build(timeline, metadata?): PromptAssemblyTimelineSnapshot` method
+  - Pure, stateless, deterministic
+- **Created `DefaultPromptAssemblyTimelineSnapshotBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyTimelineSnapshotBuilder.ts`
+  - Extracts entryCount, firstStrategy, lastStrategy, strategies from timeline entries
+  - Strategy name from `entry.trace.strategy?.name` — falls back to "unknown"
+  - Optional metadata extraction: timelineRendered → rendered, timelineExported → exported
+  - Unknown metadata keys silently ignored
+  - Pure, stateless, deterministic, immutable
+- **Updated exports** — all types and class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, PromptAssemblyTimeline, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder, PromptAssemblyTimelineDiff, PromptAssemblyTimelineDiffer, DefaultPromptAssemblyTimelineDiffer, PromptAssemblyTimelineRenderer, DefaultPromptAssemblyTimelineRenderer, PromptAssemblyTimelineExporter, DefaultPromptAssemblyTimelineExporter
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0121: Prompt Assembly Timeline Snapshot Foundation
+- New test file `PromptAssemblyTimelineSnapshotFoundation.test.ts` (98 tests):
+  - Interface Contract (5 tests): build method, return type, custom impl, metadata param, snapshot type
+  - Empty Timeline (6 tests): undefined entryCount, firstStrategy, lastStrategy, strategies, no rendered/exported, valid object
+  - Single Entry — create (4 tests): entryCount, firstStrategy, lastStrategy, strategies
+  - Single Entry — query (2 tests): firstStrategy, strategies
+  - Single Entry — modify (1 test): firstStrategy
+  - Single Entry — delete (2 tests): firstStrategy, strategies
+  - Single Entry — unknown (5 tests): no strategy, null strategy, missing name, empty trace, unknown string
+  - Multiple Entries (6 tests): order preserved, entryCount, firstStrategy, lastStrategy, repeated, two entries
+  - Metadata Extraction — rendered (5 tests): extracted, missing, no key, number coerce, empty string
+  - Metadata Extraction — exported (3 tests): extracted, missing, no key
+  - Metadata Extraction — both (3 tests): both extracted, single entry, multi entry
+  - Metadata Extraction — unknown (4 tests): unknown keys, boolean, null, undefined
+  - Deterministic (5 tests): cross-call, cross-instance, identical timelines, empty, same metadata
+  - Stateless (3 tests): no retained state, independent results, alternating calls
+  - Pure (4 tests): timeline unchanged, nested objects unchanged, metadata unchanged, no side effects
+  - Immutable (3 tests): new object each call, entries unchanged, readonly fields
+  - Export Validation (7 tests): strategy index, type-only, class, type, package root
+  - Architecture Compliance (13 tests): no deps on Runtime, Planner, Pipeline, Provider, Memory, AgentLoop, PromptBuilder
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (13 tests): unicode, duplicate strategies, 100 entries, empty string, mixed known/unknown, all unknown, non-string name, special chars, null strategy, boolean, numeric, 200 entries, non-sequential indices
+- All 5646+ tests pass (5548 + 98 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.08

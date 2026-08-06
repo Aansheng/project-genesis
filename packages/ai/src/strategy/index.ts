@@ -77,3 +77,6 @@ export type { PromptAssemblyTimelineRenderer } from './PromptAssemblyTimelineRen
 export { DefaultPromptAssemblyTimelineRenderer } from './DefaultPromptAssemblyTimelineRenderer'
 export type { PromptAssemblyTimelineExporter } from './PromptAssemblyTimelineExporter'
 export { DefaultPromptAssemblyTimelineExporter } from './DefaultPromptAssemblyTimelineExporter'
+export type { PromptAssemblyTimelineSnapshot } from './PromptAssemblyTimelineSnapshot'
+export type { PromptAssemblyTimelineSnapshotBuilder } from './PromptAssemblyTimelineSnapshotBuilder'
+export { DefaultPromptAssemblyTimelineSnapshotBuilder } from './DefaultPromptAssemblyTimelineSnapshotBuilder'
