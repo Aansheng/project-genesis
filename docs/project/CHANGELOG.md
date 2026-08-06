@@ -4762,6 +4762,49 @@
 - No breaking changes to any Public API
 - Architecture version v1.18 → v1.19
 
+### WO-S5-086 — Prompt Assembly Observatory Foundation
+
+- **Defined `PromptAssemblyObservatory`** in `packages/ai/src/strategy/PromptAssemblyObservatory.ts`
+  - New interface aggregating all observability artifacts: `trace`, `timeline`, `history`, `traceSnapshot`, `timelineSnapshot`, `historySnapshot`
+  - All fields readonly — immutable design
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **Defined `PromptAssemblyObservatoryBuilder`** in `packages/ai/src/strategy/PromptAssemblyObservatoryBuilder.ts`
+  - New interface with `build(input)` method returning `PromptAssemblyObservatory`
+  - Input accepts optional trace, timeline, history, and snapshot artifacts
+- **Implemented `DefaultPromptAssemblyObservatoryBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyObservatoryBuilder.ts`
+  - Directly returns provided input fields with no transformation
+  - Only includes explicitly provided fields (undefined fields omitted)
+  - Preserves object references — no copying, no cloning
+  - **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+  - **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+  - Foundation only — not consumed by PromptBuilder yet
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0133: Prompt Assembly Observatory Foundation
+- New test file `PromptAssemblyObservatoryFoundation.test.ts` (100+ tests):
+  - Interface Contract (6 tests): build method, input acceptance, custom impl, type, empty input, shape
+  - Empty Observatory (8 tests): all six fields undefined for empty input
+  - Trace Only (5 tests): trace present, other fields undefined, object reference preserved
+  - Timeline Only (4 tests): timeline present, trace undefined, reference preserved
+  - History Only (4 tests): history present, trace undefined, reference preserved
+  - Snapshot Only (6 tests): traceSnapshot, timelineSnapshot, historySnapshot individually
+  - Mixed Observatory (10 tests): all fields, trace+timeline, history+snapshots, various combinations
+  - Deterministic (5 tests): cross-call, cross-instance, identical inputs, empty, partial
+  - Stateless (4 tests): no retained state, independent results, alternating calls, fresh results
+  - Pure (7 tests): all six input types unmodified, no side effects
+  - Immutable (5 tests): new object each call, reference preservation, no extra fields, only provided fields, no shared mutable state
+  - Export Validation (7 tests): strategy index, package root, class instance, type usage
+  - Architecture Compliance (14 tests): no runtime/planner/pipeline/provider/agentloop/memory/promptbuilder/builderoptions deps
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (16 tests): null strategy, no strategy, empty entries, minimal snapshots, undefined values, six undefined fields, unicode, 100 entries, 200 entries, non-sequential indices, all six references
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.19 → v1.20
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
