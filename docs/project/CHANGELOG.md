@@ -4461,3 +4461,33 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.08
+
+### WO-S5-075 — Prompt Assembly Timeline Snapshot Consumption
+- **Added `promptAssemblyTimelineSnapshotBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTimelineSnapshotBuilder?: PromptAssemblyTimelineSnapshotBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599765 inserted between Phase 0.959976 and Phase 0.96
+  - Builds timeline snapshot via DefaultPromptAssemblyTimelineSnapshotBuilder with rendered/exported metadata
+  - Snapshot stored at `metadata.promptAssembly.timelineSnapshot`
+- **Additive timelineSnapshot** — coexists with all existing fields: timeline, timelineDiff, timelineRendered, timelineExported, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyTimelineSnapshot, PromptAssemblyTimelineSnapshotBuilder, DefaultPromptAssemblyTimelineSnapshotBuilder
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0122: Prompt Assembly Timeline Snapshot Consumption
+- New test file `PromptAssemblyTimelineSnapshotConsumption.test.ts` (67 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Snapshot Builder Invocation (7 tests): invoked, not without timeline builder, not without trace builder, not without builder, correct timeline passed, metadata passed, custom snapshot preserved
+  - Metadata Creation (7 tests): stored, absent without builder, absent without timeline builder, absent without trace builder, shape validation, entryCount, firstStrategy
+  - Metadata Coexistence — timeline, timelineDiff, timelineRendered, timelineExported, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (20 tests)
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (3 tests): no retained state, independent results, fresh per build
+  - Pure (3 tests): context unchanged, metadata unchanged, prompt unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, not in prompt text
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Timeline Snapshot Validation (8 tests): entryCount, firstStrategy, lastStrategy, strategies, rendered, exported, rendered type, exported type
+- All 5713+ tests pass (5646 + 67 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.09

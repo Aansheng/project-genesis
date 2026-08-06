@@ -58,6 +58,7 @@ import type { PromptAssemblyTimelineBuilder } from '../strategy/PromptAssemblyTi
 import type { PromptAssemblyTimelineDiffer } from '../strategy/PromptAssemblyTimelineDiffer'
 import type { PromptAssemblyTimelineRenderer } from '../strategy/PromptAssemblyTimelineRenderer'
 import type { PromptAssemblyTimelineExporter } from '../strategy/PromptAssemblyTimelineExporter'
+import type { PromptAssemblyTimelineSnapshotBuilder } from '../strategy/PromptAssemblyTimelineSnapshotBuilder'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -109,6 +110,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyTimelineDiffer?: PromptAssemblyTimelineDiffer
   private readonly promptAssemblyTimelineRenderer?: PromptAssemblyTimelineRenderer
   private readonly promptAssemblyTimelineExporter?: PromptAssemblyTimelineExporter
+  private readonly promptAssemblyTimelineSnapshotBuilder?: PromptAssemblyTimelineSnapshotBuilder
 
   /**
    * Create a DefaultPromptBuilder.
@@ -191,6 +193,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyTimelineDiffer = opts.promptAssemblyTimelineDiffer
       this.promptAssemblyTimelineRenderer = opts.promptAssemblyTimelineRenderer
       this.promptAssemblyTimelineExporter = opts.promptAssemblyTimelineExporter
+      this.promptAssemblyTimelineSnapshotBuilder = opts.promptAssemblyTimelineSnapshotBuilder
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -225,6 +228,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyTimelineDiffer = undefined
       this.promptAssemblyTimelineRenderer = undefined
       this.promptAssemblyTimelineExporter = undefined
+      this.promptAssemblyTimelineSnapshotBuilder = undefined
     }
   }
 
@@ -511,6 +515,15 @@ export class DefaultPromptBuilder implements PromptBuilder {
       timelineExported = this.promptAssemblyTimelineExporter.export(timeline)
     }
 
+    // Phase 0.9599765: PromptAssemblyTimelineSnapshotBuilder — build timeline snapshot
+    let timelineSnapshot: import('../strategy/PromptAssemblyTimelineSnapshot').PromptAssemblyTimelineSnapshot | undefined
+    if (timeline !== undefined && this.promptAssemblyTimelineSnapshotBuilder !== undefined) {
+      timelineSnapshot = this.promptAssemblyTimelineSnapshotBuilder.build(
+        timeline,
+        { timelineRendered, timelineExported },
+      )
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -642,6 +655,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(timelineDiff !== undefined ? { timelineDiff } : {}),
         ...(timelineRendered !== undefined && timelineRendered.length > 0 ? { timelineRendered } : {}),
         ...(timelineExported !== undefined && timelineExported.length > 0 ? { timelineExported } : {}),
+        ...(timelineSnapshot !== undefined ? { timelineSnapshot } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,
