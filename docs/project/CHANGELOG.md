@@ -4573,6 +4573,41 @@
 - No breaking changes to any Public API
 - Architecture version v1.11 → v1.12
 
+### WO-S5-080 — Prompt Assembly History Renderer Foundation
+
+- Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
+- Implemented `DefaultPromptAssemblyHistoryRenderer` with formatted text output
+- Output format for non-empty: `"Prompt Assembly History\\n\\nEntries:\\n\\n#0 create\\n#1 modify\\n..."`
+- Output format for empty: `"Prompt Assembly History\\n\\nNo Entries"`
+- Strategy extracted from `entry.trace.strategy?.name`; falls back to `"unknown"`
+- Entries preserve history order — no sorting
+- **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+- **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- New exports from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0127: Prompt Assembly History Renderer Foundation
+- New test file `PromptAssemblyHistoryRenderingFoundation.test.ts` (90 tests):
+  - Interface Contract (5 tests): render method, return type, custom implementation, empty/non-empty
+  - Empty History (5 tests): exact format, "No Entries", no "#", no "Entries:", header
+  - Single Entry (9 tests): create, modify, query, delete, unknown, null, no name, index 0, high index
+  - Multiple Entries (8 tests): two, three, five, order, mixed strategies, all four, known+unknown, non-sequential indices
+  - Rendering Validation (9 tests): index shown, strategy shown, one per line, exact format, prefix, "Entries:", newlines, blank line, no trailing newline
+  - Deterministic (4 tests): cross-call, cross-instance, identical histories, empty history
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (4 tests): history unmodified, entries unmodified, traces unmodified, nested objects
+  - Immutable (3 tests): entries array length, entry indices, trace references
+  - Exports (6 tests): strategy index, package root, class instance, type usage
+  - Architecture Compliance (11 tests): no planner/runtime/provider/memory/agentloop/pipeline deps
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (20 tests): unicode, special chars, 100 entries, large indices, duplicate strategies, missing trace, empty trace, non-string name, empty name, spaces, numbers, non-zero index, descending indices, same strategy multiple times, 50 entries, negative indices, non-object strategy, undefined name
+- All 6157+ tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.13 → v1.14
+
 ### WO-S5-079 — Prompt Assembly History Diff Consumption
 
 - **Added `promptAssemblyHistoryDiffer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`

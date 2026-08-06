@@ -87,3 +87,5 @@ export { DefaultPromptAssemblyHistoryBuilder } from './DefaultPromptAssemblyHist
 export type { PromptAssemblyHistoryDiff } from './PromptAssemblyHistoryDiff'
 export type { PromptAssemblyHistoryDiffer } from './PromptAssemblyHistoryDiffer'
 export { DefaultPromptAssemblyHistoryDiffer } from './DefaultPromptAssemblyHistoryDiffer'
+export type { PromptAssemblyHistoryRenderer } from './PromptAssemblyHistoryRenderer'
+export { DefaultPromptAssemblyHistoryRenderer } from './DefaultPromptAssemblyHistoryRenderer'
