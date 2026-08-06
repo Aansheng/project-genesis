@@ -91,3 +91,6 @@ export type { PromptAssemblyHistoryRenderer } from './PromptAssemblyHistoryRende
 export { DefaultPromptAssemblyHistoryRenderer } from './DefaultPromptAssemblyHistoryRenderer'
 export type { PromptAssemblyHistoryExporter } from './PromptAssemblyHistoryExporter'
 export { DefaultPromptAssemblyHistoryExporter } from './DefaultPromptAssemblyHistoryExporter'
+export type { PromptAssemblyHistorySnapshot } from './PromptAssemblyHistorySnapshot'
+export type { PromptAssemblyHistorySnapshotBuilder } from './PromptAssemblyHistorySnapshotBuilder'
+export { DefaultPromptAssemblyHistorySnapshotBuilder } from './DefaultPromptAssemblyHistorySnapshotBuilder'

@@ -4680,6 +4680,55 @@
 - No breaking changes to any Public API
 - Architecture version v1.16 → v1.17
 
+### WO-S5-084 — Prompt Assembly History Snapshot Foundation
+
+- **Defined `PromptAssemblyHistorySnapshot`** in `packages/ai/src/strategy/PromptAssemblyHistorySnapshot.ts`
+  - New interface with `entryCount`, `firstStrategy`, `lastStrategy`, `strategies`, `rendered`, `exported`
+  - All fields readonly — immutable design
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **Defined `PromptAssemblyHistorySnapshotBuilder`** in `packages/ai/src/strategy/PromptAssemblyHistorySnapshotBuilder.ts`
+  - New interface with `build(history, metadata?)` method
+  - Returns `PromptAssemblyHistorySnapshot`
+  - Accepts optional metadata for rendered/exported extraction
+- **Implemented `DefaultPromptAssemblyHistorySnapshotBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyHistorySnapshotBuilder.ts`
+  - Extracts `entryCount` from `history.entries.length` (undefined when empty)
+  - Extracts `firstStrategy`/`lastStrategy` from first/last entry strategy name
+  - Builds `strategies` ordered list from all entries
+  - Extracts `rendered` from `metadata.historyRendered` (string only)
+  - Extracts `exported` from `metadata.historyExported` (string only)
+  - Uses `"unknown"` fallback when strategy is missing, null, or non-object
+  - Unknown metadata keys silently ignored
+  - **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+  - **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+  - Foundation only — not consumed by PromptBuilder yet
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0131: Prompt Assembly History Snapshot Foundation
+- New test file `PromptAssemblyHistorySnapshotFoundation.test.ts` (100+ tests):
+  - Interface Contract (5 tests): build method, history acceptance, custom implementation, metadata optional, type compliance
+  - Empty History (6 tests): undefined entryCount, firstStrategy, lastStrategy, strategies, no rendered/exported, valid object
+  - Single Entry (21 tests): create, modify, query, delete, unknown — all fields verified for each
+  - Multiple Entries (9 tests): order preserved, correct count, first/last, duplicates, mixed strategies
+  - Metadata Rendered (8 tests): string extraction, missing, wrong key, number ignored, empty string, boolean ignored, null ignored, undefined ignored
+  - Metadata Exported (9 tests): string extraction, missing, wrong key, number ignored, empty string, boolean ignored, null ignored, undefined ignored, object ignored
+  - Metadata Both (5 tests): both extracted, single entry, multi entry, rendered only, exported only
+  - Metadata Unknown (4 tests): unknown keys ignored, arbitrary metadata ignored, only known keys extracted, no relevant keys
+  - Deterministic (6 tests): cross-call, cross-instance, identical histories, empty histories, same metadata, 100-entry histories
+  - Stateless (4 tests): no retained state, independent results, alternating calls, fresh results each call
+  - Pure (5 tests): history unmodified, nested objects unmodified, metadata unmodified, no side effects, no field additions
+  - Immutable (5 tests): new object each call, no mutation, frozen-like fields, entries count, strategies length
+  - Export Validation (7 tests): strategy index, package root, class instance, type usage
+  - Architecture Compliance (13 tests): no runtime/planner/pipeline/provider/memory/agentloop/promptbuilder deps
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (18 tests): unicode, duplicates, 100 entries, 200 entries, empty string, mixed known/unknown, all unknown, non-string name, special chars, null strategy, boolean strategy, numeric strategy, non-sequential indices, descending indices, empty name after valid, missing trace, null name, unicode metadata, exported JSON, single entry with index, large negative index, regex chars, very long name
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.17 → v1.18
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
