@@ -4604,6 +4604,51 @@
 - No breaking changes to any Public API
 - Architecture version v1.14 → v1.15
 
+### WO-S5-082 — Prompt Assembly History Export Foundation
+
+- **New `PromptAssemblyHistoryExporter` interface** in `packages/ai/src/strategy/PromptAssemblyHistoryExporter.ts`
+  - Single method: `export(history: PromptAssemblyHistory): string`
+  - Pure, stateless, deterministic — consistent with all pipeline components
+  - No dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **New `DefaultPromptAssemblyHistoryExporter`** in `packages/ai/src/strategy/DefaultPromptAssemblyHistoryExporter.ts`
+  - Implements `PromptAssemblyHistoryExporter`
+  - Exports history as pretty-printed JSON with 2-space indentation
+  - Output identical to `JSON.stringify(history, null, 2)`
+  - Pure, stateless, deterministic, immutable — no mutation, no caching
+  - Zero dependencies on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+  - `PromptAssemblyHistoryExporter` type
+  - `DefaultPromptAssemblyHistoryExporter` class
+- **No PromptBuilder changes** — foundation only
+- **No BuilderOptions changes** — foundation only
+- **No metadata changes** — foundation only
+- **No prompt changes** — foundation only
+- Created ADR-0129: Prompt Assembly History Export Foundation
+- New test file `PromptAssemblyHistoryExportFoundation.test.ts` (105 tests):
+  - Interface Contract (3 tests): export method, return type, custom implementation
+  - Empty History (5 tests): JSON object, empty array, exact output, valid JSON, frozen entries
+  - Single Entry (9 tests): create, query, modify, delete, unknown, null, no strategy, index 0, high index
+  - Multiple Entries (8 tests): two, three, order, mixed, duplicate, known+unknown, 5 entries, known+unknown strategies
+  - JSON Validation (6 tests): parseable, roundtrip, JSON.stringify match empty/multi/roundtrip
+  - Deterministic (5 tests): cross-call, cross-instance, identical, empty, large
+  - Stateless (4 tests): independent results, sequential, no accumulation, many sequential
+  - Pure (4 tests): not modified, nested not modified, no side effects, frozen objects
+  - Immutable (3 tests): entries length, entry indices, trace references
+  - JSON Formatting (7 tests): 2-space indent, newlines, parseable, key order, deeply nested, empty trace, multiline
+  - Edge Cases (20 tests): unicode, special chars, 100 entries, 200 entries, large indices, null strategy, boolean, numeric, empty name, non-object, only entries key, extra trace fields, empty array, duplicate indices, negative indices, descending indices, boolean in trace, numeric in trace
+  - Various Content Types (7 tests): arrays, nested objects, empty arrays, long strings, unicode, emoji, special JSON chars
+  - Exports (6 tests): strategy index type + class, package root type + class, class instance, type usage
+  - Architecture Compliance (16 tests): no planner/runtime/provider/memory/agentloop/pipeline/promptbuilder/promptrenderer/promptcompression deps, no history/DefaultPromptBuilder/Planner/Runtime/AgentLoop modification
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All 6337+ tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.15 → v1.16
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
