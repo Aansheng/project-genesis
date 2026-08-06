@@ -4573,6 +4573,37 @@
 - No breaking changes to any Public API
 - Architecture version v1.11 → v1.12
 
+### WO-S5-081 — Prompt Assembly History Renderer Consumption
+
+- **Added `promptAssemblyHistoryRenderer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyHistoryRenderer?: PromptAssemblyHistoryRenderer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95997685 inserted between Phase 0.9599768 and Phase 0.96
+  - Renders history via DefaultPromptAssemblyHistoryRenderer
+  - History rendered stored at `metadata.promptAssembly.historyRendered`
+- **Additive historyRendered** — coexists with all existing fields: history, historyDiff, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, strategy, strategySelection, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyHistory, PromptAssemblyHistoryBuilder, PromptAssemblyHistoryDiff, PromptAssemblyHistoryDiffer, PromptAssemblyHistoryRenderer, DefaultPromptAssemblyHistoryRenderer
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0128: Prompt Assembly History Renderer Consumption
+- New test file `PromptAssemblyHistoryRenderingConsumption.test.ts` (75 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Renderer Invocation (9 tests): called once, not called when builder/renderer/trace missing, receives history, custom output, undefined trace, non-empty history, empty string (not stored)
+  - Metadata Creation (6 tests): stored, missing renderer/history/trace, string type, non-empty, non-overwrite, correct path
+  - Metadata Coexistence — history, historyDiff, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (22 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, identical inputs
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unmodified, prompt output unchanged
+  - Legacy Constructor (3 tests): BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (5 tests): identical prompt, no injection, metadata only, differ output doesn't affect prompt, no history in prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - History Rendering Validation (12 tests): header, "Entries:", "#0", strategy name, correct path, newlines, no "No Entries", "#0 format", header start, not in prompt, entry line format, single entry line
+- All 6232+ tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.14 → v1.15
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
