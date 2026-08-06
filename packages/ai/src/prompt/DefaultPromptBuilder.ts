@@ -67,6 +67,12 @@ import type { PromptAssemblyHistoryRenderer } from '../strategy/PromptAssemblyHi
 import type {
   PromptAssemblyHistoryExporter,
 } from '../strategy/PromptAssemblyHistoryExporter'
+import type {
+  PromptAssemblyHistorySnapshotBuilder,
+} from '../strategy/PromptAssemblyHistorySnapshotBuilder'
+import type {
+  PromptAssemblyHistorySnapshot,
+} from '../strategy/PromptAssemblyHistorySnapshot'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -124,6 +130,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
   private readonly promptAssemblyHistoryRenderer?: PromptAssemblyHistoryRenderer
   private readonly promptAssemblyHistoryExporter?:
     PromptAssemblyHistoryExporter
+  private readonly promptAssemblyHistorySnapshotBuilder?:
+    PromptAssemblyHistorySnapshotBuilder
 
   /**
    * Create a DefaultPromptBuilder.
@@ -212,6 +220,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyHistoryRenderer = opts.promptAssemblyHistoryRenderer
       this.promptAssemblyHistoryExporter =
         opts.promptAssemblyHistoryExporter
+      this.promptAssemblyHistorySnapshotBuilder =
+        opts.promptAssemblyHistorySnapshotBuilder
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -251,6 +261,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyHistoryDiffer = undefined
       this.promptAssemblyHistoryRenderer = undefined
       this.promptAssemblyHistoryExporter =
+        undefined
+      this.promptAssemblyHistorySnapshotBuilder =
         undefined
     }
   }
@@ -473,23 +485,23 @@ export class DefaultPromptBuilder implements PromptBuilder {
 
     // Phase 0.9598: PromptAssemblyTraceBuilder — build unified trace from promptAssembly metadata
     let trace: PromptAssemblyTrace | undefined
+    const promptAssemblyMetadata: Record<string, unknown> = {
+      strategy: { name: selectedStrategy.name },
+      ...(strategySelectionMetadata !== undefined ? { strategySelection: strategySelectionMetadata } : {}),
+      ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
+      ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
+      ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
+      ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
+      ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
+      ...(planDiff !== undefined ? { planDiff } : {}),
+      ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
+      ...(promptAssemblySnapshot !== undefined ? { snapshot: promptAssemblySnapshot } : {}),
+      ...(promptInspector !== undefined ? { inspector: promptInspector } : {}),
+      ...(inspectorRendered !== undefined && inspectorRendered.length > 0 ? { inspectorRendered } : {}),
+      ...(inspectorExported !== undefined ? { inspectorExported } : {}),
+      ...((trace as PromptAssemblyTrace | undefined) !== undefined ? { trace } : {}),
+    }
     if (this.promptAssemblyTraceBuilder !== undefined) {
-      const promptAssemblyMetadata: Record<string, unknown> = {
-        strategy: { name: selectedStrategy.name },
-        ...(strategySelectionMetadata !== undefined ? { strategySelection: strategySelectionMetadata } : {}),
-        ...(strategyRendered !== undefined && strategyRendered.length > 0 ? { strategyRendered } : {}),
-        ...(strategyModuleOutput !== undefined ? { strategyModule: strategyModuleOutput } : {}),
-        ...(strategyModuleRendered !== undefined && strategyModuleRendered.length > 0 ? { strategyModuleRendered } : {}),
-        ...(promptAssemblyPlan !== undefined ? { plan: promptAssemblyPlan } : {}),
-        ...(optimizedPlan !== undefined ? { optimizedPlan } : {}),
-        ...(planDiff !== undefined ? { planDiff } : {}),
-        ...(promptAssemblyPlanRendered !== undefined && promptAssemblyPlanRendered.length > 0 ? { planRendered: promptAssemblyPlanRendered } : {}),
-        ...(promptAssemblySnapshot !== undefined ? { snapshot: promptAssemblySnapshot } : {}),
-        ...(promptInspector !== undefined ? { inspector: promptInspector } : {}),
-        ...(inspectorRendered !== undefined && inspectorRendered.length > 0 ? { inspectorRendered } : {}),
-        ...(inspectorExported !== undefined ? { inspectorExported } : {}),
-        ...((trace as PromptAssemblyTrace | undefined) !== undefined ? { trace } : {}),
-      }
       trace = this.promptAssemblyTraceBuilder.build(promptAssemblyMetadata)
     }
 
@@ -572,6 +584,15 @@ export class DefaultPromptBuilder implements PromptBuilder {
     let historyExported: string | undefined
     if (history !== undefined && this.promptAssemblyHistoryExporter !== undefined) {
       historyExported = this.promptAssemblyHistoryExporter.export(history)
+    }
+
+    // Phase 0.95997695: PromptAssemblyHistorySnapshotBuilder — build snapshot from history
+    let historySnapshot: PromptAssemblyHistorySnapshot | undefined
+    if (history !== undefined && this.promptAssemblyHistorySnapshotBuilder !== undefined) {
+      historySnapshot = this.promptAssemblyHistorySnapshotBuilder.build(
+        history,
+        promptAssemblyMetadata,
+      )
     }
 
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
@@ -710,6 +731,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(historyDiff !== undefined ? { historyDiff } : {}),
         ...(historyRendered !== undefined && historyRendered.length > 0 ? { historyRendered } : {}),
         ...(historyExported !== undefined ? { historyExported } : {}),
+        ...(historySnapshot !== undefined ? { historySnapshot } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,

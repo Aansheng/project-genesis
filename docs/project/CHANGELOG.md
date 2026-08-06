@@ -4729,6 +4729,39 @@
 - No prompt changes
 - Architecture version v1.17 → v1.18
 
+### WO-S5-085 — Prompt Assembly History Snapshot Consumption
+
+- **Added `promptAssemblyHistorySnapshotBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyHistorySnapshotBuilder?: PromptAssemblyHistorySnapshotBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95997695 inserted between Phase 0.9599769 and Phase 0.96
+  - Builds history snapshot via DefaultPromptAssemblyHistorySnapshotBuilder
+  - Receives both history and promptAssemblyMetadata
+  - History snapshot stored at `metadata.promptAssembly.historySnapshot`
+- **Additive historySnapshot** — coexists with all existing fields: snapshot, inspector, inspectorRendered, inspectorExported, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline
+- **No modifications to**: PromptAssemblyHistory, PromptAssemblyHistoryBuilder, PromptAssemblyHistoryDiffer, PromptAssemblyHistoryRenderer, PromptAssemblyHistoryExporter, PromptAssemblyHistorySnapshot, PromptAssemblyHistorySnapshotBuilder, DefaultPromptAssemblyHistorySnapshotBuilder
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0132: Prompt Assembly History Snapshot Consumption
+- New test file `PromptAssemblyHistorySnapshotConsumption.test.ts` (80+ tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Builder Invocation (8 tests): called once, not called when history/builder missing, history passed, metadata passed, custom result preserved, undefined trace
+  - Metadata Creation (10 tests): stored, missing builder/history/trace, object type, entryCount, firstStrategy, lastStrategy, strategies array, non-overwrite, correct path
+  - Metadata Coexistence — snapshot, inspector, inspectorRendered, inspectorExported, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, all fields (18 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, identical inputs
+  - Stateless (3 tests): no retained state, independent results, fresh per build
+  - Pure (3 tests): context unchanged, metadata unchanged, prompt unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, not rendered
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Snapshot Validation (6 tests): entryCount, firstStrategy, lastStrategy, strategies, single entry match, strategies length
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.18 → v1.19
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
