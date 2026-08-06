@@ -4573,6 +4573,37 @@
 - No breaking changes to any Public API
 - Architecture version v1.11 → v1.12
 
+### WO-S5-079 — Prompt Assembly History Diff Consumption
+
+- **Added `promptAssemblyHistoryDiffer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyHistoryDiffer?: PromptAssemblyHistoryDiffer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599768 inserted between Phase 0.9599767 and Phase 0.96
+  - Diffs current history against empty baseline via DefaultPromptAssemblyHistoryDiffer
+  - History diff stored at `metadata.promptAssembly.historyDiff`
+- **Additive historyDiff** — coexists with all existing fields: history, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, strategy, strategySelection, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyHistory, PromptAssemblyHistoryBuilder, PromptAssemblyHistoryDiff, PromptAssemblyHistoryDiffer, DefaultPromptAssemblyHistoryDiffer
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0126: Prompt Assembly History Diff Consumption
+- New test file `PromptAssemblyHistoryDiffConsumption.test.ts` (81 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Differ Invocation (9 tests): called once, not called when builder/differ/trace missing, history passed, custom result, empty before, non-empty after
+  - Metadata Creation (8 tests): stored, missing differ/history/trace, shape, content, number types, non-overwrite
+  - Metadata Coexistence — history, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (21 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, identical inputs
+  - Stateless (1 test): no retained state
+  - Pure (2 tests): context unmodified, prompt output unchanged
+  - Legacy Constructor (4 tests): positional BuilderOptions, full BuilderOptions, legacy args
+  - No Prompt Changes (7 tests): identical prompt, no injection, metadata only, absent from prompt, differ output doesn't affect prompt, not in serialized prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - History Diff Validation (16 tests): added, removed, changed, identity, empty diff, all categories, multiple entries, preserve across builds
+- All 6067+ tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.12 → v1.13
+
 ### WO-S5-077 — Prompt Assembly History Consumption
 - **Added `promptAssemblyHistoryBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
   - New optional field: `promptAssemblyHistoryBuilder?: PromptAssemblyHistoryBuilder`
