@@ -4387,3 +4387,33 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.06
+
+### WO-S5-073 — Prompt Assembly Timeline Export Consumption
+- **Added `promptAssemblyTimelineExporter` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyTimelineExporter?: PromptAssemblyTimelineExporter`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.959976 inserted between Phase 0.959975 and Phase 0.96
+  - Exports timeline to JSON string via DefaultPromptAssemblyTimelineExporter
+  - Exported JSON stored at `metadata.promptAssembly.timelineExported`
+- **Additive timelineExported** — coexists with all existing fields: timeline, timelineDiff, timelineRendered, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyTimeline, PromptAssemblyTimelineBuilder, DefaultPromptAssemblyTimelineBuilder, PromptAssemblyTimelineExporter, DefaultPromptAssemblyTimelineExporter
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0120: Prompt Assembly Timeline Export Consumption
+- New test file `PromptAssemblyTimelineExportConsumption.test.ts` (61 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Exporter Invocation (6 tests): invoked, not without timeline builder, not without trace builder, not without exporter, correct timeline passed, custom export preserved
+  - Metadata Creation (5 tests): stored, absent without exporter, absent without timeline builder, absent without trace builder, valid string
+  - Metadata Coexistence — timeline, timelineDiff, timelineRendered, trace, traceDiff, traceRendered, traceExported, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (19 tests)
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (3 tests): no retained state, independent results, fresh per build
+  - Pure (3 tests): context unchanged, metadata unchanged, prompt unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, not in prompt text
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Timeline Export Validation (6 tests): matches exporter, valid JSON, single entry, strategy name, pretty-printed, round-trip
+- All 5548+ tests pass (5487 + 61 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.07
