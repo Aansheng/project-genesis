@@ -80,3 +80,7 @@ export { DefaultPromptAssemblyTimelineExporter } from './DefaultPromptAssemblyTi
 export type { PromptAssemblyTimelineSnapshot } from './PromptAssemblyTimelineSnapshot'
 export type { PromptAssemblyTimelineSnapshotBuilder } from './PromptAssemblyTimelineSnapshotBuilder'
 export { DefaultPromptAssemblyTimelineSnapshotBuilder } from './DefaultPromptAssemblyTimelineSnapshotBuilder'
+export type { PromptAssemblyHistoryEntry } from './PromptAssemblyHistoryEntry'
+export type { PromptAssemblyHistory } from './PromptAssemblyHistory'
+export type { PromptAssemblyHistoryBuilder } from './PromptAssemblyHistoryBuilder'
+export { DefaultPromptAssemblyHistoryBuilder } from './DefaultPromptAssemblyHistoryBuilder'

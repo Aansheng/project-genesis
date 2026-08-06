@@ -4491,3 +4491,43 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.09
+
+### WO-S5-076 — Prompt Assembly History Foundation
+- **Created `PromptAssemblyHistoryEntry`** in `packages/ai/src/strategy/PromptAssemblyHistoryEntry.ts`
+  - Interface with index and trace fields — immutable pure data
+- **Created `PromptAssemblyHistory`** in `packages/ai/src/strategy/PromptAssemblyHistory.ts`
+  - Interface with readonly entries array — immutable pure data collection
+- **Created `PromptAssemblyHistoryBuilder`** in `packages/ai/src/strategy/PromptAssemblyHistoryBuilder.ts`
+  - Interface with single `build(traces): PromptAssemblyHistory` method
+  - Pure, stateless, deterministic
+- **Created `DefaultPromptAssemblyHistoryBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyHistoryBuilder.ts`
+  - Builds immutable frozen history from ordered trace arrays
+  - Each entry frozen with sequential index
+  - History object, entries array, and each entry all frozen
+  - Pure, stateless, deterministic, immutable
+- **Updated exports** — all 4 types/class exported from `strategy/index.ts` and `src/index.ts`
+- **No modifications to**: PromptBuilder, BuilderOptions, PromptRenderer, PromptCompression, Pipeline, Planner, Runtime, AgentLoop, or any existing PromptAssembly types
+- **No prompt behavior changes** — foundation only
+- **No metadata changes** — foundation only
+- Created ADR-0123: Prompt Assembly History Foundation
+- New test file `PromptAssemblyHistoryFoundation.test.ts` (97 tests):
+  - History Entry (5 tests): index, trace, readonly, strategy trace, full trace
+  - History Interface (3 tests): entries field, readonly, accept entries
+  - Builder Contract (3 tests): build method, return type, custom impl
+  - Empty History (5 tests): empty entries, frozen entries, frozen object, empty array, cross-call
+  - Single Entry (9 tests): length, index 0, trace preserved, frozen, empty trace, full structure, query, modify, delete
+  - Multiple Entries (9 tests): 3 entries, sequential indices, trace positions, repeated, four strategies, five mixed, frozen all, frozen array, frozen object
+  - Large History (3 tests): 100 traces, 200 traces, 50 indices
+  - Order Preservation (5 tests): insertion order, no sort, reverse alpha, identical traces
+  - Deterministic (4 tests): cross-call, cross-instance, identical, empty
+  - Stateless (5 tests): no retained state, independent, alternating, large alternating
+  - Pure (4 tests): traces unchanged, trace unchanged, no side effects, nested objects
+  - Immutable (4 tests): new object, frozen history, frozen entries, frozen entry
+  - Exports (8 tests): strategy index, type-only, class, type, package root
+  - Architecture Compliance (14 tests): no deps on Runtime, Planner, Pipeline, Provider, Memory, AgentLoop, PromptBuilder, Renderer, Compression, trace, no modifications
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (14 tests): null strategy, undefined, unicode, special chars, boolean, numeric, deeply nested, arrays, empty frozen, all fields, empty string, 500 traces, inspectorExported JSON, inspectorRendered, strategySelection
+- All 5810+ tests pass (5713 + 97 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.10
