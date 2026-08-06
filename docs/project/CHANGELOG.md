@@ -4531,3 +4531,33 @@
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
 - Architecture version v1.10
+
+### WO-S5-077 — Prompt Assembly History Consumption
+- **Added `promptAssemblyHistoryBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyHistoryBuilder?: PromptAssemblyHistoryBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599767 inserted between Phase 0.9599765 and Phase 0.96
+  - Builds history from current trace via DefaultPromptAssemblyHistoryBuilder
+  - History stored at `metadata.promptAssembly.history`
+- **Additive history** — coexists with all existing fields: trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, plan, optimizedPlan, planDiff, planRendered, strategySelection
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyHistoryEntry, PromptAssemblyHistory, PromptAssemblyHistoryBuilder, DefaultPromptAssemblyHistoryBuilder
+- **No prompt changes** — metadata only, no prompt injection
+- Created ADR-0124: Prompt Assembly History Consumption
+- New test file `PromptAssemblyHistoryConsumption.test.ts` (65 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatibility, full setup
+  - Builder Invocation (6 tests): invoked, not without trace, not without builder, receives trace, receives trace array, custom output
+  - Metadata Creation (8 tests): stored, absent without builder, absent without trace, shape, one entry, entry trace, entry index
+  - Metadata Coexistence — trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, strategySelection, plan, optimizedPlan, all fields (19 tests)
+  - Deterministic (3 tests): cross-call, cross-instance, cross-input
+  - Stateless (3 tests): no retained state, independent results, fresh per build
+  - Pure (3 tests): context unchanged, metadata unchanged, prompt unchanged
+  - Legacy Constructor (4 tests): positional, BuilderOptions form, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, not in prompt text
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - History Validation (6 tests): entries array, one entry, index 0, strategy name, plan, snapshot
+- All 5875+ tests pass (5810 + 65 new)
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- Architecture version v1.11
