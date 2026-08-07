@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.35)
+> Project Genesis — AI Architecture Reference (v1.36)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -843,11 +843,11 @@ Since WO-S5-067 (v1.01), Phase 0.95996 integrates `PromptAssemblyTimelineBuilder
 
 ## Observatory UI (Sprint 6)
 
-The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002, the Trace Viewer in WO-S6-003, the Timeline Viewer in WO-S6-004, the History Viewer in WO-S6-005, and the Diff Viewer in WO-S6-006. Architecture version v1.35.
+The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002, the Trace Viewer in WO-S6-003, the Timeline Viewer in WO-S6-004, the History Viewer in WO-S6-005, the Diff Viewer in WO-S6-006, and the I18n Foundation in WO-S6-006.5. Architecture version v1.36.
 
 ### Architecture Status
 
-**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. **Timeline Viewer Foundation** — the Timeline panel displays a two-column master-detail viewer over mock timeline data with indexed entry cards. **History Viewer Foundation** — the History panel displays a two-column master-detail viewer over mock history builds with Prompt / Result / Evolution detail sections. **Diff Viewer Foundation** — the Diff panel displays a two-column master-detail viewer over mock diffs with Added / Removed / Changed sections (typed change cards). Other viewers (Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
+**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. **Timeline Viewer Foundation** — the Timeline panel displays a two-column master-detail viewer over mock timeline data with indexed entry cards. **History Viewer Foundation** — the History panel displays a two-column master-detail viewer over mock history builds with Prompt / Result / Evolution detail sections. **Diff Viewer Foundation** — the Diff panel displays a two-column master-detail viewer over mock diffs with Added / Removed / Changed sections (typed change cards). **I18n Foundation** — the shell chrome (header, sidebar, content placeholders, overview labels) is localized through a dependency-free `apps/web/src/i18n/` core + `stores/i18n.ts` with a reactive zh-CN/en-US language switcher; viewer details remain unlocalized for now. Other viewers (Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
 
 ### Component Hierarchy
 
@@ -879,12 +879,17 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
                     ├── DiffDetails.vue             — header (ID + Timestamp) + Added / Removed / Changed sections
                     └── DiffChangeCard.vue          — reusable change card (article + header + h3: + - • markers)
 apps/web/src/stores/observatory.ts   — Pinia store: selectedPanel / status / version
+apps/web/src/stores/i18n.ts          — Pinia store: language (zh-CN/en-US) / setLanguage / t / has
+apps/web/src/i18n/index.ts           — dependency-free core: resolveKey() / createI18n() / types
+apps/web/src/i18n/locales/zh-CN.ts   — simplified Chinese catalog (observatory namespace)
+apps/web/src/i18n/locales/en-US.ts   — English catalog (observatory namespace)
 apps/web/src/router/index.ts         — route: /observatory
 apps/web/src/__tests__/ObservatoryOverview.test.ts  — 62 tests (overview dashboard)
 apps/web/src/__tests__/ObservatoryTraceViewer.test.ts — 99 tests (trace viewer)
 apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts — 99 tests (timeline viewer)
 apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts — 103 tests (history viewer)
 apps/web/src/__tests__/ObservatoryDiffViewer.test.ts — 120 tests (diff viewer)
+apps/web/src/__tests__/ObservatoryI18n.test.ts — 128 tests (i18n foundation)
 ```
 
 ### Store
@@ -914,6 +919,7 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 - **Content gates** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` when `selectedPanel === 'Overview'`, `<ObservatoryTraceViewer />` when `selectedPanel === 'Trace'`, `<ObservatoryTimelineViewer />` when `selectedPanel === 'Timeline'`, `<ObservatoryHistoryViewer />` when `selectedPanel === 'History'`, `<ObservatoryDiffViewer />` when `selectedPanel === 'Diff'`, and the placeholder grid otherwise
 - **Trace / Timeline / History / Diff viewer master-detail** — two-column grid (`300px | minmax(0, 1fr)`); list rows are real `<button>`s with Arrow/Home/End keyboard navigation and `aria-current="true"`; details use semantic `dl`/`dt`/`dd` + sections; entry/evolution/change cards are `article` + `header` + `h3` with `aria-labelledby`
 - **Local selection state** — the trace, timeline, history, and diff viewers keep `selectedId` in a component `ref` (no store schema change; future real-data wiring can lift it)
+- **Lightweight i18n** — dependency-free `i18n/index.ts` (nested dot-key `t()` with key-string fallback) + reactive `stores/i18n.ts` (`language` default `'zh-CN'`); shell chrome translates through `useI18n().t`; the header hosts a compact native select switcher (中文 / English) with no page reload
 
 ### Dependency Rules
 
@@ -922,6 +928,7 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 - Trace, Timeline, History, and Diff subcomponents use props/events only — each root viewer owns mock data + `selectedId`, list/details are presentational
 - All observatory components depend only on `useObservatoryStore` / `OBSERVATORY_PANELS`
 - The observatory store has zero dependencies on Runtime, Planner, Provider, Memory, AgentLoop, Pipeline, or PromptBuilder
+- The i18n store depends only on the dependency-free `apps/web/src/i18n/` core and locale catalogs
 - Data is local mock (hardcoded artifact counts, trace rows, timeline rows and entries, history builds, diff lists) — no viewer consumes `metadata.promptAssembly.*` from the browser yet
 
 ### Future (Not Yet Implemented — Sprint 6 backlogs)

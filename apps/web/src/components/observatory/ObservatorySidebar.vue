@@ -5,9 +5,15 @@ import {
   OBSERVATORY_PANELS,
   type ObservatoryPanel,
 } from '../../stores/observatory'
+import { useI18n } from '../../stores/i18n'
 
 const store = useObservatoryStore()
+const i18n = useI18n()
 const itemRefs = ref<HTMLButtonElement[]>([])
+
+function panelLabel(panel: ObservatoryPanel): string {
+  return i18n.t(`observatory.panels.${panel.toLowerCase()}`)
+}
 
 function setItemRef(el: unknown, index: number): void {
   if (el) itemRefs.value[index] = el as HTMLButtonElement
@@ -60,7 +66,7 @@ function select(panel: ObservatoryPanel): void {
           :aria-current="store.selectedPanel === panel ? 'page' : undefined"
           @click="select(panel)"
         >
-          {{ panel }}
+          {{ panelLabel(panel) }}
         </button>
       </li>
     </ul>

@@ -4,6 +4,7 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
 import { useObservatoryStore } from '../stores/observatory'
+import { useI18nStore } from '../stores/i18n'
 import ObservatoryOverview from '../components/observatory/ObservatoryOverview.vue'
 import ObservatoryContent from '../components/observatory/ObservatoryContent.vue'
 import ObservatoryShell from '../components/observatory/ObservatoryShell.vue'
@@ -12,6 +13,11 @@ import ObservatoryShell from '../components/observatory/ObservatoryShell.vue'
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** Activate a fresh Pinia in en-US so legacy English assertions hold. */
+function activateEn(): void {
+  setActivePinia(createPinia())
+  useI18nStore().setLanguage('en-US')
+}
 function mountOverview(): VueWrapper {
   return mount(ObservatoryOverview)
 }
@@ -30,7 +36,7 @@ function sectionTexts(wrapper: VueWrapper, selector: string): string[] {
 
 describe('observatory overview — artifact summary', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders the Artifact Summary section', () => {
@@ -144,7 +150,7 @@ describe('observatory overview — artifact summary', () => {
 
 describe('observatory overview — observatory snapshot', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders the Observatory Snapshot section', () => {
@@ -242,7 +248,7 @@ describe('observatory overview — observatory snapshot', () => {
 
 describe('observatory overview — system status', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders the System Status section', () => {
@@ -344,7 +350,7 @@ describe('observatory overview — system status', () => {
 
 describe('observatory overview — semantics and accessibility', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders 3 semantic section elements', () => {
@@ -405,7 +411,7 @@ describe('observatory overview — semantics and accessibility', () => {
 
 describe('observatory overview — deterministic rendering', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders identical artifact counts across mounts', () => {
@@ -454,7 +460,7 @@ describe('observatory overview — deterministic rendering', () => {
 
 describe('overview dashboard integration', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders the overview dashboard inside the content area by default', () => {

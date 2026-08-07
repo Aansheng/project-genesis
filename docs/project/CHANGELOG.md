@@ -5487,3 +5487,36 @@
 - Created ADR-0148: Observatory Diff Viewer Foundation
 - No breaking changes to any Public API
 - Architecture version v1.34 → v1.35
+
+### WO-S6-006.5 — Observatory I18n Foundation
+
+- **First localization layer in the Observatory** — dependency-free, infrastructure-only; no business logic changes, no new dependencies (no vue-i18n, no i18next)
+- **New core** — `apps/web/src/i18n/index.ts`:
+  - `Language` ('zh-CN' | 'en-US'), `SUPPORTED_LANGUAGES`, `DEFAULT_LANGUAGE = 'zh-CN'`, `MessageCatalog` type
+  - `resolveKey(catalog, key)` — nested dot-key traversal returning `undefined` for missing keys / non-object nodes / arrays / non-string leaves
+  - `createI18n(catalogs, initial?)` — standalone instance: `language`, `setLanguage` (guards unsupported languages), `t` (key-string fallback, never throws), `has`
+- **New catalogs** — `apps/web/src/i18n/locales/zh-CN.ts` + `en-US.ts` with the `observatory` namespace: title, 7 panel keys, status.ready, labels (version/sprint/status/count/active/comingSoon), section titles, artifact descriptions, snapshot labels, common yes/no
+- **New Pinia store** — `apps/web/src/stores/i18n.ts` (`useI18nStore`, aliased `useI18n`): `language` ref (default 'zh-CN'), `setLanguage`, `t`, `has`; `t()` reads the language ref during render so every observer re-renders on switch — no page reload
+- **Localized shell chrome** (integration scope):
+  - `ObservatoryHeader.vue` — title (`可观测中心`/`Observatory`), status badge (`就绪`/`Ready`; raw for custom statuses), sprint (`迭代 6`/`Sprint 6`), version aria-label, plus a compact **language switcher** (`中文` / `English` native select with `▼`, `aria-label="Language"`, reactive)
+  - `ObservatorySidebar.vue` — all 7 panel labels via `observatory.panels.*`
+  - `ObservatoryContent.vue` — placeholder card titles via `observatory.panels.*` + localized `Coming Soon` (`即将推出`) / `Active` (`活动`)
+  - `ObservatoryOverview.vue` — section titles, artifact titles/descriptions/count label, snapshot labels, Yes/No (`是`/`否`), System Status labels
+- **NOT converted** — Trace / Timeline / History / Diff viewer details (incremental follow-up work)
+- New test file `apps/web/src/__tests__/ObservatoryI18n.test.ts` (128 tests):
+  - Locale catalogs (14 tests): zh-CN/en-US loading, required keys, 6 panel keys per locale, status/labels/sections keys, key parity across locales
+  - resolveKey (15 tests): nested traversal, 2/3-level keys, missing top/nested/deep, empty key, non-object leaf traversal, non-string leaf, case sensitivity, trailing/leading dots, arrays, arbitrary catalogs
+  - createI18n (18 tests): default/initial language, language getter, setLanguage switch + guard, t nested/missing/deep-fallback, empty key, no-throw, post-switch resolution, has, instance isolation, catalog switching, constants
+  - i18n store (12 tests): zh-CN default, setLanguage + guard, t per language, nested keys, fallback, reactivity, useI18n alias, fresh-pinia reset
+  - zh-CN rendering (20 tests): header title/badge/sprint/version aria, sidebar labels, switcher value, content card titles/Coming Soon/Active, overview sections/artifacts/snapshot/status labels, full shell
+  - en-US rendering (20 tests): mirrored English assertions after `setLanguage('en-US')`
+  - Language switcher (15 tests): select with 2 options, 中文/English options, default selection, store update, reactive header/badge/sprint/sidebar/overview/content updates, no remount, round-trip switch, aria-label, caret
+  - Missing key fallback (8 tests): store t fallback zh/en, empty key, no-throw, resolveKey undefined, no key leakage, has
+  - Reactivity & integration (9 tests): multi-component switch, panel-selection preservation, version/status preservation, custom status raw rendering, shell sync, switcher location, in-shell switch, artifact descriptions both locales, viewer details untouched
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (106 → 106 tests): pin legacy English assertions to en-US via `activateEn()` helper; header title assertion now `Observatory`; version aria-label now `Version`
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts` (62 → 62 tests): pin legacy English assertions to en-US via `activateEn()` helper
+- All 732 web tests pass (128 i18n + 120 diff + 106 shell + 103 history + 99 trace + 99 timeline + 62 overview + 15 streaming; 8328 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0149: Observatory I18n Foundation
+- No breaking changes to any Public API
+- Architecture version v1.35 → v1.36

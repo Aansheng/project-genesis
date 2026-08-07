@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useObservatoryStore } from '../../stores/observatory'
+import { useI18n } from '../../stores/i18n'
 import ObservatoryOverview from './ObservatoryOverview.vue'
 import ObservatoryTraceViewer from './trace/ObservatoryTraceViewer.vue'
 import ObservatoryTimelineViewer from './timeline/ObservatoryTimelineViewer.vue'
@@ -7,6 +8,7 @@ import ObservatoryHistoryViewer from './history/ObservatoryHistoryViewer.vue'
 import ObservatoryDiffViewer from './diff/ObservatoryDiffViewer.vue'
 
 const store = useObservatoryStore()
+const i18n = useI18n()
 
 const cards = [
   'Overview',
@@ -40,6 +42,10 @@ function isHistory(): boolean {
 function isDiff(): boolean {
   return store.selectedPanel === 'Diff'
 }
+
+function cardLabel(card: string): string {
+  return i18n.t(`observatory.panels.${card.toLowerCase()}`)
+}
 </script>
 
 <template>
@@ -65,15 +71,15 @@ function isDiff(): boolean {
       >
         <header class="card-header">
           <h2 class="card-title">
-            {{ card }}
+            {{ cardLabel(card) }}
           </h2>
           <span
             v-if="isActive(card)"
             class="card-active-tag"
-          >Active</span>
+          >{{ i18n.t('observatory.labels.active') }}</span>
         </header>
         <p class="card-body">
-          Coming Soon
+          {{ i18n.t('observatory.labels.comingSoon') }}
         </p>
       </section>
     </div>

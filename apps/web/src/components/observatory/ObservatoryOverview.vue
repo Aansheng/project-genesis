@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useObservatoryStore } from '../../stores/observatory'
+import { useI18n } from '../../stores/i18n'
 
 const store = useObservatoryStore()
+const i18n = useI18n()
 
 interface Artifact {
-  title: string
+  key: 'trace' | 'timeline' | 'history'
   count: number
-  description: string
 }
 
 /**
@@ -14,41 +15,42 @@ interface Artifact {
  * Will be replaced by real observatory data in a future work order.
  */
 const artifacts: readonly Artifact[] = [
-  {
-    title: 'Trace',
-    count: 12,
-    description: 'Captured prompt assembly traces',
-  },
-  {
-    title: 'Timeline',
-    count: 8,
-    description: 'Sequenced build events across sessions',
-  },
-  {
-    title: 'History',
-    count: 4,
-    description: 'Persisted prompt assembly entries',
-  },
+  { key: 'trace', count: 12 },
+  { key: 'timeline', count: 8 },
+  { key: 'history', count: 4 },
 ]
 
 interface SnapshotItem {
-  label: string
+  key: string
   value: number | boolean
 }
 
 /** Local mock observatory snapshot — mirrors the Sprint 5 observatory shape. */
 const snapshotItems: readonly SnapshotItem[] = [
-  { label: 'Artifact Count', value: 6 },
-  { label: 'Has Trace', value: true },
-  { label: 'Has Timeline', value: true },
-  { label: 'Has History', value: true },
-  { label: 'Has Trace Snapshot', value: true },
-  { label: 'Has Timeline Snapshot', value: true },
-  { label: 'Has History Snapshot', value: true },
+  { key: 'artifactCount', value: 6 },
+  { key: 'hasTrace', value: true },
+  { key: 'hasTimeline', value: true },
+  { key: 'hasHistory', value: true },
+  { key: 'hasTraceSnapshot', value: true },
+  { key: 'hasTimelineSnapshot', value: true },
+  { key: 'hasHistorySnapshot', value: true },
 ]
 
+function artifactLabel(key: string): string {
+  return i18n.t(`observatory.panels.${key}`)
+}
+
+function artifactDescription(key: string): string {
+  return i18n.t(`observatory.artifacts.${key}Desc`)
+}
+
+function snapshotLabel(key: string): string {
+  return i18n.t(`observatory.snapshot.${key}`)
+}
+
 function formatSnapshotValue(value: number | boolean): string {
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (typeof value === 'boolean')
+    return value ? i18n.t('observatory.common.yes') : i18n.t('observatory.common.no')
   return String(value)
 }
 </script>
@@ -64,29 +66,29 @@ function formatSnapshotValue(value: number | boolean): string {
         id="artifact-summary-title"
         class="overview-section-title"
       >
-        Artifact Summary
+        {{ i18n.t('observatory.sections.artifactSummary') }}
       </h2>
       <div class="artifact-grid">
         <article
           v-for="artifact in artifacts"
-          :key="artifact.title"
+          :key="artifact.key"
           class="artifact-card"
           tabindex="0"
-          :aria-label="`${artifact.title} artifact: ${artifact.count} records`"
+          :aria-label="`${artifactLabel(artifact.key)} artifact: ${artifact.count} records`"
         >
           <h3 class="artifact-card-title">
-            {{ artifact.title }}
+            {{ artifactLabel(artifact.key) }}
           </h3>
           <dl>
             <dt class="artifact-card-label">
-              Count
+              {{ i18n.t('observatory.labels.count') }}
             </dt>
             <dd class="artifact-card-count">
               {{ artifact.count }}
             </dd>
           </dl>
           <p class="artifact-card-description">
-            {{ artifact.description }}
+            {{ artifactDescription(artifact.key) }}
           </p>
         </article>
       </div>
@@ -101,16 +103,16 @@ function formatSnapshotValue(value: number | boolean): string {
         id="snapshot-summary-title"
         class="overview-section-title"
       >
-        Observatory Snapshot
+        {{ i18n.t('observatory.sections.observatorySnapshot') }}
       </h2>
       <dl class="snapshot-grid">
         <div
           v-for="item in snapshotItems"
-          :key="item.label"
+          :key="item.key"
           class="snapshot-item"
         >
           <dt class="snapshot-label">
-            {{ item.label }}
+            {{ snapshotLabel(item.key) }}
           </dt>
           <dd
             class="snapshot-value"
@@ -140,12 +142,12 @@ function formatSnapshotValue(value: number | boolean): string {
         id="system-status-title"
         class="overview-section-title"
       >
-        System Status
+        {{ i18n.t('observatory.sections.systemStatus') }}
       </h2>
       <dl class="system-status-list">
         <div class="system-status-item">
           <dt class="system-status-label">
-            Version
+            {{ i18n.t('observatory.labels.version') }}
           </dt>
           <dd class="system-status-value">
             {{ store.version }}
@@ -153,15 +155,15 @@ function formatSnapshotValue(value: number | boolean): string {
         </div>
         <div class="system-status-item">
           <dt class="system-status-label">
-            Sprint
+            {{ i18n.t('observatory.labels.sprint') }}
           </dt>
           <dd class="system-status-value">
-            Sprint 6
+            {{ i18n.t('observatory.labels.sprint') }} 6
           </dd>
         </div>
         <div class="system-status-item">
           <dt class="system-status-label">
-            Status
+            {{ i18n.t('observatory.labels.status') }}
           </dt>
           <dd class="system-status-value">
             {{ store.status }}

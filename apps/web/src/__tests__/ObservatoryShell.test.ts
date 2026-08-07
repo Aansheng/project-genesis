@@ -8,6 +8,7 @@ import {
   OBSERVATORY_PANELS,
   type ObservatoryPanel,
 } from '../stores/observatory'
+import { useI18nStore } from '../stores/i18n'
 import ObservatoryShell from '../components/observatory/ObservatoryShell.vue'
 import ObservatorySidebar from '../components/observatory/ObservatorySidebar.vue'
 import ObservatoryHeader from '../components/observatory/ObservatoryHeader.vue'
@@ -32,6 +33,12 @@ function mountSidebar(attachTo?: HTMLElement): VueWrapper {
 
 function mountContent(): VueWrapper {
   return mount(ObservatoryContent)
+}
+
+/** Activate a fresh Pinia in en-US so legacy English assertions hold. */
+function activateEn(): void {
+  setActivePinia(createPinia())
+  useI18nStore().setLanguage('en-US')
 }
 
 function sidebarButtons(wrapper: VueWrapper): DOMWrapper<Element>[] {
@@ -118,12 +125,12 @@ describe('observatory store', () => {
 
 describe('observatory header', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
-  it('renders the Genesis Observatory title', () => {
+  it('renders the observatory title in the header', () => {
     const wrapper = mount(ObservatoryHeader)
-    expect(wrapper.find('.header-title').text()).toBe('Genesis Observatory')
+    expect(wrapper.find('.header-title').text()).toBe('Observatory')
   })
 
   it('renders the status badge with Ready', () => {
@@ -170,7 +177,7 @@ describe('observatory header', () => {
   it('exposes an accessible label on the version element', () => {
     const wrapper = mount(ObservatoryHeader)
     expect(wrapper.find('.header-version').attributes('aria-label')).toBe(
-      'Observatory version',
+      'Version',
     )
   })
 })
@@ -181,7 +188,7 @@ describe('observatory header', () => {
 
 describe('observatory sidebar', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders all 7 menu items', () => {
@@ -343,7 +350,7 @@ describe('observatory sidebar', () => {
 
 describe('observatory content', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   function mountContentAs(panel: ObservatoryPanel): VueWrapper {
@@ -737,7 +744,7 @@ describe('observatory content', () => {
 
 describe('observatory shell', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    activateEn()
   })
 
   it('renders the shell root', () => {
@@ -775,7 +782,7 @@ describe('observatory shell', () => {
 
   it('renders title, status, version and sprint inside the shell', () => {
     const wrapper = mountShell()
-    expect(wrapper.text()).toContain('Genesis Observatory')
+    expect(wrapper.text()).toContain('Observatory')
     expect(wrapper.text()).toContain('Ready')
     expect(wrapper.text()).toContain('v1.29')
     expect(wrapper.text()).toContain('Sprint 6')
