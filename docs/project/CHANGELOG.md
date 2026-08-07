@@ -4836,6 +4836,51 @@
 - No breaking changes to any Public API
 - Architecture version v1.20 → v1.21
 
+### WO-S5-088 — Prompt Assembly Observatory Diff Foundation
+
+- **Defined `PromptAssemblyObservatoryDiff`** in `packages/ai/src/strategy/PromptAssemblyObservatoryDiff.ts`
+  - `readonly added: readonly string[]` — field names present in "after" but not in "before"
+  - `readonly removed: readonly string[]` — field names present in "before" but not in "after"
+  - `readonly changed: readonly string[]` — field names present in both but with different values
+  - Follows same shape as PromptAssemblyTraceDiff, PromptAssemblyTimelineDiff, PromptAssemblyHistoryDiff
+- **Defined `PromptAssemblyObservatoryDiffer`** in `packages/ai/src/strategy/PromptAssemblyObservatoryDiffer.ts`
+  - Single method contract: `diff(before, after): PromptAssemblyObservatoryDiff`
+- **Implemented `DefaultPromptAssemblyObservatoryDiffer`** in `packages/ai/src/strategy/DefaultPromptAssemblyObservatoryDiffer.ts`
+  - Compares six known observatory fields: trace, timeline, history, traceSnapshot, timelineSnapshot, historySnapshot
+  - Iterates fields in declaration order for deterministic results
+  - **Added** — field present in "after" but not in "before" → added
+  - **Removed** — field present in "before" but not in "after" → removed
+  - **Changed** — field present in both but with different value (using !==) → changed
+  - Result and arrays are Object.frozen — fully immutable
+  - **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+  - **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0135: Prompt Assembly Observatory Diff Foundation
+- New test file `PromptAssemblyObservatoryDiffFoundation.test.ts` (113+ tests):
+  - Interface Contract (7 tests): diff method, return type, custom implementation, type usage, arrays
+  - Empty Observatory (5 tests): both empty, before empty → after full, before full → after empty, empty objects, partial
+  - Added (10 tests): trace, timeline, history, traceSnapshot, timelineSnapshot, historySnapshot, multiple, none, unchanged, full
+  - Removed (10 tests): trace, timeline, history, traceSnapshot, timelineSnapshot, historySnapshot, multiple, none, full, unchanged
+  - Changed (10 tests): trace, timeline, history, traceSnapshot, timelineSnapshot, historySnapshot, multiple, equal, different ref, all six
+  - Mixed Changes (6 tests): add+remove+change, add+change, remove+change, add+remove, two+two, complex
+  - Ordering (3 tests): added order, removed order, changed order
+  - Deterministic (4 tests): cross-call, cross-instance, identical pairs, multiple runs
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (5 tests): before unmodified, after unmodified, values unmodified, nested objects, full observatory
+  - Immutable (6 tests): frozen result, frozen arrays, frozen changed, frozen added, mutation throws, push throws
+  - Export Validation (9 tests): strategy index, package root, class, type
+  - Architecture Compliance (18 tests): no Runtime/Planner/Pipeline/Provider/Memory/AgentLoop/PromptBuilder/BuilderOptions/PromptRenderer/PromptCompression deps, no modifications
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (14 tests): all changed, all added, all removed, mixed all, same reference, only trace, only snapshots, same trace + diff timeline, undefined fields, trace-related, timeline-related, history-related, identity, partial to full
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.21 → v1.22
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method

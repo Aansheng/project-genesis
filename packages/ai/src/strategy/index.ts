@@ -97,3 +97,6 @@ export { DefaultPromptAssemblyHistorySnapshotBuilder } from './DefaultPromptAsse
 export type { PromptAssemblyObservatory } from './PromptAssemblyObservatory'
 export type { PromptAssemblyObservatoryBuilder } from './PromptAssemblyObservatoryBuilder'
 export { DefaultPromptAssemblyObservatoryBuilder } from './DefaultPromptAssemblyObservatoryBuilder'
+export type { PromptAssemblyObservatoryDiff } from './PromptAssemblyObservatoryDiff'
+export type { PromptAssemblyObservatoryDiffer } from './PromptAssemblyObservatoryDiffer'
+export { DefaultPromptAssemblyObservatoryDiffer } from './DefaultPromptAssemblyObservatoryDiffer'
