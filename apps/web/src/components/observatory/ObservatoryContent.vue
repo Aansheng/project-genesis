@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useObservatoryStore } from '../../stores/observatory'
+import ObservatoryOverview from './ObservatoryOverview.vue'
 
 const store = useObservatoryStore()
 
@@ -15,6 +16,10 @@ const cards = [
 function isActive(panel: string): boolean {
   return store.selectedPanel === panel
 }
+
+function isOverview(): boolean {
+  return store.selectedPanel === 'Overview'
+}
 </script>
 
 <template>
@@ -22,7 +27,11 @@ function isActive(panel: string): boolean {
     class="observatory-content"
     aria-label="Observatory content"
   >
-    <div class="content-grid">
+    <ObservatoryOverview v-if="isOverview()" />
+    <div
+      v-else
+      class="content-grid"
+    >
       <section
         v-for="card in cards"
         :key="card"

@@ -5303,3 +5303,33 @@
 - Dark theme applied — visually verified in browser at `/observatory`
 - No breaking changes to any Public API
 - Architecture version v1.29 → v1.30
+
+### WO-S6-002 — Observatory Overview Dashboard Foundation
+
+- **First real content surface in the Observatory** — the Overview panel now renders a dashboard instead of a "Coming Soon" placeholder card
+- **New component** — `apps/web/src/components/observatory/ObservatoryOverview.vue` with three sections:
+  - **Artifact Summary** — 3 cards (Trace / Timeline / History) with `<h3>` title, `<dl>`/`<dt>`/`<dd>` count (12 / 8 / 4, monospace), `<p>` description; cards keyboard reachable (`tabindex="0"`), `aria-labelledby` → `<h3 id>`
+  - **Observatory Snapshot** — compact status grid (`<dl class="snapshot-grid">`) with 7 fields: Artifact Count (6), Has Trace / Has Timeline / Has History / Has Trace Snapshot / Has Timeline Snapshot / Has History Snapshot (Yes + dot indicator)
+  - **System Status** — `<dl class="system-status-list">` with 3 items: Version (bound to `store.version`), Sprint (static "Sprint 6"), Status (bound to `store.status`)
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`:
+  - Renders `<ObservatoryOverview />` via `v-if="isOverview()"` when `store.selectedPanel === 'Overview'`
+  - Falls back to the existing 6-placeholder-card grid (`v-else`) for all other panels — unchanged behavior
+- **Mock data only** — artifact counts and snapshot values are local hardcoded values for layout validation (WO-S6-002); real `metadata.promptAssembly.*` consumption is future work
+- **No new dependencies** — no chart libraries, no UI frameworks; reuses shell design tokens via `var(--obs-*, <fallback>)`
+- **No inline styles** — all values from the shell token system (spacing scale, surfaces, borders, accent/success, monospace)
+- **Accessibility** — semantic markup (`section` with `aria-labelledby` → `<h2 id>`, `article`, `dl`/`dt`/`dd`); no headless `<dl>`; cards keyboard reachable
+- New test file `apps/web/src/__tests__/ObservatoryOverview.test.ts` (62 tests):
+  - Artifact Summary (16 tests): section + h2 render, 3 cards, titles in order (Trace/Timeline/History), counts 12/8/4, dl/dt/dd structure, descriptions, aria-label, article semantics, tabindex=0
+  - Observatory Snapshot (14 tests): section + h2, 7 items, all labels in order, Artifact Count=6, Has Trace=Yes, dl.snapshot-grid, dt/dd pairs
+  - System Status (15 tests): section + h2, Version/Sprint/Status labels, store-bound reactivity, sprint stays static
+  - Semantics & Accessibility (8 tests): 3 sections, 3 h2s, aria-labelledby matching, deterministic values
+  - Deterministic Rendering (5 tests): identical counts/labels/values/HTML across mounts
+  - Overview Dashboard Integration (6 tests): rendered by default, hidden when non-Overview selected, re-renders on re-selection, version matches header
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (60 tests):
+  - Added `mountContentAs(panel)` helper so grid tests mount with a non-Overview panel (grid branch now conditional)
+  - Content block (15 tests): overview dashboard renders by default, no placeholder cards when Overview selected, 6 placeholder cards for non-Overview panels, dashboard ↔ grid switching both directions
+- All 137 web tests pass (60 + 62 + 15; 7733 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0144: Observatory Overview Dashboard Foundation
+- No breaking changes to any Public API
+- Architecture version v1.30 → v1.31

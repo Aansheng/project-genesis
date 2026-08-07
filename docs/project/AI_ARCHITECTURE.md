@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.30)
+> Project Genesis — AI Architecture Reference (v1.31)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -843,11 +843,11 @@ Since WO-S5-067 (v1.01), Phase 0.95996 integrates `PromptAssemblyTimelineBuilder
 
 ## Observatory UI (Sprint 6)
 
-The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6). Architecture version v1.30.
+The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002. Architecture version v1.31.
 
 ### Architecture Status
 
-**Shell Foundation** — the observatory shell layout and navigation structure are complete. Individual viewers (Trace, Timeline, History, Diff, Runtime Graph, Prompt Explorer) are explicitly NOT implemented — the shell exists to host them.
+**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. Individual viewers (Trace, Timeline, History, Diff, Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
 
 ### Component Hierarchy
 
@@ -856,9 +856,11 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
   └── apps/web/src/components/observatory/ObservatoryShell.vue    — grid layout + design tokens
         ├── ObservatoryHeader.vue    — title, status badge, version, sprint label
         ├── ObservatorySidebar.vue   — 7-panel navigation (keyboard accessible)
-        └── ObservatoryContent.vue   — 6 placeholder cards ("Coming Soon")
+        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; else 6 placeholder cards
+              └── ObservatoryOverview.vue    — Artifact Summary / Observatory Snapshot / System Status
 apps/web/src/stores/observatory.ts   — Pinia store: selectedPanel / status / version
 apps/web/src/router/index.ts         — route: /observatory
+apps/web/src/__tests__/ObservatoryOverview.test.ts  — 62 tests (overview dashboard)
 ```
 
 ### Store
@@ -882,15 +884,18 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 - **No routing logic in components** — sidebar keeps the selected panel in local Pinia state
 - **No new dependencies** — Vue 3 + TypeScript + Pinia + vue-router only (no Naive UI, no TailwindCSS)
 - **Desktop-first dark theme** — `min-width: 1280px`, no horizontal scroll; CSS custom property design tokens on `.observatory-shell` (spacing scale, surfaces, borders, accent/success colors, monospace font) avoid magic numbers
-- **Keyboard accessibility** — real `<button>` elements with arrow/Home/End navigation and `aria-current="page"`
+- **Keyboard accessibility** — real `<button>` elements with arrow/Home/End navigation and `aria-current="page"`; overview cards keyboard reachable (`tabindex="0"`)
 - **`App.vue` integration** — renders `<router-view>` only when the observatory route is active; the game canvas app is untouched for all other paths
+- **Overview dashboard semantics** — `section`/`article`/`h2`/`dl` (`dt`/`dd`) markup with `aria-labelledby`; no inline styles (all values via `var(--obs-*)` shell tokens)
+- **Overview content gate** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` only when `selectedPanel === 'Overview'`; all other panels keep the placeholder grid
 
 ### Dependency Rules
 
 - `ObservatoryShell` depends only on the three observatory components
+- `ObservatoryContent` depends on `ObservatoryOverview` for the Overview panel; `ObservatoryOverview` depends only on `useObservatoryStore`
 - All observatory components depend only on `useObservatoryStore` / `OBSERVATORY_PANELS`
 - The observatory store has zero dependencies on Runtime, Planner, Provider, Memory, AgentLoop, Pipeline, or PromptBuilder
-- No viewer components exist yet — nothing consumes `metadata.promptAssembly.*` from the browser
+- Overview data is local mock (hardcoded artifact counts / snapshot values) — no viewer consumes `metadata.promptAssembly.*` from the browser yet
 
 ### Future (Not Yet Implemented — Sprint 6 backlogs)
 

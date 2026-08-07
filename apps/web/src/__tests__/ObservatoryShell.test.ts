@@ -6,11 +6,13 @@ import { createPinia, setActivePinia } from 'pinia'
 import {
   useObservatoryStore,
   OBSERVATORY_PANELS,
+  type ObservatoryPanel,
 } from '../stores/observatory'
 import ObservatoryShell from '../components/observatory/ObservatoryShell.vue'
 import ObservatorySidebar from '../components/observatory/ObservatorySidebar.vue'
 import ObservatoryHeader from '../components/observatory/ObservatoryHeader.vue'
 import ObservatoryContent from '../components/observatory/ObservatoryContent.vue'
+import ObservatoryOverview from '../components/observatory/ObservatoryOverview.vue'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -340,43 +342,79 @@ describe('observatory content', () => {
     setActivePinia(createPinia())
   })
 
-  it('renders 6 placeholder cards', () => {
+  function mountContentAs(panel: ObservatoryPanel): VueWrapper {
+    const store = useObservatoryStore()
+    store.selectPanel(panel)
+    return mount(ObservatoryContent)
+  }
+
+  it('renders the overview dashboard when Overview is selected', () => {
     const wrapper = mountContent()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+  })
+
+  it('does not render placeholder cards when Overview is selected', () => {
+    const wrapper = mountContent()
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('renders 6 placeholder cards for non-Overview panels', () => {
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 
-  it('includes an Overview card', () => {
+  it('switches from dashboard to grid when a panel is selected', async () => {
+    const store = useObservatoryStore()
     const wrapper = mountContent()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    store.selectPanel('Trace')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('switches from grid back to dashboard when Overview is re-selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+    store.selectPanel('Overview')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('includes an Overview card in the placeholder grid', () => {
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.text()).toContain('Overview')
   })
 
   it('includes a Trace card', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.text()).toContain('Trace')
   })
 
   it('includes a Timeline card', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.text()).toContain('Timeline')
   })
 
   it('includes a History card', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.text()).toContain('History')
   })
 
   it('includes a Diff card', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.text()).toContain('Diff')
   })
 
   it('includes a Runtime card', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     expect(wrapper.text()).toContain('Runtime')
   })
 
   it('does not render a Settings card', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     const settings = wrapper.findAll('.content-card').filter((c) =>
       c.text().includes('Settings'),
     )
@@ -384,7 +422,7 @@ describe('observatory content', () => {
   })
 
   it('each card contains Coming Soon', () => {
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Trace')
     for (const card of wrapper.findAll('.content-card')) {
       expect(card.text()).toContain('Coming Soon')
     }
@@ -392,7 +430,7 @@ describe('observatory content', () => {
 
   it('marks the current store panel card as active', async () => {
     const store = useObservatoryStore()
-    const wrapper = mountContent()
+    const wrapper = mountContentAs('Overview')
     store.selectPanel('Diff')
     await nextTick()
     const active = wrapper.findAll('.content-card').filter((c) =>
@@ -402,13 +440,13 @@ describe('observatory content', () => {
     expect(active[0].text()).toContain('Diff')
   })
 
-  it('marks Overview card active by default', () => {
-    const wrapper = mountContent()
+  it('marks the selected panel card as active', () => {
+    const wrapper = mountContentAs('Runtime')
     const active = wrapper.findAll('.content-card').filter((c) =>
       c.classes().includes('content-card--active'),
     )
     expect(active).toHaveLength(1)
-    expect(active[0].text()).toContain('Overview')
+    expect(active[0].text()).toContain('Runtime')
   })
 
   it('exposes an accessible content landmark', () => {
