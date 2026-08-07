@@ -83,6 +83,9 @@ import type {
   PromptAssemblyObservatoryDiffer,
 } from '../strategy/PromptAssemblyObservatoryDiffer'
 import type {
+  PromptAssemblyObservatoryRenderer,
+} from '../strategy/PromptAssemblyObservatoryRenderer'
+import type {
   PromptAssemblyObservatoryDiff,
 } from '../strategy/PromptAssemblyObservatoryDiff'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
@@ -148,6 +151,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
     PromptAssemblyObservatoryBuilder
   private readonly promptAssemblyObservatoryDiffer?:
     PromptAssemblyObservatoryDiffer
+  private readonly promptAssemblyObservatoryRenderer?:
+    PromptAssemblyObservatoryRenderer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -242,6 +247,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
         opts.promptAssemblyObservatoryBuilder
       this.promptAssemblyObservatoryDiffer =
         opts.promptAssemblyObservatoryDiffer
+      this.promptAssemblyObservatoryRenderer =
+        opts.promptAssemblyObservatoryRenderer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -287,6 +294,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyObservatoryBuilder =
         undefined
       this.promptAssemblyObservatoryDiffer =
+        undefined
+      this.promptAssemblyObservatoryRenderer =
         undefined
     }
   }
@@ -644,6 +653,22 @@ export class DefaultPromptBuilder implements PromptBuilder {
       )
     }
 
+    // Phase 0.95997775: PromptAssemblyObservatoryRenderer — render observatory as human-readable text
+    let observatoryRendered: string | undefined
+    if (
+      observatory !== undefined &&
+      this.promptAssemblyObservatoryRenderer !== undefined
+    ) {
+      const rendered =
+        this.promptAssemblyObservatoryRenderer.render(
+          observatory,
+        )
+
+      if (rendered.length > 0) {
+        observatoryRendered = rendered
+      }
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -783,6 +808,9 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(historySnapshot !== undefined ? { historySnapshot } : {}),
         ...(observatory !== undefined ? { observatory } : {}),
         ...(observatoryDiff !== undefined ? { observatoryDiff } : {}),
+        ...(observatoryRendered !== undefined
+          ? { observatoryRendered }
+          : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,

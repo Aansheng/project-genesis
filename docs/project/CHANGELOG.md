@@ -4957,6 +4957,38 @@
 - No prompt changes
 - Architecture version v1.23 → v1.24
 
+### WO-S5-091 — Prompt Assembly Observatory Renderer Consumption
+
+- **Added `promptAssemblyObservatoryRenderer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyObservatoryRenderer?: PromptAssemblyObservatoryRenderer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.95997775 inserted between Phase 0.9599775 (ObservatoryDiffer) and Phase 0.96 (StrategyResolver)
+  - Renders observatory via renderer when both are present
+  - Rendering result stored at `metadata.promptAssembly.observatoryRendered`
+- **Additive observatoryRendered** — coexists with all existing fields: observatory, observatoryDiff, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyObservatory, PromptAssemblyObservatoryBuilder, PromptAssemblyObservatoryDiffer, PromptAssemblyObservatoryRenderer, DefaultPromptAssemblyObservatoryRenderer
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0138: Prompt Assembly Observatory Renderer Consumption
+- New test file `PromptAssemblyObservatoryRenderingConsumption.test.ts` (~80 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatible, full setup
+  - Renderer Invocation (7 tests): called once, not called without observatory builder, not called without renderer, called without trace (empty observatory), receives observatory, custom renderer output preserved, empty string not stored
+  - Metadata Creation (7 tests): stored, missing renderer, missing observatory builder, stored without trace (empty observatory), string type, non-empty, non-overwrite, correct path
+  - Metadata Coexistence — trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, observatory, observatoryDiff, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (27 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, identical inputs
+  - Stateless (1 test): no retained state between builds
+  - Pure (2 tests): context unmodified, prompt unchanged
+  - Legacy Constructor (3 tests): BuilderOptions, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, different renderer same prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Observatory Rendering Validation (4 tests): default output, artifact names present
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes to existing behavior
+- Architecture version v1.24 → v1.25
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
