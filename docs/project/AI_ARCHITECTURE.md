@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.31)
+> Project Genesis — AI Architecture Reference (v1.32)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -843,11 +843,11 @@ Since WO-S5-067 (v1.01), Phase 0.95996 integrates `PromptAssemblyTimelineBuilder
 
 ## Observatory UI (Sprint 6)
 
-The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002. Architecture version v1.31.
+The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002 and the Trace Viewer in WO-S6-003. Architecture version v1.32.
 
 ### Architecture Status
 
-**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. Individual viewers (Trace, Timeline, History, Diff, Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
+**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. Other viewers (Timeline, History, Diff, Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
 
 ### Component Hierarchy
 
@@ -856,11 +856,17 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
   └── apps/web/src/components/observatory/ObservatoryShell.vue    — grid layout + design tokens
         ├── ObservatoryHeader.vue    — title, status badge, version, sprint label
         ├── ObservatorySidebar.vue   — 7-panel navigation (keyboard accessible)
-        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; else 6 placeholder cards
-              └── ObservatoryOverview.vue    — Artifact Summary / Observatory Snapshot / System Status
+        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; Trace → <ObservatoryTraceViewer /> ; else placeholder cards
+              ├── ObservatoryOverview.vue    — Artifact Summary / Observatory Snapshot / System Status
+              └── trace/
+                    ├── ObservatoryTraceViewer.vue   — root viewer: mock traces + selectedId state
+                    ├── TraceList.vue                — selectable trace rows (nav + ul + buttons, keyboard nav)
+                    ├── TraceDetails.vue             — header + Plan (<pre>) + Snapshot (key/value grid) + Metadata (JSON)
+                    └── TraceStepCard.vue            — reusable titled card (Plan/Snapshot/Metadata wrapper)
 apps/web/src/stores/observatory.ts   — Pinia store: selectedPanel / status / version
 apps/web/src/router/index.ts         — route: /observatory
 apps/web/src/__tests__/ObservatoryOverview.test.ts  — 62 tests (overview dashboard)
+apps/web/src/__tests__/ObservatoryTraceViewer.test.ts — 99 tests (trace viewer)
 ```
 
 ### Store
@@ -887,21 +893,24 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 - **Keyboard accessibility** — real `<button>` elements with arrow/Home/End navigation and `aria-current="page"`; overview cards keyboard reachable (`tabindex="0"`)
 - **`App.vue` integration** — renders `<router-view>` only when the observatory route is active; the game canvas app is untouched for all other paths
 - **Overview dashboard semantics** — `section`/`article`/`h2`/`dl` (`dt`/`dd`) markup with `aria-labelledby`; no inline styles (all values via `var(--obs-*)` shell tokens)
-- **Overview content gate** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` only when `selectedPanel === 'Overview'`; all other panels keep the placeholder grid
+- **Content gates** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` when `selectedPanel === 'Overview'`, `<ObservatoryTraceViewer />` when `selectedPanel === 'Trace'`, and the placeholder grid otherwise
+- **Trace viewer master-detail** — two-column grid (`300px | minmax(0, 1fr)`); list rows are real `<button>`s with Arrow/Home/End keyboard navigation and `aria-current="true"`; details use `dl`/`dt`/`dd` + `<pre>` blocks (keyboard reachable via `tabindex="0"`)
+- **Local selection state** — the trace viewer keeps `selectedId` in a component `ref` (no store schema change; future real-data wiring can lift it)
 
 ### Dependency Rules
 
 - `ObservatoryShell` depends only on the three observatory components
-- `ObservatoryContent` depends on `ObservatoryOverview` for the Overview panel; `ObservatoryOverview` depends only on `useObservatoryStore`
+- `ObservatoryContent` depends on `ObservatoryOverview` (Overview) and `ObservatoryTraceViewer` (Trace); both depend only on `useObservatoryStore`
+- Trace subcomponents use props/events only — `ObservatoryTraceViewer` owns mock data + `selectedId`, `TraceList`/`TraceDetails` are presentational
 - All observatory components depend only on `useObservatoryStore` / `OBSERVATORY_PANELS`
 - The observatory store has zero dependencies on Runtime, Planner, Provider, Memory, AgentLoop, Pipeline, or PromptBuilder
-- Overview data is local mock (hardcoded artifact counts / snapshot values) — no viewer consumes `metadata.promptAssembly.*` from the browser yet
+- Data is local mock (hardcoded artifact counts, trace rows, plans, snapshots, metadata) — no viewer consumes `metadata.promptAssembly.*` from the browser yet
 
 ### Future (Not Yet Implemented — Sprint 6 backlogs)
 
 | Capability | Mechanism |
 |-----------|-----------|
-| Trace Viewer | Replace Trace placeholder card |
+| ~~Trace Viewer~~ | ~~Replace Trace placeholder card~~ **Done in WO-S6-003** |
 | Timeline Viewer | Replace Timeline placeholder card |
 | History Viewer | Replace History placeholder card |
 | Diff Viewer | Replace Diff placeholder card |

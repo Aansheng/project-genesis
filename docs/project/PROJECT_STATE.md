@@ -16,8 +16,8 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 6 **In Progress** |
-| Architecture Version | v1.31 (Sprint 6) |
-| Architecture Status | **Evolving** — Observatory Shell Foundation (WO-S6-001) + Observatory Overview Dashboard Foundation (WO-S6-002) complete — first visible UI milestones achieved. `ObservatoryShell` + `ObservatorySidebar` + `ObservatoryHeader` + `ObservatoryContent` compose the dark, minimal, developer-tool shell at `/observatory` (Vue 3 + TypeScript + Pinia + vue-router; no new dependencies). New `observatory` Pinia store (`selectedPanel`, `status`, `version`). 7-panel sidebar navigation (Overview / Trace / Timeline / History / Diff / Runtime / Settings) with active/hover/keyboard support. `ObservatoryOverview.vue` renders three sections inside the shell when Overview is selected: Artifact Summary (3 cards: Trace=12, Timeline=8, History=4), Observatory Snapshot (7 status fields), System Status (version + Sprint 6 + status from store). Non-Overview panels still show the 6 placeholder content cards ("Coming Soon") for layout validation. No inline styles; all values via `var(--obs-*)` design tokens. 122 tests across `ObservatoryShell.test.ts` (60) + `ObservatoryOverview.test.ts` (62); TypeScript 0 errors; ESLint 0 errors. No viewers implemented — Trace Viewer, Timeline Viewer, History Viewer, Diff Viewer, Runtime Graph, Prompt Explorer remain future work. Architecture v1.31. **Sprint 5 = 100% complete** (Prompt Observability Layer). |
+| Architecture Version | v1.32 (Sprint 6) |
+| Architecture Status | **Evolving** — Observatory Shell (WO-S6-001) + Overview Dashboard (WO-S6-002) + Trace Viewer (WO-S6-003) complete. `ObservatoryShell` + `ObservatorySidebar` + `ObservatoryHeader` + `ObservatoryContent` compose the dark, minimal, developer-tool shell at `/observatory` (Vue 3 + TypeScript + Pinia + vue-router; no new dependencies). New `observatory` Pinia store (`selectedPanel`, `status`, `version`). 7-panel sidebar navigation with active/hover/keyboard support. **Overview Dashboard Foundation** — `ObservatoryOverview.vue` renders when `selectedPanel === 'Overview'` (Artifact Summary, Observatory Snapshot, System Status). **Trace Viewer Foundation** — first observability viewer: two-column master-detail layout via `trace/` components (`ObservatoryTraceViewer`, `TraceList`, `TraceDetails`, `TraceStepCard`). Selectable trace rows (mock: trace-1/create, trace-2/modify, trace-3/query) with keyboard navigation; details show Trace ID/Strategy header, Plan (`<pre>`), Snapshot (key/value grid), Metadata (JSON block). Selection is local component state — no store schema change. Placeholder grid preserved for Timeline/History/Diff/Runtime. No inline styles. 245 tests across 4 files (99 trace + 69 shell + 62 overview + 15 streaming); TypeScript 0 errors; ESLint 0 errors. No viewers implemented — Timeline Viewer, History Viewer, Diff Viewer, Runtime Graph, Prompt Explorer remain future work. Architecture v1.32. **Sprint 5 = 100% complete** (Prompt Observability Layer). |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | Stable (Canvas Renderer) |
 | Planner Status | Stable (Planner Interface + PlannerResult + PlannerProvider + ProviderFactory) |
@@ -216,6 +216,7 @@
 | --------- | -------------------------------------- |
 | WO-S6-001 | Observatory Shell Foundation           |
 | WO-S6-002 | Observatory Overview Dashboard Foundation |
+| WO-S6-003 | Observatory Trace Viewer Foundation         |
 
 ---
 
@@ -892,6 +893,7 @@ Key remaining items:
 | ADR-0124 | Prompt Assembly History Consumption | `docs/adr/ADR-0124-prompt-assembly-history-consumption.md` |
 | ADR-0143 | Observatory Shell Foundation | `docs/adr/ADR-0143-observatory-shell-foundation.md` |
 | ADR-0144 | Observatory Overview Dashboard Foundation | `docs/adr/ADR-0144-observatory-overview-dashboard-foundation.md` |
+| ADR-0145 | Observatory Trace Viewer Foundation | `docs/adr/ADR-0145-observatory-trace-viewer-foundation.md` |
 
 ---
 

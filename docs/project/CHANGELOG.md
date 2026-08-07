@@ -5333,3 +5333,39 @@
 - Created ADR-0144: Observatory Overview Dashboard Foundation
 - No breaking changes to any Public API
 - Architecture version v1.30 → v1.31
+
+### WO-S6-003 — Observatory Trace Viewer Foundation
+
+- **First observability viewer in the Observatory** — the Trace panel now renders a two-column master-detail viewer instead of a "Coming Soon" placeholder card
+- **New components** — `apps/web/src/components/observatory/trace/`:
+  - `ObservatoryTraceViewer.vue` — root viewer; owns `MOCK_TRACES` (3 traces: trace-1/create, trace-2/modify, trace-3/query with timestamp, plan, snapshot, metadata) and local `selectedId` state (component `ref` — no store schema change)
+  - `TraceList.vue` — selectable trace rows (`nav[aria-label="Trace list"]` → `ul` → `li` → `button.trace-row`) showing strategy / id / timestamp; active row via `.trace-row--active` + `aria-current="true"`; hover state; ArrowUp / ArrowDown / Home / End keyboard navigation with focus movement (sidebar pattern)
+  - `TraceDetails.vue` — article (`aria-label="Trace details"`); header (`Trace Details` h2 + `dl.trace-meta-grid` with Trace ID / Strategy in mono); Plan as `<pre>` block; Snapshot as `dl.trace-snapshot-grid` key/value grid; Metadata as `<pre>` with `JSON.stringify(metadata, null, 2)`; Plan/Metadata pre blocks keyboard reachable (`tabindex="0"`); empty state "No trace selected"
+  - `TraceStepCard.vue` — reusable titled card (`section[aria-labelledby]` → `h3#trace-step-<title>` heading strip + slot body) used to wrap Plan / Snapshot / Metadata
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`:
+  - Renders `<ObservatoryTraceViewer />` via `v-else-if="isTrace()"` when `store.selectedPanel === 'Trace'`
+  - Overview dashboard and the placeholder grid for Timeline / History / Diff / Runtime are unchanged
+- **Two-column developer-tool layout** — `grid-template-columns: 300px minmax(0, 1fr)`; border-contained panel; dark near-black surfaces, 1px borders, monospace values, indigo accent for active row (Chrome DevTools / Raycast Inspector / Linear Debug View aesthetic)
+- **Mock data only** — no Runtime / Planner / Pipeline / PromptBuilder / AI package changes; no new dependencies; no inline styles (all values via `var(--obs-*)` shell tokens)
+- New test file `apps/web/src/__tests__/ObservatoryTraceViewer.test.ts` (99 tests):
+  - Rendering (19 tests): root, TraceList/TraceDetails components, nav/article landmarks, h2 headings, 3 rows, ids/strategies/timestamps order, button semantics, ul/li structure, step cards, pre blocks, placeholder grid fallback
+  - Mock data (7 tests): 3 traces, id pattern, strategies, plan strategy, deterministic plan, snapshot keys, metadata JSON validity
+  - Default selection & active state (7 tests): first row active, single active, aria-current, header shows trace-1/create, field labels
+  - Selection by click (7 tests): id/strategy updates, active class + aria-current movement, switching back, no-op re-click
+  - Detail switching (7 tests): plan/snapshot/metadata update per trace; distinct plans
+  - Snapshot rendering (6 tests): dl grid, h3, 3 entries, keys, values, dt/dd pairs
+  - Metadata rendering (6 tests): JSON with builder/phase, 2-space indent, parseable round-trip, per-trace status
+  - Keyboard navigation (12 tests): ArrowDown/Up, repeated moves, clamping at both ends, Home/End, unrelated-key ignoring, aria-current movement, focus movement, nav handler
+  - Accessibility (11 tests): landmarks, buttons + type, accessible names, aria-current, h2 headings, section aria-labelledby, heading id normalization, pre tabindex, meta dl, static labels
+  - TraceStepCard (6 tests): section, h3 title, slot content, aria-labelledby link, slugified id, title class
+  - Content integration (5 tests): store-driven visibility, Overview↔Trace switching, Trace↔grid switching, fresh mount determinism
+  - Deterministic rendering (6 tests): identical ids/strategies/timestamps/card titles/default selection/HTML across mounts
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (60 → 69 tests):
+  - Re-pointed grid tests to `mountContentAs('Timeline')` (Trace now renders the viewer)
+  - New content tests: trace viewer renders for Trace, no grid/dashboard for Trace, dashboard↔viewer, grid↔viewer, viewer→grid, viewer→dashboard
+  - New shell tests: sidebar Trace click renders viewer; Trace→Timeline returns to grid
+- All 245 web tests pass (99 + 69 + 62 + 15; 7841 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0145: Observatory Trace Viewer Foundation
+- No breaking changes to any Public API
+- Architecture version v1.31 → v1.32

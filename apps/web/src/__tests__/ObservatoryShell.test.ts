@@ -13,6 +13,7 @@ import ObservatorySidebar from '../components/observatory/ObservatorySidebar.vue
 import ObservatoryHeader from '../components/observatory/ObservatoryHeader.vue'
 import ObservatoryContent from '../components/observatory/ObservatoryContent.vue'
 import ObservatoryOverview from '../components/observatory/ObservatoryOverview.vue'
+import ObservatoryTraceViewer from '../components/observatory/trace/ObservatoryTraceViewer.vue'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -358,8 +359,8 @@ describe('observatory content', () => {
     expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('renders 6 placeholder cards for non-Overview panels', () => {
-    const wrapper = mountContentAs('Trace')
+  it('renders 6 placeholder cards for non-Overview, non-Trace panels', () => {
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 
@@ -367,7 +368,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContent()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
-    store.selectPanel('Trace')
+    store.selectPanel('Timeline')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -383,38 +384,93 @@ describe('observatory content', () => {
     expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('includes an Overview card in the placeholder grid', () => {
+  it('renders the trace viewer when Trace is selected', () => {
     const wrapper = mountContentAs('Trace')
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+  })
+
+  it('does not render placeholder cards when Trace is selected', () => {
+    const wrapper = mountContentAs('Trace')
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('does not render the overview dashboard when Trace is selected', () => {
+    const wrapper = mountContentAs('Trace')
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+  })
+
+  it('switches from dashboard to trace viewer when Trace is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContent()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    store.selectPanel('Trace')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+  })
+
+  it('switches from grid to trace viewer when Trace is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Timeline')
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+    store.selectPanel('Trace')
+    await nextTick()
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+  })
+
+  it('switches from trace viewer to grid when another panel is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Trace')
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+    store.selectPanel('History')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('switches from trace viewer back to dashboard when Overview is re-selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Trace')
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+    store.selectPanel('Overview')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+  })
+
+  it('includes an Overview card in the placeholder grid', () => {
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.text()).toContain('Overview')
   })
 
   it('includes a Trace card', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.text()).toContain('Trace')
   })
 
   it('includes a Timeline card', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.text()).toContain('Timeline')
   })
 
   it('includes a History card', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.text()).toContain('History')
   })
 
   it('includes a Diff card', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.text()).toContain('Diff')
   })
 
   it('includes a Runtime card', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     expect(wrapper.text()).toContain('Runtime')
   })
 
   it('does not render a Settings card', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     const settings = wrapper.findAll('.content-card').filter((c) =>
       c.text().includes('Settings'),
     )
@@ -422,7 +478,7 @@ describe('observatory content', () => {
   })
 
   it('each card contains Coming Soon', () => {
-    const wrapper = mountContentAs('Trace')
+    const wrapper = mountContentAs('Timeline')
     for (const card of wrapper.findAll('.content-card')) {
       expect(card.text()).toContain('Coming Soon')
     }
@@ -517,5 +573,26 @@ describe('observatory shell', () => {
     )
     expect(activeContent).toHaveLength(1)
     expect(activeContent[0].text()).toContain('Diff')
+  })
+
+  it('renders the trace viewer when Trace is selected from the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[1].trigger('click') // Trace
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('returns to the placeholder grid when a non-Overview non-Trace panel is selected', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[1].trigger('click') // Trace
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+    await buttons[2].trigger('click') // Timeline
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 })

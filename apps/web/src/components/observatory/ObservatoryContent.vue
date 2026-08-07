@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useObservatoryStore } from '../../stores/observatory'
 import ObservatoryOverview from './ObservatoryOverview.vue'
+import ObservatoryTraceViewer from './trace/ObservatoryTraceViewer.vue'
 
 const store = useObservatoryStore()
 
@@ -20,6 +21,10 @@ function isActive(panel: string): boolean {
 function isOverview(): boolean {
   return store.selectedPanel === 'Overview'
 }
+
+function isTrace(): boolean {
+  return store.selectedPanel === 'Trace'
+}
 </script>
 
 <template>
@@ -28,6 +33,7 @@ function isOverview(): boolean {
     aria-label="Observatory content"
   >
     <ObservatoryOverview v-if="isOverview()" />
+    <ObservatoryTraceViewer v-else-if="isTrace()" />
     <div
       v-else
       class="content-grid"
