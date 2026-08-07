@@ -5030,6 +5030,39 @@
 - No prompt changes
 - Architecture version v1.25 → v1.26
 
+### WO-S5-093 — Prompt Assembly Observatory Export Consumption
+
+- **Added `promptAssemblyObservatoryExporter` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyObservatoryExporter?: PromptAssemblyObservatoryExporter`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599778 inserted between Phase 0.95997775 (ObservatoryRenderer) and Phase 0.96 (StrategyResolver)
+  - Exports observatory via exporter when both are present
+  - Empty export output ignored (not stored)
+  - Export result stored at `metadata.promptAssembly.observatoryExported`
+- **Additive observatoryExported** — coexists with all existing fields: observatory, observatoryDiff, observatoryRendered, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyObservatory, PromptAssemblyObservatoryBuilder, PromptAssemblyObservatoryDiffer, PromptAssemblyObservatoryRenderer, PromptAssemblyObservatoryExporter, DefaultPromptAssemblyObservatoryExporter
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0140: Prompt Assembly Observatory Export Consumption
+- New test file `PromptAssemblyObservatoryExportConsumption.test.ts` (81 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatible, full setup
+  - Exporter Invocation (8 tests): called once, receives observatory, not called without observatory builder, not called without exporter, called with empty observatory, custom output preserved, empty output ignored, non-empty observatory passed
+  - Metadata Creation (9 tests): stored, missing exporter, missing observatory builder, stored with empty observatory, string type, non-empty, valid JSON, non-overwrite, correct path
+  - Metadata Coexistence — trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, observatory, observatoryDiff, observatoryRendered, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (28 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, identical inputs
+  - Stateless (2 tests): no retained state, fresh export per build
+  - Pure (3 tests): context unmodified, prompt unchanged, observatory metadata unmodified
+  - Legacy Constructor (4 tests): BuilderOptions, full BuilderOptions, legacy args, positional form undefined
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, different exporter same prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Observatory Export Validation (11 tests): valid JSON, pretty-printed 2-space indent, artifact names present, snapshots present, round trip parse, matches observatory metadata, strategy name, timeline/history entries
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes to existing behavior
+- Architecture version v1.26 → v1.27
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
