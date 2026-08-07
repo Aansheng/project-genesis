@@ -4916,6 +4916,47 @@
 - No prompt changes
 - Architecture version v1.22 → v1.23
 
+### WO-S5-090 — Prompt Assembly Observatory Renderer Foundation
+
+- **Defined `PromptAssemblyObservatoryRenderer`** in `packages/ai/src/strategy/PromptAssemblyObservatoryRenderer.ts`
+  - Single method contract: `render(observatory): string`
+- **Implemented `DefaultPromptAssemblyObservatoryRenderer`** in `packages/ai/src/strategy/DefaultPromptAssemblyObservatoryRenderer.ts`
+  - Renders PromptAssemblyObservatory as human-readable text
+  - Lists present artifacts in declaration order: trace, timeline, history, traceSnapshot, timelineSnapshot, historySnapshot
+  - Non-empty format includes "Artifacts:" section with bullet items
+  - Empty observatory outputs "No Artifacts"
+  - **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+  - **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0137: Prompt Assembly Observatory Renderer Foundation
+- New test file `PromptAssemblyObservatoryRenderingFoundation.test.ts` (98 tests):
+  - Interface Contract (5 tests): render method, return type, custom impl, empty/full output
+  - Empty Observatory (8 tests): exact output, header, No Artifacts, no artifacts listed, absence of each artifact
+  - Single Artifact — trace (4 tests): exact output, contains trace, no other artifacts, header
+  - Single Artifact — timeline (3 tests): exact output, contains timeline, no others
+  - Single Artifact — history (3 tests): exact output, contains history, no others
+  - Single Artifact — traceSnapshot (2 tests): exact output, contains traceSnapshot
+  - Single Artifact — timelineSnapshot (2 tests): exact output, contains timelineSnapshot
+  - Single Artifact — historySnapshot (2 tests): exact output, contains historySnapshot
+  - Multiple Artifacts (8 tests): two artifacts, three core, three snapshots, all six, order preservation, mixed, missing first
+  - Rendering Validation (9 tests): header, section title, bullet count, blank lines, no trailing newline, format
+  - Deterministic (5 tests): cross-call, cross-instance, identical obs, empty obs identity
+  - Stateless (2 tests): no state leakage, independent results
+  - Pure (4 tests): observatory unmodified, trace unmodified, empty unmodified, field references
+  - Immutable (3 tests): no keys changed, no properties added, no properties removed
+  - Export Validation (6 tests): strategy index class/type, package root class/type, instance, interface
+  - Architecture Compliance (19 tests): no Runtime/Planner/Pipeline/Provider/Memory/AgentLoop/PromptBuilder/BuilderOptions/PromptRenderer/PromptCompression deps
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (9 tests): all six, partial snapshots, partial core, unicode, large timeline, large history, single snapshots, undefined field
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.23 → v1.24
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method

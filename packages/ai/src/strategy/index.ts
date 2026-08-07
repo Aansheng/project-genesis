@@ -100,3 +100,5 @@ export { DefaultPromptAssemblyObservatoryBuilder } from './DefaultPromptAssembly
 export type { PromptAssemblyObservatoryDiff } from './PromptAssemblyObservatoryDiff'
 export type { PromptAssemblyObservatoryDiffer } from './PromptAssemblyObservatoryDiffer'
 export { DefaultPromptAssemblyObservatoryDiffer } from './DefaultPromptAssemblyObservatoryDiffer'
+export type { PromptAssemblyObservatoryRenderer } from './PromptAssemblyObservatoryRenderer'
+export { DefaultPromptAssemblyObservatoryRenderer } from './DefaultPromptAssemblyObservatoryRenderer'
