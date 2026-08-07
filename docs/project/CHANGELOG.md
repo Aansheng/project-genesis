@@ -4989,6 +4989,47 @@
 - No PromptBuilder changes to existing behavior
 - Architecture version v1.24 → v1.25
 
+### WO-S5-092 — Prompt Assembly Observatory Export Foundation
+
+- **Defined `PromptAssemblyObservatoryExporter`** in `packages/ai/src/strategy/PromptAssemblyObservatoryExporter.ts`
+  - Single method contract: `export(observatory): string`
+- **Implemented `DefaultPromptAssemblyObservatoryExporter`** in `packages/ai/src/strategy/DefaultPromptAssemblyObservatoryExporter.ts`
+  - Exports PromptAssemblyObservatory as pretty-printed JSON with 2-space indentation
+  - Output is identical to `JSON.stringify(observatory, null, 2)`
+  - **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+  - **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, or Pipeline
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0139: Prompt Assembly Observatory Export Foundation
+- New test file `PromptAssemblyObservatoryExportFoundation.test.ts` (105 tests):
+  - Interface Contract (3 tests): export method, returns string, custom impl
+  - Empty Observatory (7 tests): valid JSON, empty obj, exact output, parseability, frozen, formatting, minified comparison
+  - Single Artifact — trace (3 tests): trace present, only trace, strategy name
+  - Single Artifact — timeline (3 tests): timeline present, only timeline, zero entries
+  - Single Artifact — history (3 tests): history present, only history, zero entries
+  - Single Artifact — traceSnapshot (3 tests): snapshot present, only snapshot, strategy name
+  - Single Artifact — timelineSnapshot (3 tests): snapshot present, only snapshot, entryCount
+  - Single Artifact — historySnapshot (3 tests): snapshot present, only snapshot, entryCount
+  - Multiple Artifacts (7 tests): two core, three core, three snapshots, all six, field order, mixed, partial
+  - JSON Validation (4 tests): parseable, combinations, no trailing commas, deep nesting
+  - Pretty Printed JSON (7 tests): 2-space indent, newline after {, newline before }, 4-space nested, multiline, no trailing newline, key-value on separate lines
+  - Deterministic (5 tests): cross-call, cross-instance, identical obs, empty obs, all six
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (5 tests): frozen obs, nested unmodified, arrays unmodified, no added properties, no removed properties
+  - Immutable (3 tests): deeply frozen, frozen arrays, frozen input
+  - Export Validation (12 tests): trace strategy, timeline entries array, history entries array, snapshot types, exact structure preservation, traceSnapshot strategy, timelineSnapshot firstStrategy, historySnapshot firstStrategy
+  - Architecture Compliance (11 tests): no Runtime/Planner/Pipeline/Provider/Memory/AgentLoop/PromptBuilder/BuilderOptions/PromptRenderer/PromptCompression deps
+  - Edge Cases (15 tests): undefined fields, null-like fields, empty trace, empty timeline, empty history, unicode, special chars, empty arrays, JSON roundtrip, partial snapshots, partial core, 100 timeline entries, 100 history entries, all six empty, numeric strategy
+  - Error Handling (2 tests): empty, fully populated
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.25 → v1.26
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
