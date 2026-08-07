@@ -89,6 +89,10 @@ import type {
   PromptAssemblyObservatoryExporter,
 } from '../strategy/PromptAssemblyObservatoryExporter'
 import type {
+  PromptAssemblyObservatorySnapshotBuilder,
+  PromptAssemblyObservatorySnapshot,
+} from '../strategy'
+import type {
   PromptAssemblyObservatoryDiff,
 } from '../strategy/PromptAssemblyObservatoryDiff'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
@@ -158,6 +162,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
     PromptAssemblyObservatoryRenderer
   private readonly promptAssemblyObservatoryExporter?:
     PromptAssemblyObservatoryExporter
+  private readonly promptAssemblyObservatorySnapshotBuilder?:
+    PromptAssemblyObservatorySnapshotBuilder
 
   /**
    * Create a DefaultPromptBuilder.
@@ -256,6 +262,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
         opts.promptAssemblyObservatoryRenderer
       this.promptAssemblyObservatoryExporter =
         opts.promptAssemblyObservatoryExporter
+      this.promptAssemblyObservatorySnapshotBuilder =
+        opts.promptAssemblyObservatorySnapshotBuilder
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -305,6 +313,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyObservatoryRenderer =
         undefined
       this.promptAssemblyObservatoryExporter =
+        undefined
+      this.promptAssemblyObservatorySnapshotBuilder =
         undefined
     }
   }
@@ -695,6 +705,22 @@ export class DefaultPromptBuilder implements PromptBuilder {
       }
     }
 
+    // Phase 0.9599779: PromptAssemblyObservatorySnapshotBuilder — build condensed observatory snapshot
+    let observatorySnapshot:
+      | PromptAssemblyObservatorySnapshot
+      | undefined
+
+    if (
+      observatory !== undefined &&
+      this.promptAssemblyObservatorySnapshotBuilder !== undefined
+    ) {
+      observatorySnapshot =
+        this.promptAssemblyObservatorySnapshotBuilder.build(
+          observatory,
+          promptAssemblyMetadata,
+        )
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -839,6 +865,9 @@ export class DefaultPromptBuilder implements PromptBuilder {
           : {}),
         ...(observatoryExported !== undefined
           ? { observatoryExported }
+          : {}),
+        ...(observatorySnapshot !== undefined
+          ? { observatorySnapshot }
           : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,

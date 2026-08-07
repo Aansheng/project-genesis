@@ -5107,6 +5107,40 @@
 - No prompt changes
 - Architecture version v1.27 → v1.28
 
+### WO-S5-095 — Prompt Assembly Observatory Snapshot Consumption
+
+- **Added `promptAssemblyObservatorySnapshotBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyObservatorySnapshotBuilder?: PromptAssemblyObservatorySnapshotBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599779 inserted between Phase 0.9599778 (ObservatoryExporter) and Phase 0.96 (StrategyResolver)
+  - Builds condensed observatory snapshot when both observatory and builder are present
+  - Builder receives the built observatory and promptAssemblyMetadata
+  - Snapshot stored at `metadata.promptAssembly.observatorySnapshot`
+- **Additive observatorySnapshot** — coexists with all existing fields: observatory, observatoryDiff, observatoryRendered, observatoryExported, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyObservatory, PromptAssemblyObservatoryBuilder, PromptAssemblyObservatoryDiffer, PromptAssemblyObservatoryRenderer, PromptAssemblyObservatoryExporter, PromptAssemblyObservatorySnapshot, PromptAssemblyObservatorySnapshotBuilder, DefaultPromptAssemblyObservatorySnapshotBuilder
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0142: Prompt Assembly Observatory Snapshot Consumption
+- New test file `PromptAssemblyObservatorySnapshotConsumption.test.ts` (81 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatible, full setup
+  - Builder Invocation (8 tests): called once, receives observatory, receives promptAssemblyMetadata, not called without observatory builder, not called without builder, custom snapshot preserved, called with empty observatory
+  - Metadata Creation (11 tests): stored, correct path, missing builder, missing observatory builder, correct shape, artifactCount 6, hasTrace, hasTimeline, hasHistory, custom rendered/exported, artifactCount 0 for empty observatory
+  - Metadata Coexistence — observatory, observatoryDiff, observatoryRendered, observatoryExported, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (29 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, artifactCount stability
+  - Stateless (2 tests): no retained state, fresh per build
+  - Pure (3 tests): context unmodified, prompt unchanged, observatory metadata preserved
+  - Legacy Constructor (4 tests): BuilderOptions, full BuilderOptions, legacy args, positional form undefined
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, different snapshot same prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Observatory Snapshot Validation (8 tests): artifactCount, boolean flags, rendered, exported, partial observatory, empty observatory, flags match observatory, no overwrite
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes to existing behavior
+- **Sprint 5 Prompt Observability Layer complete — Sprint 5 = 100% complete**
+- Architecture version v1.28 → v1.29
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method
