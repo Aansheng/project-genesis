@@ -5369,3 +5369,40 @@
 - Created ADR-0145: Observatory Trace Viewer Foundation
 - No breaking changes to any Public API
 - Architecture version v1.31 → v1.32
+
+### WO-S6-004 — Observatory Timeline Viewer Foundation
+
+- **Second observability viewer in the Observatory** — the Timeline panel now renders a two-column master-detail viewer instead of a "Coming Soon" placeholder card
+- **New components** — `apps/web/src/components/observatory/timeline/`:
+  - `ObservatoryTimelineViewer.vue` — root viewer; owns `MOCK_TIMELINES` (timeline-001 with 12 entries, timeline-002 with 8 entries, timeline-003 with 4 entries) and local `selectedId` state (component `ref` — no store schema change)
+  - `TimelineList.vue` — selectable timeline rows (`nav[aria-label="Timeline list"]` → `ul` → `li` → `button.timeline-row`) showing id (monospace) + "N entries"; active row via `.timeline-row--active` + `aria-current="true"`; hover state; ArrowUp / ArrowDown / Home / End keyboard navigation with focus movement (Trace Viewer pattern)
+  - `TimelineDetails.vue` — article (`aria-label="Timeline details"`); header (`Timeline Details` h2 + `dl.timeline-meta-grid` with Timeline ID / Entry Count in mono); Timeline Entries section (`section[aria-labelledby="timeline-entries-title"]` → h3 + `ul.timeline-entries-list`); empty state "No timeline selected"
+  - `TimelineEntryCard.vue` — reusable entry card (props: `index`, `strategy`); `article[aria-labelledby]` → `h3#timeline-entry-<index>` ("#0" mono accent) + strategy name in a `header`
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`:
+  - Renders `<ObservatoryTimelineViewer />` via `v-else-if="isTimeline()"` when `store.selectedPanel === 'Timeline'`
+  - Overview dashboard, Trace viewer, and the placeholder grid for History / Diff / Runtime are unchanged
+- **Two-column developer-tool layout** — `grid-template-columns: 300px minmax(0, 1fr)`; border-contained panel; dark near-black surfaces, 1px borders, monospace values, indigo accent for active row — identical visual system to the Trace Viewer
+- **Mock data only** — no Runtime / Planner / Pipeline / PromptBuilder / AI / Strategy / Metadata changes; no new dependencies; no inline styles (all values via `var(--obs-*)` shell tokens)
+- New test file `apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts` (99 tests):
+  - Rendering (19 tests): root, TimelineList/TimelineDetails components, nav/article landmarks, h2 headings, 3 rows, ids/entry counts order, button semantics, ul/li structure, details title, two-column grid, entries section heading + aria-labelledby
+  - Mock data (7 tests): 3 timelines, id pattern, counts, 12 default entries, strategies, sequential indices
+  - Default selection & active state (8 tests): first row active, single active, aria-current, header id/count, dt labels, meta dl
+  - Selection by click (7 tests): id/count updates, active class + aria-current movement, switching back, no-op re-click
+  - Details rendering (9 tests): entries section, entry card count, li structure, ul, index hash, first strategy, per-timeline entry updates, distinct strategies, placeholder grid fallback
+  - Entry rendering (8 tests): article semantics, header, h3, aria-labelledby link, heading id, timeline-002/003 strategies, index alignment
+  - TimelineEntryCard (6 tests): article, h3 index, strategy name, header, aria-labelledby, generated id
+  - Keyboard navigation (12 tests): ArrowDown/Up, repeated moves, clamping at both ends, Home/End, unrelated-key ignoring, aria-current movement, focus movement, nav handler
+  - Accessibility (11 tests): landmarks, buttons + type, accessible names, aria-current, h2/h3 hierarchy, article cards, no div-as-button, meta dl, section aria-labelledby
+  - Empty state (4 tests): no-timeline message, header hidden, entries hidden, paragraph element
+  - Content integration (6 tests): store-driven visibility, Overview↔Timeline, Trace↔Timeline, timeline↔grid, fresh mount determinism
+  - Deterministic rendering (5 tests): identical ids/counts/strategies/default selection/HTML across mounts
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (69 → 80 tests):
+  - Re-pointed grid tests to `mountContentAs('History')` (Timeline now renders the viewer)
+  - New content tests: timeline viewer renders for Timeline, no grid/overview/trace for Timeline, dashboard→viewer, trace→viewer, grid→viewer, viewer→grid, viewer→dashboard
+  - New shell tests: sidebar Timeline click renders viewer; Trace→Timeline sidebar switching
+- Updated `apps/web/src/__tests__/ObservatoryTraceViewer.test.ts`: placeholder-grid host test re-pointed from Timeline to History
+- All 355 web tests pass (99 timeline + 99 trace + 80 shell + 62 overview + 15 streaming; 7951 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0146: Observatory Timeline Viewer Foundation
+- No breaking changes to any Public API
+- Architecture version v1.32 → v1.33

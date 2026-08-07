@@ -177,9 +177,9 @@ describe('trace viewer — rendering', () => {
     expect(pre.element.tagName).toBe('PRE')
   })
 
-  it('renders the placeholder grid for non-Trace panels via the content host', () => {
+  it('renders the placeholder grid for non-Overview, non-Trace, non-Timeline panels', () => {
     const store = useObservatoryStore()
-    store.selectPanel('Timeline')
+    store.selectPanel('History')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
