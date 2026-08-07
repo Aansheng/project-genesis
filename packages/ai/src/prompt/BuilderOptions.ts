@@ -48,6 +48,9 @@ import type {
 import type {
   PromptAssemblyObservatoryBuilder,
 } from '../strategy/PromptAssemblyObservatoryBuilder'
+import type {
+  PromptAssemblyObservatoryDiffer,
+} from '../strategy/PromptAssemblyObservatoryDiffer'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -93,6 +96,7 @@ import type {
  * Since WO-S5-083, BuilderOptions also accepts an optional promptAssemblyHistoryExporter.
  * Since WO-S5-085, BuilderOptions also accepts an optional promptAssemblyHistorySnapshotBuilder.
  * Since WO-S5-087, BuilderOptions also accepts an optional promptAssemblyObservatoryBuilder.
+ * Since WO-S5-089, BuilderOptions also accepts an optional promptAssemblyObservatoryDiffer.
  *
  * Design principles:
  * - All fields are optional — no breaking changes
@@ -204,4 +208,8 @@ export interface BuilderOptions {
   /** Optional PromptAssemblyObservatoryBuilder (defaults to undefined — no observatory) */
   promptAssemblyObservatoryBuilder?:
     PromptAssemblyObservatoryBuilder
+
+  /** Optional PromptAssemblyObservatoryDiffer (defaults to undefined — no observatory diff) */
+  promptAssemblyObservatoryDiffer?:
+    PromptAssemblyObservatoryDiffer
 }

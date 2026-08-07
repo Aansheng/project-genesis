@@ -4881,6 +4881,41 @@
 - No prompt changes
 - Architecture version v1.21 → v1.22
 
+### WO-S5-089 — Prompt Assembly Observatory Diff Consumption
+
+- **Added `promptAssemblyObservatoryDiffer` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyObservatoryDiffer?: PromptAssemblyObservatoryDiffer`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599775 inserted between Phase 0.959977 and Phase 0.96
+  - Diffs current observatory against empty baseline via DefaultPromptAssemblyObservatoryDiffer
+  - Observatory diff stored at `metadata.promptAssembly.observatoryDiff`
+- **Additive observatoryDiff** — coexists with all existing fields: observatory, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyObservatory, PromptAssemblyObservatoryBuilder, PromptAssemblyObservatoryDiffer, DefaultPromptAssemblyObservatoryDiffer
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0136: Prompt Assembly Observatory Diff Consumption
+- New test file `PromptAssemblyObservatoryDiffConsumption.test.ts` (80 tests):
+  - BuilderOptions (4 tests): field accepted, omitted, undefined, backward compatible
+  - Differ Invocation (6 tests): called once, not called without differ, receives observatory, empty baseline, custom diff preserved, not called without observatory
+  - Metadata Creation (12 tests): stored, path, missing differ, missing builder, shape, non-overwrite, differ+builder present, differ alone, array types, added length 6, removed length 0, changed length 0
+  - Metadata Coexistence — trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, observatory, all fields (16 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, identical inputs
+  - Stateless (2 tests): no retained state, independent results
+  - Pure (4 tests): context unmodified, metadata unchanged, prompt unchanged, no extra fields
+  - Legacy Constructor (4 tests): positional, BuilderOptions, full BuilderOptions, legacy args
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, not in serialized prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - ObservatoryDiff Validation (21 tests): six field names, empty removed/changed, string arrays, field order, consistent across builds, repeated builds
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.22 → v1.23
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method

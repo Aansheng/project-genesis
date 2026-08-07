@@ -79,6 +79,12 @@ import type {
 import type {
   PromptAssemblyObservatory,
 } from '../strategy/PromptAssemblyObservatory'
+import type {
+  PromptAssemblyObservatoryDiffer,
+} from '../strategy/PromptAssemblyObservatoryDiffer'
+import type {
+  PromptAssemblyObservatoryDiff,
+} from '../strategy/PromptAssemblyObservatoryDiff'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
@@ -140,6 +146,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
     PromptAssemblyHistorySnapshotBuilder
   private readonly promptAssemblyObservatoryBuilder?:
     PromptAssemblyObservatoryBuilder
+  private readonly promptAssemblyObservatoryDiffer?:
+    PromptAssemblyObservatoryDiffer
 
   /**
    * Create a DefaultPromptBuilder.
@@ -232,6 +240,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
         opts.promptAssemblyHistorySnapshotBuilder
       this.promptAssemblyObservatoryBuilder =
         opts.promptAssemblyObservatoryBuilder
+      this.promptAssemblyObservatoryDiffer =
+        opts.promptAssemblyObservatoryDiffer
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -275,6 +285,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
       this.promptAssemblyHistorySnapshotBuilder =
         undefined
       this.promptAssemblyObservatoryBuilder =
+        undefined
+      this.promptAssemblyObservatoryDiffer =
         undefined
     }
   }
@@ -620,6 +632,18 @@ export class DefaultPromptBuilder implements PromptBuilder {
       })
     }
 
+    // Phase 0.9599775: PromptAssemblyObservatoryDiffer — diff empty baseline vs current observatory
+    let observatoryDiff: PromptAssemblyObservatoryDiff | undefined
+    if (
+      observatory !== undefined &&
+      this.promptAssemblyObservatoryDiffer !== undefined
+    ) {
+      observatoryDiff = this.promptAssemblyObservatoryDiffer.diff(
+        {} as PromptAssemblyObservatory,
+        observatory,
+      )
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -758,6 +782,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         ...(historyExported !== undefined ? { historyExported } : {}),
         ...(historySnapshot !== undefined ? { historySnapshot } : {}),
         ...(observatory !== undefined ? { observatory } : {}),
+        ...(observatoryDiff !== undefined ? { observatoryDiff } : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,
         budget: budgetResult,
