@@ -5235,4 +5235,71 @@
 - All 5875+ tests pass (5810 + 65 new)
 - TypeScript 0 errors, ESLint 0 errors
 - No breaking changes to any Public API
-- Architecture version v1.11
+- Architecture version v1.11    → v1.12
+### WO-S5-095 — Prompt Assembly Observatory Snapshot Consumption
+- **Added `promptAssemblyObservatorySnapshotBuilder` to `BuilderOptions`** in `packages/ai/src/prompt/BuilderOptions.ts`
+  - New optional field: `promptAssemblyObservatorySnapshotBuilder?: PromptAssemblyObservatorySnapshotBuilder`
+  - Backward compatible — existing fields unchanged
+- **Wired into `DefaultPromptBuilder`** in `packages/ai/src/prompt/DefaultPromptBuilder.ts`
+  - New private field wired from BuilderOptions (legacy path → undefined)
+  - Phase 0.9599779 inserted between Phase 0.9599778 (ObservatoryExporter) and Phase 0.96 (StrategyResolver)
+  - Builds condensed observatory snapshot when both observatory and builder are present
+  - Builder receives the built observatory and promptAssemblyMetadata
+  - Snapshot stored at `metadata.promptAssembly.observatorySnapshot`
+- **Additive observatorySnapshot** — coexists with all existing fields: observatory, observatoryDiff, observatoryRendered, observatoryExported, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, strategy, plan, optimizedPlan, planDiff, planRendered
+- **No modifications to**: PromptRenderer, PromptCompression, Planner, Runtime, AgentLoop, Pipeline, PromptAssemblyObservatory, PromptAssemblyObservatoryBuilder, PromptAssemblyObservatoryDiffer, PromptAssemblyObservatoryRenderer, PromptAssemblyObservatoryExporter, PromptAssemblyObservatorySnapshot, PromptAssemblyObservatorySnapshotBuilder, DefaultPromptAssemblyObservatorySnapshotBuilder
+- **No prompt changes** — metadata only, no prompt injection, no behavior changes
+- Created ADR-0142: Prompt Assembly Observatory Snapshot Consumption
+- New test file `PromptAssemblyObservatorySnapshotConsumption.test.ts` (81 tests):
+  - BuilderOptions (5 tests): field accepted, omitted, undefined, backward compatible, full setup
+  - Builder Invocation (8 tests): called once, receives observatory, receives promptAssemblyMetadata, not called without observatory builder, not called without builder, custom snapshot preserved, called with empty observatory
+  - Metadata Creation (11 tests): stored, correct path, missing builder, missing observatory builder, correct shape, artifactCount 6, hasTrace, hasTimeline, hasHistory, custom rendered/exported, artifactCount 0 for empty observatory
+  - Metadata Coexistence — observatory, observatoryDiff, observatoryRendered, observatoryExported, trace, traceDiff, traceRendered, traceExported, timeline, timelineDiff, timelineRendered, timelineExported, timelineSnapshot, history, historyDiff, historyRendered, historyExported, historySnapshot, snapshot, inspector, inspectorRendered, inspectorExported, plan, optimizedPlan, planDiff, planRendered, strategy, strategySelection, all fields (29 tests)
+  - Deterministic (3 tests): cross-build, cross-instance, artifactCount stability
+  - Stateless (2 tests): no retained state, fresh per build
+  - Pure (3 tests): context unmodified, prompt unchanged, observatory metadata preserved
+  - Legacy Constructor (4 tests): BuilderOptions, full BuilderOptions, legacy args, positional form undefined
+  - No Prompt Changes (4 tests): identical prompt, no injection, metadata only, different snapshot same prompt
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Observatory Snapshot Validation (8 tests): artifactCount, boolean flags, rendered, exported, partial observatory, empty observatory, flags match observatory, no overwrite
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- **Sprint 5 Prompt Observability Layer complete — Sprint 5 = 100% complete**
+- Architecture version v1.28 → v1.29
+
+---
+
+## Sprint 6 — Observatory UI
+
+### WO-S6-001 — Observatory Shell Foundation
+
+- **First visible UI milestone of Project Genesis** — dark, minimal, developer-tool style shell (Linear / Vercel / Raycast / Warp aesthetic)
+- **Route registered** — `/observatory` in `apps/web/src/router/index.ts`, renders `ObservatoryPage.vue`
+- **New page** — `apps/web/src/pages/observatory/ObservatoryPage.vue`
+  - Renders the observatory shell
+  - Toggles `body.observatory` class on mount to reset global flex-centering and enforce `min-width: 1280px` + no horizontal scroll
+- **New components** — `apps/web/src/components/observatory/`:
+  - `ObservatoryShell.vue` — CSS grid layout (`header / sidebar / content` areas) + design token system (CSS custom properties: spacing scale, surfaces, borders, text, accent/success, monospace)
+  - `ObservatoryHeader.vue` — "Genesis Observatory" title, green status badge (`role="status"`, bound to store), version label, right-side "Sprint 6"
+  - `ObservatorySidebar.vue` — 7-panel navigation (Overview / Trace / Timeline / History / Diff / Runtime / Settings) as keyboard-accessible buttons with active class, hover state, `aria-current="page"`, and Arrow/Home/End keyboard navigation
+  - `ObservatoryContent.vue` — 6 placeholder cards (Overview / Trace / Timeline / History / Diff / Runtime) each containing "Coming Soon"; active card syncs with `selectedPanel`
+- **New Pinia store** — `apps/web/src/stores/observatory.ts`
+  - `useObservatoryStore` with `selectedPanel` (default `'Overview'`), `status` (default `'Ready'`), `version` (default `'v1.29'`)
+  - Actions: `selectPanel(panel)`, `setStatus(next)`, `setVersion(next)`
+  - Exports `ObservatoryPanel` type and `OBSERVATORY_PANELS` array
+- **`App.vue` integration** — renders `<router-view>` only when the observatory route is active; game canvas app preserved at `/`
+- **No new dependencies** — Vue 3 + TypeScript + Pinia + vue-router only (no Naive UI, no TailwindCSS)
+- **Explicitly NOT implemented** — Trace Viewer, Timeline Viewer, History Viewer, Diff Viewer, Runtime Graph, Prompt Explorer; no backend/Runtime/Planner/PromptBuilder changes
+- Created ADR-0143: Observatory Shell Foundation
+- New test file `apps/web/src/__tests__/ObservatoryShell.test.ts` (56 tests):
+  - Store (10 tests): defaults (selectedPanel/status/version), selectPanel across all panels, setStatus, setVersion, OBSERVATORY_PANELS completeness and order
+  - Header (9 tests): title, status badge, version, sprint label, reactive store updates, `role="status"`, `role="banner"`, version aria-label
+  - Sidebar (18 tests): all 7 items, spec order, button semantics, default active, only-Overview active, click selection, active class movement, `aria-current` on/off, nav aria-label, Settings click, ArrowDown/ArrowUp/Home/End navigation, boundary clamping, unrelated-key ignoring
+  - Content (12 tests): 6 cards, all card titles present, no Settings card, "Coming Soon" on every card, active card sync, content aria-label
+  - Shell (7 tests): root render, header/sidebar/content presence, grid area classes, combined title/status/version/sprint, panel selection sync
+- All 71 web tests pass (56 new + 15 existing; 7667 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Dark theme applied — visually verified in browser at `/observatory`
+- No breaking changes to any Public API
+- Architecture version v1.29 → v1.30

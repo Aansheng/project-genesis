@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.29)
+> Project Genesis — AI Architecture Reference (v1.30)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -838,6 +838,70 @@ Since WO-S5-067 (v1.01), Phase 0.95996 integrates `PromptAssemblyTimelineBuilder
 | Optimizer Consumption | `BuilderOptions` | Wire optimizer into PromptBuilder pipeline |
 | ~~Diff Consumption~~ | `BuilderOptions` | ~~Wire differ into PromptBuilder pipeline~~ **Done in WO-S5-049** |
 | ~~Snapshot Consumption~~ | `BuilderOptions` | ~~Wire snapshot builder into PromptBuilder pipeline~~ **Done in WO-S5-051** |
+
+---
+
+## Observatory UI (Sprint 6)
+
+The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6). Architecture version v1.30.
+
+### Architecture Status
+
+**Shell Foundation** — the observatory shell layout and navigation structure are complete. Individual viewers (Trace, Timeline, History, Diff, Runtime Graph, Prompt Explorer) are explicitly NOT implemented — the shell exists to host them.
+
+### Component Hierarchy
+
+```
+apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observatory), body class management
+  └── apps/web/src/components/observatory/ObservatoryShell.vue    — grid layout + design tokens
+        ├── ObservatoryHeader.vue    — title, status badge, version, sprint label
+        ├── ObservatorySidebar.vue   — 7-panel navigation (keyboard accessible)
+        └── ObservatoryContent.vue   — 6 placeholder cards ("Coming Soon")
+apps/web/src/stores/observatory.ts   — Pinia store: selectedPanel / status / version
+apps/web/src/router/index.ts         — route: /observatory
+```
+
+### Store
+
+```typescript
+// apps/web/src/stores/observatory.ts
+export type ObservatoryPanel =
+  | 'Overview' | 'Trace' | 'Timeline' | 'History'
+  | 'Diff' | 'Runtime' | 'Settings'
+
+export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
+  'Overview', 'Trace', 'Timeline', 'History', 'Diff', 'Runtime', 'Settings',
+]
+
+// State defaults: selectedPanel='Overview', status='Ready', version='v1.29'
+// Actions: selectPanel(panel), setStatus(next), setVersion(next)
+```
+
+### Design Decisions
+
+- **No routing logic in components** — sidebar keeps the selected panel in local Pinia state
+- **No new dependencies** — Vue 3 + TypeScript + Pinia + vue-router only (no Naive UI, no TailwindCSS)
+- **Desktop-first dark theme** — `min-width: 1280px`, no horizontal scroll; CSS custom property design tokens on `.observatory-shell` (spacing scale, surfaces, borders, accent/success colors, monospace font) avoid magic numbers
+- **Keyboard accessibility** — real `<button>` elements with arrow/Home/End navigation and `aria-current="page"`
+- **`App.vue` integration** — renders `<router-view>` only when the observatory route is active; the game canvas app is untouched for all other paths
+
+### Dependency Rules
+
+- `ObservatoryShell` depends only on the three observatory components
+- All observatory components depend only on `useObservatoryStore` / `OBSERVATORY_PANELS`
+- The observatory store has zero dependencies on Runtime, Planner, Provider, Memory, AgentLoop, Pipeline, or PromptBuilder
+- No viewer components exist yet — nothing consumes `metadata.promptAssembly.*` from the browser
+
+### Future (Not Yet Implemented — Sprint 6 backlogs)
+
+| Capability | Mechanism |
+|-----------|-----------|
+| Trace Viewer | Replace Trace placeholder card |
+| Timeline Viewer | Replace Timeline placeholder card |
+| History Viewer | Replace History placeholder card |
+| Diff Viewer | Replace Diff placeholder card |
+| Runtime Graph | Replace Runtime placeholder card |
+| Prompt Explorer | New panel under the shell |
 
 ---
 

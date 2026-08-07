@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useGameStore } from './stores/gameStore'
 import { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from '@genesis/renderer'
+
+const route = useRoute()
+const isObservatory = computed(() => route.name === 'observatory')
 
 const store = useGameStore()
 const input = ref('')
@@ -34,7 +38,11 @@ function handleSend() {
 </script>
 
 <template>
-  <div class="app">
+  <router-view v-if="isObservatory" />
+  <div
+    v-else
+    class="app"
+  >
     <h1>Project Genesis</h1>
     <canvas
       ref="canvasRef"
@@ -50,22 +58,49 @@ function handleSend() {
         class="input"
         :disabled="store.isStreaming"
         @keyup.enter="handleSend"
-      />
-      <button class="btn" :disabled="store.isStreaming" @click="handleSend">发送</button>
+      >
+      <button
+        class="btn"
+        :disabled="store.isStreaming"
+        @click="handleSend"
+      >
+        发送
+      </button>
       <label class="toggle">
-        <input type="checkbox" v-model="store.useStreaming" />
+        <input
+          v-model="store.useStreaming"
+          type="checkbox"
+        >
         <span>Streaming</span>
       </label>
     </div>
-    <div v-if="store.isStreaming || store.streamingText" class="streaming-panel">
+    <div
+      v-if="store.isStreaming || store.streamingText"
+      class="streaming-panel"
+    >
       <div class="streaming-header">
-        <span v-if="store.isStreaming" class="streaming-indicator">⏳ Generating...</span>
-        <span v-else-if="store.streamingFinished" class="streaming-done">✓ Done</span>
+        <span
+          v-if="store.isStreaming"
+          class="streaming-indicator"
+        >⏳ Generating...</span>
+        <span
+          v-else-if="store.streamingFinished"
+          class="streaming-done"
+        >✓ Done</span>
       </div>
       <pre class="streaming-text">{{ store.streamingText }}</pre>
     </div>
-    <div class="log" v-if="store.log.length">
-      <div v-for="(entry, i) in store.log" :key="i" class="log-entry">{{ entry }}</div>
+    <div
+      v-if="store.log.length"
+      class="log"
+    >
+      <div
+        v-for="(entry, i) in store.log"
+        :key="i"
+        class="log-entry"
+      >
+        {{ entry }}
+      </div>
     </div>
   </div>
 </template>
