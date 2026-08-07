@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.34)
+> Project Genesis — AI Architecture Reference (v1.35)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -843,11 +843,11 @@ Since WO-S5-067 (v1.01), Phase 0.95996 integrates `PromptAssemblyTimelineBuilder
 
 ## Observatory UI (Sprint 6)
 
-The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002, the Trace Viewer in WO-S6-003, the Timeline Viewer in WO-S6-004, and the History Viewer in WO-S6-005. Architecture version v1.34.
+The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002, the Trace Viewer in WO-S6-003, the Timeline Viewer in WO-S6-004, the History Viewer in WO-S6-005, and the Diff Viewer in WO-S6-006. Architecture version v1.35.
 
 ### Architecture Status
 
-**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. **Timeline Viewer Foundation** — the Timeline panel displays a two-column master-detail viewer over mock timeline data with indexed entry cards. **History Viewer Foundation** — the History panel displays a two-column master-detail viewer over mock history builds with Prompt / Result / Evolution detail sections. Other viewers (Diff, Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
+**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. **Timeline Viewer Foundation** — the Timeline panel displays a two-column master-detail viewer over mock timeline data with indexed entry cards. **History Viewer Foundation** — the History panel displays a two-column master-detail viewer over mock history builds with Prompt / Result / Evolution detail sections. **Diff Viewer Foundation** — the Diff panel displays a two-column master-detail viewer over mock diffs with Added / Removed / Changed sections (typed change cards). Other viewers (Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
 
 ### Component Hierarchy
 
@@ -856,7 +856,7 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
   └── apps/web/src/components/observatory/ObservatoryShell.vue    — grid layout + design tokens
         ├── ObservatoryHeader.vue    — title, status badge, version, sprint label
         ├── ObservatorySidebar.vue   — 7-panel navigation (keyboard accessible)
-        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; Trace → <ObservatoryTraceViewer /> ; Timeline → <ObservatoryTimelineViewer /> ; History → <ObservatoryHistoryViewer /> ; else placeholder cards
+        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; Trace → <ObservatoryTraceViewer /> ; Timeline → <ObservatoryTimelineViewer /> ; History → <ObservatoryHistoryViewer /> ; Diff → <ObservatoryDiffViewer /> ; else placeholder cards
               ├── ObservatoryOverview.vue    — Artifact Summary / Observatory Snapshot / System Status
               ├── trace/
               │     ├── ObservatoryTraceViewer.vue   — root viewer: mock traces + selectedId state
@@ -873,12 +873,18 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
                     ├── HistoryList.vue                — selectable history rows (nav + ul + buttons, keyboard nav)
                     ├── HistoryDetails.vue             — header (ID + Timestamp) + Prompt + Result + Evolution sections
                     └── HistoryEntryCard.vue           — reusable evolution card (article + header + h3: + name)
+              └── diff/
+                    ├── ObservatoryDiffViewer.vue   — root viewer: mock diffs + selectedId state
+                    ├── DiffList.vue                — selectable diff rows (nav + ul + buttons, keyboard nav)
+                    ├── DiffDetails.vue             — header (ID + Timestamp) + Added / Removed / Changed sections
+                    └── DiffChangeCard.vue          — reusable change card (article + header + h3: + - • markers)
 apps/web/src/stores/observatory.ts   — Pinia store: selectedPanel / status / version
 apps/web/src/router/index.ts         — route: /observatory
 apps/web/src/__tests__/ObservatoryOverview.test.ts  — 62 tests (overview dashboard)
 apps/web/src/__tests__/ObservatoryTraceViewer.test.ts — 99 tests (trace viewer)
 apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts — 99 tests (timeline viewer)
 apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts — 103 tests (history viewer)
+apps/web/src/__tests__/ObservatoryDiffViewer.test.ts — 120 tests (diff viewer)
 ```
 
 ### Store
@@ -905,18 +911,18 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 - **Keyboard accessibility** — real `<button>` elements with arrow/Home/End navigation and `aria-current="page"`; overview cards keyboard reachable (`tabindex="0"`)
 - **`App.vue` integration** — renders `<router-view>` only when the observatory route is active; the game canvas app is untouched for all other paths
 - **Overview dashboard semantics** — `section`/`article`/`h2`/`dl` (`dt`/`dd`) markup with `aria-labelledby`; no inline styles (all values via `var(--obs-*)` shell tokens)
-- **Content gates** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` when `selectedPanel === 'Overview'`, `<ObservatoryTraceViewer />` when `selectedPanel === 'Trace'`, `<ObservatoryTimelineViewer />` when `selectedPanel === 'Timeline'`, `<ObservatoryHistoryViewer />` when `selectedPanel === 'History'`, and the placeholder grid otherwise
-- **Trace / Timeline / History viewer master-detail** — two-column grid (`300px | minmax(0, 1fr)`); list rows are real `<button>`s with Arrow/Home/End keyboard navigation and `aria-current="true"`; details use semantic `dl`/`dt`/`dd` + sections; entry/evolution cards are `article` + `header` + `h3` with `aria-labelledby`
-- **Local selection state** — the trace, timeline, and history viewers keep `selectedId` in a component `ref` (no store schema change; future real-data wiring can lift it)
+- **Content gates** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` when `selectedPanel === 'Overview'`, `<ObservatoryTraceViewer />` when `selectedPanel === 'Trace'`, `<ObservatoryTimelineViewer />` when `selectedPanel === 'Timeline'`, `<ObservatoryHistoryViewer />` when `selectedPanel === 'History'`, `<ObservatoryDiffViewer />` when `selectedPanel === 'Diff'`, and the placeholder grid otherwise
+- **Trace / Timeline / History / Diff viewer master-detail** — two-column grid (`300px | minmax(0, 1fr)`); list rows are real `<button>`s with Arrow/Home/End keyboard navigation and `aria-current="true"`; details use semantic `dl`/`dt`/`dd` + sections; entry/evolution/change cards are `article` + `header` + `h3` with `aria-labelledby`
+- **Local selection state** — the trace, timeline, history, and diff viewers keep `selectedId` in a component `ref` (no store schema change; future real-data wiring can lift it)
 
 ### Dependency Rules
 
 - `ObservatoryShell` depends only on the three observatory components
-- `ObservatoryContent` depends on `ObservatoryOverview` (Overview), `ObservatoryTraceViewer` (Trace), `ObservatoryTimelineViewer` (Timeline), and `ObservatoryHistoryViewer` (History); all depend only on `useObservatoryStore`
-- Trace, Timeline, and History subcomponents use props/events only — each root viewer owns mock data + `selectedId`, list/details are presentational
+- `ObservatoryContent` depends on `ObservatoryOverview` (Overview), `ObservatoryTraceViewer` (Trace), `ObservatoryTimelineViewer` (Timeline), `ObservatoryHistoryViewer` (History), and `ObservatoryDiffViewer` (Diff); all depend only on `useObservatoryStore`
+- Trace, Timeline, History, and Diff subcomponents use props/events only — each root viewer owns mock data + `selectedId`, list/details are presentational
 - All observatory components depend only on `useObservatoryStore` / `OBSERVATORY_PANELS`
 - The observatory store has zero dependencies on Runtime, Planner, Provider, Memory, AgentLoop, Pipeline, or PromptBuilder
-- Data is local mock (hardcoded artifact counts, trace rows, timeline rows and entries, history builds) — no viewer consumes `metadata.promptAssembly.*` from the browser yet
+- Data is local mock (hardcoded artifact counts, trace rows, timeline rows and entries, history builds, diff lists) — no viewer consumes `metadata.promptAssembly.*` from the browser yet
 
 ### Future (Not Yet Implemented — Sprint 6 backlogs)
 
@@ -925,7 +931,7 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 | ~~Trace Viewer~~ | ~~Replace Trace placeholder card~~ **Done in WO-S6-003** |
 | ~~Timeline Viewer~~ | ~~Replace Timeline placeholder card~~ **Done in WO-S6-004** |
 | ~~History Viewer~~ | ~~Replace History placeholder card~~ **Done in WO-S6-005** |
-| Diff Viewer | Replace Diff placeholder card |
+| ~~Diff Viewer~~ | ~~Replace Diff placeholder card~~ **Done in WO-S6-006** |
 | Runtime Graph | Replace Runtime placeholder card |
 | Prompt Explorer | New panel under the shell |
 

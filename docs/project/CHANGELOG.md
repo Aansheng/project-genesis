@@ -5445,3 +5445,45 @@
 - Created ADR-0147: Observatory History Viewer Foundation
 - No breaking changes to any Public API
 - Architecture version v1.33 → v1.34
+
+### WO-S6-006 — Observatory Diff Viewer Foundation
+
+- **Fourth observability viewer in the Observatory** — the Diff panel now renders a two-column master-detail viewer instead of a "Coming Soon" placeholder card
+- **New components** — `apps/web/src/components/observatory/diff/`:
+  - `ObservatoryDiffViewer.vue` — root viewer; owns `MOCK_DIFFS` (3 diffs: diff-001 12:00:01 adds Tavern/Villager-1/Villager-2 + changes VillageCenter; diff-002 12:05:00 adds Farm-1/Farm-2; diff-003 12:08:00 adds Guard-1/Guard-2 + removes OldRoad + changes VillageGate) and local `selectedId` state (component `ref` — no store schema change)
+  - `DiffList.vue` — selectable diff rows (`nav[aria-label="Diff list"]` → `ul` → `li` → `button.diff-row`) showing id (monospace) + timestamp; active row via `.diff-row--active` + `aria-current="true"`; hover state; ArrowUp / ArrowDown / Home / End keyboard navigation with focus movement (Trace/Timeline/History Viewer pattern)
+  - `DiffDetails.vue` — article (`aria-label="Diff details"`); header (`Diff Details` h2 + `dl.diff-meta-grid` with Diff ID / Timestamp in mono); Added section (`section[aria-labelledby="diff-added-title"]` → h3 + `ul.diff-added-list` of `DiffChangeCard kind="added"`); Removed section (`section[aria-labelledby="diff-removed-title"]` → h3 + `ul.diff-removed-list` of `DiffChangeCard kind="removed"`); Changed section (`section[aria-labelledby="diff-changed-title"]` → h3 + `ul.diff-changed-list` of `DiffChangeCard kind="changed"`); per-section empty states ("No additions" / "No removals" / "No changes"); overall empty state "No diff selected"
+  - `DiffChangeCard.vue` — reusable change card (props: `kind: 'added' | 'removed' | 'changed'`, `name`); `article.diff-change-card[aria-labelledby]` with kind modifier class → `h3#diff-change-<kind>-<name>` (slugified); header with kind marker (`+` green / `-` muted red / `•` indigo)
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`:
+  - Renders `<ObservatoryDiffViewer />` via `v-else-if="isDiff()"` when `store.selectedPanel === 'Diff'`
+  - Overview dashboard, Trace/Timeline/History viewers, and the placeholder grid for Runtime are unchanged
+- **Two-column developer-tool layout** — `grid-template-columns: 300px minmax(0, 1fr)`; border-contained panel; dark near-black surfaces, 1px borders, monospace values, indigo accent for active row, green `+` / red `-` / indigo `•` change markers — identical visual system to the Trace/Timeline/History viewers
+- **Mock data only** — no Runtime / Planner / Pipeline / PromptBuilder / AI / Strategy / Metadata changes; no new dependencies; no inline styles (all values via `var(--obs-*)` shell tokens)
+- New test file `apps/web/src/__tests__/ObservatoryDiffViewer.test.ts` (120 tests):
+  - Rendering (21 tests): root, DiffList/DiffDetails components, nav/article landmarks, h2 headings, 3 rows, ids/timestamps order, button semantics, ul/li structure, details title, two-column grid, Added/Removed/Changed headings, section aria-labelledby, section order
+  - Mock data (7 tests): 3 diffs, id pattern, timestamp pattern, default added/removed/changed lists, diff-003 removed list
+  - Default selection & active state (8 tests): first row active, single active, aria-current, header id/timestamp, dt labels, meta dl
+  - Selection by click (7 tests): id/timestamp updates, active class + aria-current movement, changed list update, switching back, no-op re-click
+  - Added rendering (7 tests): section, card count, li structure, ul, added modifier class, + markers, per-diff updates
+  - Removed rendering (6 tests): section, "No removals" empty state, no cards by default, diff-003 OldRoad card, removed modifier class, - marker
+  - Changed rendering (6 tests): section, VillageCenter default, "No changes" empty state, VillageGate for diff-003, changed modifier class, • marker
+  - Change card structure (5 tests): article, header, h3, aria-labelledby link, marker alignment
+  - DiffChangeCard (11 tests): article, kind modifier classes (all 3), h3 name, +/-/• markers, header, aria-labelledby, slugified heading id
+  - Keyboard navigation (12 tests): ArrowDown/Up, repeated moves, clamping at both ends, Home/End, unrelated-key ignoring, aria-current movement, focus movement, nav handler
+  - Accessibility (12 tests): landmarks, buttons + type, accessible names, aria-current, h2/h3 hierarchy, article cards, no div-as-button, meta dl, section aria-labelledby, empty-message paragraphs
+  - Empty state (8 tests): no-entry message, header hidden, sections hidden, paragraph element, per-section "No additions"/"No removals"/"No changes", all lists hidden
+  - Content integration (7 tests): store-driven visibility, Overview↔Diff, History→Diff, Diff↔grid, Runtime grid fallback, fresh mount determinism
+  - Deterministic rendering (5 tests): identical ids/timestamps/added lists/default selection/HTML across mounts
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (93 → 106 tests):
+  - Re-pointed grid tests to `mountContentAs('Runtime')` (Diff now renders the viewer)
+  - New content tests: diff viewer renders for Diff, no grid/overview/trace/timeline/history for Diff, dashboard→viewer, history→viewer, viewer→grid, viewer→dashboard
+  - New shell tests: sidebar Diff click renders viewer; History→Diff sidebar switching; Diff→Runtime returns to grid
+- Updated `apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts`: placeholder-grid host tests re-pointed from Diff to Runtime
+- Updated `apps/web/src/__tests__/ObservatoryTraceViewer.test.ts`: placeholder-grid host tests re-pointed from Diff to Runtime
+- Updated `apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts`: placeholder-grid host tests re-pointed from Diff to Runtime
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts`: sidebar grid-return test re-pointed from Diff to Runtime
+- All 604 web tests pass (120 diff + 106 shell + 103 history + 99 trace + 99 timeline + 62 overview + 15 streaming; 8200 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0148: Observatory Diff Viewer Foundation
+- No breaking changes to any Public API
+- Architecture version v1.34 → v1.35

@@ -16,6 +16,7 @@ import ObservatoryOverview from '../components/observatory/ObservatoryOverview.v
 import ObservatoryTraceViewer from '../components/observatory/trace/ObservatoryTraceViewer.vue'
 import ObservatoryTimelineViewer from '../components/observatory/timeline/ObservatoryTimelineViewer.vue'
 import ObservatoryHistoryViewer from '../components/observatory/history/ObservatoryHistoryViewer.vue'
+import ObservatoryDiffViewer from '../components/observatory/diff/ObservatoryDiffViewer.vue'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -361,8 +362,8 @@ describe('observatory content', () => {
     expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('renders 6 placeholder cards for non-Overview, non-Trace, non-Timeline, non-History panels', () => {
-    const wrapper = mountContentAs('Diff')
+  it('renders 6 placeholder cards for non-Overview, non-Trace, non-Timeline, non-History, non-Diff panels', () => {
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 
@@ -370,7 +371,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContent()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -378,7 +379,7 @@ describe('observatory content', () => {
 
   it('switches from grid back to dashboard when Overview is re-selected', async () => {
     const store = useObservatoryStore()
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     store.selectPanel('Overview')
     await nextTick()
@@ -413,7 +414,7 @@ describe('observatory content', () => {
 
   it('switches from grid to trace viewer when Trace is selected', async () => {
     const store = useObservatoryStore()
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     store.selectPanel('Trace')
     await nextTick()
@@ -425,7 +426,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContentAs('Trace')
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -483,7 +484,7 @@ describe('observatory content', () => {
 
   it('switches from grid to timeline viewer when Timeline is selected', async () => {
     const store = useObservatoryStore()
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     store.selectPanel('Timeline')
     await nextTick()
@@ -495,7 +496,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContentAs('Timeline')
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -570,7 +571,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContentAs('History')
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -586,38 +587,108 @@ describe('observatory content', () => {
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
   })
 
-  it('includes an Overview card in the placeholder grid', () => {
+  it('renders the diff viewer when Diff is selected', () => {
     const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+  })
+
+  it('does not render placeholder cards when Diff is selected', () => {
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('does not render the overview dashboard when Diff is selected', () => {
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+  })
+
+  it('does not render the trace viewer when Diff is selected', () => {
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+  })
+
+  it('does not render the timeline viewer when Diff is selected', () => {
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
+  })
+
+  it('does not render the history viewer when Diff is selected', () => {
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+  })
+
+  it('switches from dashboard to diff viewer when Diff is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContent()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    store.selectPanel('Diff')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+  })
+
+  it('switches from history viewer to diff viewer', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+    store.selectPanel('Diff')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+  })
+
+  it('switches from diff viewer to grid when another panel is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+    store.selectPanel('Runtime')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('switches from diff viewer back to dashboard when Overview is re-selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Diff')
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+    store.selectPanel('Overview')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+  })
+
+  it('includes an Overview card in the placeholder grid', () => {
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.text()).toContain('Overview')
   })
 
   it('includes a Trace card', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.text()).toContain('Trace')
   })
 
   it('includes a Timeline card', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.text()).toContain('Timeline')
   })
 
   it('includes a History card', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.text()).toContain('History')
   })
 
   it('includes a Diff card', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.text()).toContain('Diff')
   })
 
   it('includes a Runtime card', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     expect(wrapper.text()).toContain('Runtime')
   })
 
   it('does not render a Settings card', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     const settings = wrapper.findAll('.content-card').filter((c) =>
       c.text().includes('Settings'),
     )
@@ -625,7 +696,7 @@ describe('observatory content', () => {
   })
 
   it('each card contains Coming Soon', () => {
-    const wrapper = mountContentAs('Diff')
+    const wrapper = mountContentAs('Runtime')
     for (const card of wrapper.findAll('.content-card')) {
       expect(card.text()).toContain('Coming Soon')
     }
@@ -634,13 +705,13 @@ describe('observatory content', () => {
   it('marks the current store panel card as active', async () => {
     const store = useObservatoryStore()
     const wrapper = mountContentAs('Overview')
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     const active = wrapper.findAll('.content-card').filter((c) =>
       c.classes().includes('content-card--active'),
     )
     expect(active).toHaveLength(1)
-    expect(active[0].text()).toContain('Diff')
+    expect(active[0].text()).toContain('Runtime')
   })
 
   it('marks the selected panel card as active', () => {
@@ -713,13 +784,13 @@ describe('observatory shell', () => {
   it('selects a panel from the shell sidebar and syncs the content card', async () => {
     const wrapper = mountShell()
     const buttons = wrapper.findAll('button.sidebar-button')
-    await buttons[4].trigger('click') // Diff
+    await buttons[5].trigger('click') // Runtime
     await nextTick()
     const activeContent = wrapper.findAll('.content-card').filter((c) =>
       c.classes().includes('content-card--active'),
     )
     expect(activeContent).toHaveLength(1)
-    expect(activeContent[0].text()).toContain('Diff')
+    expect(activeContent[0].text()).toContain('Runtime')
   })
 
   it('renders the trace viewer when Trace is selected from the sidebar', async () => {
@@ -731,13 +802,13 @@ describe('observatory shell', () => {
     expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('returns to the placeholder grid when a non-Overview non-Trace non-Timeline non-History panel is selected', async () => {
+  it('returns to the placeholder grid when a non-Overview non-Trace non-Timeline non-History non-Diff panel is selected', async () => {
     const wrapper = mountShell()
     const buttons = wrapper.findAll('button.sidebar-button')
     await buttons[1].trigger('click') // Trace
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    await buttons[4].trigger('click') // Diff
+    await buttons[5].trigger('click') // Runtime
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -791,9 +862,42 @@ describe('observatory shell', () => {
     await buttons[3].trigger('click') // History
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+    await buttons[5].trigger('click') // Runtime
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('renders the diff viewer when Diff is selected from the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[4].trigger('click') // Diff
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('switches from the history viewer to the diff viewer via the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[3].trigger('click') // History
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
     await buttons[4].trigger('click') // Diff
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+  })
+
+  it('switches from the diff viewer to the placeholder grid via the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[4].trigger('click') // Diff
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
+    await buttons[5].trigger('click') // Runtime
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 })

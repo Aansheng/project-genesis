@@ -4,6 +4,7 @@ import ObservatoryOverview from './ObservatoryOverview.vue'
 import ObservatoryTraceViewer from './trace/ObservatoryTraceViewer.vue'
 import ObservatoryTimelineViewer from './timeline/ObservatoryTimelineViewer.vue'
 import ObservatoryHistoryViewer from './history/ObservatoryHistoryViewer.vue'
+import ObservatoryDiffViewer from './diff/ObservatoryDiffViewer.vue'
 
 const store = useObservatoryStore()
 
@@ -35,6 +36,10 @@ function isTimeline(): boolean {
 function isHistory(): boolean {
   return store.selectedPanel === 'History'
 }
+
+function isDiff(): boolean {
+  return store.selectedPanel === 'Diff'
+}
 </script>
 
 <template>
@@ -46,6 +51,7 @@ function isHistory(): boolean {
     <ObservatoryTraceViewer v-else-if="isTrace()" />
     <ObservatoryTimelineViewer v-else-if="isTimeline()" />
     <ObservatoryHistoryViewer v-else-if="isHistory()" />
+    <ObservatoryDiffViewer v-else-if="isDiff()" />
     <div
       v-else
       class="content-grid"

@@ -177,9 +177,9 @@ describe('trace viewer — rendering', () => {
     expect(pre.element.tagName).toBe('PRE')
   })
 
-  it('renders the placeholder grid for non-Overview, non-Trace, non-Timeline, non-History panels', () => {
+  it('renders the placeholder grid for non-Overview, non-Trace, non-Timeline, non-History, non-Diff panels', () => {
     const store = useObservatoryStore()
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
@@ -833,7 +833,7 @@ describe('trace viewer — content integration', () => {
     store.selectPanel('Trace')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -844,7 +844,7 @@ describe('trace viewer — content integration', () => {
     store.selectPanel('Trace')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    store.selectPanel('Diff')
+    store.selectPanel('Runtime')
     await nextTick()
     store.selectPanel('Trace')
     await nextTick()

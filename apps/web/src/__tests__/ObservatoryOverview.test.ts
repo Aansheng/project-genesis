@@ -490,7 +490,7 @@ describe('overview dashboard integration', () => {
     const wrapper = mount(ObservatoryShell)
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
     const buttons = wrapper.findAll('button.sidebar-button')
-    await buttons[4].trigger('click') // Diff
+    await buttons[5].trigger('click') // Runtime
     await nextTick()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
