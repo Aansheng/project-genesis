@@ -3,6 +3,7 @@ import { useObservatoryStore } from '../../stores/observatory'
 import ObservatoryOverview from './ObservatoryOverview.vue'
 import ObservatoryTraceViewer from './trace/ObservatoryTraceViewer.vue'
 import ObservatoryTimelineViewer from './timeline/ObservatoryTimelineViewer.vue'
+import ObservatoryHistoryViewer from './history/ObservatoryHistoryViewer.vue'
 
 const store = useObservatoryStore()
 
@@ -30,6 +31,10 @@ function isTrace(): boolean {
 function isTimeline(): boolean {
   return store.selectedPanel === 'Timeline'
 }
+
+function isHistory(): boolean {
+  return store.selectedPanel === 'History'
+}
 </script>
 
 <template>
@@ -40,6 +45,7 @@ function isTimeline(): boolean {
     <ObservatoryOverview v-if="isOverview()" />
     <ObservatoryTraceViewer v-else-if="isTrace()" />
     <ObservatoryTimelineViewer v-else-if="isTimeline()" />
+    <ObservatoryHistoryViewer v-else-if="isHistory()" />
     <div
       v-else
       class="content-grid"

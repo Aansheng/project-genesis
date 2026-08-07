@@ -5406,3 +5406,42 @@
 - Created ADR-0146: Observatory Timeline Viewer Foundation
 - No breaking changes to any Public API
 - Architecture version v1.32 → v1.33
+
+### WO-S6-005 — Observatory History Viewer Foundation
+
+- **Third observability viewer in the Observatory** — the History panel now renders a two-column master-detail viewer instead of a "Coming Soon" placeholder card
+- **New components** — `apps/web/src/components/observatory/history/`:
+  - `ObservatoryHistoryViewer.vue` — root viewer; owns `MOCK_HISTORY` (3 builds: history-001 Create Village / 12:00:01, history-002 Add Farm / 12:05:00, history-003 Add Guards / 12:08:00) and local `selectedId` state (component `ref` — no store schema change)
+  - `HistoryList.vue` — selectable history rows (`nav[aria-label="History list"]` → `ul` → `li` → `button.history-row`) showing id (monospace) + timestamp; active row via `.history-row--active` + `aria-current="true"`; hover state; ArrowUp / ArrowDown / Home / End keyboard navigation with focus movement (Trace/Timeline Viewer pattern)
+  - `HistoryDetails.vue` — article (`aria-label="History details"`); header (`History Details` h2 + `dl.history-meta-grid` with History ID / Timestamp in mono); Prompt section (`section[aria-labelledby="history-prompt-title"]` → h3 + keyboard-reachable `<pre>` block); Result section (`section[aria-labelledby="history-result-title"]` → h3 + mono paragraph); Evolution section (`section[aria-labelledby="history-evolution-title"]` → h3 + `ul.history-evolution-list` of `HistoryEntryCard`s); empty state "No history entry selected"
+  - `HistoryEntryCard.vue` — reusable evolution card (props: `name`); `article[aria-labelledby]` → `h3#history-entry-<name>` (slugified) + `+` add-marker (mono, success green) in a `header`
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`:
+  - Renders `<ObservatoryHistoryViewer />` via `v-else-if="isHistory()"` when `store.selectedPanel === 'History'`
+  - Overview dashboard, Trace viewer, Timeline viewer, and the placeholder grid for Diff / Runtime are unchanged
+- **Two-column developer-tool layout** — `grid-template-columns: 300px minmax(0, 1fr)`; border-contained panel; dark near-black surfaces, 1px borders, monospace values, indigo accent for active row, green `+` evolution markers — identical visual system to the Trace and Timeline viewers
+- **Mock data only** — no Runtime / Planner / Pipeline / PromptBuilder / AI / Strategy / Metadata changes; no new dependencies; no inline styles (all values via `var(--obs-*)` shell tokens)
+- New test file `apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts` (103 tests):
+  - Rendering (19 tests): root, HistoryList/HistoryDetails components, nav/article landmarks, h2 headings, 3 rows, ids/timestamps order, button semantics, ul/li structure, details title, two-column grid, Prompt/Result/Evolution headings, section aria-labelledby, section order
+  - Mock data (6 tests): 3 builds, id pattern, timestamp pattern, default prompt/result/evolution values
+  - Default selection & active state (8 tests): first row active, single active, aria-current, header id/timestamp, dt labels, meta dl
+  - Selection by click (7 tests): id/timestamp updates, active class + aria-current movement, prompt update, switching back, no-op re-click
+  - Details rendering (11 tests): Prompt/Result/Evolution sections, pre block + tabindex, result paragraph, evolution cards, li structure, ul, per-entry section updates, distinct evolution lists
+  - Entry rendering (7 tests): article semantics, header, h3, aria-labelledby link, add markers, history-002 names, marker alignment
+  - HistoryEntryCard (6 tests): article, h3 name, add marker, header, aria-labelledby, generated id
+  - Keyboard navigation (12 tests): ArrowDown/Up, repeated moves, clamping at both ends, Home/End, unrelated-key ignoring, aria-current movement, focus movement, nav handler
+  - Accessibility (11 tests): landmarks, buttons + type, accessible names, aria-current, h2/h3 hierarchy, article cards, no div-as-button, meta dl, section aria-labelledby
+  - Empty state (4 tests): no-entry message, header hidden, sections hidden, paragraph element
+  - Content integration (7 tests): store-driven visibility, Overview↔History, Trace→History, Timeline→History, History↔grid, fresh mount determinism
+  - Deterministic rendering (5 tests): identical ids/timestamps/evolution/default selection/HTML across mounts
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (80 → 93 tests):
+  - Re-pointed grid tests to `mountContentAs('Diff')` (History now renders the viewer)
+  - New content tests: history viewer renders for History, no grid/overview/trace/timeline for History, dashboard→viewer, trace→viewer, timeline→viewer, viewer→grid, viewer→dashboard
+  - New shell tests: sidebar History click renders viewer; Timeline→History sidebar switching; History→Diff returns to grid
+- Updated `apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts`: placeholder-grid host tests re-pointed from History to Diff
+- Updated `apps/web/src/__tests__/ObservatoryTraceViewer.test.ts`: placeholder-grid host tests re-pointed from History to Diff
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts`: sidebar grid-return test re-pointed from History to Diff
+- All 471 web tests pass (103 history + 99 trace + 99 timeline + 93 shell + 62 overview + 15 streaming; 8067 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0147: Observatory History Viewer Foundation
+- No breaking changes to any Public API
+- Architecture version v1.33 → v1.34

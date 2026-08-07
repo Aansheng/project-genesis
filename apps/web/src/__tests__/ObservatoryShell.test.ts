@@ -15,6 +15,7 @@ import ObservatoryContent from '../components/observatory/ObservatoryContent.vue
 import ObservatoryOverview from '../components/observatory/ObservatoryOverview.vue'
 import ObservatoryTraceViewer from '../components/observatory/trace/ObservatoryTraceViewer.vue'
 import ObservatoryTimelineViewer from '../components/observatory/timeline/ObservatoryTimelineViewer.vue'
+import ObservatoryHistoryViewer from '../components/observatory/history/ObservatoryHistoryViewer.vue'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -360,8 +361,8 @@ describe('observatory content', () => {
     expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('renders 6 placeholder cards for non-Overview, non-Trace, non-Timeline panels', () => {
-    const wrapper = mountContentAs('History')
+  it('renders 6 placeholder cards for non-Overview, non-Trace, non-Timeline, non-History panels', () => {
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 
@@ -369,7 +370,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContent()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
-    store.selectPanel('History')
+    store.selectPanel('Diff')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -412,7 +413,7 @@ describe('observatory content', () => {
 
   it('switches from grid to trace viewer when Trace is selected', async () => {
     const store = useObservatoryStore()
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     store.selectPanel('Trace')
     await nextTick()
@@ -424,7 +425,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContentAs('Trace')
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    store.selectPanel('History')
+    store.selectPanel('Diff')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -482,7 +483,7 @@ describe('observatory content', () => {
 
   it('switches from grid to timeline viewer when Timeline is selected', async () => {
     const store = useObservatoryStore()
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     store.selectPanel('Timeline')
     await nextTick()
@@ -494,7 +495,7 @@ describe('observatory content', () => {
     const store = useObservatoryStore()
     const wrapper = mountContentAs('Timeline')
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
-    store.selectPanel('History')
+    store.selectPanel('Diff')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -510,38 +511,113 @@ describe('observatory content', () => {
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
   })
 
-  it('includes an Overview card in the placeholder grid', () => {
+  it('renders the history viewer when History is selected', () => {
     const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+  })
+
+  it('does not render placeholder cards when History is selected', () => {
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('does not render the overview dashboard when History is selected', () => {
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+  })
+
+  it('does not render the trace viewer when History is selected', () => {
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+  })
+
+  it('does not render the timeline viewer when History is selected', () => {
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
+  })
+
+  it('switches from dashboard to history viewer when History is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContent()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    store.selectPanel('History')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+  })
+
+  it('switches from trace viewer to history viewer', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Trace')
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+    store.selectPanel('History')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+  })
+
+  it('switches from timeline viewer to history viewer', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Timeline')
+    expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
+    store.selectPanel('History')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+  })
+
+  it('switches from history viewer to grid when another panel is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+    store.selectPanel('Diff')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('switches from history viewer back to dashboard when Overview is re-selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('History')
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+    store.selectPanel('Overview')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+  })
+
+  it('includes an Overview card in the placeholder grid', () => {
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.text()).toContain('Overview')
   })
 
   it('includes a Trace card', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.text()).toContain('Trace')
   })
 
   it('includes a Timeline card', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.text()).toContain('Timeline')
   })
 
   it('includes a History card', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.text()).toContain('History')
   })
 
   it('includes a Diff card', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.text()).toContain('Diff')
   })
 
   it('includes a Runtime card', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     expect(wrapper.text()).toContain('Runtime')
   })
 
   it('does not render a Settings card', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     const settings = wrapper.findAll('.content-card').filter((c) =>
       c.text().includes('Settings'),
     )
@@ -549,7 +625,7 @@ describe('observatory content', () => {
   })
 
   it('each card contains Coming Soon', () => {
-    const wrapper = mountContentAs('History')
+    const wrapper = mountContentAs('Diff')
     for (const card of wrapper.findAll('.content-card')) {
       expect(card.text()).toContain('Coming Soon')
     }
@@ -655,13 +731,13 @@ describe('observatory shell', () => {
     expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('returns to the placeholder grid when a non-Overview non-Trace non-Timeline panel is selected', async () => {
+  it('returns to the placeholder grid when a non-Overview non-Trace non-Timeline non-History panel is selected', async () => {
     const wrapper = mountShell()
     const buttons = wrapper.findAll('button.sidebar-button')
     await buttons[1].trigger('click') // Trace
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    await buttons[3].trigger('click') // History
+    await buttons[4].trigger('click') // Diff
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -686,5 +762,38 @@ describe('observatory shell', () => {
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
+  })
+
+  it('renders the history viewer when History is selected from the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[3].trigger('click') // History
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('switches from the timeline viewer to the history viewer via the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[2].trigger('click') // Timeline
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
+    await buttons[3].trigger('click') // History
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+  })
+
+  it('switches from the history viewer to the placeholder grid via the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[3].trigger('click') // History
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
+    await buttons[4].trigger('click') // Diff
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 })

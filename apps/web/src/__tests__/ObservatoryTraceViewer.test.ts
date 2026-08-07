@@ -177,9 +177,9 @@ describe('trace viewer — rendering', () => {
     expect(pre.element.tagName).toBe('PRE')
   })
 
-  it('renders the placeholder grid for non-Overview, non-Trace, non-Timeline panels', () => {
+  it('renders the placeholder grid for non-Overview, non-Trace, non-Timeline, non-History panels', () => {
     const store = useObservatoryStore()
-    store.selectPanel('History')
+    store.selectPanel('Diff')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
@@ -833,7 +833,7 @@ describe('trace viewer — content integration', () => {
     store.selectPanel('Trace')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    store.selectPanel('History')
+    store.selectPanel('Diff')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
