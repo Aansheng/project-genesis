@@ -5063,6 +5063,50 @@
 - No PromptBuilder changes to existing behavior
 - Architecture version v1.26 → v1.27
 
+### WO-S5-094 — Prompt Assembly Observatory Snapshot Foundation
+
+- **Defined `PromptAssemblyObservatorySnapshot`** in `packages/ai/src/strategy/PromptAssemblyObservatorySnapshot.ts`
+  - `artifactCount: number` — number of present artifacts (0–6)
+  - `hasTrace`, `hasTimeline`, `hasHistory` — boolean presence flags
+  - `hasTraceSnapshot`, `hasTimelineSnapshot`, `hasHistorySnapshot` — boolean presence flags
+  - `rendered?: string`, `exported?: string` — optional representations from metadata
+- **Defined `PromptAssemblyObservatorySnapshotBuilder`** in `packages/ai/src/strategy/PromptAssemblyObservatorySnapshotBuilder.ts`
+  - Single method contract: `build(observatory, metadata?)`
+- **Implemented `DefaultPromptAssemblyObservatorySnapshotBuilder`** in `packages/ai/src/strategy/DefaultPromptAssemblyObservatorySnapshotBuilder.ts`
+  - Counts artifacts among the six observatory fields: trace, timeline, history, traceSnapshot, timelineSnapshot, historySnapshot
+  - Sets boolean presence flags for each artifact
+  - Extracts `metadata.observatoryRendered` → `rendered` and `metadata.observatoryExported` → `exported`
+  - **Only stores when value is a string** — wrong types (number, boolean, object, array, null) silently ignored
+  - Unknown metadata keys silently ignored
+  - **Pure, Stateless, Deterministic, Immutable** — no mutation, no caching
+  - **Zero dependencies** on Planner, Runtime, Provider, Memory, AgentLoop, Pipeline, or PromptBuilder
+- **New exports** from `packages/ai/src/strategy/index.ts` and `packages/ai/src/index.ts`
+- Created ADR-0141: Prompt Assembly Observatory Snapshot Foundation
+- New test file `PromptAssemblyObservatorySnapshotFoundation.test.ts` (146 tests):
+  - Interface Contract (8 tests): build method, returns snapshot, artifactCount, boolean flags, custom implementation, optional metadata, typed result, required fields
+  - Empty Observatory (10 tests): artifactCount 0, all flags false, no rendered/exported, frozen, undefined fields, number type, primitive booleans, unrelated metadata, no extra keys
+  - Single Artifact — trace/timeline/history/traceSnapshot/timelineSnapshot/historySnapshot (24 tests)
+  - Multiple Artifacts (10 tests): two, three core, three snapshots, all six, five, mixed, order independence
+  - Artifact Count (8 tests): 0–6 counts, distinct artifacts only
+  - Boolean Flags (6 tests): each presence flag reflects its artifact
+  - Metadata Extraction — observatoryRendered (6 tests), observatoryExported (6 tests), both (4 tests), missing (4 tests), wrong types (6 tests)
+  - Deterministic (5 tests): cross-call, cross-instance, identical inputs, flags, empty
+  - Stateless (4 tests): no retained state, independent results, alternating calls, fresh results
+  - Pure (5 tests): observatory unmodified, nested unmodified, metadata unmodified, no side effects, references preserved
+  - Immutable (4 tests): new object each call, no extra properties, no mutation after creation, no shared references
+  - Export Validation (8 tests): JSON serializable, artifactCount/flags/rendered/exported in JSON, round trip, undefined omitted
+  - Architecture Compliance (14 tests): zero deps on Runtime/Planner/Pipeline/Provider/Memory/AgentLoop/PromptBuilder/BuilderOptions/PromptRenderer/PromptCompression, observatory/snapshot type deps, no constructors, no imports
+  - Compatibility (4 tests): RetryPlanner, ToolCallPlanner, Streaming, AgentLoop
+  - Edge Cases (10 tests): unicode, special chars, empty strings, large metadata, partial observatory, all artifacts, exported special chars, empty structures
+- All tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- No breaking changes to any Public API
+- No PromptBuilder changes
+- No BuilderOptions changes
+- No metadata changes
+- No prompt changes
+- Architecture version v1.27 → v1.28
+
 ### WO-S5-080 — Prompt Assembly History Renderer Foundation
 
 - Defined `PromptAssemblyHistoryRenderer` interface with `render(history)` method

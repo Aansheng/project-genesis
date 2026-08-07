@@ -104,3 +104,6 @@ export type { PromptAssemblyObservatoryRenderer } from './PromptAssemblyObservat
 export { DefaultPromptAssemblyObservatoryRenderer } from './DefaultPromptAssemblyObservatoryRenderer'
 export type { PromptAssemblyObservatoryExporter } from './PromptAssemblyObservatoryExporter'
 export { DefaultPromptAssemblyObservatoryExporter } from './DefaultPromptAssemblyObservatoryExporter'
+export type { PromptAssemblyObservatorySnapshot } from './PromptAssemblyObservatorySnapshot'
+export type { PromptAssemblyObservatorySnapshotBuilder } from './PromptAssemblyObservatorySnapshotBuilder'
+export { DefaultPromptAssemblyObservatorySnapshotBuilder } from './DefaultPromptAssemblyObservatorySnapshotBuilder'
