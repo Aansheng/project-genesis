@@ -149,6 +149,26 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(zhCN, 'observatory.sections.systemStatus')).toBe('系统状态')
   })
 
+  it('zh-CN contains the runtime stat and property keys', () => {
+    expect(resolveKey(zhCN, 'observatory.runtime.entities')).toBe('实体')
+    expect(resolveKey(zhCN, 'observatory.runtime.systems')).toBe('系统')
+    expect(resolveKey(zhCN, 'observatory.runtime.events')).toBe('事件')
+    expect(resolveKey(zhCN, 'observatory.runtime.fps')).toBe('运行帧率')
+    expect(resolveKey(zhCN, 'observatory.runtime.position')).toBe('位置')
+    expect(resolveKey(zhCN, 'observatory.runtime.state')).toBe('状态')
+    expect(resolveKey(zhCN, 'observatory.runtime.health')).toBe('生命值')
+  })
+
+  it('en-US contains the runtime stat and property keys', () => {
+    expect(resolveKey(enUS, 'observatory.runtime.entities')).toBe('Entities')
+    expect(resolveKey(enUS, 'observatory.runtime.systems')).toBe('Systems')
+    expect(resolveKey(enUS, 'observatory.runtime.events')).toBe('Events')
+    expect(resolveKey(enUS, 'observatory.runtime.fps')).toBe('FPS')
+    expect(resolveKey(enUS, 'observatory.runtime.position')).toBe('Position')
+    expect(resolveKey(enUS, 'observatory.runtime.state')).toBe('State')
+    expect(resolveKey(enUS, 'observatory.runtime.health')).toBe('Health')
+  })
+
   it('catalogs have matching key parity', () => {
     const required = [
       'observatory.title',
@@ -181,6 +201,13 @@ describe('i18n — locale catalogs', () => {
       'observatory.snapshot.hasHistorySnapshot',
       'observatory.common.yes',
       'observatory.common.no',
+      'observatory.runtime.entities',
+      'observatory.runtime.systems',
+      'observatory.runtime.events',
+      'observatory.runtime.fps',
+      'observatory.runtime.position',
+      'observatory.runtime.state',
+      'observatory.runtime.health',
     ]
     for (const key of required) {
       expect(resolveKey(zhCN, key), `zh key ${key}`).toBeDefined()
@@ -486,7 +513,7 @@ describe('i18n — zh-CN rendering (default)', () => {
   })
 
   it('renders content placeholder cards in Chinese', () => {
-    const wrapper = mountContentAs('Runtime')
+    const wrapper = mountContentAs('Settings')
     expect(contentCardTitles(wrapper)).toEqual([
       '概览',
       '追踪',
@@ -498,13 +525,13 @@ describe('i18n — zh-CN rendering (default)', () => {
   })
 
   it('renders the Coming Soon placeholder in Chinese', () => {
-    const wrapper = mountContentAs('Runtime')
+    const wrapper = mountContentAs('Settings')
     expect(wrapper.find('.card-body').text()).toBe('即将推出')
   })
 
-  it('renders the Active tag in Chinese', () => {
-    const wrapper = mountContentAs('Runtime')
-    expect(wrapper.find('.card-active-tag').text()).toBe('活动')
+  it('does not render an Active tag for the Settings grid', () => {
+    const wrapper = mountContentAs('Settings')
+    expect(wrapper.find('.card-active-tag').exists()).toBe(false)
   })
 
   it('renders artifact summary section title in Chinese', () => {
@@ -614,7 +641,7 @@ describe('i18n — en-US rendering', () => {
   })
 
   it('renders content placeholder cards in English', () => {
-    const wrapper = mountContentAs('Runtime')
+    const wrapper = mountContentAs('Settings')
     expect(contentCardTitles(wrapper)).toEqual([
       'Overview',
       'Trace',
@@ -626,13 +653,13 @@ describe('i18n — en-US rendering', () => {
   })
 
   it('renders the Coming Soon placeholder in English', () => {
-    const wrapper = mountContentAs('Runtime')
+    const wrapper = mountContentAs('Settings')
     expect(wrapper.find('.card-body').text()).toBe('Coming Soon')
   })
 
-  it('renders the Active tag in English', () => {
-    const wrapper = mountContentAs('Runtime')
-    expect(wrapper.find('.card-active-tag').text()).toBe('Active')
+  it('does not render an Active tag for the Settings grid in English', () => {
+    const wrapper = mountContentAs('Settings')
+    expect(wrapper.find('.card-active-tag').exists()).toBe(false)
   })
 
   it('renders artifact summary section title in English', () => {
@@ -780,7 +807,7 @@ describe('i18n — language switcher', () => {
   })
 
   it('updates content placeholder cards reactively', async () => {
-    const wrapper = mountContentAs('Runtime')
+    const wrapper = mountContentAs('Settings')
     expect(contentCardTitles(wrapper)[0]).toBe('概览')
     const store = useI18nStore()
     store.setLanguage('en-US')

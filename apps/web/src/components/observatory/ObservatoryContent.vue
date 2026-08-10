@@ -6,6 +6,7 @@ import ObservatoryTraceViewer from './trace/ObservatoryTraceViewer.vue'
 import ObservatoryTimelineViewer from './timeline/ObservatoryTimelineViewer.vue'
 import ObservatoryHistoryViewer from './history/ObservatoryHistoryViewer.vue'
 import ObservatoryDiffViewer from './diff/ObservatoryDiffViewer.vue'
+import ObservatoryRuntimeViewer from './runtime/ObservatoryRuntimeViewer.vue'
 
 const store = useObservatoryStore()
 const i18n = useI18n()
@@ -43,6 +44,10 @@ function isDiff(): boolean {
   return store.selectedPanel === 'Diff'
 }
 
+function isRuntime(): boolean {
+  return store.selectedPanel === 'Runtime'
+}
+
 function cardLabel(card: string): string {
   return i18n.t(`observatory.panels.${card.toLowerCase()}`)
 }
@@ -58,6 +63,7 @@ function cardLabel(card: string): string {
     <ObservatoryTimelineViewer v-else-if="isTimeline()" />
     <ObservatoryHistoryViewer v-else-if="isHistory()" />
     <ObservatoryDiffViewer v-else-if="isDiff()" />
+    <ObservatoryRuntimeViewer v-else-if="isRuntime()" />
     <div
       v-else
       class="content-grid"

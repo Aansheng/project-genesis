@@ -416,9 +416,9 @@ describe('timeline viewer — details rendering', () => {
     expect(strategies[0]).toBe('QueryWorld')
   })
 
-  it('renders empty state placeholder grid for non-Overview/Trace/Timeline/History/Diff panels', () => {
+  it('renders empty state placeholder grid for Settings', () => {
     const store = useObservatoryStore()
-    store.selectPanel('Runtime')
+    store.selectPanel('Settings')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
@@ -851,7 +851,7 @@ describe('timeline viewer — content integration', () => {
     store.selectPanel('Timeline')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
-    store.selectPanel('Runtime')
+    store.selectPanel('Settings')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)

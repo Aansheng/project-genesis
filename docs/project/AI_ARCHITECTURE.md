@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.36)
+> Project Genesis — AI Architecture Reference (v1.37)
 > Primary reference for all AI development.
 
 ### BuilderOptions
@@ -843,11 +843,11 @@ Since WO-S5-067 (v1.01), Phase 0.95996 integrates `PromptAssemblyTimelineBuilder
 
 ## Observatory UI (Sprint 6)
 
-The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002, the Trace Viewer in WO-S6-003, the Timeline Viewer in WO-S6-004, the History Viewer in WO-S6-005, the Diff Viewer in WO-S6-006, and the I18n Foundation in WO-S6-006.5. Architecture version v1.36.
+The Observatory UI is the human-facing surface for the Prompt Observability Layer produced in Sprint 5. Introduced in WO-S6-001 (Sprint 6); the Overview Dashboard followed in WO-S6-002, the Trace Viewer in WO-S6-003, the Timeline Viewer in WO-S6-004, the History Viewer in WO-S6-005, the Diff Viewer in WO-S6-006, the I18n Foundation in WO-S6-006.5, and the Runtime Viewer in WO-S6-007. Architecture version v1.37.
 
 ### Architecture Status
 
-**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. **Timeline Viewer Foundation** — the Timeline panel displays a two-column master-detail viewer over mock timeline data with indexed entry cards. **History Viewer Foundation** — the History panel displays a two-column master-detail viewer over mock history builds with Prompt / Result / Evolution detail sections. **Diff Viewer Foundation** — the Diff panel displays a two-column master-detail viewer over mock diffs with Added / Removed / Changed sections (typed change cards). **I18n Foundation** — the shell chrome (header, sidebar, content placeholders, overview labels) is localized through a dependency-free `apps/web/src/i18n/` core + `stores/i18n.ts` with a reactive zh-CN/en-US language switcher; viewer details remain unlocalized for now. Other viewers (Runtime Graph, Prompt Explorer) are explicitly NOT implemented — they remain placeholder cards.
+**Shell Foundation** — the observatory shell layout and navigation structure are complete. **Overview Dashboard Foundation** — the Overview panel displays a real dashboard (Artifact Summary / Observatory Snapshot / System Status) instead of a placeholder. **Trace Viewer Foundation** — the Trace panel displays a two-column master-detail viewer over mock trace data. **Timeline Viewer Foundation** — the Timeline panel displays a two-column master-detail viewer over mock timeline data with indexed entry cards. **History Viewer Foundation** — the History panel displays a two-column master-detail viewer over mock history builds with Prompt / Result / Evolution detail sections. **Diff Viewer Foundation** — the Diff panel displays a two-column master-detail viewer over mock diffs with Added / Removed / Changed sections (typed change cards). **Runtime Viewer Foundation** — the Runtime panel displays a two-column master-detail viewer over mock runtime world state (Guard/Merchant/Villager entities) with a localized stats row (Entities/Systems/Events/FPS via `RuntimeStatCard`s + world-001) above Position / Health / State entity details; runtime data labels consume the WO-S6-006.5 `observatory.runtime.*` i18n keys and react to the shell language switcher. **I18n Foundation** — the shell chrome (header, sidebar, content placeholders, overview labels) is localized through a dependency-free `apps/web/src/i18n/` core + `stores/i18n.ts` with a reactive zh-CN/en-US language switcher; Trace/Timeline/History/Diff viewer details remain unlocalized for now. Other viewers (Prompt Explorer) are explicitly NOT implemented — the placeholder grid remains only for Settings.
 
 ### Component Hierarchy
 
@@ -856,7 +856,7 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
   └── apps/web/src/components/observatory/ObservatoryShell.vue    — grid layout + design tokens
         ├── ObservatoryHeader.vue    — title, status badge, version, sprint label
         ├── ObservatorySidebar.vue   — 7-panel navigation (keyboard accessible)
-        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; Trace → <ObservatoryTraceViewer /> ; Timeline → <ObservatoryTimelineViewer /> ; History → <ObservatoryHistoryViewer /> ; Diff → <ObservatoryDiffViewer /> ; else placeholder cards
+        └── ObservatoryContent.vue   — Overview → <ObservatoryOverview /> ; Trace → <ObservatoryTraceViewer /> ; Timeline → <ObservatoryTimelineViewer /> ; History → <ObservatoryHistoryViewer /> ; Diff → <ObservatoryDiffViewer /> ; Runtime → <ObservatoryRuntimeViewer /> ; else placeholder grid (Settings)
               ├── ObservatoryOverview.vue    — Artifact Summary / Observatory Snapshot / System Status
               ├── trace/
               │     ├── ObservatoryTraceViewer.vue   — root viewer: mock traces + selectedId state
@@ -878,6 +878,11 @@ apps/web/src/pages/observatory/ObservatoryPage.vue    — route entry (/observat
                     ├── DiffList.vue                — selectable diff rows (nav + ul + buttons, keyboard nav)
                     ├── DiffDetails.vue             — header (ID + Timestamp) + Added / Removed / Changed sections
                     └── DiffChangeCard.vue          — reusable change card (article + header + h3: + - • markers)
+              └── runtime/
+                    ├── ObservatoryRuntimeViewer.vue   — root viewer: mock runtime state + selectedId state
+                    ├── RuntimeEntityList.vue          — selectable entity rows (nav + ul + buttons, keyboard nav)
+                    ├── RuntimeEntityDetails.vue       — header (ID + Type) + Position / Health / State dl grid
+                    └── RuntimeStatCard.vue            — reusable stat card (dt label + dd value)
 apps/web/src/stores/observatory.ts   — Pinia store: selectedPanel / status / version
 apps/web/src/stores/i18n.ts          — Pinia store: language (zh-CN/en-US) / setLanguage / t / has
 apps/web/src/i18n/index.ts           — dependency-free core: resolveKey() / createI18n() / types
@@ -889,7 +894,8 @@ apps/web/src/__tests__/ObservatoryTraceViewer.test.ts — 99 tests (trace viewer
 apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts — 99 tests (timeline viewer)
 apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts — 103 tests (history viewer)
 apps/web/src/__tests__/ObservatoryDiffViewer.test.ts — 120 tests (diff viewer)
-apps/web/src/__tests__/ObservatoryI18n.test.ts — 128 tests (i18n foundation)
+apps/web/src/__tests__/ObservatoryRuntimeViewer.test.ts — 139 tests (runtime viewer)
+apps/web/src/__tests__/ObservatoryI18n.test.ts — 130 tests (i18n foundation)
 ```
 
 ### Store
@@ -916,8 +922,8 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 - **Keyboard accessibility** — real `<button>` elements with arrow/Home/End navigation and `aria-current="page"`; overview cards keyboard reachable (`tabindex="0"`)
 - **`App.vue` integration** — renders `<router-view>` only when the observatory route is active; the game canvas app is untouched for all other paths
 - **Overview dashboard semantics** — `section`/`article`/`h2`/`dl` (`dt`/`dd`) markup with `aria-labelledby`; no inline styles (all values via `var(--obs-*)` shell tokens)
-- **Content gates** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` when `selectedPanel === 'Overview'`, `<ObservatoryTraceViewer />` when `selectedPanel === 'Trace'`, `<ObservatoryTimelineViewer />` when `selectedPanel === 'Timeline'`, `<ObservatoryHistoryViewer />` when `selectedPanel === 'History'`, `<ObservatoryDiffViewer />` when `selectedPanel === 'Diff'`, and the placeholder grid otherwise
-- **Trace / Timeline / History / Diff viewer master-detail** — two-column grid (`300px | minmax(0, 1fr)`); list rows are real `<button>`s with Arrow/Home/End keyboard navigation and `aria-current="true"`; details use semantic `dl`/`dt`/`dd` + sections; entry/evolution/change cards are `article` + `header` + `h3` with `aria-labelledby`
+- **Content gates** — `ObservatoryContent.vue` renders `<ObservatoryOverview />` when `selectedPanel === 'Overview'`, `<ObservatoryTraceViewer />` when `selectedPanel === 'Trace'`, `<ObservatoryTimelineViewer />` when `selectedPanel === 'Timeline'`, `<ObservatoryHistoryViewer />` when `selectedPanel === 'History'`, `<ObservatoryDiffViewer />` when `selectedPanel === 'Diff'`, `<ObservatoryRuntimeViewer />` when `selectedPanel === 'Runtime'`, and the placeholder grid only for Settings
+- **Trace / Timeline / History / Diff / Runtime viewer master-detail** — two-column grid (`300px | minmax(0, 1fr)`); list rows are real `<button>`s with Arrow/Home/End keyboard navigation and `aria-current="true"`; details use semantic `dl`/`dt`/`dd` + sections; entry/evolution/change cards are `article` + `header` + `h3` with `aria-labelledby`; the Runtime viewer adds a `RuntimeStatCard` stats row (`dt`/`dd`) and is the first viewer to render its data labels through `observatory.runtime.*` i18n keys
 - **Local selection state** — the trace, timeline, history, and diff viewers keep `selectedId` in a component `ref` (no store schema change; future real-data wiring can lift it)
 - **Lightweight i18n** — dependency-free `i18n/index.ts` (nested dot-key `t()` with key-string fallback) + reactive `stores/i18n.ts` (`language` default `'zh-CN'`); shell chrome translates through `useI18n().t`; the header hosts a compact native select switcher (中文 / English) with no page reload
 

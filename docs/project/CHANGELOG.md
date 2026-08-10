@@ -5520,3 +5520,48 @@
 - Created ADR-0149: Observatory I18n Foundation
 - No breaking changes to any Public API
 - Architecture version v1.35 → v1.36
+
+### WO-S6-007 — Observatory Runtime Viewer Foundation
+
+- **Fifth observability viewer in the Observatory** — the Runtime panel now renders a two-column master-detail viewer instead of a "Coming Soon" placeholder card
+- **New components** — `apps/web/src/components/observatory/runtime/`:
+  - `ObservatoryRuntimeViewer.vue` — root viewer; owns `MOCK_RUNTIME_STATE` (`worldId: 'world-001'`, stats entities 187 / systems 8 / events 31 / fps 60, 3 entities: guard-001 Guard `(10,4)` Patrol, merchant-001 Merchant `(4,8)` Trading, villager-001 Villager `(1,2)` Working, all health 100) and local `selectedId` state (component `ref` — no store schema change); composes `RuntimeEntityList` (left) + stats section + `RuntimeEntityDetails` (right)
+  - `RuntimeEntityList.vue` — selectable entity rows (`nav[aria-label="Entity list"]` → `ul` → `li` → `button.runtime-row`) showing id (monospace) + type; active row via `.runtime-row--active` + `aria-current="true"`; hover state; ArrowUp / ArrowDown / Home / End keyboard navigation with focus movement (Trace/Timeline/History/Diff Viewer pattern)
+  - `RuntimeEntityDetails.vue` — article (`aria-label="Runtime entity details"`); header (`Runtime Entity Details` h2 + `dl.runtime-entity-meta` with ID / Type in mono); properties grid (`dl.runtime-entity-grid` with Position / Health / State items — localized `dt` labels via `observatory.runtime.*`, monospace `dd` values); empty state "No entity selected"
+  - `RuntimeStatCard.vue` — reusable stat card (props: `label`, `value`); `div.runtime-stat-card` with `dt.runtime-stat-label` (uppercase, dim) + `dd.runtime-stat-value` (mono, 20px); 4 instances under `dl.runtime-stats-grid` inside `section[aria-labelledby="runtime-stats-title"]` with `world-001` identifier
+- **First i18n-aware viewer** — data labels rendered through the existing S6-006.5 infrastructure; new `observatory.runtime.*` keys (zh-CN: 实体/系统/事件/运行帧率/位置/状态/生命值; en-US: Entities/Systems/Events/FPS/Position/State/Health); shell language switcher updates the viewer reactively (no reload, no remount); structural headings (Entity List / Runtime Stats / Runtime Entity Details, ID / Type) stay neutral English per the WO-S6-006.5 scope
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`:
+  - Renders `<ObservatoryRuntimeViewer />` via `v-else-if="isRuntime()"` when `store.selectedPanel === 'Runtime'`
+  - Overview dashboard and Trace/Timeline/History/Diff viewers unchanged; the placeholder grid now only renders for Settings
+- **Two-column developer-tool layout** — `grid-template-columns: 300px minmax(0, 1fr)`; border-contained panel; right column is a flex column with the stats section above the entity details; dark near-black surfaces, 1px borders, monospace values, indigo accent for active row — identical visual system to the Trace/Timeline/History/Diff viewers
+- **Mock data only** — no Runtime / Planner / Pipeline / PromptBuilder / AI / Strategy / Metadata changes; no new dependencies; no inline styles (all values via `var(--obs-*)` shell tokens)
+- New test file `apps/web/src/__tests__/ObservatoryRuntimeViewer.test.ts` (139 tests):
+  - Rendering (21 tests): root, RuntimeEntityList/RuntimeEntityDetails components, 4 RuntimeStatCard components, nav/article landmarks, h2 headings (list/stats/details), 3 rows, ids/types order, button semantics, ul/li structure, two-column grid, stats section aria-labelledby, world id, section order, stats dl, row contents
+  - Stats rendering (12 tests): 4 stat cards, zh labels, value order, each stat value (187/8/31/60), dt/dd semantics, dl nesting, label-value pairing
+  - Mock data (7 tests): 3 entities, id/type patterns, positions, states, health, default selection
+  - Default selection & active state (8 tests): first row active, single active, aria-current, header id/type, dt labels, meta dl
+  - Selection by click (9 tests): id/type/position/state updates, active class + aria-current movement, switching back, no-op re-click
+  - Details rendering (11 tests): header, default position/health/state, dl grid item count, zh labels, value order, dt/dd pairs, per-entity updates, distinct details, value alignment
+  - RuntimeStatCard (6 tests): div class, label, value, dt/dd semantics, arbitrary props
+  - Keyboard navigation (13 tests): ArrowDown/Up, repeated moves, clamping at both ends, Home/End, unrelated-key ignoring, aria-current movement, focus movement, nav handler, single-active invariant
+  - Accessibility (13 tests): landmarks, buttons + type, accessible names, aria-current, h2 hierarchy, no div-as-button, meta/grid/stats definition lists, aria-labelledby link, empty-state paragraph
+  - Empty state (4 tests): no-entity message, header hidden, grid hidden, paragraph element
+  - i18n rendering (24 tests): zh default stat/property labels, en-US switch, reactive updates, round-trip, no remount, catalog key values (zh + en), key parity
+  - Content integration (9 tests): store-driven visibility, no grid for Runtime, Overview↔Runtime, Trace→Runtime, Diff→Runtime, Settings grid, runtime→grid, fresh mount determinism
+  - Deterministic rendering (5 tests): identical ids/types/stat values/default selection/HTML across mounts
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (106 → 110 tests):
+  - Re-pointed placeholder-grid host from Runtime to Settings (grid fallback, dashboard↔grid, grid↔trace/timeline, history→grid, diff→grid, card content tests)
+  - Rewrote active-card assertions for the Settings grid (no active card) + Settings grid → runtime viewer switch
+  - New content tests: dashboard→runtime viewer, runtime viewer→dashboard
+  - New shell tests: sidebar Runtime click renders viewer; History→Runtime sidebar switching; Runtime→Settings returns to grid
+- Updated `apps/web/src/__tests__/ObservatoryI18n.test.ts` (128 → 130 tests): re-pointed placeholder/Coming Soon tests to Settings; Active-tag assertions now assert the Settings grid renders no active tag; added zh-CN/en-US runtime key catalog tests + runtime keys to the parity list
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts`: shell sidebar grid-return test re-pointed from Runtime to Settings
+- Updated `apps/web/src/__tests__/ObservatoryTraceViewer.test.ts`: placeholder-grid tests re-pointed from Runtime to Settings
+- Updated `apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts`: placeholder-grid tests re-pointed from Runtime to Settings
+- Updated `apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts`: placeholder-grid test re-pointed from Runtime to Settings
+- Updated `apps/web/src/__tests__/ObservatoryDiffViewer.test.ts`: placeholder-grid tests re-pointed from Runtime to Settings
+- All 877 web tests pass (139 runtime + 130 i18n + 120 diff + 110 shell + 103 history + 99 trace + 99 timeline + 62 overview + 15 streaming; 8473 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0150: Observatory Runtime Viewer Foundation
+- No breaking changes to any Public API
+- Architecture version v1.36 → v1.37

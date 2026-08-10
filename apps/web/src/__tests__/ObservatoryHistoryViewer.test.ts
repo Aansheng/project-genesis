@@ -893,7 +893,7 @@ describe('history viewer — content integration', () => {
     store.selectPanel('History')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
-    store.selectPanel('Runtime')
+    store.selectPanel('Settings')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)

@@ -1036,15 +1036,15 @@ describe('diff viewer — content integration', () => {
     store.selectPanel('Diff')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
-    store.selectPanel('Runtime')
+    store.selectPanel('Settings')
     await nextTick()
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 
-  it('renders the placeholder grid for Runtime', () => {
+  it('renders the placeholder grid for Settings', () => {
     const store = useObservatoryStore()
-    store.selectPanel('Runtime')
+    store.selectPanel('Settings')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)

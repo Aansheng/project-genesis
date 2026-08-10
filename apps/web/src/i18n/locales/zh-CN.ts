@@ -50,5 +50,14 @@ export const zhCN: MessageCatalog = {
       yes: '是',
       no: '否',
     },
+    runtime: {
+      entities: '实体',
+      systems: '系统',
+      events: '事件',
+      fps: '运行帧率',
+      position: '位置',
+      state: '状态',
+      health: '生命值',
+    },
   },
 }

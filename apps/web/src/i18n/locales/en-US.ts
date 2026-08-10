@@ -49,5 +49,14 @@ export const enUS: MessageCatalog = {
       yes: 'Yes',
       no: 'No',
     },
+    runtime: {
+      entities: 'Entities',
+      systems: 'Systems',
+      events: 'Events',
+      fps: 'FPS',
+      position: 'Position',
+      state: 'State',
+      health: 'Health',
+    },
   },
 }
