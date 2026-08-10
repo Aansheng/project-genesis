@@ -14,6 +14,7 @@ export const enUS: MessageCatalog = {
       diff: 'Diff',
       runtime: 'Runtime',
       eventstream: 'Event Stream',
+      tracegraph: 'Trace Graph',
       settings: 'Settings',
     },
     status: {
@@ -61,6 +62,13 @@ export const enUS: MessageCatalog = {
       inspector: 'Entity Inspector',
       components: 'Components',
       componentCount: 'Component Count',
+    },
+    graph: {
+      title: 'Trace Graph',
+      legend: 'Legend',
+      completed: 'Completed',
+      pending: 'Pending',
+      failed: 'Failed',
     },
     events: {
       title: 'Event Stream',

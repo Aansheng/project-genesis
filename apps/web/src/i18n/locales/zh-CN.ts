@@ -15,6 +15,7 @@ export const zhCN: MessageCatalog = {
       diff: '差异分析',
       runtime: '运行时',
       eventstream: '事件流',
+      tracegraph: '执行图谱',
       settings: '设置',
     },
     status: {
@@ -62,6 +63,13 @@ export const zhCN: MessageCatalog = {
       inspector: '实体检查器',
       components: '组件',
       componentCount: '组件数量',
+    },
+    graph: {
+      title: '执行图谱',
+      legend: '图例',
+      completed: '已完成',
+      pending: '进行中',
+      failed: '失败',
     },
     events: {
       title: '事件流',

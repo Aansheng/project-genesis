@@ -1328,12 +1328,12 @@ describe('event stream — content integration', () => {
     expect(stream.findAll('.event-stream-item')).toHaveLength(20)
   })
 
-  it('sits between Runtime and Settings in the panel order', () => {
+  it('sits between Runtime and TraceGraph in the panel order', () => {
     const runtimeIndex = OBSERVATORY_PANELS.indexOf('Runtime')
     const eventIndex = OBSERVATORY_PANELS.indexOf('EventStream')
-    const settingsIndex = OBSERVATORY_PANELS.indexOf('Settings')
+    const traceGraphIndex = OBSERVATORY_PANELS.indexOf('TraceGraph')
     expect(eventIndex).toBe(runtimeIndex + 1)
-    expect(settingsIndex).toBe(eventIndex + 1)
+    expect(traceGraphIndex).toBe(eventIndex + 1)
   })
 
   it('accepts the panel in the observatory panel union', () => {

@@ -5644,3 +5644,43 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
 - No breaking changes to any Public API
 - Architecture version v1.38 → v1.39
+
+### WO-S6-010 — Observatory Trace Graph Foundation
+
+- **New Trace Graph panel** — 9th observability panel (between EventStream and Settings, `OBSERVATORY_PANELS` now 9) hosting a pure-CSS vertical flow graph of strategy execution steps
+- **Store change** — `apps/web/src/stores/observatory.ts` adds `'TraceGraph'` to the `ObservatoryPanel` union and the array (position 8, before Settings); sidebar/header/content gates consume the array unchanged
+- **New components** — `apps/web/src/components/observatory/graph/`:
+  - `ObservatoryTraceGraph.vue` — root viewer; owns mock node/edge data (6 nodes, 5 edges), renders centered graph canvas + legend below; title localized via `observatory.graph.title`
+  - `TraceGraphNode.vue` — `<article>` card with `<header>` (status dot + status label) + `<p>` strategy name; three status variants (`graph-node--completed|pending|failed`) with green/yellow/red accent; exports `GraphNode` / `GraphEdge` types
+  - `TraceGraphEdge.vue` — pure CSS vertical connector: `div.graph-edge` with role="img" and aria-label="connects to", 2px line + CSS triangle arrow
+  - `TraceGraphLegend.vue` — `<section>` with `aria-label="Graph legend"`, `<h3>` title + `<ul>` of 3 items (Completed/Pending/Failed) with colored dots + localized labels
+- **Mock graph data** — 6 nodes in linear chain: CreateWorld → GenerateTerrain → CreateFarm → CreateNPC → CreateInventory → CreateQuest; all statuses set to "completed"
+- **Added panel** — sidebar label localized via the existing convention → `observatory.panels.tracegraph` (`执行图谱` / `Trace Graph`)
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`: renders `<ObservatoryTraceGraph />` via `v-else-if="isTraceGraph()"`; all other panels unchanged; placeholder grid still only renders for Settings
+- **Pure CSS layout** — no graph libraries, no SVG, no D3, no Cytoscape; vertical flow centered in scrollable canvas; dark card styling via `var(--obs-*)` tokens
+- **I18n** — new `observatory.graph.*` keys (zh-CN: 执行图谱/图例/已完成/进行中/失败; en-US: Trace Graph/Legend/Completed/Pending/Failed) plus `observatory.panels.tracegraph`; title, legend, and status labels render through `useI18n().t()` and react to the shell switcher
+- New test file `apps/web/src/__tests__/ObservatoryTraceGraph.test.ts` (150 tests):
+  - TraceGraphNode rendering (12 tests): article, header, status dot/label, strategy name, status classes (completed/pending/failed), standalone node variations
+  - TraceGraphNode accessibility (5 tests): article, header, no div-as-button, no interactive elements
+  - TraceGraphEdge rendering (5 tests): div, line, arrow, role img, aria-label
+  - TraceGraphLegend rendering (9 tests): section, header, h3 title, ul list, 3 items, dots, labels, li elements
+  - TraceGraphLegend accessibility (7 tests): section, aria-label, header, h3, ul, li, no div-as-button
+  - TraceGraphLegend i18n rendering (4 tests): zh title, en labels after switch
+  - ObservatoryTraceGraph rendering (10 tests): root container, canvas, header, h2, 6 nodes, 5 edges, legend, flow, node order, all completed
+  - ObservatoryTraceGraph i18n (2 tests): zh/en title
+  - ObservatoryTraceGraph accessibility (6 tests): section aria-label, h2, articles, no div-as-button, no buttons, legend section
+  - Content integration (7 tests): renders when selected, no cards, dashboard switch, Settings grid switch, Overview switch, event stream switch
+  - Deterministic rendering (4 tests): identical labels/nodes/edges/HTML across mounts
+  - I18n catalog keys (10 tests): zh/en title/legend/completed/pending/failed
+  - Structural integrity (4 tests): alternating nodes/edges, canvas contains flow, section header, legend after canvas
+  - Additional edge cases and variations (30+ tests): status dot colors, card styling, edge structure, legend i18n reactively, graph flow details, content integration details, accessibility details, legend with different items, node edge cases
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (121 tests): panel count 8→9, panel order with TraceGraph, sidebar button count/labels, Settings button index [7]→[8], keyboard navigation
+- Updated `apps/web/src/__tests__/ObservatoryI18n.test.ts` (140 tests): tracegraph panel key, graph.* key tests, sidebar labels with Trace Graph, graph keys in parity list
+- Updated `apps/web/src/__tests__/ObservatoryEventStream.test.ts`: panel order assertion updated for TraceGraph
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts`: Settings button index [7]→[8]
+- All web tests pass (1343 across 12 files)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0153: Observatory Trace Graph Foundation
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
+- No breaking changes to any Public API
+- Architecture version v1.39 → v1.40

@@ -8,6 +8,7 @@ import ObservatoryHistoryViewer from './history/ObservatoryHistoryViewer.vue'
 import ObservatoryDiffViewer from './diff/ObservatoryDiffViewer.vue'
 import ObservatoryRuntimeViewer from './runtime/ObservatoryRuntimeViewer.vue'
 import ObservatoryEventStream from './events/ObservatoryEventStream.vue'
+import ObservatoryTraceGraph from './graph/ObservatoryTraceGraph.vue'
 
 const store = useObservatoryStore()
 const i18n = useI18n()
@@ -53,6 +54,10 @@ function isEventStream(): boolean {
   return store.selectedPanel === 'EventStream'
 }
 
+function isTraceGraph(): boolean {
+  return store.selectedPanel === 'TraceGraph'
+}
+
 function cardLabel(card: string): string {
   return i18n.t(`observatory.panels.${card.toLowerCase()}`)
 }
@@ -70,6 +75,7 @@ function cardLabel(card: string): string {
     <ObservatoryDiffViewer v-else-if="isDiff()" />
     <ObservatoryRuntimeViewer v-else-if="isRuntime()" />
     <ObservatoryEventStream v-else-if="isEventStream()" />
+    <ObservatoryTraceGraph v-else-if="isTraceGraph()" />
     <div
       v-else
       class="content-grid"

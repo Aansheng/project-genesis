@@ -81,7 +81,7 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.title')).toBe('Observatory')
   })
 
-  it('zh-CN contains all 7 required panel keys', () => {
+  it('zh-CN contains all 8 required panel keys', () => {
     for (const key of [
       'overview',
       'trace',
@@ -90,12 +90,13 @@ describe('i18n — locale catalogs', () => {
       'diff',
       'runtime',
       'eventstream',
+      'tracegraph',
     ]) {
       expect(resolveKey(zhCN, `observatory.panels.${key}`)).toBeDefined()
     }
   })
 
-  it('en-US contains all 7 required panel keys', () => {
+  it('en-US contains all 8 required panel keys', () => {
     for (const key of [
       'overview',
       'trace',
@@ -104,6 +105,7 @@ describe('i18n — locale catalogs', () => {
       'diff',
       'runtime',
       'eventstream',
+      'tracegraph',
     ]) {
       expect(resolveKey(enUS, `observatory.panels.${key}`)).toBeDefined()
     }
@@ -111,6 +113,14 @@ describe('i18n — locale catalogs', () => {
 
   it('zh-CN contains the settings panel key', () => {
     expect(resolveKey(zhCN, 'observatory.panels.settings')).toBe('设置')
+  })
+
+  it('zh-CN contains the tracegraph panel key', () => {
+    expect(resolveKey(zhCN, 'observatory.panels.tracegraph')).toBe('执行图谱')
+  })
+
+  it('en-US contains the tracegraph panel key', () => {
+    expect(resolveKey(enUS, 'observatory.panels.tracegraph')).toBe('Trace Graph')
   })
 
   it('both catalogs contain the ready status key', () => {
@@ -197,6 +207,22 @@ describe('i18n — locale catalogs', () => {
     )
   })
 
+  it('zh-CN contains the graph keys', () => {
+    expect(resolveKey(zhCN, 'observatory.graph.title')).toBe('执行图谱')
+    expect(resolveKey(zhCN, 'observatory.graph.legend')).toBe('图例')
+    expect(resolveKey(zhCN, 'observatory.graph.completed')).toBe('已完成')
+    expect(resolveKey(zhCN, 'observatory.graph.pending')).toBe('进行中')
+    expect(resolveKey(zhCN, 'observatory.graph.failed')).toBe('失败')
+  })
+
+  it('en-US contains the graph keys', () => {
+    expect(resolveKey(enUS, 'observatory.graph.title')).toBe('Trace Graph')
+    expect(resolveKey(enUS, 'observatory.graph.legend')).toBe('Legend')
+    expect(resolveKey(enUS, 'observatory.graph.completed')).toBe('Completed')
+    expect(resolveKey(enUS, 'observatory.graph.pending')).toBe('Pending')
+    expect(resolveKey(enUS, 'observatory.graph.failed')).toBe('Failed')
+  })
+
   it('zh-CN contains the events keys', () => {
     expect(resolveKey(zhCN, 'observatory.events.title')).toBe('事件流')
     expect(resolveKey(zhCN, 'observatory.events.all')).toBe('全部')
@@ -262,6 +288,11 @@ describe('i18n — locale catalogs', () => {
       'observatory.runtime.inspector',
       'observatory.runtime.components',
       'observatory.runtime.componentCount',
+      'observatory.graph.title',
+      'observatory.graph.legend',
+      'observatory.graph.completed',
+      'observatory.graph.pending',
+      'observatory.graph.failed',
       'observatory.events.title',
       'observatory.events.all',
       'observatory.events.info',
@@ -564,6 +595,7 @@ describe('i18n — zh-CN rendering (default)', () => {
       '差异分析',
       '运行时',
       '事件流',
+      '执行图谱',
       '设置',
     ])
   })
@@ -700,6 +732,7 @@ describe('i18n — en-US rendering', () => {
       'Diff',
       'Runtime',
       'Event Stream',
+      'Trace Graph',
       'Settings',
     ])
   })

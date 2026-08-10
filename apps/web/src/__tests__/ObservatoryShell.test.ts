@@ -104,8 +104,8 @@ describe('observatory store', () => {
     expect(store.version).toBe('v1.30')
   })
 
-  it('exports OBSERVATORY_PANELS with exactly 8 items', () => {
-    expect(OBSERVATORY_PANELS).toHaveLength(8)
+  it('exports OBSERVATORY_PANELS with exactly 9 items', () => {
+    expect(OBSERVATORY_PANELS).toHaveLength(9)
   })
 
   it('exports OBSERVATORY_PANELS in spec order', () => {
@@ -117,6 +117,7 @@ describe('observatory store', () => {
       'Diff',
       'Runtime',
       'EventStream',
+      'TraceGraph',
       'Settings',
     ])
   })
@@ -194,9 +195,9 @@ describe('observatory sidebar', () => {
     activateEn()
   })
 
-  it('renders all 8 menu items', () => {
+  it('renders all 9 menu items', () => {
     const wrapper = mountSidebar()
-    expect(sidebarButtons(wrapper)).toHaveLength(8)
+    expect(sidebarButtons(wrapper)).toHaveLength(9)
   })
 
   it('renders menu items in spec order', () => {
@@ -210,6 +211,7 @@ describe('observatory sidebar', () => {
       'Diff',
       'Runtime',
       'Event Stream',
+      'Trace Graph',
       'Settings',
     ])
   })
@@ -275,7 +277,7 @@ describe('observatory sidebar', () => {
   it('selects Settings when clicked (last item)', async () => {
     const store = useObservatoryStore()
     const wrapper = mountSidebar()
-    await sidebarButtons(wrapper)[7].trigger('click')
+    await sidebarButtons(wrapper)[8].trigger('click')
     expect(store.selectedPanel).toBe('Settings')
   })
 
@@ -895,7 +897,7 @@ describe('observatory shell', () => {
     await buttons[1].trigger('click') // Trace
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    await buttons[7].trigger('click') // Settings
+    await buttons[8].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -949,7 +951,7 @@ describe('observatory shell', () => {
     await buttons[3].trigger('click') // History
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
-    await buttons[7].trigger('click') // Settings
+    await buttons[8].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -982,7 +984,7 @@ describe('observatory shell', () => {
     await buttons[4].trigger('click') // Diff
     await nextTick()
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
-    await buttons[7].trigger('click') // Settings
+    await buttons[8].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -1006,7 +1008,7 @@ describe('observatory shell', () => {
     await buttons[5].trigger('click') // Runtime
     await nextTick()
     expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)
-    await buttons[7].trigger('click') // Settings
+    await buttons[8].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -1039,7 +1041,7 @@ describe('observatory shell', () => {
     await buttons[6].trigger('click') // Event Stream
     await nextTick()
     expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-    await buttons[7].trigger('click') // Settings
+    await buttons[8].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
