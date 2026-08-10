@@ -9,6 +9,7 @@ import ObservatoryDiffViewer from './diff/ObservatoryDiffViewer.vue'
 import ObservatoryRuntimeViewer from './runtime/ObservatoryRuntimeViewer.vue'
 import ObservatoryEventStream from './events/ObservatoryEventStream.vue'
 import ObservatoryTraceGraph from './graph/ObservatoryTraceGraph.vue'
+import ObservatoryWorldGraph from './world/ObservatoryWorldGraph.vue'
 
 const store = useObservatoryStore()
 const i18n = useI18n()
@@ -58,6 +59,10 @@ function isTraceGraph(): boolean {
   return store.selectedPanel === 'TraceGraph'
 }
 
+function isWorldGraph(): boolean {
+  return store.selectedPanel === 'WorldGraph'
+}
+
 function cardLabel(card: string): string {
   return i18n.t(`observatory.panels.${card.toLowerCase()}`)
 }
@@ -76,6 +81,7 @@ function cardLabel(card: string): string {
     <ObservatoryRuntimeViewer v-else-if="isRuntime()" />
     <ObservatoryEventStream v-else-if="isEventStream()" />
     <ObservatoryTraceGraph v-else-if="isTraceGraph()" />
+    <ObservatoryWorldGraph v-else-if="isWorldGraph()" />
     <div
       v-else
       class="content-grid"

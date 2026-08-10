@@ -81,7 +81,7 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.title')).toBe('Observatory')
   })
 
-  it('zh-CN contains all 8 required panel keys', () => {
+  it('zh-CN contains all 9 required panel keys', () => {
     for (const key of [
       'overview',
       'trace',
@@ -91,12 +91,13 @@ describe('i18n — locale catalogs', () => {
       'runtime',
       'eventstream',
       'tracegraph',
+      'worldgraph',
     ]) {
       expect(resolveKey(zhCN, `observatory.panels.${key}`)).toBeDefined()
     }
   })
 
-  it('en-US contains all 8 required panel keys', () => {
+  it('en-US contains all 9 required panel keys', () => {
     for (const key of [
       'overview',
       'trace',
@@ -106,6 +107,7 @@ describe('i18n — locale catalogs', () => {
       'runtime',
       'eventstream',
       'tracegraph',
+      'worldgraph',
     ]) {
       expect(resolveKey(enUS, `observatory.panels.${key}`)).toBeDefined()
     }
@@ -121,6 +123,14 @@ describe('i18n — locale catalogs', () => {
 
   it('en-US contains the tracegraph panel key', () => {
     expect(resolveKey(enUS, 'observatory.panels.tracegraph')).toBe('Trace Graph')
+  })
+
+  it('zh-CN contains the worldgraph panel key', () => {
+    expect(resolveKey(zhCN, 'observatory.panels.worldgraph')).toBe('世界图谱')
+  })
+
+  it('en-US contains the worldgraph panel key', () => {
+    expect(resolveKey(enUS, 'observatory.panels.worldgraph')).toBe('World Graph')
   })
 
   it('both catalogs contain the ready status key', () => {
@@ -223,6 +233,28 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.graph.failed')).toBe('Failed')
   })
 
+  it('zh-CN contains the world graph keys', () => {
+    expect(resolveKey(zhCN, 'observatory.world.title')).toBe('世界图谱')
+    expect(resolveKey(zhCN, 'observatory.world.legend')).toBe('图例')
+    expect(resolveKey(zhCN, 'observatory.world.world')).toBe('世界')
+    expect(resolveKey(zhCN, 'observatory.world.location')).toBe('地点')
+    expect(resolveKey(zhCN, 'observatory.world.npc')).toBe('NPC')
+    expect(resolveKey(zhCN, 'observatory.world.quest')).toBe('任务')
+    expect(resolveKey(zhCN, 'observatory.world.active')).toBe('活跃')
+    expect(resolveKey(zhCN, 'observatory.world.inactive')).toBe('非活跃')
+  })
+
+  it('en-US contains the world graph keys', () => {
+    expect(resolveKey(enUS, 'observatory.world.title')).toBe('World Graph')
+    expect(resolveKey(enUS, 'observatory.world.legend')).toBe('Legend')
+    expect(resolveKey(enUS, 'observatory.world.world')).toBe('World')
+    expect(resolveKey(enUS, 'observatory.world.location')).toBe('Location')
+    expect(resolveKey(enUS, 'observatory.world.npc')).toBe('NPC')
+    expect(resolveKey(enUS, 'observatory.world.quest')).toBe('Quest')
+    expect(resolveKey(enUS, 'observatory.world.active')).toBe('Active')
+    expect(resolveKey(enUS, 'observatory.world.inactive')).toBe('Inactive')
+  })
+
   it('zh-CN contains the events keys', () => {
     expect(resolveKey(zhCN, 'observatory.events.title')).toBe('事件流')
     expect(resolveKey(zhCN, 'observatory.events.all')).toBe('全部')
@@ -301,6 +333,16 @@ describe('i18n — locale catalogs', () => {
       'observatory.events.source',
       'observatory.events.timestamp',
       'observatory.events.message',
+      'observatory.world.title',
+      'observatory.world.legend',
+      'observatory.world.world',
+      'observatory.world.location',
+      'observatory.world.npc',
+      'observatory.world.quest',
+      'observatory.world.active',
+      'observatory.world.inactive',
+      'observatory.panels.worldgraph',
+      'observatory.labels.types',
     ]
     for (const key of required) {
       expect(resolveKey(zhCN, key), `zh key ${key}`).toBeDefined()
@@ -596,6 +638,7 @@ describe('i18n — zh-CN rendering (default)', () => {
       '运行时',
       '事件流',
       '执行图谱',
+      '世界图谱',
       '设置',
     ])
   })
@@ -733,6 +776,7 @@ describe('i18n — en-US rendering', () => {
       'Runtime',
       'Event Stream',
       'Trace Graph',
+      'World Graph',
       'Settings',
     ])
   })

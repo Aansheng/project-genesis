@@ -15,6 +15,7 @@ export const enUS: MessageCatalog = {
       runtime: 'Runtime',
       eventstream: 'Event Stream',
       tracegraph: 'Trace Graph',
+      worldgraph: 'World Graph',
       settings: 'Settings',
     },
     status: {
@@ -24,6 +25,7 @@ export const enUS: MessageCatalog = {
       version: 'Version',
       sprint: 'Sprint',
       status: 'Status',
+      types: 'Types',
       count: 'Count',
       active: 'Active',
       comingSoon: 'Coming Soon',
@@ -79,6 +81,16 @@ export const enUS: MessageCatalog = {
       source: 'Source',
       timestamp: 'Timestamp',
       message: 'Message',
+    },
+    world: {
+      title: 'World Graph',
+      legend: 'Legend',
+      world: 'World',
+      location: 'Location',
+      npc: 'NPC',
+      quest: 'Quest',
+      active: 'Active',
+      inactive: 'Inactive',
     },
   },
 }

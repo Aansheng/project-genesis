@@ -16,6 +16,7 @@ export const zhCN: MessageCatalog = {
       runtime: '运行时',
       eventstream: '事件流',
       tracegraph: '执行图谱',
+      worldgraph: '世界图谱',
       settings: '设置',
     },
     status: {
@@ -25,6 +26,7 @@ export const zhCN: MessageCatalog = {
       version: '版本',
       sprint: '迭代',
       status: '状态',
+      types: '类型',
       count: '数量',
       active: '活动',
       comingSoon: '即将推出',
@@ -80,6 +82,16 @@ export const zhCN: MessageCatalog = {
       source: '来源',
       timestamp: '时间',
       message: '消息',
+    },
+    world: {
+      title: '世界图谱',
+      legend: '图例',
+      world: '世界',
+      location: '地点',
+      npc: 'NPC',
+      quest: '任务',
+      active: '活跃',
+      inactive: '非活跃',
     },
   },
 }

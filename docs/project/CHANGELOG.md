@@ -5684,3 +5684,53 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
 - No breaking changes to any Public API
 - Architecture version v1.39 → v1.40
+
+## Sprint 6 — Observatory UI
+
+### WO-S6-011 — Observatory World Graph Foundation
+
+- New `world/` component directory under `apps/web/src/components/observatory/`:
+  - `ObservatoryWorldGraph.vue` — root component with mock tree data: root World node + 6 children (Farm, Barn, WheatField, Farmer, Merchant, HarvestQuest) in a centered tree layout; pure-CSS connectors between root and children
+  - `WorldGraphNode.vue` — `<article>` card with type badge (world/location/npc/quest — purple/blue/green/orange pill) + status indicator (active/inactive — green/gray dot + label) + monospace name; `world-graph-node--${type}` and `world-graph-node--${status}` modifier classes
+  - `WorldGraphConnection.vue` — `<div>` with role="img" and aria-label="connects parent to child"; vertical line + arrow
+  - `WorldGraphLegend.vue` — `<section>` with aria-label="World graph legend"; two-group legend: types (4 colored badges) + statuses (2 dots + labels); uses `h3` title + `h4` group titles + `ul`/`li`; all labels localized
+- Panel `WorldGraph` added to `ObservatoryPanel` union and `OBSERVATORY_PANELS` array in `stores/observatory.ts` (10 panels total: position 9, between TraceGraph and Settings)
+- `ObservatoryContent.vue` updated with `isWorldGraph()` gate and `ObservatoryWorldGraph` import
+- New i18n keys:
+  - `observatory.panels.worldgraph` (zh-CN: 世界图谱, en-US: World Graph)
+  - `observatory.world.*` — title/legend/world/location/npc/quest/active/inactive
+  - `observatory.labels.types` — 类型 / Types
+- **Pure CSS tree layout** — no graph libraries, no SVG, no D3, no Cytoscape; root-centered tree with horizontal branching connectors
+- **I18n** — all node type badges, status labels, legend groups, and title render through `useI18n().t()` and react to the shell switcher
+- New test file `apps/web/src/__tests__/ObservatoryWorldGraph.test.ts` (160+ tests):
+  - WorldGraphNode rendering (22 tests): article, header, type badge, status dot/label, name, type classes (world/location/npc/quest), status classes (active/inactive), type badge text for all 4 types
+  - WorldGraphNode type-specific styling (8 tests): badge backgrounds, border colors, status dot existence
+  - WorldGraphNode accessibility (5 tests): article, header, no div-as-button, no interactive, paragraph
+  - WorldGraphConnection rendering (5 tests): div, vertical, horizontal, role img, aria-label
+  - WorldGraphLegend rendering (21 tests): section, header, h3 title, 2 groups, 4 type items, 2 status items, all badges/dots, zh labels, group titles, ul/li
+  - WorldGraphLegend accessibility (8 tests): section, aria-label, header, h3, h4, ul, li, no div-as-button
+  - WorldGraphLegend i18n rendering (10 tests): zh/en legend title, zh/en type badges, zh/en status labels, reactive switch, group titles
+  - ObservatoryWorldGraph rendering (11 tests): root container, canvas, header, h2, tree, root, children, 7 nodes, legend, root name, child order
+  - ObservatoryWorldGraph i18n (2 tests): zh/en title
+  - ObservatoryWorldGraph accessibility (11 tests): section aria-label, h2, 7 articles, no div-as-button, no buttons, legend section, header, h3, heading hierarchy (h2→h3→h4)
+  - Content integration (7 tests): renders when selected, no cards, dashboard switch, Settings grid switch, Overview switch, trace graph switch
+  - Deterministic rendering (4 tests): identical names/node count/HTML/order across mounts
+  - I18n catalog keys (22 tests): zh/en title/legend/world/location/npc/quest/active/inactive/panel worldgraph/types
+  - Structural integrity (7 tests): canvas contains tree, section header, legend after canvas, 1 root node, 6 children, title in header, 2 legend groups
+  - Node types and statuses (16 tests): all 7 nodes verified for correct type and status class
+  - Empty legend edge cases (3 tests): empty types, empty statuses, both empty
+  - All node type combinations (8 tests): 4 types × 2 statuses
+  - Content integration details (5 tests): title, 7 article nodes, legend, 4 badges, 2 status labels
+  - Accessibility details (12 tests): aria-labels, semantic elements, heading hierarchy, no div-as-button, no buttons
+  - Legend custom items (2 tests): single type, all items
+  - WorldGraph i18n integration (3 tests): reactive title switch, back to zh, legend reactive
+  - Sidebar panel parity (2 tests): WorldGraph in array, between TraceGraph and Settings
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts`: panel count 9→10, panel order with WorldGraph, sidebar button count/labels, keyboard Settings index [8]→[9]
+- Updated `apps/web/src/__tests__/ObservatoryI18n.test.ts`: 9→10 panel key count, worldgraph panel keys, world.* keys, sidebar labels with World Graph, parity list with world keys
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts`: Settings button index [8]→[9]
+- All web tests pass (1500+ across 13 files)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0154: Observatory World Graph Foundation
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
+- No breaking changes to any Public API
+- Architecture version v1.40 → v1.41

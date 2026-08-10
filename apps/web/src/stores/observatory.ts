@@ -14,6 +14,7 @@ export type ObservatoryPanel =
   | 'Runtime'
   | 'EventStream'
   | 'TraceGraph'
+  | 'WorldGraph'
   | 'Settings'
 
 export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
@@ -25,6 +26,7 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
   'Runtime',
   'EventStream',
   'TraceGraph',
+  'WorldGraph',
   'Settings',
 ]
 
