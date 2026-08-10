@@ -12,6 +12,7 @@ export type ObservatoryPanel =
   | 'History'
   | 'Diff'
   | 'Runtime'
+  | 'EventStream'
   | 'Settings'
 
 export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
@@ -21,6 +22,7 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
   'History',
   'Diff',
   'Runtime',
+  'EventStream',
   'Settings',
 ]
 

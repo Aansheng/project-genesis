@@ -13,6 +13,7 @@ export const enUS: MessageCatalog = {
       history: 'History',
       diff: 'Diff',
       runtime: 'Runtime',
+      eventstream: 'Event Stream',
       settings: 'Settings',
     },
     status: {
@@ -57,6 +58,16 @@ export const enUS: MessageCatalog = {
       position: 'Position',
       state: 'State',
       health: 'Health',
+    },
+    events: {
+      title: 'Event Stream',
+      all: 'All',
+      info: 'Info',
+      warning: 'Warning',
+      error: 'Error',
+      source: 'Source',
+      timestamp: 'Timestamp',
+      message: 'Message',
     },
   },
 }

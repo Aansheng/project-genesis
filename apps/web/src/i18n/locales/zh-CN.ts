@@ -14,6 +14,7 @@ export const zhCN: MessageCatalog = {
       history: '历史记录',
       diff: '差异分析',
       runtime: '运行时',
+      eventstream: '事件流',
       settings: '设置',
     },
     status: {
@@ -58,6 +59,16 @@ export const zhCN: MessageCatalog = {
       position: '位置',
       state: '状态',
       health: '生命值',
+    },
+    events: {
+      title: '事件流',
+      all: '全部',
+      info: '信息',
+      warning: '警告',
+      error: '错误',
+      source: '来源',
+      timestamp: '时间',
+      message: '消息',
     },
   },
 }

@@ -5565,3 +5565,40 @@
 - Created ADR-0150: Observatory Runtime Viewer Foundation
 - No breaking changes to any Public API
 - Architecture version v1.36 → v1.37
+
+### WO-S6-008 — Observatory Live Event Stream Foundation
+
+- **Sixth observability panel + first live surface** — the new **Event Stream** sidebar panel (between Runtime and Settings; `OBSERVATORY_PANELS` now 8) hosts a single-column, simulated live event feed instead of a placeholder
+- **Store change** — `apps/web/src/stores/observatory.ts` adds `'EventStream'` to the `ObservatoryPanel` union and the array (position 7, before Settings); sidebar/header/content gates consume the array unchanged
+- **New components** — `apps/web/src/components/observatory/events/`:
+  - `ObservatoryEventStream.vue` — root viewer; owns a 20-seed mock pool (the 4 spec examples + 16 follow-ups across Runtime/Planner/AI/Provider and info/warning/error), per-instance `evt-NNN` id + `12:00:NN` clock, `events`/`filter` refs + `filteredEvents` computed; `onMounted` starts `setInterval(appendEvent, 2000)` and `onBeforeUnmount` clears it; `appendEvent()` cycles the seed pool and splices the oldest entries beyond `MAX_EVENTS = 100`
+  - `EventStreamList.vue` — scrollable `ul[role="log"][aria-label="Event stream"]` of `li → EventStreamItem`s (the list fills remaining height); empty-state `p.event-stream-empty` ("No events") when the filtered list is empty
+  - `EventStreamItem.vue` — `article` row with monospace timestamp, level badge pill (`event-badge--info|warning|error`, error rows use `event-stream-item--error` tint), source, message; exports the shared `StreamEvent` / `EventLevel` / `EventFilter` types
+  - `EventFilterBar.vue` — `div[role="group"][aria-label="Event stream filters"]` with 4 native `<button>`s (All / Info / Warning / Error); active filter has `.event-filter-button--active` + `aria-pressed="true"`; emits `change` (filter state stays in the root, local-only)
+- **Added panel** — sidebar label localized via the existing convention → `observatory.panels.eventstream` (`事件流` / `Event Stream`)
+- **Updated component** — `apps/web/src/components/observatory/ObservatoryContent.vue`: renders `<ObservatoryEventStream />` via `v-else-if="isEventStream()"`; all other panels unchanged; placeholder grid still only renders for Settings
+- **Auto stream simulation** — `setInterval` every 2000ms appends one mock event; the stream keeps at most 100 events (oldest spliced); interval cleared on unmount — UI-only, no backend, no persistence, no store involvement
+- **Single-column layout** — `height: 100%` flex column: header (localized title) → filter bar → scrollable list; dark developer-tool styling via `var(--obs-*)` tokens (no inline styles, no new dependencies)
+- **I18n** — new `observatory.events.*` keys (zh-CN: 事件流/全部/信息/警告/错误/来源/时间/消息; en-US: Event Stream/All/Info/Warning/Error/Source/Timestamp/Message) plus `observatory.panels.eventstream`; title, filters, and badges render through `useI18n().t()` and react to the shell switcher (filter and stream survive a language switch)
+- New test file `apps/web/src/__tests__/ObservatoryEventStream.test.ts` (161 tests):
+  - Rendering (27 tests): root, filter bar/list/item components, localized title h2, 4 filter buttons + labels, 20 items, ul/li structure, role=log, DOM order, field presence, first/last values
+  - Mock data (15 tests): 20 seeded events, spec example events, timestamp series, level/source variety, chronological order
+  - Event item (11 tests): article semantics, spans, per-level modifier/badge classes, localized badge labels, standalone item
+  - Filter bar (13 tests): buttons, aria-pressed, active class, changes, standalone emission, group semantics
+  - Filtering (11 tests): All/Info/Warning/Error filtering, non-matching source hiding, restore, strictness with arrivals
+  - Auto append (16 tests): 2000ms cadence, sequential timestamps/messages, seed cycling, filter-aware appends, no-append-before-interval, unmount safety, setInterval spy
+  - Cleanup (5 tests): clearInterval on unmount, same-timer clearing, append halt after unmount, fresh-mount restart, double-unmount safety
+  - Max 100 events (5 tests): 100-event cap, oldest dropped, bound with further appends, newest retained, order retained
+  - i18n rendering (19 tests): zh/en title/filters/badges, reactive switch + back, filter preservation, no remount, catalog keys, panel key, parity
+  - Accessibility (16 tests): native buttons, aria-pressed, no div-as-button/role=button, h2, role=log, group semantics, visual order, empty-state paragraph
+  - Empty state (6 tests): message, ul hidden, no lis, paragraph semantics, item render
+  - Content integration (10 tests): store gates, grid absence, panel-to-panel switching, placement in OBSERVATORY_PANELS
+  - Deterministic rendering (7 tests): identical timestamps/messages/sources/filters/count/HTML/badges across mounts
+- Updated `apps/web/src/__tests__/ObservatoryShell.test.ts` (110 → 121 tests): 8-panel count/order assertions, 'Event Stream' sidebar label, Settings index 6 → 7, sidebar EventStream selection + viewer/switch/grid tests, content gate tests (render/grid-absence/exclusions/switching)
+- Updated `apps/web/src/__tests__/ObservatoryI18n.test.ts` (130 → 134 tests): 7-panel key checks, eventstream panel translations, sidebar label lists (8 entries), events.* catalog tests, runtime/events keys added to parity list
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts`: sidebar Settings button index 6 → 7
+- All 1053 web tests pass (161 event stream + 139 runtime + 134 i18n + 121 shell + 120 diff + 103 history + 99 trace + 99 timeline + 62 overview + 15 streaming; 8649 across the monorepo)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0151: Observatory Live Event Stream Foundation
+- No breaking changes to any Public API
+- Architecture version v1.37 → v1.38

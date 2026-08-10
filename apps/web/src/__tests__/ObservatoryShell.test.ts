@@ -19,6 +19,7 @@ import ObservatoryTimelineViewer from '../components/observatory/timeline/Observ
 import ObservatoryHistoryViewer from '../components/observatory/history/ObservatoryHistoryViewer.vue'
 import ObservatoryDiffViewer from '../components/observatory/diff/ObservatoryDiffViewer.vue'
 import ObservatoryRuntimeViewer from '../components/observatory/runtime/ObservatoryRuntimeViewer.vue'
+import ObservatoryEventStream from '../components/observatory/events/ObservatoryEventStream.vue'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -103,8 +104,8 @@ describe('observatory store', () => {
     expect(store.version).toBe('v1.30')
   })
 
-  it('exports OBSERVATORY_PANELS with exactly 7 items', () => {
-    expect(OBSERVATORY_PANELS).toHaveLength(7)
+  it('exports OBSERVATORY_PANELS with exactly 8 items', () => {
+    expect(OBSERVATORY_PANELS).toHaveLength(8)
   })
 
   it('exports OBSERVATORY_PANELS in spec order', () => {
@@ -115,6 +116,7 @@ describe('observatory store', () => {
       'History',
       'Diff',
       'Runtime',
+      'EventStream',
       'Settings',
     ])
   })
@@ -192,9 +194,9 @@ describe('observatory sidebar', () => {
     activateEn()
   })
 
-  it('renders all 7 menu items', () => {
+  it('renders all 8 menu items', () => {
     const wrapper = mountSidebar()
-    expect(sidebarButtons(wrapper)).toHaveLength(7)
+    expect(sidebarButtons(wrapper)).toHaveLength(8)
   })
 
   it('renders menu items in spec order', () => {
@@ -207,6 +209,7 @@ describe('observatory sidebar', () => {
       'History',
       'Diff',
       'Runtime',
+      'Event Stream',
       'Settings',
     ])
   })
@@ -272,8 +275,15 @@ describe('observatory sidebar', () => {
   it('selects Settings when clicked (last item)', async () => {
     const store = useObservatoryStore()
     const wrapper = mountSidebar()
-    await sidebarButtons(wrapper)[6].trigger('click')
+    await sidebarButtons(wrapper)[7].trigger('click')
     expect(store.selectedPanel).toBe('Settings')
+  })
+
+  it('selects EventStream when clicked (7th item)', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountSidebar()
+    await sidebarButtons(wrapper)[6].trigger('click')
+    expect(store.selectedPanel).toBe('EventStream')
   })
 
   it('moves selection to the next panel with ArrowDown', async () => {
@@ -685,6 +695,61 @@ describe('observatory content', () => {
     expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
   })
 
+  it('renders the event stream when EventStream is selected', () => {
+    const wrapper = mountContentAs('EventStream')
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+  })
+
+  it('does not render placeholder cards when EventStream is selected', () => {
+    const wrapper = mountContentAs('EventStream')
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('does not render the runtime viewer when EventStream is selected', () => {
+    const wrapper = mountContentAs('EventStream')
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
+  })
+
+  it('switches from dashboard to event stream when EventStream is selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContent()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    store.selectPanel('EventStream')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+  })
+
+  it('switches from the runtime viewer to the event stream', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('Runtime')
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)
+    store.selectPanel('EventStream')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+  })
+
+  it('switches from the event stream to the placeholder grid for Settings', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('EventStream')
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    store.selectPanel('Settings')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('switches from the event stream back to dashboard when Overview is re-selected', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mountContentAs('EventStream')
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    store.selectPanel('Overview')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+  })
+
   it('includes an Overview card in the placeholder grid', () => {
     const wrapper = mountContentAs('Settings')
     expect(wrapper.text()).toContain('Overview')
@@ -830,7 +895,7 @@ describe('observatory shell', () => {
     await buttons[1].trigger('click') // Trace
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    await buttons[6].trigger('click') // Settings
+    await buttons[7].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -884,7 +949,7 @@ describe('observatory shell', () => {
     await buttons[3].trigger('click') // History
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
-    await buttons[6].trigger('click') // Settings
+    await buttons[7].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -917,7 +982,7 @@ describe('observatory shell', () => {
     await buttons[4].trigger('click') // Diff
     await nextTick()
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)
-    await buttons[6].trigger('click') // Settings
+    await buttons[7].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
@@ -941,9 +1006,42 @@ describe('observatory shell', () => {
     await buttons[5].trigger('click') // Runtime
     await nextTick()
     expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)
-    await buttons[6].trigger('click') // Settings
+    await buttons[7].trigger('click') // Settings
     await nextTick()
     expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
+  })
+
+  it('renders the event stream when Event Stream is selected from the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[6].trigger('click') // Event Stream
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
+  })
+
+  it('switches from the runtime viewer to the event stream via the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[5].trigger('click') // Runtime
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)
+    await buttons[6].trigger('click') // Event Stream
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+  })
+
+  it('switches from the event stream to the placeholder grid via the sidebar', async () => {
+    const wrapper = mountShell()
+    const buttons = wrapper.findAll('button.sidebar-button')
+    await buttons[6].trigger('click') // Event Stream
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    await buttons[7].trigger('click') // Settings
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
     expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 })

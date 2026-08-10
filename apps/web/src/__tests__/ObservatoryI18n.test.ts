@@ -81,7 +81,7 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.title')).toBe('Observatory')
   })
 
-  it('zh-CN contains all 6 required panel keys', () => {
+  it('zh-CN contains all 7 required panel keys', () => {
     for (const key of [
       'overview',
       'trace',
@@ -89,12 +89,13 @@ describe('i18n — locale catalogs', () => {
       'history',
       'diff',
       'runtime',
+      'eventstream',
     ]) {
       expect(resolveKey(zhCN, `observatory.panels.${key}`)).toBeDefined()
     }
   })
 
-  it('en-US contains all 6 required panel keys', () => {
+  it('en-US contains all 7 required panel keys', () => {
     for (const key of [
       'overview',
       'trace',
@@ -102,6 +103,7 @@ describe('i18n — locale catalogs', () => {
       'history',
       'diff',
       'runtime',
+      'eventstream',
     ]) {
       expect(resolveKey(enUS, `observatory.panels.${key}`)).toBeDefined()
     }
@@ -130,6 +132,7 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(zhCN, 'observatory.panels.history')).toBe('历史记录')
     expect(resolveKey(zhCN, 'observatory.panels.diff')).toBe('差异分析')
     expect(resolveKey(zhCN, 'observatory.panels.runtime')).toBe('运行时')
+    expect(resolveKey(zhCN, 'observatory.panels.eventstream')).toBe('事件流')
   })
 
   it('en-US translates every panel key to English', () => {
@@ -139,6 +142,9 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.panels.history')).toBe('History')
     expect(resolveKey(enUS, 'observatory.panels.diff')).toBe('Diff')
     expect(resolveKey(enUS, 'observatory.panels.runtime')).toBe('Runtime')
+    expect(resolveKey(enUS, 'observatory.panels.eventstream')).toBe(
+      'Event Stream',
+    )
   })
 
   it('zh-CN contains the overview section titles', () => {
@@ -169,6 +175,38 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.runtime.health')).toBe('Health')
   })
 
+  it('zh-CN contains the event stream panel key', () => {
+    expect(resolveKey(zhCN, 'observatory.panels.eventstream')).toBe('事件流')
+  })
+
+  it('en-US contains the event stream panel key', () => {
+    expect(resolveKey(enUS, 'observatory.panels.eventstream')).toBe(
+      'Event Stream',
+    )
+  })
+
+  it('zh-CN contains the events keys', () => {
+    expect(resolveKey(zhCN, 'observatory.events.title')).toBe('事件流')
+    expect(resolveKey(zhCN, 'observatory.events.all')).toBe('全部')
+    expect(resolveKey(zhCN, 'observatory.events.info')).toBe('信息')
+    expect(resolveKey(zhCN, 'observatory.events.warning')).toBe('警告')
+    expect(resolveKey(zhCN, 'observatory.events.error')).toBe('错误')
+    expect(resolveKey(zhCN, 'observatory.events.source')).toBe('来源')
+    expect(resolveKey(zhCN, 'observatory.events.timestamp')).toBe('时间')
+    expect(resolveKey(zhCN, 'observatory.events.message')).toBe('消息')
+  })
+
+  it('en-US contains the events keys', () => {
+    expect(resolveKey(enUS, 'observatory.events.title')).toBe('Event Stream')
+    expect(resolveKey(enUS, 'observatory.events.all')).toBe('All')
+    expect(resolveKey(enUS, 'observatory.events.info')).toBe('Info')
+    expect(resolveKey(enUS, 'observatory.events.warning')).toBe('Warning')
+    expect(resolveKey(enUS, 'observatory.events.error')).toBe('Error')
+    expect(resolveKey(enUS, 'observatory.events.source')).toBe('Source')
+    expect(resolveKey(enUS, 'observatory.events.timestamp')).toBe('Timestamp')
+    expect(resolveKey(enUS, 'observatory.events.message')).toBe('Message')
+  })
+
   it('catalogs have matching key parity', () => {
     const required = [
       'observatory.title',
@@ -178,6 +216,7 @@ describe('i18n — locale catalogs', () => {
       'observatory.panels.history',
       'observatory.panels.diff',
       'observatory.panels.runtime',
+      'observatory.panels.eventstream',
       'observatory.panels.settings',
       'observatory.status.ready',
       'observatory.labels.version',
@@ -208,6 +247,14 @@ describe('i18n — locale catalogs', () => {
       'observatory.runtime.position',
       'observatory.runtime.state',
       'observatory.runtime.health',
+      'observatory.events.title',
+      'observatory.events.all',
+      'observatory.events.info',
+      'observatory.events.warning',
+      'observatory.events.error',
+      'observatory.events.source',
+      'observatory.events.timestamp',
+      'observatory.events.message',
     ]
     for (const key of required) {
       expect(resolveKey(zhCN, key), `zh key ${key}`).toBeDefined()
@@ -501,6 +548,7 @@ describe('i18n — zh-CN rendering (default)', () => {
       '历史记录',
       '差异分析',
       '运行时',
+      '事件流',
       '设置',
     ])
   })
@@ -636,6 +684,7 @@ describe('i18n — en-US rendering', () => {
       'History',
       'Diff',
       'Runtime',
+      'Event Stream',
       'Settings',
     ])
   })
