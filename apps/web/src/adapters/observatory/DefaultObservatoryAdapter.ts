@@ -1,0 +1,265 @@
+import type { ObservatoryAdapter } from './ObservatoryAdapter'
+import type {
+  ObservatoryViewModel,
+  OverviewDTO,
+  TraceDTO,
+  TraceStepDTO,
+  TimelineDTO,
+  TimelineEntryDTO,
+  HistoryDTO,
+  HistoryEntryDTO,
+} from './ObservatoryViewModel'
+
+// ---------------------------------------------------------------------------
+// Defaults
+// ---------------------------------------------------------------------------
+
+const DEFAULT_OVERVIEW = Object.freeze({
+  traceCount: 0,
+  timelineCount: 0,
+  historyCount: 0,
+})
+
+const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
+  overview: DEFAULT_OVERVIEW,
+  trace: Object.freeze([]),
+  timeline: Object.freeze([]),
+  history: Object.freeze([]),
+})
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+/** Check if a value is a non-null object (including arrays). */
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+/** Safely read a property from an unknown object, returning undefined if not found. */
+function safeGet<T>(obj: Record<string, unknown>, key: string): T | undefined {
+  const value = obj[key]
+  return value as T | undefined
+}
+
+/** Safely convert a value to a number, returning 0 for missing/invalid. */
+function safeCount(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+    return Math.floor(value)
+  }
+  return 0
+}
+
+/** Safely convert a value to a boolean, returning false for missing/invalid. */
+function safeBool(value: unknown): boolean {
+  return value === true
+}
+
+// ---------------------------------------------------------------------------
+// DefaultObservatoryAdapter
+// ---------------------------------------------------------------------------
+
+/**
+ * DefaultObservatoryAdapter — default implementation of ObservatoryAdapter.
+ *
+ * Transforms raw observatory data (unknown) into a safe ObservatoryViewModel.
+ * Handles undefined, null, invalid objects, partial data, and complete data.
+ * Always returns a stable ViewModel with defined defaults.
+ *
+ * Pure. Stateless. Deterministic.
+ */
+export class DefaultObservatoryAdapter implements ObservatoryAdapter {
+  adapt(observatory: unknown): ObservatoryViewModel {
+    // Handle null, undefined, and non-object input
+    if (!isObject(observatory)) {
+      return DEFAULT_VIEW_MODEL
+    }
+
+    // Extract overview data
+    const overview = this.adaptOverview(observatory)
+    const trace = this.adaptTrace(observatory)
+    const timeline = this.adaptTimeline(observatory)
+    const history = this.adaptHistory(observatory)
+
+    return {
+      overview,
+      trace,
+      timeline,
+      history,
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Private adapters
+  // -----------------------------------------------------------------------
+
+  private adaptOverview(observatory: Record<string, unknown>): OverviewDTO {
+    // Try to extract counts from observatory structure
+    const traceArr = safeGet<unknown[]>(observatory, 'trace')
+    const timelineArr = safeGet<unknown[]>(observatory, 'timeline')
+    const historyArr = safeGet<unknown[]>(observatory, 'history')
+
+    // If arrays exist, derive count from length
+    const traceCount = Array.isArray(traceArr) ? traceArr.length : this.deriveTraceCount(observatory)
+    const timelineCount = Array.isArray(timelineArr) ? timelineArr.length : this.deriveTimelineCount(observatory)
+    const historyCount = Array.isArray(historyArr) ? historyArr.length : this.deriveHistoryCount(observatory)
+
+    return {
+      traceCount: safeCount(traceCount),
+      timelineCount: safeCount(timelineCount),
+      historyCount: safeCount(historyCount),
+    }
+  }
+
+  /** Derive trace count from snapshot/flag indicators. */
+  private deriveTraceCount(observatory: Record<string, unknown>): number {
+    const traceVal = safeGet<unknown>(observatory, 'trace')
+    if (isObject(traceVal)) return 1
+    const snapshot = safeGet<Record<string, unknown>>(observatory, 'traceSnapshot')
+    if (isObject(snapshot)) {
+      const count = safeGet<number>(snapshot, 'stepCount')
+      if (count !== undefined && typeof count === 'number' && Number.isFinite(count)) {
+        return Math.max(0, Math.floor(count))
+      }
+    }
+    if (safeBool(safeGet<unknown>(observatory, 'hasTrace'))) return 1
+    return 0
+  }
+
+  /** Derive timeline count from snapshot/flag indicators. */
+  private deriveTimelineCount(observatory: Record<string, unknown>): number {
+    const timelineVal = safeGet<unknown>(observatory, 'timeline')
+    if (isObject(timelineVal)) return 1
+    const snapshot = safeGet<Record<string, unknown>>(observatory, 'timelineSnapshot')
+    if (isObject(snapshot)) {
+      const count = safeGet<number>(snapshot, 'entryCount')
+      if (count !== undefined && typeof count === 'number' && Number.isFinite(count)) {
+        return Math.max(0, Math.floor(count))
+      }
+    }
+    if (safeBool(safeGet<unknown>(observatory, 'hasTimeline'))) return 1
+    return 0
+  }
+
+  /** Derive history count from snapshot/flag indicators. */
+  private deriveHistoryCount(observatory: Record<string, unknown>): number {
+    const historyVal = safeGet<unknown>(observatory, 'history')
+    if (isObject(historyVal)) return 1
+    const snapshot = safeGet<Record<string, unknown>>(observatory, 'historySnapshot')
+    if (isObject(snapshot)) {
+      const count = safeGet<number>(snapshot, 'entryCount')
+      if (count !== undefined && typeof count === 'number' && Number.isFinite(count)) {
+        return Math.max(0, Math.floor(count))
+      }
+    }
+    if (safeBool(safeGet<unknown>(observatory, 'hasHistory'))) return 1
+    return 0
+  }
+
+  private adaptTrace(observatory: Record<string, unknown>): readonly TraceDTO[] {
+    return this.adaptArray<TraceDTO>(observatory, 'trace', this.adaptTraceItem.bind(this))
+  }
+
+  private adaptTimeline(observatory: Record<string, unknown>): readonly TimelineDTO[] {
+    return this.adaptArray<TimelineDTO>(observatory, 'timeline', this.adaptTimelineItem.bind(this))
+  }
+
+  private adaptHistory(observatory: Record<string, unknown>): readonly HistoryDTO[] {
+    return this.adaptArray<HistoryDTO>(observatory, 'history', this.adaptHistoryItem.bind(this))
+  }
+
+  /** Safely adapt an array of items from the observatory. */
+  private adaptArray<T>(
+    observatory: Record<string, unknown>,
+    key: string,
+    adaptItem: (item: Record<string, unknown>) => T,
+  ): readonly T[] {
+    const raw = safeGet<unknown[]>(observatory, key)
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(raw.map((item) => adaptItem(isObject(item) ? item : {})))
+  }
+
+  private adaptTraceItem(item: Record<string, unknown>): TraceDTO {
+    const steps = this.adaptTraceSteps(item)
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      label: String(safeGet(item, 'label') ?? ''),
+      steps,
+    }
+  }
+
+  private adaptTraceSteps(item: Record<string, unknown>): readonly TraceStepDTO[] {
+    const raw = safeGet<unknown[]>(item, 'steps')
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((step) => {
+        const s = isObject(step) ? step : {}
+        return {
+          id: String(safeGet(s, 'id') ?? ''),
+          label: String(safeGet(s, 'label') ?? ''),
+          status: String(safeGet(s, 'status') ?? ''),
+        }
+      }),
+    )
+  }
+
+  private adaptTimelineItem(item: Record<string, unknown>): TimelineDTO {
+    const entries = this.adaptTimelineEntries(item)
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      label: String(safeGet(item, 'label') ?? ''),
+      entries,
+    }
+  }
+
+  private adaptTimelineEntries(item: Record<string, unknown>): readonly TimelineEntryDTO[] {
+    const raw = safeGet<unknown[]>(item, 'entries')
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((entry) => {
+        const e = isObject(entry) ? entry : {}
+        return {
+          id: String(safeGet(e, 'id') ?? ''),
+          label: String(safeGet(e, 'label') ?? ''),
+          timestamp: String(safeGet(e, 'timestamp') ?? ''),
+        }
+      }),
+    )
+  }
+
+  private adaptHistoryItem(item: Record<string, unknown>): HistoryDTO {
+    const entries = this.adaptHistoryEntries(item)
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      label: String(safeGet(item, 'label') ?? ''),
+      entries,
+    }
+  }
+
+  private adaptHistoryEntries(item: Record<string, unknown>): readonly HistoryEntryDTO[] {
+    const raw = safeGet<unknown[]>(item, 'entries')
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((entry) => {
+        const e = isObject(entry) ? entry : {}
+        return {
+          id: String(safeGet(e, 'id') ?? ''),
+          label: String(safeGet(e, 'label') ?? ''),
+          timestamp: String(safeGet(e, 'timestamp') ?? ''),
+        }
+      }),
+    )
+  }
+}
+
+// Re-export DTO types for convenience
+export type {
+  OverviewDTO,
+  TraceDTO,
+  TraceStepDTO,
+  TimelineDTO,
+  TimelineEntryDTO,
+  HistoryDTO,
+  HistoryEntryDTO,
+  ObservatoryViewModel,
+} from './ObservatoryViewModel'

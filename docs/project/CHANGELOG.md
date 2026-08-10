@@ -5734,3 +5734,42 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
 - No breaking changes to any Public API
 - Architecture version v1.40 → v1.41
+
+## Sprint 6 — Observatory UI
+
+### WO-S6-012 — Observatory Data Adapter Foundation
+
+- New `apps/web/src/adapters/observatory/` directory with 4 files:
+  - `ObservatoryViewModel.ts` — UI-safe DTOs: `OverviewDTO` (traceCount, timelineCount, historyCount), `TraceDTO`/`TraceStepDTO` (id/label/status), `TimelineDTO`/`TimelineEntryDTO` (id/label/timestamp), `HistoryDTO`/`HistoryEntryDTO` (id/label/timestamp); all fields readonly; root `ObservatoryViewModel` with overview + trace/timeline/history arrays
+  - `ObservatoryAdapter.ts` — interface with single method `adapt(observatory: unknown): ObservatoryViewModel`; pure, stateless, deterministic contract
+  - `DefaultObservatoryAdapter.ts` — default implementation: handles null/undefined/primitives/empty/partial/complete observatory; derives trace/timeline/history counts from array length → snapshot stepCount/entryCount → boolean flags (hasTrace/hasTimeline/hasHistory); returns frozen arrays; never mutates input; no AI package imports
+  - `index.ts` — barrel exports
+- New test file `apps/web/src/__tests__/ObservatoryAdapter.test.ts` (185 tests):
+  - Factory (4 tests): creates adapter, implements interface, has adapt method, multiple instances
+  - Null/undefined/invalid (12 tests): undefined, null, boolean, number, string, array, Symbol, function, Date, NaN, Infinity
+  - Empty/partial (18 tests): empty object, empty observatory, only trace, only timeline, only history, snapshots only, boolean flags
+  - Complete observatory (20 tests): trace/timeline/history counts, IDs, labels, steps/entries content
+  - DTO shape — overview (7 tests): field existence, type, non-negativity
+  - DTO shape — trace (10 tests): array, id/label/steps, step id/label/status, types
+  - DTO shape — timeline (8 tests): array, id/label/entries, entry id/label/timestamp
+  - DTO shape — history (8 tests): array, id/label/entries, entry id/label/timestamp
+  - Deterministic (5 tests): identical results for same input, JSON stability
+  - Stateless (4 tests): no cross-call mutation, adapter has no mutable state
+  - Immutable output (10 tests): frozen trace/timeline/history steps/entries, defaults frozen
+  - No input mutation (4 tests): input unchanged, nested arrays, null input, frozen input
+  - Safe defaults (16 tests): invalid types, missing arrays, non-array steps/entries, missing IDs, null steps, undefined steps, non-object items
+  - Snapshot-based counts (13 tests): stepCount/entryCount derivation, priority over flags, missing snapshot fields, null snapshots, type coercion
+  - Multiple items (5 tests): 3 traces, 2 timelines, 4 histories, all three populated
+  - Partial observatory (8 tests): fixture with only trace + flags
+  - Unknown properties (4 tests): ignored, runtime data excluded, planner data excluded
+  - Extra edge cases (6 tests): zero steps, many steps (50), nested, trace+history only, timeline+history only, boolean flags only
+  - Root shape (6 tests): 4 properties, overview is object
+  - Interface compliance (4 tests): TypeScript type checks
+  - No AI package imports (3 tests): no AI-specific properties on ViewModel, no PromptAssembly types leaked
+  - Pure (5 tests): no throw for any input, no console side effects, Proxy support
+- All web tests pass (1725 across 14 files)
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0155: Observatory Data Adapter Foundation
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
+- No breaking changes to any Public API
+- Architecture version v1.41 → v1.42
