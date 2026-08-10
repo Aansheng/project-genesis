@@ -175,6 +175,18 @@ describe('i18n — locale catalogs', () => {
     expect(resolveKey(enUS, 'observatory.runtime.health')).toBe('Health')
   })
 
+  it('zh-CN contains the runtime inspector keys', () => {
+    expect(resolveKey(zhCN, 'observatory.runtime.inspector')).toBe('实体检查器')
+    expect(resolveKey(zhCN, 'observatory.runtime.components')).toBe('组件')
+    expect(resolveKey(zhCN, 'observatory.runtime.componentCount')).toBe('组件数量')
+  })
+
+  it('en-US contains the runtime inspector keys', () => {
+    expect(resolveKey(enUS, 'observatory.runtime.inspector')).toBe('Entity Inspector')
+    expect(resolveKey(enUS, 'observatory.runtime.components')).toBe('Components')
+    expect(resolveKey(enUS, 'observatory.runtime.componentCount')).toBe('Component Count')
+  })
+
   it('zh-CN contains the event stream panel key', () => {
     expect(resolveKey(zhCN, 'observatory.panels.eventstream')).toBe('事件流')
   })
@@ -247,6 +259,9 @@ describe('i18n — locale catalogs', () => {
       'observatory.runtime.position',
       'observatory.runtime.state',
       'observatory.runtime.health',
+      'observatory.runtime.inspector',
+      'observatory.runtime.components',
+      'observatory.runtime.componentCount',
       'observatory.events.title',
       'observatory.events.all',
       'observatory.events.info',

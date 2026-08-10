@@ -5,6 +5,7 @@ import RuntimeEntityList from './RuntimeEntityList.vue'
 import RuntimeEntityDetails, {
   type RuntimeEntity,
 } from './RuntimeEntityDetails.vue'
+import RuntimeEntityInspector from './RuntimeEntityInspector.vue'
 import RuntimeStatCard from './RuntimeStatCard.vue'
 
 /**
@@ -103,6 +104,7 @@ function statLabel(key: string): string {
         </dl>
       </section>
       <RuntimeEntityDetails :entity="selectedEntity" />
+      <RuntimeEntityInspector :entity-id="selectedId" />
     </div>
   </div>
 </template>
@@ -124,7 +126,7 @@ function statLabel(key: string): string {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .runtime-stats {
@@ -163,5 +165,9 @@ function statLabel(key: string): string {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--obs-space-3, 12px);
   margin: 0;
+}
+
+.runtime-main :deep(.runtime-entity-details) {
+  flex-shrink: 0;
 }
 </style>

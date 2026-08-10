@@ -5602,3 +5602,45 @@
 - Created ADR-0151: Observatory Live Event Stream Foundation
 - No breaking changes to any Public API
 - Architecture version v1.37 → v1.38
+
+### WO-S6-009 — Observatory Runtime Entity Inspector Foundation
+
+- **Entity Inspector for Runtime Viewer** — new `RuntimeEntityInspector.vue` + `RuntimeComponentCard.vue` integrated into the Runtime Viewer below Entity Details
+- **New components** — `apps/web/src/components/observatory/runtime/`:
+  - `RuntimeEntityInspector.vue` — root inspector; receives `entityId` prop, looks up entity from internal mock data (ECS-style components); renders `<section>` with `<h3>` title ("实体检查器" / "Entity Inspector") + component count + scrollable list of `RuntimeComponentCard`s; hides when `entityId` is null/unknown
+  - `RuntimeComponentCard.vue` — `<article>` with `<header>` + `<h3>` component name + `<pre><code>` formatted JSON (`JSON.stringify(data, null, 2)`); exports `InspectorComponent` / `InspectorEntity` types
+- **Mock entity data** — 3 entities with ECS-style components:
+  - `guard-001` (Guard): Position, Health, AI — 3 components
+  - `merchant-001` (Merchant): Position, Health, Inventory (gold + items), AI — 4 components
+  - `villager-001` (Villager): Position, Health, Inventory, AI, Schedule (wake/sleep) — 5 components
+- **Layout** — inspector occupies remaining vertical space below Entity Details (`flex: 1`, `overflow-y: auto`); details section uses `flex-shrink: 0`
+- **Updated component** — `apps/web/src/components/observatory/runtime/ObservatoryRuntimeViewer.vue`:
+  - Imports and renders `RuntimeEntityInspector` below `RuntimeEntityDetails`
+  - Passes `entityId` prop (the current `selectedId` ref) to the inspector
+  - No changes to entity list, stats, or details
+- **I18n** — new `observatory.runtime.inspector` / `observatory.runtime.components` / `observatory.runtime.componentCount` keys (zh-CN: 实体检查器/组件/组件数量; en-US: Entity Inspector/Components/Component Count); title and count render through `useI18n().t()` and react to the shell switcher
+- **Semantic markup** — `<section>` with `aria-label="Entity inspector"`, `<article>` per component card, `<header>` + `<h3>` per component, `<pre><code>` for formatted JSON
+- New test file `apps/web/src/__tests__/ObservatoryRuntimeInspector.test.ts` (149+ tests):
+  - RuntimeComponentCard rendering (16 tests): article semantics, name h3, pre/code, 2-space indentation, numbers/strings/null/objects/arrays/booleans, nested data, empty data
+  - RuntimeComponentCard varying names (4 tests): different component name values
+  - RuntimeComponentCard JSON edge cases (5 tests): zero, negative, mixed types, parseable, round-trip
+  - RuntimeEntityInspector entity rendering (14 tests): section/header/h3, count display, component list, per-entity names/counts, guard/merchant/villager JSON
+  - No entity state (5 tests): null, unknown, empty string, empty wrapper, no matching mock
+  - Undefined entity edge cases (4 tests): undefined prop, toggle null→entity→null, toggle entity→null
+  - Entity switching (5 tests): between entities, back-and-forth, reference independence, stability
+  - Integration with Runtime Viewer (9 tests): inspector presence, DOM order after details, default 3 components, click/keyboard entity switch updates inspector, all viewer components present, switch to villager/merchant, dual-update (details + inspector)
+  - Accessibility (12 tests): section, aria-label, header, h3, article cards, card headers, component h3, pre, no div-as-button, no h4 skip, count visible, hidden when null
+  - i18n rendering (10 tests): zh title/count, en title/count, reactive switch + back, count per entity in zh/en, no remount
+  - i18n catalog keys (7 tests): zh inspector/components/componentCount, en inspector/components/componentCount, parity
+  - Viewer integration i18n (5 tests): zh/en title/count in viewer, count on switch
+  - Viewer integration accessibility (4 tests): section aria-label, landmarks, h2/h3 hierarchy, no div-as-button
+  - Deterministic rendering (5 tests): names/JSON/count/HTML across mounts in standalone and viewer
+  - Style checks (4 tests): monospace, whitespace, multi-line JSON, name element
+  - Store integration (2 tests): works without Pinia, works with Pinia
+- Updated `apps/web/src/__tests__/ObservatoryI18n.test.ts` (134 → 149+ tests): runtime inspector zh-CN/en-US key tests, inspector/components/componentCount added to parity list
+- All web tests pass
+- TypeScript 0 errors, ESLint 0 errors
+- Created ADR-0152: Observatory Runtime Entity Inspector Foundation
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
+- No breaking changes to any Public API
+- Architecture version v1.38 → v1.39

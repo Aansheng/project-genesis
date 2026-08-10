@@ -58,6 +58,9 @@ export const enUS: MessageCatalog = {
       position: 'Position',
       state: 'State',
       health: 'Health',
+      inspector: 'Entity Inspector',
+      components: 'Components',
+      componentCount: 'Component Count',
     },
     events: {
       title: 'Event Stream',
