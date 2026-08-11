@@ -6253,3 +6253,62 @@
 - No Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes
 - No breaking changes to any Public API
 - Architecture version v1.50 to v1.51
+
+### WO-S6-022 — Observatory Mapping Layer Foundation
+
+- Created `apps/web/src/adapters/observatory/mapping/` directory with:
+  - `ObservatoryMapper.ts` — interface with `map(bridgeData: ObservatoryBridgeData): Record<string, unknown>`
+  - `DefaultObservatoryMapper.ts` — implementation with mapping table and `isEmpty` filter
+  - `index.ts` — barrel exports
+- Mapping rules:
+  - Passthrough: `overview`→`overview`, `trace`→`trace`, `timeline`→`timeline`, `history`→`history`
+  - Rename: `diff`→`diffView`, `runtime`→`runtimeView`, `eventStream`→`eventStreamView`
+  - Omitted: `undefined`, `null`, empty array `[]`, empty object `{}`
+- Behavior: pure, stateless, deterministic, immutable (output frozen), never mutates input, ignores unknown keys
+- Created 220 tests in `ObservatoryMapper.test.ts` (39 sections):
+  - Interface conformance (4 tests): method shape, return type
+  - Invalid inputs (8 tests): undefined, null, primitives, arrays
+  - Complete bridge mapping (10 tests): all 7 keys, passthroughs, renames, frozen output
+  - Passthrough keys (6 tests): overview, trace, timeline, history with various values
+  - Rename keys (6 tests): diff→diffView, runtime→runtimeView, eventStream→eventStreamView
+  - Omitted fields (20 tests): undefined, null, empty for all 7 keys; all-empty; non-omitted values
+  - Partial bridge (10 tests): single keys, two/three keys, mixed valid/empty
+  - EMPTY_BRIDGE_DATA (3 tests): empty, frozen, new reference
+  - Determinism (6 tests): same input, multiple instances, repeated calls
+  - Immutability (6 tests): output frozen, cannot add/delete/reassign
+  - No mutation (4 tests): input unchanged, no property changes
+  - Statelessness (3 tests): no cross-call leakage, independent instances
+  - Shape integrity (5 tests): plain object, adapter key names, no bridge key names
+  - Unknown fields (3 tests): ignored, adapter-prefixed keys ignored
+  - Edge cases (19 tests): frozen/sealed/non-extensible inputs, Object.create(null), __proto__, constructor, Date, RegExp, Map, Set
+  - Value preservation (9 tests): strings, numbers, booleans, nested objects, arrays
+  - Key ordering (3 tests): canonical order preserved
+  - Stress testing (6 tests): 1000 calls, 500 alternations, large arrays, 100 instances
+  - Empty object integration (5 tests): EMPTY_BRIDGE_DATA, empty/null/undefined all-fields
+  - Prototype scenarios (3 tests): inherited, null-prototype, Object.prototype
+  - TypeScript type safety (4 tests): type acceptance, EMPTY_BRIDGE_DATA, partial data
+  - Output frozen (6 tests): complete/partial/empty/undefined/null/single rename
+  - Runtime section (3 tests): empty, partial, full
+  - EventStream section (3 tests): empty, with events, empty events array
+  - Diff section (3 tests): empty array, with entries, single entry
+  - Trace/timeline/history sections (6 tests): with data, empty arrays
+  - Overview section (3 tests): with data, all fields, empty
+  - Combined scenarios (5 tests): only rename, only passthrough, mix, all-empty, all-valid
+  - No leakage (4 tests): no AI/Runtime/UI imports
+  - Mixed input shapes (9 tests): string/number/boolean/function/object for various keys
+  - Property descriptor handling (4 tests): writable/nonenumerable/configurable/getter
+  - Constructor safety (2 tests): constructor own property handled correctly
+  - Multiple instances (2 tests): 10 and 100 instances
+  - Repeated calls / Stress (3 tests): 1000 same, 1000 varying, 500 alternating
+  - Null-prototype objects (3 tests): single key, multiple keys, empty
+  - Pass-through with special values (5 tests): Symbol, BigInt, Uint8Array, class instances
+  - Error and Promise values (3 tests): Error, Promise omitted (no own keys)
+  - Adapter key compatibility (7 tests): all 7 adapter keys present in output
+  - Value edge cases (8 tests): NaN, Infinity, -Infinity, Symbol, BigInt, null-in-array, Symbol-keyed object, undefined-in-array
+- Created ADR-0165: Observatory Mapping Layer Foundation
+- Updated PROJECT_STATE.md — v1.52, WO-S6-022 in completed list
+- Updated AI_ARCHITECTURE.md — v1.52 header
+- Updated CHANGELOG.md — v1.52, WO-S6-022
+- No UI changes, no Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes
+- No breaking changes to any Public API
+- Architecture version v1.51 to v1.52
