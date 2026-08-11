@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useObservatoryStore } from '../../stores/observatory'
+import { useObservatoryDataStore } from '../../stores/observatoryData'
 import { useI18n } from '../../stores/i18n'
 
 const store = useObservatoryStore()
+const dataStore = useObservatoryDataStore()
 const i18n = useI18n()
+
+// Initialize mock observatory data on first render
+dataStore.loadMockObservatory()
 
 interface Artifact {
   key: 'trace' | 'timeline' | 'history'
@@ -11,30 +17,39 @@ interface Artifact {
 }
 
 /**
- * Local mock artifact data — layout validation only (WO-S6-002).
- * Will be replaced by real observatory data in a future work order.
+ * Artifact counts derived from ObservatoryViewModel via DefaultObservatoryAdapter.
  */
-const artifacts: readonly Artifact[] = [
-  { key: 'trace', count: 12 },
-  { key: 'timeline', count: 8 },
-  { key: 'history', count: 4 },
-]
+const artifacts = computed<readonly Artifact[]>(() => {
+  const vm = dataStore.viewModel
+  return [
+    { key: 'trace', count: vm.overview.traceCount },
+    { key: 'timeline', count: vm.overview.timelineCount },
+    { key: 'history', count: vm.overview.historyCount },
+  ]
+})
 
 interface SnapshotItem {
   key: string
   value: number | boolean
 }
 
-/** Local mock observatory snapshot — mirrors the Sprint 5 observatory shape. */
-const snapshotItems: readonly SnapshotItem[] = [
-  { key: 'artifactCount', value: 6 },
-  { key: 'hasTrace', value: true },
-  { key: 'hasTimeline', value: true },
-  { key: 'hasHistory', value: true },
-  { key: 'hasTraceSnapshot', value: true },
-  { key: 'hasTimelineSnapshot', value: true },
-  { key: 'hasHistorySnapshot', value: true },
-]
+/**
+ * Snapshot items derived from the current ObservatoryViewModel.
+ */
+const snapshotItems = computed<readonly SnapshotItem[]>(() => {
+  const vm = dataStore.viewModel
+  const totalArtifactCount =
+    vm.overview.traceCount + vm.overview.timelineCount + vm.overview.historyCount
+  return [
+    { key: 'artifactCount', value: totalArtifactCount },
+    { key: 'hasTrace', value: vm.overview.traceCount > 0 },
+    { key: 'hasTimeline', value: vm.overview.timelineCount > 0 },
+    { key: 'hasHistory', value: vm.overview.historyCount > 0 },
+    { key: 'hasTraceSnapshot', value: vm.trace.length > 0 },
+    { key: 'hasTimelineSnapshot', value: vm.timeline.length > 0 },
+    { key: 'hasHistorySnapshot', value: vm.history.length > 0 },
+  ]
+})
 
 function artifactLabel(key: string): string {
   return i18n.t(`observatory.panels.${key}`)

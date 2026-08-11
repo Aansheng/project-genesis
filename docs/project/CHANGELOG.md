@@ -5773,3 +5773,36 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes
 - No breaking changes to any Public API
 - Architecture version v1.41 → v1.42
+
+### WO-S6-013 — Observatory Overview Real Data Integration
+
+- New `apps/web/src/stores/observatoryData.ts` — Pinia store that owns the current ObservatoryViewModel through DefaultObservatoryAdapter:
+  - state: viewModel ref (initialized to empty ViewModel with zero counts)
+  - actions: loadMockObservatory() — builds a local mock observatory (3 traces, 5 timelines, 2 histories), adapts it through DefaultObservatoryAdapter, stores the result
+  - Local mock types only: MockTraceEntry, MockTimelineEntry, MockHistoryEntry, MockObservatory — no AI package imports
+- Updated `apps/web/src/components/observatory/ObservatoryOverview.vue`:
+  - Replaced hardcoded artifacts array (12/8/4) with computed values from dataStore.viewModel
+  - Replaced hardcoded snapshotItems array with computed values derived from viewModel
+  - Imports useObservatoryDataStore, calls loadMockObservatory() during setup
+  - Template unchanged — same layout, same CSS, same aria labels
+- Updated `apps/web/src/__tests__/ObservatoryOverview.test.ts` — count assertions updated to match new mock data (Trace=3, Timeline=5, History=2, Artifact Count=10)
+- New test file `apps/web/src/__tests__/ObservatoryOverviewDataIntegration.test.ts` (120+ tests covering 13 sections):
+  - Store initialization (9 tests): creation, empty defaults, loadMockObservatory counts
+  - Adapter invocation (8 tests): DefaultObservatoryAdapter usage, count derivation, frozen output, null/undefined handling
+  - ViewModel rendering (14 tests): count display, snapshot labels/values in canonical order
+  - Count updates reactivity (10 tests): store changes re-render, loadMockObservatory resets, toggle behavior
+  - Default values (6 tests): zero-count rendering, all booleans No
+  - Empty observatory (5 tests): no error, no positive counts, layout preserved
+  - Deterministic rendering (6 tests): identical output across mounts, stable order
+  - No mutation (5 tests): viewModel unchanged after mount, arrays stay frozen
+  - Integration path (6 tests): full adapter to store to component, large counts, partial data
+  - ViewModel data integrity (10 tests): array lengths match counts, field shapes, overview fields
+  - No AI package leakage (4 tests): no promptAssembly/metadata/plannerResult fields
+  - Store edge cases (3 tests): multiple loads, direct replacement, Pinia independence
+  - Semantics and accessibility (9 tests): section elements, headings, aria, dl/dt/dd, article, tabindex
+- Created ADR-0156: Observatory Overview Real Data Integration
+- Updated PROJECT_STATE.md — v1.43, WO-S6-013 in completed list
+- Updated AI_ARCHITECTURE.md — v1.43 header
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.42 to v1.43

@@ -712,7 +712,7 @@ describe('i18n — zh-CN rendering (default)', () => {
       .findAll('.snapshot-value')
       .map((el) => el.text().trim())
     expect(values[1]).toBe('是')
-    expect(values[0]).toBe('6')
+    expect(values[0]).toBe('10')
   })
 
   it('renders system status labels in Chinese', () => {

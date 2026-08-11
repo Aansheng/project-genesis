@@ -79,25 +79,25 @@ describe('observatory overview — artifact summary', () => {
     ])
   })
 
-  it('Trace card displays count 12', () => {
+  it('Trace card displays count from viewModel', () => {
     const wrapper = mountOverview()
     const cards = artifactCards(wrapper)
     const trace = cards.filter((c) => c.text().includes('Trace'))[0]
-    expect(trace.find('.artifact-card-count').text()).toBe('12')
+    expect(trace.find('.artifact-card-count').text()).toBe('3')
   })
 
-  it('Timeline card displays count 8', () => {
+  it('Timeline card displays count from viewModel', () => {
     const wrapper = mountOverview()
     const cards = artifactCards(wrapper)
     const timeline = cards.filter((c) => c.text().includes('Timeline'))[0]
-    expect(timeline.find('.artifact-card-count').text()).toBe('8')
+    expect(timeline.find('.artifact-card-count').text()).toBe('5')
   })
 
-  it('History card displays count 4', () => {
+  it('History card displays count from viewModel', () => {
     const wrapper = mountOverview()
     const cards = artifactCards(wrapper)
     const history = cards.filter((c) => c.text().includes('History'))[0]
-    expect(history.find('.artifact-card-count').text()).toBe('4')
+    expect(history.find('.artifact-card-count').text()).toBe('2')
   })
 
   it('renders a Count label inside each card via dl', () => {
@@ -174,12 +174,12 @@ describe('observatory overview — observatory snapshot', () => {
     expect(sectionTexts(wrapper, '.snapshot-label')).toContain('Artifact Count')
   })
 
-  it('Artifact Count value is 6', () => {
+  it('Artifact Count value is derived from viewModel', () => {
     const wrapper = mountOverview()
     const labels = wrapper.findAll('.snapshot-label')
     const index = labels.findIndex((l) => l.text() === 'Artifact Count')
     expect(index).toBeGreaterThanOrEqual(0)
-    expect(wrapper.findAll('.snapshot-value')[index].text()).toContain('6')
+    expect(wrapper.findAll('.snapshot-value')[index].text()).toContain('10')
   })
 
   it('renders Has Trace with Yes', () => {
@@ -398,10 +398,10 @@ describe('observatory overview — semantics and accessibility', () => {
     }
   })
 
-  it('card values are deterministic numbers, not templates', () => {
+  it('card values are deterministic numbers from viewModel', () => {
     const wrapper = mountOverview()
     const counts = wrapper.findAll('.artifact-card-count').map((c) => c.text())
-    expect(counts).toEqual(['12', '8', '4'])
+    expect(counts).toEqual(['3', '5', '2'])
   })
 })
 
