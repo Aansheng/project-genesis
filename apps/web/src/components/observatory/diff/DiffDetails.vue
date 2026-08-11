@@ -1,13 +1,9 @@
 <script lang="ts">
 export type DiffChangeKind = 'added' | 'removed' | 'changed'
 
-export interface DiffEntry {
-  id: string
-  timestamp: string
-  added: readonly string[]
-  removed: readonly string[]
-  changed: readonly string[]
-}
+import type { DiffViewModel as DiffEntry } from '../../../adapters/observatory'
+
+export type { DiffViewModel as DiffEntry } from '../../../adapters/observatory'
 </script>
 
 <script setup lang="ts">
@@ -63,13 +59,13 @@ defineProps<{
           class="diff-added-list"
         >
           <li
-            v-for="name in entry.added"
-            :key="name"
+            v-for="item in entry.added"
+            :key="item.name"
             class="diff-added-item"
           >
             <DiffChangeCard
               kind="added"
-              :name="name"
+              :name="item.name"
             />
           </li>
         </ul>
@@ -96,13 +92,13 @@ defineProps<{
           class="diff-removed-list"
         >
           <li
-            v-for="name in entry.removed"
-            :key="name"
+            v-for="item in entry.removed"
+            :key="item.name"
             class="diff-removed-item"
           >
             <DiffChangeCard
               kind="removed"
-              :name="name"
+              :name="item.name"
             />
           </li>
         </ul>
@@ -129,13 +125,13 @@ defineProps<{
           class="diff-changed-list"
         >
           <li
-            v-for="name in entry.changed"
-            :key="name"
+            v-for="item in entry.changed"
+            :key="item.name"
             class="diff-changed-item"
           >
             <DiffChangeCard
               kind="changed"
-              :name="name"
+              :name="item.name"
             />
           </li>
         </ul>

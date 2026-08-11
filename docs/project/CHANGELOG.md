@@ -5976,3 +5976,60 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.45 to v1.46
+
+### WO-S6-017 — Observatory Diff Real Data Integration
+
+- Extended `apps/web/src/adapters/observatory/ObservatoryViewModel.ts`:
+  - New `DiffViewModel` interface: `{ id, timestamp, added, removed, changed }` — UI-safe DTO for the Diff Viewer panel
+  - New `DiffChangeViewModel` interface: `{ name }` — change entry DTO
+  - Added `diffView: readonly DiffViewModel[]` to `ObservatoryViewModel` (alongside existing panel views)
+- Extended `apps/web/src/adapters/observatory/DefaultObservatoryAdapter.ts`:
+  - New `adaptDiffView()` method — reads `diffView` from raw observatory, maps to `DiffViewModel[]`, returns frozen arrays
+  - New `adaptDiffChangeArray()` helper — normalizes both `string[]` and `DiffChangeViewModel[]` inputs
+  - Falls back to empty array for missing/invalid data
+  - `adapt()` now calls `adaptDiffView()` and includes result in the ViewModel
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `MockDiffViewChangeEntry` and `MockDiffViewEntry` types
+  - Mock builder now includes 3 diffView entries: diff-001 (3 added, 1 changed), diff-002 (2 added), diff-003 (2 added, 1 removed, 1 changed)
+- Updated `apps/web/src/components/observatory/diff/ObservatoryDiffViewer.vue`:
+  - Removed hardcoded `MOCK_DIFFS` array (3 entries with Tavern/Farms/Guards)
+  - Reads `dataStore.viewModel.diffView` via computed
+  - Initializes `selectedId` from first diff entry in viewModel
+  - Imports `useObservatoryDataStore` and `DiffViewModel`
+- Updated `DiffDetails.vue`:
+  - `DiffEntry` is now an alias for `DiffViewModel` from the adapter layer
+  - Template iterates over objects (`item.name`) instead of raw strings
+- Updated `DiffList.vue`:
+  - Import changed from local `DiffEntry` to `DiffViewModel` from adapter
+- Updated `apps/web/src/__tests__/ObservatoryDiffViewer.test.ts` — mountViewer now calls `loadMockObservatory()`, content integration test updated
+- Updated `apps/web/src/__tests__/ObservatoryAdapter.test.ts` — root property count 7→8
+- Updated `apps/web/src/__tests__/ObservatoryOverviewDataIntegration.test.ts` — added `diffView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryHistoryDataIntegration.test.ts` — added `diffView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryTimelineDataIntegration.test.ts` — added `diffView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryTraceDataIntegration.test.ts` — added `diffView` to all viewModel assignments
+- New test file `apps/web/src/__tests__/ObservatoryDiffDataIntegration.test.ts` (155 tests covering 19 sections):
+  - Store diffView integration (22 tests): initialization, field types, frozen, IDs, content
+  - Adapter diffView mapping (20 tests): raw data mapping, null/undefined/non-array, string[]/object handling, frozen output, mixed arrays
+  - Viewer rendering from viewModel (11 tests): 3 rows, IDs, timestamps, components, section headings
+  - Added rendering (10 tests): card counts, names, markers, list structure
+  - Removed rendering (7 tests): empty state, card count, names, markers
+  - Changed rendering (6 tests): names, empty state, markers
+  - Selection (10 tests): default active, click selection, details update
+  - Keyboard navigation (8 tests): ArrowDown/Up, End/Home, clamping
+  - Empty diff (5 tests): no error, no rows, selected message, components exist
+  - Defaults (9 tests): empty array, adapter defaults, missing fields
+  - Deterministic rendering (7 tests): identical across mounts, HTML
+  - No mutation (4 tests): frozen, readonly, nested frozen arrays
+  - Integration path (6 tests): full path, adapter output, single item, large set, details, refresh
+  - Accessibility (9 tests): aria-label, buttons, aria-current, h2/h3, articles, dl
+  - Shape integrity (5 tests): array, required fields, independent properties
+  - Edge cases (6 tests): double empty, large arrays, independent arrays, valid partial, multiple loads
+  - Backward compatibility (6 tests): string[] input, object input, mixed arrays
+  - Store edge cases (3 tests): multiple loads, direct replacement, deterministic
+  - No AI package leakage (3 tests): no AI-specific root properties, no AI fields in entries
+- Created ADR-0160: Observatory Diff Real Data Integration
+- Updated PROJECT_STATE.md — v1.47, WO-S6-017 in completed list
+- Updated AI_ARCHITECTURE.md — v1.47 header
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.46 to v1.47

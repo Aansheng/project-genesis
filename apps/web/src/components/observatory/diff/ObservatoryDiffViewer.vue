@@ -1,39 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DiffList from './DiffList.vue'
-import DiffDetails, { type DiffEntry } from './DiffDetails.vue'
+import DiffDetails from './DiffDetails.vue'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
+import type { DiffViewModel } from '../../../adapters/observatory'
 
-/**
- * Local mock diff data — layout validation only (WO-S6-006).
- * Will be replaced by real observatory diff data in a future work order.
- */
-const MOCK_DIFFS: readonly DiffEntry[] = [
-  {
-    id: 'diff-001',
-    timestamp: '12:00:01',
-    added: ['Tavern', 'Villager-1', 'Villager-2'],
-    removed: [],
-    changed: ['VillageCenter'],
-  },
-  {
-    id: 'diff-002',
-    timestamp: '12:05:00',
-    added: ['Farm-1', 'Farm-2'],
-    removed: [],
-    changed: [],
-  },
-  {
-    id: 'diff-003',
-    timestamp: '12:08:00',
-    added: ['Guard-1', 'Guard-2'],
-    removed: ['OldRoad'],
-    changed: ['VillageGate'],
-  },
-]
+const dataStore = useObservatoryDataStore()
 
-const selectedId = ref<string>(MOCK_DIFFS[0].id)
-const selectedDiff = computed<DiffEntry | null>(
-  () => MOCK_DIFFS.find((d) => d.id === selectedId.value) ?? null,
+const selectedId = ref<string>('')
+const entries = computed<readonly DiffViewModel[]>(
+  () => dataStore.viewModel.diffView,
+)
+
+// Initialize selectedId from the first entry when entries change
+const firstId = computed<string | null>(() => entries.value[0]?.id ?? null)
+if (firstId.value && !selectedId.value) {
+  selectedId.value = firstId.value
+}
+
+const selectedDiff = computed<DiffViewModel | null>(
+  () => entries.value.find((d) => d.id === selectedId.value) ?? null,
 )
 
 function selectDiff(id: string): void {
@@ -44,7 +30,7 @@ function selectDiff(id: string): void {
 <template>
   <div class="observatory-diff-viewer">
     <DiffList
-      :entries="MOCK_DIFFS"
+      :entries="entries"
       :selected-id="selectedId"
       @select="selectDiff"
     />

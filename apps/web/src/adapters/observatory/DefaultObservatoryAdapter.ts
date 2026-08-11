@@ -10,6 +10,8 @@ import type {
   TimelineEntryViewModel,
   HistoryViewModel,
   HistoryEvolutionEntryViewModel,
+  DiffViewModel,
+  DiffChangeViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,
@@ -32,6 +34,7 @@ const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   traceView: Object.freeze([]),
   timelineView: Object.freeze([]),
   historyView: Object.freeze([]),
+  diffView: Object.freeze([]),
   timeline: Object.freeze([]),
   history: Object.freeze([]),
 })
@@ -90,6 +93,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     const traceView = this.adaptTraceView(observatory)
     const timelineView = this.adaptTimelineView(observatory)
     const historyView = this.adaptHistoryView(observatory)
+    const diffView = this.adaptDiffView(observatory)
     const timeline = this.adaptTimeline(observatory)
     const history = this.adaptHistory(observatory)
 
@@ -99,6 +103,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       traceView,
       timelineView,
       historyView,
+      diffView,
       timeline,
       history,
     }
@@ -289,6 +294,46 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
   }
 
   /**
+   * Adapt diff viewer data from the raw observatory.
+   * Looks for 'diffView' key. Returns frozen empty array for missing/invalid data.
+   */
+  private adaptDiffView(observatory: Record<string, unknown>): readonly DiffViewModel[] {
+    const raw = safeGet<unknown[]>(observatory, 'diffView')
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(raw.map((item) => this.adaptDiffViewItem(isObject(item) ? item : {})))
+  }
+
+  private adaptDiffViewItem(item: Record<string, unknown>): DiffViewModel {
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      timestamp: String(safeGet(item, 'timestamp') ?? ''),
+      added: this.adaptDiffChangeArray(item, 'added'),
+      removed: this.adaptDiffChangeArray(item, 'removed'),
+      changed: this.adaptDiffChangeArray(item, 'changed'),
+    }
+  }
+
+  /**
+   * Adapt a diff change array (added, removed, changed).
+   * Handles both string[] and DiffChangeViewModel[].
+   */
+  private adaptDiffChangeArray(item: Record<string, unknown>, key: string): readonly DiffChangeViewModel[] {
+    const raw = safeGet<unknown[]>(item, key)
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((entry) => {
+        if (typeof entry === 'string') {
+          return { name: entry }
+        }
+        const e = isObject(entry) ? entry : {}
+        return {
+          name: String(safeGet(e, 'name') ?? ''),
+        }
+      }),
+    )
+  }
+
+  /**
    * Adapt timeline viewer data from the raw observatory.
    * Looks for 'timelineView' key. Falls back to deriving from 'timeline'
    * for backward compatibility. Returns frozen empty array for missing/invalid data.
@@ -440,6 +485,8 @@ export type {
   TimelineEntryViewModel,
   HistoryViewModel,
   HistoryEvolutionEntryViewModel,
+  DiffViewModel,
+  DiffChangeViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

@@ -13,12 +13,14 @@ import ObservatoryTraceViewer from '../components/observatory/trace/ObservatoryT
 import ObservatoryTimelineViewer from '../components/observatory/timeline/ObservatoryTimelineViewer.vue'
 import ObservatoryHistoryViewer from '../components/observatory/history/ObservatoryHistoryViewer.vue'
 import { useObservatoryStore } from '../stores/observatory'
+import { useObservatoryDataStore } from '../stores/observatoryData'
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function mountViewer(attachTo?: HTMLElement): VueWrapper {
+  useObservatoryDataStore().loadMockObservatory()
   return mount(ObservatoryDiffViewer, attachTo ? { attachTo } : undefined)
 }
 
@@ -1052,6 +1054,7 @@ describe('diff viewer — content integration', () => {
 
   it('re-mounts a fresh diff viewer after panel switching', async () => {
     const store = useObservatoryStore()
+    useObservatoryDataStore().loadMockObservatory()
     store.selectPanel('Diff')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryDiffViewer).exists()).toBe(true)

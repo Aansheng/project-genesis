@@ -41,6 +41,18 @@ interface MockHistoryViewEntry {
   evolution: MockHistoryViewEvolutionEntry[]
 }
 
+interface MockDiffViewChangeEntry {
+  name: string
+}
+
+interface MockDiffViewEntry {
+  id: string
+  timestamp: string
+  added: (string | MockDiffViewChangeEntry)[]
+  removed: (string | MockDiffViewChangeEntry)[]
+  changed: (string | MockDiffViewChangeEntry)[]
+}
+
 interface MockTimelineEntry {
   id: string
   label: string
@@ -58,6 +70,7 @@ interface MockObservatory {
   traceView: MockTraceViewEntry[]
   timelineView: MockTimelineViewItem[]
   historyView: MockHistoryViewEntry[]
+  diffView: MockDiffViewEntry[]
   timeline: MockTimelineEntry[]
   history: MockHistoryEntry[]
   traceSnapshot: Record<string, unknown>
@@ -236,6 +249,29 @@ function buildMockObservatory(): MockObservatory {
           { name: 'BuildWall' },
           { name: 'PlaceGuard' },
         ],
+      },
+    ],
+    diffView: [
+      {
+        id: 'diff-001',
+        timestamp: '12:00:01',
+        added: ['Tavern', 'Villager-1', 'Villager-2'],
+        removed: [],
+        changed: ['VillageCenter'],
+      },
+      {
+        id: 'diff-002',
+        timestamp: '12:05:00',
+        added: ['Farm-1', 'Farm-2'],
+        removed: [],
+        changed: [],
+      },
+      {
+        id: 'diff-003',
+        timestamp: '12:08:00',
+        added: ['Guard-1', 'Guard-2'],
+        removed: ['OldRoad'],
+        changed: ['VillageGate'],
       },
     ],
     timeline: [

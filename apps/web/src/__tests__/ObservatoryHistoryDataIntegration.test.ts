@@ -704,6 +704,7 @@ describe('history data — empty history', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -720,6 +721,7 @@ describe('history data — empty history', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -736,6 +738,7 @@ describe('history data — empty history', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -752,6 +755,7 @@ describe('history data — empty history', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -769,6 +773,7 @@ describe('history data — empty history', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -1052,6 +1057,7 @@ describe('history data — integration path', () => {
         { id: 'new-1', timestamp: '00:00', prompt: 'New Prompt A', result: 'New Result A', evolution: [{ name: 'NewE1' }] },
         { id: 'new-2', timestamp: '01:00', prompt: 'New Prompt B', result: 'New Result B', evolution: [] },
       ],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -1218,6 +1224,7 @@ describe('history data — store edge cases', () => {
       traceView: [],
       timelineView: [],
       historyView: [{ id: 'custom', timestamp: '00:00', prompt: 'Custom', result: 'Done', evolution: [{ name: 'Evo' }] }],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -1234,6 +1241,7 @@ describe('history data — store edge cases', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }

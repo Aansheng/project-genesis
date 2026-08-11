@@ -10,6 +10,8 @@ export type {
   TimelineEntryViewModel,
   HistoryViewModel,
   HistoryEvolutionEntryViewModel,
+  DiffViewModel,
+  DiffChangeViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

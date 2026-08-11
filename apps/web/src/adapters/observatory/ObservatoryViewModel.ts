@@ -149,6 +149,29 @@ export interface HistoryViewModel {
 }
 
 // ---------------------------------------------------------------------------
+// Diff Viewer (ViewModel for Diff panel)
+// ---------------------------------------------------------------------------
+
+/** A single change entry within a diff view. */
+export interface DiffChangeViewModel {
+  readonly name: string
+}
+
+/**
+ * DiffViewModel — UI-safe DTO for the Diff Viewer panel.
+ *
+ * Contains all fields consumed by the DiffList and DiffDetails
+ * components. Derived from raw observatory data through the adapter.
+ */
+export interface DiffViewModel {
+  readonly id: string
+  readonly timestamp: string
+  readonly added: readonly DiffChangeViewModel[]
+  readonly removed: readonly DiffChangeViewModel[]
+  readonly changed: readonly DiffChangeViewModel[]
+}
+
+// ---------------------------------------------------------------------------
 // Root ViewModel
 // ---------------------------------------------------------------------------
 
@@ -164,6 +187,7 @@ export interface ObservatoryViewModel {
   readonly traceView: readonly TraceViewModel[]
   readonly timelineView: readonly TimelineViewModel[]
   readonly historyView: readonly HistoryViewModel[]
+  readonly diffView: readonly DiffViewModel[]
   readonly timeline: readonly TimelineDTO[]
   readonly history: readonly HistoryDTO[]
 }

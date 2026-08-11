@@ -651,6 +651,7 @@ describe('trace data — empty traces', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -667,6 +668,7 @@ describe('trace data — empty traces', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -683,6 +685,7 @@ describe('trace data — empty traces', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -699,6 +702,7 @@ describe('trace data — empty traces', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -716,6 +720,7 @@ describe('trace data — empty traces', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -973,6 +978,7 @@ describe('trace data — integration path', () => {
       ],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -1115,6 +1121,7 @@ describe('trace data — store edge cases', () => {
       traceView: [{ id: 'custom', strategy: 'Custom', timestamp: '00:00', plan: 'Plan', snapshot: [], metadata: {} }],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }
@@ -1131,6 +1138,7 @@ describe('trace data — store edge cases', () => {
       traceView: [],
       timelineView: [],
       historyView: [],
+      diffView: [],
       timeline: [],
       history: [],
     }

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { DiffEntry } from './DiffDetails.vue'
+import type { DiffViewModel } from '../../../adapters/observatory'
+
+type DiffEntry = DiffViewModel
 
 const props = defineProps<{
   entries: readonly DiffEntry[]
