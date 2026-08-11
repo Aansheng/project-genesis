@@ -6207,3 +6207,49 @@
 - No Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes, no UI changes
 - No breaking changes to any Public API
 - Architecture version v1.49 to v1.50
+
+### WO-S6-021 — Observatory Metadata Bridge Consumption
+
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `bridgeData` state (type `ObservatoryBridgeData`, default `EMPTY_BRIDGE_DATA`)
+  - Added `loadBridgeData(metadata: unknown)` action that uses `DefaultObservatoryMetadataBridge` to extract known keys and adapts through `DefaultObservatoryAdapter`
+  - Updated `loadMockObservatory()` to reset `bridgeData` to `EMPTY_BRIDGE_DATA`
+  - Added `bridge` instance (singleton `DefaultObservatoryMetadataBridge`) at module level
+- Bridge data has priority: `loadBridgeData()` computes viewModel from bridge data; `loadMockObservatory()` uses mock data
+- Created 228 tests in `ObservatoryMetadataBridgeConsumption.test.ts` (27 sections):
+  - Store initialization (10 tests): state shape, EMPTY_BRIDGE_DATA, frozen output
+  - Bridge loading (19 tests): valid/full metadata, trace/timeline/history adaption, known key extraction, frozen output
+  - Bridge priority (10 tests): bridge takes priority, mock restoration, alternating loads
+  - Mock fallback (11 tests): all mock sections still work, backward compatibility
+  - Empty bridge (10 tests): empty object, unknown keys, null values, undefined values
+  - Partial bridge (13 tests): single key, missing sections, runtime/eventStream/diff defaults
+  - Invalid metadata (14 tests): undefined, null, primitives, arrays, Date, RegExp, Map, Set
+  - Recomputation (9 tests): viewModel recomputed on each load, frozen on empty load
+  - Determinism (6 tests): same input → same output across stores and repeated calls
+  - No mutation (7 tests): input unchanged, frozen output, no side effects
+  - Statelessness (4 tests): no accumulation, no cross-store leakage, replacement not mutation
+  - Shape integrity (11 tests): all 10 viewModel fields always present after bridge load
+  - Integration path (7 tests): full lifecycle, nested data, multi-byte strings, special characters
+  - Edge cases (18 tests): 100 loads, empty/mock after bridge, Date/RegExp/Map/Set/__proto__
+  - bridgeData shape integrity (9 tests): all 7 known keys, only provided keys, no unknown keys
+  - ViewModel correctness (14 tests): counts derived from arrays, trace/timeline/history adaption, diff defaults
+  - Backward compatibility (8 tests): loadMockObservatory unchanged, all sections still work
+  - Store edge cases (7 tests): repeated calls, type checks, large datasets
+  - Multiple store instances (3 tests): independent bridgeData and viewModel
+  - No leakage (5 tests): no AI/Router/Runtime/Planner dependencies
+  - Frozen output verification (8 tests): bridgeData frozen, viewModel arrays exist
+  - Loading order (6 tests): bridge→mock, mock→bridge, bridge→mock→bridge
+  - Stress testing (7 tests): 50 alternating loads, 100 alternating, 500/300/200 large arrays, 1000 empty loads
+  - Deeply nested bridge data (5 tests): 100 steps, 50 entries, multiple traces, empty/missing steps
+  - Type safety (5 tests): number fields, array types, bridgeData spread
+  - Bridge data snapshot integration (4 tests): traceSnapshot, timelineSnapshot, historySnapshot
+  - Edge case combinations (6 tests): null steps, non-array steps, missing fields, undefined values, number coercion
+- Bridge keys (`diff`, `runtime`, `eventStream`) differ from adapter keys (`diffView`, `runtimeView`, `eventStreamView`) — these sections use defaults from bridge data; future mapping layer will bridge the gap
+- Created ADR-0164: Observatory Metadata Bridge Consumption
+- Updated PROJECT_STATE.md — v1.51, WO-S6-021 in completed list
+- Updated AI_ARCHITECTURE.md — v1.51 header
+- Updated CHANGELOG.md — v1.51, WO-S6-021
+- No UI changes, no component changes, no route changes, no i18n changes
+- No Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes
+- No breaking changes to any Public API
+- Architecture version v1.50 to v1.51

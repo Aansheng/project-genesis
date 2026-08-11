@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { DefaultObservatoryAdapter } from '../adapters/observatory'
 import type { ObservatoryViewModel } from '../adapters/observatory'
+import { DefaultObservatoryMetadataBridge } from '../adapters/observatory/bridge'
+import { EMPTY_BRIDGE_DATA } from '../adapters/observatory/bridge'
+import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 
 // ---------------------------------------------------------------------------
 // Local mock types (no AI package imports)
@@ -433,6 +436,7 @@ function buildMockObservatory(): MockObservatory {
 // ---------------------------------------------------------------------------
 
 const adapter = new DefaultObservatoryAdapter()
+const bridge = new DefaultObservatoryMetadataBridge()
 const EMPTY_VIEW_MODEL = adapter.adapt(undefined)
 
 // ---------------------------------------------------------------------------
@@ -454,18 +458,44 @@ const EMPTY_VIEW_MODEL = adapter.adapt(undefined)
  */
 export const useObservatoryDataStore = defineStore('observatoryData', () => {
   const viewModel = ref<ObservatoryViewModel>(EMPTY_VIEW_MODEL)
+  const bridgeData = ref<ObservatoryBridgeData>(EMPTY_BRIDGE_DATA)
 
   /**
    * Load mock observatory data through the adapter.
+   * Resets bridgeData to EMPTY_BRIDGE_DATA.
    * Sets viewModel to the adapted result.
    */
   function loadMockObservatory(): void {
+    bridgeData.value = EMPTY_BRIDGE_DATA
     const mock = buildMockObservatory()
     viewModel.value = adapter.adapt(mock)
   }
 
+  /**
+   * Load bridge data from raw metadata.
+   *
+   * Uses DefaultObservatoryMetadataBridge to extract known keys.
+   * Stores the result in bridgeData.
+   * Recomputes viewModel from bridge data when non-empty.
+   *
+   * Bridge data has priority — viewModel is computed from bridge data,
+   * not from mock data. Call loadMockObservatory() to restore mock data.
+   */
+  function loadBridgeData(metadata: unknown): void {
+    const result = bridge.adapt(metadata)
+    bridgeData.value = result
+    const keys = Object.keys(result)
+    if (keys.length > 0) {
+      viewModel.value = adapter.adapt(result as unknown as Record<string, unknown>)
+    } else {
+      viewModel.value = EMPTY_VIEW_MODEL
+    }
+  }
+
   return {
     viewModel,
+    bridgeData,
     loadMockObservatory,
+    loadBridgeData,
   }
 })
