@@ -1208,7 +1208,7 @@ describe('ObservatoryViewModel — root shape', () => {
 
   it('has exactly 9 root properties', () => {
     const vm = createAdapter().adapt(createCompleteObservatory())
-    expect(Object.keys(vm)).toEqual(['overview', 'trace', 'traceView', 'timelineView', 'historyView', 'diffView', 'runtimeView', 'timeline', 'history'])
+    expect(Object.keys(vm)).toEqual(['overview', 'trace', 'traceView', 'timelineView', 'historyView', 'diffView', 'runtimeView', 'eventStreamView', 'timeline', 'history'])
   })
 })
 
@@ -1257,7 +1257,7 @@ describe('Adapter — no AI package imports', () => {
     // TypeScript compile-time guarantee — we verify at runtime that no
     // AI types leaked into the ViewModel shape
     const vm = createAdapter().adapt(createCompleteObservatory())
-    expect(Object.keys(vm)).toEqual(['overview', 'trace', 'traceView', 'timelineView', 'historyView', 'diffView', 'runtimeView', 'timeline', 'history'])
+    expect(Object.keys(vm)).toEqual(['overview', 'trace', 'traceView', 'timelineView', 'historyView', 'diffView', 'runtimeView', 'eventStreamView', 'timeline', 'history'])
   })
 
   it('does not expose AI-specific properties on ViewModel', () => {

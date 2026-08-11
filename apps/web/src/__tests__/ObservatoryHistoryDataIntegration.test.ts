@@ -706,6 +706,7 @@ describe('history data — empty history', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -724,6 +725,7 @@ describe('history data — empty history', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -742,6 +744,7 @@ describe('history data — empty history', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -760,6 +763,7 @@ describe('history data — empty history', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -779,6 +783,7 @@ describe('history data — empty history', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1064,6 +1069,7 @@ describe('history data — integration path', () => {
       ],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1232,6 +1238,7 @@ describe('history data — store edge cases', () => {
       historyView: [{ id: 'custom', timestamp: '00:00', prompt: 'Custom', result: 'Done', evolution: [{ name: 'Evo' }] }],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1250,6 +1257,7 @@ describe('history data — store edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }

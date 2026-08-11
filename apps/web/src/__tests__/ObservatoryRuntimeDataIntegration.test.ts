@@ -874,6 +874,7 @@ describe('runtime data — empty runtime', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -892,6 +893,7 @@ describe('runtime data — empty runtime', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -911,6 +913,7 @@ describe('runtime data — empty runtime', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -930,6 +933,7 @@ describe('runtime data — empty runtime', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -948,6 +952,7 @@ describe('runtime data — empty runtime', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -966,6 +971,7 @@ describe('runtime data — empty runtime', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1016,6 +1022,7 @@ describe('runtime data — defaults', () => {
     const adapter = new DefaultObservatoryAdapter()
     const vm = adapter.adapt({
       runtimeView: { worldId: 'w', entities: [] },
+      eventStreamView: { events: [] },
     })
     expect(vm.runtimeView.entityCount).toBe(0)
     expect(vm.runtimeView.systemCount).toBe(0)
@@ -1250,6 +1257,7 @@ describe('runtime data — integration path', () => {
         fps: 1,
         entities: [{ id: 'new-e', type: 'New', position: '(9,9)', health: '99', state: 'Active', components: [] }],
       },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1769,6 +1777,7 @@ describe('runtime data — store edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: custom,
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }

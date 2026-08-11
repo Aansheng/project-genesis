@@ -15,6 +15,9 @@ import type {
   RuntimeViewModel,
   RuntimeEntityViewModel,
   RuntimeComponentViewModel,
+  EventStreamViewModel,
+  EventViewModel,
+  EventLevel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,
@@ -40,6 +43,10 @@ const DEFAULT_RUNTIME_VIEW: RuntimeViewModel = Object.freeze({
   entities: Object.freeze([]),
 })
 
+const DEFAULT_EVENT_STREAM: EventStreamViewModel = Object.freeze({
+  events: Object.freeze([]),
+})
+
 const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   overview: DEFAULT_OVERVIEW,
   trace: Object.freeze([]),
@@ -48,6 +55,7 @@ const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   historyView: Object.freeze([]),
   diffView: Object.freeze([]),
   runtimeView: DEFAULT_RUNTIME_VIEW,
+  eventStreamView: DEFAULT_EVENT_STREAM,
   timeline: Object.freeze([]),
   history: Object.freeze([]),
 })
@@ -108,6 +116,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     const historyView = this.adaptHistoryView(observatory)
     const diffView = this.adaptDiffView(observatory)
     const runtimeView = this.adaptRuntimeView(observatory)
+    const eventStreamView = this.adaptEventStreamView(observatory)
     const timeline = this.adaptTimeline(observatory)
     const history = this.adaptHistory(observatory)
 
@@ -119,6 +128,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       historyView,
       diffView,
       runtimeView,
+      eventStreamView,
       timeline,
       history,
     }
@@ -481,6 +491,43 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     )
   }
 
+  /**
+   * Adapt event stream view data from the raw observatory.
+   * Looks for 'eventStreamView' key. Returns default EventStreamViewModel
+   * for missing/invalid data.
+   */
+  private adaptEventStreamView(observatory: Record<string, unknown>): EventStreamViewModel {
+    const raw = safeGet<Record<string, unknown>>(observatory, 'eventStreamView')
+    if (!isObject(raw)) return DEFAULT_EVENT_STREAM
+
+    const rawEvents = safeGet<unknown[]>(raw, 'events')
+    if (!Array.isArray(rawEvents)) return DEFAULT_EVENT_STREAM
+
+    const events: readonly EventViewModel[] = Object.freeze(
+      rawEvents.map((item) => this.adaptEventViewModel(isObject(item) ? item : {})),
+    )
+
+    return Object.freeze({ events })
+  }
+
+  private adaptEventViewModel(item: Record<string, unknown>): EventViewModel {
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      timestamp: String(safeGet(item, 'timestamp') ?? ''),
+      level: this.adaptEventLevel(safeGet(item, 'level')),
+      source: String(safeGet(item, 'source') ?? ''),
+      message: String(safeGet(item, 'message') ?? ''),
+    }
+  }
+
+  /** Convert raw level to a valid EventLevel, defaulting to 'info'. */
+  private adaptEventLevel(value: unknown): EventLevel {
+    if (value === 'info' || value === 'warning' || value === 'error') {
+      return value
+    }
+    return 'info'
+  }
+
   /** Safely adapt an array of items from the observatory. */
   private adaptArray<T>(
     observatory: Record<string, unknown>,
@@ -581,6 +628,9 @@ export type {
   RuntimeViewModel,
   RuntimeEntityViewModel,
   RuntimeComponentViewModel,
+  EventStreamViewModel,
+  EventViewModel,
+  EventLevel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

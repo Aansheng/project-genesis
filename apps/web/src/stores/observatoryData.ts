@@ -95,6 +95,7 @@ interface MockObservatory {
   historyView: MockHistoryViewEntry[]
   diffView: MockDiffViewEntry[]
   runtimeView: MockRuntimeViewEntry
+  eventStreamView: MockEventStreamEntry
   timeline: MockTimelineEntry[]
   history: MockHistoryEntry[]
   traceSnapshot: Record<string, unknown>
@@ -114,6 +115,18 @@ interface MockTraceViewEntry {
   plan: string
   snapshot: MockTraceViewSnapshotEntry[]
   metadata: Record<string, unknown>
+}
+
+interface MockEventStreamEntry {
+  events: MockEventStreamEventEntry[]
+}
+
+interface MockEventStreamEventEntry {
+  id: string
+  timestamp: string
+  level: 'info' | 'warning' | 'error'
+  source: string
+  message: string
 }
 
 // ---------------------------------------------------------------------------
@@ -344,6 +357,30 @@ function buildMockObservatory(): MockObservatory {
             { name: 'Schedule', data: { wakeHour: 6, sleepHour: 20, task: 'harvest' } },
           ],
         },
+      ],
+    },
+    eventStreamView: {
+      events: [
+        { id: 'evt-001', timestamp: '12:00:01', level: 'info', source: 'PromptBuilder', message: 'Prompt received' },
+        { id: 'evt-002', timestamp: '12:00:02', level: 'info', source: 'StrategyResolver', message: 'Strategy selected' },
+        { id: 'evt-003', timestamp: '12:00:03', level: 'info', source: 'Planner', message: 'Plan generated' },
+        { id: 'evt-004', timestamp: '12:00:04', level: 'warning', source: 'Runtime', message: 'Entity spawn delayed' },
+        { id: 'evt-005', timestamp: '12:00:05', level: 'error', source: 'Provider', message: 'Response timeout' },
+        { id: 'evt-006', timestamp: '12:00:06', level: 'info', source: 'PromptBuilder', message: 'Prompt validated' },
+        { id: 'evt-007', timestamp: '12:00:07', level: 'info', source: 'Memory', message: 'Context loaded' },
+        { id: 'evt-008', timestamp: '12:00:08', level: 'warning', source: 'Runtime', message: 'NPC path recalculated' },
+        { id: 'evt-009', timestamp: '12:00:09', level: 'info', source: 'Planner', message: 'Plan optimized' },
+        { id: 'evt-010', timestamp: '12:00:10', level: 'error', source: 'Provider', message: 'Stream interrupted' },
+        { id: 'evt-011', timestamp: '12:00:11', level: 'info', source: 'Runtime', message: 'Villager arrived at Tavern' },
+        { id: 'evt-012', timestamp: '12:00:12', level: 'warning', source: 'AI', message: 'Context compression threshold reached' },
+        { id: 'evt-013', timestamp: '12:00:13', level: 'info', source: 'Provider', message: 'Stream chunk received' },
+        { id: 'evt-014', timestamp: '12:00:14', level: 'info', source: 'Runtime', message: 'Guard patrol route updated' },
+        { id: 'evt-015', timestamp: '12:00:15', level: 'error', source: 'Planner', message: 'Plan validation failed' },
+        { id: 'evt-016', timestamp: '12:00:16', level: 'info', source: 'AI', message: 'Prompt rendered' },
+        { id: 'evt-017', timestamp: '12:00:17', level: 'warning', source: 'Runtime', message: 'Merchant stock low' },
+        { id: 'evt-018', timestamp: '12:00:18', level: 'info', source: 'Provider', message: 'Response completed' },
+        { id: 'evt-019', timestamp: '12:00:19', level: 'info', source: 'Runtime', message: 'Farm harvested' },
+        { id: 'evt-020', timestamp: '12:00:20', level: 'info', source: 'Planner', message: 'ModifyStrategy applied' },
       ],
     },
     timeline: [

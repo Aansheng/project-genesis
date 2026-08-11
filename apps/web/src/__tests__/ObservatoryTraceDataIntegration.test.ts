@@ -653,6 +653,7 @@ describe('trace data — empty traces', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -671,6 +672,7 @@ describe('trace data — empty traces', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -689,6 +691,7 @@ describe('trace data — empty traces', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -707,6 +710,7 @@ describe('trace data — empty traces', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -726,6 +730,7 @@ describe('trace data — empty traces', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -985,6 +990,7 @@ describe('trace data — integration path', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1129,6 +1135,7 @@ describe('trace data — store edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1147,6 +1154,7 @@ describe('trace data — store edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }

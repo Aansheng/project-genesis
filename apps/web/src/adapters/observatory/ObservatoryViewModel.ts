@@ -208,6 +208,38 @@ export interface RuntimeViewModel {
 }
 
 // ---------------------------------------------------------------------------
+// Event Stream Viewer (ViewModel for Event Stream panel)
+// ---------------------------------------------------------------------------
+
+/** Level of a stream event — maps to UI badge styling. */
+export type EventLevel = 'info' | 'warning' | 'error'
+
+/**
+ * EventViewModel — UI-safe DTO for a single event in the Event Stream panel.
+ *
+ * Contains all fields consumed by EventStreamItem and EventStreamList
+ * components. Derived from raw observatory event data through the adapter.
+ */
+export interface EventViewModel {
+  readonly id: string
+  readonly timestamp: string
+  readonly level: EventLevel
+  readonly source: string
+  readonly message: string
+}
+
+/**
+ * EventStreamViewModel — UI-safe DTO for the Event Stream panel.
+ *
+ * Contains an ordered list of events consumed by the EventStreamList
+ * and EventFilterBar components. Derived from raw observatory data
+ * through the adapter.
+ */
+export interface EventStreamViewModel {
+  readonly events: readonly EventViewModel[]
+}
+
+// ---------------------------------------------------------------------------
 // Root ViewModel
 // ---------------------------------------------------------------------------
 
@@ -225,6 +257,7 @@ export interface ObservatoryViewModel {
   readonly historyView: readonly HistoryViewModel[]
   readonly diffView: readonly DiffViewModel[]
   readonly runtimeView: RuntimeViewModel
+  readonly eventStreamView: EventStreamViewModel
   readonly timeline: readonly TimelineDTO[]
   readonly history: readonly HistoryDTO[]
 }

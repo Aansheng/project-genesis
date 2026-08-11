@@ -1,107 +1,48 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from '../../../stores/i18n'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
 import EventFilterBar from './EventFilterBar.vue'
 import EventStreamList from './EventStreamList.vue'
-import {
-  type EventFilter,
-  type EventLevel,
-  type StreamEvent,
+import type {
+  EventFilter,
+  EventLevel,
+  StreamEvent,
 } from './EventStreamItem.vue'
+import type { EventViewModel } from '../../../adapters/observatory'
 
 /**
- * Local mock event stream — UI-only simulation (WO-S6-008).
- * A new event is appended every APPEND_INTERVAL_MS via setInterval;
- * the stream keeps at most MAX_EVENTS entries (oldest dropped).
- * Will be replaced by real observatory event consumption in a future work order.
+ * Event Stream — reads event data from the store's viewModel.
+ *
+ * Event data originates from observatoryDataStore and is mapped through
+ * DefaultObservatoryAdapter into EventStreamViewModel. The component
+ * owns only filtering and presentation — no mock data, no timer.
+ *
+ * WO-S6-019 — Observatory Event Stream Real Data Integration
  */
-const MAX_EVENTS = 100
-const APPEND_INTERVAL_MS = 2000
-
-interface StreamEventSeed {
-  level: EventLevel
-  source: string
-  message: string
-}
-
-const SEEDS: readonly StreamEventSeed[] = [
-  { level: 'info', source: 'Runtime', message: 'World created' },
-  { level: 'info', source: 'Planner', message: 'CreateFarm strategy selected' },
-  { level: 'warning', source: 'Runtime', message: 'NPC path recalculated' },
-  { level: 'error', source: 'Provider', message: 'Provider timeout' },
-  { level: 'info', source: 'AI', message: 'Plan assembly started' },
-  { level: 'info', source: 'Planner', message: 'QueryWorld strategy selected' },
-  { level: 'info', source: 'Runtime', message: 'Villager arrived at Tavern' },
-  { level: 'warning', source: 'AI', message: 'Context compression threshold reached' },
-  { level: 'info', source: 'Provider', message: 'Stream chunk received' },
-  { level: 'info', source: 'Runtime', message: 'Guard patrol route updated' },
-  { level: 'error', source: 'Planner', message: 'Plan validation failed — retrying' },
-  { level: 'info', source: 'AI', message: 'Prompt rendered (Phase 0.959977)' },
-  { level: 'warning', source: 'Runtime', message: 'Merchant stock low' },
-  { level: 'info', source: 'Provider', message: 'Response completed' },
-  { level: 'info', source: 'Runtime', message: 'Farm harvested' },
-  { level: 'info', source: 'Planner', message: 'ModifyStrategy applied' },
-  { level: 'warning', source: 'AI', message: 'Memory ranking threshold low' },
-  { level: 'info', source: 'Runtime', message: 'Tree planted at (5,9)' },
-  { level: 'error', source: 'Runtime', message: 'Entity spawn failed — retry scheduled' },
-  { level: 'info', source: 'Planner', message: 'DeleteStrategy applied' },
-]
 
 const i18n = useI18n()
+const observatoryDataStore = useObservatoryDataStore()
 
-let clockTick = 0
-function formatTimestamp(): string {
-  clockTick++
-  const total = 12 * 3600 + clockTick
-  const hh = String(Math.floor(total / 3600)).padStart(2, '0')
-  const mm = String(Math.floor((total % 3600) / 60)).padStart(2, '0')
-  const ss = String(total % 60).padStart(2, '0')
-  return `${hh}:${mm}:${ss}`
-}
-
-const INITIAL_EVENTS: readonly StreamEvent[] = SEEDS.map((seed, index) => ({
-  id: `evt-${String(index + 1).padStart(3, '0')}`,
-  timestamp: formatTimestamp(),
-  level: seed.level,
-  source: seed.source,
-  message: seed.message,
-}))
-
-const events = ref<StreamEvent[]>([...INITIAL_EVENTS])
 const filter = ref<EventFilter>('all')
-let nextNumber = INITIAL_EVENTS.length + 1
-let streamTimer: ReturnType<typeof setInterval> | null = null
 
-const filteredEvents = computed<StreamEvent[]>(() => {
+/** Map store EventViewModel[] to the StreamEvent[] format expected by child components. */
+const storeEvents = computed<readonly StreamEvent[]>(() => {
+  return observatoryDataStore.viewModel.eventStreamView.events.map(
+    (evt: EventViewModel): StreamEvent => ({
+      id: evt.id,
+      timestamp: evt.timestamp,
+      level: evt.level as EventLevel,
+      source: evt.source,
+      message: evt.message,
+    }),
+  )
+})
+
+const filteredEvents = computed<readonly StreamEvent[]>(() => {
   const current = filter.value
-  if (current === 'all') return events.value
-  return events.value.filter((event) => event.level === current)
-})
-
-function appendEvent(): void {
-  const seed = SEEDS[(nextNumber - 1) % SEEDS.length]
-  events.value.push({
-    id: `evt-${String(nextNumber).padStart(3, '0')}`,
-    timestamp: formatTimestamp(),
-    level: seed.level,
-    source: seed.source,
-    message: seed.message,
-  })
-  nextNumber++
-  if (events.value.length > MAX_EVENTS) {
-    events.value.splice(0, events.value.length - MAX_EVENTS)
-  }
-}
-
-onMounted(() => {
-  streamTimer = setInterval(appendEvent, APPEND_INTERVAL_MS)
-})
-
-onBeforeUnmount(() => {
-  if (streamTimer !== null) {
-    clearInterval(streamTimer)
-    streamTimer = null
-  }
+  if (current === 'all') return storeEvents.value
+  return storeEvents.value.filter((event) => event.level === current)
 })
 
 function setFilter(next: EventFilter): void {

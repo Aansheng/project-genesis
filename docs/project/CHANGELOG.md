@@ -6104,3 +6104,50 @@
 - No Runtime package integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.47 to v1.48
+
+### WO-S6-019 — Observatory Event Stream Real Data Integration
+
+- Extended `ObservatoryViewModel` with `EventStreamViewModel`, `EventViewModel`, `EventLevel` types
+- Added `eventStreamView: EventStreamViewModel` to root `ObservatoryViewModel`
+- Extended `DefaultObservatoryAdapter` with `adaptEventStreamView()`, `adaptEventViewModel()`, `adaptEventLevel()` methods
+- Added `DEFAULT_EVENT_STREAM` frozen default for empty event stream
+- Added 20 mock events to `stores/observatoryData.ts` with varied levels, sources, and messages
+- Updated `MockObservatory` interface with `eventStreamView` field and mock types
+- Removed from `ObservatoryEventStream.vue`:
+  - `SEEDS` array, `formatTimestamp()`, `INITIAL_EVENTS`, `clockTick`, `nextNumber`, `streamTimer`
+  - `appendEvent()`, `onMounted`, `onBeforeUnmount` lifecycle hooks
+  - `MAX_EVENTS` cap, `APPEND_INTERVAL_MS` constant, `StreamEventSeed` interface
+- Updated `ObservatoryEventStream.vue` to read events from `observatoryDataStore.viewModel.eventStreamView.events`
+- Preserved filter bar, list rendering, empty state, layout, styles, and i18n
+- Updated 143 existing EventStream tests for store-driven component
+- Updated expectations: 13 info / 4 warning / 3 error events, new source names (PromptBuilder, StrategyResolver, Memory), new messages (Prompt received, Strategy selected, etc.)
+- Added eventStreamView to all data integration test viewModel constructions across 6 test files
+- Updated `ObservatoryAdapter.test.ts` viewModel keys assertion
+- Created 192 new integration tests in `ObservatoryEventStreamDataIntegration.test.ts` (20 sections):
+  - Store eventStreamView integration (20 tests): shape, counts, field types, unique IDs, chronological order, source/level distribution
+  - Adapter mapping (18 tests): missing/null/non-object, field mapping, level defaults, non-object events, frozen output, empty input, order preservation
+  - Event rendering from viewModel (14 tests): component existence, event count, message/source/timestamp matching
+  - Empty stream (5 tests): no events, no list, empty message, crash safety
+  - Filtering from viewModel (17 tests): info/warning/error filter accuracy, count verification, hide/restore, state preservation
+  - Defaults (9 tests): empty defaults, adapter null/undefined/number/string/array, missing fields, frozen defaults
+  - Deterministic rendering (8 tests): identical across mounts for messages/timestamps/sources/HTML/badges/filters
+  - No mutation (4 tests): frozen eventStreamView, frozen arrays, no modification
+  - Integration path (6 tests): full path, adapter output match, reactive updates, single/large/empty rendering
+  - Accessibility (11 tests): native buttons, aria-pressed, role=log, aria-label, articles, h2, visual order, no div-as-button
+  - Shape integrity (6 tests): object, required fields, independent, key presence
+  - Edge cases (12 tests): empty array, double empty, non-string level, boolean level, multiple loads, reactive updates, empty fields, non-string id
+  - Backward compatibility (8 tests): layout, components, mock expectations, filter bar, list semantics
+  - Store edge cases (8 tests): multiple loads, consistent reference, direct replacement, load after replacement
+  - No AI package leakage (3 tests): no AI-specific root/eventStreamView/EventViewModel fields
+  - Info events specific (5 tests): level checks for evt-001, 002, 006, 007
+  - Warning events specific (6 tests): level checks for evt-004, 008, 012, 017, rendering
+  - Error events specific (6 tests): level checks for evt-005, 010, 015, rendering
+  - Specific values (12 tests): source checks for evt-001-007, 010, 012, 015, 016, 020, first/last timestamp
+  - EventViewModel shape validation (7 tests): 5 fields, exact keys, EventStreamViewModel shape
+- Created ADR-0162: Observatory Event Stream Real Data Integration
+- Updated PROJECT_STATE.md — v1.49, WO-S6-019 in completed list
+- Updated AI_ARCHITECTURE.md — v1.49 header
+- Updated CHANGELOG.md — v1.49, WO-S6-019
+- No Runtime package integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.48 to v1.49

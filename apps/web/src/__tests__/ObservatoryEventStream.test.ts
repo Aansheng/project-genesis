@@ -19,6 +19,7 @@ import {
   useObservatoryStore,
   OBSERVATORY_PANELS,
 } from '../stores/observatory'
+import { useObservatoryDataStore } from '../stores/observatoryData'
 import { useI18nStore } from '../stores/i18n'
 import { resolveKey } from '../i18n'
 import { zhCN } from '../i18n/locales/zh-CN'
@@ -30,10 +31,11 @@ enableAutoUnmount(afterEach)
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Activate a fresh Pinia in en-US so rendering assertions are language-stable. */
+/** Activate a fresh Pinia in en-US and load mock observatory data. */
 function activateEn(): void {
   setActivePinia(createPinia())
   useI18nStore().setLanguage('en-US')
+  useObservatoryDataStore().loadMockObservatory()
 }
 
 function mountStream(attachTo?: HTMLElement): VueWrapper {
@@ -67,12 +69,6 @@ async function clickFilter(
   index: number,
 ): Promise<void> {
   await filterButtons(wrapper)[index].trigger('click')
-  await nextTick()
-}
-
-/** Advance fake timers and flush Vue's microtask scheduler before asserting. */
-async function advanceTimers(ms: number): Promise<void> {
-  vi.advanceTimersByTime(ms)
   await nextTick()
 }
 
@@ -188,20 +184,20 @@ describe('event stream — rendering', () => {
     expect(wrapper.find('.event-item-timestamp').text()).toBe('12:00:01')
   })
 
-  it('renders the first event source as Runtime', () => {
+  it('renders the first event source as PromptBuilder', () => {
     const wrapper = mountStream()
-    expect(wrapper.find('.event-item-source').text()).toBe('Runtime')
+    expect(wrapper.find('.event-item-source').text()).toBe('PromptBuilder')
   })
 
-  it('renders the first event message as World created', () => {
+  it('renders the first event message as Prompt received', () => {
     const wrapper = mountStream()
-    expect(wrapper.find('.event-item-message').text()).toBe('World created')
+    expect(wrapper.find('.event-item-message').text()).toBe('Prompt received')
   })
 
   it('renders the last event message', () => {
     const wrapper = mountStream()
     const messages = itemTexts(wrapper, '.event-item-message')
-    expect(messages[messages.length - 1]).toBe('DeleteStrategy applied')
+    expect(messages[messages.length - 1]).toBe('ModifyStrategy applied')
   })
 
   it('renders the filter bar above the scrollable list', () => {
@@ -235,7 +231,7 @@ describe('event stream — rendering', () => {
   it('renders the second event message', () => {
     const wrapper = mountStream()
     const messages = itemTexts(wrapper, '.event-item-message')
-    expect(messages[1]).toBe('CreateFarm strategy selected')
+    expect(messages[1]).toBe('Strategy selected')
   })
 
   it('renders a badge before the source and message per item', () => {
@@ -261,21 +257,23 @@ describe('event stream — mock data', () => {
     expect(items(wrapper)).toHaveLength(20)
   })
 
-  it('sequentially numbering ids starts at evt-001', () => {
+  it('reads events from the store viewModel', () => {
+    const store = useObservatoryDataStore()
     const wrapper = mountStream()
-    const first = items(wrapper)[0].find('.event-item-message')
-    expect(first.text()).toBe('World created')
+    expect(items(wrapper)).toHaveLength(
+      store.viewModel.eventStreamView.events.length,
+    )
   })
 
-  it('includes the World created example event', () => {
+  it('includes the Prompt received event', () => {
     const wrapper = mountStream()
-    expect(itemTexts(wrapper, '.event-item-message')).toContain('World created')
+    expect(itemTexts(wrapper, '.event-item-message')).toContain('Prompt received')
   })
 
-  it('includes the CreateFarm strategy selected example event', () => {
+  it('includes the Strategy selected event', () => {
     const wrapper = mountStream()
     expect(itemTexts(wrapper, '.event-item-message')).toContain(
-      'CreateFarm strategy selected',
+      'Strategy selected',
     )
   })
 
@@ -286,10 +284,10 @@ describe('event stream — mock data', () => {
     )
   })
 
-  it('includes the Provider timeout error event', () => {
+  it('includes the Response timeout error event', () => {
     const wrapper = mountStream()
     expect(itemTexts(wrapper, '.event-item-message')).toContain(
-      'Provider timeout',
+      'Response timeout',
     )
   })
 
@@ -308,13 +306,16 @@ describe('event stream — mock data', () => {
     expect(badges).toContain('Error')
   })
 
-  it('uses Runtime, Planner, AI, and Provider as sources', () => {
+  it('uses PromptBuilder, StrategyResolver, Planner, Runtime, Provider, Memory, AI as sources', () => {
     const wrapper = mountStream()
     const sources = itemTexts(wrapper, '.event-item-source')
-    expect(sources).toContain('Runtime')
+    expect(sources).toContain('PromptBuilder')
+    expect(sources).toContain('StrategyResolver')
     expect(sources).toContain('Planner')
-    expect(sources).toContain('AI')
+    expect(sources).toContain('Runtime')
     expect(sources).toContain('Provider')
+    expect(sources).toContain('Memory')
+    expect(sources).toContain('AI')
   })
 
   it('keeps events in chronological order', () => {
@@ -330,20 +331,19 @@ describe('event stream — mock data', () => {
     expect(new Set(messages).size).toBe(messages.length)
   })
 
-  it('marks the evt-003 warning with a warning badge', () => {
+  it('marks the evt-004 warning with a warning badge', () => {
     const wrapper = mountStream()
-    const badges = wrapper.findAll('.event-item-badge')
     const sources = itemTexts(wrapper, '.event-item-source')
-    const warnings = badges.filter(
-      (_b, i) => sources[i] === 'Runtime' && badges[i].text() === 'Warning',
-    )
-    expect(warnings.length).toBeGreaterThan(0)
+    const idx = sources.findIndex((s) => s === 'Runtime' && itemTexts(wrapper, '.event-item-message')[itemTexts(wrapper, '.event-item-source').indexOf('Runtime')] !== '')
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    const warningIdx = badges.findIndex((b, i) => b === 'Warning' && itemTexts(wrapper, '.event-item-message')[i] === 'Entity spawn delayed')
+    expect(warningIdx).toBeGreaterThan(-1)
   })
 
-  it('labels the Provider timeout event with an error badge', () => {
+  it('labels the Response timeout event with an error badge', () => {
     const wrapper = mountStream()
     const messages = itemTexts(wrapper, '.event-item-message')
-    const index = messages.indexOf('Provider timeout')
+    const index = messages.indexOf('Response timeout')
     expect(index).toBeGreaterThan(-1)
     expect(wrapper.findAll('.event-item-badge')[index].text()).toBe('Error')
   })
@@ -363,6 +363,45 @@ describe('event stream — mock data', () => {
     expect(sources.has('Planner')).toBe(true)
     expect(sources.has('AI')).toBe(true)
     expect(sources.has('Provider')).toBe(true)
+    expect(sources.has('PromptBuilder')).toBe(true)
+    expect(sources.has('StrategyResolver')).toBe(true)
+    expect(sources.has('Memory')).toBe(true)
+  })
+
+  it('contains info events', () => {
+    const wrapper = mountStream()
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    expect(badges.filter((b) => b === 'Info').length).toBeGreaterThan(0)
+  })
+
+  it('contains warning events', () => {
+    const wrapper = mountStream()
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    expect(badges.filter((b) => b === 'Warning').length).toBeGreaterThan(0)
+  })
+
+  it('contains error events', () => {
+    const wrapper = mountStream()
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    expect(badges.filter((b) => b === 'Error').length).toBeGreaterThan(0)
+  })
+
+  it('has 13 info events', () => {
+    const wrapper = mountStream()
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    expect(badges.filter((b) => b === 'Info').length).toBe(13)
+  })
+
+  it('has 4 warning events', () => {
+    const wrapper = mountStream()
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    expect(badges.filter((b) => b === 'Warning').length).toBe(4)
+  })
+
+  it('has 3 error events', () => {
+    const wrapper = mountStream()
+    const badges = itemTexts(wrapper, '.event-item-badge')
+    expect(badges.filter((b) => b === 'Error').length).toBe(3)
   })
 })
 
@@ -563,8 +602,8 @@ describe('event stream — filtering', () => {
     await clickFilter(wrapper, 1)
     const messages = itemTexts(wrapper, '.event-item-message')
     expect(messages.length).toBeLessThan(20)
-    expect(messages).toContain('World created')
-    expect(messages).not.toContain('Provider timeout')
+    expect(messages).toContain('Prompt received')
+    expect(messages).not.toContain('Response timeout')
   })
 
   it('shows only warning events with the Warning filter', async () => {
@@ -572,15 +611,15 @@ describe('event stream — filtering', () => {
     await clickFilter(wrapper, 2)
     const messages = itemTexts(wrapper, '.event-item-message')
     expect(messages).toContain('NPC path recalculated')
-    expect(messages).not.toContain('World created')
+    expect(messages).not.toContain('Prompt received')
   })
 
   it('shows only error events with the Error filter', async () => {
     const wrapper = mountStream()
     await clickFilter(wrapper, 3)
     const messages = itemTexts(wrapper, '.event-item-message')
-    expect(messages).toContain('Provider timeout')
-    expect(messages).not.toContain('World created')
+    expect(messages).toContain('Response timeout')
+    expect(messages).not.toContain('Prompt received')
   })
 
   it('hides non-matching sources from the message list', async () => {
@@ -628,281 +667,249 @@ describe('event stream — filtering', () => {
     expect(items(all)).toHaveLength(warningCount)
   })
 
-  it('keeps the Info filter strict as events arrive', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await clickFilter(wrapper, 1)
-    await advanceTimers(6000)
-    for (const item of items(wrapper)) {
-      expect(item.find('.event-item-badge').text()).toBe('Info')
+  it('matches the error filter to the error event count', async () => {
+    const all = mountStream()
+    const errorCount = itemTexts(all, '.event-item-badge').filter(
+      (b) => b === 'Error',
+    ).length
+    await clickFilter(all, 3)
+    expect(items(all)).toHaveLength(errorCount)
+  })
+
+  it('matches the info filter to the info event count', async () => {
+    const all = mountStream()
+    const infoCount = itemTexts(all, '.event-item-badge').filter(
+      (b) => b === 'Info',
+    ).length
+    await clickFilter(all, 1)
+    expect(items(all)).toHaveLength(infoCount)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Empty state
+// ---------------------------------------------------------------------------
+
+describe('event stream — empty state', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    useI18nStore().setLanguage('en-US')
+  })
+
+  it('renders an empty message when there are no events', () => {
+    const wrapper = mount(EventStreamList, { props: { events: [] } })
+    expect(wrapper.text()).toContain('No events')
+  })
+
+  it('hides the list when there are no events', () => {
+    const wrapper = mount(EventStreamList, { props: { events: [] } })
+    expect(wrapper.find('ul.event-stream-list').exists()).toBe(false)
+  })
+
+  it('renders no list items when there are no events', () => {
+    const wrapper = mount(EventStreamList, { props: { events: [] } })
+    expect(wrapper.findAll('li')).toHaveLength(0)
+  })
+
+  it('marks the empty message as a paragraph', () => {
+    const wrapper = mount(EventStreamList, { props: { events: [] } })
+    expect(wrapper.find('p.event-stream-empty').exists()).toBe(true)
+  })
+
+  it('renders items when events are provided', () => {
+    const event: StreamEvent = {
+      id: 'evt-999',
+      timestamp: '12:59:59',
+      level: 'info',
+      source: 'Runtime',
+      message: 'Final check',
     }
-    vi.useRealTimers()
+    const wrapper = mount(EventStreamList, { props: { events: [event] } })
+    expect(wrapper.findAll('.event-stream-item')).toHaveLength(1)
+  })
+
+  it('does not render role="log" on the empty state', () => {
+    const wrapper = mount(EventStreamList, { props: { events: [] } })
+    expect(wrapper.find('[role="log"]').exists()).toBe(false)
+  })
+
+  it('empty store viewModel results in no events rendered', () => {
+    setActivePinia(createPinia())
+    useI18nStore().setLanguage('en-US')
+    const wrapper = mount(ObservatoryEventStream)
+    expect(items(wrapper)).toHaveLength(0)
+    expect(wrapper.find('p.event-stream-empty').exists()).toBe(true)
   })
 })
 
 // ---------------------------------------------------------------------------
-// Auto stream simulation
+// Content integration
 // ---------------------------------------------------------------------------
 
-describe('event stream — auto append', () => {
+describe('event stream — content integration', () => {
   beforeEach(() => {
     activateEn()
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
+  it('renders the event stream when EventStream is selected in the store', () => {
+    const store = useObservatoryStore()
+    store.selectPanel('EventStream')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('starts with exactly 20 events', () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    expect(items(wrapper)).toHaveLength(20)
+  it('does not render placeholder cards when EventStream is selected', () => {
+    const store = useObservatoryStore()
+    store.selectPanel('EventStream')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findAll('.content-card')).toHaveLength(0)
   })
 
-  it('appends one event after 2000ms', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(2000)
-    expect(items(wrapper)).toHaveLength(21)
+  it('switches from Overview to the event stream on store change', async () => {
+    const store = useObservatoryStore()
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
+    store.selectPanel('EventStream')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
   })
 
-  it('appends a second event after another 2000ms', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(4000)
-    expect(items(wrapper)).toHaveLength(22)
+  it('switches from the trace viewer to the event stream', async () => {
+    const store = useObservatoryStore()
+    store.selectPanel('Trace')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
+    store.selectPanel('EventStream')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
   })
 
-  it('does not append before the 2000ms interval elapses', () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    vi.advanceTimersByTime(1999)
-    expect(items(wrapper)).toHaveLength(20)
+  it('switches from the runtime viewer to the event stream', async () => {
+    const store = useObservatoryStore()
+    store.selectPanel('Runtime')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)
+    store.selectPanel('EventStream')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
   })
 
-  it('continues appending on each interval tick', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(10000)
-    expect(items(wrapper)).toHaveLength(25)
+  it('switches from the event stream back to Overview', async () => {
+    const store = useObservatoryStore()
+    store.selectPanel('EventStream')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    store.selectPanel('Overview')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
+    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
   })
 
-  it('gives the appended event a sequential timestamp', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(2000)
-    const final = itemTexts(wrapper, '.event-item-timestamp')
-    expect(final[final.length - 1]).toBe('12:00:21')
+  it('switches from the event stream to the placeholder grid', async () => {
+    const store = useObservatoryStore()
+    store.selectPanel('EventStream')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    store.selectPanel('Settings')
+    await nextTick()
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
+    expect(wrapper.findAll('.content-card')).toHaveLength(6)
   })
 
-  it('appends the next seed message on each tick', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(2000)
-    const messages = itemTexts(wrapper, '.event-item-message')
-    expect(messages[messages.length - 1]).toBe('World created')
-    await advanceTimers(2000)
-    const again = itemTexts(wrapper, '.event-item-message')
-    expect(again[again.length - 1]).toBe('CreateFarm strategy selected')
+  it('re-mounts a fresh event stream after panel switching', async () => {
+    const store = useObservatoryStore()
+    store.selectPanel('EventStream')
+    const wrapper = mount(ObservatoryContent)
+    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
+    store.selectPanel('Settings')
+    await nextTick()
+    store.selectPanel('EventStream')
+    await nextTick()
+    const stream = wrapper.findComponent(ObservatoryEventStream)
+    expect(stream.exists()).toBe(true)
+    expect(stream.findAll('.event-stream-item')).toHaveLength(20)
   })
 
-  it('appends events from the cycling seed pool', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(40000)
-    const messages = itemTexts(wrapper, '.event-item-message')
-    expect(messages.length).toBe(40)
-    expect(messages[39]).toBe('DeleteStrategy applied')
-    await advanceTimers(2000)
-    const after = itemTexts(wrapper, '.event-item-message')
-    expect(after[after.length - 1]).toBe('World created')
+  it('sits between Runtime and TraceGraph in the panel order', () => {
+    const runtimeIndex = OBSERVATORY_PANELS.indexOf('Runtime')
+    const eventIndex = OBSERVATORY_PANELS.indexOf('EventStream')
+    const traceGraphIndex = OBSERVATORY_PANELS.indexOf('TraceGraph')
+    expect(eventIndex).toBe(runtimeIndex + 1)
+    expect(traceGraphIndex).toBe(eventIndex + 1)
   })
 
-  it('respects the active filter for appended events', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await clickFilter(wrapper, 3) // Error filter only
-    await advanceTimers(2000)
-    const seen = itemTexts(wrapper, '.event-item-message')
-    expect(seen).toContain('Provider timeout')
-    expect(seen[0]).toBe('Provider timeout')
+  it('accepts the panel in the observatory panel union', () => {
+    const store = useObservatoryStore()
+    expect(() => {
+      store.selectPanel('EventStream')
+    }).not.toThrow()
+    expect(store.selectedPanel).toBe('EventStream')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Deterministic rendering
+// ---------------------------------------------------------------------------
+
+describe('event stream — deterministic rendering', () => {
+  beforeEach(() => {
+    activateEn()
   })
 
-  it('keeps appended warning events visible under the Warning filter', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await clickFilter(wrapper, 2)
-    await advanceTimers(4000)
-    const messages = itemTexts(wrapper, '.event-item-message')
-    expect(messages).toContain('NPC path recalculated')
-  })
-
-  it('does not append when the component is unmounted', () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    wrapper.unmount()
-    expect(() => vi.advanceTimersByTime(20000)).not.toThrow()
-  })
-
-  it('schedules the interval when mounted', () => {
-    vi.useFakeTimers()
-    const setSpy = vi.spyOn(globalThis, 'setInterval')
-    const wrapper = mountStream()
-    expect(setSpy).toHaveBeenCalled()
-    wrapper.unmount()
-    setSpy.mockRestore()
-  })
-
-  it('appends a new event for every elapsed interval', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(6000)
-    expect(items(wrapper)).toHaveLength(23)
-    await advanceTimers(4000)
-    expect(items(wrapper)).toHaveLength(25)
-  })
-
-  it('continues appending for an extended duration', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(40000)
-    expect(items(wrapper)).toHaveLength(40)
-  })
-
-  it('reaches exactly 100 events at 160000ms', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(160000)
-    expect(items(wrapper)).toHaveLength(100)
-  })
-
-  it('cycles event levels across appended events', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(2000)
-    expect(wrapper.findAll('.event-item-badge').at(-1)?.text()).toBe('Info')
-    await advanceTimers(2000)
-    expect(wrapper.findAll('.event-item-badge').at(-1)?.text()).toBe('Info')
-    await advanceTimers(2000)
-    expect(wrapper.findAll('.event-item-badge').at(-1)?.text()).toBe(
-      'Warning',
+  it('renders identical timestamps across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(itemTexts(a, '.event-item-timestamp')).toEqual(
+      itemTexts(b, '.event-item-timestamp'),
     )
-    await advanceTimers(2000)
-    expect(wrapper.findAll('.event-item-badge').at(-1)?.text()).toBe('Error')
-  })
-})
-
-// ---------------------------------------------------------------------------
-// Cleanup
-// ---------------------------------------------------------------------------
-
-describe('event stream — cleanup', () => {
-  beforeEach(() => {
-    activateEn()
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
+  it('renders identical messages across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(itemTexts(a, '.event-item-message')).toEqual(
+      itemTexts(b, '.event-item-message'),
+    )
   })
 
-  it('clears the interval on unmount', () => {
-    vi.useFakeTimers()
-    const clearSpy = vi.spyOn(globalThis, 'clearInterval')
-    const wrapper = mountStream()
-    wrapper.unmount()
-    expect(clearSpy).toHaveBeenCalled()
-    clearSpy.mockRestore()
+  it('renders identical sources across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(itemTexts(a, '.event-item-source')).toEqual(
+      itemTexts(b, '.event-item-source'),
+    )
   })
 
-  it('clears the same timer that was scheduled', () => {
-    vi.useFakeTimers()
-    const clearSpy = vi.spyOn(globalThis, 'clearInterval')
-    const setSpy = vi.spyOn(globalThis, 'setInterval')
-    const wrapper = mountStream()
-    const scheduled = setSpy.mock.results[0]?.value
-    wrapper.unmount()
-    expect(clearSpy).toHaveBeenCalledWith(scheduled)
-    clearSpy.mockRestore()
-    setSpy.mockRestore()
+  it('renders identical filter labels across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(filterLabels(a)).toEqual(filterLabels(b))
   })
 
-  it('stops appending after unmount', () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    wrapper.unmount()
-    expect(items(wrapper)).toHaveLength(20)
+  it('starts with the same event count across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(items(a)).toHaveLength(items(b).length)
   })
 
-  it('restarts the simulation on a fresh mount', async () => {
-    vi.useFakeTimers()
-    const first = mountStream()
-    first.unmount()
-    const second = mountStream()
-    expect(items(second)).toHaveLength(20)
-    await advanceTimers(2000)
-    expect(items(second)).toHaveLength(21)
+  it('renders identical viewer HTML across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(a.html()).toBe(b.html())
   })
 
-  it('unmounting twice is safe', () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    wrapper.unmount()
-    expect(() => wrapper.unmount()).not.toThrow()
-  })
-})
-
-// ---------------------------------------------------------------------------
-// 100-event retention
-// ---------------------------------------------------------------------------
-
-describe('event stream — max 100 events', () => {
-  beforeEach(() => {
-    activateEn()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('caps the stream at 100 events', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(200000) // 100 appends → 120 total
-    expect(items(wrapper)).toHaveLength(100)
-  })
-
-  it('drops the oldest event once the cap is reached', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(200000)
-    const timestamps = itemTexts(wrapper, '.event-item-timestamp')
-    expect(timestamps[0]).toBe('12:00:21')
-    expect(timestamps[timestamps.length - 1]).toBe('12:02:00')
-  })
-
-  it('stays at 100 events with further appends', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(400000)
-    expect(items(wrapper)).toHaveLength(100)
-  })
-
-  it('keeps the newest 100 events after the cap', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(200000)
-    const timestamps = itemTexts(wrapper, '.event-item-timestamp')
-    expect(timestamps[0]).toBe('12:00:21')
-  })
-
-  it('retains events in order while capped', async () => {
-    vi.useFakeTimers()
-    const wrapper = mountStream()
-    await advanceTimers(300000)
-    const timestamps = itemTexts(wrapper, '.event-item-timestamp')
-    const sorted = [...timestamps].sort()
-    expect(timestamps).toEqual(sorted)
-    expect(timestamps).toHaveLength(100)
+  it('renders identical badge labels across mounts', () => {
+    const a = mountStream()
+    const b = mountStream()
+    expect(itemTexts(a, '.event-item-badge')).toEqual(
+      itemTexts(b, '.event-item-badge'),
+    )
   })
 })
 
@@ -913,6 +920,7 @@ describe('event stream — max 100 events', () => {
 describe('event stream — i18n rendering', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useObservatoryDataStore().loadMockObservatory()
   })
 
   it('renders the title in Chinese by default', () => {
@@ -1184,223 +1192,5 @@ describe('event stream — accessibility', () => {
     const title = wrapper.find('.event-stream-title')
     const list = wrapper.find('ul.event-stream-list')
     expect(title.element.compareDocumentPosition(list.element)).toBe(4)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// Empty state
-// ---------------------------------------------------------------------------
-
-describe('event stream — empty state', () => {
-  beforeEach(() => {
-    activateEn()
-  })
-
-  it('renders an empty message when there are no events', () => {
-    const wrapper = mount(EventStreamList, { props: { events: [] } })
-    expect(wrapper.text()).toContain('No events')
-  })
-
-  it('hides the list when there are no events', () => {
-    const wrapper = mount(EventStreamList, { props: { events: [] } })
-    expect(wrapper.find('ul.event-stream-list').exists()).toBe(false)
-  })
-
-  it('renders no list items when there are no events', () => {
-    const wrapper = mount(EventStreamList, { props: { events: [] } })
-    expect(wrapper.findAll('li')).toHaveLength(0)
-  })
-
-  it('marks the empty message as a paragraph', () => {
-    const wrapper = mount(EventStreamList, { props: { events: [] } })
-    expect(wrapper.find('p.event-stream-empty').exists()).toBe(true)
-  })
-
-  it('renders items when events are provided', () => {
-    const event: StreamEvent = {
-      id: 'evt-999',
-      timestamp: '12:59:59',
-      level: 'info',
-      source: 'Runtime',
-      message: 'Final check',
-    }
-    const wrapper = mount(EventStreamList, { props: { events: [event] } })
-    expect(wrapper.findAll('.event-stream-item')).toHaveLength(1)
-  })
-
-  it('does not render role="log" on the empty state', () => {
-    const wrapper = mount(EventStreamList, { props: { events: [] } })
-    expect(wrapper.find('[role="log"]').exists()).toBe(false)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// Content integration
-// ---------------------------------------------------------------------------
-
-describe('event stream — content integration', () => {
-  beforeEach(() => {
-    activateEn()
-  })
-
-  it('renders the event stream when EventStream is selected in the store', () => {
-    const store = useObservatoryStore()
-    store.selectPanel('EventStream')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
-    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
-    expect(wrapper.findAll('.content-card')).toHaveLength(0)
-  })
-
-  it('does not render placeholder cards when EventStream is selected', () => {
-    const store = useObservatoryStore()
-    store.selectPanel('EventStream')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findAll('.content-card')).toHaveLength(0)
-  })
-
-  it('switches from Overview to the event stream on store change', async () => {
-    const store = useObservatoryStore()
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
-    store.selectPanel('EventStream')
-    await nextTick()
-    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(false)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-  })
-
-  it('switches from the trace viewer to the event stream', async () => {
-    const store = useObservatoryStore()
-    store.selectPanel('Trace')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(true)
-    store.selectPanel('EventStream')
-    await nextTick()
-    expect(wrapper.findComponent(ObservatoryTraceViewer).exists()).toBe(false)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-  })
-
-  it('switches from the runtime viewer to the event stream', async () => {
-    const store = useObservatoryStore()
-    store.selectPanel('Runtime')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)
-    store.selectPanel('EventStream')
-    await nextTick()
-    expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(false)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-  })
-
-  it('switches from the event stream back to Overview', async () => {
-    const store = useObservatoryStore()
-    store.selectPanel('EventStream')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-    store.selectPanel('Overview')
-    await nextTick()
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
-    expect(wrapper.findComponent(ObservatoryOverview).exists()).toBe(true)
-  })
-
-  it('switches from the event stream to the placeholder grid', async () => {
-    const store = useObservatoryStore()
-    store.selectPanel('EventStream')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-    store.selectPanel('Settings')
-    await nextTick()
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(false)
-    expect(wrapper.findAll('.content-card')).toHaveLength(6)
-  })
-
-  it('re-mounts a fresh event stream after panel switching', async () => {
-    const store = useObservatoryStore()
-    store.selectPanel('EventStream')
-    const wrapper = mount(ObservatoryContent)
-    expect(wrapper.findComponent(ObservatoryEventStream).exists()).toBe(true)
-    store.selectPanel('Settings')
-    await nextTick()
-    store.selectPanel('EventStream')
-    await nextTick()
-    const stream = wrapper.findComponent(ObservatoryEventStream)
-    expect(stream.exists()).toBe(true)
-    expect(stream.findAll('.event-stream-item')).toHaveLength(20)
-  })
-
-  it('sits between Runtime and TraceGraph in the panel order', () => {
-    const runtimeIndex = OBSERVATORY_PANELS.indexOf('Runtime')
-    const eventIndex = OBSERVATORY_PANELS.indexOf('EventStream')
-    const traceGraphIndex = OBSERVATORY_PANELS.indexOf('TraceGraph')
-    expect(eventIndex).toBe(runtimeIndex + 1)
-    expect(traceGraphIndex).toBe(eventIndex + 1)
-  })
-
-  it('accepts the panel in the observatory panel union', () => {
-    const store = useObservatoryStore()
-    expect(() => {
-      store.selectPanel('EventStream')
-    }).not.toThrow()
-    expect(store.selectedPanel).toBe('EventStream')
-  })
-})
-
-// ---------------------------------------------------------------------------
-// Deterministic rendering
-// ---------------------------------------------------------------------------
-
-describe('event stream — deterministic rendering', () => {
-  beforeEach(() => {
-    activateEn()
-  })
-
-  it('renders identical timestamps across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(itemTexts(a, '.event-item-timestamp')).toEqual(
-      itemTexts(b, '.event-item-timestamp'),
-    )
-  })
-
-  it('renders identical messages across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(itemTexts(a, '.event-item-message')).toEqual(
-      itemTexts(b, '.event-item-message'),
-    )
-  })
-
-  it('renders identical sources across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(itemTexts(a, '.event-item-source')).toEqual(
-      itemTexts(b, '.event-item-source'),
-    )
-  })
-
-  it('renders identical filter labels across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(filterLabels(a)).toEqual(filterLabels(b))
-  })
-
-  it('starts with the same event count across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(items(a)).toHaveLength(items(b).length)
-  })
-
-  it('renders identical viewer HTML across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(a.html()).toBe(b.html())
-  })
-
-  it('renders identical badge labels across mounts', () => {
-    const a = mountStream()
-    const b = mountStream()
-    expect(itemTexts(a, '.event-item-badge')).toEqual(
-      itemTexts(b, '.event-item-badge'),
-    )
   })
 })

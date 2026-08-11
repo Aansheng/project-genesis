@@ -321,6 +321,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -341,6 +342,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -361,6 +363,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -381,6 +384,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -401,6 +405,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -421,6 +426,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -441,6 +447,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -462,6 +469,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -484,6 +492,7 @@ describe('observatory overview — count updates reactivity', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -512,6 +521,7 @@ describe('observatory overview — default values', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -531,6 +541,7 @@ describe('observatory overview — default values', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -549,6 +560,7 @@ describe('observatory overview — default values', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -567,6 +579,7 @@ describe('observatory overview — default values', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -587,6 +600,7 @@ describe('observatory overview — default values', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -618,6 +632,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -636,6 +651,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -655,6 +671,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -676,6 +693,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -694,6 +712,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -716,6 +735,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -737,6 +757,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -756,6 +777,7 @@ describe('observatory overview — empty observatory', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1118,6 +1140,7 @@ describe('observatoryData store — edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1336,6 +1359,7 @@ describe('observatory overview — count toggle edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1356,6 +1380,7 @@ describe('observatory overview — count toggle edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1376,6 +1401,7 @@ describe('observatory overview — count toggle edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1397,6 +1423,7 @@ describe('observatory overview — count toggle edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1410,6 +1437,7 @@ describe('observatory overview — count toggle edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
@@ -1434,6 +1462,7 @@ describe('observatory overview — count toggle edge cases', () => {
       historyView: [],
       diffView: [],
       runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
+      eventStreamView: { events: [] },
       timeline: [],
       history: [],
     }
