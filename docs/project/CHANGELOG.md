@@ -6151,3 +6151,59 @@
 - No Runtime package integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.48 to v1.49
+
+### WO-S6-020 — Observatory Metadata Bridge Foundation
+
+- Created `apps/web/src/adapters/observatory/bridge/` directory with:
+  - `ObservatoryBridgeData.ts` — interface with 7 optional unknown fields (`overview`, `trace`, `timeline`, `history`, `diff`, `runtime`, `eventStream`) + `EMPTY_BRIDGE_DATA` frozen constant
+  - `ObservatoryMetadataBridge.ts` — single-method interface `adapt(metadata: unknown): ObservatoryBridgeData`
+  - `DefaultObservatoryMetadataBridge.ts` — implementation that extracts known keys via `hasOwnProperty`, ignores unknown keys, never mutates input, returns frozen result
+  - `index.ts` — barrel exports
+- Implementation rules: undefined → empty, null → empty, primitive → empty, array → empty, object → extract known keys only
+- Foundation only — no connection to PromptBuilder, Runtime, Planner, AI packages, or UI
+- Created 202 tests in `ObservatoryMetadataBridge.test.ts` (38 sections):
+  - Interface conformance (4 tests): adapt method, type checking, method isolation
+  - undefined input (4 tests): empty, frozen, EMPTY_BRIDGE_DATA, no keys
+  - null input (4 tests): empty, frozen, EMPTY_BRIDGE_DATA, no keys
+  - Primitive input (13 tests): boolean, number, NaN, Infinity, string, symbol, bigint, frozen
+  - Array input (6 tests): empty, populated, nested, frozen, EMPTY_BRIDGE_DATA
+  - Empty object (4 tests): empty, frozen, value equality, no section keys
+  - Single key extraction (7 tests): each known key extracts correctly
+  - Multiple key extraction (4 tests): 2 keys, 3 keys, all 7 keys, value preservation
+  - Unknown key handling (5 tests): single/multiple unknown, known+unknown mix, null prototype, prototype chain
+  - Undefined values in known keys (3 tests): undefined, null, multiple undefined
+  - Immutability (4 tests): frozen, no extend, no modify, no delete
+  - No mutation of input (5 tests): undefined, null, object, nested, stateless
+  - Deterministic behavior (4 tests): same input, across instances, repeated calls, key order
+  - Stateless behavior (3 tests): no mutable state, no cross-call effects, reusable
+  - Frozen output (4 tests): single key, all keys, nested, EMPTY_BRIDGE_DATA
+  - Shape integrity (4 tests): plain object, type match, value types preserved
+  - Complex input values (4 tests): deeply nested, arrays, mixed, empty strings
+  - Edge cases (8 tests): Object.create(null), getter, setter, function, Date, RegExp, symbol keys, deep nesting, no-throw guarantee
+  - EMPTY_BRIDGE_DATA constant (5 tests): frozen, no keys, plain object, returned for undefined/null
+  - Large metadata (3 tests): 1000-key overview, 100-item trace, multiple large sections
+  - No throw guarantee (6 tests): non-enumerable, sealed, frozen, non-extensible, __proto__
+  - Prototype pollution safety (3 tests): __proto__, constructor, prototype chain
+  - Output shape verification (7 tests): overview, runtime, eventStream, trace, timeline, history, diff
+  - No AI package leakage (3 tests): no AI imports, no AI types, known keys only
+  - Value passing through (11 tests): number, string, boolean, array, null, nested, function, Date, Map, Set, RegExp
+  - Key ordering (4 tests): known key order, only known keys, empty, all seven
+  - Prototype scenarios (6 tests): Object.prototype, inherited, null prototype, frozen, sealed, non-extensible
+  - TypeScript type safety (4 tests): type acceptance, assignability, EMPTY_BRIDGE_DATA, optional access
+  - Multiple instances (3 tests): same output, no shared state, 10 instances
+  - Repeated calls / Stress (3 tests): 1000 same input, 1000 varying, rapid alternating
+  - Nested known keys (5 tests): overview, trace, runtime, diff, eventStream
+  - Property descriptor handling (3 tests): non-enumerable, writable:false, configurable:false
+  - Mixed input shapes (7 tests): array, null, undefined, empty string, empty object, zero, false
+  - Constructor safety (3 tests): constructor property, no constructor leak, constructor key
+  - Boolean input variations (4 tests): Boolean(true/false), new Boolean(true/false)
+  - Number input variations (6 tests): Number(0/42), new Number(0/42), MIN_VALUE, MAX_VALUE
+  - String input variations (4 tests): String(""/"test"), new String(""/"test")
+  - Additional edge cases (13 tests): Array-like, Set, Map, WeakSet, WeakMap, Promise, Error, TypedArray, DataView, class instance, class with methods, Proxy, null-prototype, null-prototype empty
+- Created ADR-0163: Observatory Metadata Bridge Foundation
+- Updated PROJECT_STATE.md — v1.50, WO-S6-020 in completed list
+- Updated AI_ARCHITECTURE.md — v1.50 header
+- Updated CHANGELOG.md — v1.50, WO-S6-020
+- No Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes, no UI changes
+- No breaking changes to any Public API
+- Architecture version v1.49 to v1.50
