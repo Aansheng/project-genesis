@@ -8,6 +8,8 @@ import type {
   TraceSnapshotEntryVM,
   TimelineViewModel,
   TimelineEntryViewModel,
+  HistoryViewModel,
+  HistoryEvolutionEntryViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,
@@ -29,6 +31,7 @@ const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   trace: Object.freeze([]),
   traceView: Object.freeze([]),
   timelineView: Object.freeze([]),
+  historyView: Object.freeze([]),
   timeline: Object.freeze([]),
   history: Object.freeze([]),
 })
@@ -86,6 +89,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     const trace = this.adaptTrace(observatory)
     const traceView = this.adaptTraceView(observatory)
     const timelineView = this.adaptTimelineView(observatory)
+    const historyView = this.adaptHistoryView(observatory)
     const timeline = this.adaptTimeline(observatory)
     const history = this.adaptHistory(observatory)
 
@@ -94,6 +98,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       trace,
       traceView,
       timelineView,
+      historyView,
       timeline,
       history,
     }
@@ -214,6 +219,73 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
 
   private adaptHistory(observatory: Record<string, unknown>): readonly HistoryDTO[] {
     return this.adaptArray<HistoryDTO>(observatory, 'history', this.adaptHistoryItem.bind(this))
+  }
+
+  /**
+   * Adapt history viewer data from the raw observatory.
+   * Looks for 'historyView' key. Returns frozen empty array for missing/invalid data.
+   */
+  private adaptHistoryView(observatory: Record<string, unknown>): readonly HistoryViewModel[] {
+    const raw = safeGet<unknown[]>(observatory, 'historyView')
+    if (!Array.isArray(raw)) {
+      // Fallback: derive from history array
+      const fallback = safeGet<unknown[]>(observatory, 'history')
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        return Object.freeze(
+          fallback.map((item) => this.adaptHistoryViewFromHistoryItem(isObject(item) ? item : {})),
+        )
+      }
+      return Object.freeze([])
+    }
+    return Object.freeze(raw.map((item) => this.adaptHistoryViewItem(isObject(item) ? item : {})))
+  }
+
+  private adaptHistoryViewItem(item: Record<string, unknown>): HistoryViewModel {
+    const evolution = this.adaptHistoryEvolution(item)
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      timestamp: String(safeGet(item, 'timestamp') ?? ''),
+      prompt: String(safeGet(item, 'prompt') ?? ''),
+      result: String(safeGet(item, 'result') ?? ''),
+      evolution,
+    }
+  }
+
+  private adaptHistoryViewFromHistoryItem(item: Record<string, unknown>): HistoryViewModel {
+    const entries = safeGet<unknown[]>(item, 'entries')
+    const evolution: HistoryEvolutionEntryViewModel[] = []
+    if (Array.isArray(entries)) {
+      for (const entry of entries) {
+        const e = isObject(entry) ? entry : {}
+        evolution.push({
+          name: String(safeGet(e, 'label') ?? ''),
+        })
+      }
+    }
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      timestamp: String(safeGet(item, 'label') ?? ''),
+      prompt: String(safeGet(item, 'label') ?? ''),
+      result: '',
+      evolution: Object.freeze(evolution),
+    }
+  }
+
+  private adaptHistoryEvolution(item: Record<string, unknown>): readonly HistoryEvolutionEntryViewModel[] {
+    const raw = safeGet<unknown[]>(item, 'evolution')
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((entry) => {
+        // Handle both string[] and HistoryEvolutionEntryViewModel[]
+        if (typeof entry === 'string') {
+          return { name: entry }
+        }
+        const e = isObject(entry) ? entry : {}
+        return {
+          name: String(safeGet(e, 'name') ?? ''),
+        }
+      }),
+    )
   }
 
   /**
@@ -366,6 +438,8 @@ export type {
   TraceSnapshotEntryVM,
   TimelineViewModel,
   TimelineEntryViewModel,
+  HistoryViewModel,
+  HistoryEvolutionEntryViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

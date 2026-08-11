@@ -318,6 +318,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -335,6 +336,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -352,6 +354,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -369,6 +372,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -386,6 +390,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -403,6 +408,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -420,6 +426,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -438,6 +445,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -457,6 +465,7 @@ describe('observatory overview — count updates reactivity', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -482,6 +491,7 @@ describe('observatory overview — default values', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -498,6 +508,7 @@ describe('observatory overview — default values', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -513,6 +524,7 @@ describe('observatory overview — default values', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -528,6 +540,7 @@ describe('observatory overview — default values', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -545,6 +558,7 @@ describe('observatory overview — default values', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -573,6 +587,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -588,6 +603,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -604,6 +620,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -622,6 +639,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -637,6 +655,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -656,6 +675,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -674,6 +694,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -690,6 +711,7 @@ describe('observatory overview — empty observatory', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1049,6 +1071,7 @@ describe('observatoryData store — edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1264,6 +1287,7 @@ describe('observatory overview — count toggle edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1281,6 +1305,7 @@ describe('observatory overview — count toggle edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1298,6 +1323,7 @@ describe('observatory overview — count toggle edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1316,6 +1342,7 @@ describe('observatory overview — count toggle edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1326,6 +1353,7 @@ describe('observatory overview — count toggle edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }
@@ -1347,6 +1375,7 @@ describe('observatory overview — count toggle edge cases', () => {
       trace: [],
       traceView: [],
       timelineView: [],
+      historyView: [],
       timeline: [],
       history: [],
     }

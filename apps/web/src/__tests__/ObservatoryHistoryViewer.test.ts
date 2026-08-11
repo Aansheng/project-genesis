@@ -3,6 +3,7 @@ import { nextTick } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
+import { useObservatoryDataStore } from '../stores/observatoryData'
 import ObservatoryHistoryViewer from '../components/observatory/history/ObservatoryHistoryViewer.vue'
 import HistoryList from '../components/observatory/history/HistoryList.vue'
 import HistoryDetails from '../components/observatory/history/HistoryDetails.vue'
@@ -18,6 +19,7 @@ import { useObservatoryStore } from '../stores/observatory'
 // ---------------------------------------------------------------------------
 
 function mountViewer(attachTo?: HTMLElement): VueWrapper {
+  useObservatoryDataStore().loadMockObservatory()
   return mount(ObservatoryHistoryViewer, attachTo ? { attachTo } : undefined)
 }
 
@@ -115,9 +117,9 @@ describe('history viewer — rendering', () => {
   it('renders timestamps in order', () => {
     const wrapper = mountViewer()
     expect(rowTexts(wrapper, '.history-row-timestamp')).toEqual([
-      '12:00:01',
-      '12:05:00',
-      '12:08:00',
+      '10:00:00',
+      '10:05:00',
+      '10:10:00',
     ])
   })
 
@@ -240,22 +242,24 @@ describe('history viewer — mock data', () => {
     }
   })
 
-  it('default history prompt is "Create Village"', () => {
+  it('default history prompt is "Create Farm Game"', () => {
     const wrapper = mountViewer()
-    expect(wrapper.find('.history-prompt-block').text()).toBe('Create Village')
+    expect(wrapper.find('.history-prompt-block').text()).toBe('Create Farm Game')
   })
 
-  it('default history result is "11 entities"', () => {
+  it('default history result is "Farm Created"', () => {
     const wrapper = mountViewer()
-    expect(wrapper.find('.history-result-text').text()).toBe('11 entities')
+    expect(wrapper.find('.history-result-text').text()).toBe('Farm Created')
   })
 
-  it('default evolution list contains Tavern, Villager, Tree', () => {
+  it('default evolution list contains CreateWorld, GenerateTerrain, CreateFarm, CreateNPC, CreateQuest', () => {
     const wrapper = mountViewer()
     expect(entryTexts(wrapper, '.history-entry-card-name')).toEqual([
-      'Tavern',
-      'Villager',
-      'Tree',
+      'CreateWorld',
+      'GenerateTerrain',
+      'CreateFarm',
+      'CreateNPC',
+      'CreateQuest',
     ])
   })
 })
@@ -297,7 +301,7 @@ describe('history viewer — default selection and active state', () => {
 
   it('shows the first timestamp in the details header by default', () => {
     const wrapper = mountViewer()
-    expect(wrapper.find('.history-meta-grid').text()).toContain('12:00:01')
+    expect(wrapper.find('.history-meta-grid').text()).toContain('10:00:00')
   })
 
   it('labels the meta fields with dt elements', () => {
@@ -337,7 +341,7 @@ describe('history viewer — selection by click', () => {
     const wrapper = mountViewer()
     await rows(wrapper)[1].trigger('click')
     await nextTick()
-    expect(wrapper.find('.history-meta-grid').text()).toContain('12:05:00')
+    expect(wrapper.find('.history-meta-grid').text()).toContain('10:05:00')
   })
 
   it('moves the active class to the clicked row', async () => {
@@ -360,7 +364,7 @@ describe('history viewer — selection by click', () => {
     const wrapper = mountViewer()
     await rows(wrapper)[2].trigger('click')
     await nextTick()
-    expect(wrapper.find('.history-prompt-block').text()).toBe('Add Guards')
+    expect(wrapper.find('.history-prompt-block').text()).toBe('Build Defenses')
   })
 
   it('switches back to history-001 when clicked again', async () => {
@@ -401,7 +405,7 @@ describe('history viewer — details rendering', () => {
     const wrapper = mountViewer()
     const pre = wrapper.find('pre.history-prompt-block')
     expect(pre.exists()).toBe(true)
-    expect(pre.text()).toBe('Create Village')
+    expect(pre.text()).toBe('Create Farm Game')
   })
 
   it('makes the prompt pre block keyboard reachable', () => {
@@ -420,7 +424,7 @@ describe('history viewer — details rendering', () => {
     const wrapper = mountViewer()
     const p = wrapper.find('p.history-result-text')
     expect(p.element.tagName).toBe('P')
-    expect(p.text()).toBe('11 entities')
+    expect(p.text()).toBe('Farm Created')
   })
 
   it('renders the Evolution section for the default entry', () => {
@@ -430,13 +434,13 @@ describe('history viewer — details rendering', () => {
 
   it('renders an entry card for each evolution item', () => {
     const wrapper = mountViewer()
-    expect(entryCards(wrapper)).toHaveLength(3)
+    expect(entryCards(wrapper)).toHaveLength(5)
   })
 
   it('renders evolution cards inside list items', () => {
     const wrapper = mountViewer()
     const items = wrapper.findAll('li.history-evolution-item')
-    expect(items).toHaveLength(3)
+    expect(items).toHaveLength(5)
     for (const item of items) {
       expect(item.find('.history-entry-card').exists()).toBe(true)
     }
@@ -451,12 +455,12 @@ describe('history viewer — details rendering', () => {
     const wrapper = mountViewer()
     await rows(wrapper)[1].trigger('click')
     await nextTick()
-    expect(wrapper.find('.history-prompt-block').text()).toBe('Add Farm')
-    expect(wrapper.find('.history-result-text').text()).toBe('5 farms added')
+    expect(wrapper.find('.history-prompt-block').text()).toBe('Add Villagers')
+    expect(wrapper.find('.history-result-text').text()).toBe('3 villagers added')
     expect(entryTexts(wrapper, '.history-entry-card-name')).toEqual([
-      'Farm',
-      'Crop',
-      'Well',
+      'CreateVillager',
+      'AssignTask',
+      'StartWork',
     ])
   })
 
@@ -465,8 +469,8 @@ describe('history viewer — details rendering', () => {
     await b.findAll('.history-row')[2].trigger('click')
     await nextTick()
     expect(entryTexts(b, '.history-entry-card-name')).toEqual([
-      'Guard',
-      'Barracks',
+      'BuildWall',
+      'PlaceGuard',
     ])
   })
 })
@@ -513,7 +517,7 @@ describe('history viewer — entry rendering', () => {
   it('shows the add marker on each evolution card', () => {
     const wrapper = mountViewer()
     const markers = entryTexts(wrapper, '.history-entry-card-marker')
-    expect(markers).toEqual(['+', '+', '+'])
+    expect(markers).toEqual(['+', '+', '+', '+', '+'])
   })
 
   it('displays evolution names for history-002', async () => {
@@ -521,9 +525,9 @@ describe('history viewer — entry rendering', () => {
     await rows(wrapper)[1].trigger('click')
     await nextTick()
     const names = entryTexts(wrapper, '.history-entry-card-name')
-    expect(names).toContain('Farm')
-    expect(names).toContain('Crop')
-    expect(names).toContain('Well')
+    expect(names).toContain('CreateVillager')
+    expect(names).toContain('AssignTask')
+    expect(names).toContain('StartWork')
   })
 
   it('keeps evolution markers aligned with names', async () => {
@@ -901,6 +905,7 @@ describe('history viewer — content integration', () => {
 
   it('re-mounts a fresh history viewer after panel switching', async () => {
     const store = useObservatoryStore()
+    useObservatoryDataStore().loadMockObservatory()
     store.selectPanel('History')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryHistoryViewer).exists()).toBe(true)
@@ -952,8 +957,8 @@ describe('history viewer — deterministic rendering', () => {
     const b = mountViewer()
     const activeText = (w: VueWrapper): string =>
       w.find('.history-row--active').text()
-    expect(activeText(a)).toBe('history-00112:00:01')
-    expect(activeText(b)).toBe('history-00112:00:01')
+    expect(activeText(a)).toBe('history-00110:00:00')
+    expect(activeText(b)).toBe('history-00110:00:00')
   })
 
   it('renders identical viewer HTML across mounts', () => {

@@ -1,50 +1,56 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
+import type { HistoryViewModel } from '../../../adapters/observatory'
 import HistoryList from './HistoryList.vue'
 import HistoryDetails, { type HistoryEntry } from './HistoryDetails.vue'
 
 /**
- * Local mock history data — layout validation only (WO-S6-005).
- * Will be replaced by real observatory history data in a future work order.
+ * History Viewer — reads history data from the observatoryData store
+ * via ObservatoryViewModel.historyView.
+ *
+ * WO-S6-016 — Observatory History Real Data Integration
+ * Replaced MOCK_HISTORY with store-driven data through
+ * DefaultObservatoryAdapter.
  */
-const MOCK_HISTORY: readonly HistoryEntry[] = [
-  {
-    id: 'history-001',
-    prompt: 'Create Village',
-    timestamp: '12:00:01',
-    result: '11 entities',
-    evolution: ['Tavern', 'Villager', 'Tree'],
-  },
-  {
-    id: 'history-002',
-    prompt: 'Add Farm',
-    timestamp: '12:05:00',
-    result: '5 farms added',
-    evolution: ['Farm', 'Crop', 'Well'],
-  },
-  {
-    id: 'history-003',
-    prompt: 'Add Guards',
-    timestamp: '12:08:00',
-    result: '2 guards added',
-    evolution: ['Guard', 'Barracks'],
-  },
-]
+const dataStore = useObservatoryDataStore()
 
-const selectedId = ref<string>(MOCK_HISTORY[0].id)
-const selectedHistory = computed<HistoryEntry | null>(
-  () => MOCK_HISTORY.find((h) => h.id === selectedId.value) ?? null,
+const historyView = computed<readonly HistoryViewModel[]>(
+  () => dataStore.viewModel.historyView,
 )
+
+const selectedId = ref<string>('')
+const selectedHistory = computed<HistoryEntry | null>(() => {
+  const found = historyView.value.find((h) => h.id === selectedId.value)
+  if (!found) return null
+  return {
+    id: found.id,
+    timestamp: found.timestamp,
+    prompt: found.prompt,
+    result: found.result,
+    evolution: found.evolution,
+  }
+})
 
 function selectHistory(id: string): void {
   selectedId.value = id
 }
+
+// Initialize selectedId from first history entry when data changes
+function ensureSelected(): void {
+  if (historyView.value.length > 0 && !selectedId.value) {
+    selectedId.value = historyView.value[0].id
+  } else if (historyView.value.length === 0) {
+    selectedId.value = ''
+  }
+}
+ensureSelected()
 </script>
 
 <template>
   <div class="observatory-history-viewer">
     <HistoryList
-      :entries="MOCK_HISTORY"
+      :entries="historyView"
       :selected-id="selectedId"
       @select="selectHistory"
     />

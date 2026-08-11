@@ -1,11 +1,8 @@
 <script lang="ts">
-export interface HistoryEntry {
-  id: string
-  prompt: string
-  timestamp: string
-  result: string
-  evolution: readonly string[]
-}
+import type { HistoryViewModel, HistoryEvolutionEntryViewModel } from '../../../adapters/observatory'
+
+export type HistoryEntry = HistoryViewModel
+export type HistoryEvolutionEntry = HistoryEvolutionEntryViewModel
 </script>
 
 <script setup lang="ts">
@@ -89,11 +86,11 @@ defineProps<{
         </h3>
         <ul class="history-evolution-list">
           <li
-            v-for="name in entry.evolution"
-            :key="name"
+            v-for="evo in entry.evolution"
+            :key="evo.name"
             class="history-evolution-item"
           >
-            <HistoryEntryCard :name="name" />
+            <HistoryEntryCard :name="evo.name" />
           </li>
         </ul>
       </section>

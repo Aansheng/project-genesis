@@ -29,6 +29,18 @@ interface MockTimelineViewItem {
   entries: MockTimelineViewEntry[]
 }
 
+interface MockHistoryViewEvolutionEntry {
+  name: string
+}
+
+interface MockHistoryViewEntry {
+  id: string
+  timestamp: string
+  prompt: string
+  result: string
+  evolution: MockHistoryViewEvolutionEntry[]
+}
+
 interface MockTimelineEntry {
   id: string
   label: string
@@ -45,6 +57,7 @@ interface MockObservatory {
   trace: MockTraceEntry[]
   traceView: MockTraceViewEntry[]
   timelineView: MockTimelineViewItem[]
+  historyView: MockHistoryViewEntry[]
   timeline: MockTimelineEntry[]
   history: MockHistoryEntry[]
   traceSnapshot: Record<string, unknown>
@@ -77,6 +90,7 @@ interface MockTraceViewEntry {
  * - trace contains 3 entries (expected count = 3)
  * - traceView contains 3 entries: CreateWorld, GenerateTerrain, CreateFarm
  * - timelineView contains 3 entries: timeline-001 (5 entries), timeline-002 (3 entries), timeline-003 (4 entries)
+ * - historyView contains 3 entries: history-001 (5 evolution entries), history-002 (3), history-003 (2)
  * - timeline contains 5 entries (expected count = 5)
  * - history contains 2 entries (expected count = 2)
  * - all snapshot objects are present
@@ -185,6 +199,42 @@ function buildMockObservatory(): MockObservatory {
           { index: 1, strategy: 'CreateEntity' },
           { index: 2, strategy: 'QueryWorld' },
           { index: 3, strategy: 'MoveEntity' },
+        ],
+      },
+    ],
+    historyView: [
+      {
+        id: 'history-001',
+        timestamp: '10:00:00',
+        prompt: 'Create Farm Game',
+        result: 'Farm Created',
+        evolution: [
+          { name: 'CreateWorld' },
+          { name: 'GenerateTerrain' },
+          { name: 'CreateFarm' },
+          { name: 'CreateNPC' },
+          { name: 'CreateQuest' },
+        ],
+      },
+      {
+        id: 'history-002',
+        timestamp: '10:05:00',
+        prompt: 'Add Villagers',
+        result: '3 villagers added',
+        evolution: [
+          { name: 'CreateVillager' },
+          { name: 'AssignTask' },
+          { name: 'StartWork' },
+        ],
+      },
+      {
+        id: 'history-003',
+        timestamp: '10:10:00',
+        prompt: 'Build Defenses',
+        result: 'Walls constructed',
+        evolution: [
+          { name: 'BuildWall' },
+          { name: 'PlaceGuard' },
         ],
       },
     ],

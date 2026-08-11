@@ -8,6 +8,8 @@ export type {
   TraceSnapshotEntryVM,
   TimelineViewModel,
   TimelineEntryViewModel,
+  HistoryViewModel,
+  HistoryEvolutionEntryViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

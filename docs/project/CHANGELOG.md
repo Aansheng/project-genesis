@@ -5915,3 +5915,64 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.44 to v1.45
+
+### WO-S6-016 — Observatory History Real Data Integration
+
+- Extended `apps/web/src/adapters/observatory/ObservatoryViewModel.ts`:
+  - New `HistoryViewModel` interface: `{ id, timestamp, prompt, result, evolution }` — UI-safe DTO for the History Viewer panel
+  - New `HistoryEvolutionEntryViewModel` interface: `{ name }` — evolution entry DTO
+  - Added `historyView: readonly HistoryViewModel[]` to `ObservatoryViewModel` (alongside existing `history: readonly HistoryDTO[]`)
+- Extended `apps/web/src/adapters/observatory/DefaultObservatoryAdapter.ts`:
+  - New `adaptHistoryView()` method — reads `historyView` from raw observatory, maps to `HistoryViewModel[]`, returns frozen arrays
+  - Falls back to deriving from `history` array for backward compatibility
+  - Handles both `string[]` and `HistoryEvolutionEntryViewModel[]` evolution arrays
+  - Falls back to empty array for missing/invalid data
+  - `adapt()` now calls `adaptHistoryView()` and includes result in the ViewModel
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `MockHistoryViewEvolutionEntry` and `MockHistoryViewEntry` types
+  - Mock builder now includes 3 historyView entries: history-001 (5 evolution entries), history-002 (3), history-003 (2)
+- Updated `apps/web/src/components/observatory/history/ObservatoryHistoryViewer.vue`:
+  - Removed hardcoded `MOCK_HISTORY` array (3 entries with Create Village/Add Farm/Add Guards)
+  - Reads `dataStore.viewModel.historyView` via computed
+  - Initializes `selectedId` from first history entry in viewModel
+  - Imports `useObservatoryDataStore` and `HistoryViewModel`
+- Updated `HistoryDetails.vue` and `HistoryList.vue`:
+  - Both now import from the adapter layer instead of local types
+  - `HistoryDetails` template uses `evo.name` iteration for evolution objects
+  - `HistoryEntry` is now an alias for `HistoryViewModel`
+- Updated `apps/web/src/__tests__/ObservatoryHistoryViewer.test.ts` — mock data assertions updated:
+  - Prompts: `Create Village`/`Add Farm`/`Add Guards` → `Create Farm Game`/`Add Villagers`/`Build Defenses`
+  - Results: `11 entities`/`5 farms added`/`2 guards added` → `Farm Created`/`3 villagers added`/`Walls constructed`
+  - Timestamps: `12:00:01`/`12:05:00`/`12:08:00` → `10:00:00`/`10:05:00`/`10:10:00`
+  - Evolution: `Tavern/Villager/Tree`/`Farm/Crop/Well`/`Guard/Barracks` → `CreateWorld/GenerateTerrain/CreateFarm/CreateNPC/CreateQuest`/`CreateVillager/AssignTask/StartWork`/`BuildWall/PlaceGuard`
+  - `mountViewer` now calls `loadMockObservatory()`
+  - Content integration `beforeEach` now calls `loadMockObservatory()`
+- Updated `apps/web/src/__tests__/ObservatoryAdapter.test.ts` — root property count 6→7 (historyView added)
+- Updated `apps/web/src/__tests__/ObservatoryOverviewDataIntegration.test.ts` — added `historyView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryTimelineDataIntegration.test.ts` — added `historyView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryTraceDataIntegration.test.ts` — added `historyView` to all viewModel assignments
+- New test file `apps/web/src/__tests__/ObservatoryHistoryDataIntegration.test.ts` (136 tests covering 18 sections):
+  - Store historyView integration (14 tests): initialization, field types, frozen, IDs, evolution counts
+  - Adapter historyView mapping (13 tests): raw data mapping, null/undefined/non-array, evolution mapping, string[] handling, frozen output
+  - Viewer rendering from viewModel (11 tests): 3 rows, IDs, timestamps, components, prompt/result/evolution
+  - History selection (10 tests): default active, click selection, prompt display, active class
+  - Keyboard navigation (9 tests): ArrowDown/Up, End/Home, clamping, focus
+  - Detail switching (6 tests): prompt, result, evolution updates
+  - Prompt and result rendering (7 tests): pre block, tabindex, p tag, aria-labelledby, section order
+  - Evolution rendering (7 tests): article, header, h3, aria-labelledby, markers, names
+  - Empty history (6 tests): no error, empty list, No history entry selected, components exist
+  - Defaults and fallbacks (10 tests): empty array, adapter defaults, missing fields
+  - Deterministic rendering (7 tests): identical across mounts, HTML, prompts, results
+  - No mutation (5 tests): frozen, readonly, immutable evolution
+  - Integration path (6 tests): full path, adapter output, single item, large set, prompt display, refresh
+  - Accessibility (9 tests): aria-label, buttons, aria-current, h2, h3, dl, aria-labelledby
+  - ViewModel shape integrity (5 tests): array, required fields, independence, frozen
+  - Store edge cases (4 tests): multiple loads, direct replacement, empty list, deterministic
+  - No AI package leakage (3 tests): no promptAssembly, no plannerResult, no AI root properties
+  - HistoryView fallback (5 tests): fallback to history, prompt from label, evolution from label, frozen, empty array
+- Created ADR-0159: Observatory History Real Data Integration
+- Updated PROJECT_STATE.md — v1.46, WO-S6-016 in completed list
+- Updated AI_ARCHITECTURE.md — v1.46 header
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.45 to v1.46

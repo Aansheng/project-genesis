@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { HistoryEntry } from './HistoryDetails.vue'
+import type { HistoryViewModel } from '../../../adapters/observatory'
 
 const props = defineProps<{
-  entries: readonly HistoryEntry[]
+  entries: readonly HistoryViewModel[]
   selectedId: string
 }>()
 
@@ -40,7 +40,7 @@ function onKeydown(event: KeyboardEvent): void {
   itemRefs.value[next]?.focus()
 }
 
-function select(entry: HistoryEntry): void {
+function select(entry: HistoryViewModel): void {
   emit('select', entry.id)
 }
 </script>
