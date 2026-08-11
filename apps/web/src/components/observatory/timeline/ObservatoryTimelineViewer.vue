@@ -1,71 +1,56 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
+import type { TimelineViewModel } from '../../../adapters/observatory'
 import TimelineList from './TimelineList.vue'
 import TimelineDetails, { type Timeline } from './TimelineDetails.vue'
 
 /**
- * Local mock timeline data — layout validation only (WO-S6-004).
- * Will be replaced by real observatory timeline data in a future work order.
+ * Timeline Viewer — reads timeline data from the observatoryData store
+ * via ObservatoryViewModel.timelineView.
+ *
+ * WO-S6-015 — Observatory Timeline Real Data Integration
+ * Replaced MOCK_TIMELINES with store-driven data through
+ * DefaultObservatoryAdapter.
  */
-const MOCK_TIMELINES: readonly Timeline[] = [
-  {
-    id: 'timeline-001',
-    entryCount: 12,
-    entries: [
-      { index: 0, strategy: 'CreateEntity' },
-      { index: 1, strategy: 'MoveEntity' },
-      { index: 2, strategy: 'QueryWorld' },
-      { index: 3, strategy: 'UpdateEntity' },
-      { index: 4, strategy: 'DestroyEntity' },
-      { index: 5, strategy: 'CreateEntity' },
-      { index: 6, strategy: 'MoveEntity' },
-      { index: 7, strategy: 'QueryWorld' },
-      { index: 8, strategy: 'UpdateEntity' },
-      { index: 9, strategy: 'MoveEntity' },
-      { index: 10, strategy: 'DestroyEntity' },
-      { index: 11, strategy: 'QueryWorld' },
-    ],
-  },
-  {
-    id: 'timeline-002',
-    entryCount: 8,
-    entries: [
-      { index: 0, strategy: 'CreateEntity' },
-      { index: 1, strategy: 'QueryWorld' },
-      { index: 2, strategy: 'UpdateEntity' },
-      { index: 3, strategy: 'MoveEntity' },
-      { index: 4, strategy: 'CreateEntity' },
-      { index: 5, strategy: 'QueryWorld' },
-      { index: 6, strategy: 'DestroyEntity' },
-      { index: 7, strategy: 'UpdateEntity' },
-    ],
-  },
-  {
-    id: 'timeline-003',
-    entryCount: 4,
-    entries: [
-      { index: 0, strategy: 'QueryWorld' },
-      { index: 1, strategy: 'CreateEntity' },
-      { index: 2, strategy: 'MoveEntity' },
-      { index: 3, strategy: 'UpdateEntity' },
-    ],
-  },
-]
+const dataStore = useObservatoryDataStore()
 
-const selectedId = ref<string>(MOCK_TIMELINES[0].id)
-const selectedTimeline = computed<Timeline | null>(
-  () => MOCK_TIMELINES.find((t) => t.id === selectedId.value) ?? null,
+const timelineView = computed<readonly TimelineViewModel[]>(
+  () => dataStore.viewModel.timelineView,
 )
+
+const selectedId = ref<string>('')
+const selectedTimeline = computed<Timeline | null>(() => {
+  const found = timelineView.value.find((t) => t.id === selectedId.value)
+  if (!found) return null
+  return {
+    id: found.id,
+    entryCount: found.entryCount,
+    entries: found.entries,
+  }
+})
 
 function selectTimeline(id: string): void {
   selectedId.value = id
 }
+
+// Initialize selectedId from first timeline when data changes
+const initialized = ref(false)
+function ensureSelected(): void {
+  if (timelineView.value.length > 0 && !selectedId.value) {
+    selectedId.value = timelineView.value[0].id
+    initialized.value = true
+  } else if (timelineView.value.length === 0 && !initialized.value) {
+    selectedId.value = ''
+  }
+}
+ensureSelected()
 </script>
 
 <template>
   <div class="observatory-timeline-viewer">
     <TimelineList
-      :timelines="MOCK_TIMELINES"
+      :timelines="timelineView"
       :selected-id="selectedId"
       @select="selectTimeline"
     />

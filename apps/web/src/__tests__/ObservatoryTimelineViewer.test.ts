@@ -3,6 +3,7 @@ import { nextTick } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 
+import { useObservatoryDataStore } from '../stores/observatoryData'
 import ObservatoryTimelineViewer from '../components/observatory/timeline/ObservatoryTimelineViewer.vue'
 import TimelineList from '../components/observatory/timeline/TimelineList.vue'
 import TimelineDetails from '../components/observatory/timeline/TimelineDetails.vue'
@@ -17,6 +18,7 @@ import { useObservatoryStore } from '../stores/observatory'
 // ---------------------------------------------------------------------------
 
 function mountViewer(attachTo?: HTMLElement): VueWrapper {
+  useObservatoryDataStore().loadMockObservatory()
   return mount(ObservatoryTimelineViewer, attachTo ? { attachTo } : undefined)
 }
 
@@ -114,8 +116,8 @@ describe('timeline viewer — rendering', () => {
   it('renders entry counts in order', () => {
     const wrapper = mountViewer()
     expect(rowTexts(wrapper, '.timeline-row-count')).toEqual([
-      '12 entries',
-      '8 entries',
+      '5 entries',
+      '3 entries',
       '4 entries',
     ])
   })
@@ -195,7 +197,7 @@ describe('timeline viewer — mock data', () => {
     }
   })
 
-  it('mock entry counts are 12, 8, 4', () => {
+  it('mock entry counts are 5, 3, 4', () => {
     const wrapper = mountViewer()
     const counts = rowTexts(wrapper, '.timeline-row-count')
     for (const count of counts) {
@@ -203,29 +205,29 @@ describe('timeline viewer — mock data', () => {
     }
   })
 
-  it('default timeline has 12 entries', () => {
+  it('default timeline has 5 entries', () => {
     const wrapper = mountViewer()
-    expect(entryCards(wrapper)).toHaveLength(12)
+    expect(entryCards(wrapper)).toHaveLength(5)
   })
 
-  it('default timeline entries start with CreateEntity', () => {
+  it('default timeline entries start with CreateWorld', () => {
     const wrapper = mountViewer()
     const strategies = entryTexts(wrapper, '.timeline-entry-card-strategy')
-    expect(strategies[0]).toBe('CreateEntity')
+    expect(strategies[0]).toBe('CreateWorld')
   })
 
-  it('default timeline entries include MoveEntity at index 1', () => {
+  it('default timeline entries include GenerateTerrain at index 1', () => {
     const wrapper = mountViewer()
     const strategies = entryTexts(wrapper, '.timeline-entry-card-strategy')
-    expect(strategies[1]).toBe('MoveEntity')
+    expect(strategies[1]).toBe('GenerateTerrain')
   })
 
   it('entry indices are sequential from #0', () => {
     const wrapper = mountViewer()
     const titles = entryTexts(wrapper, '.timeline-entry-card-title')
-    expect(titles).toHaveLength(12)
+    expect(titles).toHaveLength(5)
     expect(titles[0]).toBe('#0')
-    expect(titles[11]).toBe('#11')
+    expect(titles[4]).toBe('#4')
   })
 })
 
@@ -266,7 +268,7 @@ describe('timeline viewer — default selection and active state', () => {
 
   it('shows the first entry count in the details header by default', () => {
     const wrapper = mountViewer()
-    expect(wrapper.find('.timeline-meta-grid').text()).toContain('12')
+    expect(wrapper.find('.timeline-meta-grid').text()).toContain('5')
   })
 
   it('labels the meta fields with dt elements', () => {
@@ -306,7 +308,7 @@ describe('timeline viewer — selection by click', () => {
     const wrapper = mountViewer()
     await rows(wrapper)[1].trigger('click')
     await nextTick()
-    expect(wrapper.find('.timeline-meta-grid').text()).toContain('8')
+    expect(wrapper.find('.timeline-meta-grid').text()).toContain('3')
   })
 
   it('moves the active class to the clicked row', async () => {
@@ -369,13 +371,13 @@ describe('timeline viewer — details rendering', () => {
 
   it('renders an entry card for each entry in the default timeline', () => {
     const wrapper = mountViewer()
-    expect(entryCards(wrapper)).toHaveLength(12)
+    expect(entryCards(wrapper)).toHaveLength(5)
   })
 
   it('renders entry cards inside list items', () => {
     const wrapper = mountViewer()
     const items = wrapper.findAll('li.timeline-entries-item')
-    expect(items).toHaveLength(12)
+    expect(items).toHaveLength(5)
     for (const item of items) {
       expect(item.find('.timeline-entry-card').exists()).toBe(true)
     }
@@ -397,7 +399,7 @@ describe('timeline viewer — details rendering', () => {
     const wrapper = mountViewer()
     const first = entryCards(wrapper)[0]
     expect(first.find('.timeline-entry-card-strategy').text()).toBe(
-      'CreateEntity',
+      'CreateWorld',
     )
   })
 
@@ -413,7 +415,7 @@ describe('timeline viewer — details rendering', () => {
     await b.findAll('.timeline-row')[2].trigger('click')
     await nextTick()
     const strategies = entryTexts(b, '.timeline-entry-card-strategy')
-    expect(strategies[0]).toBe('QueryWorld')
+    expect(strategies[0]).toBe('DestroyEntity')
   })
 
   it('renders empty state placeholder grid for Settings', () => {
@@ -477,9 +479,9 @@ describe('timeline viewer — entry rendering', () => {
     await rows(wrapper)[1].trigger('click')
     await nextTick()
     const strategies = entryTexts(wrapper, '.timeline-entry-card-strategy')
-    expect(strategies).toContain('CreateEntity')
+    expect(strategies).toContain('MoveEntity')
     expect(strategies).toContain('QueryWorld')
-    expect(strategies).toContain('DestroyEntity')
+    expect(strategies).toContain('UpdateEntity')
   })
 
   it('displays strategies for timeline-003 entries', async () => {
@@ -488,10 +490,10 @@ describe('timeline viewer — entry rendering', () => {
     await nextTick()
     const strategies = entryTexts(wrapper, '.timeline-entry-card-strategy')
     expect(strategies).toEqual([
-      'QueryWorld',
+      'DestroyEntity',
       'CreateEntity',
+      'QueryWorld',
       'MoveEntity',
-      'UpdateEntity',
     ])
   })
 
@@ -859,6 +861,7 @@ describe('timeline viewer — content integration', () => {
 
   it('re-mounts a fresh timeline viewer after panel switching', async () => {
     const store = useObservatoryStore()
+    useObservatoryDataStore().loadMockObservatory()
     store.selectPanel('Timeline')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryTimelineViewer).exists()).toBe(true)
@@ -910,8 +913,8 @@ describe('timeline viewer — deterministic rendering', () => {
     const b = mountViewer()
     const activeText = (w: VueWrapper): string =>
       w.find('.timeline-row--active').text()
-    expect(activeText(a)).toBe('timeline-00112 entries')
-    expect(activeText(b)).toBe('timeline-00112 entries')
+    expect(activeText(a)).toBe('timeline-0015 entries')
+    expect(activeText(b)).toBe('timeline-0015 entries')
   })
 
   it('renders identical viewer HTML across mounts', () => {

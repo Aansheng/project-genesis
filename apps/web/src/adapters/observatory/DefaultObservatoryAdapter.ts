@@ -6,6 +6,8 @@ import type {
   TraceStepDTO,
   TraceViewModel,
   TraceSnapshotEntryVM,
+  TimelineViewModel,
+  TimelineEntryViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,
@@ -26,6 +28,7 @@ const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   overview: DEFAULT_OVERVIEW,
   trace: Object.freeze([]),
   traceView: Object.freeze([]),
+  timelineView: Object.freeze([]),
   timeline: Object.freeze([]),
   history: Object.freeze([]),
 })
@@ -82,6 +85,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     const overview = this.adaptOverview(observatory)
     const trace = this.adaptTrace(observatory)
     const traceView = this.adaptTraceView(observatory)
+    const timelineView = this.adaptTimelineView(observatory)
     const timeline = this.adaptTimeline(observatory)
     const history = this.adaptHistory(observatory)
 
@@ -89,6 +93,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       overview,
       trace,
       traceView,
+      timelineView,
       timeline,
       history,
     }
@@ -211,6 +216,63 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     return this.adaptArray<HistoryDTO>(observatory, 'history', this.adaptHistoryItem.bind(this))
   }
 
+  /**
+   * Adapt timeline viewer data from the raw observatory.
+   * Looks for 'timelineView' key. Falls back to deriving from 'timeline'
+   * for backward compatibility. Returns frozen empty array for missing/invalid data.
+   */
+  private adaptTimelineView(observatory: Record<string, unknown>): readonly TimelineViewModel[] {
+    const raw = safeGet<unknown[]>(observatory, 'timelineView')
+    if (!Array.isArray(raw)) {
+      // Fallback: derive from timeline array
+      const fallback = safeGet<unknown[]>(observatory, 'timeline')
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        return Object.freeze(
+          fallback.map((item) => this.adaptTimelineViewFromTimelineItem(isObject(item) ? item : {})),
+        )
+      }
+      return Object.freeze([])
+    }
+    return Object.freeze(raw.map((item) => this.adaptTimelineViewItem(isObject(item) ? item : {})))
+  }
+
+  private adaptTimelineViewItem(item: Record<string, unknown>): TimelineViewModel {
+    const entries = this.adaptTimelineViewEntries(item)
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      entryCount: entries.length,
+      entries,
+    }
+  }
+
+  private adaptTimelineViewFromTimelineItem(item: Record<string, unknown>): TimelineViewModel {
+    const rawEntries = safeGet<unknown[]>(item, 'entries')
+    const entries = this.adaptTimelineViewEntriesFromRawEntries(rawEntries)
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      entryCount: entries.length,
+      entries,
+    }
+  }
+
+  private adaptTimelineViewEntries(item: Record<string, unknown>): readonly TimelineEntryViewModel[] {
+    const raw = safeGet<unknown[]>(item, 'entries')
+    return this.adaptTimelineViewEntriesFromRawEntries(raw)
+  }
+
+  private adaptTimelineViewEntriesFromRawEntries(raw: unknown[] | undefined): readonly TimelineEntryViewModel[] {
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((entry, i) => {
+        const e = isObject(entry) ? entry : {}
+        return {
+          index: safeCount(safeGet(e, 'index') !== undefined ? safeGet(e, 'index') : i),
+          strategy: String(safeGet(e, 'strategy') ?? safeGet(e, 'label') ?? ''),
+        }
+      }),
+    )
+  }
+
   /** Safely adapt an array of items from the observatory. */
   private adaptArray<T>(
     observatory: Record<string, unknown>,
@@ -302,6 +364,8 @@ export type {
   TraceStepDTO,
   TraceViewModel,
   TraceSnapshotEntryVM,
+  TimelineViewModel,
+  TimelineEntryViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

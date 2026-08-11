@@ -5860,3 +5860,58 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.43 to v1.44
+
+### WO-S6-015 — Observatory Timeline Real Data Integration
+
+- Extended `apps/web/src/adapters/observatory/ObservatoryViewModel.ts`:
+  - New `TimelineViewModel` interface: `{ id, entryCount, entries }` — UI-safe DTO for the Timeline Viewer panel
+  - New `TimelineEntryViewModel` interface: `{ index, strategy }` — entry item DTO
+  - Added `timelineView: readonly TimelineViewModel[]` to `ObservatoryViewModel` (alongside existing `timeline: readonly TimelineDTO[]`)
+- Extended `apps/web/src/adapters/observatory/DefaultObservatoryAdapter.ts`:
+  - New `adaptTimelineView()` method — reads `timelineView` from raw observatory, maps to `TimelineViewModel[]`, returns frozen arrays
+  - Falls back to deriving from `timeline` array for backward compatibility
+  - Falls back to empty array for missing/invalid data
+  - `adapt()` now calls `adaptTimelineView()` and includes result in the ViewModel
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `MockTimelineViewEntry` and `MockTimelineViewItem` types
+  - Mock builder now includes 3 timelineView entries: timeline-001 (5 entries), timeline-002 (3), timeline-003 (4)
+- Updated `apps/web/src/components/observatory/timeline/ObservatoryTimelineViewer.vue`:
+  - Removed hardcoded `MOCK_TIMELINES` array (3 entries with 12/8/4 entry counts)
+  - Reads `dataStore.viewModel.timelineView` via computed
+  - Initializes `selectedId` from first timeline in viewModel
+  - Imports `useObservatoryDataStore` and `TimelineViewModel`
+- Updated `TimelineDetails.vue` and `TimelineList.vue`:
+  - Both now import `TimelineViewModel`/`TimelineEntryViewModel` from the adapter layer
+  - Local types are now aliases for adapter types — no functional changes
+- Updated `apps/web/src/__tests__/ObservatoryTimelineViewer.test.ts` — mock data assertions updated:
+  - Entry counts: 12/8/4 → 5/3/4
+  - Strategies: CreateEntity/MoveEntity/QueryWorld → CreateWorld/GenerateTerrain/CreateFarm/etc.
+  - `mountViewer` now calls `loadMockObservatory()`
+  - Content integration `beforeEach` now calls `loadMockObservatory()`
+- Updated `apps/web/src/__tests__/ObservatoryAdapter.test.ts` — root property count 5→6 (timelineView added)
+- Updated `apps/web/src/__tests__/ObservatoryTraceDataIntegration.test.ts` — added `timelineView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryOverviewDataIntegration.test.ts` — added `traceView`/`timelineView` to all viewModel assignments
+- New test file `apps/web/src/__tests__/ObservatoryTimelineDataIntegration.test.ts` (127 tests covering 17 sections):
+  - Store timelineView integration (13 tests): initialization, field types, frozen, IDs, entry counts
+  - Adapter timelineView mapping (12 tests): raw data mapping, null/undefined/non-array, entry mapping, frozen output
+  - Viewer rendering from viewModel (11 tests): 3 rows, IDs, entry counts, components, strategies
+  - Timeline selection (10 tests): default active, click selection, entry count display, active class
+  - Keyboard navigation (9 tests): ArrowDown/Up, End/Home, clamping, focus
+  - Detail switching (6 tests): entry count updates, strategy display, distinct entries
+  - Entry rendering (8 tests): article, header, h3, aria-labelledby, indices, strategies
+  - Empty timelines (6 tests): no error, empty list, No timeline selected, components exist
+  - Defaults and fallbacks (9 tests): empty array, adapter defaults, missing fields
+  - Deterministic rendering (7 tests): identical across mounts, HTML, strategies
+  - No mutation (5 tests): frozen, readonly, immutable entries
+  - Integration path (6 tests): full path, adapter output, single item, large set, strategy display, refresh
+  - Accessibility (8 tests): aria-label, buttons, aria-current, h2, h3, dl, aria-labelledby
+  - ViewModel shape integrity (5 tests): array, required fields, independence, frozen
+  - Store edge cases (4 tests): multiple loads, direct replacement, empty list, deterministic
+  - No AI package leakage (3 tests): no promptAssembly, no plannerResult, no AI root properties
+  - TimelineView fallback (4 tests): fallback to timeline, entry count, strategy from label, frozen
+- Created ADR-0158: Observatory Timeline Real Data Integration
+- Updated PROJECT_STATE.md — v1.45, WO-S6-015 in completed list
+- Updated AI_ARCHITECTURE.md — v1.45 header
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.44 to v1.45

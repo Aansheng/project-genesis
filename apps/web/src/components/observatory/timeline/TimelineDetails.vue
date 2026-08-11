@@ -1,14 +1,8 @@
 <script lang="ts">
-export interface TimelineEntry {
-  index: number
-  strategy: string
-}
+import type { TimelineViewModel, TimelineEntryViewModel } from '../../../adapters/observatory'
 
-export interface Timeline {
-  id: string
-  entryCount: number
-  entries: readonly TimelineEntry[]
-}
+export type TimelineEntry = TimelineEntryViewModel
+export type Timeline = TimelineViewModel
 </script>
 
 <script setup lang="ts">

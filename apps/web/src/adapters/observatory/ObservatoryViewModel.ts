@@ -104,6 +104,28 @@ export interface HistoryDTO {
 }
 
 // ---------------------------------------------------------------------------
+// Timeline Viewer (ViewModel for Timeline panel)
+// ---------------------------------------------------------------------------
+
+/** A single entry within a timeline view. */
+export interface TimelineEntryViewModel {
+  readonly index: number
+  readonly strategy: string
+}
+
+/**
+ * TimelineViewModel — UI-safe DTO for the Timeline Viewer panel.
+ *
+ * Contains all fields consumed by the TimelineList and TimelineDetails
+ * components. Derived from raw observatory data through the adapter.
+ */
+export interface TimelineViewModel {
+  readonly id: string
+  readonly entryCount: number
+  readonly entries: readonly TimelineEntryViewModel[]
+}
+
+// ---------------------------------------------------------------------------
 // Root ViewModel
 // ---------------------------------------------------------------------------
 
@@ -117,6 +139,7 @@ export interface ObservatoryViewModel {
   readonly overview: OverviewDTO
   readonly trace: readonly TraceDTO[]
   readonly traceView: readonly TraceViewModel[]
+  readonly timelineView: readonly TimelineViewModel[]
   readonly timeline: readonly TimelineDTO[]
   readonly history: readonly HistoryDTO[]
 }

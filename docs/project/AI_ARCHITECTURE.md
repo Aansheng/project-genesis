@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Project Genesis — AI Architecture Reference (v1.44)
+> Project Genesis — AI Architecture Reference (v1.45)
 > Primary reference for all AI development.
 
 ### BuilderOptions

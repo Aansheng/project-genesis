@@ -649,6 +649,7 @@ describe('trace data — empty traces', () => {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -663,6 +664,7 @@ describe('trace data — empty traces', () => {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -677,6 +679,7 @@ describe('trace data — empty traces', () => {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -691,6 +694,7 @@ describe('trace data — empty traces', () => {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -706,6 +710,7 @@ describe('trace data — empty traces', () => {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -961,6 +966,7 @@ describe('trace data — integration path', () => {
         { id: 'new-1', strategy: 'NewA', timestamp: '00:00', plan: 'Plan A', snapshot: [], metadata: {} },
         { id: 'new-2', strategy: 'NewB', timestamp: '01:00', plan: 'Plan B', snapshot: [], metadata: {} },
       ],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1101,6 +1107,7 @@ describe('trace data — store edge cases', () => {
       overview: { traceCount: 1, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [{ id: 'custom', strategy: 'Custom', timestamp: '00:00', plan: 'Plan', snapshot: [], metadata: {} }],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1115,6 +1122,7 @@ describe('trace data — store edge cases', () => {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
       traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }

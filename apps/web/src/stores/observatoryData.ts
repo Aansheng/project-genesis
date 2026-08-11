@@ -19,6 +19,16 @@ interface MockTraceEntry {
   steps: MockStep[]
 }
 
+interface MockTimelineViewEntry {
+  index: number
+  strategy: string
+}
+
+interface MockTimelineViewItem {
+  id: string
+  entries: MockTimelineViewEntry[]
+}
+
 interface MockTimelineEntry {
   id: string
   label: string
@@ -34,6 +44,7 @@ interface MockHistoryEntry {
 interface MockObservatory {
   trace: MockTraceEntry[]
   traceView: MockTraceViewEntry[]
+  timelineView: MockTimelineViewItem[]
   timeline: MockTimelineEntry[]
   history: MockHistoryEntry[]
   traceSnapshot: Record<string, unknown>
@@ -65,6 +76,7 @@ interface MockTraceViewEntry {
  * Design rules:
  * - trace contains 3 entries (expected count = 3)
  * - traceView contains 3 entries: CreateWorld, GenerateTerrain, CreateFarm
+ * - timelineView contains 3 entries: timeline-001 (5 entries), timeline-002 (3 entries), timeline-003 (4 entries)
  * - timeline contains 5 entries (expected count = 5)
  * - history contains 2 entries (expected count = 2)
  * - all snapshot objects are present
@@ -145,6 +157,35 @@ function buildMockObservatory(): MockObservatory {
           modules: ['strategy'],
           status: 'resolved',
         },
+      },
+    ],
+    timelineView: [
+      {
+        id: 'timeline-001',
+        entries: [
+          { index: 0, strategy: 'CreateWorld' },
+          { index: 1, strategy: 'GenerateTerrain' },
+          { index: 2, strategy: 'CreateFarm' },
+          { index: 3, strategy: 'CreateNPC' },
+          { index: 4, strategy: 'CreateQuest' },
+        ],
+      },
+      {
+        id: 'timeline-002',
+        entries: [
+          { index: 0, strategy: 'MoveEntity' },
+          { index: 1, strategy: 'QueryWorld' },
+          { index: 2, strategy: 'UpdateEntity' },
+        ],
+      },
+      {
+        id: 'timeline-003',
+        entries: [
+          { index: 0, strategy: 'DestroyEntity' },
+          { index: 1, strategy: 'CreateEntity' },
+          { index: 2, strategy: 'QueryWorld' },
+          { index: 3, strategy: 'MoveEntity' },
+        ],
       },
     ],
     timeline: [

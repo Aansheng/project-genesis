@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Timeline } from './TimelineDetails.vue'
+import type { TimelineViewModel } from '../../../adapters/observatory'
 
 const props = defineProps<{
-  timelines: readonly Timeline[]
+  timelines: readonly TimelineViewModel[]
   selectedId: string
 }>()
 
@@ -40,7 +40,7 @@ function onKeydown(event: KeyboardEvent): void {
   itemRefs.value[next]?.focus()
 }
 
-function select(timeline: Timeline): void {
+function select(timeline: TimelineViewModel): void {
   emit('select', timeline.id)
 }
 </script>

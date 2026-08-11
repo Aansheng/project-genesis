@@ -6,6 +6,8 @@ export type {
   TraceStepDTO,
   TraceViewModel,
   TraceSnapshotEntryVM,
+  TimelineViewModel,
+  TimelineEntryViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

@@ -316,6 +316,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 7, timelineCount: 5, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -331,6 +333,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 10, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -346,6 +350,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 5, historyCount: 9 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -361,6 +367,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 10, timelineCount: 20, historyCount: 30 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -376,6 +384,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 5, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -391,6 +401,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 0, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -406,6 +418,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 5, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -422,6 +436,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 99, timelineCount: 99, historyCount: 99 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -439,6 +455,8 @@ describe('observatory overview — count updates reactivity', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 0, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -462,6 +480,8 @@ describe('observatory overview — default values', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -476,6 +496,8 @@ describe('observatory overview — default values', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -489,6 +511,8 @@ describe('observatory overview — default values', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -502,6 +526,8 @@ describe('observatory overview — default values', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -517,6 +543,8 @@ describe('observatory overview — default values', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -543,6 +571,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -556,6 +586,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -570,6 +602,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -586,6 +620,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -599,6 +635,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -616,6 +654,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -632,6 +672,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -646,6 +688,8 @@ describe('observatory overview — empty observatory', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1003,6 +1047,8 @@ describe('observatoryData store — edge cases', () => {
     const custom: ObservatoryViewModel = {
       overview: { traceCount: 42, timelineCount: 24, historyCount: 12 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1216,6 +1262,8 @@ describe('observatory overview — count toggle edge cases', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 5, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1231,6 +1279,8 @@ describe('observatory overview — count toggle edge cases', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 0, historyCount: 2 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1246,6 +1296,8 @@ describe('observatory overview — count toggle edge cases', () => {
     store.viewModel = {
       overview: { traceCount: 3, timelineCount: 5, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1262,6 +1314,8 @@ describe('observatory overview — count toggle edge cases', () => {
     store.viewModel = {
       overview: { traceCount: 0, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1270,6 +1324,8 @@ describe('observatory overview — count toggle edge cases', () => {
     store.viewModel = {
       overview: { traceCount: 5, timelineCount: 5, historyCount: 5 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
@@ -1289,6 +1345,8 @@ describe('observatory overview — count toggle edge cases', () => {
     store.viewModel = {
       overview: { traceCount: 1, timelineCount: 0, historyCount: 0 },
       trace: [],
+      traceView: [],
+      timelineView: [],
       timeline: [],
       history: [],
     }
