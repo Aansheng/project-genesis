@@ -33,11 +33,26 @@ interface MockHistoryEntry {
 
 interface MockObservatory {
   trace: MockTraceEntry[]
+  traceView: MockTraceViewEntry[]
   timeline: MockTimelineEntry[]
   history: MockHistoryEntry[]
   traceSnapshot: Record<string, unknown>
   timelineSnapshot: Record<string, unknown>
   historySnapshot: Record<string, unknown>
+}
+
+interface MockTraceViewSnapshotEntry {
+  key: string
+  value: string
+}
+
+interface MockTraceViewEntry {
+  id: string
+  strategy: string
+  timestamp: string
+  plan: string
+  snapshot: MockTraceViewSnapshotEntry[]
+  metadata: Record<string, unknown>
 }
 
 // ---------------------------------------------------------------------------
@@ -49,6 +64,7 @@ interface MockObservatory {
  *
  * Design rules:
  * - trace contains 3 entries (expected count = 3)
+ * - traceView contains 3 entries: CreateWorld, GenerateTerrain, CreateFarm
  * - timeline contains 5 entries (expected count = 5)
  * - history contains 2 entries (expected count = 2)
  * - all snapshot objects are present
@@ -79,6 +95,56 @@ function buildMockObservatory(): MockObservatory {
         steps: [
           { id: 'ts-005', label: 'Verify', status: 'pending' },
         ],
+      },
+    ],
+    traceView: [
+      {
+        id: 'trace-001',
+        strategy: 'CreateWorld',
+        timestamp: '10:00:01',
+        plan: 'builder=DefaultPromptBuilder\nstrategy=create\nmodules=3\nstatus=assembled',
+        snapshot: [
+          { key: 'Module Count', value: '3' },
+          { key: 'Strategy', value: 'CreateWorld' },
+        ],
+        metadata: {
+          builder: 'DefaultPromptBuilder',
+          phase: '0.959977',
+          modules: ['intent', 'entity', 'strategy'],
+          status: 'assembled',
+        },
+      },
+      {
+        id: 'trace-002',
+        strategy: 'GenerateTerrain',
+        timestamp: '10:00:05',
+        plan: 'builder=DefaultPromptBuilder\nstrategy=modify\nmodules=2\nstatus=modified',
+        snapshot: [
+          { key: 'Module Count', value: '2' },
+          { key: 'Strategy', value: 'GenerateTerrain' },
+        ],
+        metadata: {
+          builder: 'DefaultPromptBuilder',
+          phase: '0.959977',
+          modules: ['intent', 'strategy'],
+          status: 'modified',
+        },
+      },
+      {
+        id: 'trace-003',
+        strategy: 'CreateFarm',
+        timestamp: '10:00:09',
+        plan: 'builder=DefaultPromptBuilder\nstrategy=query\nmodules=1\nstatus=resolved',
+        snapshot: [
+          { key: 'Module Count', value: '1' },
+          { key: 'Strategy', value: 'CreateFarm' },
+        ],
+        metadata: {
+          builder: 'DefaultPromptBuilder',
+          phase: '0.959977',
+          modules: ['strategy'],
+          status: 'resolved',
+        },
       },
     ],
     timeline: [

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Trace } from './TraceDetails.vue'
+import type { TraceViewModel } from '../../../adapters/observatory'
 
 const props = defineProps<{
-  traces: readonly Trace[]
+  traces: readonly TraceViewModel[]
   selectedId: string
 }>()
 
@@ -40,7 +40,7 @@ function onKeydown(event: KeyboardEvent): void {
   itemRefs.value[next]?.focus()
 }
 
-function select(trace: Trace): void {
+function select(trace: TraceViewModel): void {
   emit('select', trace.id)
 }
 </script>

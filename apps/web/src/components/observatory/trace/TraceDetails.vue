@@ -1,17 +1,7 @@
 <script lang="ts">
-export interface TraceSnapshotEntry {
-  key: string
-  value: string
-}
+import type { TraceViewModel } from '../../../adapters/observatory'
 
-export interface Trace {
-  id: string
-  strategy: string
-  timestamp: string
-  plan: string
-  snapshot: readonly TraceSnapshotEntry[]
-  metadata: Record<string, unknown>
-}
+export type { TraceViewModel }
 </script>
 
 <script setup lang="ts">
@@ -19,7 +9,7 @@ import { computed } from 'vue'
 import TraceStepCard from './TraceStepCard.vue'
 
 const props = defineProps<{
-  trace: Trace | null
+  trace: TraceViewModel | null
 }>()
 
 const metadataJson = computed(() =>

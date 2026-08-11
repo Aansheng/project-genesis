@@ -10,12 +10,15 @@ import TraceStepCard from '../components/observatory/trace/TraceStepCard.vue'
 import ObservatoryContent from '../components/observatory/ObservatoryContent.vue'
 import ObservatoryOverview from '../components/observatory/ObservatoryOverview.vue'
 import { useObservatoryStore } from '../stores/observatory'
+import { useObservatoryDataStore } from '../stores/observatoryData'
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function mountViewer(attachTo?: HTMLElement): VueWrapper {
+  // Load mock data so the viewer has traces to display
+  useObservatoryDataStore().loadMockObservatory()
   return mount(ObservatoryTraceViewer, attachTo ? { attachTo } : undefined)
 }
 
@@ -100,27 +103,27 @@ describe('trace viewer — rendering', () => {
   it('renders row ids in order', () => {
     const wrapper = mountViewer()
     expect(rowTexts(wrapper, '.trace-row-id')).toEqual([
-      'trace-1',
-      'trace-2',
-      'trace-3',
+      'trace-001',
+      'trace-002',
+      'trace-003',
     ])
   })
 
   it('renders strategies in order', () => {
     const wrapper = mountViewer()
     expect(rowTexts(wrapper, '.trace-row-strategy')).toEqual([
-      'create',
-      'modify',
-      'query',
+      'CreateWorld',
+      'GenerateTerrain',
+      'CreateFarm',
     ])
   })
 
   it('renders timestamps in order', () => {
     const wrapper = mountViewer()
     expect(rowTexts(wrapper, '.trace-row-time')).toEqual([
-      '12:00:01',
-      '12:00:05',
-      '12:00:09',
+      '10:00:01',
+      '10:00:05',
+      '10:00:09',
     ])
   })
 
@@ -200,7 +203,7 @@ describe('trace viewer — mock data', () => {
     expect(rows(wrapper)).toHaveLength(3)
   })
 
-  it('mock ids follow the trace-N pattern', () => {
+  it('mock ids follow the trace-NNN pattern', () => {
     const wrapper = mountViewer()
     const ids = rowTexts(wrapper, '.trace-row-id')
     for (const id of ids) {
@@ -208,16 +211,16 @@ describe('trace viewer — mock data', () => {
     }
   })
 
-  it('mock strategies are create, modify, query', () => {
+  it('mock strategies are CreateWorld, GenerateTerrain, CreateFarm', () => {
     const wrapper = mountViewer()
     expect(rowTexts(wrapper, '.trace-row-strategy')).toEqual([
-      'create',
-      'modify',
-      'query',
+      'CreateWorld',
+      'GenerateTerrain',
+      'CreateFarm',
     ])
   })
 
-  it('trace-1 plan contains its strategy', () => {
+  it('trace-001 plan contains its strategy', () => {
     const wrapper = mountViewer()
     expect(wrapper.find('.trace-plan').text()).toContain('strategy=create')
   })
@@ -277,13 +280,13 @@ describe('trace viewer — default selection and active state', () => {
   it('shows the first trace id in the details header by default', () => {
     const wrapper = mountViewer()
     const header = wrapper.find('.trace-meta-grid').text()
-    expect(header).toContain('trace-1')
+    expect(header).toContain('trace-001')
   })
 
   it('shows the first strategy in the details header by default', () => {
     const wrapper = mountViewer()
     const header = wrapper.find('.trace-meta-grid').text()
-    expect(header).toContain('create')
+    expect(header).toContain('CreateWorld')
   })
 
   it('labels the Trace ID field with a dt', () => {
@@ -308,14 +311,14 @@ describe('trace viewer — selection by click', () => {
     const wrapper = mountViewer()
     await rows(wrapper)[1].trigger('click')
     await nextTick()
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-2')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-002')
   })
 
   it('selects trace-2 on click and updates strategy', async () => {
     const wrapper = mountViewer()
     await rows(wrapper)[1].trigger('click')
     await nextTick()
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('modify')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('GenerateTerrain')
   })
 
   it('moves the active class to the clicked row', async () => {
@@ -323,7 +326,7 @@ describe('trace viewer — selection by click', () => {
     await rows(wrapper)[2].trigger('click')
     await nextTick()
     expect(activeRows(wrapper)).toHaveLength(1)
-    expect(activeRows(wrapper)[0].text()).toContain('trace-3')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-003')
   })
 
   it('moves aria-current to the clicked row', async () => {
@@ -338,7 +341,7 @@ describe('trace viewer — selection by click', () => {
     const wrapper = mountViewer()
     await rows(wrapper)[2].trigger('click')
     await nextTick()
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('query')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('CreateFarm')
   })
 
   it('switches back to trace-1 when clicked again', async () => {
@@ -347,9 +350,9 @@ describe('trace viewer — selection by click', () => {
     await nextTick()
     await rows(wrapper)[0].trigger('click')
     await nextTick()
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-1')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-001')
     expect(activeRows(wrapper)).toHaveLength(1)
-    expect(activeRows(wrapper)[0].text()).toContain('trace-1')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-001')
   })
 
   it('clicking the active row keeps the selection', async () => {
@@ -357,7 +360,7 @@ describe('trace viewer — selection by click', () => {
     await rows(wrapper)[0].trigger('click')
     await nextTick()
     expect(activeRows(wrapper)).toHaveLength(1)
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-1')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-001')
   })
 })
 
@@ -399,17 +402,17 @@ describe('trace viewer — detail switching', () => {
     const keys = wrapper
       .findAll('.trace-snapshot-key')
       .map((el) => el.text().trim())
-    expect(keys).toContain('Diff')
+    expect(keys).toContain('Strategy')
   })
 
-  it('updates the snapshot when trace-3 is selected', async () => {
+  it('updates the snapshot when trace-003 is selected', async () => {
     const wrapper = mountViewer()
     await rows(wrapper)[2].trigger('click')
     await nextTick()
     const values = wrapper
       .findAll('.trace-snapshot-value')
       .map((el) => el.text().trim())
-    expect(values).toContain('exact')
+    expect(values).toContain('CreateFarm')
   })
 
   it('updates the metadata when trace-2 is selected', async () => {
@@ -447,9 +450,9 @@ describe('trace viewer — snapshot rendering', () => {
     expect(titles).toContain('Snapshot')
   })
 
-  it('renders 3 snapshot entries for trace-1', () => {
+  it('snapshot entries count matches mock structure for trace-001', () => {
     const wrapper = mountViewer()
-    expect(wrapper.findAll('.trace-snapshot-item')).toHaveLength(3)
+    expect(wrapper.findAll('.trace-snapshot-item')).toHaveLength(2)
   })
 
   it('renders snapshot keys', () => {
@@ -458,8 +461,7 @@ describe('trace viewer — snapshot rendering', () => {
       .findAll('.trace-snapshot-key')
       .map((el) => el.text().trim())
     expect(keys).toContain('Module Count')
-    expect(keys).toContain('Resolver')
-    expect(keys).toContain('Order')
+    expect(keys).toContain('Strategy')
   })
 
   it('renders snapshot values', () => {
@@ -468,8 +470,7 @@ describe('trace viewer — snapshot rendering', () => {
       .findAll('.trace-snapshot-value')
       .map((el) => el.text().trim())
     expect(values).toContain('3')
-    expect(values).toContain('assembly-resolver')
-    expect(values).toContain('priority')
+    expect(values).toContain('CreateWorld')
   })
 
   it('renders dt/dd pairs inside each snapshot entry', () => {
@@ -544,20 +545,20 @@ describe('trace viewer — keyboard navigation', () => {
     const wrapper = mountViewer()
     await pressKey(wrapper, 'ArrowDown')
     expect(activeRows(wrapper)).toHaveLength(1)
-    expect(activeRows(wrapper)[0].text()).toContain('trace-2')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-002')
   })
 
   it('updates details after ArrowDown', async () => {
     const wrapper = mountViewer()
     await pressKey(wrapper, 'ArrowDown')
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-2')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-002')
   })
 
   it('moves selection two steps with repeated ArrowDown', async () => {
     const wrapper = mountViewer()
     await pressKey(wrapper, 'ArrowDown')
     await pressKey(wrapper, 'ArrowDown')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-3')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-003')
   })
 
   it('moves selection to the previous trace with ArrowUp', async () => {
@@ -566,7 +567,7 @@ describe('trace viewer — keyboard navigation', () => {
     await pressKey(wrapper, 'ArrowDown')
     await pressKey(wrapper, 'ArrowDown')
     await pressKey(wrapper, 'ArrowUp')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-2')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-002')
     wrapper.unmount()
     el.remove()
   })
@@ -576,27 +577,27 @@ describe('trace viewer — keyboard navigation', () => {
     await pressKey(wrapper, 'ArrowDown')
     await pressKey(wrapper, 'ArrowDown')
     await pressKey(wrapper, 'ArrowDown')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-3')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-003')
   })
 
   it('clamps ArrowUp at the first trace', async () => {
     const wrapper = mountViewer()
     await pressKey(wrapper, 'ArrowUp')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-1')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-001')
   })
 
   it('jumps to the last trace with End', async () => {
     const wrapper = mountViewer()
     await pressKey(wrapper, 'End')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-3')
-    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-3')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-003')
+    expect(wrapper.find('.trace-meta-grid').text()).toContain('trace-003')
   })
 
   it('jumps to the first trace with Home', async () => {
     const wrapper = mountViewer()
     await pressKey(wrapper, 'End')
     await pressKey(wrapper, 'Home')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-1')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-001')
   })
 
   it('ignores unrelated keys', async () => {
@@ -604,7 +605,7 @@ describe('trace viewer — keyboard navigation', () => {
     await pressKey(wrapper, 'Tab')
     await pressKey(wrapper, 'Enter')
     await pressKey(wrapper, 'x')
-    expect(activeRows(wrapper)[0].text()).toContain('trace-1')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-001')
   })
 
   it('moves aria-current alongside keyboard selection', async () => {
@@ -619,7 +620,7 @@ describe('trace viewer — keyboard navigation', () => {
     const wrapper = mountViewer(el)
     await nextTick()
     await pressKey(wrapper, 'ArrowDown')
-    expect(document.activeElement?.textContent).toContain('trace-2')
+    expect(document.activeElement?.textContent).toContain('trace-002')
     wrapper.unmount()
     el.remove()
   })
@@ -628,7 +629,7 @@ describe('trace viewer — keyboard navigation', () => {
     const wrapper = mountViewer()
     await wrapper.find('nav.trace-list').trigger('keydown', { key: 'ArrowDown' })
     await nextTick()
-    expect(activeRows(wrapper)[0].text()).toContain('trace-2')
+    expect(activeRows(wrapper)[0].text()).toContain('trace-002')
   })
 })
 
@@ -796,6 +797,7 @@ describe('trace step card', () => {
 describe('trace viewer — content integration', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useObservatoryDataStore().loadMockObservatory()
   })
 
   it('renders the trace viewer when Trace is selected in the store', () => {
@@ -852,7 +854,7 @@ describe('trace viewer — content integration', () => {
     expect(viewer.exists()).toBe(true)
     const active = viewer.findAll('.trace-row--active')
     expect(active).toHaveLength(1)
-    expect(active[0].text()).toContain('trace-1')
+    expect(active[0].text()).toContain('trace-001')
   })
 })
 
@@ -896,8 +898,8 @@ describe('trace viewer — deterministic rendering', () => {
     const b = mountViewer()
     const activeText = (w: VueWrapper): string =>
       w.find('.trace-row--active').text()
-    expect(activeText(a)).toBe('createtrace-112:00:01')
-    expect(activeText(b)).toBe('createtrace-112:00:01')
+    expect(activeText(a)).toBe('CreateWorldtrace-00110:00:01')
+    expect(activeText(b)).toBe('CreateWorldtrace-00110:00:01')
   })
 
   it('renders identical viewer HTML across mounts', () => {

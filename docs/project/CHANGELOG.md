@@ -5806,3 +5806,57 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.42 to v1.43
+
+### WO-S6-014 — Observatory Trace Real Data Integration
+
+- Extended `apps/web/src/adapters/observatory/ObservatoryViewModel.ts`:
+  - New `TraceViewModel` interface: `{ id, strategy, timestamp, plan, snapshot, metadata }` — UI-safe DTO for the Trace Viewer panel
+  - New `TraceSnapshotEntryVM` interface: `{ key, value }` — snapshot entry DTO
+  - Added `traceView: readonly TraceViewModel[]` to `ObservatoryViewModel` (alongside existing `trace: readonly TraceDTO[]`)
+- Extended `apps/web/src/adapters/observatory/DefaultObservatoryAdapter.ts`:
+  - New `adaptTraceView()` method — reads `traceView` from raw observatory, maps to `TraceViewModel[]`, returns frozen arrays
+  - Falls back to empty array for missing/invalid data
+  - `adapt()` now calls `adaptTraceView()` and includes result in the ViewModel
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `MockTraceViewEntry` and `MockTraceViewSnapshotEntry` types
+  - Mock builder now includes 3 traceView entries: `trace-001/CreateWorld`, `trace-002/GenerateTerrain`, `trace-003/CreateFarm`
+- Updated `apps/web/src/components/observatory/trace/ObservatoryTraceViewer.vue`:
+  - Removed hardcoded `MOCK_TRACES` array (3 entries with `create`/`modify`/`query` strategies)
+  - Reads `dataStore.viewModel.traceView` via computed
+  - Initializes `selectedId` from first trace in viewModel
+  - Imports `useObservatoryDataStore` and `TraceViewModel`
+- Updated `TraceDetails.vue` and `TraceList.vue`:
+  - Both now import `TraceViewModel` from the adapter layer instead of local `Trace` type
+  - No functional changes — type is structurally identical
+- Updated `apps/web/src/__tests__/ObservatoryTraceViewer.test.ts` — mock data assertions updated:
+  - IDs: `trace-1`/`trace-2`/`trace-3` → `trace-001`/`trace-002`/`trace-003`
+  - Strategies: `create`/`modify`/`query` → `CreateWorld`/`GenerateTerrain`/`CreateFarm`
+  - Timestamps: `12:00:01`/`12:00:05`/`12:00:09` → `10:00:01`/`10:00:05`/`10:00:09`
+  - Snapshot entries: 3 → 2 per trace, keys changed (Resolver/Order/Diff/Match → Strategy)
+  - `mountViewer` helper now calls `loadMockObservatory()`
+  - Content integration `beforeEach` now calls `loadMockObservatory()`
+- Updated `apps/web/src/__tests__/ObservatoryAdapter.test.ts` — root property count 4→5 (traceView added)
+- New test file `apps/web/src/__tests__/ObservatoryTraceDataIntegration.test.ts` (115 tests covering 17 sections):
+  - Store traceView integration (10 tests): initialization, field types, frozen, IDs
+  - Adapter traceView mapping (12 tests): raw data mapping, null/undefined/non-array, snapshot mapping, frozen output
+  - Viewer rendering from viewModel (11 tests): 3 rows, IDs, strategies, timestamps, components
+  - Trace selection (10 tests): default active, click selection, strategy display, active class
+  - Keyboard navigation (9 tests): ArrowDown/Up, End/Home, clamping, focus
+  - Detail switching (6 tests): plan, snapshot, metadata updates
+  - Snapshot rendering (6 tests): grid, entries, keys, values, dt/dd
+  - Metadata rendering (5 tests): JSON, parseable, phase, status updates
+  - Empty traces (6 tests): no error, empty list, No trace selected, components exist
+  - Defaults and fallbacks (7 tests): empty array, adapter defaults, missing fields
+  - Deterministic rendering (7 tests): identical across mounts, HTML, plan
+  - No mutation (4 tests): frozen, readonly, immutable
+  - Integration path (6 tests): full path, adapter output, single item, large set, plan display, refresh
+  - Accessibility (7 tests): aria-label, buttons, aria-current, h2, tabindex, dl
+  - ViewModel shape integrity (5 tests): array, required fields, independence
+  - Store edge cases (3 tests): multiple loads, direct replacement, empty list
+  - No AI package leakage (2 tests): no promptAssembly, no plannerResult
+- Created ADR-0157: Observatory Trace Real Data Integration
+- Updated PROJECT_STATE.md — v1.44, WO-S6-014 in completed list, ADR-0157 added
+- Updated AI_ARCHITECTURE.md — v1.44 header
+- No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.43 to v1.44

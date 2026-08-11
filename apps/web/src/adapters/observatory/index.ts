@@ -4,6 +4,8 @@ export type {
   OverviewDTO,
   TraceDTO,
   TraceStepDTO,
+  TraceViewModel,
+  TraceSnapshotEntryVM,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

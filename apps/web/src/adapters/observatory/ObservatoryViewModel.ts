@@ -25,7 +25,7 @@ export interface OverviewDTO {
 }
 
 // ---------------------------------------------------------------------------
-// Trace
+// Trace (raw DTO — steps-based)
 // ---------------------------------------------------------------------------
 
 /** A single step within a trace. */
@@ -40,6 +40,31 @@ export interface TraceDTO {
   readonly id: string
   readonly label: string
   readonly steps: readonly TraceStepDTO[]
+}
+
+// ---------------------------------------------------------------------------
+// Trace Viewer (ViewModel for Trace panel)
+// ---------------------------------------------------------------------------
+
+/** A single snapshot entry displayed in the trace details. */
+export interface TraceSnapshotEntryVM {
+  readonly key: string
+  readonly value: string
+}
+
+/**
+ * TraceViewModel — UI-safe DTO for the Trace Viewer panel.
+ *
+ * Contains all fields consumed by the TraceList and TraceDetails
+ * components. Derived from raw observatory data through the adapter.
+ */
+export interface TraceViewModel {
+  readonly id: string
+  readonly strategy: string
+  readonly timestamp: string
+  readonly plan: string
+  readonly snapshot: readonly TraceSnapshotEntryVM[]
+  readonly metadata: Readonly<Record<string, unknown>>
 }
 
 // ---------------------------------------------------------------------------
@@ -91,6 +116,7 @@ export interface HistoryDTO {
 export interface ObservatoryViewModel {
   readonly overview: OverviewDTO
   readonly trace: readonly TraceDTO[]
+  readonly traceView: readonly TraceViewModel[]
   readonly timeline: readonly TimelineDTO[]
   readonly history: readonly HistoryDTO[]
 }

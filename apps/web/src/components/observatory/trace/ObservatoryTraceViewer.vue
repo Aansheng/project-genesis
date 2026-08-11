@@ -1,70 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import TraceList from './TraceList.vue'
-import TraceDetails, { type Trace } from './TraceDetails.vue'
+import TraceDetails from './TraceDetails.vue'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
+import type { TraceViewModel } from '../../../adapters/observatory'
 
-/**
- * Local mock trace data — layout validation only (WO-S6-003).
- * Will be replaced by real observatory trace data in a future work order.
- */
-const MOCK_TRACES: readonly Trace[] = [
-  {
-    id: 'trace-1',
-    strategy: 'create',
-    timestamp: '12:00:01',
-    plan: 'builder=DefaultPromptBuilder\nstrategy=create\nmodules=3\nstatus=assembled',
-    snapshot: [
-      { key: 'Module Count', value: '3' },
-      { key: 'Resolver', value: 'assembly-resolver' },
-      { key: 'Order', value: 'priority' },
-    ],
-    metadata: {
-      builder: 'DefaultPromptBuilder',
-      phase: '0.959977',
-      modules: ['intent', 'entity', 'strategy'],
-      status: 'assembled',
-    },
-  },
-  {
-    id: 'trace-2',
-    strategy: 'modify',
-    timestamp: '12:00:05',
-    plan: 'builder=DefaultPromptBuilder\nstrategy=modify\nmodules=2\ndiff=1 updated',
-    snapshot: [
-      { key: 'Module Count', value: '2' },
-      { key: 'Resolver', value: 'assembly-resolver' },
-      { key: 'Diff', value: '1' },
-    ],
-    metadata: {
-      builder: 'DefaultPromptBuilder',
-      phase: '0.959977',
-      modules: ['intent', 'strategy'],
-      status: 'modified',
-      diff: 1,
-    },
-  },
-  {
-    id: 'trace-3',
-    strategy: 'query',
-    timestamp: '12:00:09',
-    plan: 'builder=DefaultPromptBuilder\nstrategy=query\nmodules=1\nstatus=resolved',
-    snapshot: [
-      { key: 'Module Count', value: '1' },
-      { key: 'Resolver', value: 'assembly-resolver' },
-      { key: 'Match', value: 'exact' },
-    ],
-    metadata: {
-      builder: 'DefaultPromptBuilder',
-      phase: '0.959977',
-      modules: ['strategy'],
-      status: 'resolved',
-    },
-  },
-]
+const dataStore = useObservatoryDataStore()
 
-const selectedId = ref<string>(MOCK_TRACES[0].id)
-const selectedTrace = computed<Trace | null>(
-  () => MOCK_TRACES.find((t) => t.id === selectedId.value) ?? null,
+const traces = computed<readonly TraceViewModel[]>(() => dataStore.viewModel.traceView)
+
+const selectedId = ref<string>(traces.value.length > 0 ? traces.value[0].id : '')
+const selectedTrace = computed<TraceViewModel | null>(
+  () => traces.value.find((t) => t.id === selectedId.value) ?? null,
 )
 
 function selectTrace(id: string): void {
@@ -75,7 +22,7 @@ function selectTrace(id: string): void {
 <template>
   <div class="observatory-trace-viewer">
     <TraceList
-      :traces="MOCK_TRACES"
+      :traces="traces"
       :selected-id="selectedId"
       @select="selectTrace"
     />
