@@ -228,29 +228,26 @@ describe('bridge loading', () => {
     expect(store.viewModel.overview.historyCount).toBe(0)
   })
 
-  it('diff section defaults when bridge uses diff key', () => {
-    // Bridge uses 'diff' key, but adapter looks for 'diffView'
-    // So diff section will use defaults (empty array)
+  it('diff section has data when bridge uses diff key (mapper resolves naming)', () => {
+    // Mapper maps 'diff' → 'diffView', so adapter now correctly processes it
     const store = createStore()
     store.loadBridgeData(buildFullMetadata())
-    expect(store.viewModel.diffView).toEqual([])
+    expect(store.viewModel.diffView.length).toBeGreaterThan(0)
   })
 
-  it('runtime section defaults when bridge uses runtime key', () => {
-    // Bridge uses 'runtime' key, but adapter looks for 'runtimeView'
-    // So runtime section will use defaults
+  it('runtime section has data when bridge uses runtime key (mapper resolves naming)', () => {
+    // Mapper maps 'runtime' → 'runtimeView', so adapter now correctly processes it
     const store = createStore()
     store.loadBridgeData(buildFullMetadata())
-    expect(store.viewModel.runtimeView.worldId).toBe('')
-    expect(store.viewModel.runtimeView.entityCount).toBe(0)
+    expect(store.viewModel.runtimeView.worldId).toBe('bridge-world')
+    expect(store.viewModel.runtimeView.entityCount).toBe(50)
   })
 
-  it('eventStream section defaults when bridge uses eventStream key', () => {
-    // Bridge uses 'eventStream' key, but adapter looks for 'eventStreamView'
-    // So eventStream section will use defaults
+  it('eventStream section has data when bridge uses eventStream key (mapper resolves naming)', () => {
+    // Mapper maps 'eventStream' → 'eventStreamView', so adapter now correctly processes it
     const store = createStore()
     store.loadBridgeData(buildFullMetadata())
-    expect(store.viewModel.eventStreamView.events).toEqual([])
+    expect(store.viewModel.eventStreamView.events.length).toBeGreaterThan(0)
   })
 })
 
@@ -511,11 +508,11 @@ describe('partial bridge', () => {
     expect(store.viewModel.overview.historyCount).toBe(1)
   })
 
-  it('loadBridgeData with only diff uses defaults (empty array)', () => {
+  it('loadBridgeData with only diff has data via mapper (diff→diffView)', () => {
     const store = createStore()
     store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: [], changed: [] }] })
-    // Adapter looks for 'diffView', not 'diff', so diffView stays empty
-    expect(store.viewModel.diffView).toEqual([])
+    // Mapper maps 'diff' → 'diffView', so adapter now processes it
+    expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('loadBridgeData with only overview does not set traceCount (overview derived from arrays)', () => {
@@ -556,20 +553,21 @@ describe('partial bridge', () => {
     expect('history' in store.bridgeData).toBe(false)
   })
 
-  it('partial bridge with runtime key stored but not adapted', () => {
+  it('partial bridge with runtime key adapted via mapper (runtime→runtimeView)', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'rw', entityCount: 99 } })
+    store.loadBridgeData({ runtime: { worldId: 'rw', entityCount: 99, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
     expect('runtime' in store.bridgeData).toBe(true)
-    // Adapter looks for runtimeView, not runtime
-    expect(store.viewModel.runtimeView.worldId).toBe('')
+    // Mapper maps 'runtime' → 'runtimeView', so adapter now processes it
+    expect(store.viewModel.runtimeView.worldId).toBe('rw')
+    expect(store.viewModel.runtimeView.entityCount).toBe(99)
   })
 
-  it('partial bridge with eventStream key stored but not adapted', () => {
+  it('partial bridge with eventStream key adapted via mapper (eventStream→eventStreamView)', () => {
     const store = createStore()
     store.loadBridgeData({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: '', message: '' }] } })
     expect('eventStream' in store.bridgeData).toBe(true)
-    // Adapter looks for eventStreamView, not eventStream
-    expect(store.viewModel.eventStreamView.events).toEqual([])
+    // Mapper maps 'eventStream' → 'eventStreamView', so adapter now processes it
+    expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
 
   it('partial bridge with known and unknown keys only stores known', () => {
@@ -1017,14 +1015,15 @@ describe('integration path', () => {
     expect(store.viewModel.timeline[0].entries.length).toBe(1)
   })
 
-  it('bridge data with diff key not adapted (adapter looks for diffView)', () => {
+  it('bridge data with diff key adapted via mapper (diff→diffView)', () => {
     const store = createStore()
     store.loadBridgeData({
       diff: [
         { id: 'd1', timestamp: '12:00', added: ['EntityA'], removed: ['EntityB'], changed: ['EntityC'] },
       ],
     })
-    expect(store.viewModel.diffView).toEqual([])
+    // Mapper maps 'diff' → 'diffView', so adapter now processes it
+    expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('adapter ignores unknown keys in bridge data', () => {
@@ -1343,15 +1342,15 @@ describe('viewModel correctness', () => {
     expect(store.viewModel.history[0].entries[0].label).toBe('Hist Entry')
   })
 
-  it('diff entries use defaults because bridge uses diff key', () => {
-    // Bridge provides 'diff', but adapter looks for 'diffView'
+  it('diff entries are mapped via mapper (diff→diffView)', () => {
+    // Mapper maps 'diff' → 'diffView', so adapter now processes diff entries
     const store = createStore()
     store.loadBridgeData({
       diff: [
         { id: 'd1', timestamp: '12:00', added: ['A', 'B'], removed: ['C'], changed: ['D'] },
       ],
     })
-    expect(store.viewModel.diffView).toEqual([])
+    expect(store.viewModel.diffView.length).toBe(1)
   })
 })
 

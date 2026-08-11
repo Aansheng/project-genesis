@@ -6312,3 +6312,44 @@
 - No UI changes, no Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes
 - No breaking changes to any Public API
 - Architecture version v1.51 to v1.52
+
+### WO-S6-023 — Observatory Mapping Layer Consumption
+
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `DefaultObservatoryMapper` import from `../adapters/observatory/mapping`
+  - Added mapper instance: `const mapper: ObservatoryMapper = new DefaultObservatoryMapper()`
+  - Updated `loadBridgeData` to invoke `mapper.map(bridgeData)` between bridge and adapter
+- New data flow: `Bridge → Mapper → Adapter` (mandatory intermediate layer)
+- Mapper correctly resolves naming: `diff`→`diffView`, `runtime`→`runtimeView`, `eventStream`→`eventStreamView`
+- Bridge output stored in `bridgeData` unchanged (bridge key names preserved)
+- Mapped data passed to adapter (adapter key names used)
+- `loadMockObservatory` unchanged (bypasses mapper)
+- Created `apps/web/src/__tests__/ObservatoryMapperConsumption.test.ts` — 230+ tests
+  - Section 1 — Store initialization (16 tests)
+  - Section 2 — Mapper invocation (11 tests)
+  - Section 3 — Bridge invocation (10 tests)
+  - Section 4 — Adapter invocation (11 tests)
+  - Section 5 — Mapping priority (7 tests)
+  - Section 6 — diff → diffView (11 tests)
+  - Section 7 — runtime → runtimeView (10 tests)
+  - Section 8 — eventStream → eventStreamView (10 tests)
+  - Section 9 — Partial bridge (12 tests)
+  - Section 10 — Complete bridge (6 tests)
+  - Section 11 — Empty bridge (8 tests)
+  - Section 12 — Invalid bridge (19 tests)
+  - Section 13 — Deterministic (12 tests)
+  - Section 14 — Immutable (9 tests)
+  - Section 15 — No mutation (7 tests)
+  - Section 16 — Statelessness (10 tests)
+  - Section 17 — Shape integrity (14 tests)
+  - Section 18 — Integration path (9 tests)
+  - Section 19 — Stress cases (10 tests)
+  - Section 20 — Backward compatibility (13 tests)
+- Updated `apps/web/src/__tests__/ObservatoryMetadataBridgeConsumption.test.ts` — expectations for mapper-resolved keys
+- Created ADR-0166: Observatory Mapping Layer Consumption
+- Updated PROJECT_STATE.md — v1.53, WO-S6-023 in completed list
+- Updated AI_ARCHITECTURE.md — v1.53 header
+- Updated CHANGELOG.md — v1.53, WO-S6-023
+- No UI changes, no Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes
+- No breaking changes to any Public API
+- Architecture version v1.52 to v1.53

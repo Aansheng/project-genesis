@@ -5,6 +5,8 @@ import type { ObservatoryViewModel } from '../adapters/observatory'
 import { DefaultObservatoryMetadataBridge } from '../adapters/observatory/bridge'
 import { EMPTY_BRIDGE_DATA } from '../adapters/observatory/bridge'
 import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
+import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
+import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 
 // ---------------------------------------------------------------------------
 // Local mock types (no AI package imports)
@@ -437,6 +439,7 @@ function buildMockObservatory(): MockObservatory {
 
 const adapter = new DefaultObservatoryAdapter()
 const bridge = new DefaultObservatoryMetadataBridge()
+const mapper: ObservatoryMapper = new DefaultObservatoryMapper()
 const EMPTY_VIEW_MODEL = adapter.adapt(undefined)
 
 // ---------------------------------------------------------------------------
@@ -484,9 +487,10 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   function loadBridgeData(metadata: unknown): void {
     const result = bridge.adapt(metadata)
     bridgeData.value = result
-    const keys = Object.keys(result)
+    const mapped = mapper.map(result)
+    const keys = Object.keys(mapped)
     if (keys.length > 0) {
-      viewModel.value = adapter.adapt(result as unknown as Record<string, unknown>)
+      viewModel.value = adapter.adapt(mapped as Record<string, unknown>)
     } else {
       viewModel.value = EMPTY_VIEW_MODEL
     }
