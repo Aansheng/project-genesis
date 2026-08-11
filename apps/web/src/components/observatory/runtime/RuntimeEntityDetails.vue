@@ -1,15 +1,10 @@
 <script lang="ts">
-export interface RuntimeEntity {
-  id: string
-  type: string
-  position: string
-  state: string
-  health: number
-}
+export type { RuntimeEntityViewModel as RuntimeEntity } from '../../../adapters/observatory'
 </script>
 
 <script setup lang="ts">
 import { useI18n } from '../../../stores/i18n'
+import type { RuntimeEntityViewModel as RuntimeEntity } from '../../../adapters/observatory'
 
 defineProps<{
   entity: RuntimeEntity | null

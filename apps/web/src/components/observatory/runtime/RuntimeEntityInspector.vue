@@ -1,92 +1,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from '../../../stores/i18n'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
 import RuntimeComponentCard from './RuntimeComponentCard.vue'
-import type { InspectorEntity } from './RuntimeComponentCard.vue'
-
-/**
- * Mock inspected entities with ECS-style components (WO-S6-009).
- * UI-only — will be replaced by real runtime state in a future work order.
- */
-const MOCK_INSPECTED_ENTITIES: InspectorEntity[] = [
-  {
-    id: 'guard-001',
-    type: 'Guard',
-    components: [
-      {
-        name: 'Position',
-        data: { x: 10, y: 4 },
-      },
-      {
-        name: 'Health',
-        data: { current: 100, max: 100 },
-      },
-      {
-        name: 'AI',
-        data: { state: 'Patrol', target: null },
-      },
-    ],
-  },
-  {
-    id: 'merchant-001',
-    type: 'Merchant',
-    components: [
-      {
-        name: 'Position',
-        data: { x: 4, y: 8 },
-      },
-      {
-        name: 'Health',
-        data: { current: 100, max: 100 },
-      },
-      {
-        name: 'Inventory',
-        data: { gold: 250, items: ['potion', 'sword', 'shield'] },
-      },
-      {
-        name: 'AI',
-        data: { state: 'Trading', target: null },
-      },
-    ],
-  },
-  {
-    id: 'villager-001',
-    type: 'Villager',
-    components: [
-      {
-        name: 'Position',
-        data: { x: 1, y: 2 },
-      },
-      {
-        name: 'Health',
-        data: { current: 100, max: 100 },
-      },
-      {
-        name: 'Inventory',
-        data: { gold: 50, items: ['bread'] },
-      },
-      {
-        name: 'AI',
-        data: { state: 'Working', target: 'farm-001' },
-      },
-      {
-        name: 'Schedule',
-        data: { wakeHour: 6, sleepHour: 20, task: 'harvest' },
-      },
-    ],
-  },
-]
 
 const props = defineProps<{
   entityId: string | null
 }>()
 
+const dataStore = useObservatoryDataStore()
 const i18n = useI18n()
 
-const entity = computed<InspectorEntity | null>(
-  () =>
-    MOCK_INSPECTED_ENTITIES.find((e) => e.id === props.entityId) ?? null,
-)
+const entity = computed(() => {
+  if (!props.entityId) return null
+  return (
+    dataStore.viewModel.runtimeView.entities.find(
+      (e) => e.id === props.entityId,
+    ) ?? null
+  )
+})
 
 const componentCount = computed(() => entity.value?.components.length ?? 0)
 </script>

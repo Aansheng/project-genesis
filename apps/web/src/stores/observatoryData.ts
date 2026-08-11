@@ -53,6 +53,29 @@ interface MockDiffViewEntry {
   changed: (string | MockDiffViewChangeEntry)[]
 }
 
+interface MockRuntimeCompEntry {
+  name: string
+  data: Record<string, unknown>
+}
+
+interface MockRuntimeEntityEntry {
+  id: string
+  type: string
+  position: string
+  health: number
+  state: string
+  components: MockRuntimeCompEntry[]
+}
+
+interface MockRuntimeViewEntry {
+  worldId: string
+  entityCount: number
+  systemCount: number
+  eventCount: number
+  fps: number
+  entities: MockRuntimeEntityEntry[]
+}
+
 interface MockTimelineEntry {
   id: string
   label: string
@@ -71,6 +94,7 @@ interface MockObservatory {
   timelineView: MockTimelineViewItem[]
   historyView: MockHistoryViewEntry[]
   diffView: MockDiffViewEntry[]
+  runtimeView: MockRuntimeViewEntry
   timeline: MockTimelineEntry[]
   history: MockHistoryEntry[]
   traceSnapshot: Record<string, unknown>
@@ -274,6 +298,54 @@ function buildMockObservatory(): MockObservatory {
         changed: ['VillageGate'],
       },
     ],
+    runtimeView: {
+      worldId: 'world-001',
+      entityCount: 187,
+      systemCount: 8,
+      eventCount: 31,
+      fps: 60,
+      entities: [
+        {
+          id: 'guard-001',
+          type: 'Guard',
+          position: '(10,4)',
+          health: 100,
+          state: 'Patrol',
+          components: [
+            { name: 'Position', data: { x: 10, y: 4 } },
+            { name: 'Health', data: { current: 100, max: 100 } },
+            { name: 'AI', data: { state: 'Patrol', target: null } },
+          ],
+        },
+        {
+          id: 'merchant-001',
+          type: 'Merchant',
+          position: '(4,8)',
+          health: 100,
+          state: 'Trading',
+          components: [
+            { name: 'Position', data: { x: 4, y: 8 } },
+            { name: 'Health', data: { current: 100, max: 100 } },
+            { name: 'Inventory', data: { gold: 250, items: ['potion', 'sword', 'shield'] } },
+            { name: 'AI', data: { state: 'Trading', target: null } },
+          ],
+        },
+        {
+          id: 'villager-001',
+          type: 'Villager',
+          position: '(1,2)',
+          health: 100,
+          state: 'Working',
+          components: [
+            { name: 'Position', data: { x: 1, y: 2 } },
+            { name: 'Health', data: { current: 100, max: 100 } },
+            { name: 'Inventory', data: { gold: 50, items: ['bread'] } },
+            { name: 'AI', data: { state: 'Working', target: 'farm-001' } },
+            { name: 'Schedule', data: { wakeHour: 6, sleepHour: 20, task: 'harvest' } },
+          ],
+        },
+      ],
+    },
     timeline: [
       {
         id: 'tl-001',

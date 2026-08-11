@@ -12,6 +12,9 @@ import type {
   HistoryEvolutionEntryViewModel,
   DiffViewModel,
   DiffChangeViewModel,
+  RuntimeViewModel,
+  RuntimeEntityViewModel,
+  RuntimeComponentViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,
@@ -28,6 +31,15 @@ const DEFAULT_OVERVIEW = Object.freeze({
   historyCount: 0,
 })
 
+const DEFAULT_RUNTIME_VIEW: RuntimeViewModel = Object.freeze({
+  worldId: '',
+  entityCount: 0,
+  systemCount: 0,
+  eventCount: 0,
+  fps: 0,
+  entities: Object.freeze([]),
+})
+
 const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   overview: DEFAULT_OVERVIEW,
   trace: Object.freeze([]),
@@ -35,6 +47,7 @@ const DEFAULT_VIEW_MODEL: ObservatoryViewModel = Object.freeze({
   timelineView: Object.freeze([]),
   historyView: Object.freeze([]),
   diffView: Object.freeze([]),
+  runtimeView: DEFAULT_RUNTIME_VIEW,
   timeline: Object.freeze([]),
   history: Object.freeze([]),
 })
@@ -94,6 +107,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     const timelineView = this.adaptTimelineView(observatory)
     const historyView = this.adaptHistoryView(observatory)
     const diffView = this.adaptDiffView(observatory)
+    const runtimeView = this.adaptRuntimeView(observatory)
     const timeline = this.adaptTimeline(observatory)
     const history = this.adaptHistory(observatory)
 
@@ -104,6 +118,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       timelineView,
       historyView,
       diffView,
+      runtimeView,
       timeline,
       history,
     }
@@ -291,6 +306,82 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         }
       }),
     )
+  }
+
+  /**
+   * Adapt runtime viewer data from the raw observatory.
+   * Looks for 'runtimeView' key. Returns default RuntimeViewModel for missing/invalid data.
+   */
+  private adaptRuntimeView(observatory: Record<string, unknown>): RuntimeViewModel {
+    const raw = safeGet<Record<string, unknown>>(observatory, 'runtimeView')
+    if (!isObject(raw)) return DEFAULT_RUNTIME_VIEW
+
+    const entities = this.adaptRuntimeEntities(raw)
+    return Object.freeze({
+      worldId: String(safeGet(raw, 'worldId') ?? ''),
+      entityCount: safeCount(safeGet(raw, 'entityCount')),
+      systemCount: safeCount(safeGet(raw, 'systemCount')),
+      eventCount: safeCount(safeGet(raw, 'eventCount')),
+      fps: safeCount(safeGet(raw, 'fps')),
+      entities,
+    })
+  }
+
+  private adaptRuntimeEntities(raw: Record<string, unknown>): readonly RuntimeEntityViewModel[] {
+    const rawEntities = safeGet<unknown[]>(raw, 'entities')
+    if (!Array.isArray(rawEntities)) return Object.freeze([])
+    return Object.freeze(
+      rawEntities.map((item) => this.adaptRuntimeEntity(isObject(item) ? item : {})),
+    )
+  }
+
+  private adaptRuntimeEntity(item: Record<string, unknown>): RuntimeEntityViewModel {
+    return {
+      id: String(safeGet(item, 'id') ?? ''),
+      type: String(safeGet(item, 'type') ?? ''),
+      position: String(safeGet(item, 'position') ?? ''),
+      health: this.adaptHealth(item),
+      state: String(safeGet(item, 'state') ?? ''),
+      components: this.adaptRuntimeComponents(item),
+    }
+  }
+
+  /** Convert health to string for UI safety. */
+  private adaptHealth(item: Record<string, unknown>): string {
+    const health = safeGet(item, 'health')
+    if (typeof health === 'number' && Number.isFinite(health)) {
+      return String(health)
+    }
+    if (typeof health === 'string') {
+      return health
+    }
+    return ''
+  }
+
+  private adaptRuntimeComponents(item: Record<string, unknown>): readonly RuntimeComponentViewModel[] {
+    const raw = safeGet<unknown[]>(item, 'components')
+    if (!Array.isArray(raw)) return Object.freeze([])
+    return Object.freeze(
+      raw.map((comp) => {
+        const c = isObject(comp) ? comp : {}
+        return {
+          name: String(safeGet(c, 'name') ?? ''),
+          data: this.adaptComponentData(c),
+        }
+      }),
+    )
+  }
+
+  /** Serialize component data to JSON string for UI safety. */
+  private adaptComponentData(comp: Record<string, unknown>): string {
+    const data = safeGet(comp, 'data')
+    if (data === undefined) return ''
+    if (typeof data === 'string') return data
+    try {
+      return JSON.stringify(data, null, 2)
+    } catch {
+      return String(data ?? '')
+    }
   }
 
   /**
@@ -487,6 +578,9 @@ export type {
   HistoryEvolutionEntryViewModel,
   DiffViewModel,
   DiffChangeViewModel,
+  RuntimeViewModel,
+  RuntimeEntityViewModel,
+  RuntimeComponentViewModel,
   TimelineDTO,
   TimelineEntryDTO,
   HistoryDTO,

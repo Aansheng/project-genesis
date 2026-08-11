@@ -14,6 +14,7 @@ import { useI18nStore } from '../stores/i18n'
 import { resolveKey } from '../i18n'
 import { zhCN } from '../i18n/locales/zh-CN'
 import { enUS } from '../i18n/locales/en-US'
+import { useObservatoryDataStore } from '../stores/observatoryData'
 
 // ---------------------------------------------------------------------------
 // Test fixtures
@@ -39,6 +40,7 @@ const MOCK_AI_COMPONENT: InspectorComponent = {
 // ---------------------------------------------------------------------------
 
 function mountInspector(entityId: string | null): VueWrapper {
+  useObservatoryDataStore().loadMockObservatory()
   return mount(RuntimeEntityInspector, {
     props: { entityId },
   })
@@ -51,6 +53,7 @@ function mountCard(component: InspectorComponent): VueWrapper {
 }
 
 function mountViewer(): VueWrapper {
+  useObservatoryDataStore().loadMockObservatory()
   return mount(ObservatoryRuntimeViewer)
 }
 

@@ -6033,3 +6033,74 @@
 - No Runtime integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
 - No breaking changes to any Public API
 - Architecture version v1.46 to v1.47
+
+### WO-S6-018 — Observatory Runtime Real Data Integration
+
+- Extended `apps/web/src/adapters/observatory/ObservatoryViewModel.ts`:
+  - New `RuntimeViewModel` interface: `{ worldId, entityCount, systemCount, eventCount, fps, entities }` — UI-safe DTO for the Runtime Viewer panel
+  - New `RuntimeEntityViewModel` interface: `{ id, type, position, health, state, components }` — entity DTO
+  - New `RuntimeComponentViewModel` interface: `{ name, data }` — component DTO with JSON-serialized data
+  - Added `runtimeView: RuntimeViewModel` to `ObservatoryViewModel` (alongside existing panel view arrays)
+- Extended `apps/web/src/adapters/observatory/DefaultObservatoryAdapter.ts`:
+  - New `adaptRuntimeView()` method — reads `runtimeView` from raw observatory, maps to `RuntimeViewModel`, returns frozen object
+  - Helper methods: `adaptRuntimeEntities()`, `adaptRuntimeEntity()`, `adaptHealth()`, `adaptRuntimeComponents()`, `adaptComponentData()`
+  - `adaptHealth()` converts number health to string, handles NaN/Infinity/null/undefined
+  - `adaptComponentData()` serializes Record data to JSON string, handles undefined/string inputs
+  - Falls back to default RuntimeViewModel for missing/invalid data
+  - `adapt()` now calls `adaptRuntimeView()` and includes result in the ViewModel
+- Updated `apps/web/src/stores/observatoryData.ts`:
+  - Added `MockRuntimeCompEntry`, `MockRuntimeEntityEntry`, `MockRuntimeViewEntry` types
+  - Mock builder now includes runtimeView with world-001 (187 entities, 8 systems, 31 events, 60 FPS, 3 entities with components)
+- Updated `apps/web/src/components/observatory/runtime/ObservatoryRuntimeViewer.vue`:
+  - Removed hardcoded `MOCK_RUNTIME_STATE` (3 entities with Guard/Merchant/Villager)
+  - Reads `dataStore.viewModel.runtimeView` via computed
+  - Reads entity list from `runtimeView.entities`
+  - Initializes `selectedId` from first entity in viewModel
+  - Stats values read from `runtimeView.entityCount/systemCount/eventCount/fps`
+  - Imports `useObservatoryDataStore`, `RuntimeViewModel`, `RuntimeEntityViewModel`
+- Updated `RuntimeEntityDetails.vue`:
+  - `RuntimeEntity` is now an alias for `RuntimeEntityViewModel` from the adapter layer
+  - `health` field is now a string (previously number)
+- Updated `RuntimeEntityList.vue`:
+  - Import changed from local `RuntimeEntity` to `RuntimeEntityViewModel` from adapter
+- Updated `RuntimeEntityInspector.vue`:
+  - Removed `MOCK_INSPECTED_ENTITIES` entirely (3 entities with 3-5 components)
+  - Reads entity data from `dataStore.viewModel.runtimeView.entities` via computed
+  - Finds entity by ID from the viewModel
+- Updated `RuntimeComponentCard.vue`:
+  - Now handles both `string` and `Record<string, unknown>` data types
+  - Uses `displayData` computed to render correctly (string directly, object via JSON.stringify)
+- Updated `apps/web/src/__tests__/ObservatoryRuntimeViewer.test.ts` — mountViewer now calls `loadMockObservatory()`, content integration test updated
+- Updated `apps/web/src/__tests__/ObservatoryRuntimeInspector.test.ts` — mountInspector and mountViewer now call `loadMockObservatory()`
+- Updated `apps/web/src/__tests__/ObservatoryAdapter.test.ts` — root property count 8→9
+- Updated `apps/web/src/__tests__/ObservatoryOverviewDataIntegration.test.ts` — added `runtimeView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryDiffDataIntegration.test.ts` — added `runtimeView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryHistoryDataIntegration.test.ts` — added `runtimeView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryTimelineDataIntegration.test.ts` — added `runtimeView` to all viewModel assignments
+- Updated `apps/web/src/__tests__/ObservatoryTraceDataIntegration.test.ts` — added `runtimeView` to all viewModel assignments
+- New test file `apps/web/src/__tests__/ObservatoryRuntimeDataIntegration.test.ts` (181 tests covering 19 sections):
+  - Store runtimeView integration (24 tests): initialization, worldId, counts, entities, fields, components
+  - Adapter runtimeView mapping (24 tests): raw data, null/undefined, entity fields, health, components, frozen, edge cases
+  - Viewer rendering from viewModel (8 tests): container, rows, IDs, types, components
+  - Stats rendering (6 tests): section, title, worldId, cards, dt/dd, values
+  - Entity rendering (14 tests): details, meta, grid, labels, values, dt/dd
+  - Entity selection (11 tests): default active, click, active class, details update, position
+  - Keyboard navigation (8 tests): ArrowDown/Up, End/Home, clamping
+  - Empty runtime (6 tests): no error, worldId, stats, rows, selected message, keyboard
+  - Defaults (8 tests): empty array, adapter defaults, missing fields, components
+  - Deterministic rendering (7 tests): IDs, types, stats, worldId, HTML, components, active row
+  - No mutation (3 tests): frozen runtimeView, frozen entities, frozen components
+  - Integration path (5 tests): full path, adapter output, single, large, refresh
+  - Accessibility (13 tests): aria-label, buttons, aria-current, h2/h3, sections, dl, empty
+  - Shape integrity (3 tests): object, required fields, independent
+  - Edge cases (9 tests): empty entities, double empty, string data, missing components, multiple loads, health values, null/undefined health, non-object components
+  - Component rendering (11 tests): inspector, card count, names, JSON, data, structure, h3, articles
+  - Backward compatibility (6 tests): layout, components, existing expectations
+  - Store edge cases (3 tests): multiple loads, consistent, direct replacement
+  - No AI package leakage (2 tests): no AI-specific root properties, no AI fields in runtimeView
+- Created ADR-0161: Observatory Runtime Real Data Integration
+- Updated PROJECT_STATE.md — v1.48, WO-S6-018 in completed list
+- Updated AI_ARCHITECTURE.md — v1.48 header
+- No Runtime package integration, no Planner changes, no PromptBuilder changes, no AI package changes, no Strategy changes, no Metadata changes, no prompt changes
+- No breaking changes to any Public API
+- Architecture version v1.47 to v1.48

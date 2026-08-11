@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { RuntimeEntity } from './RuntimeEntityDetails.vue'
+import type { RuntimeEntityViewModel } from '../../../adapters/observatory'
+
+type RuntimeEntity = RuntimeEntityViewModel
 
 const props = defineProps<{
   entities: readonly RuntimeEntity[]

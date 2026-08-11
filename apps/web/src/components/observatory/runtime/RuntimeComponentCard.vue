@@ -14,9 +14,21 @@ export interface InspectorEntity {
 </script>
 
 <script setup lang="ts">
-defineProps<{
-  component: InspectorComponent
+import { computed } from 'vue'
+
+const props = defineProps<{
+  component: {
+    name: string
+    data: string | Record<string, unknown>
+  }
 }>()
+
+const displayData = computed<string>(() => {
+  if (typeof props.component.data === 'string') {
+    return props.component.data
+  }
+  return JSON.stringify(props.component.data, null, 2)
+})
 </script>
 
 <template>
@@ -26,7 +38,7 @@ defineProps<{
         {{ component.name }}
       </h3>
     </header>
-    <pre class="runtime-component-json"><code>{{ JSON.stringify(component.data, null, 2) }}</code></pre>
+    <pre class="runtime-component-json"><code>{{ displayData }}</code></pre>
   </article>
 </template>
 

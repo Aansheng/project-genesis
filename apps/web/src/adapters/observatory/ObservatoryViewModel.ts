@@ -172,6 +172,42 @@ export interface DiffViewModel {
 }
 
 // ---------------------------------------------------------------------------
+// Runtime Viewer (ViewModel for Runtime panel)
+// ---------------------------------------------------------------------------
+
+/** A single component within a runtime entity. */
+export interface RuntimeComponentViewModel {
+  readonly name: string
+  readonly data: string
+}
+
+/** A single entity within a runtime view. */
+export interface RuntimeEntityViewModel {
+  readonly id: string
+  readonly type: string
+  readonly position: string
+  readonly health: string
+  readonly state: string
+  readonly components: readonly RuntimeComponentViewModel[]
+}
+
+/**
+ * RuntimeViewModel — UI-safe DTO for the Runtime Viewer panel.
+ *
+ * Contains all fields consumed by the RuntimeEntityList, RuntimeEntityDetails,
+ * and RuntimeEntityInspector components. Derived from raw observatory data
+ * through the adapter.
+ */
+export interface RuntimeViewModel {
+  readonly worldId: string
+  readonly entityCount: number
+  readonly systemCount: number
+  readonly eventCount: number
+  readonly fps: number
+  readonly entities: readonly RuntimeEntityViewModel[]
+}
+
+// ---------------------------------------------------------------------------
 // Root ViewModel
 // ---------------------------------------------------------------------------
 
@@ -188,6 +224,7 @@ export interface ObservatoryViewModel {
   readonly timelineView: readonly TimelineViewModel[]
   readonly historyView: readonly HistoryViewModel[]
   readonly diffView: readonly DiffViewModel[]
+  readonly runtimeView: RuntimeViewModel
   readonly timeline: readonly TimelineDTO[]
   readonly history: readonly HistoryDTO[]
 }

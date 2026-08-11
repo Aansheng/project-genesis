@@ -1,55 +1,33 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from '../../../stores/i18n'
+import { useObservatoryDataStore } from '../../../stores/observatoryData'
 import RuntimeEntityList from './RuntimeEntityList.vue'
-import RuntimeEntityDetails, {
-  type RuntimeEntity,
-} from './RuntimeEntityDetails.vue'
+import RuntimeEntityDetails from './RuntimeEntityDetails.vue'
 import RuntimeEntityInspector from './RuntimeEntityInspector.vue'
 import RuntimeStatCard from './RuntimeStatCard.vue'
+import type { RuntimeViewModel, RuntimeEntityViewModel } from '../../../adapters/observatory'
 
-/**
- * Local mock runtime state — layout validation only (WO-S6-007).
- * Will be replaced by real runtime state in a future work order.
- */
-const MOCK_RUNTIME_STATE = {
-  worldId: 'world-001',
-  stats: {
-    entities: 187,
-    systems: 8,
-    events: 31,
-    fps: 60,
-  },
-  entities: [
-    {
-      id: 'guard-001',
-      type: 'Guard',
-      position: '(10,4)',
-      state: 'Patrol',
-      health: 100,
-    },
-    {
-      id: 'merchant-001',
-      type: 'Merchant',
-      position: '(4,8)',
-      state: 'Trading',
-      health: 100,
-    },
-    {
-      id: 'villager-001',
-      type: 'Villager',
-      position: '(1,2)',
-      state: 'Working',
-      health: 100,
-    },
-  ] as readonly RuntimeEntity[],
+const dataStore = useObservatoryDataStore()
+const i18n = useI18n()
+
+const runtimeView = computed<RuntimeViewModel>(
+  () => dataStore.viewModel.runtimeView,
+)
+
+const selectedId = ref<string>('')
+const entities = computed<readonly RuntimeEntityViewModel[]>(
+  () => runtimeView.value.entities,
+)
+
+// Initialize selectedId from the first entity
+const firstId = computed<string | null>(() => entities.value[0]?.id ?? null)
+if (firstId.value && !selectedId.value) {
+  selectedId.value = firstId.value
 }
 
-const i18n = useI18n()
-const selectedId = ref<string>(MOCK_RUNTIME_STATE.entities[0].id)
-const selectedEntity = computed<RuntimeEntity | null>(
-  () =>
-    MOCK_RUNTIME_STATE.entities.find((e) => e.id === selectedId.value) ?? null,
+const selectedEntity = computed<RuntimeEntityViewModel | null>(
+  () => entities.value.find((e) => e.id === selectedId.value) ?? null,
 )
 
 function selectEntity(id: string): void {
@@ -64,7 +42,7 @@ function statLabel(key: string): string {
 <template>
   <div class="observatory-runtime-viewer">
     <RuntimeEntityList
-      :entities="MOCK_RUNTIME_STATE.entities"
+      :entities="entities"
       :selected-id="selectedId"
       @select="selectEntity"
     />
@@ -81,25 +59,25 @@ function statLabel(key: string): string {
             Runtime Stats
           </h2>
           <span class="runtime-world-id">
-            {{ MOCK_RUNTIME_STATE.worldId }}
+            {{ runtimeView.worldId }}
           </span>
         </header>
         <dl class="runtime-stats-grid">
           <RuntimeStatCard
             :label="statLabel('entities')"
-            :value="String(MOCK_RUNTIME_STATE.stats.entities)"
+            :value="String(runtimeView.entityCount)"
           />
           <RuntimeStatCard
             :label="statLabel('systems')"
-            :value="String(MOCK_RUNTIME_STATE.stats.systems)"
+            :value="String(runtimeView.systemCount)"
           />
           <RuntimeStatCard
             :label="statLabel('events')"
-            :value="String(MOCK_RUNTIME_STATE.stats.events)"
+            :value="String(runtimeView.eventCount)"
           />
           <RuntimeStatCard
             :label="statLabel('fps')"
-            :value="String(MOCK_RUNTIME_STATE.stats.fps)"
+            :value="String(runtimeView.fps)"
           />
         </dl>
       </section>

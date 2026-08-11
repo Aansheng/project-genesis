@@ -12,6 +12,7 @@ import ObservatoryOverview from '../components/observatory/ObservatoryOverview.v
 import ObservatoryTraceViewer from '../components/observatory/trace/ObservatoryTraceViewer.vue'
 import ObservatoryDiffViewer from '../components/observatory/diff/ObservatoryDiffViewer.vue'
 import { useObservatoryStore } from '../stores/observatory'
+import { useObservatoryDataStore } from '../stores/observatoryData'
 import { useI18nStore } from '../stores/i18n'
 import { resolveKey } from '../i18n'
 import { zhCN } from '../i18n/locales/zh-CN'
@@ -22,6 +23,7 @@ import { enUS } from '../i18n/locales/en-US'
 // ---------------------------------------------------------------------------
 
 function mountViewer(attachTo?: HTMLElement): VueWrapper {
+  useObservatoryDataStore().loadMockObservatory()
   return mount(ObservatoryRuntimeViewer, attachTo ? { attachTo } : undefined)
 }
 
@@ -1134,6 +1136,7 @@ describe('runtime viewer — content integration', () => {
 
   it('re-mounts a fresh runtime viewer after panel switching', async () => {
     const store = useObservatoryStore()
+    useObservatoryDataStore().loadMockObservatory()
     store.selectPanel('Runtime')
     const wrapper = mount(ObservatoryContent)
     expect(wrapper.findComponent(ObservatoryRuntimeViewer).exists()).toBe(true)

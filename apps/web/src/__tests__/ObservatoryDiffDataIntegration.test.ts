@@ -895,6 +895,7 @@ describe('diff data — empty diff', () => {
       timelineView: [],
       historyView: [],
       diffView: [],
+      runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -912,6 +913,7 @@ describe('diff data — empty diff', () => {
       timelineView: [],
       historyView: [],
       diffView: [],
+      runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -929,6 +931,7 @@ describe('diff data — empty diff', () => {
       timelineView: [],
       historyView: [],
       diffView: [],
+      runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -946,6 +949,7 @@ describe('diff data — empty diff', () => {
       timelineView: [],
       historyView: [],
       diffView: [],
+      runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -964,6 +968,7 @@ describe('diff data — empty diff', () => {
       timelineView: [],
       historyView: [],
       diffView: [],
+      runtimeView: { worldId: "", entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -1237,6 +1242,7 @@ describe('diff data — integration path', () => {
         { id: 'new-1', timestamp: '99:00', added: [{ name: 'NewA' }], removed: [], changed: [] },
         { id: 'new-2', timestamp: '99:01', added: [], removed: [{ name: 'Old' }], changed: [] },
       ],
+      runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -1413,6 +1419,7 @@ describe('diff data — edge cases', () => {
       timelineView: [],
       historyView: [],
       diffView: [{ id: 'd1', timestamp: 'T', added: [], removed: [], changed: [] }],
+      runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
@@ -1554,6 +1561,7 @@ describe('diff data — store edge cases', () => {
       timelineView: [],
       historyView: [],
       diffView: custom as any,
+      runtimeView: { worldId: '', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       timeline: [],
       history: [],
     }
