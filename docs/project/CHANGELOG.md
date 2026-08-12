@@ -6456,3 +6456,66 @@
 - No PromptBuilder changes, no Runtime changes, no Planner changes, no Pipeline changes, no AgentLoop changes, no Metadata generation changes, no UI changes
 - No breaking changes to any Public API
 - Architecture version v1.54 to v1.55
+
+### WO-S6-026 — Prompt Metadata Emission Foundation
+
+- Created `packages/ai/src/observatory/PromptObservatoryMetadataEmitter.ts`:
+  - Interface with `emit(metadata: Record<string, unknown>): PromptObservatoryMetadata`
+- Created `packages/ai/src/observatory/DefaultPromptObservatoryMetadataEmitter.ts`:
+  - Delegates to `PromptObservatoryMetadataBuilder` (default: `DefaultPromptObservatoryMetadataBuilder`)
+  - Constructor accepts optional builder
+  - Pure, stateless, deterministic, frozen output
+- Updated `packages/ai/src/observatory/index.ts` — added emitter exports (2 lines)
+- Updated `packages/ai/src/index.ts` — added emitter exports (2 lines)
+- Created `packages/ai/src/__tests__/PromptObservatoryMetadataEmissionFoundation.test.ts` — 282 tests
+  - Section 1 — Interface conformance (4 tests)
+  - Section 2 — Emitter contract (10 tests)
+  - Section 3 — Emitter shape (5 tests)
+  - Section 4 — Exports (5 tests)
+  - Section 5 — Builder delegation (5 tests)
+  - Section 6 — Builder result returned (4 tests)
+  - Section 7 — Builder result preserved (6 tests)
+  - Section 8 — Input: undefined (4 tests)
+  - Section 9 — Input: null (3 tests)
+  - Section 10 — Input: empty object (4 tests)
+  - Section 11 — Input: partial metadata (11 tests)
+  - Section 12 — Input: full metadata (3 tests)
+  - Section 13 — Input: invalid metadata (7 tests)
+  - Section 14 — Input: nested metadata (5 tests)
+  - Section 15 — Deterministic (8 tests)
+  - Section 16 — Stateless (5 tests)
+  - Section 17 — Immutable / frozen output (10 tests)
+  - Section 18 — No mutation (11 tests)
+  - Section 19 — No side effects (6 tests)
+  - Section 20 — Large payloads / stress (8 tests)
+  - Section 21 — Repeated calls (4 tests)
+  - Section 22 — Unknown fields ignored (7 tests)
+  - Section 23 — All 7 observatory fields (8 tests)
+  - Section 24 — Field preservation (9 tests)
+  - Section 25 — Property descriptors (4 tests)
+  - Section 26 — Null-prototype objects (4 tests)
+  - Section 27 — Constructor / instantiation (5 tests)
+  - Section 28 — Type safety (5 tests)
+  - Section 29 — Pure function guarantees (4 tests)
+  - Section 30 — Edge cases (18 tests)
+  - Section 31 — Boundary values (10 tests)
+  - Section 32 — Custom builder scenarios (5 tests)
+  - Section 33 — Performance (2 tests)
+  - Section 34 — Cross-field combinations (8 tests)
+  - Section 35 — Result shape verification (12 tests)
+  - Section 36 — Builder delegation edge cases (7 tests)
+  - Section 37 — Pureness verification (6 tests)
+  - Section 38 — Result immutability details (7 tests)
+  - Section 39 — Emission path verification (5 tests)
+  - Section 40 — Edge cases extended (10 tests)
+  - Section 41 — Multiple instance behavior (5 tests)
+  - Section 42 — Extended determinism (4 tests)
+  - Section 43 — Threshold / boundary stress (6 tests)
+  - Section 44 — Object identity preservation (5 tests)
+- Created ADR-0169: PromptBuilder Observatory Metadata Emission Foundation
+- Updated PROJECT_STATE.md — v1.56, WO-S6-026 in completed list
+- Updated AI_ARCHITECTURE.md — v1.56 header
+- Updated CHANGELOG.md — v1.56, WO-S6-026
+- No PromptBuilder changes, no Runtime changes, no Planner changes, no Pipeline changes, no AgentLoop changes, no Bridge changes, no Mapper changes, no Store changes, no UI changes
+- No breaking changes to any Public API
+- Architecture version v1.55 to v1.56

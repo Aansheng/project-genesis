@@ -1,3 +1,5 @@
 export type { PromptObservatoryMetadata } from './PromptObservatoryMetadata'
 export type { PromptObservatoryMetadataBuilder } from './PromptObservatoryMetadataBuilder'
 export { DefaultPromptObservatoryMetadataBuilder } from './DefaultPromptObservatoryMetadataBuilder'
+export type { PromptObservatoryMetadataEmitter } from './PromptObservatoryMetadataEmitter'
+export { DefaultPromptObservatoryMetadataEmitter } from './DefaultPromptObservatoryMetadataEmitter'
