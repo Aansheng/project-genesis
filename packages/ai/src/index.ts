@@ -167,3 +167,9 @@ export { DefaultPromptAssemblyObservatoryExporter } from './strategy'
 export type { PromptAssemblyObservatorySnapshot } from './strategy'
 export type { PromptAssemblyObservatorySnapshotBuilder } from './strategy'
 export { DefaultPromptAssemblyObservatorySnapshotBuilder } from './strategy'
+// ---------------------------------------------------------------------------
+// Observatory — Metadata Contract Foundation
+// ---------------------------------------------------------------------------
+export type { PromptObservatoryMetadata } from './observatory'
+export type { PromptObservatoryMetadataBuilder } from './observatory'
+export { DefaultPromptObservatoryMetadataBuilder } from './observatory'

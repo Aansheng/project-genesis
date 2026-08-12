@@ -6353,3 +6353,53 @@
 - No UI changes, no Runtime changes, no Planner changes, no PromptBuilder changes, no AI package changes
 - No breaking changes to any Public API
 - Architecture version v1.52 to v1.53
+
+### WO-S6-024 — Prompt Metadata Contract Foundation
+
+- Created `packages/ai/src/observatory/` directory with:
+  - `PromptObservatoryMetadata.ts` — interface with 7 optional readonly `unknown` fields
+  - `PromptObservatoryMetadataBuilder.ts` — builder interface with `build(metadata: Record<string, unknown>): PromptObservatoryMetadata`
+  - `DefaultPromptObservatoryMetadataBuilder.ts` — implementation extracting 7 known keys from raw metadata, ignoring unknown keys, returning frozen output
+  - `index.ts` — barrel exports
+- Updated `packages/ai/src/index.ts` — added observatory exports (3 lines)
+- Created `packages/ai/src/__tests__/PromptObservatoryMetadataFoundation.test.ts` — 250+ tests
+  - Section 1 — Interface conformance (4 tests)
+  - Section 2 — PromptObservatoryMetadata shape (10 tests)
+  - Section 3 — Extract all fields (9 tests)
+  - Section 4 — Invalid inputs (15 tests)
+  - Section 5 — Unknown fields (7 tests)
+  - Section 6 — Partial input (12 tests)
+  - Section 7 — Empty input (4 tests)
+  - Section 8 — Frozen output (12 tests)
+  - Section 9 — No mutation (10 tests)
+  - Section 10 — Determinism (8 tests)
+  - Section 11 — Statelessness (6 tests)
+  - Section 12 — Shape integrity (8 tests)
+  - Section 13 — Value preservation (15 tests)
+  - Section 14 — Key ordering (4 tests)
+  - Section 15 — Edge cases (13 tests)
+  - Section 16 — Stress testing (8 tests)
+  - Section 17 — Readonly contract (7 tests)
+  - Section 18 — Interface contract (7 tests)
+  - Section 19 — Integration (7 tests)
+  - Section 20 — Pure function guarantees (5 tests)
+  - Section 21 — Cross-field combinations (10 tests)
+  - Section 22 — Property descriptor handling (5 tests)
+  - Section 23 — Export verification (6 tests)
+  - Section 24 — Instantiation (5 tests)
+  - Section 25 — Known key set completeness (10 tests)
+  - Section 26 — Repeated calls (5 tests)
+  - Section 27 — No side effects (5 tests)
+  - Section 28 — Field exhaustive type tests (9 tests)
+  - Section 29 — Special characters (5 tests)
+  - Section 30 — Zero/empty/boundary values (4 tests)
+  - Section 31 — Multiple instances (4 tests)
+  - Section 32 — Type safety (4 tests)
+  - Section 33 — Return values (7 tests)
+- Created ADR-0167: Prompt Observatory Metadata Contract Foundation
+- Updated PROJECT_STATE.md — v1.54, WO-S6-024 in completed list
+- Updated AI_ARCHITECTURE.md — v1.54 header
+- Updated CHANGELOG.md — v1.54, WO-S6-024
+- No PromptBuilder changes, no Runtime changes, no Planner changes, no Pipeline changes, no AgentLoop changes, no Metadata generation changes, no UI changes
+- No breaking changes to any Public API
+- Architecture version v1.53 to v1.54
