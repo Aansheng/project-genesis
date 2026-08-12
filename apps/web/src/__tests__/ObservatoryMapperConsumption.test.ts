@@ -119,9 +119,9 @@ describe('store initialization', () => {
     expect(typeof store.loadMockObservatory).toBe('function')
   })
 
-  it('has loadBridgeData function', () => {
+  it('has loadRealObservatory function', () => {
     const store = createStore()
-    expect(typeof store.loadBridgeData).toBe('function')
+    expect(typeof store.loadRealObservatory).toBe('function')
   })
 
   it('has viewModel as readable property', () => {
@@ -166,7 +166,7 @@ describe('store initialization', () => {
 describe('mapper invocation', () => {
   it('mapper is invoked when bridge data has diff key (diff→diffView)', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] })
     // Without mapper: diffView would be empty (adapter looks for diffView)
     // With mapper: diffView has data
     expect(store.viewModel.diffView.length).toBe(1)
@@ -174,19 +174,19 @@ describe('mapper invocation', () => {
 
   it('mapper is invoked when bridge data has runtime key (runtime→runtimeView)', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'mapped-world', entityCount: 42, systemCount: 3, eventCount: 7, fps: 60, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'mapped-world', entityCount: 42, systemCount: 3, eventCount: 7, fps: 60, entities: [] } })
     expect(store.viewModel.runtimeView.worldId).toBe('mapped-world')
   })
 
   it('mapper is invoked when bridge data has eventStream key (eventStream→eventStreamView)', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'Test', message: 'Mapped' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'Test', message: 'Mapped' }] } })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
 
   it('mapper preserves passthrough keys (trace, timeline, history)', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'Passthrough', steps: [] }],
       timeline: [{ id: 'tl1', label: 'TL', entries: [] }],
       history: [{ id: 'h1', label: 'H', entries: [] }],
@@ -198,7 +198,7 @@ describe('mapper invocation', () => {
 
   it('mapper maps all 7 keys correctly in one call', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.overview.traceCount).toBe(2)
     expect(store.viewModel.overview.timelineCount).toBe(1)
     expect(store.viewModel.overview.historyCount).toBe(1)
@@ -212,7 +212,7 @@ describe('mapper invocation', () => {
 
   it('mapper does not modify bridgeData keys', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     // bridgeData should still have bridge key names
     expect('diff' in store.bridgeData).toBe(true)
     expect('runtime' in store.bridgeData).toBe(true)
@@ -221,7 +221,7 @@ describe('mapper invocation', () => {
 
   it('mapper does not add adapter key names to bridgeData', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect('diffView' in store.bridgeData).toBe(false)
     expect('runtimeView' in store.bridgeData).toBe(false)
     expect('eventStreamView' in store.bridgeData).toBe(false)
@@ -229,20 +229,20 @@ describe('mapper invocation', () => {
 
   it('mapper receives bridge output (frozen bridgeData)', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     // bridgeData must be frozen (bridge produces frozen objects)
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
   it('mapper handles empty bridge result from empty metadata', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expectEmptyViewModel(store)
   })
 
   it('mapper handles bridge result with only unknown keys', () => {
     const store = createStore()
-    store.loadBridgeData({ unknownKey: 'value' })
+    store.loadRealObservatory({ unknownKey: 'value' })
     expectEmptyViewModel(store)
   })
 })
@@ -252,21 +252,21 @@ describe('mapper invocation', () => {
 // ---------------------------------------------------------------------------
 
 describe('bridge invocation', () => {
-  it('bridge is invoked on loadBridgeData', () => {
+  it('bridge is invoked on loadRealObservatory', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(store.bridgeData).not.toBe(EMPTY_BRIDGE_DATA)
   })
 
   it('bridge output is stored in bridgeData', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect('trace' in store.bridgeData).toBe(true)
   })
 
   it('bridge extracts known keys from metadata', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect('overview' in store.bridgeData).toBe(true)
     expect('trace' in store.bridgeData).toBe(true)
     expect('timeline' in store.bridgeData).toBe(true)
@@ -278,38 +278,38 @@ describe('bridge invocation', () => {
 
   it('bridge output is frozen', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
   it('bridge ignores unknown metadata keys', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [], unknownKey: 42 })
+    store.loadRealObservatory({ trace: [], unknownKey: 42 })
     expect('trace' in store.bridgeData).toBe(true)
     expect('unknownKey' in store.bridgeData).toBe(false)
   })
 
   it('bridge returns empty for undefined metadata', () => {
     const store = createStore()
-    store.loadBridgeData(undefined)
+    store.loadRealObservatory(undefined)
     expect(store.bridgeData).toBe(EMPTY_BRIDGE_DATA)
   })
 
   it('bridge returns empty for null metadata', () => {
     const store = createStore()
-    store.loadBridgeData(null)
+    store.loadRealObservatory(null)
     expect(store.bridgeData).toBe(EMPTY_BRIDGE_DATA)
   })
 
   it('bridge returns empty for primitive metadata', () => {
     const store = createStore()
-    store.loadBridgeData('hello')
+    store.loadRealObservatory('hello')
     expect(store.bridgeData).toBe(EMPTY_BRIDGE_DATA)
   })
 
   it('bridge preserves metadata values', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 'keep-id', label: 'Keep', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 'keep-id', label: 'Keep', steps: [] }] })
     const bridgeData = store.bridgeData
     const trace = (bridgeData.trace as unknown as unknown[] | undefined)
     expect(trace?.[0]).toBeDefined()
@@ -321,7 +321,7 @@ describe('bridge invocation', () => {
     const metadata = {
       trace: [{ id: 'nested', label: 'Nested', steps: [{ id: 's1', label: 'Step', status: 'ok' }] }],
     }
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     const trace = (store.bridgeData.trace as unknown as unknown[] | undefined)
     expect(trace?.[0]).toBeDefined()
     expect((trace?.[0] as Record<string, unknown> | undefined)?.steps).toBeDefined()
@@ -335,13 +335,13 @@ describe('bridge invocation', () => {
 describe('adapter invocation', () => {
   it('adapter produces viewModel from mapped data', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(store.viewModel.overview.traceCount).toBe(1)
   })
 
   it('adapter produces viewModel with all required sections', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     const vm = store.viewModel
     expect(vm).toHaveProperty('overview')
     expect(vm).toHaveProperty('trace')
@@ -357,14 +357,14 @@ describe('adapter invocation', () => {
 
   it('adapter receives mapped data with adapter key names', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     // Adapter receives diffView (from mapper), not diff
     expect(store.viewModel.diffView.length).toBeGreaterThan(0)
   })
 
   it('adapter processes runtime data through mapper', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.runtimeView.worldId).toBe('bridge-world')
     expect(store.viewModel.runtimeView.entityCount).toBe(50)
     expect(store.viewModel.runtimeView.systemCount).toBe(4)
@@ -374,37 +374,37 @@ describe('adapter invocation', () => {
 
   it('adapter processes eventStream data through mapper', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
 
   it('adapter processes diff data through mapper', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('adapter handles mapped trace data', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'Adapted', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'Adapted', steps: [] }] })
     expect(store.viewModel.trace[0].label).toBe('Adapted')
   })
 
   it('adapter handles mapped timeline data', () => {
     const store = createStore()
-    store.loadBridgeData({ timeline: [{ id: 'tl1', label: 'Timeline', entries: [] }] })
+    store.loadRealObservatory({ timeline: [{ id: 'tl1', label: 'Timeline', entries: [] }] })
     expect(store.viewModel.timeline[0].label).toBe('Timeline')
   })
 
   it('adapter handles mapped history data', () => {
     const store = createStore()
-    store.loadBridgeData({ history: [{ id: 'h1', label: 'History', entries: [] }] })
+    store.loadRealObservatory({ history: [{ id: 'h1', label: 'History', entries: [] }] })
     expect(store.viewModel.history[0].label).toBe('History')
   })
 
   it('adapter returns defaults for empty mapped data', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expectEmptyViewModel(store)
   })
 })
@@ -417,7 +417,7 @@ describe('mapping priority', () => {
   it('mapper keys take priority over raw bridge keys', () => {
     // If both diff and diffView are in metadata, mapper processes diff → diffView
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }],
       diffView: [{ id: 'fake', timestamp: '', added: [], removed: [], changed: [] }],
     })
@@ -428,7 +428,7 @@ describe('mapping priority', () => {
 
   it('mapper does not process adapter-suffixed keys as input', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diffView: [{ id: 'dv1', timestamp: '12:00', added: [], removed: [], changed: [] }],
       runtimeView: { worldId: 'rv', entityCount: 10, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
     })
@@ -439,7 +439,7 @@ describe('mapping priority', () => {
 
   it('mapper resolves diff over raw diffView in metadata', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diff: [{ id: 'from-diff', timestamp: '12:00', added: ['A'], removed: [], changed: [] }],
     })
     // diff is mapped to diffView; adapter gets it
@@ -448,7 +448,7 @@ describe('mapping priority', () => {
 
   it('mapper resolves runtime over raw runtimeView in metadata', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: { worldId: 'from-runtime', entityCount: 99, systemCount: 5, eventCount: 3, fps: 60, entities: [] },
     })
     expect(store.viewModel.runtimeView.worldId).toBe('from-runtime')
@@ -457,7 +457,7 @@ describe('mapping priority', () => {
 
   it('mapper resolves eventStream over raw eventStreamView in metadata', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'from-es', timestamp: '', level: 'info', source: 'S', message: 'M' }] },
     })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
@@ -465,7 +465,7 @@ describe('mapping priority', () => {
 
   it('passthrough keys are not affected by priority', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'Priority', steps: [] }],
     })
     expect(store.viewModel.trace[0].label).toBe('Priority')
@@ -473,7 +473,7 @@ describe('mapping priority', () => {
 
   it('mapped data overrides empty section in adapter', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diff: [{ id: 'override', timestamp: '12:00', added: ['X'], removed: [], changed: [] }],
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] },
     })
@@ -489,13 +489,13 @@ describe('mapping priority', () => {
 describe('diff → diffView', () => {
   it('single diff entry maps to diffView', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('multiple diff entries all map to diffView', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diff: [
         { id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] },
         { id: 'd2', timestamp: '13:00', added: ['B'], removed: ['C'], changed: ['D'] },
@@ -507,55 +507,55 @@ describe('diff → diffView', () => {
 
   it('diff entry with added items maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: ['EntityA', 'EntityB'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: ['EntityA', 'EntityB'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('diff entry with removed items maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: ['OldEntity'], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: ['OldEntity'], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('diff entry with changed items maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: [], changed: ['ModifiedEntity'] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: [], removed: [], changed: ['ModifiedEntity'] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('diff entry with all fields populated maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A', 'B'], removed: ['C'], changed: ['D', 'E'] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A', 'B'], removed: ['C'], changed: ['D', 'E'] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('empty diff array produces empty diffView', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [] })
+    store.loadRealObservatory({ diff: [] })
     expect(store.viewModel.diffView).toEqual([])
   })
 
   it('null diff produces empty diffView', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: null })
+    store.loadRealObservatory({ diff: null })
     expect(store.viewModel.diffView).toEqual([])
   })
 
   it('undefined diff produces empty diffView', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: undefined })
+    store.loadRealObservatory({ diff: undefined })
     expect(store.viewModel.diffView).toEqual([])
   })
 
   it('diff as string produces empty diffView', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: 'not-an-array' })
+    store.loadRealObservatory({ diff: 'not-an-array' })
     expect(store.viewModel.diffView).toEqual([])
   })
 
   it('diff as object produces empty diffView', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: { id: 'd1' } })
+    store.loadRealObservatory({ diff: { id: 'd1' } })
     expect(store.viewModel.diffView).toEqual([])
   })
 })
@@ -567,7 +567,7 @@ describe('diff → diffView', () => {
 describe('runtime → runtimeView', () => {
   it('runtime with all fields maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: { worldId: 'w1', entityCount: 100, systemCount: 5, eventCount: 20, fps: 60, entities: [] },
     })
     expect(store.viewModel.runtimeView.worldId).toBe('w1')
@@ -579,7 +579,7 @@ describe('runtime → runtimeView', () => {
 
   it('runtime with entities maps entities correctly', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: {
         worldId: 'w1', entityCount: 1, systemCount: 1, eventCount: 0, fps: 30,
         entities: [{ id: 'e1', type: 'Guard', position: '(5,5)', health: 100, state: 'Patrol', components: [] }],
@@ -591,7 +591,7 @@ describe('runtime → runtimeView', () => {
 
   it('runtime with multiple entities maps all entities', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: {
         worldId: 'w1', entityCount: 3, systemCount: 2, eventCount: 5, fps: 30,
         entities: [
@@ -606,7 +606,7 @@ describe('runtime → runtimeView', () => {
 
   it('empty runtime for entities produces empty entities list', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: { worldId: 'w1', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
     })
     expect(store.viewModel.runtimeView.entities).toEqual([])
@@ -614,32 +614,32 @@ describe('runtime → runtimeView', () => {
 
   it('null runtime produces default runtimeView', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: null })
+    store.loadRealObservatory({ runtime: null })
     expect(store.viewModel.runtimeView.worldId).toBe('')
     expect(store.viewModel.runtimeView.entityCount).toBe(0)
   })
 
   it('undefined runtime produces default runtimeView', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: undefined })
+    store.loadRealObservatory({ runtime: undefined })
     expect(store.viewModel.runtimeView.worldId).toBe('')
   })
 
   it('runtime as string produces default runtimeView', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: 'bad-data' })
+    store.loadRealObservatory({ runtime: 'bad-data' })
     expect(store.viewModel.runtimeView.worldId).toBe('')
   })
 
   it('runtime as array produces default runtimeView', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: [] })
+    store.loadRealObservatory({ runtime: [] })
     expect(store.viewModel.runtimeView.worldId).toBe('')
   })
 
   it('runtime with partial fields fills defaults', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: { worldId: 'partial', entityCount: 10 },
     })
     expect(store.viewModel.runtimeView.worldId).toBe('partial')
@@ -654,7 +654,7 @@ describe('runtime → runtimeView', () => {
 describe('eventStream → eventStreamView', () => {
   it('eventStream with single event maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'e1', timestamp: '12:00', level: 'info', source: 'Test', message: 'Event' }] },
     })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
@@ -662,7 +662,7 @@ describe('eventStream → eventStreamView', () => {
 
   it('eventStream with multiple events maps all events', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: {
         events: [
           { id: 'e1', timestamp: '12:00', level: 'info', source: 'A', message: 'M1' },
@@ -676,7 +676,7 @@ describe('eventStream → eventStreamView', () => {
 
   it('eventStream with info level events maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'Src', message: 'Msg' }] },
     })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
@@ -684,7 +684,7 @@ describe('eventStream → eventStreamView', () => {
 
   it('eventStream with warning level events maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'warning', source: 'Src', message: 'Warn' }] },
     })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
@@ -692,7 +692,7 @@ describe('eventStream → eventStreamView', () => {
 
   it('eventStream with error level events maps correctly', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'error', source: 'Src', message: 'Err' }] },
     })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
@@ -700,31 +700,31 @@ describe('eventStream → eventStreamView', () => {
 
   it('empty events array produces empty eventStreamView', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [] } })
+    store.loadRealObservatory({ eventStream: { events: [] } })
     expect(store.viewModel.eventStreamView.events).toEqual([])
   })
 
   it('null eventStream produces default eventStreamView', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: null })
+    store.loadRealObservatory({ eventStream: null })
     expect(store.viewModel.eventStreamView.events).toEqual([])
   })
 
   it('undefined eventStream produces default eventStreamView', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: undefined })
+    store.loadRealObservatory({ eventStream: undefined })
     expect(store.viewModel.eventStreamView.events).toEqual([])
   })
 
   it('eventStream without events key produces default', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: {} })
+    store.loadRealObservatory({ eventStream: {} })
     expect(store.viewModel.eventStreamView.events).toEqual([])
   })
 
   it('eventStream events preserve message content', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'e1', timestamp: '12:00', level: 'info', source: 'S', message: 'Custom message' }] },
     })
     const events = store.viewModel.eventStreamView.events
@@ -739,7 +739,7 @@ describe('eventStream → eventStreamView', () => {
 describe('partial bridge', () => {
   it('only trace produces correct traceCount', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'T', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'T', steps: [] }] })
     expect(store.viewModel.overview.traceCount).toBe(1)
     expect(store.viewModel.overview.timelineCount).toBe(0)
     expect(store.viewModel.overview.historyCount).toBe(0)
@@ -747,7 +747,7 @@ describe('partial bridge', () => {
 
   it('only timeline produces correct timelineCount', () => {
     const store = createStore()
-    store.loadBridgeData({ timeline: [{ id: 'tl1', label: 'TL', entries: [] }] })
+    store.loadRealObservatory({ timeline: [{ id: 'tl1', label: 'TL', entries: [] }] })
     expect(store.viewModel.overview.traceCount).toBe(0)
     expect(store.viewModel.overview.timelineCount).toBe(1)
     expect(store.viewModel.overview.historyCount).toBe(0)
@@ -755,7 +755,7 @@ describe('partial bridge', () => {
 
   it('only history produces correct historyCount', () => {
     const store = createStore()
-    store.loadBridgeData({ history: [{ id: 'h1', label: 'H', entries: [] }] })
+    store.loadRealObservatory({ history: [{ id: 'h1', label: 'H', entries: [] }] })
     expect(store.viewModel.overview.traceCount).toBe(0)
     expect(store.viewModel.overview.timelineCount).toBe(0)
     expect(store.viewModel.overview.historyCount).toBe(1)
@@ -763,25 +763,25 @@ describe('partial bridge', () => {
 
   it('only diff (via mapper) produces diffView data', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('only runtime (via mapper) produces runtimeView data', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'rw', entityCount: 5, systemCount: 1, eventCount: 0, fps: 30, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'rw', entityCount: 5, systemCount: 1, eventCount: 0, fps: 30, entities: [] } })
     expect(store.viewModel.runtimeView.worldId).toBe('rw')
   })
 
   it('only eventStream (via mapper) produces eventStreamView data', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
 
   it('trace and diff combo (mapper resolves diff)', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'T', steps: [] }],
       diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }],
     })
@@ -791,7 +791,7 @@ describe('partial bridge', () => {
 
   it('timeline and runtime combo (mapper resolves runtime)', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       timeline: [{ id: 'tl1', label: 'TL', entries: [] }],
       runtime: { worldId: 'wrld', entityCount: 10, systemCount: 2, eventCount: 5, fps: 30, entities: [] },
     })
@@ -801,7 +801,7 @@ describe('partial bridge', () => {
 
   it('history and eventStream combo (mapper resolves eventStream)', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       history: [{ id: 'h1', label: 'H', entries: [] }],
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] },
     })
@@ -811,7 +811,7 @@ describe('partial bridge', () => {
 
   it('all rename keys but no passthrough keys', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }],
       runtime: { worldId: 'r1', entityCount: 1, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] },
@@ -826,7 +826,7 @@ describe('partial bridge', () => {
 
   it('all passthrough keys but no rename keys', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'T', steps: [] }],
       timeline: [{ id: 'tl1', label: 'TL', entries: [] }],
       history: [{ id: 'h1', label: 'H', entries: [] }],
@@ -847,7 +847,7 @@ describe('partial bridge', () => {
 describe('complete bridge', () => {
   it('loads all 7 bridge keys through mapper', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.overview.traceCount).toBe(2)
     expect(store.viewModel.overview.timelineCount).toBe(1)
     expect(store.viewModel.overview.historyCount).toBe(1)
@@ -861,14 +861,14 @@ describe('complete bridge', () => {
 
   it('trace items preserve labels through mapper', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.trace[0].label).toBe('Trace 1')
     expect(store.viewModel.trace[1].label).toBe('Trace 2')
   })
 
   it('bridgeData has all 7 keys after complete bridge', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     const keys = Object.keys(store.bridgeData)
     expect(keys).toContain('overview')
     expect(keys).toContain('trace')
@@ -881,13 +881,13 @@ describe('complete bridge', () => {
 
   it('bridgeData has exactly 7 keys for complete bridge', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(Object.keys(store.bridgeData).length).toBe(7)
   })
 
   it('complete bridge produces non-empty viewModel for all sections', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.trace.length).toBeGreaterThan(0)
     expect(store.viewModel.timeline.length).toBeGreaterThan(0)
     expect(store.viewModel.history.length).toBeGreaterThan(0)
@@ -898,7 +898,7 @@ describe('complete bridge', () => {
 
   it('complete bridge via mapper matches adapter types', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(Array.isArray(store.viewModel.trace)).toBe(true)
     expect(Array.isArray(store.viewModel.diffView)).toBe(true)
     expect(Array.isArray(store.viewModel.eventStreamView.events)).toBe(true)
@@ -913,49 +913,49 @@ describe('complete bridge', () => {
 describe('empty bridge', () => {
   it('empty metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expectEmptyViewModel(store)
   })
 
   it('empty metadata stores empty bridgeData', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expect(Object.keys(store.bridgeData)).toEqual([])
   })
 
   it('empty metadata stores frozen bridgeData', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
   it('empty metadata keeps viewModel frozen', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expect(Object.isFrozen(store.viewModel)).toBe(true)
   })
 
   it('metadata with only null valued keys produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: null, timeline: null, diff: null, runtime: null, eventStream: null, history: null })
+    store.loadRealObservatory({ trace: null, timeline: null, diff: null, runtime: null, eventStream: null, history: null })
     expectEmptyViewModel(store)
   })
 
   it('metadata with only undefined valued keys produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: undefined, timeline: undefined, diff: undefined })
+    store.loadRealObservatory({ trace: undefined, timeline: undefined, diff: undefined })
     expectEmptyViewModel(store)
   })
 
   it('metadata with empty arrays produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [], timeline: [], history: [], diff: [] })
+    store.loadRealObservatory({ trace: [], timeline: [], history: [], diff: [] })
     expectEmptyViewModel(store)
   })
 
   it('metadata with empty objects produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData({ overview: {}, runtime: {}, eventStream: {} })
+    store.loadRealObservatory({ overview: {}, runtime: {}, eventStream: {} })
     expectEmptyViewModel(store)
   })
 })
@@ -967,109 +967,109 @@ describe('empty bridge', () => {
 describe('invalid bridge', () => {
   it('undefined metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(undefined)
+    store.loadRealObservatory(undefined)
     expectEmptyViewModel(store)
   })
 
   it('null metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(null)
+    store.loadRealObservatory(null)
     expectEmptyViewModel(store)
   })
 
   it('string metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData('hello')
+    store.loadRealObservatory('hello')
     expectEmptyViewModel(store)
   })
 
   it('number metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(42)
+    store.loadRealObservatory(42)
     expectEmptyViewModel(store)
   })
 
   it('boolean metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(true)
+    store.loadRealObservatory(true)
     expectEmptyViewModel(store)
   })
 
   it('array metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData([1, 2, 3])
+    store.loadRealObservatory([1, 2, 3])
     expectEmptyViewModel(store)
   })
 
   it('NaN metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(NaN)
+    store.loadRealObservatory(NaN)
     expectEmptyViewModel(store)
   })
 
   it('Symbol metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(Symbol('test'))
+    store.loadRealObservatory(Symbol('test'))
     expectEmptyViewModel(store)
   })
 
   it('empty array metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData([])
+    store.loadRealObservatory([])
     expectEmptyViewModel(store)
   })
 
   it('nested array metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData([{ trace: [] }])
+    store.loadRealObservatory([{ trace: [] }])
     expectEmptyViewModel(store)
   })
 
   it('invalid metadata stores EMPTY_BRIDGE_DATA', () => {
     const store = createStore()
-    store.loadBridgeData(undefined)
+    store.loadRealObservatory(undefined)
     expect(store.bridgeData).toBe(EMPTY_BRIDGE_DATA)
   })
 
   it('invalid metadata keeps viewModel frozen', () => {
     const store = createStore()
-    store.loadBridgeData(undefined)
+    store.loadRealObservatory(undefined)
     expect(Object.isFrozen(store.viewModel)).toBe(true)
   })
 
   it('invalid metadata does not throw', () => {
     const store = createStore()
-    expect(() => store.loadBridgeData(undefined)).not.toThrow()
-    expect(() => store.loadBridgeData(null)).not.toThrow()
-    expect(() => store.loadBridgeData('')).not.toThrow()
+    expect(() => store.loadRealObservatory(undefined)).not.toThrow()
+    expect(() => store.loadRealObservatory(null)).not.toThrow()
+    expect(() => store.loadRealObservatory('')).not.toThrow()
   })
 
   it('function metadata does not throw', () => {
     const store = createStore()
-    expect(() => store.loadBridgeData(() => 'test')).not.toThrow()
+    expect(() => store.loadRealObservatory(() => 'test')).not.toThrow()
   })
 
   it('Date metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(new Date())
+    store.loadRealObservatory(new Date())
     expectEmptyViewModel(store)
   })
 
   it('RegExp metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(/test/)
+    store.loadRealObservatory(/test/)
     expectEmptyViewModel(store)
   })
 
   it('Map metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(new Map())
+    store.loadRealObservatory(new Map())
     expectEmptyViewModel(store)
   })
 
   it('Set metadata produces empty viewModel', () => {
     const store = createStore()
-    store.loadBridgeData(new Set())
+    store.loadRealObservatory(new Set())
     expectEmptyViewModel(store)
   })
 })
@@ -1083,8 +1083,8 @@ describe('deterministic', () => {
     const store1 = createStore()
     const store2 = createStore()
     const metadata = buildValidMetadata()
-    store1.loadBridgeData(metadata)
-    store2.loadBridgeData(metadata)
+    store1.loadRealObservatory(metadata)
+    store2.loadRealObservatory(metadata)
     expect(store1.viewModel.overview.traceCount).toBe(store2.viewModel.overview.traceCount)
   })
 
@@ -1092,8 +1092,8 @@ describe('deterministic', () => {
     const store1 = createStore()
     const store2 = createStore()
     const metadata = { diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] }
-    store1.loadBridgeData(metadata)
-    store2.loadBridgeData(metadata)
+    store1.loadRealObservatory(metadata)
+    store2.loadRealObservatory(metadata)
     expect(store1.viewModel.diffView.length).toBe(store2.viewModel.diffView.length)
   })
 
@@ -1101,8 +1101,8 @@ describe('deterministic', () => {
     const store1 = createStore()
     const store2 = createStore()
     const metadata = { runtime: { worldId: 'det', entityCount: 10, systemCount: 1, eventCount: 2, fps: 30, entities: [] } }
-    store1.loadBridgeData(metadata)
-    store2.loadBridgeData(metadata)
+    store1.loadRealObservatory(metadata)
+    store2.loadRealObservatory(metadata)
     expect(store1.viewModel.runtimeView.worldId).toBe(store2.viewModel.runtimeView.worldId)
   })
 
@@ -1110,16 +1110,16 @@ describe('deterministic', () => {
     const store1 = createStore()
     const store2 = createStore()
     const metadata = { eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } }
-    store1.loadBridgeData(metadata)
-    store2.loadBridgeData(metadata)
+    store1.loadRealObservatory(metadata)
+    store2.loadRealObservatory(metadata)
     expect(store1.viewModel.eventStreamView.events.length).toBe(store2.viewModel.eventStreamView.events.length)
   })
 
   it('same full metadata produces same viewModel', () => {
     const store1 = createStore()
     const store2 = createStore()
-    store1.loadBridgeData(buildFullMetadata())
-    store2.loadBridgeData(buildFullMetadata())
+    store1.loadRealObservatory(buildFullMetadata())
+    store2.loadRealObservatory(buildFullMetadata())
     expect(store1.viewModel.overview).toEqual(store2.viewModel.overview)
     expect(store1.viewModel.trace.length).toBe(store2.viewModel.trace.length)
     expect(store1.viewModel.diffView.length).toBe(store2.viewModel.diffView.length)
@@ -1129,45 +1129,45 @@ describe('deterministic', () => {
   it('deterministic across repeated calls on same store', () => {
     const store = createStore()
     const metadata = buildValidMetadata()
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     const firstCount = store.viewModel.overview.traceCount
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(store.viewModel.overview.traceCount).toBe(firstCount)
   })
 
   it('deterministic with diff data', () => {
     const store = createStore()
     const metadata = { diff: [{ id: 'd1', timestamp: '12:00', added: ['A', 'B'], removed: ['C'], changed: [] }] }
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     const first = store.viewModel.diffView.length
     store.loadMockObservatory()
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(store.viewModel.diffView.length).toBe(first)
   })
 
   it('deterministic with runtime data', () => {
     const store = createStore()
     const metadata = { runtime: { worldId: 'det2', entityCount: 20, systemCount: 2, eventCount: 0, fps: 30, entities: [] } }
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     const first = store.viewModel.runtimeView.entityCount
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(store.viewModel.runtimeView.entityCount).toBe(first)
   })
 
   it('deterministic with eventStream data', () => {
     const store = createStore()
     const metadata = { eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } }
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     const first = store.viewModel.eventStreamView.events.length
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(store.viewModel.eventStreamView.events.length).toBe(first)
   })
 
   it('same invalid input produces same empty viewModel', () => {
     const store1 = createStore()
     const store2 = createStore()
-    store1.loadBridgeData(undefined)
-    store2.loadBridgeData(undefined)
+    store1.loadRealObservatory(undefined)
+    store2.loadRealObservatory(undefined)
     expectEmptyViewModel(store1)
     expectEmptyViewModel(store2)
   })
@@ -1175,8 +1175,8 @@ describe('deterministic', () => {
   it('same empty input produces same empty viewModel', () => {
     const store1 = createStore()
     const store2 = createStore()
-    store1.loadBridgeData({})
-    store2.loadBridgeData({})
+    store1.loadRealObservatory({})
+    store2.loadRealObservatory({})
     expectEmptyViewModel(store1)
     expectEmptyViewModel(store2)
   })
@@ -1189,49 +1189,49 @@ describe('deterministic', () => {
 describe('immutable', () => {
   it('bridgeData is frozen after bridge load', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
   it('bridgeData remains frozen after empty load', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
   it('bridgeData is frozen after full metadata load', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
   it('viewModel arrays are frozen after bridge load (via adapter)', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(Object.isFrozen(store.viewModel.trace)).toBe(true)
   })
 
   it('viewModel diffView is frozen after bridge load (via mapper+adapter)', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '12:00', added: ['A'], removed: [], changed: [] }] })
     expect(Object.isFrozen(store.viewModel.diffView)).toBe(true)
   })
 
   it('viewModel runtimeView is frozen', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'r', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'r', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
     expect(Object.isFrozen(store.viewModel.runtimeView)).toBe(true)
   })
 
   it('viewModel eventStreamView is frozen', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [] } })
+    store.loadRealObservatory({ eventStream: { events: [] } })
     expect(Object.isFrozen(store.viewModel.eventStreamView)).toBe(true)
   })
 
   it('viewModel stays frozen after empty bridge load', () => {
     const store = createStore()
-    store.loadBridgeData({})
+    store.loadRealObservatory({})
     expect(Object.isFrozen(store.viewModel)).toBe(true)
   })
 })
@@ -1241,26 +1241,26 @@ describe('immutable', () => {
 // ---------------------------------------------------------------------------
 
 describe('no mutation', () => {
-  it('loadBridgeData does not mutate input metadata', () => {
+  it('loadRealObservatory does not mutate input metadata', () => {
     const store = createStore()
     const metadata = { trace: [{ id: 't1', label: 'Original', steps: [] }] }
     const frozen = Object.freeze({ ...metadata })
-    expect(() => store.loadBridgeData(frozen)).not.toThrow()
+    expect(() => store.loadRealObservatory(frozen)).not.toThrow()
   })
 
-  it('loadBridgeData does not add properties to input', () => {
+  it('loadRealObservatory does not add properties to input', () => {
     const store = createStore()
     const metadata = { trace: [{ id: 't1', label: 'Test', steps: [] }] }
     const beforeKeys = Object.keys(metadata)
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(Object.keys(metadata)).toEqual(beforeKeys)
   })
 
-  it('loadBridgeData does not modify input values', () => {
+  it('loadRealObservatory does not modify input values', () => {
     const store = createStore()
     const metadata = { trace: [{ id: 't1', label: 'Unchanged', steps: [] }] }
     const before = JSON.stringify(metadata)
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(JSON.stringify(metadata)).toBe(before)
   })
 
@@ -1271,9 +1271,9 @@ describe('no mutation', () => {
 
   it('bridgeData ref is replaced, not mutated', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     const firstRef = store.bridgeData
-    store.loadBridgeData({ trace: [{ id: 't2', label: 'Second', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't2', label: 'Second', steps: [] }] })
     expect(store.bridgeData).not.toBe(firstRef)
   })
 
@@ -1281,12 +1281,12 @@ describe('no mutation', () => {
     const store = createStore()
     const refs: symbol[] = []
     for (let i = 0; i < 5; i++) {
-      store.loadBridgeData({ trace: [{ id: `t${i}`, label: `T${i}`, steps: [] }] })
+      store.loadRealObservatory({ trace: [{ id: `t${i}`, label: `T${i}`, steps: [] }] })
       refs.push(Object.getOwnPropertySymbols(store.bridgeData).find(() => true) ?? Symbol())
     }
     // All refs should be unique
     const dataRef1 = store.bridgeData
-    store.loadBridgeData({ trace: [{ id: 'final', label: 'Final', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 'final', label: 'Final', steps: [] }] })
     expect(store.bridgeData).not.toBe(dataRef1)
   })
 })
@@ -1298,8 +1298,8 @@ describe('no mutation', () => {
 describe('statelessness', () => {
   it('multiple bridge loads do not accumulate state', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'A', steps: [] }] })
-    store.loadBridgeData({ trace: [{ id: 't2', label: 'B', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'A', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't2', label: 'B', steps: [] }] })
     expect(store.viewModel.trace.length).toBe(1)
     expect(store.viewModel.trace[0].label).toBe('B')
   })
@@ -1307,7 +1307,7 @@ describe('statelessness', () => {
   it('bridge load after mock resets state', () => {
     const store = createStore()
     store.loadMockObservatory()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'Reset', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'Reset', steps: [] }] })
     expect(store.viewModel.trace[0].label).toBe('Reset')
     expect(store.viewModel.overview.traceCount).toBe(1)
   })
@@ -1315,8 +1315,8 @@ describe('statelessness', () => {
   it('no cross-store state leakage', () => {
     const store1 = createStore()
     const store2 = createStore()
-    store1.loadBridgeData({ trace: [{ id: 't1', label: 'Store1', steps: [] }] })
-    store2.loadBridgeData({ trace: [{ id: 't2', label: 'Store2', steps: [] }] })
+    store1.loadRealObservatory({ trace: [{ id: 't1', label: 'Store1', steps: [] }] })
+    store2.loadRealObservatory({ trace: [{ id: 't2', label: 'Store2', steps: [] }] })
     expect(store1.viewModel.trace[0].label).toBe('Store1')
     expect(store2.viewModel.trace[0].label).toBe('Store2')
   })
@@ -1324,39 +1324,39 @@ describe('statelessness', () => {
   it('no cross-store leakage with mapped keys', () => {
     const store1 = createStore()
     const store2 = createStore()
-    store1.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
-    store2.loadBridgeData({ diff: [{ id: 'd2', timestamp: '', added: ['B'], removed: [], changed: [] }] })
+    store1.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
+    store2.loadRealObservatory({ diff: [{ id: 'd2', timestamp: '', added: ['B'], removed: [], changed: [] }] })
     expect(store1.viewModel.diffView.length).toBe(1)
     expect(store2.viewModel.diffView.length).toBe(1)
   })
 
   it('bridgeData is replaced, not mutated across calls', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'First', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'First', steps: [] }] })
     const firstRef = store.bridgeData
-    store.loadBridgeData({ trace: [{ id: 't2', label: 'Second', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't2', label: 'Second', steps: [] }] })
     expect(store.bridgeData).not.toBe(firstRef)
   })
 
   it('diff data state is replaced on subsequent calls', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['X'], removed: [], changed: [] }] })
-    store.loadBridgeData({ diff: [{ id: 'd2', timestamp: '', added: ['Y'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['X'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd2', timestamp: '', added: ['Y'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('runtime state is replaced on subsequent calls', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'r1', entityCount: 10, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
-    store.loadBridgeData({ runtime: { worldId: 'r2', entityCount: 20, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'r1', entityCount: 10, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'r2', entityCount: 20, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
     expect(store.viewModel.runtimeView.worldId).toBe('r2')
     expect(store.viewModel.runtimeView.entityCount).toBe(20)
   })
 
   it('eventStream state is replaced on subsequent calls', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'A', message: 'M1' }] } })
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e2', timestamp: '', level: 'info', source: 'B', message: 'M2' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'A', message: 'M1' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e2', timestamp: '', level: 'info', source: 'B', message: 'M2' }] } })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
     expect(store.viewModel.eventStreamView.events[0].id).toBe('e2')
   })
@@ -1369,67 +1369,67 @@ describe('statelessness', () => {
 describe('shape integrity', () => {
   it('viewModel has overview after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.overview).toBeDefined()
   })
 
   it('viewModel has trace after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.trace).toBeDefined()
   })
 
   it('viewModel has traceView after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.traceView).toBeDefined()
   })
 
   it('viewModel has timelineView after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.timelineView).toBeDefined()
   })
 
   it('viewModel has historyView after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.historyView).toBeDefined()
   })
 
   it('viewModel has diffView after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.diffView).toBeDefined()
   })
 
   it('viewModel has runtimeView after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.runtimeView).toBeDefined()
   })
 
   it('viewModel has eventStreamView after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.eventStreamView).toBeDefined()
   })
 
   it('viewModel has timeline after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.timeline).toBeDefined()
   })
 
   it('viewModel has history after mapper consumption', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.history).toBeDefined()
   })
 
   it('viewModel shape matches ObservatoryViewModel', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     const vm = store.viewModel
     expect(vm).toHaveProperty('overview')
     expect(vm).toHaveProperty('trace')
@@ -1445,7 +1445,7 @@ describe('shape integrity', () => {
 
   it('overview has numeric counts', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(typeof store.viewModel.overview.traceCount).toBe('number')
     expect(typeof store.viewModel.overview.timelineCount).toBe('number')
     expect(typeof store.viewModel.overview.historyCount).toBe('number')
@@ -1453,7 +1453,7 @@ describe('shape integrity', () => {
 
   it('runtimeView shape is preserved', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     const rt = store.viewModel.runtimeView
     expect(typeof rt.worldId).toBe('string')
     expect(typeof rt.entityCount).toBe('number')
@@ -1465,14 +1465,14 @@ describe('shape integrity', () => {
 
   it('eventStreamView shape is preserved', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     const es = store.viewModel.eventStreamView
     expect(Array.isArray(es.events)).toBe(true)
   })
 
   it('diffView is array', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(Array.isArray(store.viewModel.diffView)).toBe(true)
   })
 })
@@ -1485,18 +1485,18 @@ describe('integration path', () => {
   it('full lifecycle: init → bridge → mock → bridge', () => {
     const store = createStore()
     expectEmptyViewModel(store)
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(store.viewModel.overview.traceCount).toBe(1)
     store.loadMockObservatory()
     expect(store.viewModel.overview.traceCount).toBe(3)
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     expect(store.viewModel.overview.traceCount).toBe(2)
   })
 
   it('bridge → empty → mock works', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
-    store.loadBridgeData({})
+    store.loadRealObservatory(buildValidMetadata())
+    store.loadRealObservatory({})
     expectEmptyViewModel(store)
     store.loadMockObservatory()
     expect(store.viewModel.overview.traceCount).toBe(3)
@@ -1504,39 +1504,39 @@ describe('integration path', () => {
 
   it('bridge with diff data survives mock cycle', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
     store.loadMockObservatory()
-    store.loadBridgeData({ diff: [{ id: 'd2', timestamp: '', added: ['B'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd2', timestamp: '', added: ['B'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('bridge with runtime data survives mock cycle', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'int', entityCount: 100, systemCount: 5, eventCount: 10, fps: 60, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'int', entityCount: 100, systemCount: 5, eventCount: 10, fps: 60, entities: [] } })
     expect(store.viewModel.runtimeView.worldId).toBe('int')
     store.loadMockObservatory()
-    store.loadBridgeData({ runtime: { worldId: 'int2', entityCount: 200, systemCount: 8, eventCount: 20, fps: 120, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'int2', entityCount: 200, systemCount: 8, eventCount: 20, fps: 120, entities: [] } })
     expect(store.viewModel.runtimeView.worldId).toBe('int2')
   })
 
   it('bridge with eventStream data survives mock cycle', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
     store.loadMockObservatory()
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e2', timestamp: '', level: 'error', source: 'S', message: 'E' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e2', timestamp: '', level: 'error', source: 'S', message: 'E' }] } })
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
 
   it('multiple bridge loads with different sections all work', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'T', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'T', steps: [] }] })
     expect(store.viewModel.overview.traceCount).toBe(1)
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
     expect(store.viewModel.overview.traceCount).toBe(0) // reset
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't2', label: 'T2', steps: [] }],
       runtime: { worldId: 'w', entityCount: 5, systemCount: 1, eventCount: 0, fps: 0, entities: [] },
     })
@@ -1547,7 +1547,7 @@ describe('integration path', () => {
   it('bridge data with deep nesting does not throw', () => {
     const store = createStore()
     const deep = { trace: [{ id: 'deep', label: 'Deep', steps: [{ id: 'ds1', label: 'Step', status: 'ok' }] }] }
-    expect(() => store.loadBridgeData(deep)).not.toThrow()
+    expect(() => store.loadRealObservatory(deep)).not.toThrow()
   })
 
   it('frozen metadata object does not throw', () => {
@@ -1555,7 +1555,7 @@ describe('integration path', () => {
     const metadata = Object.freeze({
       trace: [{ id: 't1', label: 'Frozen', steps: [] }],
     })
-    expect(() => store.loadBridgeData(metadata)).not.toThrow()
+    expect(() => store.loadRealObservatory(metadata)).not.toThrow()
   })
 
   it('Object.create(null) with known keys works through mapper', () => {
@@ -1563,14 +1563,14 @@ describe('integration path', () => {
     const metadata = Object.create(null)
     metadata.trace = [{ id: 't1', label: 'Null Proto', steps: [] }]
     metadata.diff = [{ id: 'd1', timestamp: '', added: [], removed: [], changed: [] }]
-    store.loadBridgeData(metadata)
+    store.loadRealObservatory(metadata)
     expect(store.viewModel.overview.traceCount).toBe(1)
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('empty string metadata does not throw', () => {
     const store = createStore()
-    expect(() => store.loadBridgeData('')).not.toThrow()
+    expect(() => store.loadRealObservatory('')).not.toThrow()
   })
 })
 
@@ -1582,7 +1582,7 @@ describe('stress cases', () => {
   it('100 bridge loads in sequence', () => {
     const store = createStore()
     for (let i = 0; i < 100; i++) {
-      store.loadBridgeData({ trace: [{ id: `t${i}`, label: `Trace ${i}`, steps: [] }] })
+      store.loadRealObservatory({ trace: [{ id: `t${i}`, label: `Trace ${i}`, steps: [] }] })
     }
     expect(store.viewModel.trace[0].id).toBe('t99')
   })
@@ -1590,7 +1590,7 @@ describe('stress cases', () => {
   it('100 bridge loads with diff data (mapper invoked each time)', () => {
     const store = createStore()
     for (let i = 0; i < 100; i++) {
-      store.loadBridgeData({ diff: [{ id: `d${i}`, timestamp: '', added: [`Item${i}`], removed: [], changed: [] }] })
+      store.loadRealObservatory({ diff: [{ id: `d${i}`, timestamp: '', added: [`Item${i}`], removed: [], changed: [] }] })
     }
     expect(store.viewModel.diffView.length).toBe(1)
   })
@@ -1598,7 +1598,7 @@ describe('stress cases', () => {
   it('100 bridge loads with runtime data (mapper invoked each time)', () => {
     const store = createStore()
     for (let i = 0; i < 100; i++) {
-      store.loadBridgeData({ runtime: { worldId: `w${i}`, entityCount: i, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+      store.loadRealObservatory({ runtime: { worldId: `w${i}`, entityCount: i, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
     }
     expect(store.viewModel.runtimeView.worldId).toBe('w99')
     expect(store.viewModel.runtimeView.entityCount).toBe(99)
@@ -1607,7 +1607,7 @@ describe('stress cases', () => {
   it('100 bridge loads with eventStream data (mapper invoked each time)', () => {
     const store = createStore()
     for (let i = 0; i < 100; i++) {
-      store.loadBridgeData({ eventStream: { events: [{ id: `e${i}`, timestamp: '', level: 'info', source: 'S', message: `M${i}` }] } })
+      store.loadRealObservatory({ eventStream: { events: [{ id: `e${i}`, timestamp: '', level: 'info', source: 'S', message: `M${i}` }] } })
     }
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
@@ -1616,7 +1616,7 @@ describe('stress cases', () => {
     const store = createStore()
     for (let i = 0; i < 50; i++) {
       store.loadMockObservatory()
-      store.loadBridgeData({ diff: [{ id: `d${i}`, timestamp: '', added: [], removed: [], changed: [] }] })
+      store.loadRealObservatory({ diff: [{ id: `d${i}`, timestamp: '', added: [], removed: [], changed: [] }] })
       expect(store.viewModel.diffView.length).toBe(1)
     }
   })
@@ -1624,11 +1624,11 @@ describe('stress cases', () => {
   it('rapid alternating between bridge load types', () => {
     const store = createStore()
     for (let i = 0; i < 25; i++) {
-      store.loadBridgeData({ diff: [{ id: `d${i}`, timestamp: '', added: [], removed: [], changed: [] }] })
+      store.loadRealObservatory({ diff: [{ id: `d${i}`, timestamp: '', added: [], removed: [], changed: [] }] })
       expect(store.viewModel.diffView.length).toBe(1)
-      store.loadBridgeData({ runtime: { worldId: `w${i}`, entityCount: i, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+      store.loadRealObservatory({ runtime: { worldId: `w${i}`, entityCount: i, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
       expect(store.viewModel.runtimeView.worldId).toBe(`w${i}`)
-      store.loadBridgeData({ eventStream: { events: [{ id: `e${i}`, timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
+      store.loadRealObservatory({ eventStream: { events: [{ id: `e${i}`, timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
       expect(store.viewModel.eventStreamView.events.length).toBe(1)
     }
   })
@@ -1636,9 +1636,9 @@ describe('stress cases', () => {
   it('50 iterations of bridge → empty → mock cycle', () => {
     const store = createStore()
     for (let i = 0; i < 50; i++) {
-      store.loadBridgeData(buildValidMetadata())
+      store.loadRealObservatory(buildValidMetadata())
       expect(store.viewModel.overview.traceCount).toBe(1)
-      store.loadBridgeData({})
+      store.loadRealObservatory({})
       expectEmptyViewModel(store)
       store.loadMockObservatory()
       expect(store.viewModel.overview.traceCount).toBe(3)
@@ -1650,36 +1650,36 @@ describe('stress cases', () => {
     const largeTrace = Array.from({ length: 500 }, (_, i) => ({
       id: `t${i}`, label: `T${i}`, steps: [{ id: `s${i}`, label: `S${i}`, status: 'done' }],
     }))
-    store.loadBridgeData({ trace: largeTrace })
+    store.loadRealObservatory({ trace: largeTrace })
     expect(store.viewModel.trace.length).toBe(500)
   })
 
   it('1000 bridge loads with empty metadata does not degrade', () => {
     const store = createStore()
     for (let i = 0; i < 1000; i++) {
-      store.loadBridgeData({})
+      store.loadRealObservatory({})
     }
     expectEmptyViewModel(store)
   })
 
   it('mixed valid/invalid bridge loads do not corrupt state', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 'valid', label: 'Valid', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 'valid', label: 'Valid', steps: [] }] })
     expect(store.viewModel.overview.traceCount).toBe(1)
-    store.loadBridgeData(undefined)
+    store.loadRealObservatory(undefined)
     expectEmptyViewModel(store)
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
-    store.loadBridgeData(null)
+    store.loadRealObservatory(null)
     expectEmptyViewModel(store)
-    store.loadBridgeData({ runtime: { worldId: 'survive', entityCount: 1, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'survive', entityCount: 1, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
     expect(store.viewModel.runtimeView.worldId).toBe('survive')
   })
 
   it('consecutive bridge loads with all rename keys', () => {
     const store = createStore()
     for (let i = 0; i < 30; i++) {
-      store.loadBridgeData({
+      store.loadRealObservatory({
         diff: [{ id: `d${i}`, timestamp: '', added: [], removed: [], changed: [] }],
         runtime: { worldId: `w${i}`, entityCount: i, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
         eventStream: { events: [{ id: `e${i}`, timestamp: '', level: 'info', source: 'S', message: 'M' }] },
@@ -1726,15 +1726,15 @@ describe('backward compatibility', () => {
 
   it('passthrough keys still work without change', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'Backward', steps: [{ id: 's1', label: 'Step', status: 'done' }] }],
     })
     expect(store.viewModel.trace[0].label).toBe('Backward')
   })
 
-  it('store API is unchanged (loadBridgeData, loadMockObservatory)', () => {
+  it('store API is unchanged (loadRealObservatory, loadMockObservatory)', () => {
     const store = createStore()
-    expect(typeof store.loadBridgeData).toBe('function')
+    expect(typeof store.loadRealObservatory).toBe('function')
     expect(typeof store.loadMockObservatory).toBe('function')
     expect(store).toHaveProperty('viewModel')
     expect(store).toHaveProperty('bridgeData')
@@ -1742,13 +1742,13 @@ describe('backward compatibility', () => {
 
   it('adapter still produces frozen arrays', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(Object.isFrozen(store.viewModel.trace)).toBe(true)
   })
 
   it('bridge still produces frozen bridgeData', () => {
     const store = createStore()
-    store.loadBridgeData(buildValidMetadata())
+    store.loadRealObservatory(buildValidMetadata())
     expect(Object.isFrozen(store.bridgeData)).toBe(true)
   })
 
@@ -1762,13 +1762,13 @@ describe('backward compatibility', () => {
     const keys = Object.keys(store)
     expect(keys).toContain('viewModel')
     expect(keys).toContain('bridgeData')
-    expect(keys).toContain('loadBridgeData')
+    expect(keys).toContain('loadRealObservatory')
     expect(keys).toContain('loadMockObservatory')
   })
 
   it('bridge data with known keys still works without mapper renaming needed', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'Direct', steps: [] }],
       timeline: [{ id: 'tl1', label: 'Direct', entries: [] }],
       history: [{ id: 'h1', label: 'Direct', entries: [] }],
@@ -1790,7 +1790,7 @@ describe('backward compatibility', () => {
 
   it('overview derivation from arrays still works', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'T', steps: [] }, { id: 't2', label: 'T2', steps: [] }, { id: 't3', label: 'T3', steps: [] }],
     })
     expect(store.viewModel.overview.traceCount).toBe(3)
@@ -1798,7 +1798,7 @@ describe('backward compatibility', () => {
 
   it('no new public API surface introduced', () => {
     const store = createStore()
-    const originalKeys = ['viewModel', 'bridgeData', 'loadBridgeData', 'loadMockObservatory']
+    const originalKeys = ['viewModel', 'bridgeData', 'loadRealObservatory', 'loadMockObservatory']
     for (const key of originalKeys) {
       expect(key in store).toBe(true)
     }
@@ -1806,15 +1806,15 @@ describe('backward compatibility', () => {
 
   it('bridge still returns empty data for non-object inputs', () => {
     const store = createStore()
-    store.loadBridgeData(undefined)
+    store.loadRealObservatory(undefined)
     expect(store.bridgeData).toBe(EMPTY_BRIDGE_DATA)
-    store.loadBridgeData(null)
+    store.loadRealObservatory(null)
     expect(store.bridgeData).toBe(EMPTY_BRIDGE_DATA)
   })
 
   it('overview with mixed passthrough and rename keys works', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       trace: [{ id: 't1', label: 'T', steps: [] }],
       diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }],
     })
@@ -1824,7 +1824,7 @@ describe('backward compatibility', () => {
 
   it('runtime entity data preserved through mapper-adapter pipeline', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       runtime: {
         worldId: 'w', entityCount: 1, systemCount: 1, eventCount: 0, fps: 30,
         entities: [{ id: 'e1', type: 'Guard', position: '(0,0)', health: 75, state: 'Patrol', components: [{ name: 'Health', data: { current: 75, max: 100 } }] }],
@@ -1837,13 +1837,13 @@ describe('backward compatibility', () => {
 
   it('diff entry with empty added/removed/changed arrays produces DiffViewModel entry', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'empty-diff', timestamp: '12:00', added: [], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'empty-diff', timestamp: '12:00', added: [], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
   it('eventStream preserves event source field', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       eventStream: { events: [{ id: 'e1', timestamp: '12:00', level: 'info', source: 'CustomSource', message: 'Test' }] },
     })
     const events = store.viewModel.eventStreamView.events
@@ -1852,7 +1852,7 @@ describe('backward compatibility', () => {
 
   it('repeated mock loads after bridge do not accumulate mapper artifacts', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['X'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['X'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
     store.loadMockObservatory()
     store.loadMockObservatory()
@@ -1862,7 +1862,7 @@ describe('backward compatibility', () => {
 
   it('mapper processes bridge data with all empty slots', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: undefined, timeline: undefined, history: undefined, diff: undefined, runtime: undefined, eventStream: undefined, overview: undefined })
+    store.loadRealObservatory({ trace: undefined, timeline: undefined, history: undefined, diff: undefined, runtime: undefined, eventStream: undefined, overview: undefined })
     expectEmptyViewModel(store)
   })
 
@@ -1876,7 +1876,7 @@ describe('backward compatibility', () => {
 
   it('viewModel diffView data differs from bridgeData diff (keys renamed)', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['A'], removed: [], changed: [] }] })
     expect('diff' in store.bridgeData).toBe(true)
     expect('diffView' in store.bridgeData).toBe(false)
     expect(Array.isArray(store.viewModel.diffView)).toBe(true)
@@ -1884,7 +1884,7 @@ describe('backward compatibility', () => {
 
   it('viewModel runtimeView data differs from bridgeData runtime (keys renamed)', () => {
     const store = createStore()
-    store.loadBridgeData({ runtime: { worldId: 'rw', entityCount: 1, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
+    store.loadRealObservatory({ runtime: { worldId: 'rw', entityCount: 1, systemCount: 0, eventCount: 0, fps: 0, entities: [] } })
     expect('runtime' in store.bridgeData).toBe(true)
     expect('runtimeView' in store.bridgeData).toBe(false)
     expect(typeof store.viewModel.runtimeView.worldId).toBe('string')
@@ -1892,7 +1892,7 @@ describe('backward compatibility', () => {
 
   it('viewModel eventStreamView data differs from bridgeData eventStream (keys renamed)', () => {
     const store = createStore()
-    store.loadBridgeData({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
+    store.loadRealObservatory({ eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] } })
     expect('eventStream' in store.bridgeData).toBe(true)
     expect('eventStreamView' in store.bridgeData).toBe(false)
     expect(Array.isArray(store.viewModel.eventStreamView.events)).toBe(true)
@@ -1900,7 +1900,7 @@ describe('backward compatibility', () => {
 
   it('all three rename keys bridgeData present but viewModel sees adapted names', () => {
     const store = createStore()
-    store.loadBridgeData({
+    store.loadRealObservatory({
       diff: [{ id: 'd1', timestamp: '', added: [], removed: [], changed: [] }],
       runtime: { worldId: 'w', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       eventStream: { events: [] },
@@ -1917,9 +1917,9 @@ describe('backward compatibility', () => {
 
   it('second bridge load with different section data correctly resets all sections', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: ['Old'], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: ['Old'], removed: [], changed: [] }] })
     expect(store.viewModel.diffView.length).toBe(1)
-    store.loadBridgeData({ trace: [{ id: 'new', label: 'New', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 'new', label: 'New', steps: [] }] })
     // After reload with only trace, diff should reset to empty
     expect(store.viewModel.overview.traceCount).toBe(1)
     expect(store.viewModel.diffView).toEqual([])
@@ -1930,22 +1930,22 @@ describe('backward compatibility', () => {
     const deepMetadata = {
       trace: [{ id: 'deep', label: 'Deep', steps: [{ id: 'ds1', label: 'Step', status: 'done', extra: { nested: { value: 42 } } }] }],
     }
-    store.loadBridgeData(deepMetadata)
+    store.loadRealObservatory(deepMetadata)
     expect(store.viewModel.trace[0].steps[0].status).toBe('done')
   })
 
-  it('loadBridgeData with Symbol key in metadata does not throw', () => {
+  it('loadRealObservatory with Symbol key in metadata does not throw', () => {
     const store = createStore()
     const meta: Record<string | symbol, unknown> = { trace: [{ id: 't1', label: 'T', steps: [] }] }
     meta[Symbol('hidden')] = 'secret'
-    expect(() => store.loadBridgeData(meta)).not.toThrow()
+    expect(() => store.loadRealObservatory(meta)).not.toThrow()
   })
 
   it('Object.create(null) with diff key works through mapper', () => {
     const store = createStore()
     const meta = Object.create(null)
     meta.diff = [{ id: 'd1', timestamp: '', added: ['X'], removed: [], changed: [] }]
-    store.loadBridgeData(meta)
+    store.loadRealObservatory(meta)
     expect(store.viewModel.diffView.length).toBe(1)
   })
 
@@ -1953,7 +1953,7 @@ describe('backward compatibility', () => {
     const store = createStore()
     const meta = Object.create(null)
     meta.runtime = { worldId: 'np', entityCount: 1, systemCount: 0, eventCount: 0, fps: 0, entities: [] }
-    store.loadBridgeData(meta)
+    store.loadRealObservatory(meta)
     expect(store.viewModel.runtimeView.worldId).toBe('np')
   })
 
@@ -1961,7 +1961,7 @@ describe('backward compatibility', () => {
     const store = createStore()
     const meta = Object.create(null)
     meta.eventStream = { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] }
-    store.loadBridgeData(meta)
+    store.loadRealObservatory(meta)
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
   })
 
@@ -1972,7 +1972,7 @@ describe('backward compatibility', () => {
       runtime: { worldId: 's', entityCount: 0, systemCount: 0, eventCount: 0, fps: 0, entities: [] },
       eventStream: { events: [{ id: 'e1', timestamp: '', level: 'info', source: 'S', message: 'M' }] },
     })
-    store.loadBridgeData(meta)
+    store.loadRealObservatory(meta)
     expect(store.viewModel.diffView.length).toBe(1)
     expect(store.viewModel.runtimeView.worldId).toBe('s')
     expect(store.viewModel.eventStreamView.events.length).toBe(1)
@@ -1980,7 +1980,7 @@ describe('backward compatibility', () => {
 
   it('mapper output is consumed by adapter as plain object', () => {
     const store = createStore()
-    store.loadBridgeData(buildFullMetadata())
+    store.loadRealObservatory(buildFullMetadata())
     // If adapter receives wrong shape, viewModel properties would be defaults
     // Since they have data, the mapper-to-adapter contract is satisfied
     expect(store.viewModel.diffView.length).toBeGreaterThan(0)
@@ -1990,26 +1990,26 @@ describe('backward compatibility', () => {
 
   it('passthrough keys are not renamed by mapper (trace stays trace)', () => {
     const store = createStore()
-    store.loadBridgeData({ trace: [{ id: 't1', label: 'NotRenamed', steps: [] }] })
+    store.loadRealObservatory({ trace: [{ id: 't1', label: 'NotRenamed', steps: [] }] })
     expect('trace' in store.bridgeData).toBe(true)
     expect(store.viewModel.trace[0].label).toBe('NotRenamed')
   })
 
   it('timeline passthrough preserved after mapper', () => {
     const store = createStore()
-    store.loadBridgeData({ timeline: [{ id: 'tl1', label: 'NotRenamed', entries: [] }] })
+    store.loadRealObservatory({ timeline: [{ id: 'tl1', label: 'NotRenamed', entries: [] }] })
     expect(store.viewModel.timeline[0].label).toBe('NotRenamed')
   })
 
   it('history passthrough preserved after mapper', () => {
     const store = createStore()
-    store.loadBridgeData({ history: [{ id: 'h1', label: 'NotRenamed', entries: [] }] })
+    store.loadRealObservatory({ history: [{ id: 'h1', label: 'NotRenamed', entries: [] }] })
     expect(store.viewModel.history[0].label).toBe('NotRenamed')
   })
 
   it('overview with only diff data shows zero for array-derived counts', () => {
     const store = createStore()
-    store.loadBridgeData({ diff: [{ id: 'd1', timestamp: '', added: [], removed: [], changed: [] }] })
+    store.loadRealObservatory({ diff: [{ id: 'd1', timestamp: '', added: [], removed: [], changed: [] }] })
     expect(store.viewModel.overview.traceCount).toBe(0)
     expect(store.viewModel.overview.timelineCount).toBe(0)
     expect(store.viewModel.overview.historyCount).toBe(0)

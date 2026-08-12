@@ -475,16 +475,21 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   }
 
   /**
-   * Load bridge data from raw metadata.
+   * Load real observatory data from PromptBuilder metadata.
+   *
+   * PRIMARY PATH — this is the canonical way to load Observatory data.
+   * Accepts raw metadata (unknown), chains through the existing pipeline:
+   *
+   *   Bridge → Mapper → Adapter → ViewModel
    *
    * Uses DefaultObservatoryMetadataBridge to extract known keys.
    * Stores the result in bridgeData.
    * Recomputes viewModel from bridge data when non-empty.
    *
-   * Bridge data has priority — viewModel is computed from bridge data,
+   * Real metadata has priority — viewModel is computed from real data,
    * not from mock data. Call loadMockObservatory() to restore mock data.
    */
-  function loadBridgeData(metadata: unknown): void {
+  function loadRealObservatory(metadata: unknown): void {
     const result = bridge.adapt(metadata)
     bridgeData.value = result
     const mapped = mapper.map(result)
@@ -500,6 +505,6 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     viewModel,
     bridgeData,
     loadMockObservatory,
-    loadBridgeData,
+    loadRealObservatory,
   }
 })

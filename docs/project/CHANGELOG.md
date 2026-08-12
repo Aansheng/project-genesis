@@ -6707,3 +6707,34 @@
 - No PromptBuilder changes, no Runtime changes, no Planner changes, no Pipeline changes, no AgentLoop changes, no Bridge changes, no Mapper changes, no Store changes, no UI changes
 - No breaking changes to any Public API
 - Architecture version v1.56 to v1.57
+
+### WO-S6-028 — Real Metadata Activation
+
+- **Architecture review conducted (WO-S6-028A)**: Hydrator unnecessary — existing pipeline already provides complete hydration
+- **Renamed `loadBridgeData` → `loadRealObservatory`** in `observatoryData.ts` — intent-revealing name, makes real metadata the primary path
+- **Mock path preserved** — `loadMockObservatory()` remains available for testing and development
+- **Existing consumption tests updated** — `ObservatoryMetadataBridgeConsumption.test.ts` all references renamed
+- **New test file**: `ObservatoryRealMetadataActivation.test.ts` — 40+ focused tests covering:
+  - Real metadata load (overview, trace, timeline, history, diff, runtime, eventStream)
+  - Mock fallback (preserved)
+  - Replacement behavior (real→mock→real cycle)
+  - Invalid metadata (null, undefined, primitives, arrays)
+  - Partial metadata (single section, empty, unknown keys)
+  - Immutable outputs (frozen bridgeData, no input mutation, determinism)
+- Created ADR-0171: Observatory Real Metadata Activation
+- Updated PROJECT_STATE.md — v1.58, WO-S6-028 in completed list
+- Updated CHANGELOG.md — v1.58, WO-S6-028
+- No Hydrator introduced
+- No Runtime changes
+- No Planner changes
+- No PromptBuilder changes
+- No Pipeline changes
+- No AgentLoop changes
+- No Bridge changes
+- No Mapper changes
+- No Adapter changes
+- No ViewModel changes
+- No UI changes
+- No new abstraction layers
+- No breaking changes to any Public API
+- Architecture version v1.57 to v1.58
