@@ -6403,3 +6403,56 @@
 - No PromptBuilder changes, no Runtime changes, no Planner changes, no Pipeline changes, no AgentLoop changes, no Metadata generation changes, no UI changes
 - No breaking changes to any Public API
 - Architecture version v1.53 to v1.54
+
+### WO-S6-025 — Prompt Observatory Metadata Consumption
+
+- Modified `apps/web/src/adapters/observatory/bridge/DefaultObservatoryMetadataBridge.ts`:
+  - Added `PromptObservatoryMetadataBuilder` dependency (`@genesis/ai`)
+  - Default: `DefaultPromptObservatoryMetadataBuilder`
+  - Constructor accepts optional builder (defaults to `DefaultPromptObservatoryMetadataBuilder`)
+  - `adapt()` now builds `PromptObservatoryMetadata` via builder before extracting known keys
+  - Builder invoked exactly once per `adapt()` call
+  - Preserved all existing behavior for invalid/empty/valid inputs
+- Updated `apps/web/src/__tests__/ObservatoryMetadataBridge.test.ts` — updated stateless test to account for builder property
+- Created `apps/web/src/__tests__/PromptObservatoryMetadataConsumption.test.ts` — 274 tests
+  - Section 1 — Builder invocation (14 tests)
+  - Section 2 — Single invocation (4 tests)
+  - Section 3 — All fields (11 tests)
+  - Section 4 — Partial metadata (12 tests)
+  - Section 5 — Unknown metadata (8 tests)
+  - Section 6 — Invalid metadata (18 tests)
+  - Section 7 — Contract preservation (15 tests)
+  - Section 8 — Bridge extraction (8 tests)
+  - Section 9 — Deterministic (10 tests)
+  - Section 10 — Immutable output (11 tests)
+  - Section 11 — Stateless (5 tests)
+  - Section 12 — No mutation (11 tests)
+  - Section 13 — Stress cases (14 tests)
+  - Section 14 — Backward compatibility (12 tests)
+  - Section 15 — Integration path (11 tests)
+  - Section 16 — Constructor (5 tests)
+  - Section 17 — Boundary values (10 tests)
+  - Section 18 — Edge cases (12 tests)
+  - Section 19 — Type safety (6 tests)
+  - Section 20 — Pure function guarantees (7 tests)
+  - Section 21 — Cross-field combinations (8 tests)
+  - Section 22 — Property descriptor handling (4 tests)
+  - Section 23 — Export verification (6 tests)
+  - Section 24 — Specific metadata shapes (7 tests)
+  - Section 25 — Null-prototype object handling (4 tests)
+  - Section 26 — Custom builder edge cases (4 tests)
+  - Section 27 — Error handling (6 tests)
+  - Section 28 — Performance (2 tests)
+  - Section 29 — Property descriptor preservation (1 test)
+  - Section 30 — Builder interaction patterns (7 tests)
+  - Section 31 — Result structure integrity (8 tests)
+  - Section 32 — Extended backward compatibility (7 tests)
+  - Section 33 — Repeated call patterns (5 tests)
+  - Section 34 — Nested object preservation (9 tests)
+- Created ADR-0168: Prompt Observatory Metadata Consumption
+- Updated PROJECT_STATE.md — v1.55, WO-S6-025 in completed list
+- Updated AI_ARCHITECTURE.md — v1.55 header
+- Updated CHANGELOG.md — v1.55, WO-S6-025
+- No PromptBuilder changes, no Runtime changes, no Planner changes, no Pipeline changes, no AgentLoop changes, no Metadata generation changes, no UI changes
+- No breaking changes to any Public API
+- Architecture version v1.54 to v1.55

@@ -1,6 +1,9 @@
 import type { ObservatoryMetadataBridge } from './ObservatoryMetadataBridge'
 import type { ObservatoryBridgeData } from './ObservatoryBridgeData'
 import { EMPTY_BRIDGE_DATA } from './ObservatoryBridgeData'
+import type { PromptObservatoryMetadataBuilder } from '@genesis/ai'
+import { DefaultPromptObservatoryMetadataBuilder } from '@genesis/ai'
+import type { PromptObservatoryMetadata } from '@genesis/ai'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -30,7 +33,10 @@ const KNOWN_KEYS: readonly string[] = [
  * DefaultObservatoryMetadataBridge — default implementation of
  * ObservatoryMetadataBridge.
  *
- * Accepts unknown metadata and extracts known observatory section keys.
+ * Consumes PromptObservatoryMetadata via PromptObservatoryMetadataBuilder.
+ * Accepts unknown metadata, builds a typed contract via the builder,
+ * then extracts known observatory section keys.
+ *
  * Ignores unknown keys, never mutates input, always returns a frozen result.
  *
  * Rules:
@@ -39,23 +45,34 @@ const KNOWN_KEYS: readonly string[] = [
  * - primitive → empty object
  * - array → empty object
  * - invalid shapes → empty object
- * - object → extract known keys only
+ * - object → build contract, extract known keys only
+ *
+ * Builder invoked exactly once per adapt() call.
  *
  * Pure. Stateless. Deterministic.
  */
 export class DefaultObservatoryMetadataBridge implements ObservatoryMetadataBridge {
+  private readonly builder: PromptObservatoryMetadataBuilder
+
+  constructor(builder?: PromptObservatoryMetadataBuilder) {
+    this.builder = builder ?? new DefaultPromptObservatoryMetadataBuilder()
+  }
+
   adapt(metadata: unknown): ObservatoryBridgeData {
     // Handle null, undefined, and non-object input
     if (!isObject(metadata)) {
       return EMPTY_BRIDGE_DATA
     }
 
-    // Extract only known keys
+    // Step 1: Build metadata contract via PromptObservatoryMetadataBuilder
+    const contract: PromptObservatoryMetadata = this.builder.build(metadata)
+
+    // Step 2: Read only contract fields
     const result: Record<string, unknown> = {}
 
     for (const key of KNOWN_KEYS) {
-      if (Object.prototype.hasOwnProperty.call(metadata, key)) {
-        result[key] = metadata[key]
+      if (Object.prototype.hasOwnProperty.call(contract, key)) {
+        result[key] = (contract as Record<string, unknown>)[key]
       }
     }
 

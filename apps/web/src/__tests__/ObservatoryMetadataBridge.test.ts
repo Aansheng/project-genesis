@@ -565,11 +565,11 @@ describe('bridge — deterministic behavior', () => {
 // ---------------------------------------------------------------------------
 
 describe('bridge — stateless behavior', () => {
-  it('bridge instance has no mutable state', () => {
+  it('bridge instance has only the builder as state', () => {
     const bridge = createBridge()
-    // Check that the instance has no own properties (all state is local in methods)
+    // The bridge has a private builder field (dependency injection)
     const ownKeys = Object.getOwnPropertyNames(bridge)
-    expect(ownKeys).toHaveLength(0)
+    expect(ownKeys).toEqual(['builder'])
   })
 
   it('consecutive calls do not affect each other', () => {
