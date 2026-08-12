@@ -96,6 +96,7 @@ import type {
   PromptAssemblyObservatoryDiff,
 } from '../strategy/PromptAssemblyObservatoryDiff'
 import type { PriorityAwarePromptAssemblyStrategy } from '../strategy/PriorityAwarePromptAssemblyStrategy'
+import type { PromptObservatoryMetadataEmitter, PromptObservatoryMetadata } from '../observatory'
 import { DefaultPromptStrategy } from '../strategy/DefaultPromptStrategy'
 import { DefaultPromptStrategyRenderer } from '../strategy/DefaultPromptStrategyRenderer'
 import { DefaultStrategyModuleRenderer } from '../strategy/DefaultStrategyModuleRenderer'
@@ -164,6 +165,9 @@ export class DefaultPromptBuilder implements PromptBuilder {
     PromptAssemblyObservatoryExporter
   private readonly promptAssemblyObservatorySnapshotBuilder?:
     PromptAssemblyObservatorySnapshotBuilder
+
+  private readonly promptObservatoryMetadataEmitter?:
+    PromptObservatoryMetadataEmitter
 
   /**
    * Create a DefaultPromptBuilder.
@@ -264,6 +268,8 @@ export class DefaultPromptBuilder implements PromptBuilder {
         opts.promptAssemblyObservatoryExporter
       this.promptAssemblyObservatorySnapshotBuilder =
         opts.promptAssemblyObservatorySnapshotBuilder
+      this.promptObservatoryMetadataEmitter =
+        opts.promptObservatoryMetadataEmitter
     } else {
       // Legacy positional form
       this.renderer = (rendererOrOptions as PromptRenderer | undefined) ?? new DefaultPromptRenderer()
@@ -316,6 +322,7 @@ export class DefaultPromptBuilder implements PromptBuilder {
         undefined
       this.promptAssemblyObservatorySnapshotBuilder =
         undefined
+      this.promptObservatoryMetadataEmitter = undefined
     }
   }
 
@@ -721,6 +728,18 @@ export class DefaultPromptBuilder implements PromptBuilder {
         )
     }
 
+    // Phase 0.959978: PromptObservatoryMetadataEmitter — emit typed metadata contract
+    let observatoryMetadata:
+      | PromptObservatoryMetadata
+      | undefined
+
+    if (this.promptObservatoryMetadataEmitter !== undefined) {
+      observatoryMetadata =
+        this.promptObservatoryMetadataEmitter.emit(
+          promptAssemblyMetadata,
+        )
+    }
+
     // Phase 0.96: PromptAssemblyStrategyResolver — resolve and apply assembly strategy
     let promptAssemblyStrategyMetadata: { strategyName: string } | undefined
     let resolvedAssemblyStrategy: PromptAssemblyStrategy | undefined
@@ -868,6 +887,9 @@ export class DefaultPromptBuilder implements PromptBuilder {
           : {}),
         ...(observatorySnapshot !== undefined
           ? { observatorySnapshot }
+          : {}),
+        ...(observatoryMetadata !== undefined
+          ? { observatoryMetadata }
           : {}),
         ...(planApplied !== undefined ? { planApplied } : { planApplied: false }),
         ranking: rankingResult,

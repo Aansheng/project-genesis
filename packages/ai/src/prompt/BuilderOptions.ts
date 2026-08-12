@@ -60,6 +60,7 @@ import type {
 import type {
   PromptAssemblyObservatorySnapshotBuilder,
 } from '../strategy'
+import type { PromptObservatoryMetadataEmitter } from '../observatory'
 
 /**
  * BuilderOptions consolidates all optional collaborators for DefaultPromptBuilder
@@ -236,4 +237,11 @@ export interface BuilderOptions {
   /** Optional PromptAssemblyObservatorySnapshotBuilder (defaults to undefined — no observatory snapshot) */
   promptAssemblyObservatorySnapshotBuilder?:
     PromptAssemblyObservatorySnapshotBuilder
+
+  /**
+   * Optional PromptObservatoryMetadataEmitter (defaults to undefined — no metadata emission).
+   * Since WO-S6-027.
+   */
+  promptObservatoryMetadataEmitter?:
+    PromptObservatoryMetadataEmitter
 }
