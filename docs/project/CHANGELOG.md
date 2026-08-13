@@ -6,6 +6,31 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-011 — Position Component Foundation
+
+- **Created `PositionComponent` interface** — in `packages/shared/src/components/` with discriminant `type: 'position'` and typed `properties: { x: number, y: number }`
+- **Created `POSITION_COMPONENT_TYPE`** — canonical type identifier constant: `'position'`
+- **Created `createPositionComponent(x, y)`** — factory with pure, stateless, deterministic, deeply frozen output
+- **Created `isPositionComponent(component)`** — type guard that narrows `RuntimeComponent` → `PositionComponent`
+- **Established component pattern** — the first gameplay component sets the pattern for all future components (typed interface, discriminant type, factory, type guard, deep freeze, barrel exports)
+- **New directory**: `packages/shared/src/components/` with `PositionComponent.ts` and `index.ts`
+- **Updated `packages/shared/src/index.ts`** — added component exports
+- **New test file**: `PositionComponent.test.ts` — 56 tests across 10 sections (construction, type guard, serialization, immutability, deep freeze, determinism, negative coordinates, large coordinates, floating point values, type exports)
+- Created ADR-0183: Position Component Foundation
+- Updated PROJECT_STATE.md — v1.70, WO-S8-011 in completed list
+- Updated CHANGELOG.md — v1.70, WO-S8-011
+- No Runtime changes
+- No Projection changes
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No ECS implementation
+- No gameplay systems
+- No movement logic
+- No breaking changes to any Public API
+- Architecture version v1.69 to v1.70
+
 ### WO-S8-010 — Runtime World Mutation Foundation
 
 - **Created `WorldMutator` interface** — in `packages/runtime/src/mutation/` with `addEntity(world, entity): World`, `removeEntity(world, entityId): World`, `replaceEntity(world, entity): World`
