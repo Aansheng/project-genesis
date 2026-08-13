@@ -6,6 +6,31 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-008 — Runtime System Foundation
+
+- **Created `RuntimeSystem` interface** — in `packages/runtime/src/system/` defining `name: string` + `update(world: World): World` contract
+- **Created `RuntimeSystemRegistry` interface** — in `packages/runtime/src/system/` defining `register()`, `getSystems()`, `clear()` contract
+- **Created `DefaultRuntimeSystemRegistry`** — default implementation with `Map<string, RuntimeSystem>` storage, frozen `getSystems()` output, overwrite-on-conflict behavior
+- **Created `NoOpRuntimeSystem`** — identity transformation returning the world unchanged; validates the runtime system pipeline
+- **Updated `packages/runtime/src/system/index.ts`** — barrel exports
+- **Updated `packages/runtime/src/index.ts`** — added system exports
+- **New test file**: `RuntimeSystem.test.ts` — 55 tests across 10 sections (construction, registration, retrieval, multiple systems, clear, immutability, determinism, NoOp behavior, large collections, contract validation)
+- Created ADR-0180: Runtime System Foundation
+- Updated PROJECT_STATE.md — v1.67, WO-S8-008 in completed list
+- Updated CHANGELOG.md — v1.67, WO-S8-008
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No Projection changes
+- No ECS implementation
+- No gameplay systems
+- No update loop
+- No breaking changes to any Public API
+- Architecture version v1.66 to v1.67
+
 ### WO-S8-007 — Semantic World Generator Foundation
 
 - **Created `SemanticWorldGenerator`** — interface in `packages/ai/src/game-world/` for converting `PromptAssemblyDomainModel` → `GameWorldModel`
