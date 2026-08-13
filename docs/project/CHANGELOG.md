@@ -33,6 +33,31 @@
 - No breaking changes to any Public API
 - Architecture version v1.71 to v1.72
 
+### WO-S9-002 — Runtime → Renderer Synchronization Foundation
+
+- **Created `RenderEntity` interface** — in `packages/renderer/src/model/` with `id: string` and `type: string`; a lightweight renderer-specific entity type
+- **Created `RenderWorld` interface** — in `packages/renderer/src/model/` with `entities: readonly RenderEntity[]`; a lightweight renderer-specific world type
+- **Created `EMPTY_RENDER_WORLD`** — frozen constant with empty entities array; safe fallback for null/undefined/malformed input
+- **Created `RuntimeRendererAdapter` interface** — in `packages/renderer/src/adapter/` with single `adapt(world): RenderWorld` method; pure, stateless, synchronous contract
+- **Created `DefaultRuntimeRendererAdapter`** — default implementation; maps `Entity.id` → `RenderEntity.id`, `Entity.type` → `RenderEntity.type`; ignores `x`, `y`, `components`; handles null/undefined/null-entities input safely; all outputs deeply frozen
+- **New directories**: `packages/renderer/src/model/` and `packages/renderer/src/adapter/` with barrel exports
+- **Updated `packages/renderer/package.json`** — added `@genesis/shared: workspace:*` dependency
+- **Updated `packages/renderer/src/index.ts`** — added model and adapter exports
+- **Updated `packages/renderer/vitest.config.ts`** — expanded include pattern to `src/**/__tests__/**/*.test.ts`; added `@genesis/shared` resolve alias
+- **New test file**: `RuntimeRendererAdapter.test.ts` — 34 tests across 10 sections (construction, empty world, single entity, multiple entities, immutability, determinism, large worlds, serialization, frozen outputs, edge cases)
+- Created ADR-0186: Runtime → Renderer Synchronization Foundation
+- Updated PROJECT_STATE.md — v1.73, WO-S9-002 in completed list
+- Updated CHANGELOG.md — v1.73, WO-S9-002
+- No Runtime changes
+- No Pixi changes
+- No Position rendering
+- No Sprite creation
+- No Texture loading
+- No Animation
+- No Gameplay rendering
+- No breaking changes to any Public API
+- Architecture version v1.72 to v1.73
+
 ---
 
 ## Sprint 8 — Game DSL
