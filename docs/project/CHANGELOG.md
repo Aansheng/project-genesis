@@ -6,6 +6,33 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-012 — Movement System Foundation
+
+- **Created `MovementSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem` with no additional methods; marker interface for movement behavior
+- **Created `MovementSystemResult` type** — with `movedEntities: number`, `deltaX: number`, `deltaY: number` for execution metadata
+- **Created `DefaultMovementSystem`** — constructor accepts `(deltaX, deltaY)`; applies per-tick offset to all entities with a `PositionComponent`; entities without `PositionComponent` pass through unchanged; provides `update(world): World` and `updateWithResult(world): { world, result }` entry points
+- **Component-based entity selection** — uses `isPositionComponent()` type guard to identify entities with Position data; non-position entities, undefined components, and empty component arrays are all correctly handled
+- **New directory**: `packages/runtime/src/systems/` with `MovementSystem.ts`, `MovementSystemResult.ts`, `DefaultMovementSystem.ts`, and `index.ts`
+- **Updated `packages/runtime/src/index.ts`** — added systems exports
+- **New test file**: `MovementSystem.test.ts` — 58 tests across 13 sections (construction, single entity, multiple entities, entity without position, negative movement, fractional movement, large worlds, immutability, determinism, multiple ticks, execution loop integration, world mutation integration, empty world)
+- **New integration test**: `MovementExecutionLoopIntegration.test.ts` — 16 tests across 7 sections verifying the full pipeline: World(t0) → tick() → World(t1) accumulation, mixed entity types, fractional/negative movement, immutability, determinism, and large worlds
+- Created ADR-0184: Movement System Foundation
+- Updated PROJECT_STATE.md — v1.71, WO-S8-012 in completed list
+- Updated CHANGELOG.md — v1.71, WO-S8-012
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No Projection changes
+- No Physics
+- No Collision
+- No Input
+- No AI
+- No breaking changes to any Public API
+- Architecture version v1.70 to v1.71
+
 ### WO-S8-011 — Position Component Foundation
 
 - **Created `PositionComponent` interface** — in `packages/shared/src/components/` with discriminant `type: 'position'` and typed `properties: { x: number, y: number }`

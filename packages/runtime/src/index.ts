@@ -18,3 +18,7 @@ export { DefaultRuntimeExecutionLoop } from './execution'
 // Runtime World Mutation Foundation
 export type { WorldMutator, WorldMutationResult } from './mutation'
 export { DefaultWorldMutator } from './mutation'
+
+// Runtime Gameplay Systems
+export type { MovementSystem, MovementSystemResult } from './systems'
+export { DefaultMovementSystem } from './systems'
