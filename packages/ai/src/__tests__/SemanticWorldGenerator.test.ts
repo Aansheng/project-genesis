@@ -3,14 +3,22 @@
  * implementation for converting PromptAssemblyDomainModel → GameWorldModel.
  *
  * WO-S8-007 — Semantic World Generator Foundation
- * Architecture version v1.66
+ * WO-S8-013 — Semantic World Generator Enrichment Foundation
+ * Architecture version v1.76 → v1.77
+ *
+ * Richness verification:
+ *   - farm:       8 entities (was 4)
+ *   - rpg:        9 entities (was 4)
+ *   - platformer: 6 entities (was 3)
+ *   - survival:   6 entities (was 3)
+ *   - sandbox:    1 entity (unchanged)
  */
 
 import { describe, it, expect } from 'vitest'
 import { DefaultSemanticWorldGenerator } from '../game-world'
 import type { SemanticWorldGenerator } from '../game-world'
 import type { PromptAssemblyDomainModel, OverviewDomain } from '../observatory/domain'
-import type { GameWorldModel, WorldType } from '@genesis/shared'
+import type { WorldType } from '@genesis/shared'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -18,18 +26,6 @@ import type { GameWorldModel, WorldType } from '@genesis/shared'
 
 function createGenerator(): SemanticWorldGenerator {
   return new DefaultSemanticWorldGenerator()
-}
-
-/** Create a domain model with a specific overview title. */
-function createModelWithTitle(title: string): PromptAssemblyDomainModel {
-  return {
-    overview: {
-      traceCount: 1,
-      timelineCount: 0,
-      historyCount: 0,
-      ...(title ? { title } as unknown as Record<string, unknown> : {}),
-    } as OverviewDomain,
-  }
 }
 
 /** Create a domain model with a specific title via Record cast (forward-compatible). */
@@ -106,6 +102,11 @@ describe('construction', () => {
   it('generator implements SemanticWorldGenerator interface', () => {
     const generator = createGenerator()
     expect(typeof generator.generate).toBe('function')
+  })
+
+  it('constructor accepts custom catalog', () => {
+    const generator = new DefaultSemanticWorldGenerator()
+    expect(generator).toBeDefined()
   })
 
   it('generate method accepts PromptAssemblyDomainModel', () => {
@@ -223,85 +224,172 @@ describe('default world', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Section 4 — Entity Generation
+// Section 4 — Entity Generation — Farm
 // ---------------------------------------------------------------------------
 
-describe('entity generation', () => {
-  it('farm world generates 4 default entities', () => {
+describe('farm entity generation', () => {
+  it('farm world generates 8 entities (was 4)', () => {
     const model = createModelWithTitleRecord('Farm World')
     const result = createGenerator().generate(model)
-    expect(result.entities).toHaveLength(4)
+    expect(result.entities).toHaveLength(8)
   })
 
   it('farm entities have correct ids', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Farm'))
     expect(result.entities[0].id).toBe('player')
     expect(result.entities[1].id).toBe('merchant')
-    expect(result.entities[2].id).toBe('wheat-field')
-    expect(result.entities[3].id).toBe('harvest-quest')
+    expect(result.entities[2].id).toBe('farmer')
+    expect(result.entities[3].id).toBe('barn')
+    expect(result.entities[4].id).toBe('wheat-field')
+    expect(result.entities[5].id).toBe('corn-field')
+    expect(result.entities[6].id).toBe('storage')
+    expect(result.entities[7].id).toBe('harvest-quest')
   })
 
   it('farm entities have correct categories', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Farm'))
     expect(result.entities[0].category).toBe('player')
     expect(result.entities[1].category).toBe('npc')
-    expect(result.entities[2].category).toBe('terrain')
-    expect(result.entities[3].category).toBe('quest')
+    expect(result.entities[2].category).toBe('npc')
+    expect(result.entities[3].category).toBe('building')
+    expect(result.entities[4].category).toBe('terrain')
+    expect(result.entities[5].category).toBe('terrain')
+    expect(result.entities[6].category).toBe('building')
+    expect(result.entities[7].category).toBe('quest')
   })
 
   it('farm entities have correct names', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Farm'))
     expect(result.entities[0].name).toBe('Player')
     expect(result.entities[1].name).toBe('Merchant')
-    expect(result.entities[2].name).toBe('Wheat Field')
-    expect(result.entities[3].name).toBe('Harvest Quest')
+    expect(result.entities[2].name).toBe('Farmer')
+    expect(result.entities[3].name).toBe('Barn')
+    expect(result.entities[4].name).toBe('Wheat Field')
+    expect(result.entities[5].name).toBe('Corn Field')
+    expect(result.entities[6].name).toBe('Storage')
+    expect(result.entities[7].name).toBe('Harvest Quest')
   })
 
-  it('rpg world generates 4 default entities', () => {
+  it('farm world includes farmer, barn, corn-field, storage', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm'))
+    const ids = result.entities.map((e) => e.id)
+    expect(ids).toContain('farmer')
+    expect(ids).toContain('barn')
+    expect(ids).toContain('corn-field')
+    expect(ids).toContain('storage')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 4b — Entity Generation — RPG
+// ---------------------------------------------------------------------------
+
+describe('rpg entity generation', () => {
+  it('rpg world generates 9 entities (was 4)', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('RPG'))
-    expect(result.entities).toHaveLength(4)
+    expect(result.entities).toHaveLength(9)
   })
 
   it('rpg entities have correct ids', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('RPG'))
     expect(result.entities[0].id).toBe('player')
     expect(result.entities[1].id).toBe('villager')
-    expect(result.entities[2].id).toBe('quest-giver')
-    expect(result.entities[3].id).toBe('enemy')
+    expect(result.entities[2].id).toBe('merchant')
+    expect(result.entities[3].id).toBe('quest-giver')
+    expect(result.entities[4].id).toBe('enemy')
+    expect(result.entities[5].id).toBe('boss')
+    expect(result.entities[6].id).toBe('town')
+    expect(result.entities[7].id).toBe('forest')
+    expect(result.entities[8].id).toBe('main-quest')
   })
 
   it('rpg entities have correct categories', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('RPG'))
     expect(result.entities[0].category).toBe('player')
     expect(result.entities[1].category).toBe('npc')
-    expect(result.entities[2].category).toBe('quest')
-    expect(result.entities[3].category).toBe('enemy')
+    expect(result.entities[2].category).toBe('npc')
+    expect(result.entities[3].category).toBe('quest')
+    expect(result.entities[4].category).toBe('enemy')
+    expect(result.entities[5].category).toBe('enemy')
+    expect(result.entities[6].category).toBe('building')
+    expect(result.entities[7].category).toBe('terrain')
+    expect(result.entities[8].category).toBe('quest')
   })
 
-  it('platformer world generates 3 default entities', () => {
+  it('rpg world includes merchant, boss, town, forest, main-quest', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('RPG'))
+    const ids = result.entities.map((e) => e.id)
+    expect(ids).toContain('merchant')
+    expect(ids).toContain('boss')
+    expect(ids).toContain('town')
+    expect(ids).toContain('forest')
+    expect(ids).toContain('main-quest')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 4c — Entity Generation — Platformer
+// ---------------------------------------------------------------------------
+
+describe('platformer entity generation', () => {
+  it('platformer world generates 6 entities (was 3)', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Platform'))
-    expect(result.entities).toHaveLength(3)
+    expect(result.entities).toHaveLength(6)
   })
 
   it('platformer entities have correct ids', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Platform'))
     expect(result.entities[0].id).toBe('player')
     expect(result.entities[1].id).toBe('terrain')
-    expect(result.entities[2].id).toBe('enemy')
+    expect(result.entities[2].id).toBe('platform')
+    expect(result.entities[3].id).toBe('enemy')
+    expect(result.entities[4].id).toBe('goal')
+    expect(result.entities[5].id).toBe('checkpoint')
   })
 
-  it('survival world generates 3 default entities', () => {
+  it('platformer world includes platform, goal, checkpoint', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Platform'))
+    const ids = result.entities.map((e) => e.id)
+    expect(ids).toContain('platform')
+    expect(ids).toContain('goal')
+    expect(ids).toContain('checkpoint')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 4d — Entity Generation — Survival
+// ---------------------------------------------------------------------------
+
+describe('survival entity generation', () => {
+  it('survival world generates 6 entities (was 3)', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Survival'))
-    expect(result.entities).toHaveLength(3)
+    expect(result.entities).toHaveLength(6)
   })
 
   it('survival entities have correct ids', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Survival'))
     expect(result.entities[0].id).toBe('player')
     expect(result.entities[1].id).toBe('resource')
-    expect(result.entities[2].id).toBe('enemy')
+    expect(result.entities[2].id).toBe('tree')
+    expect(result.entities[3].id).toBe('stone')
+    expect(result.entities[4].id).toBe('enemy')
+    expect(result.entities[5].id).toBe('campfire')
   })
 
+  it('survival world includes tree, stone, campfire', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Survival'))
+    const ids = result.entities.map((e) => e.id)
+    expect(ids).toContain('tree')
+    expect(ids).toContain('stone')
+    expect(ids).toContain('campfire')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 4e — Entity Generation — Sandbox
+// ---------------------------------------------------------------------------
+
+describe('sandbox entity generation', () => {
   it('sandbox world generates 1 default entity', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Custom'))
     expect(result.entities).toHaveLength(1)
@@ -397,7 +485,7 @@ describe('determinism', () => {
     const model = createModelWithTitleRecord('Farm')
     const result1 = createGenerator().generate(model)
     const result2 = createGenerator().generate(model)
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       expect(result1.entities[i].id).toBe(result2.entities[i].id)
     }
   })
@@ -451,7 +539,9 @@ describe('serialization', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Farm'))
     const json = JSON.stringify(result)
     expect(json).toContain('Merchant')
-    expect(json).toContain('Wheat Field')
+    expect(json).toContain('Farmer')
+    expect(json).toContain('Barn')
+    expect(json).toContain('Corn Field')
     expect(json).toContain('Harvest Quest')
   })
 
@@ -460,7 +550,7 @@ describe('serialization', () => {
     const json = JSON.stringify(original)
     const parsed = JSON.parse(json)
     expect(parsed.worldType).toBe('farm')
-    expect(parsed.entities).toHaveLength(4)
+    expect(parsed.entities).toHaveLength(8)
     expect(parsed.entities[0].id).toBe('player')
     expect(parsed.entities[0].category).toBe('player')
     expect(parsed.entities[0].name).toBe('Player')
@@ -492,7 +582,6 @@ describe('large inputs', () => {
       trace: traces,
     }
     const result = createGenerator().generate(model)
-    // World type should be sandbox (no title)
     expect(result.worldType).toBe('sandbox')
     expect(result.entities).toHaveLength(1)
   })
@@ -528,7 +617,7 @@ describe('large inputs', () => {
     }
     const result = createGenerator().generate(model)
     expect(result.worldType).toBe('farm')
-    expect(result.entities).toHaveLength(4)
+    expect(result.entities).toHaveLength(8)
   })
 })
 
@@ -622,12 +711,11 @@ describe('partial model', () => {
     }
     const result = createGenerator().generate(model)
     expect(result.worldType).toBe('survival')
-    expect(result.entities).toHaveLength(3)
+    expect(result.entities).toHaveLength(6)
   })
 
   it('full model with many sections still uses title for detection', () => {
     const result = createGenerator().generate(createFullModel())
-    // No title → sandbox
     expect(result.worldType).toBe('sandbox')
     expect(result.entities).toHaveLength(1)
   })
@@ -667,12 +755,10 @@ describe('edge cases', () => {
     const generator = createGenerator()
     const farm = generator.generate(createModelWithTitleRecord('Farm'))
     const rpg = generator.generate(createModelWithTitleRecord('RPG'))
-    // First result should not be affected by second call
     expect(farm.worldType).toBe('farm')
-    expect(farm.entities).toHaveLength(4)
-    // Second result should have its own data
+    expect(farm.entities).toHaveLength(8)
     expect(rpg.worldType).toBe('rpg')
-    expect(rpg.entities).toHaveLength(4)
+    expect(rpg.entities).toHaveLength(9)
   })
 
   it('worldType is always a valid WorldType value', () => {

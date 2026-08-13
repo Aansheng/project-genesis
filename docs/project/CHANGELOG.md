@@ -139,6 +139,33 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-013 — Semantic World Generator Enrichment Foundation
+
+- **Created `WorldTemplate` interface** — in `packages/ai/src/game-world/catalog/` with `worldType: WorldType` and `entities: readonly GameWorldEntity[]`; encapsulates a complete set of entity definitions
+- **Created `WorldTemplateCatalog` interface** — with `getTemplate(worldType): WorldTemplate`; single source of truth for entity templates
+- **Created `DefaultWorldTemplateCatalog`** — richer templates with total entities doubled from 15 to 30 (+100%): farm (8, +4), rpg (9, +5), platformer (6, +3), survival (6, +3), sandbox (1, unchanged)
+- **Updated `DefaultSemanticWorldGenerator`** — accepts optional `WorldTemplateCatalog` constructor parameter (defaults to `DefaultWorldTemplateCatalog`); replaced hardcoded `getDefaultEntities()` with `this.catalog.getTemplate()`; removed all inline entity template data
+- **New catalog abstraction** — templates are now decoupled from generation logic; follow-on WOs can provide custom catalogs
+- **New directory**: `packages/ai/src/game-world/catalog/` with `WorldTemplate.ts`, `WorldTemplateCatalog.ts`, `DefaultWorldTemplateCatalog.ts`, `index.ts`
+- **Updated `packages/ai/src/game-world/index.ts`** — added catalog exports
+- **New test file**: `WorldTemplateCatalog.test.ts` — 60+ tests across 11 sections (all templates, entity counts, farm template, rpg template, platformer template, survival template, sandbox template, immutability, determinism, frozen outputs, valid categories)
+- **Updated test file**: `SemanticWorldGenerator.test.ts` — entity count assertions updated (farm: 4→8, rpg: 4→9, platformer: 3→6, survival: 3→6); new entity IDs, categories, and names verified; all existing determinism/immutability/serialization tests preserved
+- Created ADR-0190: Semantic World Generator Enrichment Foundation
+- Updated PROJECT_STATE.md — v1.77, WO-S8-013 in completed list
+- Updated CHANGELOG.md — v1.77, WO-S8-013
+- No Runtime changes
+- No Renderer changes
+- No DSL changes
+- No Projection changes
+- No Movement changes
+- No Input System
+- No Collision
+- No Physics
+- No LLM
+- No AI calls
+- No breaking changes to any Public API
+- Architecture version v1.76 to v1.77
+
 ### WO-S8-012 — Movement System Foundation
 
 - **Created `MovementSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem` with no additional methods; marker interface for movement behavior

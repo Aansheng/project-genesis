@@ -3,8 +3,8 @@
  *
  * Converts a PromptAssemblyDomainModel into a GameWorldModel using deterministic
  * rule-based semantic synthesis. The world type is derived from the overview
- * title via keyword matching, and default entities are generated based on the
- * determined world type.
+ * title via keyword matching, and default entities are generated using a
+ * WorldTemplateCatalog.
  *
  * This is NOT AI generation. This is deterministic, rule-based synthesis.
  * No LLM, no gameplay logic, no interpretation.
@@ -16,12 +16,12 @@
  * - Contains "survival"  → 'survival'
  * - Otherwise            → 'sandbox'
  *
- * Default entities per world type:
- * - farm:       player, merchant, wheat-field, harvest-quest
- * - rpg:        player, villager, quest-giver, enemy
- * - platformer: player, terrain, enemy
- * - survival:   player, resource, enemy
- * - sandbox:    player
+ * Entity generation via WorldTemplateCatalog:
+ * - farm:       8 entities (player, merchant, farmer, barn, wheat-field, corn-field, storage, harvest-quest)
+ * - rpg:        9 entities (player, villager, merchant, quest-giver, enemy, boss, town, forest, main-quest)
+ * - platformer: 6 entities (player, terrain, platform, enemy, goal, checkpoint)
+ * - survival:   6 entities (player, resource, tree, stone, enemy, campfire)
+ * - sandbox:    1 entity (player)
  *
  * Design:
  * - Pure: no side effects, no I/O, no external calls
@@ -29,26 +29,13 @@
  * - Deterministic: same input always produces same output
  * - Immutable: all outputs are deeply frozen
  * - Defensive: safe extraction, no assumptions about input shape
+ * - Catalog-driven: entity templates are provided by WorldTemplateCatalog
  */
 import type { PromptAssemblyDomainModel } from '../observatory/domain'
-import type {
-  GameWorldModel,
-  GameWorldEntity,
-  WorldType,
-  EntityCategory,
-} from '@genesis/shared'
+import type { GameWorldModel, WorldType, GameWorldEntity } from '@genesis/shared'
 import type { SemanticWorldGenerator } from './SemanticWorldGenerator'
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-/** A template entry for a default entity. */
-interface EntityTemplate {
-  readonly id: string
-  readonly category: EntityCategory
-  readonly name: string
-}
+import type { WorldTemplateCatalog } from './catalog'
+import { DefaultWorldTemplateCatalog } from './catalog'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -66,53 +53,6 @@ const WORLD_TYPE_KEYWORDS: Readonly<Array<{ keyword: string; worldType: WorldTyp
     { keyword: 'survival', worldType: 'survival' },
   ])
 
-/**
- * Default entity templates per world type.
- *
- * Each world type has a predefined set of entities that represent the
- * core gameplay participants for that genre. These are foundational
- * templates, not AI-generated content.
- */
-function getDefaultEntities(): Readonly<Record<WorldType, readonly EntityTemplate[]>> {
-  const farm: readonly EntityTemplate[] = Object.freeze([
-    Object.freeze({ id: 'player', category: 'player' as EntityCategory, name: 'Player' }),
-    Object.freeze({ id: 'merchant', category: 'npc' as EntityCategory, name: 'Merchant' }),
-    Object.freeze({ id: 'wheat-field', category: 'terrain' as EntityCategory, name: 'Wheat Field' }),
-    Object.freeze({ id: 'harvest-quest', category: 'quest' as EntityCategory, name: 'Harvest Quest' }),
-  ])
-
-  const platformer: readonly EntityTemplate[] = Object.freeze([
-    Object.freeze({ id: 'player', category: 'player' as EntityCategory, name: 'Player' }),
-    Object.freeze({ id: 'terrain', category: 'terrain' as EntityCategory, name: 'Terrain' }),
-    Object.freeze({ id: 'enemy', category: 'enemy' as EntityCategory, name: 'Enemy' }),
-  ])
-
-  const rpg: readonly EntityTemplate[] = Object.freeze([
-    Object.freeze({ id: 'player', category: 'player' as EntityCategory, name: 'Player' }),
-    Object.freeze({ id: 'villager', category: 'npc' as EntityCategory, name: 'Villager' }),
-    Object.freeze({ id: 'quest-giver', category: 'quest' as EntityCategory, name: 'Quest Giver' }),
-    Object.freeze({ id: 'enemy', category: 'enemy' as EntityCategory, name: 'Enemy' }),
-  ])
-
-  const survival: readonly EntityTemplate[] = Object.freeze([
-    Object.freeze({ id: 'player', category: 'player' as EntityCategory, name: 'Player' }),
-    Object.freeze({ id: 'resource', category: 'item' as EntityCategory, name: 'Resource' }),
-    Object.freeze({ id: 'enemy', category: 'enemy' as EntityCategory, name: 'Enemy' }),
-  ])
-
-  const sandbox: readonly EntityTemplate[] = Object.freeze([
-    Object.freeze({ id: 'player', category: 'player' as EntityCategory, name: 'Player' }),
-  ])
-
-  return Object.freeze<Record<WorldType, readonly EntityTemplate[]>>({
-    farm,
-    platformer,
-    rpg,
-    survival,
-    sandbox,
-  })
-}
-
 // ---------------------------------------------------------------------------
 // DefaultSemanticWorldGenerator
 // ---------------------------------------------------------------------------
@@ -120,13 +60,23 @@ function getDefaultEntities(): Readonly<Record<WorldType, readonly EntityTemplat
 /**
  * DefaultSemanticWorldGenerator — default implementation of SemanticWorldGenerator.
  *
- * Pure. Stateless. Deterministic. Rule-based.
+ * Pure. Stateless. Deterministic. Rule-based. Catalog-driven.
  */
 export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
+  private readonly catalog: WorldTemplateCatalog
+
+  /**
+   * @param catalog — optional WorldTemplateCatalog; defaults to DefaultWorldTemplateCatalog
+   */
+  constructor(catalog?: WorldTemplateCatalog) {
+    this.catalog = catalog ?? new DefaultWorldTemplateCatalog()
+  }
+
   /**
    * Generate a GameWorldModel from a PromptAssemblyDomainModel.
    *
-   * Uses rule-based world type detection and default entity templates.
+   * Uses rule-based world type detection and the WorldTemplateCatalog
+   * for entity generation.
    *
    * @param model — typed PromptAssemblyDomainModel
    * @returns Deeply frozen GameWorldModel
@@ -143,7 +93,7 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
     // Detect world type from overview title
     const worldType = this.detectWorldType(model)
 
-    // Generate entities for the detected world type
+    // Generate entities for the detected world type via catalog
     const entities = this.generateEntities(worldType)
 
     // Build and freeze the model
@@ -159,15 +109,6 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
 
   /**
    * Detect the world type from the domain model's overview section.
-   *
-   * Uses a forward-compatible pattern to extract a "title" field from
-   * the overview section. If the title contains known keywords, the
-   * corresponding world type is returned.
-   *
-   * Falls back to DEFAULT_WORLD_TYPE when:
-   * - No overview section is present
-   * - No title can be extracted
-   * - Title doesn't match any known keyword
    */
   private detectWorldType(model: PromptAssemblyDomainModel): WorldType {
     const overview = model.overview
@@ -176,7 +117,7 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
       return DEFAULT_WORLD_TYPE
     }
 
-    // Forward-compatible title extraction (same pattern as DefaultGameDslBuilder)
+    // Forward-compatible title extraction
     const overviewRecord = overview as unknown as Readonly<Record<string, unknown>>
     const title = overviewRecord.title
 
@@ -189,9 +130,6 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
 
   /**
    * Match a title string against known world type keywords.
-   *
-   * Performs case-insensitive keyword matching. The first matching
-   * keyword determines the world type.
    */
   private matchWorldType(title: string): WorldType {
     const lowerTitle = title.toLowerCase()
@@ -210,32 +148,19 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
   // -------------------------------------------------------------------------
 
   /**
-   * Generate entities for the given world type.
+   * Generate entities for the given world type using the catalog.
    *
-   * Returns frozen entities from the default entity templates.
+   * Returns frozen entities from the WorldTemplateCatalog template.
    * Each entity is a frozen GameWorldEntity with id, category, and name.
    */
   private generateEntities(worldType: WorldType): readonly GameWorldEntity[] {
-    const templates = getDefaultEntities()[worldType]
+    const template = this.catalog.getTemplate(worldType)
 
-    if (!templates || templates.length === 0) {
+    if (!template || !template.entities || template.entities.length === 0) {
       return Object.freeze([])
     }
 
-    return Object.freeze(
-      templates.map(template => this.createEntity(template)),
-    )
-  }
-
-  /**
-   * Create a single GameWorldEntity from an entity template.
-   */
-  private createEntity(template: EntityTemplate): GameWorldEntity {
-    return Object.freeze({
-      id: template.id,
-      category: template.category,
-      name: template.name,
-    })
+    return template.entities
   }
 
   // -------------------------------------------------------------------------
@@ -244,8 +169,6 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
 
   /**
    * Create an empty GameWorldModel.
-   *
-   * Used when the input is invalid or empty.
    */
   private createEmptyModel(): GameWorldModel {
     return Object.freeze({
