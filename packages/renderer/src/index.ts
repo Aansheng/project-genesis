@@ -35,5 +35,10 @@ export type { RenderWorldView } from './view'
 export type { PixiEntityRenderer, PixiEntityRendererOptions } from './view'
 export { DefaultPixiEntityRenderer } from './view'
 
+// Runtime Visualization Loop types
+export type { RuntimeVisualizationLoop } from './runtime'
+export { DefaultRuntimeVisualizationLoop } from './runtime'
+export type { VisualizationTickResult } from './runtime'
+
 // Existing Canvas2D renderer (Sprint 1 foundation — preserved for backward compatibility)
 export { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from './renderWorld'

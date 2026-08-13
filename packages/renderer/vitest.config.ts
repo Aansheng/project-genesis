@@ -4,6 +4,7 @@ import { resolve } from 'path'
 export default defineConfig({
   resolve: {
     alias: {
+      '@genesis/runtime': resolve(__dirname, '../runtime/src'),
       '@genesis/shared': resolve(__dirname, '../shared/src'),
     },
   },

@@ -1,0 +1,148 @@
+/**
+ * DefaultRuntimeVisualizationLoop — the default implementation of
+ * RuntimeVisualizationLoop.
+ *
+ * Orchestrates the full tick pipeline:
+ *   World → executionLoop.tick() → new World → adapter.adapt() → RenderWorld → entityRenderer.render()
+ *
+ * State maintained:
+ *   - currentWorld:  the most recently computed World, stored between ticks
+ *   - running:       whether tick() should execute the full pipeline
+ *
+ * Behaviors:
+ *   - start(): sets running = true
+ *   - stop():  sets running = false
+ *   - tick():  only executes the pipeline when running === true
+ *   - Immutable: the stored currentWorld is always frozen
+ *   - Deterministic: same initial world + same systems = same visual output
+ *   - No animation: raw state snapshots only, no interpolation
+ *   - No scheduling: does not manage RAF or setInterval
+ */
+import type { World } from '@genesis/shared'
+import type { RuntimeExecutionLoop } from '@genesis/runtime'
+import type { RuntimeRendererAdapter } from '../adapter'
+import type { PixiEntityRenderer } from '../view'
+import type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
+import type { VisualizationTickResult } from './VisualizationTickResult'
+
+export class DefaultRuntimeVisualizationLoop
+  implements RuntimeVisualizationLoop
+{
+  private readonly executionLoop: RuntimeExecutionLoop
+  private readonly rendererAdapter: RuntimeRendererAdapter
+  private readonly entityRenderer: PixiEntityRenderer
+  private _currentWorld: World
+  private _running: boolean
+
+  /**
+   * @param executionLoop   — the runtime execution loop that progresses the simulation
+   * @param rendererAdapter — maps a Runtime World to a RenderWorld
+   * @param entityRenderer  — renders a RenderWorld onto the canvas
+   * @param initialWorld    — the starting World (stored as currentWorld)
+   */
+  constructor(
+    executionLoop: RuntimeExecutionLoop,
+    rendererAdapter: RuntimeRendererAdapter,
+    entityRenderer: PixiEntityRenderer,
+    initialWorld: World
+  ) {
+    this.executionLoop = executionLoop
+    this.rendererAdapter = rendererAdapter
+    this.entityRenderer = entityRenderer
+    this._currentWorld = initialWorld
+    this._running = false
+  }
+
+  // ─── Lifecycle ─────────────────────────────────────────────────────
+
+  /**
+   * Start the visualization loop.
+   * Subsequent tick() calls will execute the full pipeline.
+   */
+  start(): void {
+    this._running = true
+  }
+
+  /**
+   * Stop the visualization loop.
+   * Subsequent tick() calls will be no-ops.
+   */
+  stop(): void {
+    this._running = false
+  }
+
+  /**
+   * Check whether the visualization loop is currently running.
+   *
+   * @returns True if the loop is running and tick() will execute
+   */
+  isRunning(): boolean {
+    return this._running
+  }
+
+  // ─── Tick ───────────────────────────────────────────────────────────
+
+  /**
+   * Execute a single visualization tick.
+   *
+   * Pipeline:
+   *   currentWorld → executionLoop.tick() → newWorld
+   *     → rendererAdapter.adapt() → RenderWorld
+   *       → entityRenderer.render()
+   *
+   * The new World is stored as currentWorld for the next tick.
+   * Only executes when running === true.
+   */
+  tick(): void {
+    if (!this._running) return
+
+    this.executePipeline()
+  }
+
+  /**
+   * Execute a single visualization tick and return execution metadata.
+   *
+   * When running, executes the full pipeline and returns entity counts.
+   * When stopped, returns a result with zero counts without executing.
+   *
+   * @returns Frozen VisualizationTickResult
+   */
+  tickWithResult(): VisualizationTickResult {
+    if (!this._running) {
+      return Object.freeze({
+        entityCount: this._currentWorld.entities.length,
+        renderedCount: 0,
+      })
+    }
+
+    const renderedCount = this.executePipeline()
+
+    return Object.freeze({
+      entityCount: this._currentWorld.entities.length,
+      renderedCount,
+    })
+  }
+
+  // ─── Private ────────────────────────────────────────────────────────
+
+  /**
+   * Execute the full tick pipeline and return the number of rendered entities.
+   *
+   * @returns The number of entities rendered on the canvas
+   */
+  private executePipeline(): number {
+    // Step 1: Execute runtime systems
+    const newWorld = this.executionLoop.tick(this._currentWorld)
+
+    // Step 2: Adapt to RenderWorld
+    const renderWorld = this.rendererAdapter.adapt(newWorld)
+
+    // Step 3: Render on canvas and capture rendered entity count
+    const renderView = this.entityRenderer.render(renderWorld)
+
+    // Step 4: Store new world for next tick
+    this._currentWorld = newWorld
+
+    return renderView.entities.length
+  }
+}

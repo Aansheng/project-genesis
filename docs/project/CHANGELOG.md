@@ -106,6 +106,35 @@
 - No breaking changes to any Public API
 - Architecture version v1.74 to v1.75
 
+### WO-S9-005 — Runtime Visualization Loop Foundation
+
+- **Created `RuntimeVisualizationLoop` interface** — in `packages/renderer/src/runtime/` with `start()`, `stop()`, `isRunning()`, `tick()`, `tickWithResult()` lifecycle methods
+- **Created `VisualizationTickResult` interface** — frozen result with `entityCount: number` and `renderedCount: number`
+- **Created `DefaultRuntimeVisualizationLoop`** — default implementation; constructor accepts `executionLoop`, `rendererAdapter`, `entityRenderer`, `initialWorld`; `tick()` executes pipeline: `executionLoop.tick()` → `adapter.adapt()` → `entityRenderer.render()`; stores new World for next tick; only executes when `running === true`
+- **Pipeline**: `World → executionLoop.tick() → newWorld → rendererAdapter.adapt() → RenderWorld → entityRenderer.render() → Canvas`
+- **Stateful**: maintains `currentWorld` and `running` between ticks; `start()` enables, `stop()` disables
+- **New directory**: `packages/renderer/src/runtime/` with `RuntimeVisualizationLoop.ts`, `VisualizationTickResult.ts`, `DefaultRuntimeVisualizationLoop.ts`, `index.ts`
+- **Updated `packages/renderer/package.json`** — added `@genesis/runtime: workspace:*` dependency
+- **Updated `packages/renderer/vitest.config.ts`** — added `@genesis/runtime` resolve alias
+- **Updated `packages/renderer/src/index.ts`** — added runtime exports
+- **New test file**: `RuntimeVisualizationLoop.test.ts` — 34 tests across 16 sections (construction, start/stop lifecycle, multiple start, multiple stop, tick while stopped, tick while running, world progression, renderer invocation, adapter invocation, execution loop invocation, entity counts, multiple ticks, immutability, determinism, large worlds, memory stability)
+- **New test file**: `RuntimeVisualizationLoopIntegration.test.ts` — 9 tests across 2 sections (position changes, graphics positions after tick)
+- Created ADR-0189: Runtime Visualization Loop Foundation
+- Updated PROJECT_STATE.md — v1.76, WO-S9-005 in completed list
+- Updated CHANGELOG.md — v1.76, WO-S9-005
+- No Sprite changes
+- No Texture changes
+- No Asset loading
+- No Animation
+- No Camera
+- No Input
+- No Physics
+- No Gameplay Systems
+- No Planner changes
+- No DSL changes
+- No breaking changes to any Public API
+- Architecture version v1.75 to v1.76
+
 ---
 
 ## Sprint 8 — Game DSL
