@@ -6,6 +6,51 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-003 — Game DSL Runtime Projection Foundation
+
+- **Created `RuntimeProjection`** — interface for converting `GameDsl` → `RuntimeProjectionResult` in `packages/runtime/src/projection/`
+- **Created `RuntimeProjectionResult`** — typed result with `world: World`, `entityCount: number`, `componentCount: number`
+- **Created `DefaultRuntimeProjection`** — default implementation with pure, stateless, deterministic, immutable projection
+- **Entity projection** — each `EntityDsl` becomes a Runtime `Entity` with id/type preserved and x/y defaulted to 0
+- **Component counting** — components are counted (not stored) as pipeline validation, totaled into `componentCount`
+- **Defensive input handling** — undefined/null/non-object/missing-world DSL produces safe empty result
+- **Deeply frozen output** — `RuntimeProjectionResult`, `World`, `Entity[]`, and each `Entity` are `Object.freeze()`d
+- **No Runtime Entity changes** — existing Runtime `World`/`Entity` types unchanged
+- **No DSL changes** — projection works with existing `GameDsl` types
+- **Created `packages/runtime/src/projection/`** — new directory with interface, result type, implementation, and index.ts exports
+- **Updated `packages/runtime/src/index.ts`** — added projection exports
+- **New test file**: `RuntimeProjection.test.ts` — comprehensive tests covering:
+  - Construction (builder creation, interface conformance)
+  - Empty world (zero entities, zero components, undefined/null/array/null-world DSL)
+  - Single entity (id/type preservation, default position, null handling)
+  - Multiple entities (3 entities, order preservation, position defaults)
+  - Multiple components (sum counting, null/undefined components)
+  - Entity count (empty, single, multiple, mismatch, exclusion)
+  - Component count (empty, single, multiple, sum, mixed)
+  - Immutability (frozen result/world/entities/entities, no input mutation)
+  - Determinism (same input, multiple projectors, empty/single, order)
+  - Serialization (JSON round-trip, key presence, primitive types)
+  - Large worlds (100/1000 entities, many components, performance, frozen)
+  - Invalid DSL (undefined/null, non-object, missing world, mixed)
+  - Edge cases (string conversion, name handling, property count, stateless)
+- Created ADR-0175: Game DSL Runtime Projection Foundation
+- Updated PROJECT_STATE.md — v1.62, WO-S8-003 in completed list
+- Updated CHANGELOG.md — v1.62, WO-S8-003
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No ECS redesign
+- No simulation
+- No gameplay systems
+- No AI generation
+- No breaking changes to any Public API
+- Architecture version v1.61 to v1.62
+
+---
+
 ### WO-S8-002 — Prompt Assembly To Game DSL Builder Foundation
 
 - **Created `GameDslBuilder`** — interface for converting `PromptAssemblyDomainModel` → `GameDsl` in `packages/ai/src/game-dsl/`
