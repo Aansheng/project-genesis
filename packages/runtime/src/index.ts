@@ -14,3 +14,7 @@ export { DefaultRuntimeSystemRegistry, NoOpRuntimeSystem } from './system'
 // Runtime Execution Loop Foundation
 export type { RuntimeExecutionLoop, ExecutionTickResult } from './execution'
 export { DefaultRuntimeExecutionLoop } from './execution'
+
+// Runtime World Mutation Foundation
+export type { WorldMutator, WorldMutationResult } from './mutation'
+export { DefaultWorldMutator } from './mutation'

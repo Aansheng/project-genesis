@@ -6,6 +6,30 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-010 — Runtime World Mutation Foundation
+
+- **Created `WorldMutator` interface** — in `packages/runtime/src/mutation/` with `addEntity(world, entity): World`, `removeEntity(world, entityId): World`, `replaceEntity(world, entity): World`
+- **Created `WorldMutationResult` type** — with `world: World`, `entityCount: number`, `operation: string`
+- **Created `DefaultWorldMutator`** — default implementation with pure, stateless, deterministic, immutable behavior; addEntity appends frozen entity; removeEntity filters by id (returns unchanged if not found); replaceEntity matches by id (appends if not found)
+- **Defensive edge case handling** — non-existent id on removeEntity returns world unchanged; non-existent id on replaceEntity appends entity; duplicate ids allowed on addEntity; frozen output on all operations
+- **Updated `packages/runtime/src/mutation/index.ts`** — barrel exports
+- **Updated `packages/runtime/src/index.ts`** — added mutation exports
+- **New test file**: `WorldMutator.test.ts` — 59 tests across 11 sections (construction, addEntity, removeEntity, replaceEntity, missing entity, duplicate ids, immutability, determinism, large worlds, deep freeze, serialization)
+- Created ADR-0182: Runtime World Mutation Foundation
+- Updated PROJECT_STATE.md — v1.69, WO-S8-010 in completed list
+- Updated CHANGELOG.md — v1.69, WO-S8-010
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No Projection changes
+- No ECS implementation
+- No gameplay systems
+- No breaking changes to any Public API
+- Architecture version v1.68 to v1.69
+
 ### WO-S8-009 — Runtime Execution Loop Foundation
 
 - **Created `ExecutionTickResult` interface** — in `packages/runtime/src/execution/` defining `world`, `executedSystems` (readonly string[]), and `systemCount` for tick execution metadata
