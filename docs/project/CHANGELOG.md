@@ -4,6 +4,37 @@
 
 ---
 
+---
+
+## Sprint 9 — Renderer Foundation
+
+### WO-S9-001 — Pixi Renderer Foundation
+
+- **Created `Renderer` interface** — in `packages/renderer/src/core/` with `initialize(container): Promise<void>` and `destroy(): Promise<void>` lifecycle contract
+- **Created `RendererState` interface** — frozen, read-only snapshot with `initialized: boolean`, `width: number`, `height: number`
+- **Created `RendererResult` interface** — typed result wrapper with `success: boolean`
+- **Created `PixiRenderer` class** — concrete `Renderer` implementation backed by PixiJS `Application`; constructor accepts optional `{ width?, height?, backgroundColor?, createApp? }`; `initialize()` creates the PixiJS Application and appends the canvas to the host element; `destroy()` tears down the Application and all its resources; `getState()` returns a frozen `RendererState`
+- **Injectable `createApp` factory** — constructor accepts an optional factory for testability; production defaults to `new Application(...)`; tests inject mock factories to avoid requiring WebGL
+- **New package**: `packages/renderer/` with `package.json` (pixi.js dependency), `tsconfig.json`, `vitest.config.ts` (jsdom environment), and `src/index.ts` barrel exports
+- **New test file**: `Renderer.test.ts` — 28 tests across 10 sections (construction, initialize, destroy, multiple initialize, multiple destroy, destroy before initialize, state transitions, immutability, determinism, error handling)
+- Created ADR-0185: Pixi Renderer Foundation
+- Updated PROJECT_STATE.md — v1.72, WO-S9-001 in completed list
+- Updated CHANGELOG.md — v1.72, WO-S9-001
+- No Runtime changes
+- No Projection changes
+- No GameDsl changes
+- No Position rendering
+- No Runtime synchronization
+- No sprites
+- No textures
+- No assets
+- No animation
+- No gameplay visualization
+- No breaking changes to any Public API
+- Architecture version v1.71 to v1.72
+
+---
+
 ## Sprint 8 — Game DSL
 
 ### WO-S8-012 — Movement System Foundation
