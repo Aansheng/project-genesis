@@ -3,3 +3,4 @@ export type { PromptObservatoryMetadataBuilder } from './PromptObservatoryMetada
 export { DefaultPromptObservatoryMetadataBuilder } from './DefaultPromptObservatoryMetadataBuilder'
 export type { PromptObservatoryMetadataEmitter } from './PromptObservatoryMetadataEmitter'
 export { DefaultPromptObservatoryMetadataEmitter } from './DefaultPromptObservatoryMetadataEmitter'
+export * from './domain'

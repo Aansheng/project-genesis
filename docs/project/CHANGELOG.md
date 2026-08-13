@@ -4,6 +4,46 @@
 
 ---
 
+## Sprint 7 — DSL Preparation
+
+### WO-S7-001 — Prompt Assembly Domain Model Foundation
+
+- **Created `PromptAssemblyDomainModel`** — typed domain model interface with 7 typed sections: `OverviewDomain`, `TraceDomain` (with `TraceStepDomain`), `TimelineDomain` (with `TimelineEntryDomain`), `HistoryDomain` (with `HistoryEntryDomain`), `DiffDomain`, `RuntimeDomain` (with `RuntimeEntityDomain`, `RuntimeComponentDomain`), `EventStreamDomain` (with `EventDomain`, `EventLevelDomain`)
+- **Created `PromptAssemblyDomainModelBuilder`** — interface + `DefaultPromptAssemblyDomainModelBuilder` implementation
+- **Builder converts `PromptObservatoryMetadata` → `PromptAssemblyDomainModel`** — types each `unknown` slot defensively
+- **Builder rules**: pure, stateless, deterministic, no mutation, frozen output
+- **Safe extraction helpers**: `safeNumber`, `safeString`, `safeEventLevel` — all sections use defensive validation
+- **Omitted on failure**: invalid sections omitted (undefined), empty arrays omitted, null/invalid input returns empty frozen model
+- **Created `packages/ai/src/observatory/domain/`** — domain model directory with index.ts exports
+- **Updated `packages/ai/src/observatory/index.ts`** — added `export * from './domain'`
+- **New test file**: `PromptAssemblyDomainModelBuilder.test.ts` — 63 tests covering:
+  - Construction (builder creation, interface conformance)
+  - Empty metadata (undefined, null, empty object, non-object, array)
+  - Full metadata (all 7 sections with valid data)
+  - Partial metadata (single sections, null fields, empty entities)
+  - Immutability (frozen root, frozen sections, frozen arrays, no input mutation)
+  - Determinism (same input, multiple builders, empty/partial)
+  - Serialization (JSON round-trip, key presence, primitive types)
+  - Edge cases (extra fields, invalid items, non-array inputs, invalid event levels)
+  - Compatibility (no breaking changes, no web type coupling)
+- Created ADR-0172: Prompt Assembly Domain Model Foundation
+- Updated PROJECT_STATE.md — v1.59, WO-S7-001 in completed list
+- Updated CHANGELOG.md — v1.59, WO-S7-001
+- No Runtime changes
+- No Renderer changes
+- No DSL implementation
+- No Planner changes
+- No Pipeline changes
+- No UI changes
+- No Store changes
+- No Bridge changes
+- No Mapper changes
+- No Adapter changes
+- No breaking changes to any Public API
+- Architecture version v1.58 to v1.59
+
+---
+
 ## Sprint 1 — Runtime Foundation
 
 ### WO-S1-001 — Create Entity
