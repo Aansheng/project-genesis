@@ -80,6 +80,32 @@
 - No breaking changes to any Public API
 - Architecture version v1.73 to v1.74
 
+### WO-S9-004 — Pixi Entity Visualization Foundation
+
+- **Created `RenderEntityView` interface** — in `packages/renderer/src/view/` with `id: string` and `graphics: Graphics`; binds entity identity to its PixiJS display object
+- **Created `RenderWorldView` interface** — in `packages/renderer/src/view/` with `entities: readonly RenderEntityView[]` collection
+- **Created `PixiEntityRenderer` interface** — with `render(world): RenderWorldView` and `clear(): void` lifecycle methods
+- **Created `DefaultPixiEntityRenderer`** — default implementation; constructor accepts a `Container` and optional `createGraphics` factory; `render()` iterates entities, draws a 20×20 filled rectangle at `position.x/y` for each positioned entity; skips entities without position; `clear()` removes all Graphics from container and destroys them; `render()` calls `clear()` internally before re-drawing
+- **Graphics details** — filled rectangle: `beginFill(0x4fc3f7)`, `drawRect(0, 0, 20, 20)`, `endFill()`; positioned via `graphics.x/y`; no sprites, textures, or assets
+- **Memory safety** — `clear()` and `render()` both destroy old Graphics instances before creating new ones; safe to call on empty state; safe to call multiple times
+- **Injectable `createGraphics` factory** — same testability pattern as `createApp` from WO-S9-001; production defaults to `new Graphics()`; tests inject mock factories
+- **New directory**: `packages/renderer/src/view/` with `RenderEntityView.ts`, `RenderWorldView.ts`, `PixiEntityRenderer.ts`, `index.ts`
+- **Updated `packages/renderer/src/index.ts`** — added view exports
+- **New test file**: `PixiEntityRenderer.test.ts` — 28 tests across 13 sections (empty world, single entity, multiple entities, entity without position, mixed entities, negative coordinates, fractional coordinates, clear(), multiple render(), replace render(), immutability, determinism, memory cleanup)
+- Created ADR-0188: Pixi Entity Visualization Foundation
+- Updated PROJECT_STATE.md — v1.75, WO-S9-004 in completed list
+- Updated CHANGELOG.md — v1.75, WO-S9-004
+- No Runtime changes
+- No Movement changes
+- No Sprite changes (rectangles only)
+- No Texture loading
+- No Asset loading
+- No Animation
+- No Camera
+- No Gameplay rendering
+- No breaking changes to any Public API
+- Architecture version v1.74 to v1.75
+
 ---
 
 ## Sprint 8 — Game DSL
