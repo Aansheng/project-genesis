@@ -10,3 +10,7 @@ export { DefaultRuntimeProjection } from './projection'
 // Runtime System Foundation
 export type { RuntimeSystem, RuntimeSystemRegistry } from './system'
 export { DefaultRuntimeSystemRegistry, NoOpRuntimeSystem } from './system'
+
+// Runtime Execution Loop Foundation
+export type { RuntimeExecutionLoop, ExecutionTickResult } from './execution'
+export { DefaultRuntimeExecutionLoop } from './execution'

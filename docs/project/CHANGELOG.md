@@ -6,6 +6,30 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-009 — Runtime Execution Loop Foundation
+
+- **Created `ExecutionTickResult` interface** — in `packages/runtime/src/execution/` defining `world`, `executedSystems` (readonly string[]), and `systemCount` for tick execution metadata
+- **Created `RuntimeExecutionLoop` interface** — in `packages/runtime/src/execution/` with two entry points: `tick(world): World` (lightweight) and `tickWithResult(world): ExecutionTickResult` (with metadata)
+- **Created `DefaultRuntimeExecutionLoop`** — default implementation accepting a `RuntimeSystemRegistry` and executing all systems in registration order; empty registry returns world unchanged
+- **Updated `packages/runtime/src/execution/index.ts`** — barrel exports
+- **Updated `packages/runtime/src/index.ts`** — added execution exports
+- **New test file**: `RuntimeExecutionLoop.test.ts` — 54 tests across 11 sections (empty registry, single system, multiple systems, execution order, world propagation, immutability, determinism, large collections, NoOp systems, mixed systems, result metadata)
+- Created ADR-0181: Runtime Execution Loop Foundation
+- Updated PROJECT_STATE.md — v1.68, WO-S8-009 in completed list
+- Updated CHANGELOG.md — v1.68, WO-S8-009
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No Projection changes
+- No ECS scheduler
+- No gameplay systems
+- No async execution
+- No breaking changes to any Public API
+- Architecture version v1.67 to v1.68
+
 ### WO-S8-008 — Runtime System Foundation
 
 - **Created `RuntimeSystem` interface** — in `packages/runtime/src/system/` defining `name: string` + `update(world: World): World` contract

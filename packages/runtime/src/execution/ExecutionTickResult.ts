@@ -1,0 +1,32 @@
+/**
+ * ExecutionTickResult — the result of a single execution loop tick.
+ *
+ * Captures the output World along with metadata about which systems
+ * were executed during the tick.
+ *
+ * Design principles:
+ * - Immutable: all fields are readonly
+ * - Serializable: all types are JSON-serializable primitives
+ * - Informative: provides execution metadata for debugging and observability
+ * - Framework-independent: no Vue, Pinia, or web framework imports
+ * - UI-independent: no ViewModel or UI type imports
+ */
+import type { World } from '@genesis/shared'
+
+export interface ExecutionTickResult {
+  /**
+   * The output World after all systems have been executed.
+   */
+  readonly world: World
+
+  /**
+   * The names of systems that were executed during this tick,
+   * in execution order.
+   */
+  readonly executedSystems: readonly string[]
+
+  /**
+   * The total number of systems executed during this tick.
+   */
+  readonly systemCount: number
+}
