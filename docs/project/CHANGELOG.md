@@ -6,6 +6,32 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-005 — Semantic Game World DSL Foundation
+
+- **Created `GameWorldModel`** — semantic contract interface in `packages/shared/src/game-world/` with `worldType: WorldType` and `entities: readonly GameWorldEntity[]`
+- **Created `WorldType`** — union type of 5 game genres: `'farm' | 'platformer' | 'rpg' | 'survival' | 'sandbox'`
+- **Created `EntityCategory`** — union type of 7 entity roles: `'player' | 'npc' | 'enemy' | 'terrain' | 'building' | 'item' | 'quest'`
+- **Created `GameWorldEntity`** — interface with `id`, `category`, and `name` fields
+- **Created `EMPTY_GAME_WORLD_MODEL`** — frozen default constant with `'sandbox'` world type and empty entities
+- **New directory**: `packages/shared/src/game-world/` with `GameWorldModel.ts` and `index.ts`
+- **Updated `packages/shared/src/index.ts`** — added `game-world` export
+- **New test file**: `GameWorldModel.test.ts` — 73 tests across 10 sections (construction, world types, entity categories, empty model, serialization, immutability, determinism, entity structure, large models, type exports)
+- Created ADR-0177: Semantic Game World DSL Foundation
+- Updated PROJECT_STATE.md — v1.64, WO-S8-005 in completed list
+- Updated CHANGELOG.md — v1.64, WO-S8-005
+- No Runtime changes
+- No Projection changes
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No ECS changes
+- No gameplay execution
+- No breaking changes to any Public API
+- Architecture version v1.63 to v1.64
+
 ### WO-S8-004 — Runtime Component Model Foundation
 
 - **Created `RuntimeComponent`** — interface in `packages/shared/src/RuntimeComponent.ts` with `type: string` and `properties: Readonly<Record<string, unknown>>`

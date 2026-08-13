@@ -1,0 +1,5 @@
+export type { GameWorldModel } from './GameWorldModel'
+export type { GameWorldEntity } from './GameWorldModel'
+export type { WorldType } from './GameWorldModel'
+export type { EntityCategory } from './GameWorldModel'
+export { EMPTY_GAME_WORLD_MODEL } from './GameWorldModel'

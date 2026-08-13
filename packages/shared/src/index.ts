@@ -2,3 +2,4 @@ export type { Entity, World, Action, CreateEntityAction, MoveEntityAction } from
 export type { RuntimeComponent } from './RuntimeComponent'
 export type { RuntimeQuery } from './RuntimeQuery'
 export * from './game-dsl'
+export * from './game-world'

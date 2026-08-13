@@ -1,0 +1,133 @@
+/**
+ * GameWorldModel — semantic game world contracts.
+ *
+ * Defines the first domain-level game concepts. These types describe a game
+ * world in semantic terms: what kind of world it is (worldType), what entities
+ * exist (entities), and what category each entity belongs to.
+ *
+ * This is a CONTRACTS-ONLY model — no AI generation, no Runtime systems,
+ * no Renderer integration, no gameplay execution.
+ *
+ * Design principles:
+ * - Immutable: all fields are readonly
+ * - Serializable: all types are JSON-serializable primitives
+ * - Framework-independent: no Vue, Pinia, or web framework imports
+ * - Runtime-independent: no Runtime type imports
+ * - UI-independent: no ViewModel or UI type imports
+ * - Extensible: future fields can be added without breaking changes
+ * - Types only: no behavior, no methods, no logic
+ */
+
+// ---------------------------------------------------------------------------
+// WorldType
+// ---------------------------------------------------------------------------
+
+/**
+ * WorldType — the semantic genre of a game world.
+ *
+ * Describes what kind of game world this is. Each value represents a
+ * distinct game genre with different implied mechanics and entity roles.
+ *
+ * Current members:
+ * - 'farm'       — agricultural / life simulation (e.g., Stardew Valley)
+ * - 'platformer' — side-scrolling or 2D action platform (e.g., Super Mario)
+ * - 'rpg'        — role-playing game (e.g., The Witcher, Skyrim)
+ * - 'survival'   — resource-gathering survival (e.g., Minecraft Survival)
+ * - 'sandbox'    — open-ended creative sandbox (e.g., Minecraft Creative)
+ */
+export type WorldType =
+  | 'farm'
+  | 'platformer'
+  | 'rpg'
+  | 'survival'
+  | 'sandbox'
+
+// ---------------------------------------------------------------------------
+// EntityCategory
+// ---------------------------------------------------------------------------
+
+/**
+ * EntityCategory — the semantic role of a game world entity.
+ *
+ * Describes what role an entity plays in the game world. Each category
+ * implies different behaviors, interactions, and rendering concerns.
+ *
+ * Current members:
+ * - 'player'    — the user-controlled character
+ * - 'npc'       — non-player character (friendly or neutral)
+ * - 'enemy'     - hostile entity
+ * - 'terrain'   - static world geometry (trees, rocks, water, ground)
+ * - 'building'  - constructed structure (house, farm, wall, gate)
+ * - 'item'      - collectible or usable object
+ * - 'quest'     - quest marker or objective trigger
+ */
+export type EntityCategory =
+  | 'player'
+  | 'npc'
+  | 'enemy'
+  | 'terrain'
+  | 'building'
+  | 'item'
+  | 'quest'
+
+// ---------------------------------------------------------------------------
+// GameWorldEntity
+// ---------------------------------------------------------------------------
+
+/**
+ * GameWorldEntity — a single entity in a semantic game world model.
+ *
+ * Entities are the primary actors and objects in the game world.
+ * Each entity has an identifier, a semantic category, and a
+ * human-readable name.
+ *
+ * The category determines the entity's role in the game world.
+ * The name is a human-readable label (e.g., "Villager", "Oak Tree",
+ * "Iron Sword"). The id is a machine-readable identifier.
+ */
+export interface GameWorldEntity {
+  /** Machine-readable entity identifier. */
+  readonly id: string
+
+  /** Semantic category — determines the entity's role in the world. */
+  readonly category: EntityCategory
+
+  /** Human-readable entity name (e.g., "Villager", "Oak Tree"). */
+  readonly name: string
+}
+
+// ---------------------------------------------------------------------------
+// GameWorldModel
+// ---------------------------------------------------------------------------
+
+/**
+ * GameWorldModel — the root semantic game world contract.
+ *
+ * Describes an entire game world in semantic terms: what kind of world
+ * it is (worldType) and what entities exist within it (entities).
+ *
+ * This is a higher-level abstraction over GameDsl:
+ * - GameDsl describes a world in entity-component terms (low-level)
+ * - GameWorldModel describes a world in semantic terms (high-level)
+ *
+ * The two models serve different purposes:
+ * - GameDsl is consumed by the Runtime projection (concrete)
+ * - GameWorldModel is consumed by AI and game design (semantic)
+ */
+export interface GameWorldModel {
+  /** The semantic genre of this game world. */
+  readonly worldType: WorldType
+
+  /** Entities in the world. */
+  readonly entities: readonly GameWorldEntity[]
+}
+
+// ---------------------------------------------------------------------------
+// Defaults
+// ---------------------------------------------------------------------------
+
+/** Default empty game world model — used when no world is defined. */
+export const EMPTY_GAME_WORLD_MODEL: GameWorldModel = Object.freeze({
+  worldType: 'sandbox',
+  entities: Object.freeze([]),
+})
