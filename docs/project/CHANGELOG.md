@@ -6,6 +6,50 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-002 — Prompt Assembly To Game DSL Builder Foundation
+
+- **Created `GameDslBuilder`** — interface for converting `PromptAssemblyDomainModel` → `GameDsl` in `packages/ai/src/game-dsl/`
+- **Created `DefaultGameDslBuilder`** — default implementation with pure, stateless, deterministic, immutable behavior
+- **Section-to-entity mapping** — one entity per available section (overview, trace, timeline, history, diff, runtime, eventStream) with deterministic ordering
+- **MetadataComponent** — each entity carries a single `{ type: "metadata", properties: { source: sectionName } }` component for pipeline validation
+- **World name derivation** — forward-compatible lookup of `overview.title` with `"Untitled World"` fallback
+- **Deeply frozen output** — root `GameDsl`, `WorldDsl`, `EntityDsl`, `ComponentDsl`, `ComponentDsl.properties`, and all arrays are `Object.freeze()`d
+- **No Domain Model changes** — builder works with existing `PromptAssemblyDomainModel` interface unchanged
+- **No Game DSL changes** — builder produces existing `GameDsl` types unchanged
+- **Created `packages/ai/src/game-dsl/`** — new directory with interface, implementation, and index.ts exports
+- **New test file**: `GameDslBuilder.test.ts` — comprehensive tests covering:
+  - Construction (builder creation, interface conformance)
+  - Empty domain (fallback name, zero entities, undefined/null sections, frozen output)
+  - Partial domain (single sections, multi-section, entity order)
+  - Full domain (all 7 entity types, MetadataComponent, deterministic order)
+  - World naming (fallback, title extraction, numeric/null title)
+  - Entity generation (id/type properties, no duplicates)
+  - Component generation (metadata type, source tracking, serializability)
+  - Immutability (frozen root/world/entities/components, no input mutation)
+  - Determinism (same input, multiple builders, empty/partial, entity order)
+  - Serialization (JSON round-trip, key presence, primitive types)
+  - Large inputs (many items, deeply nested, empty arrays, performance)
+  - Edge cases (verbatim names, no extra properties, phantom sections)
+  - Compatibility (no breaking changes, no web/Runtime coupling, stateless)
+- Created ADR-0174: Game DSL Builder Foundation
+- Updated PROJECT_STATE.md — v1.61, WO-S8-002 in completed list
+- Updated CHANGELOG.md — v1.61, WO-S8-002
+- No Runtime changes
+- No Renderer changes
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No Game DSL changes
+- No Store changes
+- No UI changes
+- No ECS changes
+- No gameplay logic
+- No world simulation
+- No breaking changes to any Public API
+- Architecture version v1.60 to v1.61
+
+---
+
 ### WO-S8-001 — Game DSL Foundation
 
 - **Created `GameDsl`** — root typed contract for the Game DSL in `packages/shared/src/game-dsl/`
