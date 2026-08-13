@@ -91,8 +91,10 @@ importers:
   packages/shared:
     specifiers:
       typescript: ^5.4.0
+      vitest: ^1.6.0
     devDependencies:
       typescript: 5.9.3
+      vitest: 1.6.1
 
 packages:
 
@@ -914,6 +916,9 @@ packages:
       '@vue/compiler-dom': 3.x
       '@vue/server-renderer': 3.x
       vue: 3.x
+    peerDependenciesMeta:
+      '@vue/server-renderer':
+        optional: true
     dependencies:
       js-beautify: 1.15.4
       vue: 3.5.40_typescript@5.9.3
@@ -1848,6 +1853,9 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       canvas: ^2.11.2
+    peerDependenciesMeta:
+      canvas:
+        optional: true
     dependencies:
       cssstyle: 4.6.0
       data-urls: 5.0.0
@@ -2981,6 +2989,11 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
     dev: true
 
   /xml-name-validator/4.0.0:

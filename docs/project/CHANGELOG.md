@@ -4,6 +4,47 @@
 
 ---
 
+## Sprint 8 — Game DSL
+
+### WO-S8-001 — Game DSL Foundation
+
+- **Created `GameDsl`** — root typed contract for the Game DSL in `packages/shared/src/game-dsl/`
+- **Created `WorldDsl`** — world definition with `name: string` and `entities: readonly EntityDsl[]`
+- **Created `EntityDsl`** — entity with `id: string`, `type: string`, `components: readonly ComponentDsl[]`
+- **Created `ComponentDsl`** — component with `type: string` and `properties: Readonly<Record<string, unknown>>`
+- **Created `EMPTY_GAME_DSL`** — frozen default empty GameDsl constant
+- **ECS pattern** — entities with components follow Entity-Component-System architecture, enabling future typed component properties
+- **All interfaces**: readonly, immutable, serializable, framework-independent, runtime-independent, UI-independent
+- **Updated `packages/shared/src/index.ts`** — added `export * from './game-dsl'`
+- **New test file**: `packages/shared/src/tests/GameDsl.test.ts` — 52 tests covering:
+  - Construction (minimal dsl, world/entities/name properties)
+  - Immutability (EMPTY_GAME_DSL frozen, type-level readonly)
+  - Serialization (JSON round-trip, structure preservation)
+  - Nested entities (id, type, component count, data integrity)
+  - Nested components (Position, Health, AI, Inventory with properties)
+  - Readonly guarantees (string/array types, component properties)
+  - Empty world (EMPTY_GAME_DSL, empty entities, serialization)
+  - Large world (100 entities, alternating types, position data, serialization)
+  - Type exports (all types + EMPTY_GAME_DSL exported from package)
+- **Added vitest infrastructure** to shared package (`vitest.config.ts`, `package.json` test script + devDependency)
+- Created ADR-0173: Game DSL Foundation
+- Updated PROJECT_STATE.md — v1.60, WO-S8-001 in completed list
+- Updated CHANGELOG.md — v1.60, WO-S8-001
+- No Runtime changes
+- No Renderer changes
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No Store changes
+- No Observatory changes
+- No UI changes
+- No generation logic
+- No mapping logic
+- No breaking changes to any Public API
+- Architecture version v1.59 to v1.60
+
+---
+
 ## Sprint 7 — DSL Preparation
 
 ### WO-S7-001 — Prompt Assembly Domain Model Foundation
