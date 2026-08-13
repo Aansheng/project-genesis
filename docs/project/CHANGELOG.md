@@ -6,6 +6,39 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-007 — Semantic World Generator Foundation
+
+- **Created `SemanticWorldGenerator`** — interface in `packages/ai/src/game-world/` for converting `PromptAssemblyDomainModel` → `GameWorldModel`
+- **Created `DefaultSemanticWorldGenerator`** — default implementation with pure, stateless, deterministic, rule-based, deeply frozen outputs
+- **World type detection** — keyword-based matching on overview title: `"farm"` → `'farm'`, `"rpg"` → `'rpg'`, `"platform"` → `'platformer'`, `"survival"` → `'survival'`, otherwise → `'sandbox'` (case-insensitive, forward-compatible title extraction)
+- **Default entity templates** — per world type:
+  - `farm`: player, merchant, wheat-field, harvest-quest
+  - `rpg`: player, villager, quest-giver, enemy
+  - `platformer`: player, terrain, enemy
+  - `survival`: player, resource, enemy
+  - `sandbox`: player
+- **Defensive input handling** — undefined/null/non-object/array input produces sandbox world with zero entities; missing overview → sandbox default
+- **Deeply frozen output** — `GameWorldModel`, `entities[]`, and each `GameWorldEntity` are `Object.freeze()`d
+- **Updated `packages/ai/src/game-world/index.ts`** — added generator exports
+- **Updated `packages/ai/src/index.ts`** — added game-world generator exports
+- **New test file**: `SemanticWorldGenerator.test.ts` — 72 tests across 12 sections (construction, all world types, default world, entity generation, immutability, determinism, serialization, large inputs, invalid inputs, empty model, partial model, edge cases)
+- Created ADR-0179: Semantic World Generator Foundation
+- Updated PROJECT_STATE.md — v1.66, WO-S8-007 in completed list
+- Updated CHANGELOG.md — v1.66, WO-S8-007
+- No Runtime changes
+- No Projection changes
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No ECS changes
+- No LLM integration
+- No gameplay execution
+- No breaking changes to any Public API
+- Architecture version v1.65 to v1.66
+
 ### WO-S8-006 — Semantic World To Game DSL Builder Foundation
 
 - **Created `SemanticGameDslBuilder`** — interface in `packages/ai/src/game-world/` for converting `GameWorldModel` → `GameDsl`

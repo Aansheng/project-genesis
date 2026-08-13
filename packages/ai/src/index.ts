@@ -180,3 +180,5 @@ export { DefaultPromptObservatoryMetadataEmitter } from './observatory'
 // ---------------------------------------------------------------------------
 export type { SemanticGameDslBuilder } from './game-world'
 export { DefaultSemanticGameDslBuilder } from './game-world'
+export type { SemanticWorldGenerator } from './game-world'
+export { DefaultSemanticWorldGenerator } from './game-world'
