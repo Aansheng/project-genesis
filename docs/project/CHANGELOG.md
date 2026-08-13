@@ -8,6 +8,29 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S8-014 — Prompt Entity Extraction Foundation
+
+- **Created `ExtractedEntity` interface** — in `packages/ai/src/game-world/extraction/` with `category: EntityCategory` and `name: string`; a lightweight contract for entities identified via keyword extraction
+- **Created `PromptEntityExtractor` interface** — with `extract(model): readonly ExtractedEntity[]` method; pure, stateless, deterministic contract for extracting entities from domain models
+- **Created `DefaultPromptEntityExtractor`** — rule-based implementation; scans overview title for 15 known keywords (merchant, farmer, villager, barn, storage, town, quest, boss, enemy, forest, platform, checkpoint, tree, stone, campfire); case-insensitive matching; deduplicated; catalog-ordered output; all outputs deeply frozen
+- **Updated `DefaultSemanticWorldGenerator`** — added optional `entityExtractor?: PromptEntityExtractor` constructor parameter (defaults to `DefaultPromptEntityExtractor`); integrated extraction into generation flow: template → extraction → merge (template first, extracted appended, deduplicated by name); deterministic ordering
+- **Updated `packages/ai/src/game-world/index.ts`** — added extraction type and implementation exports
+- **New test file**: `PromptEntityExtractor.test.ts` — 51 tests across 10 sections (single keyword, multiple keywords, duplicates, case insensitive, empty prompt, unknown words, large prompt, immutability, determinism, invalid inputs)
+- **Updated test file**: `SemanticWorldGenerator.test.ts` — 97 tests (46 → 97, +51) covering template only, template + extraction, deduplication, empty extraction, ordering
+- Created ADR-0191: Prompt Entity Extraction Foundation
+- Updated PROJECT_STATE.md — v1.78, WO-S8-014 in completed list
+- Updated CHANGELOG.md — v1.78, WO-S8-014
+- No Runtime changes
+- No Renderer changes
+- No DSL changes
+- No Projection changes
+- No Input changes
+- No Physics changes
+- No Collision changes
+- No LLM
+- No breaking changes to any Public API
+- Architecture version v1.77 to v1.78
+
 ### WO-S9-001 — Pixi Renderer Foundation
 
 - **Created `Renderer` interface** — in `packages/renderer/src/core/` with `initialize(container): Promise<void>` and `destroy(): Promise<void>` lifecycle contract

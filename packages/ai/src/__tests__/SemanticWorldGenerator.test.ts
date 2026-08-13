@@ -4,7 +4,8 @@
  *
  * WO-S8-007 — Semantic World Generator Foundation
  * WO-S8-013 — Semantic World Generator Enrichment Foundation
- * Architecture version v1.76 → v1.77
+ * WO-S8-014 — Prompt Entity Extraction Foundation
+ * Architecture version v1.77 → v1.78
  *
  * Richness verification:
  *   - farm:       8 entities (was 4)
@@ -12,6 +13,13 @@
  *   - platformer: 6 entities (was 3)
  *   - survival:   6 entities (was 3)
  *   - sandbox:    1 entity (unchanged)
+ *
+ * Entity extraction verification:
+ *   - Template only: same as before (no extraction keywords in title)
+ *   - Template + extraction: extracted entities appended to template
+ *   - Deduplication: extracted entities that match template names are skipped
+ *   - Empty extraction: no extraction keywords → template only
+ *   - Ordering: template entities first, extracted entities after
  */
 
 import { describe, it, expect } from 'vitest'
@@ -789,5 +797,186 @@ describe('edge cases', () => {
         expect(entity.name.length).toBeGreaterThan(0)
       }
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 13 — Entity Extraction — Template Only
+// ---------------------------------------------------------------------------
+
+describe('entity extraction — template only', () => {
+  it('farm title without extraction keywords produces 8 farm entities', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm World'))
+    expect(result.entities).toHaveLength(8)
+  })
+
+  it('rpg title without extraction keywords produces 9 rpg entities', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('RPG Adventure'))
+    expect(result.entities).toHaveLength(9)
+  })
+
+  it('no extracted entities when title has no extraction keywords', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Custom Title'))
+    expect(result.entities).toHaveLength(1)
+    expect(result.entities[0].id).toBe('player')
+  })
+
+  it('extraction keywords in title that are already in template are deduplicated', () => {
+    // "Platform" is both a world type keyword and an extraction keyword
+    // Platformer template already has "Platform" entity → deduplicated
+    const result = createGenerator().generate(createModelWithTitleRecord('Platform Game'))
+    expect(result.entities).toHaveLength(6)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 14 — Entity Extraction — Template + Extraction
+// ---------------------------------------------------------------------------
+
+describe('entity extraction — template + extraction', () => {
+  it('sandbox world with extraction appends extracted entities', () => {
+    // Sandbox template: [player] + extracted: campfire
+    const result = createGenerator().generate(createModelWithTitleRecord('Campfire World'))
+    expect(result.entities).toHaveLength(2)
+    expect(result.entities[0].id).toBe('player')
+    expect(result.entities[1].id).toBe('campfire')
+    expect(result.entities[1].category).toBe('item')
+    expect(result.entities[1].name).toBe('Campfire')
+  })
+
+  it('sandbox world with multiple extractions appends all new entities', () => {
+    // Sandbox template: [player] + extracted: merchant, barn, campfire
+    const result = createGenerator().generate(createModelWithTitleRecord('Merchant Barn Campfire'))
+    expect(result.entities).toHaveLength(4)
+    expect(result.entities[0].id).toBe('player')
+    expect(result.entities[1].id).toBe('merchant')
+    expect(result.entities[1].category).toBe('npc')
+    expect(result.entities[1].name).toBe('Merchant')
+    expect(result.entities[2].id).toBe('barn')
+    expect(result.entities[2].category).toBe('building')
+    expect(result.entities[2].name).toBe('Barn')
+    expect(result.entities[3].id).toBe('campfire')
+    expect(result.entities[3].category).toBe('item')
+    expect(result.entities[3].name).toBe('Campfire')
+  })
+
+  it('survival world with extra extracted entities appends them', () => {
+    // Survival template: [player, resource, tree, stone, enemy, campfire] + extracted: barn
+    const result = createGenerator().generate(createModelWithTitleRecord('Survival with Barn'))
+    expect(result.entities).toHaveLength(7)
+    expect(result.entities[6].id).toBe('barn')
+    expect(result.entities[6].category).toBe('building')
+    expect(result.entities[6].name).toBe('Barn')
+  })
+
+  it('farm world with extra terrestrial keywords appends them', () => {
+    // Farm template: 8 entities + extracted: checkpoint (not in farm)
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm with Checkpoint'))
+    expect(result.entities).toHaveLength(9)
+    expect(result.entities[8].id).toBe('checkpoint')
+    expect(result.entities[8].category).toBe('terrain')
+    expect(result.entities[8].name).toBe('Checkpoint')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 15 — Entity Extraction — Deduplication
+// ---------------------------------------------------------------------------
+
+describe('entity extraction — deduplication', () => {
+  it('extracted entity already in template is skipped', () => {
+    // Farm template has "Merchant", "Farmer", "Barn"
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm merchant farmer barn'))
+    // Entity count should still be 8 (all extracted entities are in template)
+    expect(result.entities).toHaveLength(8)
+  })
+
+  it('partial deduplication — some new, some duplicates', () => {
+    // Farm template: [player, merchant, farmer, barn, wheat-field, corn-field, storage, harvest-quest]
+    // Extracted: merchant (dup), storage (dup), campfire (new)
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm merchant storage campfire'))
+    expect(result.entities).toHaveLength(9)
+    expect(result.entities[8].id).toBe('campfire')
+    expect(result.entities[8].category).toBe('item')
+  })
+
+  it('rpg template deduplicates boss and enemy', () => {
+    // RPG template has "Boss" and "Enemy"
+    const result = createGenerator().generate(createModelWithTitleRecord('RPG boss enemy forest'))
+    // forest is also in the template, so all are deduplicated
+    expect(result.entities).toHaveLength(9)
+  })
+
+  it('cross-category deduplication by name works', () => {
+    // Platformer template has "Platform" entity
+    // Extracted "platform" matches by name → deduplicated
+    const result = createGenerator().generate(createModelWithTitleRecord('Platform Campfire'))
+    // Template: 6 + new: campfire = 7
+    expect(result.entities).toHaveLength(7)
+    expect(result.entities[6].id).toBe('campfire')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 16 — Entity Extraction — Empty Extraction
+// ---------------------------------------------------------------------------
+
+describe('entity extraction — empty extraction', () => {
+  it('model without overview produces sandbox with zero entities', () => {
+    const result = createGenerator().generate(undefined as unknown as PromptAssemblyDomainModel)
+    expect(result.worldType).toBe('sandbox')
+    expect(result.entities).toHaveLength(0)
+  })
+
+  it('model with no known extraction keywords uses template only', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Hello World'))
+    expect(result.entities).toHaveLength(1)
+    expect(result.entities[0].id).toBe('player')
+  })
+
+  it('empty model uses template only', () => {
+    const result = createGenerator().generate(createEmptyModel())
+    expect(result.entities).toHaveLength(1)
+    expect(result.entities[0].id).toBe('player')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 17 — Entity Extraction — Ordering
+// ---------------------------------------------------------------------------
+
+describe('entity extraction — ordering', () => {
+  it('template entities come before extracted entities', () => {
+    // Farm template: 8 entities, then extracted: campfire
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm campfire'))
+    expect(result.entities).toHaveLength(9)
+    // First 8 are template entities
+    expect(result.entities[0].id).toBe('player')
+    expect(result.entities[7].id).toBe('harvest-quest')
+    // Last is extracted entity
+    expect(result.entities[8].id).toBe('campfire')
+  })
+
+  it('extracted entities maintain catalog order', () => {
+    // Sandbox: [player] + extracted: barn, campfire (catalog order)
+    const result = createGenerator().generate(createModelWithTitleRecord('Campfire Barn'))
+    // Catalog order: barn (building) comes before campfire (item)
+    expect(result.entities[1].id).toBe('barn')
+    expect(result.entities[2].id).toBe('campfire')
+  })
+
+  it('template entities maintain original order with extraction', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm campfire'))
+    const templateOrder = ['player', 'merchant', 'farmer', 'barn', 'wheat-field', 'corn-field', 'storage', 'harvest-quest']
+    for (let i = 0; i < templateOrder.length; i++) {
+      expect(result.entities[i].id).toBe(templateOrder[i])
+    }
+  })
+
+  it('ordering is deterministic across generations', () => {
+    const model = createModelWithTitleRecord('Farm campfire merchant barn')
+    const r1 = createGenerator().generate(model)
+    const r2 = createGenerator().generate(model)
+    expect(JSON.stringify(r1)).toBe(JSON.stringify(r2))
   })
 })

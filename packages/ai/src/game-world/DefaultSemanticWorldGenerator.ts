@@ -6,6 +6,19 @@
  * title via keyword matching, and default entities are generated using a
  * WorldTemplateCatalog.
  *
+ * Prompt Entity Extraction is integrated into the generation flow:
+ * PromptAssemblyDomainModel
+ *   ↓
+ * PromptEntityExtractor
+ *   ↓
+ * ExtractedEntities
+ *   ↓
+ * TemplateEntities
+ *   ↓
+ * Merge (template first, extracted appended, deduplicated by name)
+ *   ↓
+ * GameWorldModel
+ *
  * This is NOT AI generation. This is deterministic, rule-based synthesis.
  * No LLM, no gameplay logic, no interpretation.
  *
@@ -30,12 +43,15 @@
  * - Immutable: all outputs are deeply frozen
  * - Defensive: safe extraction, no assumptions about input shape
  * - Catalog-driven: entity templates are provided by WorldTemplateCatalog
+ * - Extraction-integrated: prompt content influences generated entities
  */
 import type { PromptAssemblyDomainModel } from '../observatory/domain'
 import type { GameWorldModel, WorldType, GameWorldEntity } from '@genesis/shared'
 import type { SemanticWorldGenerator } from './SemanticWorldGenerator'
 import type { WorldTemplateCatalog } from './catalog'
 import { DefaultWorldTemplateCatalog } from './catalog'
+import type { PromptEntityExtractor, ExtractedEntity } from './extraction'
+import { DefaultPromptEntityExtractor } from './extraction'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -64,19 +80,29 @@ const WORLD_TYPE_KEYWORDS: Readonly<Array<{ keyword: string; worldType: WorldTyp
  */
 export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
   private readonly catalog: WorldTemplateCatalog
+  private readonly entityExtractor: PromptEntityExtractor
 
   /**
    * @param catalog — optional WorldTemplateCatalog; defaults to DefaultWorldTemplateCatalog
+   * @param entityExtractor — optional PromptEntityExtractor; defaults to DefaultPromptEntityExtractor
    */
-  constructor(catalog?: WorldTemplateCatalog) {
+  constructor(catalog?: WorldTemplateCatalog, entityExtractor?: PromptEntityExtractor) {
     this.catalog = catalog ?? new DefaultWorldTemplateCatalog()
+    this.entityExtractor = entityExtractor ?? new DefaultPromptEntityExtractor()
   }
 
   /**
    * Generate a GameWorldModel from a PromptAssemblyDomainModel.
    *
    * Uses rule-based world type detection and the WorldTemplateCatalog
-   * for entity generation.
+   * for entity generation, then integrates prompt entity extraction.
+   *
+   * Flow:
+   * 1. Detect world type from overview title
+   * 2. Generate template entities for the world type
+   * 3. Extract entities from the prompt content
+   * 4. Merge: template first, extracted appended, deduplicated by name
+   * 5. Freeze and return
    *
    * @param model — typed PromptAssemblyDomainModel
    * @returns Deeply frozen GameWorldModel
@@ -93,13 +119,19 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
     // Detect world type from overview title
     const worldType = this.detectWorldType(model)
 
-    // Generate entities for the detected world type via catalog
-    const entities = this.generateEntities(worldType)
+    // Generate template entities for the detected world type via catalog
+    const templateEntities = this.generateTemplateEntities(worldType)
+
+    // Extract entities from the prompt content
+    const extractedEntities = this.entityExtractor.extract(model)
+
+    // Merge template entities with extracted entities
+    const mergedEntities = this.mergeEntities(templateEntities, extractedEntities)
 
     // Build and freeze the model
     return Object.freeze({
       worldType,
-      entities: Object.freeze(entities),
+      entities: Object.freeze(mergedEntities),
     })
   }
 
@@ -148,12 +180,12 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
   // -------------------------------------------------------------------------
 
   /**
-   * Generate entities for the given world type using the catalog.
+   * Generate template entities for the given world type using the catalog.
    *
    * Returns frozen entities from the WorldTemplateCatalog template.
    * Each entity is a frozen GameWorldEntity with id, category, and name.
    */
-  private generateEntities(worldType: WorldType): readonly GameWorldEntity[] {
+  private generateTemplateEntities(worldType: WorldType): readonly GameWorldEntity[] {
     const template = this.catalog.getTemplate(worldType)
 
     if (!template || !template.entities || template.entities.length === 0) {
@@ -161,6 +193,67 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
     }
 
     return template.entities
+  }
+
+  // -------------------------------------------------------------------------
+  // Private — Entity Merging
+  // -------------------------------------------------------------------------
+
+  /**
+   * Merge template entities with extracted entities.
+   *
+   * Rules:
+   * 1. Template entities come first (preserving template order)
+   * 2. Extracted entities are appended after template entities
+   * 3. Deduplication by name (case-insensitive): if an extracted entity's
+   *    name matches any template entity's name, it is skipped
+   * 4. Extracted entity deduplication: if the same keyword appears multiple
+   *    times in the prompt, only the first instance is kept
+   *    (handled by DefaultPromptEntityExtractor)
+   * 5. Deterministic ordering: template order → catalog order
+   *
+   * @param templateEntities — entities from the WorldTemplateCatalog template
+   * @param extractedEntities — entities extracted from the prompt
+   * @returns Non-frozen array of merged GameWorldEntity (frozen by caller)
+   */
+  private mergeEntities(
+    templateEntities: readonly GameWorldEntity[],
+    extractedEntities: readonly ExtractedEntity[],
+  ): GameWorldEntity[] {
+    if (extractedEntities.length === 0) {
+      // Fast path: no extraction, return template entities as-is
+      return [...templateEntities]
+    }
+
+    // Build a set of existing template entity names for deduplication
+    const existingNames = new Set<string>()
+    for (const entity of templateEntities) {
+      existingNames.add(entity.name.toLowerCase())
+    }
+
+    // Collect new extracted entities (those not already in template)
+    const result: GameWorldEntity[] = [...templateEntities]
+
+    for (const extracted of extractedEntities) {
+      const lowerName = extracted.name.toLowerCase()
+
+      // Skip if this name already exists in template entities
+      if (existingNames.has(lowerName)) {
+        continue
+      }
+
+      // Mark as seen to prevent duplicates within extracted entities
+      existingNames.add(lowerName)
+
+      // Convert extracted entity to GameWorldEntity
+      result.push({
+        id: lowerName,
+        category: extracted.category,
+        name: extracted.name,
+      })
+    }
+
+    return result
   }
 
   // -------------------------------------------------------------------------
