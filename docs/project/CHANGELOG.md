@@ -8,6 +8,30 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S8-015 — Prompt Entity Count Extraction Foundation
+
+- **Created `ExtractedEntityCount` interface** — in `packages/ai/src/game-world/extraction/` with `name: string` and `count: number`; a contract for quantities associated with extracted entity keywords
+- **Created `PromptEntityCountExtractor` interface** — with `extractCounts(model): readonly ExtractedEntityCount[]` method; pure, stateless, deterministic contract for extracting entity counts from domain models
+- **Created `DefaultPromptEntityCountExtractor`** — rule-based implementation; scans overview title for `<number> <keyword>` patterns; supports numeric digits (1-10+) and word-based numbers (one-ten); depluralization logic handles `-ies → -y`, `-es`, `-s` plural forms; deduplicated by keyword; catalog-ordered output; all outputs deeply frozen
+- **Updated `DefaultSemanticWorldGenerator`** — added optional `countExtractor?: PromptEntityCountExtractor` constructor parameter (defaults to `DefaultPromptEntityCountExtractor`); integrated count expansion into generation flow; count=1 creates single entity (no suffix); count>1 creates N suffixed entities (`name-1`, `name-2`, ...); template dedup skips entities matching template names
+- **Updated `packages/ai/src/game-world/extraction/index.ts`** — added count type and implementation exports
+- **Updated `packages/ai/src/game-world/index.ts`** — added count exports
+- **New test file**: `PromptEntityCountExtractor.test.ts` — 48 tests across 11 sections (numeric counts, word counts, mixed case, multiple entities, duplicates, empty prompt, invalid numbers, large prompt, immutability, determinism, invalid inputs)
+- **Updated test file**: `SemanticWorldGenerator.test.ts` — 222 tests (148 → 222, +74) covering count expansion, multi count, mixed entities, dedup with counts, ordering, compatibility
+- Created ADR-0192: Prompt Entity Count Extraction Foundation
+- Updated PROJECT_STATE.md — v1.79, WO-S8-015 in completed list
+- Updated CHANGELOG.md — v1.79, WO-S8-015
+- No Runtime changes
+- No Renderer changes
+- No DSL changes
+- No Projection changes
+- No Input
+- No Physics
+- No Collision
+- No LLM
+- No breaking changes to any Public API
+- Architecture version v1.78 to v1.79
+
 ### WO-S8-014 — Prompt Entity Extraction Foundation
 
 - **Created `ExtractedEntity` interface** — in `packages/ai/src/game-world/extraction/` with `category: EntityCategory` and `name: string`; a lightweight contract for entities identified via keyword extraction

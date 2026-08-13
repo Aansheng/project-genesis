@@ -52,6 +52,8 @@ import type { WorldTemplateCatalog } from './catalog'
 import { DefaultWorldTemplateCatalog } from './catalog'
 import type { PromptEntityExtractor, ExtractedEntity } from './extraction'
 import { DefaultPromptEntityExtractor } from './extraction'
+import type { PromptEntityCountExtractor, ExtractedEntityCount } from './extraction'
+import { DefaultPromptEntityCountExtractor } from './extraction'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -81,14 +83,21 @@ const WORLD_TYPE_KEYWORDS: Readonly<Array<{ keyword: string; worldType: WorldTyp
 export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
   private readonly catalog: WorldTemplateCatalog
   private readonly entityExtractor: PromptEntityExtractor
+  private readonly countExtractor: PromptEntityCountExtractor
 
   /**
    * @param catalog — optional WorldTemplateCatalog; defaults to DefaultWorldTemplateCatalog
    * @param entityExtractor — optional PromptEntityExtractor; defaults to DefaultPromptEntityExtractor
+   * @param countExtractor — optional PromptEntityCountExtractor; defaults to DefaultPromptEntityCountExtractor
    */
-  constructor(catalog?: WorldTemplateCatalog, entityExtractor?: PromptEntityExtractor) {
+  constructor(
+    catalog?: WorldTemplateCatalog,
+    entityExtractor?: PromptEntityExtractor,
+    countExtractor?: PromptEntityCountExtractor,
+  ) {
     this.catalog = catalog ?? new DefaultWorldTemplateCatalog()
     this.entityExtractor = entityExtractor ?? new DefaultPromptEntityExtractor()
+    this.countExtractor = countExtractor ?? new DefaultPromptEntityCountExtractor()
   }
 
   /**
@@ -125,8 +134,20 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
     // Extract entities from the prompt content
     const extractedEntities = this.entityExtractor.extract(model)
 
-    // Merge template entities with extracted entities
-    const mergedEntities = this.mergeEntities(templateEntities, extractedEntities)
+    // Extract entity counts from the prompt content
+    const extractedCounts = this.countExtractor.extractCounts(model)
+
+    // Expand extracted entities by their counts
+    const expandedEntities = this.expandExtractedEntities(
+      extractedEntities,
+      extractedCounts,
+    )
+
+    // Merge template entities with expanded extracted entities
+    const mergedEntities = this.mergeEntities(
+      templateEntities,
+      expandedEntities,
+    )
 
     // Build and freeze the model
     return Object.freeze({
@@ -196,31 +217,89 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
   }
 
   // -------------------------------------------------------------------------
+  // Private — Entity Expansion by Count
+  // -------------------------------------------------------------------------
+
+  /**
+   * Expand extracted entities by their associated counts.
+   *
+   * For each extracted entity with a matching count entry:
+   * - count = 1 or no match → creates one entity (no suffix)
+   * - count > 1 → creates N entities with suffixed ids
+   *
+   * Examples:
+   *   Entity "Farmer" with count 3 → farmer-1, farmer-2, farmer-3
+   *   Entity "Boss" with count 1  → boss (no suffix)
+   *
+   * @param extractedEntities — entities extracted from the prompt
+   * @param extractedCounts — counts extracted from the prompt
+   * @returns Array of expanded GameWorldEntity (not yet frozen)
+   */
+  private expandExtractedEntities(
+    extractedEntities: readonly ExtractedEntity[],
+    extractedCounts: readonly ExtractedEntityCount[],
+  ): GameWorldEntity[] {
+    if (extractedEntities.length === 0) {
+      return []
+    }
+
+    // Build a count lookup map (case-insensitive keyword → count)
+    const countMap = new Map<string, number>()
+    for (const countEntry of extractedCounts) {
+      countMap.set(countEntry.name.toLowerCase(), countEntry.count)
+    }
+
+    const expanded: GameWorldEntity[] = []
+
+    for (const extracted of extractedEntities) {
+      const lowerName = extracted.name.toLowerCase()
+      const count = countMap.get(lowerName) ?? 1
+
+      if (count <= 1) {
+        // Single entity — no suffix (existing behavior)
+        expanded.push({
+          id: lowerName,
+          category: extracted.category,
+          name: extracted.name,
+        })
+      } else {
+        // Multiple entities — suffixed ids
+        for (let i = 1; i <= count; i++) {
+          expanded.push({
+            id: `${lowerName}-${i}`,
+            category: extracted.category,
+            name: extracted.name,
+          })
+        }
+      }
+    }
+
+    return expanded
+  }
+
+  // -------------------------------------------------------------------------
   // Private — Entity Merging
   // -------------------------------------------------------------------------
 
   /**
-   * Merge template entities with extracted entities.
+   * Merge template entities with expanded extracted entities.
    *
    * Rules:
    * 1. Template entities come first (preserving template order)
-   * 2. Extracted entities are appended after template entities
+   * 2. Expanded extracted entities are appended after template entities
    * 3. Deduplication by name (case-insensitive): if an extracted entity's
    *    name matches any template entity's name, it is skipped
-   * 4. Extracted entity deduplication: if the same keyword appears multiple
-   *    times in the prompt, only the first instance is kept
-   *    (handled by DefaultPromptEntityExtractor)
-   * 5. Deterministic ordering: template order → catalog order
+   * 4. Deterministic ordering: template order → catalog order
    *
    * @param templateEntities — entities from the WorldTemplateCatalog template
-   * @param extractedEntities — entities extracted from the prompt
+   * @param expandedEntities — expanded GameWorldEntity array from count extraction
    * @returns Non-frozen array of merged GameWorldEntity (frozen by caller)
    */
   private mergeEntities(
     templateEntities: readonly GameWorldEntity[],
-    extractedEntities: readonly ExtractedEntity[],
+    expandedEntities: readonly GameWorldEntity[],
   ): GameWorldEntity[] {
-    if (extractedEntities.length === 0) {
+    if (expandedEntities.length === 0) {
       // Fast path: no extraction, return template entities as-is
       return [...templateEntities]
     }
@@ -231,26 +310,22 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
       existingNames.add(entity.name.toLowerCase())
     }
 
-    // Collect new extracted entities (those not already in template)
+    // Collect new expanded entities (those not already in template)
     const result: GameWorldEntity[] = [...templateEntities]
 
-    for (const extracted of extractedEntities) {
-      const lowerName = extracted.name.toLowerCase()
+    for (const expanded of expandedEntities) {
+      const lowerName = expanded.name.toLowerCase()
 
       // Skip if this name already exists in template entities
       if (existingNames.has(lowerName)) {
         continue
       }
 
-      // Mark as seen to prevent duplicates within extracted entities
-      existingNames.add(lowerName)
+      // Note: we do NOT add to existingNames here to allow count-expanded
+      // entities (which share the same name) to pass through. The keyword
+      // extractor already handles deduplication before expansion.
 
-      // Convert extracted entity to GameWorldEntity
-      result.push({
-        id: lowerName,
-        category: extracted.category,
-        name: extracted.name,
-      })
+      result.push(expanded)
     }
 
     return result

@@ -980,3 +980,221 @@ describe('entity extraction — ordering', () => {
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2))
   })
 })
+
+// ---------------------------------------------------------------------------
+// Section 18 — Entity Count Extraction — Count Expansion
+// ---------------------------------------------------------------------------
+
+describe('entity count extraction — count expansion', () => {
+  it('single merchant with count 1 produces no suffix', () => {
+    // Sandbox: [player] + extracted: merchant with count=1 → merchant
+    const result = createGenerator().generate(createModelWithTitleRecord('1 merchant'))
+    expect(result.entities).toHaveLength(2)
+    expect(result.entities[1].id).toBe('merchant')
+    expect(result.entities[1].category).toBe('npc')
+    expect(result.entities[1].name).toBe('Merchant')
+  })
+
+  it('merchant with count 2 produces merchant-1 and merchant-2', () => {
+    // Sandbox: [player] + extracted: merchant with count=2 → merchant-1, merchant-2
+    const result = createGenerator().generate(createModelWithTitleRecord('2 merchants'))
+    expect(result.entities).toHaveLength(3)
+    expect(result.entities[1].id).toBe('merchant-1')
+    expect(result.entities[1].category).toBe('npc')
+    expect(result.entities[1].name).toBe('Merchant')
+    expect(result.entities[2].id).toBe('merchant-2')
+    expect(result.entities[2].category).toBe('npc')
+    expect(result.entities[2].name).toBe('Merchant')
+  })
+
+  it('campfire with count 3 produces 3 suffixed entities', () => {
+    // Sandbox: [player] + extracted: campfire with count=3
+    const result = createGenerator().generate(createModelWithTitleRecord('3 campfires'))
+    expect(result.entities).toHaveLength(4)
+    expect(result.entities[1].id).toBe('campfire-1')
+    expect(result.entities[2].id).toBe('campfire-2')
+    expect(result.entities[3].id).toBe('campfire-3')
+  })
+
+  it('boss with count 1 via word "one" produces no suffix', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('one boss'))
+    expect(result.entities).toHaveLength(2)
+    expect(result.entities[1].id).toBe('boss')
+    expect(result.entities[1].category).toBe('enemy')
+    expect(result.entities[1].name).toBe('Boss')
+  })
+
+  it('word "two" produces suffixed entities', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('two bosses'))
+    expect(result.entities).toHaveLength(3)
+    expect(result.entities[1].id).toBe('boss-1')
+    expect(result.entities[2].id).toBe('boss-2')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 19 — Entity Count Extraction — Multi Count
+// ---------------------------------------------------------------------------
+
+describe('entity count extraction — multi count', () => {
+  it('multiple entities with different counts expand correctly', () => {
+    // Sandbox: [player] + merchant(2), campfire(3)
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('2 merchants and 3 campfires'),
+    )
+    expect(result.entities).toHaveLength(6)
+    // player + merchant-1, merchant-2 + campfire-1, campfire-2, campfire-3
+    expect(result.entities[1].id).toBe('merchant-1')
+    expect(result.entities[2].id).toBe('merchant-2')
+    expect(result.entities[3].id).toBe('campfire-1')
+    expect(result.entities[4].id).toBe('campfire-2')
+    expect(result.entities[5].id).toBe('campfire-3')
+  })
+
+  it('entity with count 1 and entity with count 3 work together', () => {
+    // Sandbox: [player] + boss(1), stones(3)
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('1 boss and 3 stones'),
+    )
+    expect(result.entities).toHaveLength(5)
+    expect(result.entities[1].id).toBe('boss')
+    expect(result.entities[2].id).toBe('stone-1')
+    expect(result.entities[3].id).toBe('stone-2')
+    expect(result.entities[4].id).toBe('stone-3')
+  })
+
+  it('entity without count still creates single entity', () => {
+    // Sandbox: [player] + campfire (no count specified)
+    const result = createGenerator().generate(createModelWithTitleRecord('campfire'))
+    expect(result.entities).toHaveLength(2)
+    expect(result.entities[1].id).toBe('campfire')
+    expect(result.entities[1].category).toBe('item')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 20 — Entity Count Extraction — Mixed Entities
+// ---------------------------------------------------------------------------
+
+describe('entity count extraction — mixed entities', () => {
+  it('count applies to some entities but not others', () => {
+    // "merchant" has count=2, "campfire" has count=1 (no count specified)
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('2 merchants and campfire'),
+    )
+    expect(result.entities).toHaveLength(4)
+    expect(result.entities[1].id).toBe('merchant-1')
+    expect(result.entities[2].id).toBe('merchant-2')
+    expect(result.entities[3].id).toBe('campfire')
+  })
+
+  it('fifth entity with count 5 produces 5 entries', () => {
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('5 stones'),
+    )
+    expect(result.entities).toHaveLength(6)
+    expect(result.entities[5].id).toBe('stone-5')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 21 — Entity Count Extraction — Deduplication
+// ---------------------------------------------------------------------------
+
+describe('entity count extraction — deduplication', () => {
+  it('count-expanded entity that matches template name is skipped', () => {
+    // Farm template has "Storage" — "2 storages" extracted but deduplicated
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('Farm 2 storages'),
+    )
+    // Farm template: 8 entities, extracted "storage" skipped (in template)
+    expect(result.entities).toHaveLength(8)
+  })
+
+  it('count-expanded entity not in template is added with suffix', () => {
+    // Farm template doesn't have "tree" — "3 trees" added as tree-1, tree-2, tree-3
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('Farm 3 trees'),
+    )
+    expect(result.entities).toHaveLength(11)
+    expect(result.entities[8].id).toBe('tree-1')
+    expect(result.entities[9].id).toBe('tree-2')
+    expect(result.entities[10].id).toBe('tree-3')
+  })
+
+  it('count-1 entity deduplicates against template', () => {
+    // "campfire" is not in farm template
+    const result = createGenerator().generate(
+      createModelWithTitleRecord('Farm 1 campfire'),
+    )
+    expect(result.entities).toHaveLength(9)
+    expect(result.entities[8].id).toBe('campfire')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 22 — Entity Count Extraction — Ordering
+// ---------------------------------------------------------------------------
+
+describe('entity count extraction — ordering', () => {
+  it('template entities come before count-expanded entities', () => {
+    // Sandbox: [player] + merchant-1, merchant-2
+    const result = createGenerator().generate(createModelWithTitleRecord('2 merchants'))
+    expect(result.entities[0].id).toBe('player')
+    expect(result.entities[1].id).toBe('merchant-1')
+    expect(result.entities[2].id).toBe('merchant-2')
+  })
+
+  it('suffixed entities appear in numerical order', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('4 campfires'))
+    expect(result.entities[1].id).toBe('campfire-1')
+    expect(result.entities[2].id).toBe('campfire-2')
+    expect(result.entities[3].id).toBe('campfire-3')
+    expect(result.entities[4].id).toBe('campfire-4')
+  })
+
+  it('count ordering is deterministic across generations', () => {
+    const model = createModelWithTitleRecord('2 merchants 3 campfires')
+    const r1 = createGenerator().generate(model)
+    const r2 = createGenerator().generate(model)
+    expect(JSON.stringify(r1)).toBe(JSON.stringify(r2))
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Section 23 — Entity Count Extraction — Compatibility
+// ---------------------------------------------------------------------------
+
+describe('entity count extraction — compatibility', () => {
+  it('existing entity extraction still works without counts', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm campfire'))
+    expect(result.entities).toHaveLength(9)
+    expect(result.entities[8].id).toBe('campfire')
+  })
+
+  it('world type detection still works with count content', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('Farm 2 merchants'))
+    expect(result.worldType).toBe('farm')
+    expect(result.entities).toHaveLength(8) // "merchant" deduplicated
+  })
+
+  it('all entity categories are valid with counts', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('2 merchants 3 enemies'))
+    const valid: string[] = ['player', 'npc', 'enemy', 'terrain', 'building', 'item', 'quest']
+    for (const entity of result.entities) {
+      expect(valid).toContain(entity.category)
+    }
+  })
+
+  it('immutability holds with counted entities', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('2 merchants'))
+    expect(Object.isFrozen(result)).toBe(true)
+  })
+
+  it('determinism holds with count extraction', () => {
+    const model = createModelWithTitleRecord('2 merchants 3 campfires 5 trees')
+    const r1 = createGenerator().generate(model)
+    const r2 = createGenerator().generate(model)
+    expect(JSON.stringify(r1)).toBe(JSON.stringify(r2))
+  })
+})

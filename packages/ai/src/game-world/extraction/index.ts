@@ -1,3 +1,6 @@
 export type { ExtractedEntity } from './ExtractedEntity'
 export type { PromptEntityExtractor } from './PromptEntityExtractor'
 export { DefaultPromptEntityExtractor } from './DefaultPromptEntityExtractor'
+export type { ExtractedEntityCount } from './ExtractedEntityCount'
+export type { PromptEntityCountExtractor } from './PromptEntityCountExtractor'
+export { DefaultPromptEntityCountExtractor } from './DefaultPromptEntityCountExtractor'
