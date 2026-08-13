@@ -6,6 +6,34 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-006 — Semantic World To Game DSL Builder Foundation
+
+- **Created `SemanticGameDslBuilder`** — interface in `packages/ai/src/game-world/` for converting `GameWorldModel` → `GameDsl`
+- **Created `DefaultSemanticGameDslBuilder`** — default implementation with pure, stateless, deterministic, deeply frozen outputs
+- **World name mapping** — `WorldType` values map to human-readable names ("Farm World", "Platformer World", "RPG World", "Survival World", "Sandbox World"); unknown types fall back to "Game World"
+- **Entity mapping** — `GameWorldEntity.id` → `EntityDsl.id` (preserved), `GameWorldEntity.category` → `EntityDsl.type`
+- **Semantic component** — each entity gets one component with `type: "semantic"` and `properties: { category, name }`
+- **Defensive input handling** — undefined/null/non-object input produces empty DSL; null entities are skipped; null id produces `""`
+- **Deeply frozen output** — `GameDsl`, `WorldDsl`, `EntityDsl[]`, each `EntityDsl`, `ComponentDsl[]`, each `ComponentDsl`, and `ComponentDsl.properties` are all `Object.freeze()`d
+- **New directory**: `packages/ai/src/game-world/` with interface, implementation, and index.ts
+- **Updated `packages/ai/src/index.ts`** — added game-world exports
+- **New test file**: `SemanticGameDslBuilder.test.ts` — 86 tests across 11 sections (construction, empty world, all world types, all entity categories, entity mapping, component mapping, immutability, determinism, serialization, large worlds, edge cases)
+- Created ADR-0178: Semantic World To Game DSL Builder Foundation
+- Updated PROJECT_STATE.md — v1.65, WO-S8-006 in completed list
+- Updated CHANGELOG.md — v1.65, WO-S8-006
+- No Runtime changes
+- No Projection changes
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No ECS changes
+- No gameplay execution
+- No breaking changes to any Public API
+- Architecture version v1.64 to v1.65
+
 ### WO-S8-005 — Semantic Game World DSL Foundation
 
 - **Created `GameWorldModel`** — semantic contract interface in `packages/shared/src/game-world/` with `worldType: WorldType` and `entities: readonly GameWorldEntity[]`

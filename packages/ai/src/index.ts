@@ -175,3 +175,8 @@ export type { PromptObservatoryMetadataBuilder } from './observatory'
 export { DefaultPromptObservatoryMetadataBuilder } from './observatory'
 export type { PromptObservatoryMetadataEmitter } from './observatory'
 export { DefaultPromptObservatoryMetadataEmitter } from './observatory'
+// ---------------------------------------------------------------------------
+// Game World — Semantic Game World DSL Builder
+// ---------------------------------------------------------------------------
+export type { SemanticGameDslBuilder } from './game-world'
+export { DefaultSemanticGameDslBuilder } from './game-world'
