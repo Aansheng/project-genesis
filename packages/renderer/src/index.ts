@@ -13,6 +13,12 @@
  * Entity Visualization (WO-S9-004):
  *   - PixiEntityRenderer — renders RenderWorld onto canvas via Graphics
  *   - RenderEntityView / RenderWorldView — view interfaces
+ *
+ * Real-Time Visualization Loop (WO-S9-006):
+ *   - AnimationFrameScheduler — requestAnimationFrame scheduling
+ *   - DefaultAnimationFrameScheduler — RAF-backed implementation
+ *   - VisualizationRunner — drives continuous visualization ticks
+ *   - DefaultVisualizationRunner — connects scheduler to visualization loop
  */
 export type { Renderer } from './core'
 export type { RendererState } from './core'
@@ -39,6 +45,14 @@ export { DefaultPixiEntityRenderer } from './view'
 export type { RuntimeVisualizationLoop } from './runtime'
 export { DefaultRuntimeVisualizationLoop } from './runtime'
 export type { VisualizationTickResult } from './runtime'
+
+// Scheduler types
+export type { AnimationFrameScheduler } from './runtime'
+export { DefaultAnimationFrameScheduler } from './runtime'
+
+// Runner types
+export type { VisualizationRunner } from './runtime'
+export { DefaultVisualizationRunner } from './runtime'
 
 // Existing Canvas2D renderer (Sprint 1 foundation — preserved for backward compatibility)
 export { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from './renderWorld'

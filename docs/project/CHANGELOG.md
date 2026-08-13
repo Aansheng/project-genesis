@@ -8,6 +8,32 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-006 — Real-Time Visualization Loop Foundation
+
+- **Created `AnimationFrameScheduler` interface** — in `packages/renderer/src/runtime/` with `start(callback)`, `stop()`, `isRunning()` lifecycle methods; lightweight abstraction over requestAnimationFrame/cancelAnimationFrame; callback receives no arguments (consumers measure own timing)
+- **Created `DefaultAnimationFrameScheduler`** — concrete implementation backed by `requestAnimationFrame` / `cancelAnimationFrame`; start() issues first RAF immediately; each frame re-requests next frame before invoking callback; double-start/double-stop are no-ops; non-function callback throws
+- **Created `VisualizationRunner` interface** — in `packages/renderer/src/runtime/` with `start()`, `stop()`, `isRunning()` lifecycle methods; drives continuous visualization by connecting a scheduler to a visualization loop
+- **Created `DefaultVisualizationRunner`** — default implementation; orchestrates continuous loop: `scheduler.start()` → `requestAnimationFrame` → `visualizationLoop.tick()` → `executionLoop.tick()` → `adapter.adapt()` → `entityRenderer.render()` → Canvas Update; auto-starts visualization loop if not already running; double-start/double-stop are no-ops
+- **Updated `packages/renderer/src/runtime/index.ts`** — added AnimationFrameScheduler, DefaultAnimationFrameScheduler, VisualizationRunner, DefaultVisualizationRunner exports
+- **Updated `packages/renderer/src/index.ts`** — added scheduler and runner barrel exports
+- **New test file**: `AnimationFrameScheduler.test.ts` — 24 tests across 8 sections (construction, start, stop, double start, double stop, callback invocation, running state, cleanup)
+- **New test file**: `VisualizationRunner.test.ts` — 20 tests across 9 sections (construction, start, stop, multiple starts, multiple stops, tick invocation, scheduler integration, determinism, cleanup)
+- **New test file**: `VisualizationRunnerIntegration.test.ts` — 9 tests across 5 sections (start → ticks occur, world updates, render updates, stop → ticks stop, restart cycle)
+- Created ADR-0193: Real-Time Runtime Visualization Loop Foundation
+- Updated PROJECT_STATE.md — v1.80, WO-S9-006 in completed list
+- Updated CHANGELOG.md — v1.80, WO-S9-006
+- No Physics
+- No Collision
+- No Input
+- No ECS Scheduler
+- No Networking
+- No Asset Pipeline
+- No AI changes
+- No Prompt changes
+- No DSL changes
+- No breaking changes to any Public API
+- Architecture version v1.79 to v1.80
+
 ### WO-S8-015 — Prompt Entity Count Extraction Foundation
 
 - **Created `ExtractedEntityCount` interface** — in `packages/ai/src/game-world/extraction/` with `name: string` and `count: number`; a contract for quantities associated with extracted entity keywords
