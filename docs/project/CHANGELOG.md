@@ -58,6 +58,28 @@
 - No breaking changes to any Public API
 - Architecture version v1.72 to v1.73
 
+### WO-S9-003 — Position Render Model Foundation
+
+- **Created `RenderPosition` interface** — in `packages/renderer/src/model/` with `x: number` and `y: number`; a lightweight spatial representation for the rendering layer
+- **Created `EMPTY_RENDER_POSITION`** — frozen zero-position constant `{ x: 0, y: 0 }`
+- **Updated `RenderEntity`** — added optional `position?: RenderPosition` field; backward compatible (entities without PositionComponent lack the key entirely)
+- **Updated `DefaultRuntimeRendererAdapter`** — added `extractPosition()` private method; iterates `entity.components[]`, uses `isPositionComponent()` type guard to narrow; maps `PositionComponent.properties.x` → `RenderPosition.x` and `properties.y` → `RenderPosition.y`; ignores non-position components; returns undefined when no PositionComponent exists
+- **Component selection logic** — efficient linear scan over components; only the first PositionComponent is used (entities should only have one per design); all non-position components pass through ignored
+- **Frozen position output** — each extracted RenderPosition is `Object.freeze()`d; entities without position never have the `position` key
+- **New test file**: `RuntimeRendererAdapterPosition.test.ts` — 22 tests across 10 sections (single entity, multiple entities, entity without position, mixed entities, negative coordinates, fractional coordinates, large coordinates, immutability, determinism, frozen outputs)
+- Created ADR-0187: Position Render Model Foundation
+- Updated PROJECT_STATE.md — v1.74, WO-S9-003 in completed list
+- Updated CHANGELOG.md — v1.74, WO-S9-003
+- No Runtime changes
+- No Movement changes
+- No Pixi changes
+- No Sprite creation
+- No Texture loading
+- No Animation
+- No Gameplay rendering
+- No breaking changes to any Public API
+- Architecture version v1.73 to v1.74
+
 ---
 
 ## Sprint 8 — Game DSL

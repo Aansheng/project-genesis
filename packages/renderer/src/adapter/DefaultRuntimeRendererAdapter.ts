@@ -3,11 +3,11 @@
  * RuntimeRendererAdapter.
  *
  * Mapping rules:
- *   - Entity.id        → RenderEntity.id      (preserved verbatim)
- *   - Entity.type      → RenderEntity.type    (preserved verbatim)
- *   - Entity.x         → IGNORED
- *   - Entity.y         → IGNORED
- *   - Entity.components → IGNORED
+ *   - Entity.id              → RenderEntity.id         (preserved verbatim)
+ *   - Entity.type            → RenderEntity.type       (preserved verbatim)
+ *   - PositionComponent      → RenderEntity.position   (if present)
+ *   - Entity.x / Entity.y    → IGNORED
+ *   - Other components       → IGNORED
  *
  * Output guarantees:
  *   - Pure function (no side effects, no state)
@@ -17,7 +17,8 @@
  */
 
 import type { World } from '@genesis/shared'
-import type { RenderWorld, RenderEntity } from '../model'
+import { isPositionComponent } from '@genesis/shared'
+import type { RenderWorld, RenderEntity, RenderPosition } from '../model'
 import { EMPTY_RENDER_WORLD } from '../model'
 import type { RuntimeRendererAdapter } from './RuntimeRendererAdapter'
 
@@ -32,10 +33,13 @@ export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
     for (const entity of world.entities) {
       if (!entity) continue
 
+      const position = this.extractPosition(entity)
+
       entities.push(
         Object.freeze({
           id: entity.id,
           type: entity.type,
+          ...(position ? { position } : {}),
         })
       )
     }
@@ -43,5 +47,24 @@ export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
     return Object.freeze({
       entities: Object.freeze(entities),
     })
+  }
+
+  private extractPosition(
+    entity: World['entities'][number]
+  ): RenderPosition | undefined {
+    if (!entity.components || entity.components.length === 0) {
+      return undefined
+    }
+
+    for (const component of entity.components) {
+      if (isPositionComponent(component)) {
+        return Object.freeze({
+          x: component.properties.x,
+          y: component.properties.y,
+        })
+      }
+    }
+
+    return undefined
   }
 }
