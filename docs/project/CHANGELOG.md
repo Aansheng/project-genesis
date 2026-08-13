@@ -6,6 +6,33 @@
 
 ## Sprint 8 — Game DSL
 
+### WO-S8-004 — Runtime Component Model Foundation
+
+- **Created `RuntimeComponent`** — interface in `packages/shared/src/RuntimeComponent.ts` with `type: string` and `properties: Readonly<Record<string, unknown>>`
+- **Re-exported from `packages/runtime/src/model/`** — new `RuntimeComponent` type in Runtime model namespace
+- **Updated shared `Entity` type** — added optional `readonly components?: readonly RuntimeComponent[]` (backward compatible)
+- **Updated `DefaultRuntimeProjection`** — each `ComponentDsl` is now projected as a `RuntimeComponent` stored in the entity's `components` array
+- **Component preservation** — `RuntimeComponent.type` and `RuntimeComponent.properties` are preserved from DSL (no interpretation)
+- **Deeply frozen components** — all projected `RuntimeComponent`, `properties`, and `components[]` arrays are `Object.freeze()`d
+- **Updated `RuntimeProjectionResult`** — `componentCount` now derived from actual projected `RuntimeComponent` objects
+- **Created `RuntimeComponent.test.ts`** — 36 tests covering construction, immutability, deep readonly, serialization, large collections, and type safety
+- **Expanded `RuntimeProjection.test.ts`** — 11 new sections (68 new tests) covering entity components, single/multiple components, component/property preservation, nested properties, component immutability, determinism, serialization, and large worlds with components
+- Created ADR-0176: Runtime Component Model Foundation
+- Updated PROJECT_STATE.md — v1.63, WO-S8-004 in completed list
+- Updated CHANGELOG.md — v1.63, WO-S8-004
+- No Renderer changes
+- No PixiJS
+- No Planner changes
+- No PromptBuilder changes
+- No Domain Model changes
+- No DSL changes
+- No ECS framework
+- No gameplay systems
+- No simulation
+- No AI generation
+- No breaking changes to any Public API
+- Architecture version v1.62 to v1.63
+
 ### WO-S8-003 — Game DSL Runtime Projection Foundation
 
 - **Created `RuntimeProjection`** — interface for converting `GameDsl` → `RuntimeProjectionResult` in `packages/runtime/src/projection/`

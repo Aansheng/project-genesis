@@ -1,4 +1,5 @@
 export { Runtime } from './runtime'
 export { RuntimeQuery } from './query'
+export type { RuntimeComponent } from './model'
 export type { RuntimeProjection, RuntimeProjectionResult } from './projection'
 export { DefaultRuntimeProjection } from './projection'

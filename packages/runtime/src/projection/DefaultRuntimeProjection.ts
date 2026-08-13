@@ -2,18 +2,18 @@
  * DefaultRuntimeProjection — default implementation of RuntimeProjection.
  *
  * Converts a declarative GameDsl into a Runtime world representation.
- * Each DSL entity is projected as a Runtime entity with id/type preserved
- * and x/y defaulted to 0 (no interpretation). Components are counted
- * but not stored — this is a Foundation-level pipeline validation layer.
+ * Each DSL entity is projected as a Runtime entity with id/type preserved,
+ * x/y defaulted to 0 (no interpretation), and components projected as
+ * RuntimeComponent objects with type and properties preserved.
  *
  * This is structure projection, not game generation.
  * No AI, no interpretation, no gameplay logic, no simulation.
  *
- * Mapping rules:
- * - GameDsl.world → Runtime World (name preserved via world metadata)
+ * Mapping rules (v1.63 — component projection):
+ * - GameDsl.world → Runtime World
  * - Each EntityDsl → Runtime Entity (id, type preserved; x=0, y=0)
- * - Each ComponentDsl → counted in componentCount (not stored in Runtime
- *   Entity — that requires a future ECS expansion)
+ * - Each ComponentDsl → RuntimeComponent (type, properties preserved)
+ * - componentCount derived from actual projected RuntimeComponent objects
  *
  * Design:
  * - Pure: no side effects, no I/O, no external calls
@@ -22,7 +22,7 @@
  * - Immutable: all outputs are deeply frozen
  * - Defensive: safe extraction, no assumptions about input shape
  */
-import type { GameDsl, World, Entity } from '@genesis/shared'
+import type { GameDsl, World, Entity, RuntimeComponent } from '@genesis/shared'
 import type { RuntimeProjection } from './RuntimeProjection'
 import type { RuntimeProjectionResult } from './RuntimeProjectionResult'
 
@@ -63,12 +63,12 @@ export class DefaultRuntimeProjection implements RuntimeProjection {
       return this.createEmptyResult()
     }
 
-    // Project entities
+    // Project entities (components are projected as part of each entity)
     const entities = this.projectEntities(worldDsl.entities)
 
-    // Calculate counts
+    // Calculate counts from projected data
     const entityCount = entities.length
-    const componentCount = this.countComponents(worldDsl.entities)
+    const componentCount = this.countProjectedComponents(entities)
 
     // Build and freeze the Runtime world
     const world = Object.freeze({
@@ -88,13 +88,14 @@ export class DefaultRuntimeProjection implements RuntimeProjection {
   // -------------------------------------------------------------------------
 
   /**
-   * Project DSL entities into Runtime entities.
+   * Project DSL entities into Runtime entities with projected components.
    *
    * Each EntityDsl becomes a Runtime Entity with:
    * - id: preserved from EntityDsl
    * - type: preserved from EntityDsl
    * - x: defaulted to 0 (no position interpretation)
    * - y: defaulted to 0 (no position interpretation)
+   * - components: projected from ComponentDsl[]
    */
   private projectEntities(
     dslEntities: readonly import('@genesis/shared').EntityDsl[] | undefined,
@@ -110,12 +111,16 @@ export class DefaultRuntimeProjection implements RuntimeProjection {
         continue
       }
 
+      // Project components for this entity
+      const components = this.projectComponents(entityDsl.components)
+
       entities.push(
         Object.freeze({
           id: String(entityDsl.id ?? ''),
           type: String(entityDsl.type ?? ''),
           x: DEFAULT_POSITION,
           y: DEFAULT_POSITION,
+          components: Object.freeze(components),
         }),
       )
     }
@@ -124,30 +129,59 @@ export class DefaultRuntimeProjection implements RuntimeProjection {
   }
 
   // -------------------------------------------------------------------------
-  // Private — Component Counting
+  // Private — Component Projection
   // -------------------------------------------------------------------------
 
   /**
-   * Count total components across all DSL entities.
+   * Project DSL components into RuntimeComponent objects.
    *
-   * Components are not stored in the Runtime Entity (which has no
-   * components field yet). They are counted as pipeline validation.
+   * Each ComponentDsl becomes a RuntimeComponent with:
+   * - type: preserved from ComponentDsl (no interpretation)
+   * - properties: preserved from ComponentDsl (no interpretation)
+   *
+   * All outputs are deeply frozen.
    */
-  private countComponents(
-    dslEntities: readonly import('@genesis/shared').EntityDsl[] | undefined,
-  ): number {
-    if (!Array.isArray(dslEntities) || dslEntities.length === 0) {
-      return 0
+  private projectComponents(
+    dslComponents: readonly import('@genesis/shared').ComponentDsl[] | undefined,
+  ): RuntimeComponent[] {
+    if (!Array.isArray(dslComponents) || dslComponents.length === 0) {
+      return []
     }
 
-    let count = 0
+    const components: RuntimeComponent[] = []
 
-    for (const entityDsl of dslEntities) {
-      if (!entityDsl || typeof entityDsl !== 'object') {
+    for (const componentDsl of dslComponents) {
+      if (!componentDsl || typeof componentDsl !== 'object') {
         continue
       }
-      if (Array.isArray(entityDsl.components)) {
-        count += entityDsl.components.length
+
+      components.push(
+        Object.freeze({
+          type: String(componentDsl.type ?? ''),
+          properties: Object.freeze({ ...componentDsl.properties }),
+        }),
+      )
+    }
+
+    return components
+  }
+
+  // -------------------------------------------------------------------------
+  // Private — Projected Component Counting
+  // -------------------------------------------------------------------------
+
+  /**
+   * Count total RuntimeComponent objects across all projected entities.
+   *
+   * Unlike the previous countComponents (which counted DSL components),
+   * this counts from the actual projected RuntimeComponent objects.
+   */
+  private countProjectedComponents(entities: Entity[]): number {
+    let count = 0
+
+    for (const entity of entities) {
+      if (entity.components) {
+        count += entity.components.length
       }
     }
 

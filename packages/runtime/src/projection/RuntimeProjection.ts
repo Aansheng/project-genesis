@@ -3,8 +3,8 @@
  *
  * Provides the first transformation path between the Game DSL declarative
  * model and the Runtime imperative world. This projection converts typed
- * DSL entities into Runtime entities with position defaults for the
- * Foundation layer.
+ * DSL entities into Runtime entities with position defaults and projected
+ * RuntimeComponent objects for each DSL component.
  *
  * This is structure projection, not game generation.
  * No AI, no interpretation, no gameplay logic.

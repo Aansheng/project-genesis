@@ -1,8 +1,12 @@
+import type { RuntimeComponent } from './RuntimeComponent'
+
 export interface Entity {
   id: string
   type: string
   x: number
   y: number
+  /** Components attached to this Runtime entity — projected from DSL components. */
+  readonly components?: readonly RuntimeComponent[]
 }
 
 export interface World {

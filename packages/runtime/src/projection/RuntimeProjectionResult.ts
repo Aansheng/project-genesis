@@ -5,6 +5,10 @@
  * Runtime world representation. The result bundles the projected world
  * with metadata about what was projected (entity count, component count).
  *
+ * Since v1.63, componentCount is derived from actual projected
+ * RuntimeComponent objects stored on Runtime entities, not from
+ * counting DSL components independently.
+ *
  * This is a FOUNDATION contract — no gameplay logic, no simulation,
  * no interpretation of component data.
  *
@@ -28,6 +32,9 @@ export interface RuntimeProjectionResult {
   /** Number of entities projected into the world. */
   readonly entityCount: number
 
-  /** Total number of components across all projected entities. */
+  /**
+   * Total number of RuntimeComponent objects across all projected entities.
+   * Derived from actual projected RuntimeComponent instances.
+   */
   readonly componentCount: number
 }
