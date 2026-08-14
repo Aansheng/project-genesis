@@ -32,6 +32,32 @@
 - No breaking changes to any Public API
 - Architecture version v1.91 to v1.92
 
+### WO-S10-002 — Create World Command Pipeline Foundation
+
+- **Created `CreateWorldCommand` interface** — in `packages/ai/src/game-intent/pipeline/` with `readonly input: string`; immutable, serializable command contract
+- **Created `CreateWorldPipelineResult` interface** — in `packages/ai/src/game-intent/pipeline/` with `readonly route: string`, `readonly world: World`, `readonly success: boolean`; frozen, immutable result contract
+- **Created `CreateWorldPipeline` interface** — in `packages/ai/src/game-intent/pipeline/` with `execute(command: CreateWorldCommand): CreateWorldPipelineResult`; pure, stateless, deterministic
+- **Created `DefaultCreateWorldPipeline`** — orchestrates full creation flow: `IntentRouter.route()` → early exit on unknown → `PromptAssemblyDomainModel` construction (overview.title = input) → `GameIntentExtractor.extract()` → `SemanticWorldGenerator.generate()` → `SemanticGameDslBuilder.build()` → `Projection.project()` → frozen result with `{ route, world, success }`
+- **Dependency injection** — 5 injected dependencies: `IntentRouter`, `GameIntentExtractor`, `SemanticWorldGenerator`, `SemanticGameDslBuilder`, `Projection`
+- **Local `Projection` interface** — avoids importing `@genesis/runtime`'s `RuntimeProjection` by defining a compatible local interface; compatible via duck typing at runtime
+- **Early exit on unknown route** — non-create-world inputs short-circuit with `success: false` and empty world, preventing unnecessary downstream work
+- **New directory**: `packages/ai/src/game-intent/pipeline/` with CreateWorldCommand.ts, CreateWorldPipelineResult.ts, CreateWorldPipeline.ts, DefaultCreateWorldPipeline.ts, index.ts
+- **Updated `packages/ai/src/game-intent/index.ts`** — added pipeline barrel exports
+- **Updated `packages/ai/src/index.ts`** — added CreateWorldCommand, CreateWorldPipelineResult, CreateWorldPipeline, DefaultCreateWorldPipeline exports
+- **New test file**: `CreateWorldPipeline.test.ts` — 97 tests across 11 sections (construction, mario in all languages, farm, rpg, survival, unknown route, empty/invalid input, edge cases, world content verification, determinism, immutability, dependency injection, cross-contamination)
+- Created ADR-0206: Create World Command Pipeline Foundation
+- Updated PROJECT_STATE.md — v1.93, WO-S10-002 in completed list
+- Updated CHANGELOG.md — v1.93, WO-S10-002
+- No Renderer changes
+- No Bootstrap changes
+- No UI changes
+- No Networking
+- No LLM integration
+- No ECS changes
+- No Planner removal
+- No breaking changes to any Public API
+- Architecture version v1.92 to v1.93
+
 ---
 
 ## Sprint 9 — Renderer Foundation

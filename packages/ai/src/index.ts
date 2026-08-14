@@ -191,6 +191,9 @@ export { DefaultGameIntentExtractor } from './game-intent'
 export type { IntentRoute, IntentRoutingResult } from './game-intent'
 export type { IntentRouter } from './game-intent'
 export { DefaultIntentRouter } from './game-intent'
+export type { CreateWorldCommand, CreateWorldPipelineResult } from './game-intent'
+export type { CreateWorldPipeline } from './game-intent'
+export { DefaultCreateWorldPipeline } from './game-intent'
 // ---------------------------------------------------------------------------
 // Mario World Factory — Predefined Mario-style World
 // ---------------------------------------------------------------------------
