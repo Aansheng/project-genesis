@@ -20,3 +20,8 @@ export { DefaultMovementSystem } from './DefaultMovementSystem'
 export type { PlayerControllerSystem } from './PlayerControllerSystem'
 export type { PlayerControllerResult } from './PlayerControllerResult'
 export { DefaultPlayerControllerSystem } from './DefaultPlayerControllerSystem'
+
+// Gravity System Foundation (WO-S9-012)
+export type { GravitySystem } from './GravitySystem'
+export type { GravitySystemResult } from './GravitySystemResult'
+export { DefaultGravitySystem } from './DefaultGravitySystem'

@@ -8,6 +8,30 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-012 — Gravity System Foundation
+
+- **Created `GravitySystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for gravity simulation systems
+- **Created `GravitySystemResult` type** — in `packages/runtime/src/systems/` with `affectedEntities: number` and `gravity: number`; immutable metadata contract
+- **Created `DefaultGravitySystem`** — constructor accepts optional `gravity?: number` (default 1); applies `y += gravity` each tick to all entities with a PositionComponent; updates both `entity.y` and the PositionComponent in the `components` array; entities without PositionComponent are passed through unchanged; full `update()` and `updateWithResult()` entry points
+- **Component-driven position updates** — reads PositionComponent from `entity.components`, creates new PositionComponent with updated y, preserves all other components; legacy `entity.y` kept in sync
+- **Two entry points** — `update(world): World` (RuntimeSystem contract) and `updateWithResult(world): { world, result }` (with GravitySystemResult metadata)
+- **Updated `packages/runtime/src/systems/index.ts`** — added GravitySystem, GravitySystemResult, DefaultGravitySystem exports
+- **Updated `packages/runtime/src/index.ts`** — added gravity system barrel exports
+- **New test file**: `GravitySystem.test.ts` — 60 tests across 12 sections (construction, single entity, multiple entities, no position, empty world, gravity override, immutability, determinism, large worlds, updateWithResult, multiple ticks, edge cases)
+- **New test file**: `GravityExecutionLoopIntegration.test.ts` — 12 tests across 3 sections (gravity in execution loop, multiple ticks, gravity + movement system integration)
+- Created ADR-0200: Gravity System Foundation
+- Updated PROJECT_STATE.md — v1.87, WO-S9-012 in completed list
+- Updated CHANGELOG.md — v1.87, WO-S9-012
+- No collision
+- No jumping
+- No camera
+- No Renderer changes
+- No AI changes
+- No DSL changes
+- No physics engine
+- No breaking changes to any Public API
+- Architecture version v1.86 to v1.87
+
 ### WO-S9-011 — Mario Playable Slice Foundation
 
 - **Created `MarioWorldFactory` interface** — in `packages/ai/src/game-world/` with `create(): GameWorldModel` method; pure, stateless, deterministic contract for producing a predefined Mario-style world
