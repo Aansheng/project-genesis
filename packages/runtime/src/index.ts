@@ -30,3 +30,7 @@ export type { InputKey } from './input'
 export type { InputState } from './input'
 export type { InputProvider } from './input'
 export { DefaultInputState } from './input'
+
+// Game Bootstrap Foundation (WO-S9-010)
+export type { GameBootstrap } from './bootstrap'
+export type { GameBootstrapConfig } from './bootstrap'

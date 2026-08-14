@@ -8,6 +8,34 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-010 — Playable Game Bootstrap Foundation
+
+- **Created `GameBootstrap` interface** — in `packages/runtime/src/bootstrap/` with `start(container): Promise<void>`, `stop(): Promise<void>`, `isRunning(): boolean`; single entry point for a complete playable game lifecycle
+- **Created `GameBootstrapConfig` interface** — in `packages/runtime/src/bootstrap/` with `world: World` and `inputProvider: InputProvider`; encapsulates all external dependencies
+- **Created `DefaultGameBootstrap`** — in `packages/renderer/src/bootstrap/`; wires together `PixiRenderer` → `RuntimeSystemRegistry` (PlayerControllerSystem + MovementSystem) → `RuntimeExecutionLoop` → `RuntimeRendererAdapter` → `PixiEntityRenderer` → `RuntimeVisualizationLoop` → `AnimationFrameScheduler` → `VisualizationRunner`; injectable `createRenderer` factory for testability; double-start/double-stop are no-ops; full start-stop-restart cycle supported
+- **start() flow**: Create+initialize renderer → register systems → create execution loop → create adapter+entity renderer → create visualization loop → create scheduler → create runner → start runner
+- **stop() flow**: Stop runner → stop visualization loop → null references → destroy renderer
+- **New directory**: `packages/runtime/src/bootstrap/` with GameBootstrap.ts, GameBootstrapConfig.ts, index.ts
+- **New directory**: `packages/renderer/src/bootstrap/` with DefaultGameBootstrap.ts, index.ts
+- **Updated `packages/runtime/src/index.ts`** — added bootstrap exports (GameBootstrap, GameBootstrapConfig)
+- **Updated `packages/renderer/src/index.ts`** — added bootstrap exports (DefaultGameBootstrap, GameBootstrapOptions)
+- **New test file**: `GameBootstrap.test.ts` — 17 tests across 9 sections (construction, start, stop, multiple starts, multiple stops, running state, renderer initialization, cleanup, determinism)
+- **New test file**: `PlayableGameBootstrap.test.ts` — 6 tests across 6 sections (full lifecycle, player movement integration, keyboard integration, start-stop-restart, multiple containers, empty world)
+- Created ADR-0197: Playable Game Bootstrap Foundation
+- Updated PROJECT_STATE.md — v1.84, WO-S9-010 in completed list
+- Updated CHANGELOG.md — v1.84, WO-S9-010
+- No Camera
+- No Physics
+- No Collision
+- No Asset Pipeline
+- No Networking
+- No Save System
+- No AI changes
+- No Prompt changes
+- No DSL changes
+- No breaking changes to any Public API
+- Architecture version v1.83 to v1.84
+
 ### WO-S9-009 — Player Controller System Foundation
 
 - **Created `PlayerControllerSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for input-driven player movement systems

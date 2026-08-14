@@ -67,3 +67,7 @@ export { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from './renderWorld'
 
 // Input Foundation (WO-S9-008)
 export { KeyboardInputProvider } from './input'
+
+// Game Bootstrap Foundation (WO-S9-010)
+export { DefaultGameBootstrap } from './bootstrap'
+export type { GameBootstrapOptions } from './bootstrap'
