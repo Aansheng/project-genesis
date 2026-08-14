@@ -31,6 +31,7 @@ import type { RenderEntityView } from './RenderEntityView'
 import type { RenderWorldView } from './RenderWorldView'
 import type { EntityVisualCatalog } from './EntityVisualCatalog'
 import type { EntityVisualDefinition } from './EntityVisualDefinition'
+import type { CameraController } from '../camera'
 
 /** Default fallback visual definition (20×20 rectangle). */
 const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
@@ -56,6 +57,13 @@ export interface PixiEntityRendererOptions {
    * When omitted, all entities render as 20×20 rectangles (backward compatible).
    */
   readonly catalog?: EntityVisualCatalog
+
+  /**
+   * Optional camera controller.
+   * When provided, the container is offset by -camera.x / -camera.y
+   * before rendering entities, creating a camera-follow effect.
+   */
+  readonly cameraController?: CameraController
 }
 
 export interface PixiEntityRenderer {
@@ -67,6 +75,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _container: Container
   private readonly _createGraphics: () => Graphics
   private readonly _catalog: EntityVisualCatalog | null
+  private readonly _cameraController: CameraController | null
   private _entityViews: RenderEntityView[] = []
 
   constructor(
@@ -77,11 +86,19 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._createGraphics =
       options?.createGraphics ?? (() => new Graphics())
     this._catalog = options?.catalog ?? null
+    this._cameraController = options?.cameraController ?? null
   }
 
   // ─── Public API ─────────────────────────────────────────────────────
 
   render(world: RenderWorld): RenderWorldView {
+    // Apply camera offset before rendering
+    if (this._cameraController) {
+      const camera = this._cameraController.update(world)
+      this._container.position.x = -camera.x
+      this._container.position.y = -camera.y
+    }
+
     // Clear previous render
     this.clear()
 

@@ -74,3 +74,9 @@ export type { GameBootstrapOptions } from './bootstrap'
 export type { MarioGameBootstrap } from './bootstrap'
 export type { MarioGameBootstrapOptions } from './bootstrap'
 export { DefaultMarioGameBootstrap } from './bootstrap'
+
+// Camera Foundation (WO-S9-015)
+export type { CameraState } from './camera'
+export { DEFAULT_CAMERA_STATE } from './camera'
+export type { CameraController } from './camera'
+export { DefaultCameraController } from './camera'

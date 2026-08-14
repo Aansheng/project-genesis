@@ -8,6 +8,33 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-015 — Camera Follow Foundation
+
+- **Created `CameraState` interface** — in `packages/renderer/src/camera/` with `readonly x: number` and `readonly y: number`; frozen, immutable, serializable
+- **Created `DEFAULT_CAMERA_STATE`** — frozen constant at `{ x: 0, y: 0 }` for default camera position
+- **Created `CameraController` interface** — in `packages/renderer/src/camera/` with `update(world): CameraState` and `getState(): CameraState` methods; stateless update contract, stateful getState
+- **Created `DefaultCameraController`** — constructor with no parameters; default state at (0, 0); `update()` scans RenderWorld for first entity with `type === 'player'` and sets camera to `(player.position.x, player.position.y)`; if no player or no position, previous state is preserved; all outputs deeply frozen
+- **Renderer integration** — updated `DefaultPixiEntityRenderer` to accept optional `cameraController?: CameraController` in `PixiEntityRendererOptions`; `render()` applies `container.position.x = -camera.x` and `container.position.y = -camera.y` before rendering entities; no-camera-controller fallback preserves backward compatibility
+- **New directory**: `packages/renderer/src/camera/` with CameraState.ts, CameraController.ts, DefaultCameraController.ts, index.ts
+- **Updated `packages/renderer/src/index.ts`** — added camera barrel exports (CameraState, DEFAULT_CAMERA_STATE, CameraController, DefaultCameraController)
+- **Updated `packages/renderer/src/view/PixiEntityRenderer.ts`** — added camera controller field and offset logic in render()
+- **New test file**: `CameraController.test.ts` — 70+ tests across 14 sections (construction, default state, player follow, multiple players, missing player, missing position, state updates, determinism, immutability, deep freeze, empty world, large worlds, stress tests, multiple instances, camera offset)
+- **New test file**: `CameraFollowIntegration.test.ts` — 25+ tests across 7 sections (camera follows player movement, multiple entities, missing player, camera offset, renderer integration, multiple ticks, rendering with offset)
+- Created ADR-0203: Camera Follow Foundation
+- Updated PROJECT_STATE.md — v1.90, WO-S9-015 in completed list
+- Updated CHANGELOG.md — v1.90, WO-S9-015
+- No smoothing
+- No zoom
+- No rotation
+- No parallax
+- No minimap
+- No UI changes
+- No AI changes
+- No Runtime changes
+- No ECS
+- No breaking changes to any Public API
+- Architecture version v1.89 to v1.90
+
 ### WO-S9-014 — Jump System Foundation
 
 - **Created `JumpSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for Space-triggered jump systems
