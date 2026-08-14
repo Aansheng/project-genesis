@@ -8,6 +8,33 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-009 — Player Controller System Foundation
+
+- **Created `PlayerControllerSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for input-driven player movement systems
+- **Created `PlayerControllerResult` type** — in `packages/runtime/src/systems/` with `movedPlayers: number`, `deltaX: number`, `deltaY: number`; immutable metadata contract
+- **Created `DefaultPlayerControllerSystem`** — constructor accepts `(inputProvider, movementSpeed?)` with default speed 1; reads InputState each tick, maps arrow keys to positional deltas; ArrowLeft→x-=speed, ArrowRight→x+=speed, ArrowUp→y-=speed, ArrowDown→y+=speed; diagonal movement supported; only entities with `type === 'player'` and a PositionComponent are moved; all other entities ignored
+- **Component-driven position updates** — reads PositionComponent from `entity.components`, creates new PositionComponent with updated x/y, preserves all other components (health, inventory, etc.); legacy `entity.x`/`entity.y` kept in sync
+- **Two entry points** — `update(world): World` (RuntimeSystem contract) and `updateWithResult(world): { world, result }` (with PlayerControllerResult metadata)
+- **Updated `packages/runtime/src/systems/index.ts`** — added PlayerControllerSystem, PlayerControllerResult, DefaultPlayerControllerSystem exports
+- **Updated `packages/runtime/src/index.ts`** — added player controller barrel exports
+- **New test file**: `PlayerControllerSystem.test.ts` — 36 tests across 14 sections (construction, left/right/up/down movement, diagonal, multiple players, non-player entities, missing PositionComponent, speed override, no key pressed, immutability, determinism, updateWithResult)
+- **New test file**: `PlayerControllerIntegration.test.ts` — 13 tests across 7 sections (single key, diagonal, no movement, multiple players, mixed entities, PositionComponent updates, metadata)
+- Created ADR-0196: Player Controller System Foundation
+- Updated PROJECT_STATE.md — v1.83, WO-S9-009 in completed list
+- Updated CHANGELOG.md — v1.83, WO-S9-009
+- No Physics
+- No Collision
+- No Camera
+- No Jumping
+- No Gravity
+- No Animation
+- No Asset Pipeline
+- No Renderer Changes
+- No DSL Changes
+- No Prompt Changes
+- No breaking changes to any Public API
+- Architecture version v1.82 to v1.83
+
 ### WO-S9-008 — Keyboard Input Foundation
 
 - **Created `InputKey` type** — in `packages/runtime/src/input/` with union `'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight' | 'Space'`; typed contract for all supported input keys
