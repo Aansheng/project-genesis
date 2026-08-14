@@ -1,32 +1,89 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGameStore } from './stores/gameStore'
-import { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from '@genesis/renderer'
+import { Application, Container } from 'pixi.js'
+import {
+  DefaultRuntimeRendererAdapter,
+  DefaultPixiEntityRenderer,
+  DefaultRuntimeVisualizationLoop,
+  DefaultAnimationFrameScheduler,
+  DefaultVisualizationRunner,
+  StoreBackedWorldProvider,
+  DefaultEntityVisualCatalog,
+} from '@genesis/renderer'
+import type { RuntimeVisualizationLoop, VisualizationRunner } from '@genesis/renderer'
+import { DefaultRuntimeExecutionLoop, DefaultRuntimeSystemRegistry } from '@genesis/runtime'
 
 const route = useRoute()
 const isObservatory = computed(() => route.name === 'observatory')
 
 const store = useGameStore()
 const input = ref('')
-const canvasRef = ref<HTMLCanvasElement | null>(null)
+const gameContainer = ref<HTMLDivElement | null>(null)
 
-function getCtx(): CanvasRenderingContext2D | null {
-  return canvasRef.value?.getContext('2d') ?? null
-}
+let pixiApp: Application | null = null
+let visLoop: RuntimeVisualizationLoop | null = null
+let runner: VisualizationRunner | null = null
 
-function draw() {
-  const ctx = getCtx()
-  if (!ctx) return
-  renderWorld(ctx, store.worldStore.getWorld())
-}
+onMounted(async () => {
+  if (!gameContainer.value) return
 
-onMounted(() => {
-  draw()
+  // 1. Create PIXI Application
+  pixiApp = new Application({
+    width: 800,
+    height: 600,
+    backgroundColor: 0x1a1a2e,
+    antialias: true,
+    resolution: typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
+    autoDensity: true,
+  })
+
+  // 2. Append canvas to the host container
+  gameContainer.value.appendChild(pixiApp.view as HTMLCanvasElement)
+
+  // 3. Create entity container and add to Pixi stage
+  const entityContainer = new Container()
+  pixiApp.stage.addChild(entityContainer)
+
+  // 4. Create runtime execution components
+  const systemRegistry = new DefaultRuntimeSystemRegistry()
+  const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)
+
+  // 5. Create renderer adapter and entity renderer
+  const adapter = new DefaultRuntimeRendererAdapter()
+  const entityRenderer = new DefaultPixiEntityRenderer(entityContainer, {
+    catalog: new DefaultEntityVisualCatalog(),
+  })
+
+  // 6. Create world provider backed by the store's RuntimeWorldStore
+  const worldProvider = new StoreBackedWorldProvider(store.worldStore)
+
+  // 7. Create visualization loop with world provider
+  const initialWorld = store.worldStore.getWorld()
+  visLoop = new DefaultRuntimeVisualizationLoop(
+    executionLoop,
+    adapter,
+    entityRenderer,
+    initialWorld,
+    worldProvider,
+  )
+
+  // 8. Create scheduler and runner
+  const scheduler = new DefaultAnimationFrameScheduler()
+  runner = new DefaultVisualizationRunner(scheduler, visLoop)
+
+  // 9. Start continuous rendering
+  runner.start()
 })
 
-watch(() => store.renderVersion, () => {
-  draw()
+onUnmounted(() => {
+  runner?.stop()
+  visLoop?.stop()
+  if (pixiApp) {
+    pixiApp.destroy(true, { children: true, texture: true })
+    pixiApp = null
+  }
 })
 
 function handleSend() {
@@ -44,51 +101,24 @@ function handleSend() {
     class="app"
   >
     <h1>Project Genesis</h1>
-    <canvas
-      ref="canvasRef"
-      :width="CANVAS_WIDTH"
-      :height="CANVAS_HEIGHT"
-      class="canvas"
+    <div
+      ref="gameContainer"
+      class="game-container"
     />
     <div class="controls">
       <input
         v-model="input"
         type="text"
-        placeholder="输入指令... (例如: 增加一棵树)"
+        placeholder="输入指令... (例如: 创建 MarioWorld)"
         class="input"
-        :disabled="store.isStreaming"
         @keyup.enter="handleSend"
       >
       <button
         class="btn"
-        :disabled="store.isStreaming"
         @click="handleSend"
       >
         发送
       </button>
-      <label class="toggle">
-        <input
-          v-model="store.useStreaming"
-          type="checkbox"
-        >
-        <span>Streaming</span>
-      </label>
-    </div>
-    <div
-      v-if="store.isStreaming || store.streamingText"
-      class="streaming-panel"
-    >
-      <div class="streaming-header">
-        <span
-          v-if="store.isStreaming"
-          class="streaming-indicator"
-        >⏳ Generating...</span>
-        <span
-          v-else-if="store.streamingFinished"
-          class="streaming-done"
-        >✓ Done</span>
-      </div>
-      <pre class="streaming-text">{{ store.streamingText }}</pre>
     </div>
     <div
       v-if="store.log.length"
@@ -137,9 +167,11 @@ h1 {
   margin-bottom: 0.25rem;
 }
 
-.canvas {
+.game-container {
   border: 1px solid #333;
   border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
 }
 
 .controls {
@@ -165,11 +197,6 @@ h1 {
   border-color: #2E8B57;
 }
 
-.input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .btn {
   padding: 0.6rem 1.2rem;
   border: none;
@@ -183,68 +210,6 @@ h1 {
 
 .btn:hover {
   background: #3aa86a;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: #888;
-  user-select: none;
-}
-
-.toggle input[type="checkbox"] {
-  accent-color: #2E8B57;
-}
-
-.streaming-panel {
-  width: 100%;
-  max-width: 600px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 0.75rem;
-  text-align: left;
-}
-
-.streaming-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.8rem;
-}
-
-.streaming-indicator {
-  color: #f0ad4e;
-  animation: pulse 1s ease-in-out infinite;
-}
-
-.streaming-done {
-  color: #2E8B57;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.streaming-text {
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-  font-size: 0.75rem;
-  color: #999;
-  white-space: pre-wrap;
-  word-break: break-all;
-  max-height: 120px;
-  overflow-y: auto;
-  margin: 0;
 }
 
 .log {

@@ -112,6 +112,27 @@
 - No breaking changes to any Public API
 - Architecture version v1.94 to v1.95
 
+### WO-S10-006 — Observatory Runtime Migration
+
+- **Replaced Canvas2D rendering** with full Pixi runtime stack in `App.vue`
+- **Created Pixi stack** in `onMounted`: `PIXI.Application` → `Container` (added to stage) → `StoreBackedWorldProvider` (wrapping `RuntimeWorldStore`) → `DefaultRuntimeVisualizationLoop` (with `DefaultRuntimeExecutionLoop` + `DefaultRuntimeRendererAdapter` + `DefaultPixiEntityRenderer`) → `DefaultAnimationFrameScheduler` + `DefaultVisualizationRunner`
+- **Removed manual `draw()` calls** — visualization loop runs on `requestAnimationFrame` via `VisualizationRunner`
+- **Replaced `<canvas>` with `<div ref="gameContainer">`** — Pixi attaches canvas automatically
+- **Removed `renderWorld` import** — no longer depends on legacy Canvas2D renderer for game rendering
+- **Added `pixi.js@7.4.3` dependency** to `apps/web` (required for `Application` and `Container`)
+- **Updated `packages/renderer/src/index.ts`** — added `StoreBackedWorldProvider` and `VisualizationWorldProvider` exports
+- **Chat log and command input preserved** — UI unchanged
+- **Observatory panels preserved** — `router-view` before game container
+- **New test file**: `PixiRuntimeMigration.test.ts` — 6 integration tests across 3 stages (executor → store, store → provider, full pipeline → renderer)
+- Created ADR-0209: Observatory Runtime Migration
+- Updated PROJECT_STATE.md — v1.96, WO-S10-006 in completed list
+- Updated CHANGELOG.md — v1.96, WO-S10-006
+- No changes to Runtime package
+- No changes to AI pipeline implementation
+- No new gameplay features
+- No breaking changes to any Public API
+- Architecture version v1.95 to v1.96
+
 ---
 
 ## Sprint 9 — Renderer Foundation

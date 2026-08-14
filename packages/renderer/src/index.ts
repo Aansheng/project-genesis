@@ -54,6 +54,10 @@ export type { RuntimeVisualizationLoop } from './runtime'
 export { DefaultRuntimeVisualizationLoop } from './runtime'
 export type { VisualizationTickResult } from './runtime'
 
+// World Injection (WO-S10-003)
+export type { VisualizationWorldProvider } from './runtime'
+export { StoreBackedWorldProvider } from './runtime'
+
 // Scheduler types
 export type { AnimationFrameScheduler } from './runtime'
 export { DefaultAnimationFrameScheduler } from './runtime'
