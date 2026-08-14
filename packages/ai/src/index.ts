@@ -182,3 +182,9 @@ export type { SemanticGameDslBuilder } from './game-world'
 export { DefaultSemanticGameDslBuilder } from './game-world'
 export type { SemanticWorldGenerator } from './game-world'
 export { DefaultSemanticWorldGenerator } from './game-world'
+// ---------------------------------------------------------------------------
+// Game Intent — Pure Semantic Game Intent Extraction
+// ---------------------------------------------------------------------------
+export type { GameGenre, GameIntent } from './game-intent'
+export type { GameIntentExtractor } from './game-intent'
+export { DefaultGameIntentExtractor } from './game-intent'

@@ -8,6 +8,29 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S8-016 — Game Intent Extraction Foundation
+
+- **Created `GameGenre` type** — closed union of 5 genres: `'platformer'`, `'farm'`, `'rpg'`, `'survival'`, `'sandbox'`; `sandbox` is the default fallback
+- **Created `GameIntent` interface** — in `packages/ai/src/game-intent/` with `readonly genre: GameGenre` and `readonly title: string`; frozen, immutable, serializable semantic model
+- **Created `GameIntentExtractor` interface** — with `extract(model: PromptAssemblyDomainModel): GameIntent` method; pure, stateless, deterministic contract
+- **Created `DefaultGameIntentExtractor`** — rule-based implementation; detection priority: mario → platformer, farm → farm, rpg → rpg, survival → survival; otherwise → sandbox; case-insensitive matching; title from `overview.title` with `"Untitled Game"` fallback; all outputs deeply frozen
+- **New directory**: `packages/ai/src/game-intent/` with GameIntent.ts, GameIntentExtractor.ts, DefaultGameIntentExtractor.ts, index.ts
+- **Updated `packages/ai/src/index.ts`** — added game-intent barrel exports (GameGenre, GameIntent, GameIntentExtractor, DefaultGameIntentExtractor)
+- **New test file**: `GameIntentExtractor.test.ts` — 80+ tests across 16 sections (construction, all 5 genres, case insensitivity, title extraction, fallback title, empty/null/undefined/invalid models, large inputs, determinism, immutability/frozen, edge cases, cross-contamination)
+- Created ADR-0198: Game Intent Extraction Foundation
+- Updated PROJECT_STATE.md — v1.85, WO-S8-016 in completed list
+- Updated CHANGELOG.md — v1.85, WO-S8-016
+- No Runtime changes
+- No Renderer changes
+- No DSL changes
+- No Projection changes
+- No SemanticWorldGenerator changes
+- No PromptBuilder changes
+- No LLM integration
+- No AI calls
+- No breaking changes to any Public API
+- Architecture version v1.84 to v1.85
+
 ### WO-S9-010 — Playable Game Bootstrap Foundation
 
 - **Created `GameBootstrap` interface** — in `packages/runtime/src/bootstrap/` with `start(container): Promise<void>`, `stop(): Promise<void>`, `isRunning(): boolean`; single entry point for a complete playable game lifecycle
