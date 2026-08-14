@@ -18,7 +18,7 @@ function getCtx(): CanvasRenderingContext2D | null {
 function draw() {
   const ctx = getCtx()
   if (!ctx) return
-  renderWorld(ctx, store.runtime.world)
+  renderWorld(ctx, store.worldStore.getWorld())
 }
 
 onMounted(() => {

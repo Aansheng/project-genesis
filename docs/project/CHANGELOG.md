@@ -91,6 +91,27 @@
 - No breaking changes to any Public API
 - Architecture version v1.93 to v1.94
 
+### WO-S10-004 — Web Command Routing Integration
+
+- **Created `CommandExecutionResult` interface** — in `apps/web/src/command/` with `readonly success: boolean` and `readonly message: string`; pure, serializable result contract
+- **Created `CommandExecutor` interface** — in `apps/web/src/command/` with `execute(input: string): CommandExecutionResult`; pure, stateless, deterministic, framework-independent
+- **Created `DefaultCommandExecutor`** — routes via `IntentRouter.route(input)` → delegates to `CreateWorldRuntimeExecutor.execute(input)` on `create-world` route → returns success with entity count; returns `{ success: false, message: "Unknown command" }` for other routes
+- **New directory**: `apps/web/src/command/` with CommandExecutionResult.ts, CommandExecutor.ts, DefaultCommandExecutor.ts, index.ts
+- **Updated `packages/ai/src/index.ts`** — added `DefaultCreateWorldRuntimeExecutor` export
+- **Modified `gameStore.ts`** — replaced `MockPlanner` + `DefaultPipeline` + `createProvider()` + `DefaultMemory` + streaming logic with `DefaultCommandExecutor` + `RuntimeWorldStore`; `send()` now calls `commandExecutor.execute(input)` instead of `pipeline.execute()` / `pipeline.stream()`
+- **Modified `App.vue`** — `draw()` reads from `store.worldStore.getWorld()` instead of `store.runtime.world`
+- **Streaming state preserved** — `isStreaming`, `streamingText`, `streamingFinished`, `useStreaming` refs kept as inert UI elements
+- **Chat history preserved** — `log` array and conversation panel unchanged
+- **New test file**: `CommandRoutingIntegration.test.ts` — 10 integration tests across 2 sections (command executor end-to-end, gameStore integration); verifies world store updated, player entity injected, visualization provider sees world, unknown commands, renderVersion incrementation
+- Created ADR-0208: Web Command Routing Integration
+- Updated PROJECT_STATE.md — v1.95, WO-S10-004 in completed list
+- Updated CHANGELOG.md — v1.95, WO-S10-004
+- No changes to Runtime package
+- No changes to Renderer package
+- No changes to AI pipeline implementation
+- No breaking changes to any Public API
+- Architecture version v1.94 to v1.95
+
 ---
 
 ## Sprint 9 — Renderer Foundation

@@ -195,6 +195,7 @@ export type { CreateWorldCommand, CreateWorldPipelineResult } from './game-inten
 export type { CreateWorldPipeline } from './game-intent'
 export { DefaultCreateWorldPipeline } from './game-intent'
 export type { CreateWorldRuntimeExecutor } from './game-intent'
+export { DefaultCreateWorldRuntimeExecutor } from './game-intent'
 // ---------------------------------------------------------------------------
 // Mario World Factory — Predefined Mario-style World
 // ---------------------------------------------------------------------------
