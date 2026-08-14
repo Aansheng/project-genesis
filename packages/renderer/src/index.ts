@@ -71,3 +71,6 @@ export { KeyboardInputProvider } from './input'
 // Game Bootstrap Foundation (WO-S9-010)
 export { DefaultGameBootstrap } from './bootstrap'
 export type { GameBootstrapOptions } from './bootstrap'
+export type { MarioGameBootstrap } from './bootstrap'
+export type { MarioGameBootstrapOptions } from './bootstrap'
+export { DefaultMarioGameBootstrap } from './bootstrap'

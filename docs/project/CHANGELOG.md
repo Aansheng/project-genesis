@@ -8,6 +8,40 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-011 — Mario Playable Slice Foundation
+
+- **Created `MarioWorldFactory` interface** — in `packages/ai/src/game-world/` with `create(): GameWorldModel` method; pure, stateless, deterministic contract for producing a predefined Mario-style world
+- **Created `DefaultMarioWorldFactory`** — produces a frozen `GameWorldModel` with `worldType: 'platformer'` and exactly 3 entities: player (Mario, id: 'player', category: 'player'), ground (Ground, id: 'ground', category: 'terrain'), goal (Flag, id: 'goal', category: 'item'); all outputs deeply frozen; no constructor parameters
+- **Created `MarioGameBootstrap` interface** — in `packages/renderer/src/bootstrap/` with `start(container): Promise<void>`, `stop(): Promise<void>`, `isRunning(): boolean`; one-call entry point for the Mario playable demo
+- **Created `DefaultMarioGameBootstrap`** — wires the full pipeline: `DefaultMarioWorldFactory` → `DefaultSemanticGameDslBuilder` → `DefaultRuntimeProjection` → `KeyboardInputProvider` → `DefaultGameBootstrap` → `start(container)`; supports optional `createRenderer` factory for testability; double-start/double-stop are no-ops
+- **start() flow**: Create Mario world model → Convert to GameDsl → Project to Runtime World → Create keyboard input → Create game bootstrap config → Start game bootstrap
+- **stop() flow**: Stop bootstrap → Detach keyboard input → Clean up
+- **New file**: `packages/ai/src/game-world/MarioWorldFactory.ts` — factory interface + `DefaultMarioWorldFactory`
+- **New file**: `packages/renderer/src/bootstrap/MarioGameBootstrap.ts` — bootstrap interface + `DefaultMarioGameBootstrap` + `MarioGameBootstrapOptions`
+- **Updated `packages/ai/src/game-world/index.ts`** — added MarioWorldFactory exports
+- **Updated `packages/ai/src/index.ts`** — added MarioWorldFactory barrel exports
+- **Updated `packages/renderer/src/bootstrap/index.ts`** — added MarioGameBootstrap exports
+- **Updated `packages/renderer/src/index.ts`** — added MarioGameBootstrap barrel exports
+- **Updated `packages/renderer/package.json`** — added `@genesis/ai: workspace:*` dependency
+- **Updated `packages/renderer/vitest.config.ts`** — added `@genesis/ai` resolve alias
+- **New test file**: `MarioWorldFactory.test.ts` — 33 tests across 7 sections (construction, world type, entity count, entity properties, immutability, determinism, serialization, stateless)
+- **New test file**: `MarioGameBootstrap.test.ts` — 23 tests across 8 sections (construction, pipeline creation, start, stop, double start, double stop, start-stop-restart, isRunning, keyboard input lifecycle)
+- Created ADR-0199: Mario Playable Slice Foundation
+- Updated PROJECT_STATE.md — v1.86, WO-S9-011 in completed list
+- Updated CHANGELOG.md — v1.86, WO-S9-011
+- No gravity
+- No collision
+- No camera
+- No assets
+- No animation
+- No physics
+- No networking
+- No save system
+- No AI generation yet
+- No LLM integration
+- No breaking changes to any Public API
+- Architecture version v1.85 to v1.86
+
 ### WO-S8-016 — Game Intent Extraction Foundation
 
 - **Created `GameGenre` type** — closed union of 5 genres: `'platformer'`, `'farm'`, `'rpg'`, `'survival'`, `'sandbox'`; `sandbox` is the default fallback
