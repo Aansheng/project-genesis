@@ -188,6 +188,9 @@ export { DefaultSemanticWorldGenerator } from './game-world'
 export type { GameGenre, GameIntent } from './game-intent'
 export type { GameIntentExtractor } from './game-intent'
 export { DefaultGameIntentExtractor } from './game-intent'
+export type { IntentRoute, IntentRoutingResult } from './game-intent'
+export type { IntentRouter } from './game-intent'
+export { DefaultIntentRouter } from './game-intent'
 // ---------------------------------------------------------------------------
 // Mario World Factory — Predefined Mario-style World
 // ---------------------------------------------------------------------------

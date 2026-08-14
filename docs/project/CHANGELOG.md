@@ -6,6 +6,34 @@
 
 ---
 
+## Sprint 10 — AI Generation Pipeline
+
+### WO-S10-001 — Intent Router Foundation
+
+- **Created `IntentRoute` type** — in `packages/ai/src/game-intent/router/` as `'create-world' | 'unknown'`; pure, stateless, serializable
+- **Created `IntentRoutingResult` interface** — in `packages/ai/src/game-intent/router/` with `readonly route: IntentRoute` and `readonly confidence: number`; frozen, immutable, serializable
+- **Created `IntentRouter` interface** — in `packages/ai/src/game-intent/router/` with `route(input: string): IntentRoutingResult`; pure, stateless, deterministic, immutable
+- **Created `DefaultIntentRouter`** — rule-based routing: creation keywords (`create`, `创建`, `生成`, `build`) → `create-world`; genre keywords (`mario`, `farm`, `rpg`, `survival`) → confidence boost to `1.0`; creation keyword only → confidence `0.8`; otherwise → `unknown` with confidence `0.0`
+- **Multi-language support** — Chinese creation keywords (`创建`, `生成`) and English creation keywords (`create`, `build`) both supported; Chinese + English mixed input handled correctly
+- **New directory**: `packages/ai/src/game-intent/router/` with IntentRoute.ts, IntentRoutingResult.ts, IntentRouter.ts, DefaultIntentRouter.ts, index.ts
+- **Updated `packages/ai/src/game-intent/index.ts`** — added router barrel exports
+- **Updated `packages/ai/src/index.ts`** — added IntentRoute, IntentRoutingResult, IntentRouter, DefaultIntentRouter exports
+- **New test file**: `IntentRouter.test.ts` — 130 tests across 17 sections (construction, create-world English/Chinese/Japanese/build, unknown, mixed input, confidence definite/strong/unknown, case sensitivity, whitespace, invalid input, unknown edge cases, determinism, immutability, stress/large inputs, type exports, cross-contamination)
+- Created ADR-0205: Intent Router Foundation
+- Updated PROJECT_STATE.md — v1.92, WO-S10-001 in completed list
+- Updated CHANGELOG.md — v1.92, WO-S10-001
+- No LLM integration
+- No Runtime changes
+- No Renderer changes
+- No DSL changes
+- No Planner removal
+- No UI changes
+- No AI calls
+- No breaking changes to any Public API
+- Architecture version v1.91 to v1.92
+
+---
+
 ## Sprint 9 — Renderer Foundation
 
 ### WO-S9-016 — Platform World Rendering Foundation

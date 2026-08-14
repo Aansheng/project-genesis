@@ -1,3 +1,7 @@
 export type { GameGenre, GameIntent } from './GameIntent'
 export type { GameIntentExtractor } from './GameIntentExtractor'
 export { DefaultGameIntentExtractor } from './DefaultGameIntentExtractor'
+export type { IntentRoute } from './router'
+export type { IntentRoutingResult } from './router'
+export type { IntentRouter } from './router'
+export { DefaultIntentRouter } from './router'
