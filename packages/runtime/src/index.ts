@@ -26,6 +26,8 @@ export type { PlayerControllerSystem, PlayerControllerResult } from './systems'
 export { DefaultPlayerControllerSystem } from './systems'
 export type { GravitySystem, GravitySystemResult } from './systems'
 export { DefaultGravitySystem } from './systems'
+export type { GroundCollisionSystem, GroundCollisionSystemResult } from './systems'
+export { DefaultGroundCollisionSystem } from './systems'
 
 // Input Foundation (WO-S9-008)
 export type { InputKey } from './input'

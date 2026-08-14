@@ -8,6 +8,34 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-013 — Ground Collision Foundation
+
+- **Created `GroundCollisionSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for ground collision systems
+- **Created `GroundCollisionSystemResult` type** — in `packages/runtime/src/systems/` with `groundedEntities: number` and `groundY: number`; immutable metadata contract
+- **Created `DefaultGroundCollisionSystem`** — constructor accepts optional `groundY?: number` (default 400); clamps `y = groundY` each tick for all entities with PositionComponent where `y > groundY`; updates both `entity.y` and the PositionComponent in the `components` array; entities without PositionComponent or above ground are passed through unchanged; full `update()` and `updateWithResult()` entry points
+- **Component-driven position updates** — reads PositionComponent from `entity.components`, creates new PositionComponent with clamped y, preserves all other components; legacy `entity.y` kept in sync
+- **Two entry points** — `update(world): World` (RuntimeSystem contract) and `updateWithResult(world): { world, result }` (with GroundCollisionSystemResult metadata)
+- **Updated `packages/runtime/src/systems/index.ts`** — added GroundCollisionSystem, GroundCollisionSystemResult, DefaultGroundCollisionSystem exports
+- **Updated `packages/runtime/src/index.ts`** — added ground collision system barrel exports
+- **New test file**: `GroundCollisionSystem.test.ts` — 70+ tests across 16 sections (construction, defaults, custom groundY, clamp behavior, no clamp, multiple entities, mixed entities, missing PositionComponent, result metadata, update/updateWithResult, immutability, deep freeze, determinism, large worlds, stress cases, stateless)
+- **New test file**: `GroundCollisionExecutionLoopIntegration.test.ts` — 18 tests across 4 sections (gravity + collision loop, execution order verification, immutability, determinism)
+- Created ADR-0201: Ground Collision Foundation
+- Updated PROJECT_STATE.md — v1.88, WO-S9-013 in completed list
+- Updated CHANGELOG.md — v1.88, WO-S9-013
+- No jumping
+- No velocity
+- No physics engine
+- No rigid bodies
+- No collision shapes
+- No renderer changes
+- No AI changes
+- No DSL changes
+- No camera
+- No ECS
+- No runtime refactor
+- No breaking changes to any Public API
+- Architecture version v1.87 to v1.88
+
 ### WO-S9-012 — Gravity System Foundation
 
 - **Created `GravitySystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for gravity simulation systems

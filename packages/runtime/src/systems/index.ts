@@ -25,3 +25,8 @@ export { DefaultPlayerControllerSystem } from './DefaultPlayerControllerSystem'
 export type { GravitySystem } from './GravitySystem'
 export type { GravitySystemResult } from './GravitySystemResult'
 export { DefaultGravitySystem } from './DefaultGravitySystem'
+
+// Ground Collision System Foundation (WO-S9-013)
+export type { GroundCollisionSystem } from './GroundCollisionSystem'
+export type { GroundCollisionSystemResult } from './GroundCollisionSystemResult'
+export { DefaultGroundCollisionSystem } from './DefaultGroundCollisionSystem'
