@@ -1,29 +1,45 @@
 /**
  * PixiEntityRenderer — renders a RenderWorld onto a PixiJS canvas
- * using basic Graphics rectangles (no sprites, no textures).
+ * using basic Graphics shapes (no sprites, no textures).
+ *
+ * Rendering is driven by an EntityVisualCatalog:
+ *   entity.type
+ *     ↓
+ *   catalog.getVisual(entityType)
+ *     ↓
+ *   EntityVisualDefinition { width, height, shape }
+ *     ↓
+ *   Graphics (rectangle or circle at entity.position.x/y)
  *
  * Rules:
- *   - If entity.position exists: draw a 20×20 rectangle at (x, y)
+ *   - If entity.position exists: draw the shape at (x, y)
  *   - If no position: do not draw
+ *   - If no catalog provided: fall back to 20×20 rectangle (backward compatible)
  *
- * Constraints (WO-S9-004):
+ * Constraints (WO-S9-004, WO-S9-007):
  *   - No sprites
  *   - No textures
  *   - No assets
  *   - No animation
  *   - No gameplay rendering
- *   - Foundation only
+ *   - Graphics only
  */
 
 import { Container, Graphics } from 'pixi.js'
 import type { RenderWorld } from '../model'
 import type { RenderEntityView } from './RenderEntityView'
 import type { RenderWorldView } from './RenderWorldView'
+import type { EntityVisualCatalog } from './EntityVisualCatalog'
+import type { EntityVisualDefinition } from './EntityVisualDefinition'
 
-/** Default width/height for the entity rectangle. */
-const ENTITY_SIZE = 20
+/** Default fallback visual definition (20×20 rectangle). */
+const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
+  width: 20,
+  height: 20,
+  shape: 'rectangle',
+})
 
-/** Fill color for the entity rectangle. */
+/** Fill color for entity shapes. */
 const ENTITY_COLOR = 0x4fc3f7
 
 export interface PixiEntityRendererOptions {
@@ -33,6 +49,13 @@ export interface PixiEntityRendererOptions {
    * so tests can inject a mock without depending on a real canvas context.
    */
   readonly createGraphics?: () => Graphics
+
+  /**
+   * Optional catalog for entity visual definitions.
+   * When provided, entity type determines the rendered shape and size.
+   * When omitted, all entities render as 20×20 rectangles (backward compatible).
+   */
+  readonly catalog?: EntityVisualCatalog
 }
 
 export interface PixiEntityRenderer {
@@ -43,6 +66,7 @@ export interface PixiEntityRenderer {
 export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _container: Container
   private readonly _createGraphics: () => Graphics
+  private readonly _catalog: EntityVisualCatalog | null
   private _entityViews: RenderEntityView[] = []
 
   constructor(
@@ -52,6 +76,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._container = container
     this._createGraphics =
       options?.createGraphics ?? (() => new Graphics())
+    this._catalog = options?.catalog ?? null
   }
 
   // ─── Public API ─────────────────────────────────────────────────────
@@ -66,10 +91,17 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       if (!entity.position) continue
 
       const gfx = this._createGraphics()
+      const visual = this.resolveVisual(entity.type)
 
-      // Draw a filled rectangle
       gfx.beginFill(ENTITY_COLOR)
-      gfx.drawRect(0, 0, ENTITY_SIZE, ENTITY_SIZE)
+
+      if (visual.shape === 'circle') {
+        const radius = Math.min(visual.width, visual.height) / 2
+        gfx.drawCircle(0, 0, radius)
+      } else {
+        gfx.drawRect(0, 0, visual.width, visual.height)
+      }
+
       gfx.endFill()
 
       // Position the graphics in world space
@@ -93,5 +125,18 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       view.graphics.destroy()
     }
     this._entityViews = []
+  }
+
+  // ─── Private ────────────────────────────────────────────────────────
+
+  /**
+   * Resolve the visual definition for an entity type.
+   * Uses the catalog if available; falls back to default 20×20 rectangle.
+   */
+  private resolveVisual(entityType: string): EntityVisualDefinition {
+    if (this._catalog) {
+      return this._catalog.getVisual(entityType)
+    }
+    return DEFAULT_VISUAL
   }
 }

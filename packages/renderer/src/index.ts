@@ -14,6 +14,11 @@
  *   - PixiEntityRenderer — renders RenderWorld onto canvas via Graphics
  *   - RenderEntityView / RenderWorldView — view interfaces
  *
+ * Entity Visual Mapping (WO-S9-007):
+ *   - EntityVisualDefinition — shape, width, height per entity type
+ *   - EntityVisualCatalog — maps entity types to visual definitions
+ *   - DefaultEntityVisualCatalog — built-in mappings for player/enemy/merchant/boss
+ *
  * Real-Time Visualization Loop (WO-S9-006):
  *   - AnimationFrameScheduler — requestAnimationFrame scheduling
  *   - DefaultAnimationFrameScheduler — RAF-backed implementation
@@ -40,6 +45,9 @@ export type { RenderEntityView } from './view'
 export type { RenderWorldView } from './view'
 export type { PixiEntityRenderer, PixiEntityRendererOptions } from './view'
 export { DefaultPixiEntityRenderer } from './view'
+export type { EntityVisualDefinition } from './view'
+export type { EntityVisualCatalog } from './view'
+export { DefaultEntityVisualCatalog } from './view'
 
 // Runtime Visualization Loop types
 export type { RuntimeVisualizationLoop } from './runtime'

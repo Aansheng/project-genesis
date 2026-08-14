@@ -8,6 +8,32 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-007 — Entity Visual Mapping Foundation
+
+- **Created `EntityVisualDefinition` interface** — in `packages/renderer/src/view/` with `width: number`, `height: number`, `shape: 'rectangle' | 'circle'`; immutable, serializable, framework-independent contract for per-type visual rendering
+- **Created `EntityVisualCatalog` interface** — in `packages/renderer/src/view/` with `getVisual(entityType): EntityVisualDefinition`; stateless, deterministic lookup for entity type → visual mapping
+- **Created `DefaultEntityVisualCatalog`** — built-in mappings: player (circle 24×24), enemy (rectangle 20×20), merchant (rectangle 28×20), boss (rectangle 40×40), default (rectangle 20×20); all definitions and map deeply frozen; unknown types return shared default
+- **Updated `DefaultPixiEntityRenderer`** — added optional `catalog?: EntityVisualCatalog` to constructor options; rendering now uses catalog: entity.type → `resolveVisual()` → `EntityVisualDefinition` → drawCircle or drawRect with correct dimensions; no-catalog fallback preserves 20×20 rectangle backward compatibility
+- **Updated `packages/renderer/src/view/index.ts`** — added EntityVisualDefinition, EntityVisualCatalog types and DefaultEntityVisualCatalog exports
+- **Updated `packages/renderer/src/index.ts`** — added catalog barrel exports
+- **New test file**: `EntityVisualCatalog.test.ts` — 18 tests across 9 sections (construction, player, enemy, merchant, boss, unknown types, immutability, determinism, all mappings)
+- **Updated test file**: `PixiEntityRenderer.test.ts` — 40 tests (23 → 40, +17) covering catalog-driven player (circle), enemy (20×20), merchant (28×20), boss (40×40), default (20×20), catalog clear(), multiple renders with mixed types, catalog integration (no-catalog fallback, backward compat), catalog determinism
+- **New test file**: `VisualMappingIntegration.test.ts` — 9 tests across 7 sections (visual distinction, player circle, different sizes, default entity, cleanup with catalog, real-world rendering)
+- Created ADR-0194: Entity Visual Mapping Foundation
+- Updated PROJECT_STATE.md — v1.81, WO-S9-007 in completed list
+- Updated CHANGELOG.md — v1.81, WO-S9-007
+- No Asset Pipeline
+- No Sprites
+- No Textures
+- No Input
+- No Physics
+- No Collision
+- No Camera
+- No Runtime changes
+- No DSL changes
+- No breaking changes to any Public API
+- Architecture version v1.80 to v1.81
+
 ### WO-S9-006 — Real-Time Visualization Loop Foundation
 
 - **Created `AnimationFrameScheduler` interface** — in `packages/renderer/src/runtime/` with `start(callback)`, `stop()`, `isRunning()` lifecycle methods; lightweight abstraction over requestAnimationFrame/cancelAnimationFrame; callback receives no arguments (consumers measure own timing)

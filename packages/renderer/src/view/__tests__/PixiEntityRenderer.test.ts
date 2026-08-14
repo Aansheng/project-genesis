@@ -1,6 +1,6 @@
 /**
  * PixiEntityRenderer.test.ts — comprehensive test suite for the
- * PixiEntityRenderer (WO-S9-004).
+ * PixiEntityRenderer (WO-S9-004, WO-S9-007).
  *
  * Coverage areas:
  *   - Empty world
@@ -16,12 +16,16 @@
  *   - Immutability
  *   - Determinism
  *   - Memory cleanup
+ *   - Catalog-driven rendering (WO-S9-007)
+ *   - Entity type visual mapping (WO-S9-007)
+ *   - Default rendering without catalog (WO-S9-007)
  */
 
 import { describe, it, expect } from 'vitest'
 import type { Container, Graphics } from 'pixi.js'
 import type { RenderWorld, RenderEntity } from '../../model'
 import { DefaultPixiEntityRenderer } from '../PixiEntityRenderer'
+import { DefaultEntityVisualCatalog } from '../DefaultEntityVisualCatalog'
 import type { RenderEntityView } from '../RenderEntityView'
 
 // ---------------------------------------------------------------------------
@@ -59,6 +63,9 @@ function createMockGraphics(): Graphics & { _data: MockGraphicsData } {
       data.rectY = y
       data.rectW = w
       data.rectH = h
+    },
+    drawCircle: (_x: number, _y: number, _radius: number) => {
+      // Circle drawing — rect data remains 0 to distinguish from rectangles
     },
     endFill: () => {
       // no-op
@@ -515,5 +522,262 @@ describe('Memory Cleanup', () => {
     renderer.clear()
 
     expect(gfx._data.destroyed).toBe(true)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Catalog-driven rendering (WO-S9-007)
+// ---------------------------------------------------------------------------
+
+describe('Catalog-driven rendering — player', () => {
+  it('player renders as circle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([makeEntity('hero', 'player', { x: 50, y: 50 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    // Circle should have radius = min(24, 24) / 2 = 12, drawn at (0, 0)
+    // drawCircle(x, y, radius) should be called
+    expect(gfx._data.rectW).toBe(0)  // drawRect was NOT called
+    expect(gfx._data.rectH).toBe(0)
+  })
+
+  it('player circle is positioned correctly', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([makeEntity('hero', 'player', { x: 100, y: 200 })])
+    renderer.render(world)
+
+    expect(container._state.childAt(0)!.x).toBe(100)
+    expect(container._state.childAt(0)!.y).toBe(200)
+  })
+})
+
+describe('Catalog-driven rendering — enemy', () => {
+  it('enemy renders as 20x20 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([makeEntity('grunt', 'enemy', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(20)
+    expect(gfx._data.rectH).toBe(20)
+  })
+})
+
+describe('Catalog-driven rendering — merchant', () => {
+  it('merchant renders as 28x20 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([makeEntity('trader', 'merchant', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(28)
+    expect(gfx._data.rectH).toBe(20)
+  })
+})
+
+describe('Catalog-driven rendering — boss', () => {
+  it('boss renders as 40x40 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([makeEntity('dragon', 'boss', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(40)
+    expect(gfx._data.rectH).toBe(40)
+  })
+})
+
+describe('Catalog-driven rendering — default', () => {
+  it('unknown type renders as 20x20 rectangle (catalog default)', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([makeEntity('unknown-1', 'unknown', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(20)
+    expect(gfx._data.rectH).toBe(20)
+  })
+})
+
+describe('Catalog-driven rendering — clear()', () => {
+  it('clear works with catalog-driven renderer', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    renderer.render(makeWorld([
+      makeEntity('a', 'player', { x: 0, y: 0 }),
+      makeEntity('b', 'enemy', { x: 10, y: 10 }),
+    ]))
+
+    expect(container._state.childCount).toBe(2)
+
+    renderer.clear()
+    expect(container._state.childCount).toBe(0)
+  })
+})
+
+describe('Catalog-driven rendering — multiple renders', () => {
+  it('multiple renders with mixed entity types', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+
+    // First render: player + enemy + merchant
+    const r1 = renderer.render(makeWorld([
+      makeEntity('p1', 'player', { x: 0, y: 0 }),
+      makeEntity('e1', 'enemy', { x: 100, y: 100 }),
+      makeEntity('m1', 'merchant', { x: 200, y: 200 }),
+    ]))
+    expect(r1.entities).toHaveLength(3)
+    expect(container._state.childCount).toBe(3)
+
+    // Second render: boss only
+    const r2 = renderer.render(makeWorld([
+      makeEntity('b1', 'boss', { x: 50, y: 50 }),
+    ]))
+    expect(r2.entities).toHaveLength(1)
+    expect(container._state.childCount).toBe(1)
+
+    // Verify boss dimensions
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(40)
+    expect(gfx._data.rectH).toBe(40)
+  })
+})
+
+describe('Catalog integration', () => {
+  it('renderer without catalog uses 20x20 rectangle default', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      // No catalog — should use 20x20 rectangle fallback
+    })
+    const world = makeWorld([makeEntity('any', 'any-type', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(20)
+    expect(gfx._data.rectH).toBe(20)
+  })
+
+  it('renderer without catalog draws rectangles not circles', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+    })
+    // Even 'player' type without catalog should render as 20x20 rectangle
+    const world = makeWorld([makeEntity('hero', 'player', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(20)
+    expect(gfx._data.rectH).toBe(20)
+  })
+
+  it('multiple entity types are rendered with correct sizes', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+    })
+    const world = makeWorld([
+      makeEntity('p1', 'player', { x: 0, y: 0 }),
+      makeEntity('e1', 'enemy', { x: 50, y: 0 }),
+      makeEntity('m1', 'merchant', { x: 100, y: 0 }),
+      makeEntity('b1', 'boss', { x: 150, y: 0 }),
+      makeEntity('u1', 'unknown', { x: 200, y: 0 }),
+    ])
+    renderer.render(world)
+
+    expect(container._state.childCount).toBe(5)
+
+    // Check sizes via mock data
+    const entities = container._state as unknown as {
+      childCount: number
+      childAt: (i: number) => Graphics & { _data: MockGraphicsData }
+    }
+
+    // Player: circle
+    expect(entities.childAt(0)._data.rectW).toBe(0)
+    expect(entities.childAt(0)._data.rectH).toBe(0)
+    // Player x/y position
+    expect(entities.childAt(0).x).toBe(0)
+
+    // Enemy: 20x20 rectangle
+    expect(entities.childAt(1)._data.rectW).toBe(20)
+    expect(entities.childAt(1)._data.rectH).toBe(20)
+    expect(entities.childAt(1).x).toBe(50)
+
+    // Merchant: 28x20 rectangle
+    expect(entities.childAt(2)._data.rectW).toBe(28)
+    expect(entities.childAt(2)._data.rectH).toBe(20)
+    expect(entities.childAt(2).x).toBe(100)
+
+    // Boss: 40x40 rectangle
+    expect(entities.childAt(3)._data.rectW).toBe(40)
+    expect(entities.childAt(3)._data.rectH).toBe(40)
+    expect(entities.childAt(3).x).toBe(150)
+
+    // Unknown: 20x20 rectangle (default)
+    expect(entities.childAt(4)._data.rectW).toBe(20)
+    expect(entities.childAt(4)._data.rectH).toBe(20)
+    expect(entities.childAt(4).x).toBe(200)
+  })
+})
+
+describe('Catalog-driven rendering — determinism', () => {
+  it('same input produces same output with catalog', () => {
+    const buildRenderer = () => {
+      const c = createMockContainer()
+      const r = new DefaultPixiEntityRenderer(c, {
+        createGraphics: () => createMockGraphics() as unknown as Graphics,
+        catalog: new DefaultEntityVisualCatalog(),
+      })
+      return r
+    }
+
+    const world = makeWorld([
+      makeEntity('a', 'player', { x: 0, y: 0 }),
+      makeEntity('b', 'enemy', { x: 10, y: 10 }),
+    ])
+
+    const r1 = buildRenderer()
+    const r2 = buildRenderer()
+
+    const result1 = r1.render(world)
+    const result2 = r2.render(world)
+
+    expect(result1.entities).toHaveLength(result2.entities.length)
+    expect(result1.entities[0].id).toBe(result2.entities[0].id)
+    expect(result1.entities[1].id).toBe(result2.entities[1].id)
   })
 })
