@@ -28,6 +28,8 @@ export type { GravitySystem, GravitySystemResult } from './systems'
 export { DefaultGravitySystem } from './systems'
 export type { GroundCollisionSystem, GroundCollisionSystemResult } from './systems'
 export { DefaultGroundCollisionSystem } from './systems'
+export type { JumpSystem, JumpSystemResult } from './systems'
+export { DefaultJumpSystem } from './systems'
 
 // Input Foundation (WO-S9-008)
 export type { InputKey } from './input'

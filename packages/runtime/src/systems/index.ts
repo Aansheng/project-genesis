@@ -30,3 +30,8 @@ export { DefaultGravitySystem } from './DefaultGravitySystem'
 export type { GroundCollisionSystem } from './GroundCollisionSystem'
 export type { GroundCollisionSystemResult } from './GroundCollisionSystemResult'
 export { DefaultGroundCollisionSystem } from './DefaultGroundCollisionSystem'
+
+// Jump System Foundation (WO-S9-014)
+export type { JumpSystem } from './JumpSystem'
+export type { JumpSystemResult } from './JumpSystemResult'
+export { DefaultJumpSystem } from './DefaultJumpSystem'

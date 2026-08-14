@@ -8,6 +8,34 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-014 — Jump System Foundation
+
+- **Created `JumpSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for Space-triggered jump systems
+- **Created `JumpSystemResult` type** — in `packages/runtime/src/systems/` with `jumpedPlayers: number` and `jumpHeight: number`; immutable metadata contract
+- **Created `DefaultJumpSystem`** — constructor accepts `(inputProvider, jumpHeight?: number)` with default jumpHeight 50; on Space press, applies `y -= jumpHeight` to all entities with `type === 'player'` and a PositionComponent; updates both `entity.y` and the PositionComponent in the `components` array; entities without type 'player' or without PositionComponent are passed through unchanged; Space not pressed returns frozen copy unchanged; full `update()` and `updateWithResult()` entry points
+- **Input-driven jump** — reads InputProvider each tick; only triggers when Space key is pressed; uses same InputProvider pattern as PlayerControllerSystem
+- **Component-driven position updates** — reads PositionComponent from `entity.components`, creates new PositionComponent with updated y, preserves all other components; legacy `entity.y` kept in sync
+- **Two entry points** — `update(world): World` (RuntimeSystem contract) and `updateWithResult(world): { world, result }` (with JumpSystemResult metadata)
+- **Execution order** — JumpSystem executes before GravitySystem (PlayerControllerSystem → JumpSystem → MovementSystem → GravitySystem → GroundCollisionSystem → Renderer)
+- **Updated `packages/runtime/src/systems/index.ts`** — added JumpSystem, JumpSystemResult, DefaultJumpSystem exports
+- **Updated `packages/runtime/src/index.ts`** — added jump system barrel exports
+- **New test file**: `JumpSystem.test.ts` — 80 tests across 18 sections (construction, defaults, custom height, single/multiple/no players, no PositionComponent, Space not pressed, repeated updates, result metadata, PositionComponent update, update vs updateWithResult, immutability, frozen outputs, determinism, empty world, stress tests, stateless)
+- **New test file**: `JumpExecutionLoopIntegration.test.ts` — 23 tests across 5 sections (jump→gravity→collision pipeline, execution order verification, multiple ticks and repeated jumps, ground interaction, immutability and determinism)
+- Created ADR-0202: Jump System Foundation
+- Updated PROJECT_STATE.md — v1.89, WO-S9-014 in completed list
+- Updated CHANGELOG.md — v1.89, WO-S9-014
+- No physics engine
+- No velocity
+- No acceleration
+- No double jump
+- No animation
+- No renderer changes
+- No AI changes
+- No camera
+- No ECS
+- No breaking changes to any Public API
+- Architecture version v1.88 to v1.89
+
 ### WO-S9-013 — Ground Collision Foundation
 
 - **Created `GroundCollisionSystem` interface** — in `packages/runtime/src/systems/` extending `RuntimeSystem`; marker interface for ground collision systems
