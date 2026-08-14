@@ -24,6 +24,7 @@ import type { RuntimeRendererAdapter } from '../adapter'
 import type { PixiEntityRenderer } from '../view'
 import type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 import type { VisualizationTickResult } from './VisualizationTickResult'
+import type { VisualizationWorldProvider } from './VisualizationWorldProvider'
 
 export class DefaultRuntimeVisualizationLoop
   implements RuntimeVisualizationLoop
@@ -31,6 +32,7 @@ export class DefaultRuntimeVisualizationLoop
   private readonly executionLoop: RuntimeExecutionLoop
   private readonly rendererAdapter: RuntimeRendererAdapter
   private readonly entityRenderer: PixiEntityRenderer
+  private readonly worldProvider: VisualizationWorldProvider | undefined
   private _currentWorld: World
   private _running: boolean
 
@@ -39,17 +41,22 @@ export class DefaultRuntimeVisualizationLoop
    * @param rendererAdapter — maps a Runtime World to a RenderWorld
    * @param entityRenderer  — renders a RenderWorld onto the canvas
    * @param initialWorld    — the starting World (stored as currentWorld)
+   * @param worldProvider   — optional world provider for runtime world injection;
+   *                          when provided, getWorld() is used instead of initialWorld
+   *                          as the tick source
    */
   constructor(
     executionLoop: RuntimeExecutionLoop,
     rendererAdapter: RuntimeRendererAdapter,
     entityRenderer: PixiEntityRenderer,
-    initialWorld: World
+    initialWorld: World,
+    worldProvider?: VisualizationWorldProvider
   ) {
     this.executionLoop = executionLoop
     this.rendererAdapter = rendererAdapter
     this.entityRenderer = entityRenderer
-    this._currentWorld = initialWorld
+    this.worldProvider = worldProvider
+    this._currentWorld = worldProvider?.getWorld() ?? initialWorld
     this._running = false
   }
 
@@ -131,6 +138,11 @@ export class DefaultRuntimeVisualizationLoop
    * @returns The number of entities rendered on the canvas
    */
   private executePipeline(): number {
+    // Refresh world from provider if available (supports runtime injection)
+    if (this.worldProvider !== undefined) {
+      this._currentWorld = this.worldProvider.getWorld()
+    }
+
     // Step 1: Execute runtime systems
     const newWorld = this.executionLoop.tick(this._currentWorld)
 

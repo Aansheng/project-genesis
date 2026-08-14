@@ -40,3 +40,7 @@ export { DefaultInputState } from './input'
 // Game Bootstrap Foundation (WO-S9-010)
 export type { GameBootstrap } from './bootstrap'
 export type { GameBootstrapConfig } from './bootstrap'
+
+// Runtime World Store Foundation (WO-S10-003)
+export type { RuntimeWorldStore } from './world'
+export { DefaultRuntimeWorldStore } from './world'

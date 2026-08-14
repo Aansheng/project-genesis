@@ -18,3 +18,7 @@ export { DefaultVisualizationRunner } from './DefaultVisualizationRunner'
 export type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 export { DefaultRuntimeVisualizationLoop } from './DefaultRuntimeVisualizationLoop'
 export type { VisualizationTickResult } from './VisualizationTickResult'
+
+// Runtime World Injection Foundation (WO-S10-003)
+export type { VisualizationWorldProvider } from './VisualizationWorldProvider'
+export { StoreBackedWorldProvider } from './StoreBackedWorldProvider'

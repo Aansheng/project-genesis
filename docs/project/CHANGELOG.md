@@ -58,6 +58,39 @@
 - No breaking changes to any Public API
 - Architecture version v1.92 to v1.93
 
+### WO-S10-003 — Runtime World Injection Foundation
+
+- **Created `RuntimeWorldStore` interface** — in `packages/runtime/src/world/` with `getWorld(): World` and `setWorld(world: World): void`; pure, minimal, frozen output
+- **Created `DefaultRuntimeWorldStore`** — stores a single World reference; initializes with empty world (zero entities); freezes all stored worlds; pure, deterministic, stateless
+- **Created `VisualizationWorldProvider` interface** — in `packages/renderer/src/runtime/` with `getWorld(): World`; read-only world source for the visualization loop
+- **Created `StoreBackedWorldProvider`** — wraps `RuntimeWorldStore` as `VisualizationWorldProvider`; pure wrapper, no caching, no eventing; changes immediately visible on next `getWorld()`
+- **Modified `DefaultRuntimeVisualizationLoop`** — added optional 5th constructor parameter `worldProvider?: VisualizationWorldProvider`; `executePipeline()` refreshes `_currentWorld` from `worldProvider.getWorld()` before each tick; backward compatible (4-parameter constructor unchanged)
+- **Created `CreateWorldRuntimeExecutor` interface** — in `packages/ai/src/game-intent/runtime/` with `execute(input: string): CreateWorldPipelineResult`; bridges AI pipeline to runtime store
+- **Created `DefaultCreateWorldRuntimeExecutor`** — on success: calls `worldStore.setWorld(result.world)`; on unknown route: store unchanged; uses local `WorldStore` interface to avoid `@genesis/runtime` import
+- **New directory**: `packages/runtime/src/world/` with RuntimeWorldStore.ts, DefaultRuntimeWorldStore.ts, index.ts
+- **New directory**: `packages/renderer/src/runtime/` (VisualizationWorldProvider.ts, StoreBackedWorldProvider.ts added)
+- **New directory**: `packages/ai/src/game-intent/runtime/` with CreateWorldRuntimeExecutor.ts, DefaultCreateWorldRuntimeExecutor.ts, index.ts
+- **Updated `packages/runtime/src/index.ts`** — added world store exports
+- **Updated `packages/renderer/src/runtime/index.ts`** — added provider exports
+- **Updated `packages/ai/src/game-intent/index.ts`** — added executor exports
+- **Updated `packages/ai/src/index.ts`** — added CreateWorldRuntimeExecutor export
+- **New test file**: `RuntimeWorldStore.test.ts` — 24 tests across 6 sections (construction, getWorld, setWorld, world replacement, determinism, edge cases)
+- **New test file**: `StoreBackedWorldProvider.test.ts` — 13 tests across 4 sections (construction, getWorld, store updates reflected, determinism)
+- **New test file**: `CreateWorldRuntimeExecutor.test.ts` — 16 tests across 5 sections (construction, create mario world, unknown input, determinism, dependency injection)
+- **New test file**: `WorldInjectionIntegration.test.ts` — 9 tests across 4 sections (world replacement, provider reflects store, visualization loop reads from provider, full pipeline)
+- Created ADR-0207: Runtime World Injection Foundation
+- Updated PROJECT_STATE.md — v1.94, WO-S10-003 in completed list
+- Updated CHANGELOG.md — v1.94, WO-S10-003
+- No AI provider
+- No LLM
+- No Physics changes
+- No Renderer changes
+- No Asset system
+- No Networking
+- No Save system
+- No breaking changes to any Public API
+- Architecture version v1.93 to v1.94
+
 ---
 
 ## Sprint 9 — Renderer Foundation
