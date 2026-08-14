@@ -26,7 +26,9 @@ import type { Container, Graphics } from 'pixi.js'
 import type { RenderWorld, RenderEntity } from '../../model'
 import { DefaultPixiEntityRenderer } from '../PixiEntityRenderer'
 import { DefaultEntityVisualCatalog } from '../DefaultEntityVisualCatalog'
+import { DefaultPlatformTileCatalog } from '../world/DefaultPlatformTileCatalog'
 import type { RenderEntityView } from '../RenderEntityView'
+import type { CameraController } from '../../camera'
 
 // ---------------------------------------------------------------------------
 // Mock helpers
@@ -92,6 +94,7 @@ function createMockContainer(): Container & { _state: ContainerState } {
 
   const container = {
     _state: state,
+    position: { x: 0, y: 0 },
     addChild: (child: Graphics) => {
       children.push(child)
       return child
@@ -768,6 +771,425 @@ describe('Catalog-driven rendering — determinism', () => {
     const world = makeWorld([
       makeEntity('a', 'player', { x: 0, y: 0 }),
       makeEntity('b', 'enemy', { x: 10, y: 10 }),
+    ])
+
+    const r1 = buildRenderer()
+    const r2 = buildRenderer()
+
+    const result1 = r1.render(world)
+    const result2 = r2.render(world)
+
+    expect(result1.entities).toHaveLength(result2.entities.length)
+    expect(result1.entities[0].id).toBe(result2.entities[0].id)
+    expect(result1.entities[1].id).toBe(result2.entities[1].id)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Tile-aware rendering (WO-S9-016)
+// ---------------------------------------------------------------------------
+
+describe('Tile-aware rendering — terrain', () => {
+  it('terrain renders as 64x32 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('ground-1', 'terrain', { x: 0, y: 350 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(64)
+    expect(gfx._data.rectH).toBe(32)
+  })
+
+  it('terrain renders at correct position', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('ground-1', 'terrain', { x: 100, y: 400 })])
+    renderer.render(world)
+
+    expect(container._state.childAt(0)!.x).toBe(100)
+    expect(container._state.childAt(0)!.y).toBe(400)
+  })
+})
+
+describe('Tile-aware rendering — goal', () => {
+  it('goal renders as 24x96 rectangle (flag-style)', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('flag-1', 'goal', { x: 800, y: 300 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(24)
+    expect(gfx._data.rectH).toBe(96)
+  })
+
+  it('goal is taller than wide', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('flag-1', 'goal', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectH).toBeGreaterThan(gfx._data.rectW)
+  })
+})
+
+describe('Tile-aware rendering — platform', () => {
+  it('platform renders as 96x24 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('plat-1', 'platform', { x: 200, y: 200 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(96)
+    expect(gfx._data.rectH).toBe(24)
+  })
+
+  it('platform is wider than tall', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('plat-1', 'platform', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBeGreaterThan(gfx._data.rectH * 3)
+  })
+})
+
+describe('Tile-aware rendering — checkpoint', () => {
+  it('checkpoint renders as 16x48 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('cp-1', 'checkpoint', { x: 500, y: 200 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(16)
+    expect(gfx._data.rectH).toBe(48)
+  })
+
+  it('checkpoint is taller than wide (marker style)', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('cp-1', 'checkpoint', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectH).toBeGreaterThan(gfx._data.rectW * 2)
+  })
+})
+
+describe('Tile-aware rendering — item', () => {
+  it('item renders as 16x16 rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('coin-1', 'item', { x: 300, y: 150 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(16)
+    expect(gfx._data.rectH).toBe(16)
+  })
+
+  it('item is a small square', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('coin-1', 'item', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(gfx._data.rectH)
+    expect(gfx._data.rectW).toBeLessThan(20)
+  })
+})
+
+describe('Tile-aware rendering — per-type colors', () => {
+  it('terrain uses brown color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('g1', 'terrain', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0x8d6e63)
+  })
+
+  it('goal uses yellow color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('f1', 'goal', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0xffd54f)
+  })
+
+  it('platform uses green color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('p1', 'platform', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0x66bb6a)
+  })
+
+  it('enemy uses red color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('e1', 'enemy', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0xef5350)
+  })
+
+  it('item uses yellow color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('i1', 'item', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0xffd54f)
+  })
+
+  it('checkpoint uses purple color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('c1', 'checkpoint', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0xce93d8)
+  })
+
+  it('player maintains light blue color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('hero', 'player', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0x4fc3f7)
+  })
+
+  it('unknown type uses default light blue color', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('u1', 'unknown', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.fillColor).toBe(0x4fc3f7)
+  })
+})
+
+describe('Tile-aware rendering — camera compatibility', () => {
+  it('renders with both tile catalog and camera controller', () => {
+    const container = createMockContainer()
+    const cameraController = {
+      _state: { x: 0, y: 0 },
+      getState: () => ({ x: 0, y: 0 }),
+      update: () => ({ x: 50, y: 100 }),
+    }
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+      cameraController: cameraController as CameraController,
+    })
+    const world = makeWorld([makeEntity('g1', 'terrain', { x: 100, y: 200 })])
+    renderer.render(world)
+
+    expect(container._state.childCount).toBe(1)
+    expect(container.position.x).toBe(-50)
+    expect(container.position.y).toBe(-100)
+  })
+
+  it('multiple entity types render with correct sizes in same world', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([
+      makeEntity('p1', 'player', { x: 50, y: 300 }),
+      makeEntity('g1', 'terrain', { x: 0, y: 350 }),
+      makeEntity('f1', 'goal', { x: 800, y: 250 }),
+      makeEntity('pl1', 'platform', { x: 200, y: 200 }),
+      makeEntity('e1', 'enemy', { x: 300, y: 310 }),
+      makeEntity('i1', 'item', { x: 150, y: 180 }),
+      makeEntity('c1', 'checkpoint', { x: 400, y: 200 }),
+    ])
+    renderer.render(world)
+
+    expect(container._state.childCount).toBe(7)
+  })
+})
+
+describe('Tile-aware rendering — fallback behavior', () => {
+  it('renderer with tile catalog but no visual catalog uses tile dimensions as rectangle', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('g1', 'terrain', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(64)
+    expect(gfx._data.rectH).toBe(32)
+  })
+
+  it('renderer with tile catalog falls back to 20x20 for unknown types', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    const world = makeWorld([makeEntity('u1', 'unknown', { x: 0, y: 0 })])
+    renderer.render(world)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(20)
+    expect(gfx._data.rectH).toBe(20)
+  })
+})
+
+describe('Tile-aware rendering — clear and re-render', () => {
+  it('clear works with tile-aware renderer', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+    renderer.render(makeWorld([
+      makeEntity('g1', 'terrain', { x: 0, y: 0 }),
+      makeEntity('p1', 'platform', { x: 100, y: 0 }),
+    ]))
+
+    expect(container._state.childCount).toBe(2)
+
+    renderer.clear()
+    expect(container._state.childCount).toBe(0)
+  })
+
+  it('re-render replaces tile entities correctly', () => {
+    const container = createMockContainer()
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      catalog: new DefaultEntityVisualCatalog(),
+      tileCatalog: new DefaultPlatformTileCatalog(),
+    })
+
+    renderer.render(makeWorld([
+      makeEntity('g1', 'terrain', { x: 0, y: 0 }),
+    ]))
+    expect(container._state.childCount).toBe(1)
+
+    renderer.render(makeWorld([
+      makeEntity('g1', 'goal', { x: 100, y: 0 }),
+    ]))
+    expect(container._state.childCount).toBe(1)
+
+    const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
+    expect(gfx._data.rectW).toBe(24)
+    expect(gfx._data.rectH).toBe(96)
+  })
+})
+
+describe('Tile-aware rendering — determinism', () => {
+  it('same input produces same output with tile catalog', () => {
+    const buildRenderer = () => {
+      const c = createMockContainer()
+      return new DefaultPixiEntityRenderer(c, {
+        createGraphics: () => createMockGraphics() as unknown as Graphics,
+        catalog: new DefaultEntityVisualCatalog(),
+        tileCatalog: new DefaultPlatformTileCatalog(),
+      })
+    }
+
+    const world = makeWorld([
+      makeEntity('a', 'terrain', { x: 0, y: 350 }),
+      makeEntity('b', 'goal', { x: 800, y: 250 }),
     ])
 
     const r1 = buildRenderer()

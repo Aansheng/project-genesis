@@ -1,22 +1,34 @@
 /**
  * PixiEntityRenderer — renders a RenderWorld onto a PixiJS canvas
- * using basic Graphics shapes (no sprites, no textures).
+ * using basic Graphics shapes with per-entity-type colors and sizes
+ * (no sprites, no textures).
  *
- * Rendering is driven by an EntityVisualCatalog:
+ * Rendering is driven by an EntityVisualCatalog and an optional
+ * PlatformTileCatalog:
  *   entity.type
  *     ↓
- *   catalog.getVisual(entityType)
+ *   catalog.getVisual(entityType) → shape (circle | rectangle)
  *     ↓
- *   EntityVisualDefinition { width, height, shape }
+ *   tileCatalog.getTile(entityType) → dimensions (width, height)
  *     ↓
- *   Graphics (rectangle or circle at entity.position.x/y)
+ *   Graphics draws the shape with type-specific color
+ *
+ * Per-type colors (WO-S9-016):
+ *   player:    0x4fc3f7  (light blue, circle)
+ *   terrain:   0x8d6e63  (brown — ground)
+ *   goal:      0xffd54f  (yellow — flag)
+ *   platform:  0x66bb6a  (green — platforms)
+ *   enemy:     0xef5350  (red — enemy)
+ *   item:      0xffd54f  (yellow — collectible)
+ *   checkpoint: 0xce93d8 (purple — marker)
+ *   default:   0x4fc3f7  (light blue — same as original)
  *
  * Rules:
  *   - If entity.position exists: draw the shape at (x, y)
  *   - If no position: do not draw
  *   - If no catalog provided: fall back to 20×20 rectangle (backward compatible)
  *
- * Constraints (WO-S9-004, WO-S9-007):
+ * Constraints (WO-S9-004, WO-S9-007, WO-S9-016):
  *   - No sprites
  *   - No textures
  *   - No assets
@@ -31,6 +43,7 @@ import type { RenderEntityView } from './RenderEntityView'
 import type { RenderWorldView } from './RenderWorldView'
 import type { EntityVisualCatalog } from './EntityVisualCatalog'
 import type { EntityVisualDefinition } from './EntityVisualDefinition'
+import type { PlatformTileCatalog } from './world/PlatformTileCatalog'
 import type { CameraController } from '../camera'
 
 /** Default fallback visual definition (20×20 rectangle). */
@@ -40,8 +53,22 @@ const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
   shape: 'rectangle',
 })
 
-/** Fill color for entity shapes. */
-const ENTITY_COLOR = 0x4fc3f7
+/**
+ * Per-entity-type fill colors.
+ * Makes the platform world visually distinct per entity type.
+ */
+const ENTITY_COLORS: Record<string, number> = {
+  player: 0x4fc3f7,
+  terrain: 0x8d6e63,
+  goal: 0xffd54f,
+  platform: 0x66bb6a,
+  enemy: 0xef5350,
+  item: 0xffd54f,
+  checkpoint: 0xce93d8,
+}
+
+/** Default entity color (used when no specific mapping exists). */
+const DEFAULT_ENTITY_COLOR = 0x4fc3f7
 
 export interface PixiEntityRendererOptions {
   /**
@@ -57,6 +84,13 @@ export interface PixiEntityRendererOptions {
    * When omitted, all entities render as 20×20 rectangles (backward compatible).
    */
   readonly catalog?: EntityVisualCatalog
+
+  /**
+   * Optional tile catalog for platform-specific tile dimensions.
+   * When provided alongside a catalog, tile dimensions override the
+   * visual catalog's dimensions for known tile types.
+   */
+  readonly tileCatalog?: PlatformTileCatalog
 
   /**
    * Optional camera controller.
@@ -75,6 +109,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _container: Container
   private readonly _createGraphics: () => Graphics
   private readonly _catalog: EntityVisualCatalog | null
+  private readonly _tileCatalog: PlatformTileCatalog | null
   private readonly _cameraController: CameraController | null
   private _entityViews: RenderEntityView[] = []
 
@@ -86,6 +121,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._createGraphics =
       options?.createGraphics ?? (() => new Graphics())
     this._catalog = options?.catalog ?? null
+    this._tileCatalog = options?.tileCatalog ?? null
     this._cameraController = options?.cameraController ?? null
   }
 
@@ -109,8 +145,9 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
       const gfx = this._createGraphics()
       const visual = this.resolveVisual(entity.type)
+      const color = this.resolveColor(entity.type)
 
-      gfx.beginFill(ENTITY_COLOR)
+      gfx.beginFill(color)
 
       if (visual.shape === 'circle') {
         const radius = Math.min(visual.width, visual.height) / 2
@@ -148,12 +185,29 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
   /**
    * Resolve the visual definition for an entity type.
-   * Uses the catalog if available; falls back to default 20×20 rectangle.
+   * Uses the catalog if available, falling back to tile catalog, then
+   * default 20×20 rectangle.
    */
   private resolveVisual(entityType: string): EntityVisualDefinition {
     if (this._catalog) {
       return this._catalog.getVisual(entityType)
     }
+    if (this._tileCatalog) {
+      const tile = this._tileCatalog.getTile(entityType)
+      return {
+        width: tile.width,
+        height: tile.height,
+        shape: 'rectangle',
+      }
+    }
     return DEFAULT_VISUAL
+  }
+
+  /**
+   * Resolve the fill color for an entity type.
+   * Uses the per-type color map; falls back to default light blue.
+   */
+  private resolveColor(entityType: string): number {
+    return ENTITY_COLORS[entityType] ?? DEFAULT_ENTITY_COLOR
   }
 }

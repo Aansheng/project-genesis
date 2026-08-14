@@ -8,6 +8,34 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-016 — Platform World Rendering Foundation
+
+- **Created `PlatformTileDefinition` interface** — in `packages/renderer/src/view/world/` with `readonly width: number` and `readonly height: number`; frozen, immutable, serializable tile dimension contract
+- **Created `PlatformTileCatalog` interface** — in `packages/renderer/src/view/world/` with `getTile(entityType): PlatformTileDefinition`; stateless, deterministic lookup for entity type → tile dimensions
+- **Created `DefaultPlatformTileCatalog`** — built-in mappings: player (24×24), terrain (64×32), goal (24×96), platform (96×24), enemy (24×24), checkpoint (16×48), item (16×16), fallback (20×20); all definitions and map deeply frozen; unknown types return shared fallback
+- **Updated `DefaultEntityVisualCatalog`** — added 5 new mappings: terrain (rectangle 64×32), platform (rectangle 96×24), goal (rectangle 24×96), checkpoint (rectangle 16×48), item (rectangle 16×16); all existing mappings unchanged; determinism preserved
+- **Updated `DefaultPixiEntityRenderer`** — added per-entity-type colors: player (light blue `0x4fc3f7`), terrain (brown `0x8d6e63`), goal (yellow `0xffd54f`), platform (green `0x66bb6a`), enemy (red `0xef5350`), item (yellow `0xffd54f`), checkpoint (purple `0xce93d8`), default (light blue `0x4fc3f7`); added optional `tileCatalog?: PlatformTileCatalog` to constructor options — tile dimensions override visual catalog dimensions for known tile types when no visual catalog is present; fallback chain: catalog → tileCatalog → 20×20 rectangle
+- **New directory**: `packages/renderer/src/view/world/` with PlatformTileDefinition.ts, PlatformTileCatalog.ts, DefaultPlatformTileCatalog.ts, index.ts
+- **Updated `packages/renderer/src/view/index.ts`** — added tile catalog barrel exports
+- **Updated `packages/renderer/src/index.ts`** — added tile catalog barrel exports
+- **New test file**: `PlatformTileCatalog.test.ts` — 42 tests across 16 sections (construction, all mappings, fallback, immutability, determinism, large inputs, edge cases, interface contract, return value consistency)
+- **Updated test file**: `PixiEntityRenderer.test.ts` — 65+ tests (original + 42 new tile-aware tests) covering terrain/goal/platform/checkpoint/item rendering, per-type colors, camera compatibility, fallback behavior, clear/re-render, determinism
+- **New test file**: `PlatformWorldRenderingIntegration.test.ts` — 29 tests across 9 sections (Mario world rendering, terrain visibility, goal visibility, platform rendering, camera movement, render updates, entity combinations, determinism, edge cases)
+- **Updated test file**: `EntityVisualCatalog.test.ts` — 23 tests (original + 5 new type tests)
+- Created ADR-0204: Platform World Rendering Foundation
+- Updated PROJECT_STATE.md — v1.91, WO-S9-016 in completed list
+- Updated CHANGELOG.md — v1.91, WO-S9-016
+- No Sprites
+- No Textures
+- No Asset Pipeline
+- No Animation
+- No Runtime Changes
+- No Physics Changes
+- No AI Changes
+- No Camera Changes
+- No breaking changes to any Public API
+- Architecture version v1.90 to v1.91
+
 ### WO-S9-015 — Camera Follow Foundation
 
 - **Created `CameraState` interface** — in `packages/renderer/src/camera/` with `readonly x: number` and `readonly y: number`; frozen, immutable, serializable

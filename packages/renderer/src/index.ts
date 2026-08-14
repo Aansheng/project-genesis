@@ -80,3 +80,8 @@ export type { CameraState } from './camera'
 export { DEFAULT_CAMERA_STATE } from './camera'
 export type { CameraController } from './camera'
 export { DefaultCameraController } from './camera'
+
+// Platform Tile Catalog (WO-S9-016)
+export type { PlatformTileDefinition } from './view'
+export type { PlatformTileCatalog } from './view'
+export { DefaultPlatformTileCatalog } from './view'

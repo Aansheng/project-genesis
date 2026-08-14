@@ -159,7 +159,7 @@ describe('determinism', () => {
 describe('all mappings', () => {
   it('all known types return valid visual definitions', () => {
     const catalog = createCatalog()
-    const types = ['player', 'enemy', 'merchant', 'boss']
+    const types = ['player', 'enemy', 'merchant', 'boss', 'terrain', 'platform', 'goal', 'checkpoint', 'item']
 
     for (const type of types) {
       const visual = catalog.getVisual(type)
@@ -171,7 +171,8 @@ describe('all mappings', () => {
 
   it('no two known types share the exact same visual', () => {
     const catalog = createCatalog()
-    const visuals = ['player', 'enemy', 'merchant', 'boss'].map(
+    const types = ['player', 'enemy', 'merchant', 'boss', 'terrain', 'platform', 'goal', 'checkpoint', 'item']
+    const visuals = types.map(
       (type) => catalog.getVisual(type),
     )
 
@@ -185,5 +186,47 @@ describe('all mappings', () => {
         expect(sameSize && sameShape).toBe(false)
       }
     }
+  })
+})
+
+describe('platform type mappings', () => {
+  it('terrain returns rectangle 64x32', () => {
+    const catalog = createCatalog()
+    const visual = catalog.getVisual('terrain')
+    expect(visual.shape).toBe('rectangle')
+    expect(visual.width).toBe(64)
+    expect(visual.height).toBe(32)
+  })
+
+  it('platform returns rectangle 96x24', () => {
+    const catalog = createCatalog()
+    const visual = catalog.getVisual('platform')
+    expect(visual.shape).toBe('rectangle')
+    expect(visual.width).toBe(96)
+    expect(visual.height).toBe(24)
+  })
+
+  it('goal returns rectangle 24x96', () => {
+    const catalog = createCatalog()
+    const visual = catalog.getVisual('goal')
+    expect(visual.shape).toBe('rectangle')
+    expect(visual.width).toBe(24)
+    expect(visual.height).toBe(96)
+  })
+
+  it('checkpoint returns rectangle 16x48', () => {
+    const catalog = createCatalog()
+    const visual = catalog.getVisual('checkpoint')
+    expect(visual.shape).toBe('rectangle')
+    expect(visual.width).toBe(16)
+    expect(visual.height).toBe(48)
+  })
+
+  it('item returns rectangle 16x16', () => {
+    const catalog = createCatalog()
+    const visual = catalog.getVisual('item')
+    expect(visual.shape).toBe('rectangle')
+    expect(visual.width).toBe(16)
+    expect(visual.height).toBe(16)
   })
 })

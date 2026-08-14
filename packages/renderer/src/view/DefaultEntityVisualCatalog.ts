@@ -3,11 +3,16 @@
  * EntityVisualCatalog.
  *
  * Mappings:
- *   player:   circle,   24×24
- *   enemy:    rectangle, 20×20
- *   merchant: rectangle, 28×20
- *   boss:     rectangle, 40×40
- *   default:  rectangle, 20×20
+ *   player:     circle,   24×24
+ *   enemy:      rectangle, 20×20
+ *   merchant:   rectangle, 28×20
+ *   boss:       rectangle, 40×40
+ *   terrain:    rectangle, 64×32  (wide platform)
+ *   platform:   rectangle, 96×24  (horizontal platform)
+ *   goal:       rectangle, 24×96  (tall flag-style)
+ *   checkpoint: rectangle, 16×48  (tall marker)
+ *   item:       rectangle, 16×16  (small square)
+ *   default:    rectangle, 20×20
  *
  * Design principles:
  * - Stateless: no internal state beyond the frozen map
@@ -46,6 +51,31 @@ const VISUAL_MAP: Readonly<Record<string, EntityVisualDefinition>> = Object.free
   boss: Object.freeze<EntityVisualDefinition>({
     width: 40,
     height: 40,
+    shape: 'rectangle',
+  }),
+  terrain: Object.freeze<EntityVisualDefinition>({
+    width: 64,
+    height: 32,
+    shape: 'rectangle',
+  }),
+  platform: Object.freeze<EntityVisualDefinition>({
+    width: 96,
+    height: 24,
+    shape: 'rectangle',
+  }),
+  goal: Object.freeze<EntityVisualDefinition>({
+    width: 24,
+    height: 96,
+    shape: 'rectangle',
+  }),
+  checkpoint: Object.freeze<EntityVisualDefinition>({
+    width: 16,
+    height: 48,
+    shape: 'rectangle',
+  }),
+  item: Object.freeze<EntityVisualDefinition>({
+    width: 16,
+    height: 16,
     shape: 'rectangle',
   }),
 })
