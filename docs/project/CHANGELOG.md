@@ -8,6 +8,33 @@
 
 ## Sprint 9 — Renderer Foundation
 
+### WO-S9-008 — Keyboard Input Foundation
+
+- **Created `InputKey` type** — in `packages/runtime/src/input/` with union `'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight' | 'Space'`; typed contract for all supported input keys
+- **Created `InputState` interface** — in `packages/runtime/src/input/` with `isPressed(key): boolean`; read-only query interface for keyboard state
+- **Created `InputProvider` interface** — in `packages/runtime/src/input/` with `getState(): InputState`; abstraction over any input source
+- **Created `DefaultInputState`** — immutable snapshot implementation; constructor accepts `ReadonlySet<InputKey>`; all outputs deeply frozen; independent of live tracking
+- **Created `KeyboardInputProvider`** — in `packages/renderer/src/input/`; DOM event-driven implementation; `attach()`/`detach()` lifecycle; key canonicalization (space char → 'Space'); ignores non-tracked keys
+- **New directory**: `packages/runtime/src/input/` with InputKey.ts, InputState.ts, InputProvider.ts, DefaultInputState.ts, index.ts
+- **New directory**: `packages/renderer/src/input/` with KeyboardInputProvider.ts, index.ts
+- **Updated `packages/runtime/src/index.ts`** — added input exports (InputKey, InputState, InputProvider, DefaultInputState)
+- **Updated `packages/renderer/src/index.ts`** — added input exports (KeyboardInputProvider)
+- **New test file**: `InputState.test.ts` — 16 tests across 5 sections (pressed, not pressed, multiple keys, empty state, immutability)
+- **New test file**: `KeyboardInputProvider.test.ts` — 27 tests across 7 sections (keydown, keyup, multiple keys, duplicate keydown, cleanup, snapshot generation, lifecycle)
+- **New test file**: `KeyboardInputIntegration.test.ts` — 11 tests across 5 sections (single key lifecycle, multiple key interaction, snapshot isolation, lifecycle integration, irrelevant events)
+- Created ADR-0195: Keyboard Input Foundation
+- Updated PROJECT_STATE.md — v1.82, WO-S9-008 in completed list
+- Updated CHANGELOG.md — v1.82, WO-S9-008
+- No Movement Integration
+- No Player Controller
+- No Gameplay Logic
+- No Physics
+- No Collision
+- No Camera
+- No Runtime Mutation
+- No breaking changes to any Public API
+- Architecture version v1.81 to v1.82
+
 ### WO-S9-007 — Entity Visual Mapping Foundation
 
 - **Created `EntityVisualDefinition` interface** — in `packages/renderer/src/view/` with `width: number`, `height: number`, `shape: 'rectangle' | 'circle'`; immutable, serializable, framework-independent contract for per-type visual rendering

@@ -22,3 +22,9 @@ export { DefaultWorldMutator } from './mutation'
 // Runtime Gameplay Systems
 export type { MovementSystem, MovementSystemResult } from './systems'
 export { DefaultMovementSystem } from './systems'
+
+// Input Foundation (WO-S9-008)
+export type { InputKey } from './input'
+export type { InputState } from './input'
+export type { InputProvider } from './input'
+export { DefaultInputState } from './input'

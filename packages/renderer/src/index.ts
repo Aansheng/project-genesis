@@ -64,3 +64,6 @@ export { DefaultVisualizationRunner } from './runtime'
 
 // Existing Canvas2D renderer (Sprint 1 foundation — preserved for backward compatibility)
 export { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from './renderWorld'
+
+// Input Foundation (WO-S9-008)
+export { KeyboardInputProvider } from './input'
