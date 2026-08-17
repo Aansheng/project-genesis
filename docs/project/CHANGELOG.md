@@ -8,6 +8,29 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-008 - Observatory Studio Integration Foundation
+
+- Added local Entity/Observatory tabs to the Studio Inspector.
+- Added a compact Observatory surface using the existing runtime binding and
+  ViewModel; no new Observatory or Runtime store was introduced.
+- Runtime shows real world/entity data; Trace, Timeline, History, Diff, and
+  Event Stream explicitly show unavailable states instead of mock content.
+- Preserved the full `/observatory` SPA route and existing Entity inspection,
+  command activity, RuntimeWorldStore, and Pixi behavior.
+- Added focused mode, empty-state, real MarioWorld, and live-update coverage.
+- Added ADR-0222.
+- Architecture version v1.108 to v1.109.
+
+### WO-S11-007 - AI Command Experience Foundation
+
+- Added Web-layer command lifecycle state: idle, running, success, and error.
+- Replaced raw command activity output with a compact creation-oriented activity
+  surface showing truthful success/error summaries and real entity counts.
+- Preserved Enter submission, input isolation, Runtime command semantics, and
+  backward-compatible human-readable command logs.
+- Added ADR-0221.
+- Architecture version v1.107 to v1.108.
+
 ### WO-S11-006B - Platformer Control Semantics Test Migration & Freeze
 
 - Migrated legacy Jump and Gravity tests from positional mutation to the

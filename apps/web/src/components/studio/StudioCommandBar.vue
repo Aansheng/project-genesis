@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useGameStore } from '../../stores/gameStore'
+import StudioCommandActivity from './StudioCommandActivity.vue'
 
 const store = useGameStore()
 const input = ref('')
-const latestResult = computed(() => {
-  const results = store.log
-  return results.length > 0
-    ? results[results.length - 1]
-    : 'Ready for a world description'
-})
-
 async function submitCommand(): Promise<void> {
   const text = input.value.trim()
   if (!text) return
@@ -21,15 +15,9 @@ async function submitCommand(): Promise<void> {
 
 <template>
   <footer class="studio-command-bar">
-    <div
-      class="command-activity"
-      aria-live="polite"
-    >
-      <span class="activity-label"><i aria-hidden="true" />Activity</span>
-      <strong>{{ latestResult }}</strong>
-    </div>
+    <StudioCommandActivity />
     <form
-      :aria-busy="store.isStreaming"
+      :aria-busy="store.commandStatus === 'running'"
       @submit.prevent="submitCommand"
     >
       <label
@@ -45,9 +33,9 @@ async function submitCommand(): Promise<void> {
       >
       <button
         type="submit"
-        :disabled="store.isStreaming"
+        :disabled="store.commandStatus === 'running'"
       >
-        {{ store.isStreaming ? 'Creating…' : 'Generate' }}
+        {{ store.commandStatus === 'running' ? 'Generating…' : 'Generate' }}
       </button>
     </form>
   </footer>
@@ -63,44 +51,6 @@ async function submitCommand(): Promise<void> {
   padding: var(--studio-space-4) var(--studio-space-5);
   border-top: 1px solid var(--studio-border);
   background: var(--studio-surface);
-}
-
-.command-activity {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--studio-space-1);
-}
-
-.command-activity span {
-  color: var(--studio-text-dim);
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.activity-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.activity-label i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--studio-accent);
-}
-
-.command-activity strong {
-  overflow: hidden;
-  color: var(--studio-text-muted);
-  font-family: var(--studio-font-mono);
-  font-size: 11px;
-  font-weight: 400;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 form {

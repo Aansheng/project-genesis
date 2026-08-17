@@ -99,6 +99,7 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(wrapper.find('.panel-kicker').exists()).toBe(true)
     expect(wrapper.find('.viewport-status').text()).toBe('Playable')
     expect(wrapper.find('.studio-command-bar button').text()).toBe('Generate')
+    expect(useGameStore().commandStatus).toBe('idle')
     expect(wrapper.text()).not.toMatch(/model|latency|tokens|saved|sync/i)
 
     wrapper.unmount()
@@ -158,8 +159,27 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(wrapper.find('.command-activity').text()).toContain(
       'Created world with 6 entities',
     )
+    expect(store.commandStatus).toBe('success')
+    expect(wrapper.find('.command-activity strong').text()).toBe('World created')
+    expect(wrapper.find('.activity-detail').text()).toBe('6 entities')
     expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(6)
     expect(useGameStore(pinia).worldStore).toBe(worldStore)
+
+    wrapper.unmount()
+  })
+
+  it('keeps unknown commands truthful and actionable', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+
+    await wrapper.get('#studio-command-input').setValue('hello world')
+    await wrapper.get('.studio-command-bar form').trigger('submit')
+    await nextTick()
+
+    expect(store.commandStatus).toBe('error')
+    expect(wrapper.find('.command-activity strong').text()).toBe('Command not understood')
+    expect(wrapper.find('.command-activity').text()).toContain('Unknown command')
+    expect(wrapper.text()).not.toContain('{"actions":[]}')
 
     wrapper.unmount()
   })
@@ -267,6 +287,57 @@ describe('Genesis Studio Shell Foundation', () => {
     ])
     expect(store.worldStore.getWorld().entities.find((entity) => entity.id === 'player')?.components).toHaveLength(3)
 
+    wrapper.unmount()
+  })
+
+  it('switches the Inspector to a truthful, real-data Observatory surface', async () => {
+    const { wrapper, pinia } = await mountStudio()
+
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('Entity')
+    await wrapper.get('[role="tab"]:nth-child(2)').trigger('click')
+    expect(wrapper.find('.studio-observatory-panel').text()).toContain('No runtime world available')
+    expect(wrapper.find('.inspector-tabs').text()).toContain('Entity')
+    expect(wrapper.find('.studio-observatory-panel').text()).not.toContain('guard-001')
+
+    await useGameStore(pinia).send('创建 MarioWorld')
+    await nextTick()
+    const panel = wrapper.find('.studio-observatory-panel')
+    expect(panel.text()).toContain('runtime-world')
+    expect(panel.text()).toContain('6')
+    expect(panel.text()).toContain('player')
+    expect(panel.text()).toContain('terrain')
+    expect(panel.text()).toContain('platform')
+    expect(panel.text()).toContain('enemy')
+    expect(panel.text()).toContain('goal')
+    expect(panel.text()).toContain('checkpoint')
+    expect(panel.text()).toContain('No trace data available')
+    expect(panel.find('a[href="/observatory"]').exists()).toBe(true)
+
+    await wrapper.get('[role="tab"]:first-child').trigger('click')
+    expect(wrapper.find('.entity-inspector').exists()).toBe(false)
+    expect(wrapper.find('.runtime-summary').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('keeps Observatory mode live when RuntimeWorldStore changes', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+    await store.send('创建 MarioWorld')
+    await wrapper.get('[role="tab"]:nth-child(2)').trigger('click')
+
+    const world = store.worldStore.getWorld()
+    store.worldStore.setWorld({
+      entities: world.entities.map((entity) => entity.id === 'player'
+        ? { ...entity, x: 123, components: [createPositionComponent(123, 300)] }
+        : entity),
+    })
+    store.markWorldUpdated()
+    await nextTick()
+
+    expect(wrapper.find('.studio-observatory-panel').text()).toContain('player')
+    expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entities.find(
+      (entity) => entity.id === 'player',
+    )?.position).toBe(JSON.stringify({ x: 123, y: 300 }))
     wrapper.unmount()
   })
 

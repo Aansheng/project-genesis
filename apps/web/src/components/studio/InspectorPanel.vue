@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { isPositionComponent } from '@genesis/shared'
 import { ObservatoryRuntimeBinding } from '../../adapters/observatory'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
 import RuntimeComponentInspector from './RuntimeComponentInspector.vue'
+import StudioObservatoryPanel from './StudioObservatoryPanel.vue'
+
+type InspectorMode = 'entity' | 'observatory'
 
 const gameStore = useGameStore()
 const observatoryData = useObservatoryDataStore()
@@ -12,6 +15,7 @@ const runtimeBinding = new ObservatoryRuntimeBinding(
   gameStore.worldStore,
   observatoryData,
 )
+const inspectorMode = ref<InspectorMode>('entity')
 
 watch(
   () => gameStore.renderVersion,
@@ -48,13 +52,38 @@ const orderedComponents = computed(() => {
           Inspector
         </h2>
       </div>
-      <RouterLink to="/observatory">
-        Open Observatory
-      </RouterLink>
+      <span>Studio</span>
     </header>
 
     <div
-      v-if="runtime.entityCount === 0"
+      class="inspector-tabs"
+      role="tablist"
+      aria-label="Inspector mode"
+    >
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="inspectorMode === 'entity'"
+        :class="{ active: inspectorMode === 'entity' }"
+        @click="inspectorMode = 'entity'"
+      >
+        Entity
+      </button>
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="inspectorMode === 'observatory'"
+        :class="{ active: inspectorMode === 'observatory' }"
+        @click="inspectorMode = 'observatory'"
+      >
+        Observatory
+      </button>
+    </div>
+
+    <StudioObservatoryPanel v-if="inspectorMode === 'observatory'" />
+
+    <div
+      v-else-if="runtime.entityCount === 0"
       class="empty-state"
     >
       <p>No runtime world available</p>
@@ -208,6 +237,38 @@ h2 { font-size: 12px; }
 .panel-header a:focus-visible {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.panel-header > span {
+  color: var(--studio-text-dim);
+  font-size: 10px;
+}
+
+.inspector-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--studio-space-1);
+  margin: var(--studio-space-3) var(--studio-space-4) 0;
+  padding: 3px;
+  border: 1px solid var(--studio-border);
+  border-radius: var(--studio-radius-sm);
+  background: var(--studio-bg);
+}
+
+.inspector-tabs button {
+  min-height: 28px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--studio-text-dim);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+}
+
+.inspector-tabs button.active {
+  background: var(--studio-surface-hover);
+  color: var(--studio-text);
 }
 
 .empty-state {

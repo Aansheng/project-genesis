@@ -15,4 +15,7 @@ export interface CommandExecutionResult {
 
   /** Human-readable message describing the outcome. */
   readonly message: string
+
+  /** Real summary data available to the Studio activity surface. */
+  readonly entityCount?: number
 }

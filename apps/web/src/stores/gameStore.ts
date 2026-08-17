@@ -20,6 +20,8 @@ import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
 
+export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
+
 function createCommandExecutor(worldStore: RuntimeWorldStore): CommandExecutor {
   const pipeline = new DefaultCreateWorldPipeline(
     new DefaultIntentRouter(),
@@ -38,6 +40,8 @@ export const useGameStore = defineStore('game', () => {
   const renderVersion = ref(0)
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
+  const commandStatus = ref<CommandStatus>('idle')
+  const lastCommand = ref<import('../command').CommandExecutionResult | null>(null)
 
   // --- Streaming UI state (inert — preserved for UI backward compatibility) ---
   const isStreaming = ref(false)
@@ -76,11 +80,26 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function send(input: string) {
-    const result = commandExecutor.execute(input)
-    log.value.push(result.message)
+    commandStatus.value = 'running'
+    try {
+      const result = commandExecutor.execute(input)
+      lastCommand.value = result
+      log.value.push(result.message)
+      commandStatus.value = result.success ? 'success' : 'error'
 
-    if (result.success) {
-      markWorldUpdated()
+      if (result.success) {
+        markWorldUpdated()
+      }
+      return result
+    } catch (error) {
+      const result = {
+        success: false,
+        message: error instanceof Error ? error.message : 'Command failed',
+      }
+      lastCommand.value = result
+      log.value.push(result.message)
+      commandStatus.value = 'error'
+      return result
     }
   }
 
@@ -93,6 +112,8 @@ export const useGameStore = defineStore('game', () => {
     selectEntity,
     markWorldUpdated,
     log,
+    commandStatus,
+    lastCommand,
     send,
     // Streaming state (inert — preserved for UI backward compatibility)
     isStreaming,
