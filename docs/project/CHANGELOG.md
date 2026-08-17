@@ -8,6 +8,21 @@
 
 ## Sprint 12 - AI World Generation
 
+### Local Development Fix
+
+- `pnpm dev` no longer fails when `AI_API_KEY` is absent.
+- The AI server starts with an unavailable client and preserves the browser's
+  existing deterministic fallback; configured OpenAI environments are unchanged.
+
+### WO-S12-009 - Game Design Prompt Assembly Foundation
+
+- Added a deterministic, vendor-independent `GameDesignPromptBuilder` with the
+  current semantic candidate contract and capability honesty rules.
+- Moved Genesis game-design instructions out of the OpenAI adapter; the gateway
+  and LLM candidate provider assemble prompts before transport.
+- Added prompt determinism, semantic-only output, and transport integration
+  coverage; architecture version v1.118 → v1.119.
+
 ### WO-S12-008 - AI Game Design Specification Foundation
 
 - Added shared `GameDesignSpecification` contracts for title, genre, theme,

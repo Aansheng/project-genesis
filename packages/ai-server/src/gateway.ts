@@ -1,4 +1,4 @@
-import type { GameIntent, GameWorldGenerationRequest, StructuredGenerationClient } from '@genesis/ai'
+import { DefaultGameDesignPromptBuilder, type GameIntent, type GameWorldGenerationRequest, type StructuredGenerationClient } from '@genesis/ai'
 
 export interface WorldGenerationRequest {
   readonly input: string
@@ -32,12 +32,13 @@ function toProviderRequest(request: WorldGenerationRequest): GameWorldGeneration
 }
 
 /** Framework-neutral server handler; adapt it to the host's HTTP runtime. */
-export function createAIGatewayHandler(client: StructuredGenerationClient) {
+export function createAIGatewayHandler(client: StructuredGenerationClient, promptBuilder = new DefaultGameDesignPromptBuilder()) {
   return async (request: Request): Promise<Response> => {
     if (request.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 })
     try {
       const payload = validateRequest(await request.json())
-      const candidate = await client.generateStructured(toProviderRequest(payload))
+      const providerRequest = toProviderRequest(payload)
+      const candidate = await client.generateStructured(providerRequest, promptBuilder.build(providerRequest))
       if (candidate === undefined || JSON.stringify(candidate) === undefined) throw new Error('Invalid candidate')
       const response: WorldGenerationResponse = { candidate }
       return Response.json(response)

@@ -1,6 +1,7 @@
 export type { WorldGenerationRequest, WorldGenerationResponse } from './gateway'
 export { createAIGatewayHandler } from './gateway'
 export { OpenAIStructuredGenerationClient } from './OpenAIStructuredGenerationClient'
+export { UnavailableStructuredGenerationClient } from './UnavailableStructuredGenerationClient'
 export { createServerAIConfiguration } from './createServerAIConfiguration'
 export type { AIServerConfig } from './createServerAIConfiguration'
 export { startAIServer, stopAIServer } from './server'

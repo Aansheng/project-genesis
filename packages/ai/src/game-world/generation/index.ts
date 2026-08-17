@@ -1,6 +1,8 @@
 export type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 export type { GameWorldGenerationProvider } from './GameWorldGenerationProvider'
 export type { StructuredGenerationClient } from './StructuredGenerationClient'
+export type { GameDesignCapabilities, GameDesignPrompt, GameDesignPromptBuilder } from './GameDesignPromptBuilder'
+export { DEFAULT_GAME_DESIGN_CAPABILITIES, DefaultGameDesignPromptBuilder } from './GameDesignPromptBuilder'
 export type { GameWorldGenerationCandidate, GameWorldGenerationCandidateEntity } from './GameWorldGenerationCandidate'
 export type { GameWorldGenerationCandidateProvider } from './GameWorldGenerationCandidateProvider'
 export type { GameWorldValidationResult, GameWorldValidator } from './GameWorldValidator'

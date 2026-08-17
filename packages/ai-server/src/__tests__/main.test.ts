@@ -8,8 +8,8 @@ describe('AI server composition root', () => {
     expect(config).toMatchObject({ provider: 'openai', apiKey: 'secret', port: 8788, host: '127.0.0.1' })
   })
 
-  it('rejects missing keys, unsupported providers, and invalid ports', () => {
-    expect(() => createServerAIConfiguration({ AI_PROVIDER: 'openai' })).toThrow('AI_API_KEY')
+  it('allows local startup without a key, but rejects unsupported providers and invalid ports', () => {
+    expect(createServerAIConfiguration({ AI_PROVIDER: 'openai' })).toMatchObject({ provider: 'openai', apiKey: undefined })
     expect(() => createServerAIConfiguration({ AI_PROVIDER: 'unknown', AI_API_KEY: 'x' })).toThrow('Unsupported')
     expect(() => createServerAIConfiguration({ AI_PROVIDER: 'openai', AI_API_KEY: 'x', AI_PORT: '70000' })).toThrow('AI_PORT')
   })

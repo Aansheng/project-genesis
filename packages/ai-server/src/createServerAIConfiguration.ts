@@ -2,7 +2,7 @@ import type { AIConfiguration } from '@genesis/ai'
 
 export interface AIServerConfig {
   readonly provider: 'openai'
-  readonly apiKey: string
+  readonly apiKey?: string
   readonly model: string
   readonly port: number
   readonly host: string
@@ -24,7 +24,6 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
   const provider = (env.AI_PROVIDER || 'openai').trim()
   if (provider !== 'openai') throw new Error(`Unsupported AI_PROVIDER: ${provider}`)
   const apiKey = env.AI_API_KEY?.trim()
-  if (!apiKey) throw new Error('AI_API_KEY is required when AI_PROVIDER=openai')
   const model = env.AI_MODEL?.trim() || 'gpt-4o-mini'
   const ai: AIConfiguration = {
     enabled: true,
@@ -32,7 +31,7 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
     model,
     temperature: env.AI_TEMPERATURE ? Number(env.AI_TEMPERATURE) : 0.2,
     maxTokens: env.AI_MAX_TOKENS ? Number(env.AI_MAX_TOKENS) : 800,
-    apiKey,
+    ...(apiKey ? { apiKey } : {}),
     baseURL: env.AI_BASE_URL?.trim() || undefined,
   }
   return {

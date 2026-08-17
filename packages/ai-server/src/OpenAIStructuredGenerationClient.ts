@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import type { AIConfiguration, GameWorldGenerationRequest, StructuredGenerationClient } from '@genesis/ai'
+import type { AIConfiguration, GameDesignPrompt, GameWorldGenerationRequest, StructuredGenerationClient } from '@genesis/ai'
 
 type OpenAIClient = Pick<OpenAI, 'responses'>
 
@@ -12,13 +12,10 @@ export class OpenAIStructuredGenerationClient implements StructuredGenerationCli
     this.client = client ?? new OpenAI({ apiKey: config.apiKey, baseURL: config.baseURL })
   }
 
-  async generateStructured(request: GameWorldGenerationRequest): Promise<unknown> {
+  async generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt): Promise<unknown> {
     const response = await this.client.responses.create({
       model: this.config.model,
-      input: JSON.stringify({
-        instruction: 'Return only JSON for a semantic game design candidate: title, genre, optional theme{name}, difficulty, objectives[{type,target}], and entities[{id,category,name,role}]. Do not return runtime or renderer details.',
-        request,
-      }),
+      input: prompt ? [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }] : JSON.stringify({ request }),
       temperature: this.config.temperature,
       max_output_tokens: this.config.maxOutputTokens ?? this.config.maxTokens,
       text: { format: { type: 'json_object' } },

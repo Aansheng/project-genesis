@@ -11,7 +11,13 @@ describe('AI gateway', () => {
     }))
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ candidate: { worldType: 'sandbox', entities: [] } })
-    expect(client.generateStructured).toHaveBeenCalledWith({ input: '创建世界', intent: { genre: 'sandbox', title: '创建世界' } })
+    expect(client.generateStructured).toHaveBeenCalledWith(
+      { input: '创建世界', intent: { genre: 'sandbox', title: '创建世界' } },
+      expect.objectContaining({
+        system: expect.stringContaining('semantic game design candidate'),
+        user: expect.stringContaining('创建世界'),
+      }),
+    )
   })
 
   it('hides provider failures and rejects malformed payloads', async () => {

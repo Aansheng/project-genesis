@@ -1,16 +1,20 @@
 import { OpenAIStructuredGenerationClient } from './OpenAIStructuredGenerationClient'
+import { UnavailableStructuredGenerationClient } from './UnavailableStructuredGenerationClient'
 import { createServerAIConfiguration } from './createServerAIConfiguration'
 import { startAIServer, stopAIServer, type AIServerHandle } from './server'
 
-export function createAIServerClient(env: Record<string, string | undefined> = process.env): OpenAIStructuredGenerationClient {
-  return new OpenAIStructuredGenerationClient(createServerAIConfiguration(env).ai)
+export function createAIServerClient(env: Record<string, string | undefined> = process.env) {
+  const config = createServerAIConfiguration(env)
+  return config.apiKey ? new OpenAIStructuredGenerationClient(config.ai) : new UnavailableStructuredGenerationClient()
 }
 
 export async function startConfiguredAIServer(
   env: Record<string, string | undefined> = process.env,
 ): Promise<AIServerHandle> {
   const config = createServerAIConfiguration(env)
-  const server = await startAIServer(new OpenAIStructuredGenerationClient(config.ai), config)
+  const client = config.apiKey ? new OpenAIStructuredGenerationClient(config.ai) : new UnavailableStructuredGenerationClient()
+  if (!config.apiKey) console.warn('AI_API_KEY is not configured; AI requests will use the browser deterministic fallback')
+  const server = await startAIServer(client, config)
   console.log(`Genesis AI Gateway listening on http://${server.host}:${server.port}`)
   return server
 }

@@ -21,6 +21,9 @@ export type {
   GameWorldValidationResult,
   GameWorldValidator,
   StructuredGenerationClient,
+  GameDesignCapabilities,
+  GameDesignPrompt,
+  GameDesignPromptBuilder,
 } from './generation'
 export {
   DefaultGameWorldValidator,
@@ -29,4 +32,6 @@ export {
   DeterministicGameWorldGenerationCandidateProvider,
   LLMGameWorldGenerationCandidateProvider,
   FallbackGameWorldGenerationProvider,
+  DEFAULT_GAME_DESIGN_CAPABILITIES,
+  DefaultGameDesignPromptBuilder,
 } from './generation'
