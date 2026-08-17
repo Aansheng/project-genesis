@@ -29,5 +29,6 @@ export class DefaultAIConfiguration implements AIConfiguration {
   readonly maxOutputTokens = undefined as number | undefined
   readonly apiKey = undefined as string | undefined
   readonly baseURL = undefined as string | undefined
+  readonly gatewayURL = undefined as string | undefined
   readonly allowBrowser = undefined as boolean | undefined
 }

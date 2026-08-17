@@ -1,7 +1,6 @@
 export type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 export type { GameWorldGenerationProvider } from './GameWorldGenerationProvider'
 export type { StructuredGenerationClient } from './StructuredGenerationClient'
-export { OpenAIStructuredGenerationClient } from './OpenAIStructuredGenerationClient'
 export type { GameWorldGenerationCandidate, GameWorldGenerationCandidateEntity } from './GameWorldGenerationCandidate'
 export type { GameWorldGenerationCandidateProvider } from './GameWorldGenerationCandidateProvider'
 export type { GameWorldValidationResult, GameWorldValidator } from './GameWorldValidator'

@@ -29,5 +29,4 @@ export {
   DeterministicGameWorldGenerationCandidateProvider,
   LLMGameWorldGenerationCandidateProvider,
   FallbackGameWorldGenerationProvider,
-  OpenAIStructuredGenerationClient,
 } from './generation'

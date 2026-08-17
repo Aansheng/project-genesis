@@ -8,6 +8,14 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-005 - AI Model Gateway Foundation
+
+- Added `@genesis/ai-server` with the server-only OpenAI structured client and framework-neutral AI Gateway handler.
+- Added `BrowserStructuredGenerationClient`; the web app now uses HTTP and never reads `VITE_AI_API_KEY`.
+- Added request/response validation, safe gateway errors, deterministic fallback coverage, and ADR-0228.
+- Browser configuration is now `VITE_AI_ENABLED` + `VITE_AI_GATEWAY_URL`; server configuration uses `AI_PROVIDER`, `AI_API_KEY`, and `AI_MODEL`.
+- Architecture version v1.114 to v1.115.
+
 ### WO-S12-004 - Structured Model Client Integration Foundation
 
 - Added the optional `OpenAIStructuredGenerationClient` behind `StructuredGenerationClient` using the existing SDK dependency.

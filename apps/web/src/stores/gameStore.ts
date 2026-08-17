@@ -15,11 +15,12 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
-import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, OpenAIStructuredGenerationClient } from '@genesis/ai'
+import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
+import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
 
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
@@ -29,10 +30,10 @@ function createCommandExecutor(worldStore: RuntimeWorldStore): { executor: Comma
   let generationProvider: GameWorldGenerationProvider = deterministicProvider
   let useAsync = false
 
-  if (configuration.enabled && configuration.provider === 'openai' && configuration.apiKey) {
+  if (configuration.enabled && configuration.gatewayURL) {
     try {
       const modelProvider = new GameWorldGenerationProviderAdapter(
-        new LLMGameWorldGenerationCandidateProvider(new OpenAIStructuredGenerationClient(configuration)),
+        new LLMGameWorldGenerationCandidateProvider(new BrowserStructuredGenerationClient(configuration.gatewayURL)),
         new DefaultGameWorldValidator(),
       )
       generationProvider = new FallbackGameWorldGenerationProvider(modelProvider, deterministicProvider)

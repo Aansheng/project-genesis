@@ -1,17 +1,17 @@
 {
-  "name": "@genesis/ai",
+  "name": "@genesis/ai-server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@genesis/shared": "workspace:*",
+    "@genesis/ai": "workspace:*",
     "openai": "^4.73.0"
   },
   "devDependencies": {

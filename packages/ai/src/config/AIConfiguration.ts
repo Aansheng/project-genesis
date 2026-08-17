@@ -61,6 +61,9 @@ export interface AIConfiguration {
   /** Custom API endpoint URL */
   baseURL?: string
 
+  /** Browser-safe gateway endpoint URL. */
+  gatewayURL?: string
+
   /**
    * Allow the OpenAI SDK client to operate in browser environments.
    * Should ONLY be enabled during local development.

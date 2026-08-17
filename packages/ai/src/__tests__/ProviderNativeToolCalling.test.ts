@@ -681,7 +681,7 @@ describe('Event Ordering', () => {
 // ---------------------------------------------------------------------------
 
 describe('Browser Development Configuration', () => {
-  it('should create config with allowBrowser=true when VITE_AI_ALLOW_BROWSER=true', async () => {
+  it('should keep browser provider credentials disabled after gateway migration', async () => {
     const { createAIConfiguration } = await import('../config/createAIConfiguration')
     const config = createAIConfiguration({
       VITE_AI_PROVIDER: 'openai',
@@ -689,7 +689,7 @@ describe('Browser Development Configuration', () => {
       VITE_AI_ALLOW_BROWSER: 'true',
     })
 
-    expect(config.allowBrowser).toBe(true)
+    expect(config.allowBrowser).toBe(false)
   })
 
   it('should create config with allowBrowser=false when VITE_AI_ALLOW_BROWSER is not set', async () => {

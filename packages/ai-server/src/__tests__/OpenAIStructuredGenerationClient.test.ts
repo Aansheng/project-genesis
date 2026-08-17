@@ -1,0 +1,14 @@
+import { describe, expect, it, vi } from 'vitest'
+import { OpenAIStructuredGenerationClient } from '../OpenAIStructuredGenerationClient'
+
+describe('server OpenAIStructuredGenerationClient', () => {
+  it('calls the provider without exposing it to browser code', async () => {
+    const create = vi.fn().mockResolvedValue({ output_text: '{"worldType":"sandbox","entities":[]}' })
+    const client = new OpenAIStructuredGenerationClient(
+      { enabled: true, provider: 'openai', model: 'gpt-test', temperature: 0, maxTokens: 100, apiKey: 'server-only' },
+      { responses: { create } } as never,
+    )
+    await expect(client.generateStructured({ input: '创建世界', intent: { genre: 'sandbox', title: '创建世界' } })).resolves.toBe('{"worldType":"sandbox","entities":[]}')
+    expect(create).toHaveBeenCalledOnce()
+  })
+})

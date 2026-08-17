@@ -70,14 +70,31 @@ importers:
       typescript: 5.9.3
       vitest: 1.6.1
 
+  packages/ai-server:
+    specifiers:
+      '@genesis/ai': workspace:*
+      openai: ^4.73.0
+      typescript: ^5.4.0
+      vitest: ^1.6.1
+    dependencies:
+      '@genesis/ai': link:../ai
+      openai: 4.104.0
+    devDependencies:
+      typescript: 5.9.3
+      vitest: 1.6.1
+
   packages/renderer:
     specifiers:
+      '@genesis/ai': workspace:*
+      '@genesis/runtime': workspace:*
       '@genesis/shared': workspace:*
       jsdom: ^24.1.3
       pixi.js: ^7.4.3
       typescript: ^5.4.0
       vitest: ^1.6.1
     dependencies:
+      '@genesis/ai': link:../ai
+      '@genesis/runtime': link:../runtime
       '@genesis/shared': link:../shared
       pixi.js: 7.4.3
     devDependencies:

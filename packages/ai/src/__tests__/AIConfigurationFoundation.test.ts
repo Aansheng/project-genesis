@@ -305,13 +305,13 @@ describe('AIConfiguration — Backward Compatibility', () => {
     expect(config.maxTokens).toBe(0)
   })
 
-  it('should still work with createAIConfiguration as before', () => {
+  it('does not read browser API keys after the gateway migration', () => {
     const config = createAIConfiguration({
       VITE_AI_PROVIDER: 'openai',
       VITE_AI_API_KEY: 'sk-xxx',
     })
     expect(config.provider).toBe('openai')
-    expect(config.apiKey).toBe('sk-xxx')
+    expect(config.apiKey).toBeUndefined()
   })
 
   it('should be usable with ProviderFactory', () => {
