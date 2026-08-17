@@ -2,7 +2,7 @@
  * gameStore — the Pinia store for the Project Genesis game UI.
  *
  * Routes user commands through the CommandExecutor chain:
- *   GameWorkspacePage.vue → send() → DefaultCommandExecutor
+ *   StudioCommandBar.vue → send() → DefaultCommandExecutor
  *     → IntentRouter → CreateWorldRuntimeExecutor
  *       → CreateWorldPipeline → RuntimeWorldStore
  *

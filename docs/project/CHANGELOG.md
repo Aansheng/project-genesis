@@ -6,6 +6,23 @@
 
 ---
 
+## Sprint 11 - Genesis Studio Experience
+
+### WO-S11-001 - Genesis Studio Shell Foundation
+
+- Added `GenesisStudioShell` as the primary `/` workspace.
+- Added compact Studio header, World Explorer, Game Viewport, Runtime Inspector, and AI Command Bar surfaces.
+- Moved the proven Pixi/runtime mount lifecycle into `GameViewportPanel` without changing gameplay behavior.
+- Connected World Explorer directly to the Pinia-owned `RuntimeWorldStore` with intentional empty and generated states.
+- Reused `ObservatoryRuntimeBinding` and the existing Observatory ViewModel in the Studio Inspector.
+- Preserved `/observatory` and same-session SPA continuity.
+- Added a small native-CSS Studio token foundation with no new dependency or UI framework.
+- Added focused Studio shell, generation, route, shared-state, and lifecycle coverage.
+- Created ADR-0215.
+- Architecture version v1.101 to v1.102.
+
+---
+
 ## Sprint 10 — AI Generation Pipeline
 
 ### WO-S10-012 — Observatory SPA Runtime Session Integration

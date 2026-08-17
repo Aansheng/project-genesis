@@ -11,7 +11,8 @@
 **Sprint 7** — DSL Preparation (Complete)
 **Sprint 8** — Game DSL (Complete)
 **Sprint 9** — Renderer Foundation (Complete)
-**Sprint 10** — AI Generation Pipeline (In Progress)
+**Sprint 10** — AI Generation Pipeline (Complete)
+**Sprint 11** - Genesis Studio Experience (In Progress)
 
 ---
 
@@ -19,12 +20,13 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 10 **In Progress** |
-| Architecture Version | v1.101 (Sprint 10) |
-| Last Completed WO | WO-S10-012 — Observatory SPA Runtime Session Integration |
-| Current User-Visible Behavior | Game and Observatory navigate without reload; the generated world survives both directions. |
-| Current End-to-End Pipeline | Natural Language → Intent → Semantic World → Game DSL → RuntimeWorldStore → SPA Game/Observatory views → Pixi/Runtime binding |
-| Current Blocking Issue | None for same-session SPA continuity; refresh persistence remains out of scope. |
+| Status | Sprint 11 **In Progress** |
+| Architecture Version | v1.102 (Sprint 11) |
+| Last Completed WO | WO-S11-001 - Genesis Studio Shell Foundation |
+| Current User-Visible Behavior | Genesis Studio unifies real World entities, playable Pixi viewport, Runtime Inspector, AI command bar, and Observatory navigation. |
+| Current End-to-End Pipeline | Natural Language → Intent → Semantic World → Game DSL → RuntimeWorldStore → Studio Explorer/Viewport/Inspector → Pixi and Observatory |
+| Current Blocking Issue | No blocker for the Studio shell; editing, persistence, and final visual refinement remain future work. |
+| Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |
 | Architecture Status | **Evolving** — Observatory Runtime Migration (WO-S10-006) + Web Command Routing Integration (WO-S10-004) + Runtime World Injection Foundation (WO-S10-003) + Create World Pipeline Foundation (WO-S10-002) + Intent Router Foundation (WO-S10-001) + Observatory Shell (WO-S6-001) + Overview Dashboard (WO-S6-002) + Trace Viewer (WO-S6-003) + Timeline Viewer (WO-S6-004) + History Viewer (WO-S6-005) + Diff Viewer (WO-S6-006) + I18n Foundation (WO-S6-006.5) + Runtime Viewer (WO-S6-007) + Live Event Stream (WO-S6-008) + Entity Inspector (WO-S6-009) + Trace Graph (WO-S6-010) + World Graph (WO-S6-011) + Data Adapter (WO-S6-012) + Overview Data Integration (WO-S6-013) + Trace Data Integration (WO-S6-014) + Timeline Data Integration (WO-S6-015) + History Data Integration (WO-S6-016) + Diff Data Integration (WO-S6-017) + Runtime Data Integration (WO-S6-018) + Event Stream Data Integration (WO-S6-019) + Metadata Bridge Foundation (WO-S6-020) + Metadata Bridge Consumption (WO-S6-021) + Mapping Layer Foundation (WO-S6-022) + Mapping Layer Consumption (WO-S6-023) + Prompt Metadata Contract Foundation (WO-S6-024) + Prompt Metadata Consumption (WO-S6-025) + Prompt Metadata Emission Foundation (WO-S6-026) + Prompt Metadata Emission Consumption (WO-S6-027) + Real Metadata Activation (WO-S6-028) + Prompt Assembly Domain Model Foundation (WO-S7-001) + Game DSL Foundation (WO-S8-001) + Game DSL Builder Foundation (WO-S8-002) + Game DSL Runtime Projection Foundation (WO-S8-003) + Runtime Component Model Foundation (WO-S8-004) + Semantic Game World DSL Foundation (WO-S8-005) + Semantic World To Game DSL Builder Foundation (WO-S8-006) + Semantic World Generator Foundation (WO-S8-007) + Runtime System Foundation (WO-S8-008) + Runtime Execution Loop Foundation (WO-S8-009) + Runtime World Mutation Foundation (WO-S8-010) + Position Component Foundation (WO-S8-011) + Movement System Foundation (WO-S8-012) + Semantic World Generator Enrichment Foundation (WO-S8-013) + Prompt Entity Extraction Foundation (WO-S8-014) + Prompt Entity Count Extraction Foundation (WO-S8-015) + Game Intent Extraction Foundation (WO-S8-016) + Pixi Renderer Foundation (WO-S9-001) + Runtime → Renderer Sync Foundation (WO-S9-002) + Position Render Model Foundation (WO-S9-003) + Pixi Entity Visualization Foundation (WO-S9-004) + Runtime Visualization Loop Foundation (WO-S9-005) + Real-Time Visualization Loop Foundation (WO-S9-006) + Entity Visual Mapping Foundation (WO-S9-007) + Keyboard Input Foundation (WO-S9-008) + Player Controller System Foundation (WO-S9-009) + Playable Game Bootstrap Foundation (WO-S9-010) + Mario Playable Slice Foundation (WO-S9-011) + Gravity System Foundation (WO-S9-012) complete. `ObservatoryShell` + `ObservatorySidebar` + `ObservatoryHeader` + `ObservatoryContent` compose the dark, minimal, developer-tool shell at `/observatory` (Vue 3 + TypeScript + Pinia + vue-router; no new dependencies). New `observatory` Pinia store (`selectedPanel`, `status`, `version`) + new `i18n` Pinia store (`language`, `setLanguage`, `t`, `has`). 10-panel sidebar navigation with active/hover/keyboard support. **Overview Dashboard Foundation** — `ObservatoryOverview.vue` renders when `selectedPanel === 'Overview'` (Artifact Summary, Observatory Snapshot, System Status). **Trace Viewer Foundation** — two-column master-detail layout via `trace/` components (`ObservatoryTraceViewer`, `TraceList`, `TraceDetails`, `TraceStepCard`); selectable rows with keyboard navigation, Plan/Snapshot/Metadata details. **Timeline Viewer Foundation** — second observability viewer via `timeline/` components (`ObservatoryTimelineViewer`, `TimelineList`, `TimelineDetails`, `TimelineEntryCard`); selectable timelines (mock: timeline-001/12 entries, timeline-002/8, timeline-003/4) with keyboard navigation; details show Timeline ID/Entry Count header + Timeline Entries list of `TimelineEntryCard`s (#index + strategy). **History Viewer Foundation** — third observability viewer via `history/` components (`ObservatoryHistoryViewer`, `HistoryList`, `HistoryDetails`, `HistoryEntryCard`); selectable history builds (mock: history-001 Create Village, history-002 Add Farm, history-003 Add Guards) with keyboard navigation; details show History ID/Timestamp header + Prompt + Result + Evolution sections (Evolution uses `HistoryEntryCard`s with `+` markers). **Diff Viewer Foundation** — fourth observability viewer via `diff/` components (`ObservatoryDiffViewer`, `DiffList`, `DiffDetails`, `DiffChangeCard`); selectable diffs (mock: diff-001 Tavern/Villager, diff-002 Farm, diff-003 Guard/OldRoad/VillageGate) with keyboard navigation; details show Diff ID/Timestamp header + Added (+ green) / Removed (- red) / Changed (• indigo) sections using `DiffChangeCard`s; per-section empty states. **I18n Foundation** — dependency-free localization (`apps/web/src/i18n/` core with `resolveKey`/`createI18n` + `locales/zh-CN.ts` + `locales/en-US.ts`; reactive `stores/i18n.ts` with `language` default `'zh-CN'`, `setLanguage`, `t` fallback-to-key, `has`); shell texts converted (header title/badge/sprint/version, sidebar panels, content placeholders, overview labels) via `useI18n().t()`; compact `[ 中文 ▼ ]` language switcher in the header (中文/English, reactive, no reload); viewer details (Trace/Timeline/History/Diff) intentionally NOT converted yet; the Runtime viewer (WO-S6-007) is the first to use `observatory.runtime.*` keys. **Trace Graph Foundation** — 9th observability panel via `graph/` components (`ObservatoryTraceGraph`, `TraceGraphNode`, `TraceGraphEdge`, `TraceGraphLegend`); pure-CSS vertical flow graph on the new **Trace Graph** panel (sidebar position 8, between EventStream and Settings, `OBSERVATORY_PANELS` now 9); 6 mock nodes (CreateWorld → GenerateTerrain → CreateFarm → CreateNPC → CreateInventory → CreateQuest, all completed) with 5 CSS connector edges; each node is an `<article>` with status dot + status label + strategy name; 3-item legend (Completed/Pending/Failed) with localized labels; i18n keys `observatory.panels.tracegraph` (`执行图谱`/`Trace Graph`) + `observatory.graph.*` (title/legend/completed/pending/failed); no graph libraries, no SVG, no D3/Cytoscape. Prompt Explorer remains future work. Architecture v1.40. **Runtime Viewer Foundation** — fifth observability viewer via `runtime/` components (`ObservatoryRuntimeViewer`, `RuntimeEntityList`, `RuntimeEntityDetails`, `RuntimeStatCard`); selectable runtime entities (mock: guard-001 Guard `(10,4)` Patrol, merchant-001 Merchant `(4,8)` Trading, villager-001 Villager `(1,2)` Working, health 100) with keyboard navigation; stats row (`Runtime Stats` + `world-001`, Entities/Systems/Events/FPS = 187/8/31/60 via reusable `RuntimeStatCard`s) above Position/Health/State `dl` entity details (ID/Type header); data labels localized through the existing S6-006.5 i18n infrastructure (zh-CN default, reactive switcher). **Live Event Stream Foundation** — sixth observability panel via `events/` components (`ObservatoryEventStream`, `EventStreamList`, `EventStreamItem`, `EventFilterBar`); single-column live feed on the new **Event Stream** panel (sidebar position 6, between Runtime and TraceGraph, `OBSERVATORY_PANELS` now 9); 20 seeded mock events (Runtime/Planner/AI/Provider; info/warning/error) with mono timestamps, level badges, source, message; top filter bar (All/Info/Warning/Error, native buttons + `aria-pressed`) with local-only state; `setInterval` simulation appends one mock event every 2000ms and caps the stream at 100 events (oldest spliced); interval cleared on unmount; list is `ul[role="log"]` with `"No events"` empty state; fully localized via `observatory.events.*` keys + `observatory.panels.eventstream` (`事件流`/`Event Stream`). Selection is local component state. Placeholder grid remains for Settings. No inline styles. 1193+ tests across 13 files (161 event stream + 150 graph + 149 inspector + 140 i18n + 139 runtime + 121 shell + 120 diff + 103 history + 99 trace + 99 timeline + 62 overview + 15 streaming); TypeScript 0 errors; ESLint 0 errors. **Entity Inspector Foundation** — `RuntimeEntityInspector.vue` + `RuntimeComponentCard.vue` integrated into the Runtime Viewer below Entity Details; ECS-style component inspection with 3 mock entities (guard-001: 3 components, merchant-001: 4, villager-001: 5); each component shown as a semantic card with `<h3>` name and `<pre>` formatted JSON; i18n keys `observatory.runtime.inspector`/`components`/`componentCount` (zh-CN + en-US). Prompt Explorer remains future work. Architecture v1.39. **Sprint 5 = 100% complete** (Prompt Observability Layer). |
 | Runtime Status | Stable (Action Registry + Query Layer) |
 | Renderer Status | **Evolving** — Runtime World Injection Foundation (WO-S10-003) + Pixi Renderer Foundation (WO-S9-001) + Runtime → Renderer Sync Foundation (WO-S9-002) + Position Render Model Foundation (WO-S9-003) + Pixi Entity Visualization Foundation (WO-S9-004) + Runtime Visualization Loop Foundation (WO-S9-005) + Real-Time Visualization Loop Foundation (WO-S9-006) + Entity Visual Mapping Foundation (WO-S9-007) + Keyboard Input Foundation (WO-S9-008) + Platform World Rendering Foundation (WO-S9-016)
@@ -104,6 +106,20 @@ Current blocking issue: none for same-session route continuity. Refresh recovery
 Known legacy paths: inert streaming UI remains; Canvas2D is not used by the production game route; mock Observatory hydration is test/demo-only.
 
 Next recommended verification: repeat Game → Observatory → Game switching while exercising ArrowRight and Space, and confirm one canvas and normal tick speed.
+
+### WO-S11-001 Current Behavior
+
+- `/` is the Genesis Studio shell with Header, World Explorer, Game Viewport, Runtime Inspector, and AI Command Bar.
+- Empty sessions display intentional empty states and no mock world entities.
+- `创建 MarioWorld` creates six entities that immediately appear in the Explorer, Pixi viewport, Inspector, and command activity.
+- All Studio surfaces use the same Pinia-owned `RuntimeWorldStore`.
+- Inspector data flows through the existing `ObservatoryRuntimeBinding` and `observatoryData` ViewModel.
+- `/observatory` remains a full backward-compatible route in the same SPA session.
+- Game viewport unmount/remount retains balanced Pixi, RAF, visualization-loop, and keyboard lifecycle behavior.
+
+Known legacy paths: inert streaming state remains in `gameStore`; Canvas2D is not used by production; mock Observatory hydration remains test/demo-only.
+
+Next recommended verification: manually hold ArrowRight and press Space in the Studio after an Observatory round trip, confirming normal movement, jump, gravity, collision, and camera behavior.
 
 ---
 
@@ -384,6 +400,14 @@ Next recommended verification: repeat Game → Observatory → Game switching wh
 | WO-S10-010 | Playable Platformer Runtime Wiring |
 | WO-S10-011 | Observatory Real Runtime Binding Foundation |
 | WO-S10-012 | Observatory SPA Runtime Session Integration |
+
+---
+
+### Sprint 11 - Genesis Studio Experience
+
+| ID | Title |
+| -- | ----------------------- |
+| WO-S11-001 | Genesis Studio Shell Foundation |
 
 ---
 
