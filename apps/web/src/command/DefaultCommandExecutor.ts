@@ -79,4 +79,33 @@ export class DefaultCommandExecutor implements CommandExecutor {
       message: `Unknown command: "${input}"`,
     }
   }
+
+  async executeAsync(input: string): Promise<CommandExecutionResult> {
+    const routingResult = this.intentRouter.route(input)
+
+    if (routingResult.route === ROUTE_CREATE_WORLD) {
+      const pipelineResult = this.createWorldExecutor.executeAsync
+        ? await this.createWorldExecutor.executeAsync(input)
+        : this.createWorldExecutor.execute(input)
+
+      if (pipelineResult.success) {
+        const entityCount = pipelineResult.world.entities.length
+        return {
+          success: true,
+          message: `Created world with ${entityCount} entit${entityCount === 1 ? 'y' : 'ies'}`,
+          entityCount,
+        }
+      }
+
+      return {
+        success: false,
+        message: `Failed to create world: route=${pipelineResult.route}`,
+      }
+    }
+
+    return {
+      success: false,
+      message: `Unknown command: "${input}"`,
+    }
+  }
 }

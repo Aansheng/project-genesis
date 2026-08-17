@@ -20,4 +20,6 @@ export interface CommandExecutor {
    * @returns CommandExecutionResult with success flag and message
    */
   execute(input: string): CommandExecutionResult
+
+  executeAsync?(input: string): Promise<CommandExecutionResult>
 }

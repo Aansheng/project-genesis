@@ -15,23 +15,43 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
-import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder } from '@genesis/ai'
+import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, OpenAIStructuredGenerationClient } from '@genesis/ai'
+import type { GameWorldGenerationProvider } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
 
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
-function createCommandExecutor(worldStore: RuntimeWorldStore): CommandExecutor {
+function createCommandExecutor(worldStore: RuntimeWorldStore): { executor: CommandExecutor; useAsync: boolean } {
+  const configuration = createAIConfiguration(import.meta.env)
+  const deterministicProvider = new DeterministicGameWorldGenerationProvider()
+  let generationProvider: GameWorldGenerationProvider = deterministicProvider
+  let useAsync = false
+
+  if (configuration.enabled && configuration.provider === 'openai' && configuration.apiKey) {
+    try {
+      const modelProvider = new GameWorldGenerationProviderAdapter(
+        new LLMGameWorldGenerationCandidateProvider(new OpenAIStructuredGenerationClient(configuration)),
+        new DefaultGameWorldValidator(),
+      )
+      generationProvider = new FallbackGameWorldGenerationProvider(modelProvider, deterministicProvider)
+      useAsync = true
+    } catch {
+      // Missing browser permission or invalid configuration keeps the app deterministic.
+    }
+  }
+
   const pipeline = new DefaultCreateWorldPipeline(
     new DefaultIntentRouter(),
     new DefaultGameIntentExtractor(),
     new DefaultSemanticWorldGenerator(),
     new DefaultSemanticGameDslBuilder(),
     new DefaultRuntimeProjection(),
+    generationProvider,
   )
   const createWorldExecutor = new DefaultCreateWorldRuntimeExecutor(pipeline, worldStore)
-  return new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor)
+  return { executor: new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor), useAsync }
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -49,7 +69,7 @@ export const useGameStore = defineStore('game', () => {
   const streamingFinished = ref(false)
   const useStreaming = ref(false)
 
-  const commandExecutor = createCommandExecutor(worldStore)
+  const { executor: commandExecutor, useAsync: useAsyncGeneration } = createCommandExecutor(worldStore)
 
   const selectedEntity = computed(() => {
     renderVersion.value
@@ -82,7 +102,9 @@ export const useGameStore = defineStore('game', () => {
   async function send(input: string) {
     commandStatus.value = 'running'
     try {
-      const result = commandExecutor.execute(input)
+      const result = useAsyncGeneration && commandExecutor.executeAsync
+        ? await commandExecutor.executeAsync(input)
+        : commandExecutor.execute(input)
       lastCommand.value = result
       log.value.push(result.message)
       commandStatus.value = result.success ? 'success' : 'error'

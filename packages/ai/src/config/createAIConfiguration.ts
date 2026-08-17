@@ -5,6 +5,7 @@ import type { AIConfiguration } from './AIConfiguration'
  *
  * Supported keys:
  *   VITE_AI_PROVIDER        — "mock" | "openai" | "deepseek"  (default: "mock")
+ *   VITE_AI_ENABLED         — enable external model calls ("true"/"false") (default: false)
  *   VITE_AI_MODEL           — model identifier                  (default: varies by provider)
  *   VITE_AI_API_KEY         — API key                           (required for openai, deepseek)
  *   VITE_AI_BASE_URL        — custom API endpoint               (required for deepseek)
@@ -20,6 +21,7 @@ import type { AIConfiguration } from './AIConfiguration'
 export function createAIConfiguration(
   env: Record<string, string | undefined> = {},
 ): AIConfiguration {
+  const enabled = env.VITE_AI_ENABLED === 'true'
   const provider = env.VITE_AI_PROVIDER || 'mock'
   const apiKey = env.VITE_AI_API_KEY || undefined
   const baseURL = env.VITE_AI_BASE_URL || undefined
@@ -47,6 +49,7 @@ export function createAIConfiguration(
   }
 
   const config: AIConfiguration = {
+    enabled,
     provider,
     model,
     temperature,

@@ -19,6 +19,7 @@ import type { AIConfiguration } from './AIConfiguration'
  * - All optional fields (apiKey, baseURL, allowBrowser, maxOutputTokens) are undefined
  */
 export class DefaultAIConfiguration implements AIConfiguration {
+  readonly enabled = false
   readonly provider = 'mock'
   readonly model = 'mock'
   readonly temperature = 0

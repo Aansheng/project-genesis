@@ -24,6 +24,9 @@
  * @see DefaultAIConfiguration — the default implementation
  */
 export interface AIConfiguration {
+  /** Enable optional external model calls. Defaults to false. */
+  enabled?: boolean
+
   /** Provider identifier (e.g., "mock", "openai", "deepseek", "anthropic") */
   provider: string
 

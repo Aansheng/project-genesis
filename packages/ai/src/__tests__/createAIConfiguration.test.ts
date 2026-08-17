@@ -4,6 +4,7 @@ import { createAIConfiguration } from '../config/createAIConfiguration'
 describe('createAIConfiguration', () => {
   it('should return mock defaults when no env provided', () => {
     const config = createAIConfiguration()
+    expect(config.enabled).toBe(false)
     expect(config.provider).toBe('mock')
     expect(config.model).toBe('mock')
     expect(config.apiKey).toBeUndefined()
@@ -21,6 +22,11 @@ describe('createAIConfiguration', () => {
     expect(config.provider).toBe('openai')
     expect(config.model).toBe('gpt-4o')
     expect(config.apiKey).toBe('sk-test')
+  })
+
+  it('should enable external generation only when explicitly configured', () => {
+    expect(createAIConfiguration({ VITE_AI_ENABLED: 'true' }).enabled).toBe(true)
+    expect(createAIConfiguration({ VITE_AI_ENABLED: 'false' }).enabled).toBe(false)
   })
 
   it('should use default model for openai when model not specified', () => {

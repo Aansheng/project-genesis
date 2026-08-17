@@ -51,4 +51,15 @@ export class DefaultCreateWorldRuntimeExecutor
 
     return result
   }
+
+  async executeAsync(input: string): Promise<CreateWorldPipelineResult> {
+    const command = Object.freeze({ input })
+    const result = await this.pipeline.executeAsync(command)
+
+    if (result.success) {
+      this.worldStore.setWorld(result.world)
+    }
+
+    return result
+  }
 }

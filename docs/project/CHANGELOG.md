@@ -8,6 +8,13 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-004 - Structured Model Client Integration Foundation
+
+- Added the optional `OpenAIStructuredGenerationClient` behind `StructuredGenerationClient` using the existing SDK dependency.
+- Added explicit `VITE_AI_ENABLED` configuration; default runtime behavior remains deterministic.
+- Wired the web command path to the async provider pipeline with deterministic fallback for model, parse, and validation failures.
+- Added client/configuration coverage and ADR-0227; architecture version v1.113 to v1.114.
+
 ### WO-S12-003 - LLM World Generation Provider Boundary Foundation
 
 - Added the vendor-neutral `StructuredGenerationClient` model boundary.

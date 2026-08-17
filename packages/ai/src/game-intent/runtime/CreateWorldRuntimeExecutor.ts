@@ -40,6 +40,7 @@ import type { CreateWorldPipelineResult } from '../pipeline/CreateWorldPipelineR
 export interface WorldStore {
   /** Set the currently active world. */
   setWorld(world: { entities: Array<{ id: string; type: string; x: number; y: number }> }): void
+
 }
 
 // ---------------------------------------------------------------------------
@@ -54,4 +55,7 @@ export interface CreateWorldRuntimeExecutor {
    * @returns CreateWorldPipelineResult with route, world, and success
    */
   execute(input: string): CreateWorldPipelineResult
+
+  /** Async counterpart used by optional external generation providers. */
+  executeAsync?(input: string): Promise<CreateWorldPipelineResult>
 }
