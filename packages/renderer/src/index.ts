@@ -70,7 +70,7 @@ export { DefaultVisualizationRunner } from './runtime'
 export { renderWorld, CANVAS_WIDTH, CANVAS_HEIGHT } from './renderWorld'
 
 // Input Foundation (WO-S9-008)
-export { KeyboardInputProvider } from './input'
+export { KeyboardInputProvider, isEditableKeyboardTarget } from './input'
 
 // Game Bootstrap Foundation (WO-S9-010)
 export { DefaultGameBootstrap } from './bootstrap'

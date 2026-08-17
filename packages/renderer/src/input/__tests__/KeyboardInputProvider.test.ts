@@ -93,6 +93,47 @@ describe('KeyboardInputProvider', () => {
       expect(state.isPressed('ArrowRight')).toBe(false)
       expect(state.isPressed('Space')).toBe(false)
     })
+
+    it.each(['input', 'textarea', 'select', 'button'])('ignores %s keyboard events', (tagName) => {
+      const element = document.createElement(tagName)
+      document.body.appendChild(element)
+      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+      element.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+      expect(provider.getState().isPressed('ArrowRight')).toBe(false)
+      expect(provider.getState().isPressed('Space')).toBe(false)
+      element.remove()
+    })
+
+    it('ignores contenteditable keyboard events', () => {
+      const element = document.createElement('div')
+      element.contentEditable = 'true'
+      document.body.appendChild(element)
+      element.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+      expect(provider.getState().isPressed('ArrowLeft')).toBe(false)
+      element.remove()
+    })
+
+    it('clears keys when editable focus begins', () => {
+      const focusProvider = new KeyboardInputProvider(document)
+      focusProvider.attach()
+      fireKeyDown(document, 'ArrowRight')
+      const input = document.createElement('input')
+      document.body.appendChild(input)
+      input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+      expect(focusProvider.getState().isPressed('ArrowRight')).toBe(false)
+      focusProvider.detach()
+      input.remove()
+    })
+
+    it('resumes gameplay tracking after editable focus blurs', () => {
+      const input = document.createElement('input')
+      document.body.appendChild(input)
+      input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+      input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
+      fireKeyDown(target, 'ArrowRight')
+      expect(provider.getState().isPressed('ArrowRight')).toBe(true)
+      input.remove()
+    })
   })
 
   // -------------------------------------------------------------------------

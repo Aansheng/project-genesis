@@ -1,6 +1,29 @@
 import type { InputKey, InputProvider, InputState } from '@genesis/runtime'
 import { DefaultInputState } from '@genesis/runtime'
 
+/** Returns whether keyboard input originated from a text or UI control. */
+export function isEditableKeyboardTarget(target: EventTarget | null): boolean {
+  if (!target || typeof target !== 'object') return false
+
+  const element = target as Element
+  const tagName = typeof element.tagName === 'string'
+    ? element.tagName.toLowerCase()
+    : ''
+
+  if (tagName === 'input' || tagName === 'textarea' || tagName === 'select' || tagName === 'button') {
+    return true
+  }
+
+  if (typeof Element !== 'undefined' && element instanceof Element) {
+    if ((element as HTMLElement).isContentEditable) return true
+    const contentEditable = element.getAttribute('contenteditable')
+    if (contentEditable !== null && contentEditable !== 'false') return true
+    return element.closest('input, textarea, select, button, [contenteditable]:not([contenteditable="false"])') !== null
+  }
+
+  return false
+}
+
 /**
  * KeyboardInputProvider — DOM event-driven implementation of InputProvider.
  *
@@ -26,11 +49,13 @@ export class KeyboardInputProvider implements InputProvider {
   // Bound listener references (for removal)
   private readonly _handleKeyDown: (event: Event) => void
   private readonly _handleKeyUp: (event: Event) => void
+  private readonly _handleFocusIn: (event: Event) => void
 
   constructor(target: EventTarget = window) {
     this._target = target
     this._handleKeyDown = this._onKeyDown.bind(this)
     this._handleKeyUp = this._onKeyUp.bind(this)
+    this._handleFocusIn = this._onFocusIn.bind(this)
   }
 
   // -------------------------------------------------------------------------
@@ -42,6 +67,7 @@ export class KeyboardInputProvider implements InputProvider {
     if (this._attached) return
     this._target.addEventListener('keydown', this._handleKeyDown)
     this._target.addEventListener('keyup', this._handleKeyUp)
+    this._target.addEventListener('focusin', this._handleFocusIn)
     this._attached = true
   }
 
@@ -50,6 +76,7 @@ export class KeyboardInputProvider implements InputProvider {
     if (!this._attached) return
     this._target.removeEventListener('keydown', this._handleKeyDown)
     this._target.removeEventListener('keyup', this._handleKeyUp)
+    this._target.removeEventListener('focusin', this._handleFocusIn)
     this._pressed.clear()
     this._attached = false
   }
@@ -85,6 +112,11 @@ export class KeyboardInputProvider implements InputProvider {
   }
 
   private _onKeyDown(event: Event): void {
+    if (isEditableKeyboardTarget(event.target)) {
+      this._pressed.clear()
+      return
+    }
+
     const ke = event as KeyboardEvent
     const canonical = this._canonicalize(ke.key)
     if (canonical) {
@@ -93,10 +125,19 @@ export class KeyboardInputProvider implements InputProvider {
   }
 
   private _onKeyUp(event: Event): void {
+    if (isEditableKeyboardTarget(event.target)) {
+      this._pressed.clear()
+      return
+    }
+
     const ke = event as KeyboardEvent
     const canonical = this._canonicalize(ke.key)
     if (canonical) {
       this._pressed.delete(canonical)
     }
+  }
+
+  private _onFocusIn(event: Event): void {
+    if (isEditableKeyboardTarget(event.target)) this._pressed.clear()
   }
 }

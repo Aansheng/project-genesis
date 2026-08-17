@@ -58,8 +58,9 @@ function createMockRenderer() {
   return {
     render(world: unknown) {
       lastRenderWorld = world
-      return { entities: (world as { entities: unknown[] }).entities }
+      return { entities: (world as { entities: unknown[] }).entities as never }
     },
+    clear() {},
     getLastRenderWorld() {
       return lastRenderWorld
     },

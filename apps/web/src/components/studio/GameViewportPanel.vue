@@ -63,6 +63,7 @@ onMounted(() => {
   const entityRenderer = new DefaultPixiEntityRenderer(entityContainer, {
     catalog: new DefaultEntityVisualCatalog(),
     cameraController: new DefaultCameraController(),
+    cameraAnchor: { x: 400, y: 300 },
   })
   const worldProvider = new StoreBackedWorldProvider(store.worldStore)
   const worldSink = {

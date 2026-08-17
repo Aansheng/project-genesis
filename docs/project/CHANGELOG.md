@@ -8,6 +8,20 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-004 - Studio Input Isolation & Platform Coordinate Semantics Fix
+
+- Filtered gameplay keyboard input at the DOM boundary for input, textarea,
+  select, button, and contenteditable surfaces.
+- Cleared tracked gameplay keys when editable focus begins and kept provider
+  attach/detach idempotent, preventing stuck keys and duplicate listeners.
+- Preserved the existing world coordinate semantics: Jump decreases y, Gravity
+  increases y, and GroundCollision clamps at y=400.
+- Added a Studio camera viewport anchor `(400,300)` so camera follow no longer
+  pins the player to the top-left or obscures jump direction.
+- Added input-isolation and camera-anchor regression coverage.
+- Created ADR-0218.
+- Architecture version v1.104 to v1.105.
+
 ### WO-S11-003 - World Explorer Entity Selection Foundation
 
 - Added Pinia-owned `selectedEntityId` state with lookup against the current

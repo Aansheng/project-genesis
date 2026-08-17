@@ -21,9 +21,9 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 11 **In Progress** |
-| Architecture Version | v1.104 (Sprint 11) |
-| Last Completed WO | WO-S11-003 - World Explorer Entity Selection Foundation |
-| Current User-Visible Behavior | Genesis Studio presents real World entities, a dominant playable Pixi viewport, selectable Explorer rows, read-only selected-entity Inspector details, AI command bar, and Observatory navigation in a unified dark-neutral creative IDE surface. |
+| Architecture Version | v1.105 (Sprint 11) |
+| Last Completed WO | WO-S11-004 - Studio Input Isolation & Platform Coordinate Semantics Fix |
+| Current User-Visible Behavior | Genesis Studio presents real World entities, a dominant playable Pixi viewport with readable camera anchoring, selectable Explorer rows, read-only selected-entity Inspector details, isolated AI command input, and Observatory navigation in a unified dark-neutral creative IDE surface. |
 | Current End-to-End Pipeline | Natural Language → Intent → Semantic World → Game DSL → RuntimeWorldStore → Studio Explorer/Viewport/Inspector → Pixi and Observatory |
 | Current Blocking Issue | Command-bar Enter submission still needs a follow-up browser fix; editing and persistence remain future work. |
 | Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |
@@ -140,6 +140,26 @@ Enter in the command bar does not submit, while clicking Generate does.
 
 Next recommended verification: select player, hold ArrowRight, select enemy,
 replace the world, and confirm selection clearing/retention behavior.
+
+### WO-S11-004 Current Behavior
+
+- `KeyboardInputProvider` listens once on `window`, ignores keyboard events from
+  text/UI controls, clears pressed keys on editable focus, and detaches all
+  listeners on Studio unmount.
+- MarioWorld gameplay coordinates use `x → right`, `y → down`; Jump decreases
+  y, Gravity increases y, and GroundCollision clamps at `groundY = 400`.
+- Studio passes a `(400,300)` viewport anchor to the Pixi renderer. Camera
+  follow changes the container transform only, leaving world positions intact.
+- MarioWorld remains laid out at player `(80,300)`, terrain `(160,400)`,
+  platform `(300,320)`, enemy `(380,360)`, goal `(650,300)`, checkpoint
+  `(500,320)`.
+
+Known gap: browser manual verification is still required for the final Studio
+input and camera scenarios.
+
+Next recommended verification: type Space and Arrow keys in the command input,
+blur it, then verify movement, upward jump, downward gravity, landing, and
+camera readability.
 
 ---
 

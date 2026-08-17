@@ -98,6 +98,9 @@ export interface PixiEntityRendererOptions {
    * before rendering entities, creating a camera-follow effect.
    */
   readonly cameraController?: CameraController
+
+  /** World-space camera position is rendered relative to this viewport anchor. */
+  readonly cameraAnchor?: Readonly<{ x: number; y: number }>
 }
 
 export interface PixiEntityRenderer {
@@ -111,6 +114,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _catalog: EntityVisualCatalog | null
   private readonly _tileCatalog: PlatformTileCatalog | null
   private readonly _cameraController: CameraController | null
+  private readonly _cameraAnchor: Readonly<{ x: number; y: number }>
   private _entityViews: RenderEntityView[] = []
 
   constructor(
@@ -123,6 +127,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._catalog = options?.catalog ?? null
     this._tileCatalog = options?.tileCatalog ?? null
     this._cameraController = options?.cameraController ?? null
+    this._cameraAnchor = options?.cameraAnchor ?? { x: 0, y: 0 }
   }
 
   // ─── Public API ─────────────────────────────────────────────────────
@@ -131,8 +136,8 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     // Apply camera offset before rendering
     if (this._cameraController) {
       const camera = this._cameraController.update(world)
-      this._container.position.x = -camera.x
-      this._container.position.y = -camera.y
+      this._container.position.x = this._cameraAnchor.x - camera.x
+      this._container.position.y = this._cameraAnchor.y - camera.y
     }
 
     // Clear previous render

@@ -1081,6 +1081,25 @@ describe('Tile-aware rendering — camera compatibility', () => {
     expect(container.position.y).toBe(-100)
   })
 
+  it('renders camera-relative world coordinates from an explicit viewport anchor', () => {
+    const container = createMockContainer()
+    const cameraController = {
+      _state: { x: 0, y: 0 },
+      getState: () => ({ x: 0, y: 0 }),
+      update: () => ({ x: 80, y: 300 }),
+    }
+    const renderer = new DefaultPixiEntityRenderer(container, {
+      createGraphics: () => createMockGraphics() as unknown as Graphics,
+      cameraController: cameraController as CameraController,
+      cameraAnchor: { x: 400, y: 300 },
+    })
+
+    renderer.render(makeWorld([makeEntity('player', 'player', { x: 80, y: 300 })]))
+
+    expect(container.position.x).toBe(320)
+    expect(container.position.y).toBe(0)
+  })
+
   it('multiple entity types render with correct sizes in same world', () => {
     const container = createMockContainer()
     const renderer = new DefaultPixiEntityRenderer(container, {

@@ -5,3 +5,4 @@
  */
 
 export { KeyboardInputProvider } from './KeyboardInputProvider'
+export { isEditableKeyboardTarget } from './KeyboardInputProvider'
