@@ -47,14 +47,21 @@ const entities = computed(() => {
       <li
         v-for="entity in entities"
         :key="entity.id"
-        class="entity-row"
       >
-        <span
-          class="entity-marker"
-          aria-hidden="true"
-        />
-        <span class="entity-id">{{ entity.id }}</span>
-        <span class="entity-type">{{ entity.type }}</span>
+        <button
+          class="entity-row"
+          :class="{ selected: store.selectedEntityId === entity.id }"
+          type="button"
+          :aria-pressed="store.selectedEntityId === entity.id"
+          @click="store.selectEntity(entity.id)"
+        >
+          <span
+            class="entity-marker"
+            aria-hidden="true"
+          />
+          <span class="entity-id">{{ entity.id }}</span>
+          <span class="entity-type">{{ entity.type }}</span>
+        </button>
       </li>
     </ul>
   </aside>
@@ -160,11 +167,27 @@ h2 {
   gap: var(--studio-space-2);
   min-height: 38px;
   padding: 0 var(--studio-space-2);
+  border: 0;
   border-radius: var(--studio-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .entity-row:hover {
   background: var(--studio-surface-hover);
+}
+
+.entity-row:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: -2px;
+}
+
+.entity-row.selected {
+  background: var(--studio-accent-muted);
+  box-shadow: inset 2px 0 var(--studio-accent);
 }
 
 .entity-marker {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { isPositionComponent } from '@genesis/shared'
 import { ObservatoryRuntimeBinding } from '../../adapters/observatory'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
@@ -18,6 +19,20 @@ watch(
 )
 
 const runtime = computed(() => observatoryData.viewModel.runtimeView)
+const selectedEntity = computed(() => {
+  void gameStore.renderVersion
+  return gameStore.selectedEntity
+})
+const selectedComponents = computed(() => selectedEntity.value?.components ?? [])
+const selectedPosition = computed(() =>
+  selectedComponents.value.find(isPositionComponent),
+)
+
+function formatValue(value: unknown): string {
+  return typeof value === 'object' && value !== null
+    ? JSON.stringify(value)
+    : String(value)
+}
 </script>
 
 <template>
@@ -63,9 +78,18 @@ const runtime = computed(() => observatoryData.viewModel.runtimeView)
             <dd>{{ runtime.entityCount }}</dd>
           </div>
         </dl>
+        <p
+          v-if="selectedEntity === null"
+          class="selection-hint"
+        >
+          Select an entity in World Explorer to inspect its runtime details.
+        </p>
       </section>
 
-      <section aria-labelledby="runtime-entities-title">
+      <section
+        v-if="selectedEntity === null"
+        aria-labelledby="runtime-entities-title"
+      >
         <h3 id="runtime-entities-title">
           Runtime Entities
         </h3>
@@ -78,6 +102,52 @@ const runtime = computed(() => observatoryData.viewModel.runtimeView)
             <span>{{ entity.type }}</span>
           </li>
         </ul>
+      </section>
+
+      <section
+        v-else
+        class="entity-inspector"
+        aria-labelledby="entity-inspector-title"
+      >
+        <div class="entity-inspector-heading">
+          <h3 id="entity-inspector-title">
+            Entity
+          </h3>
+          <span class="entity-inspector-id">{{ selectedEntity.id }}</span>
+        </div>
+
+        <dl class="entity-summary">
+          <div>
+            <dt>Type</dt>
+            <dd>{{ selectedEntity.type }}</dd>
+          </div>
+          <div v-if="selectedPosition">
+            <dt>Position</dt>
+            <dd>
+              x {{ selectedPosition.properties.x }} · y {{ selectedPosition.properties.y }}
+            </dd>
+          </div>
+        </dl>
+
+        <div class="component-list">
+          <h3>Components</h3>
+          <article
+            v-for="component in selectedComponents"
+            :key="component.type"
+            class="component-row"
+          >
+            <strong>{{ component.type }}</strong>
+            <dl>
+              <div
+                v-for="(value, key) in component.properties"
+                :key="key"
+              >
+                <dt>{{ key }}</dt>
+                <dd>{{ formatValue(value) }}</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
       </section>
     </div>
   </aside>
@@ -222,5 +292,84 @@ dd {
 
 .runtime-entities li span:last-child {
   color: var(--studio-text-dim);
+}
+
+.selection-hint {
+  margin: var(--studio-space-3) 0 0;
+  color: var(--studio-text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.entity-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--studio-space-4);
+}
+
+.entity-inspector-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--studio-space-2);
+}
+
+.entity-inspector-id {
+  color: var(--studio-accent-strong);
+  font-family: var(--studio-font-mono);
+  font-size: 11px;
+}
+
+.entity-summary {
+  margin: 0;
+}
+
+.entity-summary div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  padding: var(--studio-space-2) 0;
+  border-bottom: 1px solid var(--studio-border);
+}
+
+.component-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--studio-space-2);
+}
+
+.component-list h3 {
+  margin-bottom: var(--studio-space-1);
+}
+
+.component-row {
+  padding: var(--studio-space-3) 0;
+  border-top: 1px solid var(--studio-border);
+}
+
+.component-row strong {
+  color: var(--studio-text);
+  font-family: var(--studio-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.component-row dl {
+  display: grid;
+  gap: var(--studio-space-1);
+  margin: var(--studio-space-2) 0 0;
+}
+
+.component-row dl div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--studio-space-2);
+}
+
+.component-row dd {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

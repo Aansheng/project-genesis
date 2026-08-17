@@ -7,6 +7,7 @@ import App from '../App.vue'
 import { createAppRouter } from '../router'
 import { useGameStore } from '../stores/gameStore'
 import { useObservatoryDataStore } from '../stores/observatoryData'
+import { createPositionComponent } from '@genesis/shared'
 
 const lifecycle = vi.hoisted(() => ({
   pixiCreated: 0,
@@ -159,6 +160,82 @@ describe('Genesis Studio Shell Foundation', () => {
     )
     expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(6)
     expect(useGameStore(pinia).worldStore).toBe(worldStore)
+
+    wrapper.unmount()
+  })
+
+  it('selects a real entity and renders its current runtime details', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+    await store.send('创建 MarioWorld')
+    await nextTick()
+
+    const playerRow = wrapper
+      .findAll('.entity-row')
+      .find((row) => row.text().includes('player'))!
+    expect(playerRow.element.tagName).toBe('BUTTON')
+    await playerRow.trigger('click')
+
+    expect(store.selectedEntityId).toBe('player')
+    expect(playerRow.attributes('aria-pressed')).toBe('true')
+    expect(playerRow.classes()).toContain('selected')
+    expect(wrapper.find('.entity-inspector').text()).toContain('player')
+    expect(wrapper.find('.entity-inspector').text()).toContain('x 80')
+    expect(wrapper.find('.entity-inspector').text()).toContain('y 300')
+    expect(wrapper.find('.component-list').text()).toContain('position')
+
+    wrapper.unmount()
+  })
+
+  it('changes selection and follows current runtime position without copying the entity', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+    await store.send('创建 MarioWorld')
+    await nextTick()
+
+    await wrapper.findAll('.entity-row')[0].trigger('click')
+    await wrapper.findAll('.entity-row')[3].trigger('click')
+    expect(store.selectedEntityId).toBe('enemy')
+    expect(wrapper.findAll('.entity-row')[0].classes()).not.toContain('selected')
+    expect(wrapper.findAll('.entity-row')[3].classes()).toContain('selected')
+    expect(wrapper.find('.entity-inspector').text()).toContain('enemy')
+
+    store.selectEntity('player')
+    const currentWorld = store.worldStore.getWorld()
+    store.worldStore.setWorld({
+      entities: currentWorld.entities.map((entity) =>
+        entity.id === 'player'
+          ? {
+              ...entity,
+              x: 120,
+              components: [createPositionComponent(120, 300)],
+            }
+          : entity,
+      ),
+    })
+    store.markWorldUpdated()
+    await nextTick()
+
+    expect(store.selectedEntity).toBe(store.worldStore.getWorld().entities[0])
+    expect(wrapper.find('.entity-inspector').text()).toContain('x 120')
+
+    wrapper.unmount()
+  })
+
+  it('clears selection when the selected entity disappears from the world', async () => {
+    const { wrapper } = await mountStudio()
+    const store = useGameStore()
+    await store.send('创建 MarioWorld')
+    await nextTick()
+    await wrapper.findAll('.entity-row')[0].trigger('click')
+
+    store.worldStore.setWorld({ entities: [] })
+    store.markWorldUpdated()
+    await nextTick()
+
+    expect(store.selectedEntityId).toBeNull()
+    expect(wrapper.find('.entity-inspector').exists()).toBe(false)
+    expect(wrapper.text()).toContain('No runtime world available')
 
     wrapper.unmount()
   })

@@ -8,6 +8,20 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-003 - World Explorer Entity Selection Foundation
+
+- Added Pinia-owned `selectedEntityId` state with lookup against the current
+  RuntimeWorldStore entity data.
+- Made World Explorer entity rows native selectable buttons with selected,
+  hover, focus, and `aria-pressed` states.
+- Added read-only Inspector entity details for id, type, PositionComponent,
+  coordinates, and generic component properties.
+- Runtime world updates now refresh the selected Inspector entity; selection
+  clears when its entity disappears during world replacement.
+- Added selection, runtime update, and replacement regression coverage.
+- Created ADR-0217.
+- Architecture version v1.103 to v1.104.
+
 ### WO-S11-002 - Genesis Studio Visual System & Product Polish Foundation
 
 - Established a centralized lightweight Genesis Studio token layer with

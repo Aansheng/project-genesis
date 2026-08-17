@@ -65,6 +65,12 @@ onMounted(() => {
     cameraController: new DefaultCameraController(),
   })
   const worldProvider = new StoreBackedWorldProvider(store.worldStore)
+  const worldSink = {
+    setWorld(world: Parameters<typeof store.worldStore.setWorld>[0]): void {
+      store.worldStore.setWorld(world)
+      store.markWorldUpdated()
+    },
+  }
 
   visLoop = new DefaultRuntimeVisualizationLoop(
     executionLoop,
@@ -72,7 +78,7 @@ onMounted(() => {
     entityRenderer,
     store.worldStore.getWorld(),
     worldProvider,
-    store.worldStore,
+    worldSink,
   )
   runner = new DefaultVisualizationRunner(
     new DefaultAnimationFrameScheduler(),
