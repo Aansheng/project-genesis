@@ -3,6 +3,18 @@
 > Intentionally postponed improvements.
 > Items are not bugs — they are deliberate trade-offs.
 
+## Sprint 12 Baseline Freeze Audit
+
+| Item | Status / Evidence |
+| --- | --- |
+| AI package test type drift | Existing lint debt: 4 errors in test files (`no-extra-semi`); 116 warnings. Not changed by the freeze audit. |
+| AI lint debt | Existing package lint is not green; see `SPRINT12_REVIEW.md`. |
+| Turbo TLS/keychain environment issue | Not exercised by package-local checks; retain as environment debt. |
+| Provider configuration persistence | Server-memory only. Configuration is lost on AI-server restart; no browser or disk secret persistence. |
+| Gateway hardening | No authentication or rate limiting. Out of scope for the freeze. |
+| Visual generation | No visual asset system. Semantic theme/difficulty/roles remain preserve-only or generic primitive output. |
+| Legacy paths | MockPlanner and streaming state remain test-only/inert compatibility paths; mock Observatory hydration remains test/demo-only. |
+
 ---
 
 ## Renderer Registry

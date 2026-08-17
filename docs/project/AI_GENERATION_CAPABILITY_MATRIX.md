@@ -1,12 +1,13 @@
 # AI Generation Capability Matrix
 
-Validated against the v1.121 semantic candidate contract. This matrix describes
+Validated against the v1.123 semantic candidate contract. This matrix describes
 what the current pipeline can preserve and execute; it does not claim gameplay
 behavior that has not been implemented.
 
 | Semantic | Understood | Preserved | Compiled | Runtime realized | Visually realized |
 | --- | --- | --- | --- | --- | --- |
 | platformer genre | yes | yes | yes | yes | primitive platformer geometry |
+| world title | yes | yes, as `GameDesignSpecification.title` | yes as specification metadata | no gameplay effect | no |
 | ice/snow theme | yes, as `theme.name` | yes, in `GameDesignSpecification` | no | no | no |
 | medium difficulty | yes | yes, in `GameDesignSpecification` | no | no | no |
 | player | yes | yes | yes | yes | primitive entity |
@@ -14,12 +15,15 @@ behavior that has not been implemented.
 | patrol role | yes, as `entity.role` | yes | no | no patrol behavior | no |
 | checkpoint | yes, as an entity/objective when emitted | yes | yes as a generic entity | no checkpoint logic | primitive entity |
 | boss | yes, as an enemy/entity/objective when emitted | yes | yes as a generic entity | no combat or boss AI | primitive entity |
+| goal objective | yes, as `objectives[].type = reach-goal` | yes | yes as objective metadata/generic entities when emitted | no goal-completion system | primitive entity only |
 | multiplayer/trading/dungeons/leaderboards | only supported high-level fields | only supported fields | no implementation details | no | no |
 
 The diagnostic result distinguishes `source: "ai"` from
 `source: "deterministic"` and includes validation status, validation errors,
 the accepted specification, and resulting entity IDs. Real API calls remain a
-manual verification step and are not part of automated tests.
+manual verification step and are not part of automated tests. No provider
+credential was available during the Sprint 12 freeze audit, so the real-provider
+scenario remains pending rather than claimed as verified.
 
 Observability status: prompt assembly, candidate parsing, validation, design
 specification, world compilation, and runtime injection are represented by the

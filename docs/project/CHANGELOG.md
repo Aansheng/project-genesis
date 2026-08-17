@@ -2,6 +2,18 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S12-014 - Sprint 12 AI Generation Product Baseline Freeze
+
+- Audited and documented the real Studio → AI Gateway → AI Server → semantic
+  validation → Runtime → Pixi generation path.
+- Recorded server-session-only provider configuration, secret boundaries,
+  environment precedence, reliability defaults, deterministic fallback, and
+  generation trace semantics.
+- Updated the semantic capability matrix and technical-debt ledger.
+- Added `SPRINT12_REVIEW.md` and `SPRINT13_BACKLOG.md`; no product capability or
+  architecture version was added.
+- Architecture version remains v1.123.
+
 ---
 
 ### WO-S12-013 - AI Provider Configuration Foundation
