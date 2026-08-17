@@ -12,5 +12,18 @@ export type { MarioWorldFactory } from './MarioWorldFactory'
 export { DefaultMarioWorldFactory } from './MarioWorldFactory'
 export type { SpatialPosition, WorldLayout, WorldLayoutGenerator } from './layout'
 export { DefaultWorldLayoutGenerator } from './layout'
-export type { GameWorldGenerationRequest, GameWorldGenerationProvider } from './generation'
-export { DeterministicGameWorldGenerationProvider } from './generation'
+export type {
+  GameWorldGenerationRequest,
+  GameWorldGenerationProvider,
+  GameWorldGenerationCandidate,
+  GameWorldGenerationCandidateEntity,
+  GameWorldGenerationCandidateProvider,
+  GameWorldValidationResult,
+  GameWorldValidator,
+} from './generation'
+export {
+  DefaultGameWorldValidator,
+  GameWorldGenerationProviderAdapter,
+  DeterministicGameWorldGenerationProvider,
+  DeterministicGameWorldGenerationCandidateProvider,
+} from './generation'

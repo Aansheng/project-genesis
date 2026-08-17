@@ -8,6 +8,15 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-002 - Structured AI World Generation Contract Foundation
+
+- Added the semantic `GameWorldGenerationCandidate` and candidate-provider port.
+- Added strict `DefaultGameWorldValidator` conversion to `GameWorldModel`.
+- Added `GameWorldGenerationProviderAdapter`; the deterministic provider now uses
+  candidate → validation → semantic model before the existing pipeline.
+- Kept DSL, Runtime, Renderer, Studio, prompts, and LLM integrations unchanged.
+- Added ADR-0225; architecture version v1.111 to v1.112.
+
 ### WO-S12-001 - AI World Generation Provider Boundary Foundation
 
 - Added the async `GameWorldGenerationProvider` contract with typed input and intent.

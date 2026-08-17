@@ -1,0 +1,52 @@
+import { describe, expect, it } from 'vitest'
+import {
+  DefaultGameWorldValidator,
+  GameWorldGenerationProviderAdapter,
+  type GameWorldGenerationCandidateProvider,
+} from '../game-world'
+
+describe('structured game world generation contract', () => {
+  it('converts a valid semantic candidate into an immutable GameWorldModel', () => {
+    const result = new DefaultGameWorldValidator().validate({
+      worldType: 'rpg',
+      entities: [{ id: 'hero', category: 'player', name: 'Hero' }],
+    })
+
+    expect(result.valid).toBe(true)
+    expect(result.world?.worldType).toBe('rpg')
+    expect(Object.isFrozen(result.world)).toBe(true)
+    expect(Object.isFrozen(result.world?.entities)).toBe(true)
+  })
+
+  it('rejects malformed, unsupported, and duplicate semantic data', () => {
+    const result = new DefaultGameWorldValidator().validate({
+      worldType: 'dungeon',
+      entities: [
+        { id: 'hero', category: 'player', name: 'Hero' },
+        { id: 'hero', category: 'runtime', name: '' },
+      ],
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.world).toBeUndefined()
+    expect(result.errors.length).toBe(4)
+  })
+
+  it('keeps provider output above DSL and runtime boundaries', async () => {
+    const provider: GameWorldGenerationCandidateProvider = {
+      generate: async () => ({
+        worldType: 'sandbox',
+        entities: [{ id: 'player', category: 'player', name: 'Player' }],
+      }),
+    }
+    const world = await new GameWorldGenerationProviderAdapter(
+      provider,
+      new DefaultGameWorldValidator(),
+    ).generate({ input: 'create a world', intent: { genre: 'sandbox', title: 'World' } })
+
+    expect(world).toEqual({
+      worldType: 'sandbox',
+      entities: [{ id: 'player', category: 'player', name: 'Player' }],
+    })
+  })
+})
