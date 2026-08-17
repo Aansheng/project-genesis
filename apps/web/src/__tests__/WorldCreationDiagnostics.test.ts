@@ -287,8 +287,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       expect(Array.isArray(entity.components)).toBe(true)
     })
 
-    it('should have exactly 1 component (semantic)', () => {
-      expect(entity.components).toHaveLength(1)
+    it('should have semantic and position components', () => {
+      expect(entity.components).toHaveLength(2)
     })
 
     it('component type should be "semantic"', () => {
@@ -317,6 +317,13 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
               name: 'Player',
             },
           },
+          {
+            type: 'position',
+            properties: {
+              x: 100,
+              y: 100,
+            },
+          },
         ],
       })
     })
@@ -327,20 +334,23 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
   // ───────────────────────────────────────────────────────────────────
 
   describe('8. Position component check', () => {
-    it('the entity uses x/y fields directly, NOT a PositionComponent', () => {
+    it('the entity includes a PositionComponent for the renderer', () => {
       const pipeline = createPipeline()
       const result = pipeline.execute({ input: INPUT_CREATE_MARIO })
       const entity = result.world.entities[0]
 
-      // Entity has x/y as top-level primitive fields (not in components)
+      // Legacy top-level coordinates are preserved.
       expect(entity.x).toBe(0)
       expect(entity.y).toBe(0)
 
-      // Check that none of the components are position-related
+      // Renderer coordinates are provided through the ECS component contract.
       const positionComponent = entity.components?.find(
         (c) => c.type === 'position' || c.properties?.x !== undefined,
       )
-      expect(positionComponent).toBeUndefined()
+      expect(positionComponent).toEqual({
+        type: 'position',
+        properties: { x: 100, y: 100 },
+      })
     })
   })
 

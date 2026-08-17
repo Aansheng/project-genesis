@@ -5,7 +5,7 @@
  * semantic mapping. Each GameWorldEntity produces one EntityDsl with:
  * - id: preserved from GameWorldEntity.id
  * - type: derived from GameWorldEntity.category
- * - components: a single "semantic" component preserving category and name
+ * - components: semantic metadata plus a visible default position
  *
  * World name is derived from the WorldType value:
  * - 'farm'       → 'Farm World'
@@ -19,12 +19,13 @@
  *
  * Mapping rules:
  * - GameWorldModel.worldType → GameDsl.world.name (human-readable format)
- * - Each GameWorldEntity → EntityDsl (id, type, semantic component)
+ * - Each GameWorldEntity → EntityDsl (id, type, semantic + position components)
  * - GameWorldEntity.id → EntityDsl.id (preserved)
  * - GameWorldEntity.category → EntityDsl.type (preserved)
- * - Each entity gets a single "semantic" component with:
+ * - Each entity gets a "semantic" component with:
  *   - properties.category: the entity's category
  *   - properties.name: the entity's human-readable name
+ * - Each entity gets a standard "position" component at (100, 100)
  * - Empty world produces a world with zero entities
  *
  * Design:
@@ -42,6 +43,7 @@ import type {
   EntityDsl,
   ComponentDsl,
 } from '@genesis/shared'
+import { createPositionComponent } from '@genesis/shared'
 import type { SemanticGameDslBuilder } from './SemanticGameDslBuilder'
 
 // ---------------------------------------------------------------------------
@@ -140,7 +142,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
    * Each entity maps as follows:
    * - GameWorldEntity.id → EntityDsl.id (preserved as string)
    * - GameWorldEntity.category → EntityDsl.type (preserved as string)
-   * - A single "semantic" component is created with category and name
+   * - Semantic metadata and a standard position component are created
    *
    * @param world — semantic game world model
    * @returns Array of frozen EntityDsl objects
@@ -171,7 +173,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
    * Each entity gets:
    * - id: preserved from GameWorldEntity.id
    * - type: derived from GameWorldEntity.category
-   * - components: a single semantic component with category and name
+   * - components: semantic metadata plus a position at (100, 100)
    */
   private createEntityDsl(entity: GameWorldEntity): EntityDsl {
     return Object.freeze({
@@ -179,6 +181,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
       type: String(entity.category ?? ''),
       components: Object.freeze([
         this.createSemanticComponent(entity),
+        createPositionComponent(100, 100),
       ]),
     })
   }

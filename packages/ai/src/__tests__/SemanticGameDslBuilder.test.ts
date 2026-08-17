@@ -380,10 +380,10 @@ describe('entity mapping', () => {
 // ---------------------------------------------------------------------------
 
 describe('component mapping', () => {
-  it('each entity has exactly one component', () => {
+  it('each entity has semantic and position components', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
-      expect(entity.components).toHaveLength(1)
+      expect(entity.components).toHaveLength(2)
     }
   })
 
@@ -391,6 +391,16 @@ describe('component mapping', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
       expect(entity.components[0].type).toBe('semantic')
+    }
+  })
+
+  it('position component defaults inside the visible canvas', () => {
+    const result = createBuilder().build(createRpgWorld())
+    for (const entity of result.world.entities) {
+      expect(entity.components[1]).toEqual({
+        type: 'position',
+        properties: { x: 100, y: 100 },
+      })
     }
   })
 
@@ -769,10 +779,10 @@ describe('edge cases', () => {
     }
   })
 
-  it('all entities have exactly one component', () => {
+  it('all entities have semantic and position components', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
-      expect(entity.components).toHaveLength(1)
+      expect(entity.components).toHaveLength(2)
     }
   })
 })
