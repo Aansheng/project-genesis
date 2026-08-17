@@ -26,9 +26,12 @@ const runtime = computed(() => observatoryData.viewModel.runtimeView)
     aria-labelledby="inspector-title"
   >
     <header class="panel-header">
-      <h2 id="inspector-title">
-        Inspector
-      </h2>
+      <div>
+        <span class="panel-kicker">Runtime</span>
+        <h2 id="inspector-title">
+          Inspector
+        </h2>
+      </div>
       <RouterLink to="/observatory">
         Open Observatory
       </RouterLink>
@@ -94,8 +97,8 @@ const runtime = computed(() => observatoryData.viewModel.runtimeView)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 42px;
-  padding: 0 var(--studio-space-3);
+  min-height: 52px;
+  padding: 0 var(--studio-space-4);
   border-bottom: 1px solid var(--studio-border);
 }
 
@@ -104,6 +107,16 @@ h3 {
   font-size: 11px;
   font-weight: 650;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+h2 { font-size: 12px; }
+
+.panel-kicker {
+  display: block;
+  color: var(--studio-text-dim);
+  font-size: 9px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -165,10 +178,11 @@ h3 {
 }
 
 .runtime-summary div {
-  padding: var(--studio-space-3);
-  border: 1px solid var(--studio-border);
-  border-radius: var(--studio-radius-sm);
-  background: var(--studio-surface-raised);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  padding: var(--studio-space-2) 0;
+  border-bottom: 1px solid var(--studio-border);
 }
 
 dt {
@@ -177,7 +191,7 @@ dt {
 }
 
 dd {
-  margin: var(--studio-space-1) 0 0;
+  margin: 0;
   color: var(--studio-text);
   font-family: var(--studio-font-mono);
   font-size: 13px;

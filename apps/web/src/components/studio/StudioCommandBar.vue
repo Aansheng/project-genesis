@@ -25,10 +25,13 @@ async function submitCommand(): Promise<void> {
       class="command-activity"
       aria-live="polite"
     >
-      <span>Activity</span>
+      <span class="activity-label"><i aria-hidden="true" />Activity</span>
       <strong>{{ latestResult }}</strong>
     </div>
-    <form @submit.prevent="submitCommand">
+    <form
+      :aria-busy="store.isStreaming"
+      @submit.prevent="submitCommand"
+    >
       <label
         class="sr-only"
         for="studio-command-input"
@@ -40,8 +43,11 @@ async function submitCommand(): Promise<void> {
         placeholder="Describe the game you want to create..."
         autocomplete="off"
       >
-      <button type="submit">
-        Generate
+      <button
+        type="submit"
+        :disabled="store.isStreaming"
+      >
+        {{ store.isStreaming ? 'Creating…' : 'Generate' }}
       </button>
     </form>
   </footer>
@@ -53,8 +59,8 @@ async function submitCommand(): Promise<void> {
   grid-template-columns: minmax(220px, 0.32fr) minmax(480px, 1fr);
   align-items: center;
   gap: var(--studio-space-4);
-  min-height: 82px;
-  padding: var(--studio-space-3) var(--studio-space-4);
+  min-height: 96px;
+  padding: var(--studio-space-4) var(--studio-space-5);
   border-top: 1px solid var(--studio-border);
   background: var(--studio-surface);
 }
@@ -74,6 +80,19 @@ async function submitCommand(): Promise<void> {
   text-transform: uppercase;
 }
 
+.activity-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.activity-label i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--studio-accent);
+}
+
 .command-activity strong {
   overflow: hidden;
   color: var(--studio-text-muted);
@@ -88,7 +107,8 @@ form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--studio-space-2);
-  padding: var(--studio-space-2);
+  min-height: 56px;
+  padding: 6px;
   border: 1px solid var(--studio-border-strong);
   border-radius: var(--studio-radius-md);
   background: var(--studio-surface-raised);
@@ -110,7 +130,7 @@ input::placeholder {
 
 form:focus-within {
   border-color: var(--studio-accent);
-  box-shadow: 0 0 0 2px var(--studio-accent-soft);
+  box-shadow: 0 0 0 3px var(--studio-accent-soft);
 }
 
 button {
@@ -127,6 +147,17 @@ button {
 
 button:hover {
   background: var(--studio-accent-strong);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--studio-accent-strong);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 button:active {

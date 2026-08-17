@@ -88,6 +88,21 @@ beforeEach(() => {
 })
 
 describe('Genesis Studio Shell Foundation', () => {
+  it('applies the visual system without introducing product state', async () => {
+    const { wrapper } = await mountStudio()
+    const shell = wrapper.find('.genesis-studio-shell')
+
+    expect(shell.attributes('style')).toBeUndefined()
+    expect(shell.classes()).toContain('genesis-studio-shell')
+    expect(wrapper.find('.brand-mark').exists()).toBe(true)
+    expect(wrapper.find('.panel-kicker').exists()).toBe(true)
+    expect(wrapper.find('.viewport-status').text()).toBe('Playable')
+    expect(wrapper.find('.studio-command-bar button').text()).toBe('Generate')
+    expect(wrapper.text()).not.toMatch(/model|latency|tokens|saved|sync/i)
+
+    wrapper.unmount()
+  })
+
   it('renders the unified empty Studio without mock world data', async () => {
     const { wrapper } = await mountStudio()
 

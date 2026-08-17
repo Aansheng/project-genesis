@@ -8,6 +8,18 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-002 - Genesis Studio Visual System & Product Polish Foundation
+
+- Established a centralized lightweight Genesis Studio token layer with
+  backward-compatible Studio aliases.
+- Refined the editor header, World Explorer, Pixi viewport framing, Runtime
+  Inspector, and AI command bar with a dark-neutral, calm technical visual
+  language.
+- Preserved real RuntimeWorldStore ownership, Pixi lifecycle, command routing,
+  Enter submission, Observatory access, and SPA continuity.
+- Added visual-system structural coverage and ADR-0216.
+- Architecture version v1.102 to v1.103.
+
 ### WO-S11-001 - Genesis Studio Shell Foundation
 
 - Added `GenesisStudioShell` as the primary `/` workspace.

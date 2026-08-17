@@ -11,11 +11,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0a0a0a;
-  color: #ffffff;
+  background: #0c0d10;
+  color: #eef0f4;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 </style>

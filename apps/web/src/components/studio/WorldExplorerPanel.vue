@@ -15,11 +15,22 @@ const entities = computed(() => {
     aria-labelledby="world-explorer-title"
   >
     <header class="panel-header">
-      <h2 id="world-explorer-title">
-        World Explorer
-      </h2>
-      <span>{{ entities.length }}</span>
+      <div>
+        <span class="panel-kicker">World</span>
+        <h2 id="world-explorer-title">
+          Explorer
+        </h2>
+      </div>
+      <span class="panel-count">{{ entities.length }}</span>
     </header>
+
+    <div
+      v-if="entities.length"
+      class="world-summary"
+    >
+      <strong>Runtime world</strong>
+      <span>{{ entities.length }} entities</span>
+    </div>
 
     <div
       v-if="entities.length === 0"
@@ -38,6 +49,10 @@ const entities = computed(() => {
         :key="entity.id"
         class="entity-row"
       >
+        <span
+          class="entity-marker"
+          aria-hidden="true"
+        />
         <span class="entity-id">{{ entity.id }}</span>
         <span class="entity-type">{{ entity.type }}</span>
       </li>
@@ -59,16 +74,50 @@ const entities = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 42px;
-  padding: 0 var(--studio-space-3);
+  min-height: 52px;
+  padding: 0 var(--studio-space-4);
   border-bottom: 1px solid var(--studio-border);
 }
 
 h2 {
-  font-size: 11px;
+  margin-top: 1px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.panel-kicker {
+  display: block;
+  color: var(--studio-text-dim);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panel-count {
+  color: var(--studio-text-secondary);
+  font-family: var(--studio-font-mono);
+  font-size: 11px;
+}
+
+.world-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--studio-space-4);
+  border-bottom: 1px solid var(--studio-border);
+}
+
+.world-summary strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.world-summary span {
+  color: var(--studio-text-dim);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
 }
 
 .panel-header span {
@@ -106,7 +155,7 @@ h2 {
 
 .entity-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--studio-space-2);
   min-height: 38px;
@@ -116,6 +165,14 @@ h2 {
 
 .entity-row:hover {
   background: var(--studio-surface-hover);
+}
+
+.entity-marker {
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--studio-accent);
+  border-radius: 2px;
+  background: var(--studio-accent-muted);
 }
 
 .entity-id {

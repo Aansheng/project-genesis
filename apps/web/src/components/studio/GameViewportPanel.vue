@@ -99,10 +99,16 @@ onUnmounted(() => {
     aria-labelledby="game-viewport-title"
   >
     <header class="viewport-header">
-      <h2 id="game-viewport-title">
-        Game Viewport
-      </h2>
-      <span>800 x 600</span>
+      <div class="viewport-title">
+        <span class="panel-kicker">Canvas</span>
+        <h2 id="game-viewport-title">
+          Game Viewport
+        </h2>
+      </div>
+      <div class="viewport-meta">
+        <span class="viewport-status">Playable</span>
+        <span>800 × 600</span>
+      </div>
     </header>
     <div class="viewport-stage">
       <div
@@ -127,16 +133,43 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--studio-space-3);
+  min-height: 52px;
+  padding: 0 var(--studio-space-4);
   border-bottom: 1px solid var(--studio-border);
   background: var(--studio-surface);
 }
 
 h2 {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.panel-kicker {
+  display: block;
+  color: var(--studio-text-dim);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.viewport-title h2 {
+  margin-top: 1px;
+}
+
+.viewport-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--studio-space-3);
+  color: var(--studio-text-dim);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+}
+
+.viewport-status {
+  color: var(--studio-success);
+  font-family: inherit;
 }
 
 .viewport-header span {
@@ -150,7 +183,7 @@ h2 {
   min-width: 0;
   min-height: 0;
   place-items: center;
-  padding: var(--studio-space-4);
+  padding: clamp(16px, 3vw, 32px);
   overflow: auto;
   background:
     linear-gradient(45deg, rgb(255 255 255 / 1%) 25%, transparent 25%),
@@ -166,7 +199,7 @@ h2 {
   border-radius: var(--studio-radius-md);
   overflow: hidden;
   background: var(--studio-bg);
-  box-shadow: 0 12px 36px rgb(3 4 7 / 32%);
+  box-shadow: 0 16px 48px rgb(3 4 7 / 38%);
   line-height: 0;
 }
 

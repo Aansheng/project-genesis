@@ -12,14 +12,23 @@ const entityCount = computed(() => {
 <template>
   <header class="studio-header">
     <div class="studio-identity">
-      <span class="studio-wordmark">Genesis</span>
-      <span class="workspace-name">Studio</span>
+      <span
+        class="brand-mark"
+        aria-hidden="true"
+      >G</span>
+      <div>
+        <span class="studio-wordmark">Genesis</span>
+        <span class="workspace-name">AI Game Studio</span>
+      </div>
     </div>
     <div class="studio-status">
+      <span class="runtime-state">
+        <i aria-hidden="true" />
+        {{ entityCount ? 'Runtime active' : 'Runtime idle' }}
+      </span>
       <span class="entity-count">{{ entityCount }} entities</span>
-      <span class="runtime-state">Runtime ready</span>
       <RouterLink to="/observatory">
-        Observatory
+        Open Observatory <span aria-hidden="true">↗</span>
       </RouterLink>
     </div>
   </header>
@@ -31,7 +40,7 @@ const entityCount = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: var(--studio-space-4);
-  padding: 0 var(--studio-space-4);
+  padding: 0 var(--studio-space-5);
   border-bottom: 1px solid var(--studio-border);
   background: var(--studio-surface);
 }
@@ -44,7 +53,24 @@ const entityCount = computed(() => {
 }
 
 .studio-identity {
-  gap: var(--studio-space-4);
+  gap: var(--studio-space-3);
+}
+
+.brand-mark {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid var(--studio-accent);
+  border-radius: var(--studio-radius-sm);
+  color: var(--studio-accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.studio-wordmark,
+.workspace-name {
+  display: block;
 }
 
 .studio-status {
@@ -60,9 +86,11 @@ const entityCount = computed(() => {
 }
 
 .workspace-name {
-  padding-left: var(--studio-space-4);
-  border-left: 1px solid var(--studio-border-strong);
-  color: var(--studio-text-muted);
+  margin-top: 1px;
+  color: var(--studio-text-dim);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .entity-count {
@@ -71,7 +99,17 @@ const entityCount = computed(() => {
 }
 
 .runtime-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--studio-space-1);
   color: var(--studio-success);
+}
+
+.runtime-state i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 a {
@@ -83,5 +121,10 @@ a:hover,
 a:focus-visible {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 3px;
 }
 </style>
