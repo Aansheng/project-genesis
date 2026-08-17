@@ -16,25 +16,16 @@ async function submitCommand(): Promise<void> {
 <template>
   <footer class="studio-command-bar">
     <StudioCommandActivity />
-    <form
-      :aria-busy="store.commandStatus === 'running'"
-      @submit.prevent="submitCommand"
-    >
-      <label
-        class="sr-only"
-        for="studio-command-input"
-      >Describe the game you want to create</label>
+    <form :aria-busy="store.commandStatus === 'running'" @submit.prevent="submitCommand">
+      <label class="sr-only" for="studio-command-input">Describe the game you want to create</label>
       <input
         id="studio-command-input"
         v-model="input"
         type="text"
         placeholder="Describe the game you want to create..."
         autocomplete="off"
-      >
-      <button
-        type="submit"
-        :disabled="store.commandStatus === 'running'"
-      >
+      />
+      <button type="submit" :disabled="store.commandStatus === 'running'">
         {{ store.commandStatus === 'running' ? 'Generating…' : 'Generate' }}
       </button>
     </form>
@@ -44,7 +35,7 @@ async function submitCommand(): Promise<void> {
 <style scoped>
 .studio-command-bar {
   display: grid;
-  grid-template-columns: minmax(220px, 0.32fr) minmax(480px, 1fr);
+  grid-template-columns: clamp(220px, 16vw, 250px) minmax(0, 1fr);
   align-items: center;
   gap: var(--studio-space-4);
   min-height: 96px;

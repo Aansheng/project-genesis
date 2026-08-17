@@ -6,6 +6,17 @@
 
 ---
 
+## Sprint 12 - AI World Generation
+
+### WO-S12-001 - AI World Generation Provider Boundary Foundation
+
+- Added the async `GameWorldGenerationProvider` contract with typed input and intent.
+- Added `DeterministicGameWorldGenerationProvider` as the rule/template fallback.
+- Added `DefaultCreateWorldPipeline.executeAsync()` as the provider integration point.
+- Preserved the existing synchronous playable pipeline and kept AI independent from Runtime, Renderer, Pixi, and Web UI.
+- No real LLM call; added ADR-0224.
+- Architecture version v1.110 to v1.111.
+
 ## Sprint 11 - Genesis Studio Experience
 
 ### WO-S11-009 - Game Viewport Product Polish Foundation

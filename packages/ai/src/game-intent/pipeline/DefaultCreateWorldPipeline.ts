@@ -40,6 +40,8 @@ import type { SemanticGameDslBuilder } from '../../game-world/SemanticGameDslBui
 import type { CreateWorldCommand } from './CreateWorldCommand'
 import type { CreateWorldPipelineResult } from './CreateWorldPipelineResult'
 import type { CreateWorldPipeline } from './CreateWorldPipeline'
+import type { GameWorldGenerationProvider } from '../../game-world/generation'
+import { DeterministicGameWorldGenerationProvider } from '../../game-world/generation'
 
 // ---------------------------------------------------------------------------
 // Local projection interface
@@ -95,6 +97,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
   private readonly worldGenerator: SemanticWorldGenerator
   private readonly gameDslBuilder: SemanticGameDslBuilder
   private readonly projection: Projection
+  private readonly generationProvider: GameWorldGenerationProvider
 
   /**
    * Construct a DefaultCreateWorldPipeline with injected dependencies.
@@ -111,12 +114,14 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     worldGenerator: SemanticWorldGenerator,
     gameDslBuilder: SemanticGameDslBuilder,
     projection: Projection,
+    generationProvider: GameWorldGenerationProvider = new DeterministicGameWorldGenerationProvider(),
   ) {
     this.intentRouter = intentRouter
     this.gameIntentExtractor = gameIntentExtractor
     this.worldGenerator = worldGenerator
     this.gameDslBuilder = gameDslBuilder
     this.projection = projection
+    this.generationProvider = generationProvider
   }
 
   /**
@@ -172,6 +177,29 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
       world: projectionResult.world,
       success: true,
     })
+  }
+
+  /** Async provider path reserved for LLM-backed generation; sync callers remain unchanged. */
+  async executeAsync(command: CreateWorldCommand): Promise<CreateWorldPipelineResult> {
+    if (command === undefined || command === null || typeof command.input !== 'string') {
+      return UNKNOWN_RESULT
+    }
+
+    const routingResult = this.intentRouter.route(command.input)
+    if (routingResult.route !== ROUTE_CREATE_WORLD) {
+      return Object.freeze({ route: routingResult.route, world: EMPTY_WORLD, success: false })
+    }
+
+    const model = this.createDomainModel(command.input)
+    const intent = this.gameIntentExtractor.extract(model)
+    const semanticWorld = await this.generationProvider.generate({
+      input: command.input,
+      intent,
+    })
+    const gameDsl = this.gameDslBuilder.build(semanticWorld)
+    const projectionResult = this.projection.project(gameDsl)
+
+    return Object.freeze({ route: ROUTE_CREATE_WORLD, world: projectionResult.world, success: true })
   }
 
   // -------------------------------------------------------------------------

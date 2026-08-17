@@ -31,4 +31,7 @@ export interface CreateWorldPipeline {
    * @returns Frozen CreateWorldPipelineResult with route, world, and success
    */
   execute(command: CreateWorldCommand): CreateWorldPipelineResult
+
+  /** Execute through the async semantic world-generation provider boundary. */
+  executeAsync(command: CreateWorldCommand): Promise<CreateWorldPipelineResult>
 }
