@@ -394,14 +394,10 @@ describe('component mapping', () => {
     }
   })
 
-  it('position component defaults inside the visible canvas', () => {
+  it('position component uses the deterministic generic layout', () => {
     const result = createBuilder().build(createRpgWorld())
-    for (const entity of result.world.entities) {
-      expect(entity.components[1]).toEqual({
-        type: 'position',
-        properties: { x: 100, y: 100 },
-      })
-    }
+    expect(result.world.entities[0].components[1]).toEqual({ type: 'position', properties: { x: 80, y: 80 } })
+    expect(result.world.entities[1].components[1]).toEqual({ type: 'position', properties: { x: 200, y: 80 } })
   })
 
   it('component properties contain category', () => {

@@ -5,7 +5,7 @@
  * semantic mapping. Each GameWorldEntity produces one EntityDsl with:
  * - id: preserved from GameWorldEntity.id
  * - type: derived from GameWorldEntity.category
- * - components: semantic metadata plus a visible default position
+ * - components: semantic metadata plus a deterministic layout position
  *
  * World name is derived from the WorldType value:
  * - 'farm'       → 'Farm World'
@@ -25,7 +25,7 @@
  * - Each entity gets a "semantic" component with:
  *   - properties.category: the entity's category
  *   - properties.name: the entity's human-readable name
- * - Each entity gets a standard "position" component at (100, 100)
+ * - Each entity gets a standard "position" component from WorldLayoutGenerator
  * - Empty world produces a world with zero entities
  *
  * Design:
@@ -45,6 +45,8 @@ import type {
 } from '@genesis/shared'
 import { createPositionComponent } from '@genesis/shared'
 import type { SemanticGameDslBuilder } from './SemanticGameDslBuilder'
+import { DefaultWorldLayoutGenerator } from './layout'
+import type { WorldLayoutGenerator } from './layout'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -75,6 +77,11 @@ const SEMANTIC_COMPONENT_TYPE = 'semantic'
  * Pure. Stateless. Deterministic.
  */
 export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
+  private readonly layoutGenerator: WorldLayoutGenerator
+
+  constructor(layoutGenerator: WorldLayoutGenerator = new DefaultWorldLayoutGenerator()) {
+    this.layoutGenerator = layoutGenerator
+  }
   /**
    * Build a GameDsl from a semantic GameWorldModel.
    *
@@ -94,7 +101,8 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
     const worldName = this.deriveWorldName(world)
 
     // Generate entities from the semantic world model
-    const entities = this.generateEntities(world)
+    const layout = this.layoutGenerator.generate(world)
+    const entities = this.generateEntities(world, layout.positions)
 
     // Build and freeze the world
     const dslWorld: WorldDsl = Object.freeze({
@@ -142,12 +150,15 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
    * Each entity maps as follows:
    * - GameWorldEntity.id → EntityDsl.id (preserved as string)
    * - GameWorldEntity.category → EntityDsl.type (preserved as string)
-   * - Semantic metadata and a standard position component are created
+   * - Semantic metadata and a layout-provided position component are created
    *
    * @param world — semantic game world model
    * @returns Array of frozen EntityDsl objects
    */
-  private generateEntities(world: GameWorldModel): readonly EntityDsl[] {
+  private generateEntities(
+    world: GameWorldModel,
+    positions: Readonly<Record<string, { readonly x: number; readonly y: number }>>,
+  ): readonly EntityDsl[] {
     const entities = world.entities
 
     if (!Array.isArray(entities) || entities.length === 0) {
@@ -161,7 +172,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
         continue
       }
 
-      result.push(this.createEntityDsl(entity))
+      result.push(this.createEntityDsl(entity, positions[entity.id]))
     }
 
     return Object.freeze(result)
@@ -173,15 +184,18 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
    * Each entity gets:
    * - id: preserved from GameWorldEntity.id
    * - type: derived from GameWorldEntity.category
-   * - components: semantic metadata plus a position at (100, 100)
+   * - components: semantic metadata plus a position from the layout policy
    */
-  private createEntityDsl(entity: GameWorldEntity): EntityDsl {
+  private createEntityDsl(
+    entity: GameWorldEntity,
+    position: { readonly x: number; readonly y: number } | undefined,
+  ): EntityDsl {
     return Object.freeze({
       id: String(entity.id ?? ''),
       type: String(entity.category ?? ''),
       components: Object.freeze([
         this.createSemanticComponent(entity),
-        createPositionComponent(100, 100),
+        createPositionComponent(position?.x ?? 0, position?.y ?? 0),
       ]),
     })
   }

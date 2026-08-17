@@ -320,8 +320,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
           {
             type: 'position',
             properties: {
-              x: 100,
-              y: 100,
+              x: 80,
+              y: 300,
             },
           },
         ],
@@ -349,7 +349,7 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       )
       expect(positionComponent).toEqual({
         type: 'position',
-        properties: { x: 100, y: 100 },
+        properties: { x: 80, y: 300 },
       })
     })
   })

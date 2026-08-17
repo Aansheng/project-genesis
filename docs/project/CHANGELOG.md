@@ -8,6 +8,16 @@
 
 ## Sprint 10 — AI Generation Pipeline
 
+### WO-S10-009 — Platform World Spatial Layout Foundation
+
+- Added an immutable, deterministic `WorldLayoutGenerator` abstraction in the AI game-world layer.
+- Platformer entities now receive distinct positions: player `(80,300)`, terrain `(160,400)`, platform `(300,320)`, enemy `(380,360)`, goal `(650,300)`, checkpoint `(500,320)`.
+- Added deterministic horizontal fallback layout for non-platformer and custom worlds.
+- Injected layout into `DefaultSemanticGameDslBuilder` while preserving the existing builder API.
+- Positions continue through the existing PositionComponent → RuntimeProjection → Renderer path.
+- Added ADR-0211 and layout/integration regression coverage.
+- Architecture version v1.97 → v1.98.
+
 ### WO-S10-008 — Game Intent → Semantic World Alignment Foundation
 
 - `CreateWorldPipeline` now passes the extracted `GameIntent` to `SemanticWorldGenerator`.

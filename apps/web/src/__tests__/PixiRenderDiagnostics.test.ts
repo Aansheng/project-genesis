@@ -133,7 +133,7 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
       expect(world.entities[0].components![0].type).toBe('semantic')
       expect(world.entities[0].components![1]).toEqual({
         type: 'position',
-        properties: { x: 100, y: 100 },
+        properties: { x: 80, y: 300 },
       })
     })
   })
@@ -170,12 +170,12 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
     })
 
     it('RenderEntity.position should be inside the visible canvas', () => {
-      expect(renderWorld.entities[0].position).toEqual({ x: 100, y: 100 })
+      expect(renderWorld.entities[0].position).toEqual({ x: 80, y: 300 })
     })
 
     it('serialized entity should contain position', () => {
       const serialized = JSON.stringify(renderWorld.entities[0])
-      expect(serialized).toContain('"position":{"x":100,"y":100}')
+      expect(serialized).toContain('"position":{"x":80,"y":300}')
       expect(serialized).toContain('"id":"player"')
       expect(serialized).toContain('"type":"player"')
     })
@@ -209,7 +209,7 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
       expect(renderEntities[0]).toEqual({
         id: 'player',
         type: 'player',
-        position: { x: 100, y: 100 },
+        position: { x: 80, y: 300 },
       })
     })
   })

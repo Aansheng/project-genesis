@@ -10,3 +10,5 @@ export type { ExtractedEntityCount, PromptEntityCountExtractor } from './extract
 export { DefaultPromptEntityCountExtractor } from './extraction'
 export type { MarioWorldFactory } from './MarioWorldFactory'
 export { DefaultMarioWorldFactory } from './MarioWorldFactory'
+export type { SpatialPosition, WorldLayout, WorldLayoutGenerator } from './layout'
+export { DefaultWorldLayoutGenerator } from './layout'

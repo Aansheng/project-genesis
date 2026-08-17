@@ -65,6 +65,18 @@ describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
     for (const entity of result.world.entities) {
       expect(entity.components?.some((component) => component.type === 'position')).toBe(true)
     }
+
+    expect(result.world.entities.map((entity) => {
+      const position = entity.components?.find((component) => component.type === 'position')
+      return position?.properties
+    })).toEqual([
+      { x: 80, y: 300 },
+      { x: 160, y: 400 },
+      { x: 300, y: 320 },
+      { x: 380, y: 360 },
+      { x: 650, y: 300 },
+      { x: 500, y: 320 },
+    ])
   })
 
   it('is deterministic and immutable', () => {
