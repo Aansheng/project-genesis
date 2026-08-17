@@ -6,6 +6,7 @@ export interface RuntimeWorldSource {
 
 export interface ObservatoryRuntimeTarget {
   loadRuntimeWorld(world: World): void
+  loadGenerationTrace?(trace: unknown): void
 }
 
 /** Thin binding from the authoritative RuntimeWorldStore to Observatory data. */
@@ -17,5 +18,9 @@ export class ObservatoryRuntimeBinding {
 
   sync(): void {
     this.target.loadRuntimeWorld(this.source.getWorld())
+  }
+
+  syncGenerationTrace(trace: unknown): void {
+    this.target.loadGenerationTrace?.(trace)
   }
 }

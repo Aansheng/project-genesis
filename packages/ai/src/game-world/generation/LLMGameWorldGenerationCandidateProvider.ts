@@ -13,7 +13,11 @@ export class LLMGameWorldGenerationCandidateProvider implements GameWorldGenerat
   async generate(request: GameWorldGenerationRequest): Promise<unknown> {
     const response = await this.client.generateStructured(request, this.promptBuilder.build(request))
     if (typeof response !== 'string') return response
-    if (response.trim() === '') throw new Error('Empty structured generation response')
-    return JSON.parse(response) as unknown
+    if (response.trim() === '') throw new Error('Empty structured generation response (Candidate parse failed)')
+    try {
+      return JSON.parse(response) as unknown
+    } catch {
+      throw new Error('Candidate parse failed: invalid structured JSON')
+    }
   }
 }

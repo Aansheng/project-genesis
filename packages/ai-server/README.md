@@ -2,13 +2,15 @@
 
 ## Local startup
 
+Create `packages/ai-server/.env.local` with the server-only `AI_*` values,
+then run:
+
 ```sh
-AI_PROVIDER=openai \
-AI_API_KEY=... \
-AI_MODEL=gpt-4o-mini \
-AI_PORT=8787 \
 pnpm --filter @genesis/ai-server dev
 ```
+
+The local file is ignored by Git and is read only by the server composition
+root. Replace the values there when changing provider credentials or models.
 
 The gateway listens on `http://127.0.0.1:8787`, serves `POST
 /api/world-generation`, and exposes `GET /health`. `AI_BASE_URL` and `AI_HOST`

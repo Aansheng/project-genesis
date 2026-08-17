@@ -2,7 +2,10 @@ import type { GameWorldGenerationRequest, StructuredGenerationClient } from '@ge
 
 /** Browser-only transport adapter. It never receives or stores provider credentials. */
 export class BrowserStructuredGenerationClient implements StructuredGenerationClient {
-  constructor(private readonly gatewayURL: string, private readonly fetcher: typeof fetch = fetch) {}
+  constructor(
+    private readonly gatewayURL: string,
+    private readonly fetcher: typeof fetch = globalThis.fetch.bind(globalThis),
+  ) {}
 
   async generateStructured(request: GameWorldGenerationRequest): Promise<unknown> {
     const response = await this.fetcher(this.gatewayURL, {

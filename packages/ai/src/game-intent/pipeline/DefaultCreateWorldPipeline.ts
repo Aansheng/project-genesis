@@ -203,7 +203,20 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     const gameDsl = this.gameDslBuilder.build(semanticWorld)
     const projectionResult = this.projection.project(gameDsl)
 
-    return Object.freeze({ route: ROUTE_CREATE_WORLD, world: projectionResult.world, success: true, ...(generated.diagnostics ? { generationDiagnostics: generated.diagnostics } : {}) })
+    const diagnostics = generated.diagnostics
+      ? Object.freeze({
+          ...generated.diagnostics,
+          trace: generated.diagnostics.trace
+            ? Object.freeze({
+                ...generated.diagnostics.trace,
+                stages: Object.freeze(generated.diagnostics.trace.stages.map(stage =>
+                  stage.name === 'RUNTIME_INJECTION' ? { ...stage, status: 'success' as const } : stage,
+                )),
+              })
+            : undefined,
+        })
+      : undefined
+    return Object.freeze({ route: ROUTE_CREATE_WORLD, world: projectionResult.world, success: true, ...(diagnostics ? { generationDiagnostics: diagnostics } : {}) })
   }
 
   // -------------------------------------------------------------------------

@@ -17,6 +17,7 @@ export const zhCN: MessageCatalog = {
       eventstream: '事件流',
       tracegraph: '执行图谱',
       worldgraph: '世界图谱',
+      generation: '生成追踪',
       settings: '设置',
     },
     status: {

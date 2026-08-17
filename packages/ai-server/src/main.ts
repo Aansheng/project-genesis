@@ -2,6 +2,20 @@ import { OpenAIStructuredGenerationClient } from './OpenAIStructuredGenerationCl
 import { UnavailableStructuredGenerationClient } from './UnavailableStructuredGenerationClient'
 import { createServerAIConfiguration } from './createServerAIConfiguration'
 import { startAIServer, stopAIServer, type AIServerHandle } from './server'
+import { existsSync, readFileSync } from 'node:fs'
+
+loadLocalServerEnv()
+
+function loadLocalServerEnv(): void {
+  const file = new URL('../.env.local', import.meta.url)
+  if (!existsSync(file)) return
+  for (const line of readFileSync(file, 'utf8').split(/\r?\n/u)) {
+    const match = line.match(/^([A-Z][A-Z0-9_]*)=(.*)$/u)
+    if (match?.[1] !== undefined && process.env[match[1]] === undefined) {
+      process.env[match[1]] = match[2]?.replace(/^['"]|['"]$/gu, '') ?? ''
+    }
+  }
+}
 
 export function createAIServerClient(env: Record<string, string | undefined> = process.env) {
   const config = createServerAIConfiguration(env)

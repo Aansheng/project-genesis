@@ -16,6 +16,7 @@ export const enUS: MessageCatalog = {
       eventstream: 'Event Stream',
       tracegraph: 'Trace Graph',
       worldgraph: 'World Graph',
+      generation: 'Generation',
       settings: 'Settings',
     },
     status: {

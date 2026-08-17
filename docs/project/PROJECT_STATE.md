@@ -13,7 +13,7 @@
 **Sprint 9** — Renderer Foundation (Complete)
 **Sprint 10** — AI Generation Pipeline (Complete)
 **Sprint 11** - Genesis Studio Experience (Baseline Frozen)
-**Sprint 12** - AI World Generation (WO-S12-010 complete)
+**Sprint 12** - AI World Generation (WO-S12-011 complete)
 
 ---
 
@@ -22,9 +22,9 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 12 **AI Game Design Specification Foundation**; Sprint 11 playable baseline remains frozen |
-| Architecture Version | v1.120 (Sprint 12) |
-| Last Completed WO | WO-S12-010 - Real AI Game Design End-to-End Validation |
-| Current User-Visible Behavior | Genesis Studio presents a creation-oriented command bar with real idle/running/success/error activity states and entity-count summaries, alongside a container-sized Pixi viewport with Empty/Ready/Running state, real Arrow Keys/Space hints, horizontal dead-zone camera follow, Entity/Observatory Inspector modes, and SPA Observatory navigation. Async generation results now carry internal AI-vs-deterministic diagnostics without changing the Studio surface. |
+| Architecture Version | v1.121 (Sprint 12) |
+| Last Completed WO | WO-S12-011 - AI Generation Observatory Trace Foundation |
+| Current User-Visible Behavior | Genesis Studio presents the real generated runtime and a concise Generation summary in the Observatory Inspector. Full Observatory exposes the latest semantic generation trace, stage statuses, candidate/specification summaries, fallback distinction, and runtime entity count. |
 | Current End-to-End Pipeline | Natural Language → Studio command lifecycle → IntentRouter → GameIntentExtractor → BrowserStructuredGenerationClient → HTTP AI Gateway → server StructuredGenerationClient/OpenAI → unknown candidate → GameWorldValidator → GameDesignSpecification → GameDesignWorldBuilder → GameWorldModel → SemanticGameDslBuilder → RuntimeWorldStore → Studio/Pixi/Observatory; model/parse/validation failures use deterministic fallback and expose source/reason metadata internally. |
 | Current Blocking Issue | Real OpenAI verification is pending a configured API key and running local server; theme, difficulty, patrol, checkpoint, boss, and unsupported multiplayer semantics are not gameplay systems. |
 | Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |

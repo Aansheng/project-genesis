@@ -4,10 +4,20 @@ import { useObservatoryDataStore } from '../../stores/observatoryData'
 
 const observatoryData = useObservatoryDataStore()
 const runtime = computed(() => observatoryData.viewModel.runtimeView)
+const generation = computed(() => observatoryData.generationTrace)
 </script>
 
 <template>
   <div class="studio-observatory-panel">
+    <section class="generation-summary">
+      <div class="section-heading"><h3>Generation</h3><span v-if="generation">{{ generation.source }} · {{ generation.status }}</span></div>
+      <p v-if="generation === null">No generation trace available</p>
+      <template v-else>
+        <p>Validation: {{ generation.validation?.status ?? (generation.status === 'success' ? 'passed' : 'fallback') }}</p>
+        <p v-if="generation.specification">Design: {{ generation.specification.genre }} · {{ generation.specification.theme ?? '—' }} · {{ generation.specification.difficulty ?? '—' }}</p>
+        <p v-if="generation.world">Entities: {{ generation.world.entityCount }}</p>
+      </template>
+    </section>
     <div
       v-if="runtime.entityCount === 0"
       class="empty-state"

@@ -10,6 +10,7 @@ import ObservatoryRuntimeViewer from './runtime/ObservatoryRuntimeViewer.vue'
 import ObservatoryEventStream from './events/ObservatoryEventStream.vue'
 import ObservatoryTraceGraph from './graph/ObservatoryTraceGraph.vue'
 import ObservatoryWorldGraph from './world/ObservatoryWorldGraph.vue'
+import ObservatoryGeneration from './ObservatoryGeneration.vue'
 
 const store = useObservatoryStore()
 const i18n = useI18n()
@@ -63,6 +64,8 @@ function isWorldGraph(): boolean {
   return store.selectedPanel === 'WorldGraph'
 }
 
+function isGeneration(): boolean { return store.selectedPanel === 'Generation' }
+
 function cardLabel(card: string): string {
   return i18n.t(`observatory.panels.${card.toLowerCase()}`)
 }
@@ -82,6 +85,7 @@ function cardLabel(card: string): string {
     <ObservatoryEventStream v-else-if="isEventStream()" />
     <ObservatoryTraceGraph v-else-if="isTraceGraph()" />
     <ObservatoryWorldGraph v-else-if="isWorldGraph()" />
+    <ObservatoryGeneration v-else-if="isGeneration()" />
     <div
       v-else
       class="content-grid"

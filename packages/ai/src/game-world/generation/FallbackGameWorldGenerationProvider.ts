@@ -2,6 +2,10 @@ import type { GameWorldModel } from '@genesis/shared'
 import type { GameWorldGenerationProvider } from './GameWorldGenerationProvider'
 import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 import type { GameWorldGenerationResult } from './GameWorldGenerationDiagnostics'
+import type { GameGenerationTraceStage } from './GameWorldGenerationDiagnostics'
+import { InvalidGameWorldCandidateError } from './GameWorldGenerationProviderAdapter'
+
+let traceSequence = 0
 
 /** Uses the deterministic provider whenever the LLM path cannot produce a valid world. */
 export class FallbackGameWorldGenerationProvider implements GameWorldGenerationProvider {
@@ -37,8 +41,31 @@ export class FallbackGameWorldGenerationProvider implements GameWorldGenerationP
           validationStatus: 'invalid' as const,
           validationErrors: Object.freeze([error instanceof Error ? error.message : 'AI generation failed']),
           fallbackReason: error instanceof Error ? error.message : 'AI generation failed',
+          ...(error instanceof InvalidGameWorldCandidateError ? { candidate: error.candidate } : {}),
+          trace: Object.freeze({
+            id: `generation-fallback-${++traceSequence}`,
+            source: 'deterministic' as const,
+            status: 'fallback' as const,
+            stages: Object.freeze(fallbackStages(error, fallback.diagnostics)),
+          }),
         }),
       })
     }
   }
+}
+
+function fallbackStages(error: unknown, diagnostics: GameWorldGenerationResult['diagnostics'] | undefined): readonly GameGenerationTraceStage[] {
+  const invalid = error instanceof InvalidGameWorldCandidateError
+  const message = error instanceof Error ? error.message : 'AI generation failed'
+  const modelFailed = !invalid && !message.includes('Candidate parse failed')
+  return [
+    { name: 'REQUEST' as const, status: 'success' as const },
+    { name: 'PROMPT_ASSEMBLY' as const, status: 'success' as const },
+    { name: 'MODEL_GENERATION' as const, status: modelFailed ? 'failed' as const : 'success' as const, ...(modelFailed ? { error: message } : {}) },
+    { name: 'CANDIDATE_PARSE' as const, status: invalid ? 'success' as const : modelFailed ? 'not-applicable' as const : 'failed' as const, ...(!invalid && !modelFailed ? { error: message } : {}) },
+    { name: 'VALIDATION' as const, status: invalid ? 'failed' as const : 'not-applicable' as const, ...(invalid ? { error: error.errors.join('; ') } : {}) },
+    { name: 'DESIGN_SPECIFICATION' as const, status: diagnostics?.specification ? 'success' as const : 'not-applicable' as const },
+    { name: 'WORLD_COMPILATION' as const, status: 'success' as const },
+    { name: 'RUNTIME_INJECTION' as const, status: 'pending' as const },
+  ]
 }

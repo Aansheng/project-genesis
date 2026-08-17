@@ -281,6 +281,7 @@ h2 {
   color: var(--studio-text-muted);
   text-align: center;
   pointer-events: none;
+  line-height: 1.5;
 }
 
 .viewport-empty-state strong {

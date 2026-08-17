@@ -1,5 +1,5 @@
 export type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
-export type { GameWorldGenerationDiagnostics, GameWorldGenerationResult, GameWorldGenerationSource } from './GameWorldGenerationDiagnostics'
+export type { GameGenerationStageName, GameGenerationStageStatus, GameGenerationTrace, GameGenerationTraceStage, GameWorldGenerationDiagnostics, GameWorldGenerationResult, GameWorldGenerationSource } from './GameWorldGenerationDiagnostics'
 export type { GameWorldGenerationProvider } from './GameWorldGenerationProvider'
 export type { StructuredGenerationClient } from './StructuredGenerationClient'
 export type { GameDesignCapabilities, GameDesignPrompt, GameDesignPromptBuilder } from './GameDesignPromptBuilder'

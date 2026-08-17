@@ -26,7 +26,13 @@ export class DeterministicGameWorldGenerationProvider implements GameWorldGenera
     const result = await this.adapter.generateWithDiagnostics(request)
     return Object.freeze({
       world: result.world,
-      diagnostics: Object.freeze({ ...result.diagnostics, source: 'deterministic' as const }),
+      diagnostics: Object.freeze({
+        ...result.diagnostics,
+        source: 'deterministic' as const,
+        trace: result.diagnostics.trace
+          ? Object.freeze({ ...result.diagnostics.trace, source: 'deterministic' as const })
+          : undefined,
+      }),
     })
   }
 }

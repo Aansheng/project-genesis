@@ -9,6 +9,38 @@ import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
 
+export interface ObservatoryGenerationStage {
+  readonly name: string
+  readonly status: string
+  readonly error?: string
+}
+
+export interface ObservatoryGenerationTrace {
+  readonly id: string
+  readonly source: 'ai' | 'deterministic'
+  readonly status: 'success' | 'fallback' | 'failed'
+  readonly stages: readonly ObservatoryGenerationStage[]
+  readonly candidate?: {
+    readonly title?: string
+    readonly genre?: string
+    readonly theme?: string
+    readonly difficulty?: string
+    readonly objectives: readonly string[]
+    readonly entities: readonly { id: string; category: string; name: string; role?: string }[]
+  }
+  readonly specification?: {
+    readonly title?: string
+    readonly genre?: string
+    readonly theme?: string
+    readonly difficulty?: string
+    readonly objectives: readonly string[]
+    readonly entities: readonly { id: string; category: string; name: string; role?: string }[]
+  }
+  readonly world?: { readonly entityCount: number; readonly entityIds: readonly string[] }
+  readonly validation?: { readonly status: string; readonly errors: readonly string[] }
+  readonly fallbackReason?: string
+}
+
 // ---------------------------------------------------------------------------
 // Local mock types (no AI package imports)
 // ---------------------------------------------------------------------------
@@ -463,6 +495,35 @@ const EMPTY_VIEW_MODEL = adapter.adapt(undefined)
 export const useObservatoryDataStore = defineStore('observatoryData', () => {
   const viewModel = ref<ObservatoryViewModel>(EMPTY_VIEW_MODEL)
   const bridgeData = ref<ObservatoryBridgeData>(EMPTY_BRIDGE_DATA)
+  const generationTrace = ref<ObservatoryGenerationTrace | null>(null)
+
+  function loadGenerationTrace(raw: unknown): void {
+    if (!isRecord(raw) || !isRecord(raw.trace)) {
+      generationTrace.value = null
+      return
+    }
+    const trace = raw.trace
+    const candidate = semanticDesign(raw.candidate)
+    const specification = semanticDesign(raw.specification)
+    generationTrace.value = Object.freeze({
+      id: stringValue(trace.id, 'generation'),
+      source: trace.source === 'ai' ? 'ai' : 'deterministic',
+      status: trace.status === 'fallback' ? 'fallback' : trace.status === 'failed' ? 'failed' : 'success',
+      stages: Object.freeze(Array.isArray(trace.stages) ? trace.stages.filter(isRecord).map(stage => Object.freeze({
+        name: stringValue(stage.name, 'UNKNOWN'),
+        status: stringValue(stage.status, 'not-applicable'),
+        ...(typeof stage.error === 'string' ? { error: stage.error } : {}),
+      })) : []),
+      ...(candidate ? { candidate } : {}),
+      ...(specification ? { specification } : {}),
+      validation: {
+        status: raw.validationStatus === 'valid' ? 'passed' : 'failed',
+        errors: stringArray(raw.validationErrors),
+      },
+      ...(Array.isArray(raw.worldEntityIds) ? { world: { entityCount: raw.worldEntityIds.length, entityIds: stringArray(raw.worldEntityIds) } } : {}),
+      ...(typeof raw.fallbackReason === 'string' ? { fallbackReason: raw.fallbackReason } : {}),
+    })
+  }
 
   /**
    * Load mock observatory data through the adapter.
@@ -537,8 +598,40 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   return {
     viewModel,
     bridgeData,
+    generationTrace,
+    loadGenerationTrace,
     loadMockObservatory,
     loadRealObservatory,
     loadRuntimeWorld,
   }
 })
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function stringValue(value: unknown, fallback: string): string {
+  return typeof value === 'string' ? value : fallback
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
+function semanticDesign(value: unknown): ObservatoryGenerationTrace['candidate'] | undefined {
+  if (!isRecord(value)) return undefined
+  const entities = Array.isArray(value.entities) ? value.entities.filter(isRecord).map(entity => ({
+    id: stringValue(entity.id, 'unknown'),
+    category: stringValue(entity.category, 'unknown'),
+    name: stringValue(entity.name, 'unknown'),
+    ...(typeof entity.role === 'string' ? { role: entity.role } : {}),
+  })) : []
+  return {
+    ...(typeof value.title === 'string' ? { title: value.title } : {}),
+    ...(typeof value.genre === 'string' ? { genre: value.genre } : {}),
+    ...(isRecord(value.theme) && typeof value.theme.name === 'string' ? { theme: value.theme.name } : {}),
+    ...(typeof value.difficulty === 'string' ? { difficulty: value.difficulty } : {}),
+    objectives: Array.isArray(value.objectives) ? value.objectives.filter(isRecord).map(item => stringValue(item.type, 'unknown')) : [],
+    entities,
+  }
+}

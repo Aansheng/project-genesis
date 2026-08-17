@@ -104,8 +104,8 @@ describe('observatory store', () => {
     expect(store.version).toBe('v1.30')
   })
 
-  it('exports OBSERVATORY_PANELS with exactly 10 items', () => {
-    expect(OBSERVATORY_PANELS).toHaveLength(10)
+  it('exports OBSERVATORY_PANELS with 11 items including Generation', () => {
+    expect(OBSERVATORY_PANELS).toHaveLength(11)
   })
 
   it('exports OBSERVATORY_PANELS in spec order', () => {
@@ -120,6 +120,7 @@ describe('observatory store', () => {
       'TraceGraph',
       'WorldGraph',
       'Settings',
+      'Generation',
     ])
   })
 })
@@ -196,9 +197,9 @@ describe('observatory sidebar', () => {
     activateEn()
   })
 
-  it('renders all 10 menu items', () => {
+  it('renders all 11 menu items', () => {
     const wrapper = mountSidebar()
-    expect(sidebarButtons(wrapper)).toHaveLength(10)
+    expect(sidebarButtons(wrapper)).toHaveLength(11)
   })
 
   it('renders menu items in spec order', () => {
@@ -215,6 +216,7 @@ describe('observatory sidebar', () => {
       'Trace Graph',
       'World Graph',
       'Settings',
+      'Generation',
     ])
   })
 
@@ -329,7 +331,7 @@ describe('observatory sidebar', () => {
     const wrapper = mountSidebar()
     await nextTick()
     await wrapper.find('nav').trigger('keydown', { key: 'End' })
-    expect(store.selectedPanel).toBe('Settings')
+    expect(store.selectedPanel).toBe('Generation')
   })
 
   it('clamps ArrowDown at the last panel', async () => {
@@ -338,7 +340,7 @@ describe('observatory sidebar', () => {
     const wrapper = mountSidebar()
     await nextTick()
     await wrapper.find('nav').trigger('keydown', { key: 'ArrowDown' })
-    expect(store.selectedPanel).toBe('Settings')
+    expect(store.selectedPanel).toBe('Generation')
   })
 
   it('clamps ArrowUp at the first panel', async () => {

@@ -8,6 +8,16 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-011 - AI Generation Observatory Trace Foundation
+
+- Added immutable generation traces across request, prompt assembly, model,
+  parse, validation, specification, world compilation, and runtime injection.
+- Preserved AI failure separately from deterministic fallback and exposed only
+  sanitized semantic candidate/specification data in the existing Observatory.
+- Added latest-trace session binding for Studio and Full Observatory, ADR-0233,
+  and capability-matrix/project-state updates.
+- Architecture version v1.120 → v1.121.
+
 ### WO-S12-010 - Real AI Game Design End-to-End Validation
 
 - Added internal generation diagnostics that distinguish AI output from deterministic fallback.

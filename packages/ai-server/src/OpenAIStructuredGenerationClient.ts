@@ -1,7 +1,7 @@
 import OpenAI from 'openai'
 import type { AIConfiguration, GameDesignPrompt, GameWorldGenerationRequest, StructuredGenerationClient } from '@genesis/ai'
 
-type OpenAIClient = Pick<OpenAI, 'responses'>
+type OpenAIClient = Pick<OpenAI, 'chat'>
 
 /** Server-only vendor adapter. This module must never be imported by the web app. */
 export class OpenAIStructuredGenerationClient implements StructuredGenerationClient {
@@ -13,14 +13,17 @@ export class OpenAIStructuredGenerationClient implements StructuredGenerationCli
   }
 
   async generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt): Promise<unknown> {
-    const response = await this.client.responses.create({
+    const response = await this.client.chat.completions.create({
       model: this.config.model,
-      input: prompt ? [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }] : JSON.stringify({ request }),
+      messages: prompt
+        ? [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }]
+        : [{ role: 'user', content: JSON.stringify({ request }) }],
       temperature: this.config.temperature,
-      max_output_tokens: this.config.maxOutputTokens ?? this.config.maxTokens,
-      text: { format: { type: 'json_object' } },
+      max_tokens: this.config.maxOutputTokens ?? this.config.maxTokens,
+      response_format: { type: 'json_object' },
     })
-    if (!response.output_text?.trim()) throw new Error('Empty structured generation response')
-    return response.output_text
+    const content = response.choices[0]?.message.content
+    if (!content?.trim()) throw new Error('Empty structured generation response')
+    return content
   }
 }

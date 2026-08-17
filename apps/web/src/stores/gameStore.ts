@@ -21,6 +21,7 @@ import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
 import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
+import { useObservatoryDataStore } from './observatoryData'
 
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
@@ -107,6 +108,7 @@ export const useGameStore = defineStore('game', () => {
         ? await commandExecutor.executeAsync(input)
         : commandExecutor.execute(input)
       lastCommand.value = result
+      useObservatoryDataStore().loadGenerationTrace(result.generationDiagnostics)
       log.value.push(result.message)
       commandStatus.value = result.success ? 'success' : 'error'
 
