@@ -188,11 +188,12 @@ describe('create world — mario', () => {
   it('should produce a world with entities for "create mario"', () => {
     const pipeline = createPipeline()
     const result = pipeline.execute(command('create mario'))
-    // Note: SemanticWorldGenerator detects 'mario' as sandbox (no 'platform' keyword),
-    // so only 1 entity (player) is generated
     const types = result.world.entities.map((e) => e.type)
     expect(types).toContain('player')
-    expect(result.world.entities.length).toBeGreaterThan(0)
+    expect(types).toContain('terrain')
+    expect(types).toContain('enemy')
+    expect(types).toContain('item')
+    expect(result.world.entities.length).toBeGreaterThan(1)
   })
 
   it('should succeed for "Create Mario"', () => {

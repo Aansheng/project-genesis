@@ -19,6 +19,7 @@
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { PromptAssemblyDomainModel } from '../observatory/domain'
+import type { GameIntent } from '../game-intent/GameIntent'
 import type { GameWorldModel } from '@genesis/shared'
 
 export interface SemanticWorldGenerator {
@@ -26,11 +27,11 @@ export interface SemanticWorldGenerator {
    * Generate a GameWorldModel from a PromptAssemblyDomainModel.
    *
    * Uses deterministic rule-based synthesis to produce a semantic game
-   * world model. The world type is derived from the domain model overview
-   * title, and default entities are created based on the world type.
+   * world model. When a GameIntent is provided, its genre is authoritative;
+   * standalone callers retain the legacy title-based fallback.
    *
    * @param model — typed PromptAssemblyDomainModel
    * @returns Frozen GameWorldModel with world type and entities
    */
-  generate(model: PromptAssemblyDomainModel): GameWorldModel
+  generate(model: PromptAssemblyDomainModel, intent?: GameIntent): GameWorldModel
 }

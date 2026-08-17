@@ -12,7 +12,7 @@
  *     ↓
  *   GameIntentExtractor.extract(model)
  *     ↓
- *   SemanticWorldGenerator.generate(model)
+ *   SemanticWorldGenerator.generate(model, gameIntent)
  *     ↓
  *   SemanticGameDslBuilder.build(gameWorldModel)
  *     ↓
@@ -155,10 +155,10 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     const model = this.createDomainModel(input)
 
     // Step 3: Extract GameIntent
-    this.gameIntentExtractor.extract(model)
+    const gameIntent = this.gameIntentExtractor.extract(model)
 
     // Step 4: Generate Semantic World Model
-    const gameWorldModel: GameWorldModel = this.worldGenerator.generate(model)
+    const gameWorldModel: GameWorldModel = this.worldGenerator.generate(model, gameIntent)
 
     // Step 5: Build Game DSL
     const gameDsl: GameDsl = this.gameDslBuilder.build(gameWorldModel)
@@ -181,9 +181,9 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
   /**
    * Create a PromptAssemblyDomainModel from a raw input string.
    *
-   * Sets the overview title to the input string so that
-   * GameIntentExtractor and SemanticWorldGenerator can detect
-   * the game genre / world type from the input.
+   * Sets the overview title to the input string for intent extraction.
+   * The extracted GameIntent, not the raw title, is passed to world generation
+   * as the authoritative genre signal.
    */
   private createDomainModel(input: string): PromptAssemblyDomainModel {
     return Object.freeze({

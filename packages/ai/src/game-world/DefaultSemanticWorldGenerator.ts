@@ -2,9 +2,10 @@
  * DefaultSemanticWorldGenerator — default implementation of SemanticWorldGenerator.
  *
  * Converts a PromptAssemblyDomainModel into a GameWorldModel using deterministic
- * rule-based semantic synthesis. The world type is derived from the overview
- * title via keyword matching, and default entities are generated using a
- * WorldTemplateCatalog.
+ * rule-based semantic synthesis. The world type is resolved from an
+ * authoritative GameIntent in the integrated pipeline; standalone callers
+ * retain a title-based compatibility fallback. Default entities are generated
+ * using a WorldTemplateCatalog.
  *
  * Prompt Entity Extraction is integrated into the generation flow:
  * PromptAssemblyDomainModel
@@ -22,7 +23,7 @@
  * This is NOT AI generation. This is deterministic, rule-based synthesis.
  * No LLM, no gameplay logic, no interpretation.
  *
- * World type detection (from overview title):
+ * Legacy world type detection (from overview title, standalone fallback):
  * - Contains "farm"      → 'farm'
  * - Contains "rpg"       → 'rpg'
  * - Contains "platform"  → 'platformer'
@@ -46,6 +47,7 @@
  * - Extraction-integrated: prompt content influences generated entities
  */
 import type { PromptAssemblyDomainModel } from '../observatory/domain'
+import type { GameIntent, GameGenre } from '../game-intent/GameIntent'
 import type { GameWorldModel, WorldType, GameWorldEntity } from '@genesis/shared'
 import type { SemanticWorldGenerator } from './SemanticWorldGenerator'
 import type { WorldTemplateCatalog } from './catalog'
@@ -61,6 +63,15 @@ import { DefaultPromptEntityCountExtractor } from './extraction'
 
 /** Default world type when no title-based detection matches. */
 const DEFAULT_WORLD_TYPE: WorldType = 'sandbox'
+
+/** Typed mapping from authoritative GameIntent genres to semantic world types. */
+const GAME_GENRE_TO_WORLD_TYPE: Readonly<Record<GameGenre, WorldType>> = Object.freeze({
+  platformer: 'platformer',
+  farm: 'farm',
+  rpg: 'rpg',
+  survival: 'survival',
+  sandbox: 'sandbox',
+})
 
 /** Keyword-to-world-type mapping for title-based detection. */
 const WORLD_TYPE_KEYWORDS: Readonly<Array<{ keyword: string; worldType: WorldType }>> =
@@ -107,16 +118,18 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
    * for entity generation, then integrates prompt entity extraction.
    *
    * Flow:
-   * 1. Detect world type from overview title
+   * 1. Resolve world type from GameIntent when provided, otherwise use the
+   *    standalone title-based compatibility fallback
    * 2. Generate template entities for the world type
    * 3. Extract entities from the prompt content
    * 4. Merge: template first, extracted appended, deduplicated by name
    * 5. Freeze and return
    *
    * @param model — typed PromptAssemblyDomainModel
+   * @param intent — optional authoritative GameIntent from the create-world pipeline
    * @returns Deeply frozen GameWorldModel
    */
-  generate(model: PromptAssemblyDomainModel): GameWorldModel {
+  generate(model: PromptAssemblyDomainModel, intent?: GameIntent): GameWorldModel {
     // Handle invalid input
     if (model === undefined || model === null) {
       return this.createEmptyModel()
@@ -125,8 +138,11 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
       return this.createEmptyModel()
     }
 
-    // Detect world type from overview title
-    const worldType = this.detectWorldType(model)
+    // GameIntent is authoritative in the integrated pipeline. The title-based
+    // path remains only for backward-compatible standalone generator callers.
+    const worldType = intent === undefined
+      ? this.detectWorldType(model)
+      : this.resolveIntentWorldType(intent)
 
     // Generate template entities for the detected world type via catalog
     const templateEntities = this.generateTemplateEntities(worldType)
@@ -159,6 +175,11 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
   // -------------------------------------------------------------------------
   // Private — World Type Detection
   // -------------------------------------------------------------------------
+
+  /** Resolve a typed GameIntent genre without re-interpreting prompt text. */
+  private resolveIntentWorldType(intent: GameIntent): WorldType {
+    return GAME_GENRE_TO_WORLD_TYPE[intent.genre] ?? DEFAULT_WORLD_TYPE
+  }
 
   /**
    * Detect the world type from the domain model's overview section.

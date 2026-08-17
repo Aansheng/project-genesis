@@ -8,6 +8,16 @@
 
 ## Sprint 10 — AI Generation Pipeline
 
+### WO-S10-008 — Game Intent → Semantic World Alignment Foundation
+
+- `CreateWorldPipeline` now passes the extracted `GameIntent` to `SemanticWorldGenerator`.
+- `GameIntent.genre` is the authoritative typed mapping to `WorldType` in the integrated create-world path.
+- `创建 MarioWorld` and `create Mario game` now select the existing platformer template instead of sandbox.
+- `SemanticWorldGenerator.generate(model, intent?)` remains backward-compatible for standalone title-based callers.
+- Added end-to-end regression coverage through RuntimeProjection, including PositionComponent preservation.
+- Created ADR-0210.
+- Architecture version v1.96 → v1.97.
+
 ### WO-S10-001 — Intent Router Foundation
 
 - **Created `IntentRoute` type** — in `packages/ai/src/game-intent/router/` as `'create-world' | 'unknown'`; pure, stateless, serializable

@@ -142,8 +142,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       expect(pipelineResult.success).toBe(true)
     })
 
-    it('should have 1 projected entity (sandbox → 1 player)', () => {
-      expect(pipelineResult.world.entities).toHaveLength(1)
+    it('should have 6 projected platformer entities', () => {
+      expect(pipelineResult.world.entities).toHaveLength(6)
     })
 
     it('entity type should be "player"', () => {
@@ -225,8 +225,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       world = result.world
     })
 
-    it('should have exactly 1 entity', () => {
-      expect(world.entities).toHaveLength(1)
+    it('should have exactly 6 entities', () => {
+      expect(world.entities).toHaveLength(6)
     })
   })
 
@@ -248,7 +248,7 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
 
     it('should contain the projected world', () => {
       const stored = worldStore.getWorld()
-      expect(stored.entities).toHaveLength(1)
+      expect(stored.entities).toHaveLength(6)
     })
   })
 
