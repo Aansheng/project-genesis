@@ -180,8 +180,8 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(playerRow.attributes('aria-pressed')).toBe('true')
     expect(playerRow.classes()).toContain('selected')
     expect(wrapper.find('.entity-inspector').text()).toContain('player')
-    expect(wrapper.find('.entity-inspector').text()).toContain('x 80')
-    expect(wrapper.find('.entity-inspector').text()).toContain('y 300')
+    expect(wrapper.find('.position-section').text()).toContain('X80')
+    expect(wrapper.find('.position-section').text()).toContain('Y300')
     expect(wrapper.find('.component-list').text()).toContain('position')
 
     wrapper.unmount()
@@ -217,7 +217,55 @@ describe('Genesis Studio Shell Foundation', () => {
     await nextTick()
 
     expect(store.selectedEntity).toBe(store.worldStore.getWorld().entities[0])
-    expect(wrapper.find('.entity-inspector').text()).toContain('x 120')
+    expect(wrapper.find('.position-section').text()).toContain('X120')
+
+    wrapper.unmount()
+  })
+
+  it('renders generic component properties without mutating the runtime world', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+    await store.send('创建 MarioWorld')
+    const world = store.worldStore.getWorld()
+    const customProperties = {
+      speed: 3,
+      active: true,
+      empty: null,
+      missing: undefined,
+      tags: ['player', 'controllable'],
+      nested: { enabled: false, values: [1, 2] },
+    }
+    store.worldStore.setWorld({
+      entities: world.entities.map((entity) => entity.id === 'player'
+        ? {
+            ...entity,
+            components: [
+              createPositionComponent(80, 300),
+              { type: 'semantic', properties: { category: 'player', name: 'Player' } },
+              { type: 'custom', properties: customProperties },
+            ],
+          }
+        : entity),
+    })
+    store.markWorldUpdated()
+    store.selectEntity('player')
+    await nextTick()
+
+    const inspector = wrapper.find('.entity-inspector')
+    expect(inspector.text()).toContain('Components3')
+    expect(inspector.text()).toContain('speed3')
+    expect(inspector.text()).toContain('activetrue')
+    expect(inspector.text()).toContain('empty—')
+    expect(inspector.text()).toContain('missing—')
+    expect(inspector.text()).toContain('tags[player, controllable]')
+    expect(inspector.text()).toContain('nested.enabledfalse')
+    expect(inspector.text()).toContain('nested.values[1, 2]')
+    expect(wrapper.findAll('.runtime-component-inspector h4').map((node) => node.text())).toEqual([
+      'position',
+      'semantic',
+      'custom',
+    ])
+    expect(store.worldStore.getWorld().entities.find((entity) => entity.id === 'player')?.components).toHaveLength(3)
 
     wrapper.unmount()
   })

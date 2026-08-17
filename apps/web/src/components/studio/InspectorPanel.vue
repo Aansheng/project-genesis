@@ -4,6 +4,7 @@ import { isPositionComponent } from '@genesis/shared'
 import { ObservatoryRuntimeBinding } from '../../adapters/observatory'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
+import RuntimeComponentInspector from './RuntimeComponentInspector.vue'
 
 const gameStore = useGameStore()
 const observatoryData = useObservatoryDataStore()
@@ -27,12 +28,12 @@ const selectedComponents = computed(() => selectedEntity.value?.components ?? []
 const selectedPosition = computed(() =>
   selectedComponents.value.find(isPositionComponent),
 )
-
-function formatValue(value: unknown): string {
-  return typeof value === 'object' && value !== null
-    ? JSON.stringify(value)
-    : String(value)
-}
+const orderedComponents = computed(() => {
+  const position = selectedPosition.value
+  return position === undefined
+    ? selectedComponents.value
+    : [position, ...selectedComponents.value.filter((component) => component !== position)]
+})
 </script>
 
 <template>
@@ -121,32 +122,39 @@ function formatValue(value: unknown): string {
             <dt>Type</dt>
             <dd>{{ selectedEntity.type }}</dd>
           </div>
-          <div v-if="selectedPosition">
-            <dt>Position</dt>
-            <dd>
-              x {{ selectedPosition.properties.x }} · y {{ selectedPosition.properties.y }}
-            </dd>
+          <div>
+            <dt>Components</dt>
+            <dd>{{ selectedComponents.length }}</dd>
           </div>
         </dl>
 
+        <section
+          v-if="selectedPosition"
+          class="position-section"
+          aria-labelledby="position-section-title"
+        >
+          <h3 id="position-section-title">
+            Position
+          </h3>
+          <dl class="position-summary">
+            <div>
+              <dt>X</dt>
+              <dd>{{ selectedPosition.properties.x }}</dd>
+            </div>
+            <div>
+              <dt>Y</dt>
+              <dd>{{ selectedPosition.properties.y }}</dd>
+            </div>
+          </dl>
+        </section>
+
         <div class="component-list">
           <h3>Components</h3>
-          <article
-            v-for="component in selectedComponents"
-            :key="component.type"
-            class="component-row"
-          >
-            <strong>{{ component.type }}</strong>
-            <dl>
-              <div
-                v-for="(value, key) in component.properties"
-                :key="key"
-              >
-                <dt>{{ key }}</dt>
-                <dd>{{ formatValue(value) }}</dd>
-              </div>
-            </dl>
-          </article>
+          <RuntimeComponentInspector
+            v-for="(component, index) in orderedComponents"
+            :key="`${component.type}-${index}`"
+            :component="component"
+          />
         </div>
       </section>
     </div>
@@ -342,34 +350,30 @@ dd {
   margin-bottom: var(--studio-space-1);
 }
 
-.component-row {
-  padding: var(--studio-space-3) 0;
+.position-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--studio-space-2);
+  padding-top: var(--studio-space-3);
   border-top: 1px solid var(--studio-border);
 }
 
-.component-row strong {
-  color: var(--studio-text);
-  font-family: var(--studio-font-mono);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.component-row dl {
+.position-summary {
   display: grid;
-  gap: var(--studio-space-1);
-  margin: var(--studio-space-2) 0 0;
-}
-
-.component-row dl div {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr 1fr;
   gap: var(--studio-space-2);
+  margin: 0;
 }
 
-.component-row dd {
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.position-summary div {
+  display: grid;
+  gap: 2px;
+  padding: var(--studio-space-2);
+  background: var(--studio-surface-raised);
 }
+
+.position-summary dd {
+  font-size: 14px;
+}
+
 </style>

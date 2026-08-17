@@ -21,9 +21,9 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 11 **In Progress** |
-| Architecture Version | v1.105 (Sprint 11) |
-| Last Completed WO | WO-S11-004 - Studio Input Isolation & Platform Coordinate Semantics Fix |
-| Current User-Visible Behavior | Genesis Studio presents real World entities, a dominant playable Pixi viewport with readable camera anchoring, selectable Explorer rows, read-only selected-entity Inspector details, isolated AI command input, and Observatory navigation in a unified dark-neutral creative IDE surface. |
+| Architecture Version | v1.106 (Sprint 11) |
+| Last Completed WO | WO-S11-005 - Entity Inspector Deepening & Runtime Component Inspection |
+| Current User-Visible Behavior | Genesis Studio presents real World entities, a dominant playable Pixi viewport with readable camera anchoring, selectable Explorer rows, structured read-only entity/component Inspector details, isolated AI command input, and Observatory navigation in a unified dark-neutral creative IDE surface. |
 | Current End-to-End Pipeline | Natural Language → Intent → Semantic World → Game DSL → RuntimeWorldStore → Studio Explorer/Viewport/Inspector → Pixi and Observatory |
 | Current Blocking Issue | Command-bar Enter submission still needs a follow-up browser fix; editing and persistence remain future work. |
 | Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |
@@ -160,6 +160,26 @@ input and camera scenarios.
 Next recommended verification: type Space and Arrow keys in the command input,
 blur it, then verify movement, upward jump, downward gravity, landing, and
 camera readability.
+
+### WO-S11-005 Current Behavior
+
+- Studio Inspector resolves the selected entity by `selectedEntityId` from the
+  current `RuntimeWorldStore`; it does not retain an entity snapshot.
+- Selected entities show id, type, component count, authoritative Position x/y,
+  and all RuntimeComponents in deterministic order with Position first.
+- `RuntimeComponentInspector` renders primitive values, null/undefined,
+  primitive arrays, nested objects, and nested arrays as bounded key/value rows.
+- Inspector updates follow `renderVersion`, so runtime movement and same-id
+  world replacement show current component data; removed ids still clear
+  selection.
+- The Inspector remains read-only and Observatory remains on its existing
+  independent ViewModel path.
+
+Known UX gap: command-bar Enter submission remains a separate browser issue;
+clicking Generate continues to submit successfully.
+
+Next recommended verification: inspect player and enemy, then exercise live
+movement/jump updates and same-id/different-id world replacement in the Studio.
 
 ---
 

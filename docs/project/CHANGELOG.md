@@ -8,6 +8,20 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-005 - Entity Inspector Deepening & Runtime Component Inspection
+
+- Deepened the Studio Inspector with Entity summary, Position, and generic
+  Components sections.
+- Added `RuntimeComponentInspector` for safe bounded rendering of primitive,
+  null/undefined, array, and nested object properties.
+- Kept PositionComponent first while preserving runtime component order for the
+  remaining components.
+- Preserved `selectedEntityId` identity-only selection and live
+  RuntimeWorldStore resolution; no Runtime mutation or stale snapshots added.
+- Added focused generic component and live replacement regression coverage.
+- Created ADR-0219.
+- Architecture version v1.105 to v1.106.
+
 ### WO-S11-004 - Studio Input Isolation & Platform Coordinate Semantics Fix
 
 - Filtered gameplay keyboard input at the DOM boundary for input, textarea,
