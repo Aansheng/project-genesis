@@ -21,9 +21,9 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 11 **In Progress** |
-| Architecture Version | v1.109 (Sprint 11) |
-| Last Completed WO | WO-S11-008 - Observatory Studio Integration Foundation |
-| Current User-Visible Behavior | Genesis Studio presents a creation-oriented command bar with real idle/running/success/error activity states and entity-count summaries, alongside real World entities, a playable Pixi viewport with horizontal dead-zone camera follow, Entity/Observatory Inspector modes, and SPA Observatory navigation. |
+| Architecture Version | v1.110 (Sprint 11) |
+| Last Completed WO | WO-S11-009 - Game Viewport Product Polish Foundation |
+| Current User-Visible Behavior | Genesis Studio presents a creation-oriented command bar with real idle/running/success/error activity states and entity-count summaries, alongside a container-sized Pixi viewport with Empty/Ready/Running state, real Arrow Keys/Space hints, horizontal dead-zone camera follow, Entity/Observatory Inspector modes, and SPA Observatory navigation. |
 | Current End-to-End Pipeline | Natural Language → Studio command lifecycle → Intent → Semantic World → Game DSL → RuntimeWorldStore → ObservatoryRuntimeBinding → observatoryData ViewModel → Studio activity/Explorer/Viewport/Inspector/Observatory → Pixi and full Observatory |
 | Current Blocking Issue | Browser manual verification remains pending; editing and persistence remain future work. |
 | Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |
@@ -205,6 +205,23 @@ clicking Generate continues to submit successfully.
 
 Next recommended verification: inspect player and enemy, then exercise live
 movement/jump updates and same-id/different-id world replacement in the Studio.
+
+### WO-S11-009 Current Behavior
+
+- The viewport measures its actual content container and applies the dimensions
+  to the Pixi renderer on mount and through a cleaned-up `ResizeObserver`.
+- The existing camera dead zone and world coordinates remain unchanged; the
+  Studio camera anchor follows the measured viewport center.
+- Empty Studio shows restrained no-world copy; generated worlds show the Pixi
+  canvas with truthful `Running` state and only Arrow Keys/Space hints.
+- Pixi application, visualization runner, loop, keyboard input, and observer
+  are balanced across unmount/remount. World replacement continues to use the
+  same RuntimeWorldStore.
+
+Code Complete: YES. Product Verified: PENDING browser checklist.
+
+Next recommended verification: check empty state, generate MarioWorld, exercise
+movement/jump, resize at 1280/1440×900/1920×1080, and round-trip Observatory.
 
 ### WO-S11-008 Current Behavior
 

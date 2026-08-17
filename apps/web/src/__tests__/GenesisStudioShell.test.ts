@@ -17,12 +17,18 @@ const lifecycle = vi.hoisted(() => ({
   loopStopped: 0,
   inputAttached: 0,
   inputDetached: 0,
+  resizeObserverCreated: 0,
+  resizeObserverObserved: 0,
+  resizeObserverDisconnected: 0,
+  resize: 0,
+  resizeCallback: null as (() => void) | null,
 }))
 
 vi.mock('pixi.js', () => ({
   Application: class {
     readonly view = document.createElement('canvas')
     readonly stage = { addChild: vi.fn() }
+    readonly renderer = { resize: vi.fn(() => lifecycle.resize++) }
 
     constructor() {
       lifecycle.pixiCreated++
@@ -82,10 +88,25 @@ async function mountStudio(path = '/') {
 }
 
 beforeEach(() => {
-  Object.keys(lifecycle).forEach((key) => {
-    lifecycle[key as keyof typeof lifecycle] = 0
-  })
+  for (const key of Object.keys(lifecycle) as Array<keyof typeof lifecycle>) {
+    if (key !== 'resizeCallback') lifecycle[key] = 0 as never
+  }
+  lifecycle.resizeCallback = null
   document.body.className = ''
+  vi.stubGlobal('ResizeObserver', class {
+    constructor(callback: () => void) {
+      lifecycle.resizeObserverCreated++
+      lifecycle.resizeCallback = callback
+    }
+
+    observe() {
+      lifecycle.resizeObserverObserved++
+    }
+
+    disconnect() {
+      lifecycle.resizeObserverDisconnected++
+    }
+  })
 })
 
 describe('Genesis Studio Shell Foundation', () => {
@@ -97,7 +118,9 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(shell.classes()).toContain('genesis-studio-shell')
     expect(wrapper.find('.brand-mark').exists()).toBe(true)
     expect(wrapper.find('.panel-kicker').exists()).toBe(true)
-    expect(wrapper.find('.viewport-status').text()).toBe('Playable')
+    expect(wrapper.find('.viewport-status').text()).toBe('Empty')
+    expect(wrapper.find('.viewport-controls').text()).toContain('Arrow Keys')
+    expect(wrapper.find('.viewport-controls').text()).toContain('Space')
     expect(wrapper.find('.studio-command-bar button').text()).toBe('Generate')
     expect(useGameStore().commandStatus).toBe('idle')
     expect(wrapper.text()).not.toMatch(/model|latency|tokens|saved|sync/i)
@@ -116,6 +139,7 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(wrapper.find('.inspector-panel').exists()).toBe(true)
     expect(wrapper.find('.studio-command-bar').exists()).toBe(true)
     expect(wrapper.text()).toContain('No world generated yet')
+    expect(wrapper.find('.viewport-empty-state').text()).toContain('No game world yet')
     expect(wrapper.text()).toContain('No runtime world available')
     expect(wrapper.text()).not.toContain('guard-001')
     expect(wrapper.text()).not.toContain('merchant-001')
@@ -127,6 +151,30 @@ describe('Genesis Studio Shell Foundation', () => {
     })
 
     wrapper.unmount()
+  })
+
+  it('resizes the Pixi renderer with the viewport and cleans up the observer', async () => {
+    const { wrapper } = await mountStudio()
+    const container = wrapper.find('.game-container').element
+    vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+      width: 640,
+      height: 360,
+      top: 0,
+      left: 0,
+      right: 640,
+      bottom: 360,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    })
+
+    lifecycle.resizeCallback?.()
+    expect(lifecycle.resizeObserverCreated).toBe(1)
+    expect(lifecycle.resizeObserverObserved).toBe(1)
+    expect(lifecycle.resize).toBeGreaterThanOrEqual(2)
+
+    wrapper.unmount()
+    expect(lifecycle.resizeObserverDisconnected).toBe(1)
   })
 
   it('creates MarioWorld through the command bar and updates every real surface', async () => {
@@ -155,6 +203,7 @@ describe('Genesis Studio Shell Foundation', () => {
       expect(wrapper.find('.inspector-panel').text()).toContain(id)
     })
     expect(wrapper.find('.entity-count').text()).toBe('6 entities')
+    expect(wrapper.find('.viewport-status').text()).toBe('Running')
     expect(wrapper.find('.runtime-summary').text()).toContain('6')
     expect(wrapper.find('.command-activity').text()).toContain(
       'Created world with 6 entities',
@@ -405,6 +454,11 @@ describe('Genesis Studio Shell Foundation', () => {
       loopStopped: 2,
       inputAttached: 2,
       inputDetached: 2,
+      resizeObserverCreated: 2,
+      resizeObserverObserved: 2,
+      resizeObserverDisconnected: 2,
+      resize: 2,
+      resizeCallback: expect.any(Function),
     })
   })
 })

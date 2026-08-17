@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Application, Container } from 'pixi.js'
 import {
   DefaultAnimationFrameScheduler,
@@ -29,11 +29,35 @@ import { useGameStore } from '../../stores/gameStore'
 
 const store = useGameStore()
 const gameContainer = ref<HTMLDivElement | null>(null)
+const runtimeMounted = ref(false)
+const entityCount = computed(() => {
+  void store.renderVersion
+  return store.worldStore.getWorld().entities.length
+})
+const viewportStatus = computed(() => {
+  if (!entityCount.value) return 'Empty'
+  return runtimeMounted.value ? 'Running' : 'Ready'
+})
 
 let pixiApp: Application | null = null
 let visLoop: RuntimeVisualizationLoop | null = null
 let runner: VisualizationRunner | null = null
 let inputProvider: KeyboardInputProvider | null = null
+let resizeObserver: ResizeObserver | null = null
+const cameraAnchor = { x: 400, y: 300 }
+
+function resizeViewport(): void {
+  const container = gameContainer.value
+  if (!container || !pixiApp) return
+
+  const bounds = container.getBoundingClientRect()
+  const width = Math.max(1, Math.round(bounds.width || container.clientWidth || 800))
+  const height = Math.max(1, Math.round(bounds.height || container.clientHeight || 600))
+
+  pixiApp.renderer?.resize?.(width, height)
+  cameraAnchor.x = width / 2
+  cameraAnchor.y = height / 2
+}
 
 onMounted(() => {
   if (!gameContainer.value) return
@@ -47,6 +71,11 @@ onMounted(() => {
     autoDensity: true,
   })
   gameContainer.value.appendChild(pixiApp.view as HTMLCanvasElement)
+  resizeViewport()
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(resizeViewport)
+    resizeObserver.observe(gameContainer.value)
+  }
 
   const entityContainer = new Container()
   pixiApp.stage.addChild(entityContainer)
@@ -65,7 +94,7 @@ onMounted(() => {
   const entityRenderer = new DefaultPixiEntityRenderer(entityContainer, {
     catalog: new DefaultEntityVisualCatalog(),
     cameraController: new DefaultCameraController(),
-    cameraAnchor: { x: 400, y: 300 },
+    cameraAnchor,
   })
   const worldProvider = new StoreBackedWorldProvider(store.worldStore)
   const worldSink = {
@@ -88,9 +117,13 @@ onMounted(() => {
     visLoop,
   )
   runner.start()
+  runtimeMounted.value = true
 })
 
 onUnmounted(() => {
+  runtimeMounted.value = false
+  resizeObserver?.disconnect()
+  resizeObserver = null
   runner?.stop()
   runner = null
   visLoop?.stop()
@@ -115,8 +148,8 @@ onUnmounted(() => {
         </h2>
       </div>
       <div class="viewport-meta">
-        <span class="viewport-status">Playable</span>
-        <span>800 × 600</span>
+        <span class="viewport-status">{{ viewportStatus }}</span>
+        <span>{{ entityCount }} entities</span>
       </div>
     </header>
     <div class="viewport-stage">
@@ -124,15 +157,31 @@ onUnmounted(() => {
         ref="gameContainer"
         class="game-container"
         aria-label="Playable game canvas"
-      />
+      >
+        <div
+          v-if="viewportStatus === 'Empty'"
+          class="viewport-empty-state"
+          aria-live="polite"
+        >
+          <strong>No game world yet</strong>
+          <span>Describe a game below to generate a playable world.</span>
+        </div>
+      </div>
     </div>
+    <footer
+      class="viewport-controls"
+      aria-label="Game controls"
+    >
+      <span>Arrow Keys <em>Move</em></span>
+      <span>Space <em>Jump</em></span>
+    </footer>
   </section>
 </template>
 
 <style scoped>
 .game-viewport-panel {
   display: grid;
-  grid-template-rows: 42px minmax(0, 1fr);
+  grid-template-rows: 52px minmax(0, 1fr) 36px;
   min-width: 0;
   min-height: 0;
   background: var(--studio-bg);
@@ -188,11 +237,12 @@ h2 {
 }
 
 .viewport-stage {
+  position: relative;
   display: grid;
   min-width: 0;
   min-height: 0;
   place-items: center;
-  padding: clamp(16px, 3vw, 32px);
+  padding: clamp(12px, 2vw, 24px);
   overflow: auto;
   background:
     linear-gradient(45deg, rgb(255 255 255 / 1%) 25%, transparent 25%),
@@ -203,7 +253,10 @@ h2 {
 }
 
 .game-container {
-  width: min(100%, 800px);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
   border: 1px solid var(--studio-border-strong);
   border-radius: var(--studio-radius-md);
   overflow: hidden;
@@ -215,6 +268,46 @@ h2 {
 .game-container :deep(canvas) {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+}
+
+.viewport-empty-state {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: grid;
+  gap: var(--studio-space-2);
+  width: min(280px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  color: var(--studio-text-muted);
+  text-align: center;
+  pointer-events: none;
+}
+
+.viewport-empty-state strong {
+  color: var(--studio-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.viewport-empty-state span {
+  color: var(--studio-text-dim);
+  font-size: 11px;
+}
+
+.viewport-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--studio-space-4);
+  padding: 0 var(--studio-space-4);
+  border-top: 1px solid var(--studio-border);
+  color: var(--studio-text-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+}
+
+.viewport-controls em {
+  margin-left: var(--studio-space-1);
+  color: var(--studio-text-dim);
+  font-style: normal;
 }
 </style>

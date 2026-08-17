@@ -8,6 +8,17 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-009 - Game Viewport Product Polish Foundation
+
+- Made the Pixi viewport container-size aware with renderer resize and a
+  cleaned-up `ResizeObserver` lifecycle.
+- Replaced the fixed camera anchor with the measured viewport center while
+  preserving the existing dead-zone and gameplay semantics.
+- Added truthful Empty/Ready/Running viewport status, quiet empty state copy,
+  and supported Arrow Keys/Space control hints.
+- Added resize/lifecycle regression coverage and ADR-0223.
+- Architecture version v1.109 to v1.110.
+
 ### WO-S11-008 - Observatory Studio Integration Foundation
 
 - Added local Entity/Observatory tabs to the Studio Inspector.
