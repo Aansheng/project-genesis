@@ -7,6 +7,7 @@ import { EMPTY_BRIDGE_DATA } from '../adapters/observatory/bridge'
 import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
+import type { World } from '@genesis/shared'
 
 // ---------------------------------------------------------------------------
 // Local mock types (no AI package imports)
@@ -501,10 +502,43 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     }
   }
 
+  /** Replace only the runtime section from the authoritative Runtime world. */
+  function loadRuntimeWorld(world: World): void {
+    const runtimeView = {
+      worldId: 'runtime-world',
+      entityCount: world.entities.length,
+      systemCount: 0,
+      eventCount: 0,
+      fps: 0,
+      entities: world.entities.map((entity) => ({
+        id: entity.id,
+        type: entity.type,
+        position: (() => {
+          const component = entity.components?.find((item) => item.type === 'position')
+          return component ? JSON.stringify({ x: component.properties.x, y: component.properties.y }) : ''
+        })(),
+        health: '',
+        state: '',
+        components: (entity.components ?? []).map((component) => ({
+          name: component.type,
+          data: component.properties,
+        })),
+      })),
+    }
+
+    const next = adapter.adapt({ runtimeView })
+    viewModel.value = Object.freeze({
+      ...EMPTY_VIEW_MODEL,
+      runtimeView: next.runtimeView,
+    })
+    bridgeData.value = EMPTY_BRIDGE_DATA
+  }
+
   return {
     viewModel,
     bridgeData,
     loadMockObservatory,
     loadRealObservatory,
+    loadRuntimeWorld,
   }
 })

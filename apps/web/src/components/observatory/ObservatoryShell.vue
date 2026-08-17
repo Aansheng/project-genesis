@@ -2,6 +2,16 @@
 import ObservatoryHeader from './ObservatoryHeader.vue'
 import ObservatorySidebar from './ObservatorySidebar.vue'
 import ObservatoryContent from './ObservatoryContent.vue'
+import { onMounted } from 'vue'
+import { useGameStore } from '../../stores/gameStore'
+import { useObservatoryDataStore } from '../../stores/observatoryData'
+import { ObservatoryRuntimeBinding } from '../../adapters/observatory'
+
+const gameStore = useGameStore()
+const observatoryDataStore = useObservatoryDataStore()
+const runtimeBinding = new ObservatoryRuntimeBinding(gameStore.worldStore, observatoryDataStore)
+
+onMounted(() => runtimeBinding.sync())
 </script>
 
 <template>

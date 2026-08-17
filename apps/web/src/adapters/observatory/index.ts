@@ -25,3 +25,5 @@ export type {
 } from './ObservatoryViewModel'
 export { DefaultObservatoryAdapter } from './DefaultObservatoryAdapter'
 export type { DefaultObservatoryAdapter as DefaultObservatoryAdapterType } from './DefaultObservatoryAdapter'
+export { ObservatoryRuntimeBinding } from './runtime'
+export type { RuntimeWorldSource, ObservatoryRuntimeTarget } from './runtime'

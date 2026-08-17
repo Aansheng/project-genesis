@@ -23,6 +23,11 @@
  * - No scheduling: does not manage its own interval/RAF loop
  */
 import type { VisualizationTickResult } from './VisualizationTickResult'
+import type { World } from '@genesis/shared'
+
+export interface RuntimeWorldSink {
+  setWorld(world: World): void
+}
 
 export interface RuntimeVisualizationLoop {
   /**

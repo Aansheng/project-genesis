@@ -25,6 +25,7 @@ import type { PixiEntityRenderer } from '../view'
 import type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 import type { VisualizationTickResult } from './VisualizationTickResult'
 import type { VisualizationWorldProvider } from './VisualizationWorldProvider'
+import type { RuntimeWorldSink } from './RuntimeVisualizationLoop'
 
 export class DefaultRuntimeVisualizationLoop
   implements RuntimeVisualizationLoop
@@ -33,6 +34,7 @@ export class DefaultRuntimeVisualizationLoop
   private readonly rendererAdapter: RuntimeRendererAdapter
   private readonly entityRenderer: PixiEntityRenderer
   private readonly worldProvider: VisualizationWorldProvider | undefined
+  private readonly worldSink: RuntimeWorldSink | undefined
   private _currentWorld: World
   private _running: boolean
 
@@ -50,12 +52,14 @@ export class DefaultRuntimeVisualizationLoop
     rendererAdapter: RuntimeRendererAdapter,
     entityRenderer: PixiEntityRenderer,
     initialWorld: World,
-    worldProvider?: VisualizationWorldProvider
+    worldProvider?: VisualizationWorldProvider,
+    worldSink?: RuntimeWorldSink,
   ) {
     this.executionLoop = executionLoop
     this.rendererAdapter = rendererAdapter
     this.entityRenderer = entityRenderer
     this.worldProvider = worldProvider
+    this.worldSink = worldSink
     this._currentWorld = worldProvider?.getWorld() ?? initialWorld
     this._running = false
   }
@@ -154,6 +158,7 @@ export class DefaultRuntimeVisualizationLoop
 
     // Step 4: Store new world for next tick
     this._currentWorld = newWorld
+    this.worldSink?.setWorld(newWorld)
 
     return renderView.entities.length
   }

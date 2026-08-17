@@ -11,9 +11,18 @@ import {
   DefaultVisualizationRunner,
   StoreBackedWorldProvider,
   DefaultEntityVisualCatalog,
+  KeyboardInputProvider,
+  DefaultCameraController,
 } from '@genesis/renderer'
 import type { RuntimeVisualizationLoop, VisualizationRunner } from '@genesis/renderer'
-import { DefaultRuntimeExecutionLoop, DefaultRuntimeSystemRegistry } from '@genesis/runtime'
+import {
+  DefaultRuntimeExecutionLoop,
+  DefaultRuntimeSystemRegistry,
+  DefaultPlayerControllerSystem,
+  DefaultJumpSystem,
+  DefaultGravitySystem,
+  DefaultGroundCollisionSystem,
+} from '@genesis/runtime'
 
 const route = useRoute()
 const isObservatory = computed(() => route.name === 'observatory')
@@ -25,6 +34,7 @@ const gameContainer = ref<HTMLDivElement | null>(null)
 let pixiApp: Application | null = null
 let visLoop: RuntimeVisualizationLoop | null = null
 let runner: VisualizationRunner | null = null
+let inputProvider: KeyboardInputProvider | null = null
 
 onMounted(async () => {
   if (!gameContainer.value) return
@@ -48,12 +58,19 @@ onMounted(async () => {
 
   // 4. Create runtime execution components
   const systemRegistry = new DefaultRuntimeSystemRegistry()
+  inputProvider = new KeyboardInputProvider(window)
+  inputProvider.attach()
+  systemRegistry.register(new DefaultPlayerControllerSystem(inputProvider, 3))
+  systemRegistry.register(new DefaultJumpSystem(inputProvider, 50))
+  systemRegistry.register(new DefaultGravitySystem(1))
+  systemRegistry.register(new DefaultGroundCollisionSystem(400))
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)
 
   // 5. Create renderer adapter and entity renderer
   const adapter = new DefaultRuntimeRendererAdapter()
   const entityRenderer = new DefaultPixiEntityRenderer(entityContainer, {
     catalog: new DefaultEntityVisualCatalog(),
+    cameraController: new DefaultCameraController(),
   })
 
   // 6. Create world provider backed by the store's RuntimeWorldStore
@@ -67,6 +84,7 @@ onMounted(async () => {
     entityRenderer,
     initialWorld,
     worldProvider,
+    store.worldStore,
   )
 
   // 8. Create scheduler and runner
@@ -80,6 +98,8 @@ onMounted(async () => {
 onUnmounted(() => {
   runner?.stop()
   visLoop?.stop()
+  inputProvider?.detach()
+  inputProvider = null
   if (pixiApp) {
     pixiApp.destroy(true, { children: true, texture: true })
     pixiApp = null

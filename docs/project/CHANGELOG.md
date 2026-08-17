@@ -8,6 +8,28 @@
 
 ## Sprint 10 — AI Generation Pipeline
 
+### WO-S10-011 — Observatory Real Runtime Binding Foundation
+
+- Added a thin `ObservatoryRuntimeBinding` from `RuntimeWorldStore` to the existing Observatory data store.
+- Production Observatory no longer hydrates fixed mock runtime data.
+- Runtime panel now exposes the current entity count, ids, types, components, and PositionComponent coordinates.
+- World replacement and repeated synchronization replace the Observatory runtime representation.
+- Trace, Timeline, History, Diff, and Event Stream remain empty until real sources exist; they no longer show unrelated mock content in production.
+- Mock hydration remains explicitly available for tests/demo fixtures.
+- Created ADR-0213.
+- Architecture version v1.99 → v1.100.
+
+### WO-S10-010 — Playable Platformer Runtime Wiring
+
+- Wired the existing player controller, jump, gravity, and ground collision systems into the real Web runtime.
+- Registered systems in deterministic order: PlayerController → Jump → Gravity → GroundCollision.
+- Added mount/unmount lifecycle for `KeyboardInputProvider`.
+- Passed `DefaultCameraController` into the Pixi entity renderer.
+- Added optional Runtime World sink support so gameplay results persist in `RuntimeWorldStore` and world replacement remains playable.
+- Added end-to-end movement, jump, gravity, landing, replacement-world, and input cleanup coverage.
+- Created ADR-0212.
+- Architecture version v1.98 → v1.99.
+
 ### WO-S10-009 — Platform World Spatial Layout Foundation
 
 - Added an immutable, deterministic `WorldLayoutGenerator` abstraction in the AI game-world layer.

@@ -8,8 +8,8 @@ const store = useObservatoryStore()
 const dataStore = useObservatoryDataStore()
 const i18n = useI18n()
 
-// Initialize mock observatory data on first render
-dataStore.loadMockObservatory()
+// Mock data is intentionally test/demo-only; production starts empty/real.
+if (import.meta.env.MODE === 'test') dataStore.loadMockObservatory()
 
 interface Artifact {
   key: 'trace' | 'timeline' | 'history'
