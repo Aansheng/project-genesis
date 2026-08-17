@@ -7988,3 +7988,26 @@
 - No new abstraction layers
 - No breaking changes to any Public API
 - Architecture version v1.57 to v1.58
+
+### WO-S11-010 — Genesis Studio Product Baseline Freeze
+
+- Audited and documented the real Studio → Game → Runtime → Observatory path.
+- Confirmed `RuntimeWorldStore` as the single authoritative Studio runtime
+  world source and classified the remaining legacy/mock paths.
+- Confirmed the Mario product slice, gameplay system order, camera contract,
+  input isolation contract, Inspector/Explorer ownership, and Observatory
+  telemetry emptiness semantics against source and tests.
+- Automated baseline: shared 179, runtime 657, renderer 473, AI 9325, web
+  4040 tests passed; Web production build passed.
+- Direct package TypeScript checks passed for shared, runtime, renderer, and
+  web. AI typecheck remains blocked by pre-existing test/`WorldStore` contract
+  mismatches. Direct lint passed for shared, runtime, renderer, and web;
+  AI lint has 4 pre-existing `no-extra-semi` errors and 116 warnings.
+- Top-level Turbo typecheck/lint could not initialize its API client because
+  the environment has no available keychain/TLS setup.
+- Browser verified Studio creation, six real entities, Inspector, Observatory
+  round-trip, one canvas, and manual ArrowRight/ArrowLeft/Space movement,
+  jump, gravity, landing, input isolation, and live Inspector position updates.
+- Product baseline is now manually verified; no unrelated fix was added.
+- Architecture version remains v1.110; this freeze introduces no runtime or
+  product capability changes.
