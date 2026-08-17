@@ -174,13 +174,17 @@ camera readability.
   only while grounded; gravity accelerates it toward positive y; landing sets
   it back to zero.
 
-Known gap: automated legacy Jump/Gravity unit tests still assert the retired
-positional semantics and must be migrated to the WO-S11-006 contract. Browser
-manual verification remains pending.
+Automated platformer coverage is frozen on the v1.107 contract: Jump writes
+upward velocity on a Space press edge, Gravity changes velocity, VerticalMotion
+applies velocity to position, GroundCollision clamps and resets velocity, and
+the camera uses a horizontal dead zone with stable vertical framing.
+
+Code Complete: YES. Product Verified: PENDING browser checklist.
 
 Next recommended verification: generate MarioWorld and verify right/left
 movement, progressive jump/apex/fall/landing, held-Space behavior, second jump,
-and command-input isolation in the browser.
+and command-input isolation in the browser; automated semantic regression is
+now green.
 
 ### WO-S11-005 Current Behavior
 

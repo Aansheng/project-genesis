@@ -15,6 +15,7 @@ import {
   DefaultRuntimeProjection,
   DefaultRuntimeSystemRegistry,
   DefaultRuntimeWorldStore,
+  DefaultVerticalMotionSystem,
 } from '@genesis/runtime'
 import { KeyboardInputProvider } from '@genesis/renderer'
 import { DefaultRuntimeRendererAdapter } from '@genesis/renderer'
@@ -45,6 +46,7 @@ function createPlayableRuntime() {
   registry.register(new DefaultPlayerControllerSystem(input, 3))
   registry.register(new DefaultJumpSystem(input, 50))
   registry.register(new DefaultGravitySystem(1))
+  registry.register(new DefaultVerticalMotionSystem())
   registry.register(new DefaultGroundCollisionSystem(400))
   const renderer = new CaptureRenderer()
   const loop = new DefaultRuntimeVisualizationLoop(
@@ -63,7 +65,7 @@ describe('WO-S10-010: playable platformer runtime wiring', () => {
   it('registers systems in deterministic execution order', () => {
     const { registry } = createPlayableRuntime()
     expect(registry.getSystems().map((system) => system.name)).toEqual([
-      'PlayerControllerSystem', 'JumpSystem', 'GravitySystem', 'GroundCollisionSystem',
+      'PlayerControllerSystem', 'JumpSystem', 'GravitySystem', 'VerticalMotionSystem', 'GroundCollisionSystem',
     ])
   })
 

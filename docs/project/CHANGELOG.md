@@ -8,6 +8,16 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-006B - Platformer Control Semantics Test Migration & Freeze
+
+- Migrated legacy Jump and Gravity tests from positional mutation to the
+  authoritative velocity-based contract.
+- Added dedicated VerticalMotion coverage and an end-to-end jump/gravity/
+  motion/collision lifecycle regression.
+- Migrated camera tests to horizontal dead-zone and stable-vertical semantics.
+- Preserved production gameplay semantics; no physics or camera redesign.
+- Architecture version remains v1.107; Code Complete = YES.
+
 ### WO-S11-006 - Platformer Control Semantics Stabilization
 
 - Replaced positional jump displacement with velocity-based jump, gravity,
