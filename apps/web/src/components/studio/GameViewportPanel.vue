@@ -21,6 +21,7 @@ import {
   DefaultGroundCollisionSystem,
   DefaultJumpSystem,
   DefaultPlayerControllerSystem,
+  DefaultVerticalMotionSystem,
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeSystemRegistry,
 } from '@genesis/runtime'
@@ -54,8 +55,9 @@ onMounted(() => {
   inputProvider = new KeyboardInputProvider(window)
   inputProvider.attach()
   systemRegistry.register(new DefaultPlayerControllerSystem(inputProvider, 3))
-  systemRegistry.register(new DefaultJumpSystem(inputProvider, 50))
-  systemRegistry.register(new DefaultGravitySystem(1))
+  systemRegistry.register(new DefaultJumpSystem(inputProvider, 10))
+  systemRegistry.register(new DefaultGravitySystem(0.5))
+  systemRegistry.register(new DefaultVerticalMotionSystem())
   systemRegistry.register(new DefaultGroundCollisionSystem(400))
 
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)

@@ -31,9 +31,12 @@ import type { RenderWorld } from '../model'
 
 export class DefaultCameraController implements CameraController {
   private _state: CameraState
+  private initialized = false
+  private readonly horizontalDeadZone: number
 
-  constructor() {
+  constructor(horizontalDeadZone = 240) {
     this._state = DEFAULT_CAMERA_STATE
+    this.horizontalDeadZone = horizontalDeadZone
   }
 
   /**
@@ -45,11 +48,22 @@ export class DefaultCameraController implements CameraController {
   update(world: RenderWorld): CameraState {
     const player = this.findPlayer(world)
 
-    if (player && player.position) {
-      this._state = Object.freeze({
-        x: player.position.x,
-        y: player.position.y,
-      })
+    if (player?.position) {
+      if (!this.initialized) {
+        this.initialized = true
+        this._state = Object.freeze({ x: 0, y: player.position.y })
+      } else {
+        const relativeX = player.position.x - this._state.x
+        let x = this._state.x
+        if (relativeX > this.horizontalDeadZone) {
+          x = player.position.x - this.horizontalDeadZone
+        } else if (relativeX < -this.horizontalDeadZone) {
+          x = player.position.x + this.horizontalDeadZone
+        }
+        // Vertical camera stays stable for this platformer slice. Small jumps
+        // therefore remain visibly upward in screen space.
+        this._state = Object.freeze({ x, y: this._state.y })
+      }
     }
     // If no player or no position, keep previous state (no change)
 

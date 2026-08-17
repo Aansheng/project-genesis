@@ -21,9 +21,9 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 11 **In Progress** |
-| Architecture Version | v1.106 (Sprint 11) |
-| Last Completed WO | WO-S11-005 - Entity Inspector Deepening & Runtime Component Inspection |
-| Current User-Visible Behavior | Genesis Studio presents real World entities, a dominant playable Pixi viewport with readable camera anchoring, selectable Explorer rows, structured read-only entity/component Inspector details, isolated AI command input, and Observatory navigation in a unified dark-neutral creative IDE surface. |
+| Architecture Version | v1.107 (Sprint 11) |
+| Last Completed WO | WO-S11-006 - Platformer Control Semantics Stabilization |
+| Current User-Visible Behavior | Genesis Studio presents real World entities, a playable Pixi viewport with horizontal dead-zone camera follow, progressive grounded jumps, readable Explorer/Inspector surfaces, isolated AI command input, and Observatory navigation in a unified dark-neutral creative IDE surface. |
 | Current End-to-End Pipeline | Natural Language → Intent → Semantic World → Game DSL → RuntimeWorldStore → Studio Explorer/Viewport/Inspector → Pixi and Observatory |
 | Current Blocking Issue | Command-bar Enter submission still needs a follow-up browser fix; editing and persistence remain future work. |
 | Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |
@@ -160,6 +160,27 @@ input and camera scenarios.
 Next recommended verification: type Space and Arrow keys in the command input,
 blur it, then verify movement, upward jump, downward gravity, landing, and
 camera readability.
+
+### WO-S11-006 Current Behavior
+
+- World coordinates remain `x → right`, `y → down`; renderer screen transforms
+  preserve those directions.
+- Camera starts with a stable vertical baseline, holds the player in a 240px
+  horizontal dead zone, follows only after horizontal threshold exit, and does
+  not follow small jumps vertically.
+- The runtime path is `PlayerController → Jump(edge) → Gravity(velocity) →
+  VerticalMotion(position) → GroundCollision(clamp/reset)`.
+- Space applies one negative `VelocityComponent.y` only on a press edge and
+  only while grounded; gravity accelerates it toward positive y; landing sets
+  it back to zero.
+
+Known gap: automated legacy Jump/Gravity unit tests still assert the retired
+positional semantics and must be migrated to the WO-S11-006 contract. Browser
+manual verification remains pending.
+
+Next recommended verification: generate MarioWorld and verify right/left
+movement, progressive jump/apex/fall/landing, held-Space behavior, second jump,
+and command-input isolation in the browser.
 
 ### WO-S11-005 Current Behavior
 

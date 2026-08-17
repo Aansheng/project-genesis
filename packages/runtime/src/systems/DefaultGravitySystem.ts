@@ -2,9 +2,8 @@
  * DefaultGravitySystem — default implementation of GravitySystem.
  *
  * Accepts an optional gravity value at construction (default: 1).
- * On each tick, iterates over all entities in the world. Entities that
- * carry a PositionComponent in their components array have their y
- * coordinate incremented by the gravity value.
+ * On each tick, gravity increments the y value of a player's
+ * VelocityComponent. Position is applied by VerticalMotionSystem.
  *
  * Entities without a PositionComponent are passed through unchanged.
  *
@@ -21,19 +20,18 @@
  * - Empty world: no-op (returns frozen copy)
  *
  * Design principles:
- * - Minimal: single responsibility — apply gravity to entities with PositionComponent
- * - Foundation only: no collision, no jumping, no physics engine
+ * - Minimal: single responsibility — apply gravity to entities with velocity
+ * - Foundation only: no position integration, collision, jumping, or physics engine
  * - Framework-independent: no Vue, Pinia, or web framework imports
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { World, Entity } from '@genesis/shared'
 import {
-  isPositionComponent,
-  createPositionComponent,
+  createVelocityComponent,
+  isVelocityComponent,
 } from '@genesis/shared'
 import type { GravitySystem } from './GravitySystem'
 import type { GravitySystemResult } from './GravitySystemResult'
-import type { PositionComponent } from '@genesis/shared'
 
 /** Default gravity value when none is specified. */
 const DEFAULT_GRAVITY = 1
@@ -92,7 +90,7 @@ export class DefaultGravitySystem implements GravitySystem {
   // ---------------------------------------------------------------------------
 
   /**
-   * Determine whether any entities are affected by gravity and count how many.
+   * Determine whether any entities carry vertical velocity and count them.
    */
   private applyGravity(world: World): {
     affectedEntities: number
@@ -100,7 +98,7 @@ export class DefaultGravitySystem implements GravitySystem {
     let affectedEntities = 0
 
     for (const entity of world.entities) {
-      if (this.hasPositionComponent(entity)) {
+      if (this.hasVelocityComponent(entity)) {
         affectedEntities++
       }
     }
@@ -115,26 +113,23 @@ export class DefaultGravitySystem implements GravitySystem {
     const updatedEntities: Entity[] = []
 
     for (const entity of world.entities) {
-      if (this.hasPositionComponent(entity)) {
-        const oldComponent = this.findPositionComponent(entity)!
-        const newY = oldComponent.properties.y + this.gravity
-        const newX = oldComponent.properties.x
-        const newPositionComponent = createPositionComponent(newX, newY)
-
+      if (this.hasVelocityComponent(entity)) {
+        const oldVelocity = this.findVelocityComponent(entity)!
+        const newVelocityComponent = createVelocityComponent(
+          oldVelocity.properties.x,
+          oldVelocity.properties.y + this.gravity,
+        )
         const updatedComponents = entity.components
           ? Object.freeze(
               entity.components.map((c) =>
-                isPositionComponent(c) ? newPositionComponent : c,
+                isVelocityComponent(c) ? newVelocityComponent : c,
               ),
             )
-          : Object.freeze([newPositionComponent])
+          : Object.freeze([newVelocityComponent])
 
         updatedEntities.push(
           Object.freeze({
-            id: entity.id,
-            type: entity.type,
-            x: entity.x,
-            y: entity.y + this.gravity,
+            ...entity,
             components: updatedComponents,
           }) as unknown as Entity,
         )
@@ -158,16 +153,16 @@ export class DefaultGravitySystem implements GravitySystem {
   }
 
   /**
-   * Check whether an entity has a PositionComponent in its components array.
+   * Check whether an entity has a VelocityComponent in its components array.
    */
-  private hasPositionComponent(entity: Entity): boolean {
+  private hasVelocityComponent(entity: Entity): boolean {
     const components = entity.components
     if (!components || components.length === 0) {
       return false
     }
 
     for (const component of components) {
-      if (isPositionComponent(component)) {
+      if (isVelocityComponent(component)) {
         return true
       }
     }
@@ -176,13 +171,13 @@ export class DefaultGravitySystem implements GravitySystem {
   }
 
   /**
-   * Find the PositionComponent in an entity's components array.
+   * Find the VelocityComponent in an entity's components array.
    */
-  private findPositionComponent(entity: Entity): PositionComponent | undefined {
+  private findVelocityComponent(entity: Entity) {
     const components = entity.components
     if (!components) return undefined
     for (const component of components) {
-      if (isPositionComponent(component)) {
+      if (isVelocityComponent(component)) {
         return component
       }
     }

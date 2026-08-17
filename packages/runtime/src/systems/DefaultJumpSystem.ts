@@ -1,10 +1,8 @@
 /**
  * DefaultJumpSystem — default implementation of JumpSystem.
  *
- * Accepts an InputProvider and optional jump height at construction.
- * On each tick, reads the current keyboard state. If the Space key is
- * pressed, all player entities (type === 'player') with a PositionComponent
- * have their y coordinate decreased by jumpHeight.
+ * Accepts an InputProvider and optional initial jump speed at construction.
+ * A Space press edge gives grounded players a negative VelocityComponent.y.
  *
  * Entities without type 'player' or without a PositionComponent are
  * passed through unchanged.
@@ -15,8 +13,7 @@
  *
  * Behaviors:
  * - Pure: no side effects, no I/O, no external calls beyond getState()
- * - Stateless: no internal state between ticks (InputProvider is external state)
- * - Deterministic: same (world, inputState, jumpHeight) always produces same output
+ * - Deterministic: same (world, inputState, jumpVelocity) produces the same output
  * - Immutable: output World is deeply frozen; input is never mutated
  * - Entity without 'player' type: ignored (passed through unchanged)
  * - Entity without PositionComponent: ignored
@@ -25,33 +22,31 @@
  *
  * Design principles:
  * - Minimal: single responsibility — upward impulse on Space press
- * - Foundation only: no physics engine, no velocity, no acceleration, no double jump
+ * - Foundation only: no physics engine, no acceleration integration, no double jump
  * - Framework-independent: no Vue, Pinia, or web framework imports
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { World, Entity } from '@genesis/shared'
-import { createPositionComponent, isPositionComponent } from '@genesis/shared'
+import { createVelocityComponent, isPositionComponent, isVelocityComponent } from '@genesis/shared'
 import type { InputProvider } from '../input'
 import type { JumpSystem } from './JumpSystem'
 import type { JumpSystemResult } from './JumpSystemResult'
 import type { PositionComponent } from '@genesis/shared'
 
-/** Default jump height when none is specified. */
-const DEFAULT_JUMP_HEIGHT = 50
-
 export class DefaultJumpSystem implements JumpSystem {
   readonly name = 'JumpSystem'
 
   private readonly inputProvider: InputProvider
-  private readonly jumpHeight: number
+  private readonly jumpVelocity: number
+  private previousSpacePressed = false
 
   /**
    * @param inputProvider  — source of keyboard state for each tick
-   * @param jumpHeight     — pixels to move upward per Space press (default: 50)
+   * @param jumpVelocity   — initial upward velocity (default: -10)
    */
-  constructor(inputProvider: InputProvider, jumpHeight: number = DEFAULT_JUMP_HEIGHT) {
+  constructor(inputProvider: InputProvider, jumpVelocity: number = 10) {
     this.inputProvider = inputProvider
-    this.jumpHeight = jumpHeight
+    this.jumpVelocity = -Math.abs(jumpVelocity)
   }
 
   /**
@@ -86,7 +81,7 @@ export class DefaultJumpSystem implements JumpSystem {
       world: outputWorld,
       result: Object.freeze({
         jumpedPlayers,
-        jumpHeight: this.jumpHeight,
+        jumpHeight: Math.abs(this.jumpVelocity),
       }),
     })
   }
@@ -101,19 +96,18 @@ export class DefaultJumpSystem implements JumpSystem {
   private applyJump(world: World): {
     jumpedPlayers: number
   } {
-    // Check if Space is pressed and count how many player entities would jump.
-    // Reading inputState directly rather than storing a variable we don't use.
     const inputState = this.inputProvider.getState()
-
-    // No jump when Space is not pressed
-    if (!inputState.isPressed('Space')) {
+    const spacePressed = inputState.isPressed('Space')
+    const pressedEdge = spacePressed && !this.previousSpacePressed
+    this.previousSpacePressed = spacePressed
+    if (!pressedEdge) {
       return { jumpedPlayers: 0 }
     }
 
     let jumpedPlayers = 0
 
     for (const entity of world.entities) {
-      if (entity.type === 'player' && this.hasPositionComponent(entity)) {
+      if (entity.type === 'player' && this.canJump(entity)) {
         jumpedPlayers++
       }
     }
@@ -125,30 +119,29 @@ export class DefaultJumpSystem implements JumpSystem {
    * Build a new frozen World with updated player entity positions.
    */
   private buildUpdatedWorld(world: World): World {
-    // Space was pressed (pre-validated in applyJump), apply jump to all players
     const updatedEntities: Entity[] = []
 
     for (const entity of world.entities) {
-      if (entity.type === 'player' && this.hasPositionComponent(entity)) {
-        const oldComponent = this.findPositionComponent(entity)!
-        const newY = oldComponent.properties.y - this.jumpHeight
-        const newX = oldComponent.properties.x
-        const newPositionComponent = createPositionComponent(newX, newY)
+      if (entity.type === 'player' && this.canJump(entity)) {
+        const velocity = this.findVelocityComponent(entity)
+        const newVelocityComponent = createVelocityComponent(
+          velocity?.properties.x ?? 0,
+          this.jumpVelocity,
+        )
 
+        const hasVelocity = entity.components?.some(isVelocityComponent) ?? false
         const updatedComponents = entity.components
-          ? Object.freeze(
-              entity.components.map((c) =>
-                isPositionComponent(c) ? newPositionComponent : c,
+          ? Object.freeze([
+              ...entity.components.map((c) =>
+                isVelocityComponent(c) ? newVelocityComponent : c,
               ),
-            )
-          : Object.freeze([newPositionComponent])
+              ...(hasVelocity ? [] : [newVelocityComponent]),
+            ])
+          : Object.freeze([newVelocityComponent])
 
         updatedEntities.push(
           Object.freeze({
-            id: entity.id,
-            type: entity.type,
-            x: entity.x,
-            y: entity.y - this.jumpHeight,
+            ...entity,
             components: updatedComponents,
           }) as unknown as Entity,
         )
@@ -171,20 +164,11 @@ export class DefaultJumpSystem implements JumpSystem {
     }) as unknown as World
   }
 
-  /**
-   * Check whether an entity has a PositionComponent in its components array.
-   */
-  private hasPositionComponent(entity: Entity): boolean {
-    const components = entity.components
-    if (!components || components.length === 0) {
-      return false
-    }
-    for (const component of components) {
-      if (isPositionComponent(component)) {
-        return true
-      }
-    }
-    return false
+  private canJump(entity: Entity): boolean {
+    const position = this.findPositionComponent(entity)
+    if (!position) return false
+    const velocity = this.findVelocityComponent(entity)
+    return !velocity || velocity.properties.y === 0
   }
 
   /**
@@ -199,5 +183,9 @@ export class DefaultJumpSystem implements JumpSystem {
       }
     }
     return undefined
+  }
+
+  private findVelocityComponent(entity: Entity) {
+    return entity.components?.find(isVelocityComponent)
   }
 }

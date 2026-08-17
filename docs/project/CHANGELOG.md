@@ -8,6 +8,17 @@
 
 ## Sprint 11 - Genesis Studio Experience
 
+### WO-S11-006 - Platformer Control Semantics Stabilization
+
+- Replaced positional jump displacement with velocity-based jump, gravity,
+  vertical motion, and ground velocity reset.
+- Added Space press-edge and grounded-only jump semantics.
+- Replaced hard-lock camera follow with horizontal dead-zone follow and stable
+  vertical framing.
+- Preserved world coordinate semantics and Studio input isolation.
+- Created ADR-0220.
+- Architecture version v1.106 to v1.107.
+
 ### WO-S11-005 - Entity Inspector Deepening & Runtime Component Inspection
 
 - Deepened the Studio Inspector with Entity summary, Position, and generic

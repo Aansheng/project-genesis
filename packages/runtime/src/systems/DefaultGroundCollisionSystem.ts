@@ -33,6 +33,8 @@ import type { World, Entity } from '@genesis/shared'
 import {
   isPositionComponent,
   createPositionComponent,
+  createVelocityComponent,
+  isVelocityComponent,
 } from '@genesis/shared'
 import type { GroundCollisionSystem } from './GroundCollisionSystem'
 import type { GroundCollisionSystemResult } from './GroundCollisionSystemResult'
@@ -129,10 +131,14 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
         const updatedComponents = entity.components
           ? Object.freeze(
               entity.components.map((c) =>
-                isPositionComponent(c) ? newPositionComponent : c,
+                isPositionComponent(c)
+                  ? newPositionComponent
+                  : isVelocityComponent(c)
+                    ? createVelocityComponent(c.properties.x, 0)
+                    : c,
               ),
             )
-          : Object.freeze([newPositionComponent])
+          : Object.freeze([newPositionComponent, createVelocityComponent()])
 
         updatedEntities.push(
           Object.freeze({

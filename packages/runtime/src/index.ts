@@ -28,6 +28,8 @@ export type { GravitySystem, GravitySystemResult } from './systems'
 export { DefaultGravitySystem } from './systems'
 export type { GroundCollisionSystem, GroundCollisionSystemResult } from './systems'
 export { DefaultGroundCollisionSystem } from './systems'
+export type { VerticalMotionSystem } from './systems'
+export { DefaultVerticalMotionSystem } from './systems'
 export type { JumpSystem, JumpSystemResult } from './systems'
 export { DefaultJumpSystem } from './systems'
 
