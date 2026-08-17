@@ -25,16 +25,26 @@ import { useObservatoryDataStore } from './observatoryData'
 
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
-function createCommandExecutor(worldStore: RuntimeWorldStore): { executor: CommandExecutor; useAsync: boolean } {
-  const configuration = createAIConfiguration(import.meta.env)
+const DEFAULT_AI_GATEWAY_URL = 'http://127.0.0.1:8787/api/world-generation'
+
+export function createCommandExecutor(
+  worldStore: RuntimeWorldStore,
+  env: Record<string, string | undefined> = import.meta.env,
+  fetcher: typeof fetch = globalThis.fetch.bind(globalThis),
+): { executor: CommandExecutor; useAsync: boolean } {
+  const configuration = createAIConfiguration(env)
   const deterministicProvider = new DeterministicGameWorldGenerationProvider()
   let generationProvider: GameWorldGenerationProvider = deterministicProvider
   let useAsync = false
 
-  if (configuration.enabled && configuration.gatewayURL) {
+  // The server owns runtime provider availability. The browser always uses the
+  // gateway when one is known; unavailable/disabled server state is handled by
+  // the existing deterministic fallback instead of a stale build-time flag.
+  const gatewayURL = configuration.gatewayURL || DEFAULT_AI_GATEWAY_URL
+  if (gatewayURL) {
     try {
       const modelProvider = new GameWorldGenerationProviderAdapter(
-        new LLMGameWorldGenerationCandidateProvider(new BrowserStructuredGenerationClient(configuration.gatewayURL), undefined, {
+        new LLMGameWorldGenerationCandidateProvider(new BrowserStructuredGenerationClient(gatewayURL, fetcher), undefined, {
           maxOutputTokens: configuration.maxOutputTokens ?? 4000,
           timeoutMs: configuration.timeoutMs ?? 30000,
           maxAttempts: configuration.maxAttempts ?? 2,

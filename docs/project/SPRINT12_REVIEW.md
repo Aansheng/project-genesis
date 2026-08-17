@@ -104,10 +104,21 @@ response key, trace key, or committed credential was found.
 
 ## Real Provider Verification
 
-**Pending.** No credential was available in the workspace, so the requested
-ice/snow platformer scenario was not claimed as verified. A human with a
-configured provider must run Settings → Test Connection → rich generation and
-confirm AI source, specification fields, runtime entities, Pixi, and trace.
+Verified manually after WO-S12-015 using the local Web and AI Server session:
+
+- Settings saved the OpenAI-compatible DeepSeek configuration and Test
+  Connection returned `Connected`.
+- The rich ice/snow platformer request used the runtime gateway path after the
+  Web app was already open: `source: ai`, `status: success`, validation passed,
+  and the Runtime contained player, two patrol enemies, checkpoint, and boss.
+- Full Observatory showed the candidate/specification and all eight pipeline
+  stages, including successful Runtime Injection.
+- The provider was disabled without reload; the next request produced
+  `deterministic · fallback` with a truthful fallback trace. Re-enabling it
+  restored `ai · success` on the next request without reload.
+
+Product verification is **YES** for the runtime activation behavior. The
+semantic/visual limitations described below remain unchanged.
 
 ## Semantic Capability Matrix Summary
 
@@ -164,6 +175,7 @@ persistent credentials, Studio redesign, or semantic schema expansion.
 
 ## Freeze Decision
 
-**Frozen with known gaps.** The architecture, security boundary, fallback,
+**FROZEN with known gaps.** The architecture, security boundary, fallback,
 reliability policy, trace contract, and semantic/visual boundary are documented.
-The real-provider path is explicitly pending rather than represented as passed.
+The real-provider path and runtime activation transitions are verified. Remaining
+semantic and visual limitations are intentionally deferred to Sprint 13.

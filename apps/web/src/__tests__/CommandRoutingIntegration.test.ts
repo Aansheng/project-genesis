@@ -142,48 +142,48 @@ describe('CommandRouting Integration', () => {
       setActivePinia(createPinia())
     })
 
-    it('should route through CommandExecutor from store.send()', () => {
+    it('should route through CommandExecutor from store.send()', async () => {
       const store = useGameStore()
 
-      store.send('创建 MarioWorld')
+      await store.send('创建 MarioWorld')
 
       expect(store.log.length).toBeGreaterThan(0)
       expect(store.log[0]).toContain('Created world')
     })
 
-    it('should update renderVersion after successful command', () => {
+    it('should update renderVersion after successful command', async () => {
       const store = useGameStore()
 
       const before = store.renderVersion
-      store.send('创建 MarioWorld')
+      await store.send('创建 MarioWorld')
       const after = store.renderVersion
 
       expect(after).toBeGreaterThan(before)
     })
 
-    it('should not increment renderVersion for unknown commands', () => {
+    it('should not increment renderVersion for unknown commands', async () => {
       const store = useGameStore()
 
       const before = store.renderVersion
-      store.send('hello')
+      await store.send('hello')
       const after = store.renderVersion
 
       expect(after).toBe(before)
     })
 
-    it('should inject world into store.worldStore', () => {
+    it('should inject world into store.worldStore', async () => {
       const store = useGameStore()
 
-      store.send('创建 MarioWorld')
+      await store.send('创建 MarioWorld')
 
       const world = store.worldStore.getWorld()
       expect(world.entities.length).toBeGreaterThan(0)
     })
 
-    it('should have empty world for unknown commands', () => {
+    it('should have empty world for unknown commands', async () => {
       const store = useGameStore()
 
-      store.send('hello')
+      await store.send('hello')
 
       const world = store.worldStore.getWorld()
       expect(world.entities.length).toBe(0)

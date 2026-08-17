@@ -20,10 +20,9 @@ behavior that has not been implemented.
 
 The diagnostic result distinguishes `source: "ai"` from
 `source: "deterministic"` and includes validation status, validation errors,
-the accepted specification, and resulting entity IDs. Real API calls remain a
-manual verification step and are not part of automated tests. No provider
-credential was available during the Sprint 12 freeze audit, so the real-provider
-scenario remains pending rather than claimed as verified.
+the accepted specification, and resulting entity IDs. The runtime activation
+scenario was manually verified with an OpenAI-compatible DeepSeek provider;
+credentials remain server-session-only and are not recorded here.
 
 Observability status: prompt assembly, candidate parsing, validation, design
 specification, world compilation, and runtime injection are represented by the

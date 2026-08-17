@@ -2,6 +2,15 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S12-015 - Runtime AI Provider Activation
+
+- Removed the build-time `VITE_AI_ENABLED` gate from production provider
+  selection; Web now uses the gateway-first runtime path.
+- Server configuration changes now affect the next Studio generation without
+  Web reload, rebuild, or server restart.
+- Added activation/fallback regression coverage and ADR-0236; architecture
+  version v1.123 → v1.124.
+
 ### WO-S12-014 - Sprint 12 AI Generation Product Baseline Freeze
 
 - Audited and documented the real Studio → AI Gateway → AI Server → semantic
