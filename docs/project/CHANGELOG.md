@@ -8,6 +8,15 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-003 - LLM World Generation Provider Boundary Foundation
+
+- Added the vendor-neutral `StructuredGenerationClient` model boundary.
+- Added an LLM candidate provider that parses untrusted structured output only.
+- Kept `GameWorldGenerationCandidate` validation and conversion authoritative.
+- Added deterministic fallback after model, parse, or candidate validation failure.
+- Added fake-client coverage for valid, malformed, empty, invalid, and pipeline paths.
+- Added ADR-0226; architecture version v1.112 to v1.113.
+
 ### WO-S12-002 - Structured AI World Generation Contract Foundation
 
 - Added the semantic `GameWorldGenerationCandidate` and candidate-provider port.

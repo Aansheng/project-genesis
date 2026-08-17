@@ -26,6 +26,7 @@ export class DefaultGameWorldValidator implements GameWorldValidator {
     if (!Array.isArray(entities)) {
       errors.push('entities must be an array')
     } else {
+      if (entities.length === 0) errors.push('entities must not be empty')
       const ids = new Set<string>()
       entities.forEach((entity, index) => {
         if (!isRecord(entity)) {

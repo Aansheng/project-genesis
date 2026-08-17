@@ -20,10 +20,13 @@ export type {
   GameWorldGenerationCandidateProvider,
   GameWorldValidationResult,
   GameWorldValidator,
+  StructuredGenerationClient,
 } from './generation'
 export {
   DefaultGameWorldValidator,
   GameWorldGenerationProviderAdapter,
   DeterministicGameWorldGenerationProvider,
   DeterministicGameWorldGenerationCandidateProvider,
+  LLMGameWorldGenerationCandidateProvider,
+  FallbackGameWorldGenerationProvider,
 } from './generation'
