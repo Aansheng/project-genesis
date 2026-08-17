@@ -73,6 +73,7 @@ importers:
   packages/ai-server:
     specifiers:
       '@genesis/ai': workspace:*
+      '@types/node': ^18.0.0
       openai: ^4.73.0
       typescript: ^5.4.0
       vitest: ^1.6.1
@@ -80,6 +81,7 @@ importers:
       '@genesis/ai': link:../ai
       openai: 4.104.0
     devDependencies:
+      '@types/node': 18.19.130
       typescript: 5.9.3
       vitest: 1.6.1
 

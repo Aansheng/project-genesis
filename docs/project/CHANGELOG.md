@@ -8,6 +8,14 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-006 - AI Gateway Runtime Host Foundation
+
+- Added a real Node HTTP runtime host in `@genesis/ai-server` with `startAIServer` and `stopAIServer`.
+- Mounted `POST /api/world-generation` through the existing gateway handler with safe errors, request validation, CORS for local development, and graceful shutdown.
+- Kept `StructuredGenerationClient` injected; the HTTP layer does not construct providers or access secrets.
+- Added runtime-host HTTP/integration/security coverage and browser-safe `.env.example` configuration.
+- Created ADR-0229; architecture version v1.115 to v1.116.
+
 ### WO-S12-005 - AI Model Gateway Foundation
 
 - Added `@genesis/ai-server` with the server-only OpenAI structured client and framework-neutral AI Gateway handler.

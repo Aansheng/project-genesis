@@ -13,7 +13,7 @@
 **Sprint 9** — Renderer Foundation (Complete)
 **Sprint 10** — AI Generation Pipeline (Complete)
 **Sprint 11** - Genesis Studio Experience (Baseline Frozen)
-**Sprint 12** - AI World Generation (WO-S12-005 complete)
+**Sprint 12** - AI World Generation (WO-S12-006 complete)
 
 ---
 
@@ -21,9 +21,9 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 12 **Provider Boundary Foundation**; Sprint 11 playable baseline remains frozen |
-| Architecture Version | v1.115 (Sprint 12) |
-| Last Completed WO | WO-S12-005 - AI Model Gateway Foundation |
+| Status | Sprint 12 **AI Gateway Runtime Host Foundation**; Sprint 11 playable baseline remains frozen |
+| Architecture Version | v1.116 (Sprint 12) |
+| Last Completed WO | WO-S12-006 - AI Gateway Runtime Host Foundation |
 | Current User-Visible Behavior | Genesis Studio presents a creation-oriented command bar with real idle/running/success/error activity states and entity-count summaries, alongside a container-sized Pixi viewport with Empty/Ready/Running state, real Arrow Keys/Space hints, horizontal dead-zone camera follow, Entity/Observatory Inspector modes, and SPA Observatory navigation. |
 | Current End-to-End Pipeline | Natural Language → Studio command lifecycle → IntentRouter → GameIntentExtractor → optional BrowserStructuredGenerationClient → HTTP AI Gateway → server StructuredGenerationClient/OpenAI → unknown candidate → GameWorldValidator → GameWorldModel, with deterministic provider fallback → SemanticGameDslBuilder → RuntimeWorldStore → Studio/Pixi/Observatory |
 | Current Blocking Issue | None for the frozen playable-authoring baseline; editing and persistence remain future work. |
@@ -41,7 +41,7 @@
 | Validator | StructuredOutputValidator — unified response validation for all providers |
 | Streaming | Complete — Pipeline.stream() + StreamChunk events + Streaming UI Integration |
 | Current Provider | ProviderFactory (configured via AIConfiguration) |
-| Backend Status | AI Gateway foundation in `@genesis/ai-server`; host/server deployment wiring remains pending |
+| Backend Status | AI Gateway runtime host active in `@genesis/ai-server`; provider construction remains a server composition-root concern |
 | Networking Status | None |
 | Development Standards | **Established** — AI_DEVELOPMENT_STANDARD.md v1.0 |
 | Architecture Principles | **Established** — ARCHITECTURE_PRINCIPLES.md v1.0 |
@@ -54,6 +54,15 @@
 - `创建 MarioWorld` remains the regression path for world creation, Pixi rendering, movement, and Observatory data.
 
 Known remaining gap: a concrete deployment host must mount `createAIGatewayHandler`; the framework-neutral gateway foundation and all in-process tests are complete.
+
+### WO-S12-006 Current Behavior
+
+- `@genesis/ai-server` now listens on `127.0.0.1:8787` by default and exposes `POST /api/world-generation`.
+- `startAIServer` receives the `StructuredGenerationClient`; `stopAIServer` closes the owned server without global state.
+- Browser configuration is limited to `VITE_AI_ENABLED` and `VITE_AI_GATEWAY_URL`; server credentials stay in the server composition root.
+- Local gateway/provider failures remain safe HTTP errors, and the existing browser deterministic fallback keeps world creation working.
+
+Known remaining gap: no authentication, rate limiting, streaming, deployment manifest, or production browser verification is included in this foundation.
 
 ### WO-S12-004 Current Behavior
 
@@ -313,7 +322,7 @@ projection are deterministic; no live LLM output participates in Mario.
 
 Code Complete: YES. Product Verified: YES.
 
-Next recommended verification: begin Sprint 12 AI World Generation planning;
+Next recommended verification: S12-007 should add a server composition-root entrypoint and deployment startup wiring around this host, then manually verify Studio → Gateway → candidate → Pixi with a fake provider.
 editing and persistence remain explicitly out of this frozen baseline.
 
 ---
