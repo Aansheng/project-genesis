@@ -8,6 +8,17 @@
 
 ## Sprint 10 — AI Generation Pipeline
 
+### WO-S10-012 — Observatory SPA Runtime Session Integration
+
+- Made `App.vue` a stable router host and added the game workspace as the `/` route.
+- Added SPA navigation between Game and Observatory with existing Vue Router.
+- Preserved the Pinia-owned `RuntimeWorldStore` across route changes without persistence.
+- Moved Pixi, RAF runner, visualization loop, and keyboard input into the game route lifecycle.
+- Game-route unmount now stops loops, detaches input, and destroys Pixi; remount renders the surviving world.
+- Kept `ObservatoryRuntimeBinding` synchronized with the same real Runtime world.
+- Added route/session/lifecycle integration coverage and ADR-0214.
+- Architecture version v1.100 → v1.101.
+
 ### WO-S10-011 — Observatory Real Runtime Binding Foundation
 
 - Added a thin `ObservatoryRuntimeBinding` from `RuntimeWorldStore` to the existing Observatory data store.
