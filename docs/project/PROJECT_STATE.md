@@ -13,7 +13,7 @@
 **Sprint 9** — Renderer Foundation (Complete)
 **Sprint 10** — AI Generation Pipeline (Complete)
 **Sprint 11** - Genesis Studio Experience (Baseline Frozen)
-**Sprint 12** - AI World Generation (WO-S12-006 complete)
+**Sprint 12** - AI World Generation (WO-S12-007 complete)
 
 ---
 
@@ -21,9 +21,9 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 12 **AI Gateway Runtime Host Foundation**; Sprint 11 playable baseline remains frozen |
-| Architecture Version | v1.116 (Sprint 12) |
-| Last Completed WO | WO-S12-006 - AI Gateway Runtime Host Foundation |
+| Status | Sprint 12 **AI Server Composition Root Foundation**; Sprint 11 playable baseline remains frozen |
+| Architecture Version | v1.117 (Sprint 12) |
+| Last Completed WO | WO-S12-007 - AI Server Composition Root Foundation |
 | Current User-Visible Behavior | Genesis Studio presents a creation-oriented command bar with real idle/running/success/error activity states and entity-count summaries, alongside a container-sized Pixi viewport with Empty/Ready/Running state, real Arrow Keys/Space hints, horizontal dead-zone camera follow, Entity/Observatory Inspector modes, and SPA Observatory navigation. |
 | Current End-to-End Pipeline | Natural Language → Studio command lifecycle → IntentRouter → GameIntentExtractor → optional BrowserStructuredGenerationClient → HTTP AI Gateway → server StructuredGenerationClient/OpenAI → unknown candidate → GameWorldValidator → GameWorldModel, with deterministic provider fallback → SemanticGameDslBuilder → RuntimeWorldStore → Studio/Pixi/Observatory |
 | Current Blocking Issue | None for the frozen playable-authoring baseline; editing and persistence remain future work. |

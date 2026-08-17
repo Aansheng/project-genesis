@@ -8,6 +8,13 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-007 - AI Server Composition Root Foundation
+
+- Added executable `@genesis/ai-server` `main.ts` composition root with typed,
+  validated server configuration and server-side OpenAI client construction.
+- Added `dev`/`start` scripts, graceful SIGINT/SIGTERM shutdown, and `GET /health`.
+- Added ADR-0230 and local startup documentation; architecture version v1.116 to v1.117.
+
 ### WO-S12-006 - AI Gateway Runtime Host Foundation
 
 - Added a real Node HTTP runtime host in `@genesis/ai-server` with `startAIServer` and `stopAIServer`.

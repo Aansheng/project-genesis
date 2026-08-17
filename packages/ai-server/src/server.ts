@@ -64,6 +64,10 @@ export async function startAIServer(client: StructuredGenerationClient, options:
       response.end()
       return
     }
+    if (request.method === 'GET' && request.url?.split('?')[0] === '/health') {
+      writeResponse(response, Response.json({ status: 'ok' }))
+      return
+    }
     if (request.url?.split('?')[0] !== ROUTE) {
       writeResponse(response, Response.json({ error: 'Not found' }, { status: 404 }))
       return

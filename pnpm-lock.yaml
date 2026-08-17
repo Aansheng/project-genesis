@@ -76,6 +76,7 @@ importers:
       '@types/node': ^18.0.0
       openai: ^4.73.0
       typescript: ^5.4.0
+      vite-node: ^1.6.1
       vitest: ^1.6.1
     dependencies:
       '@genesis/ai': link:../ai
@@ -83,6 +84,7 @@ importers:
     devDependencies:
       '@types/node': 18.19.130
       typescript: 5.9.3
+      vite-node: 1.6.1
       vitest: 1.6.1
 
   packages/renderer:
