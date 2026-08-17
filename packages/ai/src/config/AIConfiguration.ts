@@ -49,6 +49,12 @@ export interface AIConfiguration {
    */
   maxOutputTokens?: number
 
+  /** Maximum time allowed for one structured-generation request. */
+  timeoutMs?: number
+
+  /** Total structured-generation attempts, bounded by the generation layer. */
+  maxAttempts?: number
+
   /** Enable streaming response mode */
   streaming?: boolean
 

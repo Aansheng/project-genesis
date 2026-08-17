@@ -23,6 +23,9 @@ export function createAIConfiguration(
   const gatewayURL = env.VITE_AI_GATEWAY_URL || undefined
   const temperature = env.VITE_AI_TEMPERATURE ? Number(env.VITE_AI_TEMPERATURE) : 0.2
   const maxTokens = env.VITE_AI_MAX_TOKENS ? Number(env.VITE_AI_MAX_TOKENS) : 800
+  const maxOutputTokens = env.VITE_AI_MAX_OUTPUT_TOKENS ? Number(env.VITE_AI_MAX_OUTPUT_TOKENS) : 4000
+  const timeoutMs = env.VITE_AI_TIMEOUT_MS ? Number(env.VITE_AI_TIMEOUT_MS) : 30000
+  const maxAttempts = env.VITE_AI_MAX_ATTEMPTS ? Number(env.VITE_AI_MAX_ATTEMPTS) : 2
   const streaming = env.VITE_AI_STREAMING === 'true' || undefined
   const toolCalling = env.VITE_AI_TOOL_CALLING === 'true' || undefined
 
@@ -49,6 +52,9 @@ export function createAIConfiguration(
     model,
     temperature,
     maxTokens,
+    maxOutputTokens,
+    timeoutMs,
+    maxAttempts,
     gatewayURL,
     allowBrowser: false,
   }

@@ -25,3 +25,17 @@ Observability status: prompt assembly, candidate parsing, validation, design
 specification, world compilation, and runtime injection are represented by the
 latest session trace. AI failure remains distinct from deterministic fallback;
 no credentials, headers, raw transport payloads, or model reasoning are traced.
+
+## Reliability capabilities
+
+| Capability | Status | Policy |
+| --- | --- | --- |
+| Structured Response Validation | SUPPORTED | Strict candidate validation remains authoritative. |
+| Output Budget | SUPPORTED | Server default is 4000 tokens; configurable via `AI_MAX_OUTPUT_TOKENS`. |
+| Timeout | SUPPORTED | One request is bounded by `AI_TIMEOUT_MS` (default 30 seconds). |
+| Bounded Retry | SUPPORTED | At most one retry; only transient/provider/truncation failures retry. |
+| Deterministic Fallback | SUPPORTED | Terminal AI failures produce a playable deterministic world. |
+| Malformed JSON Recovery | SUPPORTED | Empty/malformed/truncated text is classified and rejected; no permissive prose extraction. |
+
+Generation traces expose attempt count and failure reason without provider
+secrets or raw transport payloads.

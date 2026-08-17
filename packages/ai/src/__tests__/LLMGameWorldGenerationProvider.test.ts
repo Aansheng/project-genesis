@@ -48,6 +48,32 @@ describe('LLMGameWorldGenerationCandidateProvider', () => {
     await expect(malformed.generate(request)).rejects.toThrow()
     await expect(empty.generate(request)).rejects.toThrow('Empty structured generation response')
   })
+
+  it('retries truncation once, passes the configured budget, and records attempts', async () => {
+    const calls: unknown[] = []
+    const provider = new LLMGameWorldGenerationCandidateProvider({
+      generateStructured: async (...args) => {
+        calls.push(args[2])
+        return calls.length === 1 ? '{"entities":[' : validCandidate
+      },
+    }, undefined, { maxOutputTokens: 1234, timeoutMs: 99, maxAttempts: 2 })
+
+    await expect(provider.generate(request)).resolves.toEqual(JSON.parse(validCandidate))
+    expect(calls).toEqual([{ maxOutputTokens: 1234, timeoutMs: 99 }, { maxOutputTokens: 1234, timeoutMs: 99 }])
+    expect(provider.getGenerationAttempts?.()).toEqual([
+      { attempt: 1, status: 'failed', failureReason: 'output_truncated' },
+      { attempt: 2, status: 'success' },
+    ])
+  })
+
+  it('does not retry invalid candidate-shaped JSON', async () => {
+    let calls = 0
+    const provider = new LLMGameWorldGenerationCandidateProvider({
+      generateStructured: async () => { calls++; return '{"entities":}' },
+    })
+    await expect(provider.generate(request)).rejects.toThrow('invalid structured JSON')
+    expect(calls).toBe(1)
+  })
 })
 
 describe('LLM candidate validation and deterministic fallback', () => {

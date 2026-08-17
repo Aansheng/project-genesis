@@ -27,6 +27,10 @@ export type {
   GameWorldGenerationDiagnostics,
   GameWorldGenerationResult,
   GameWorldGenerationSource,
+  StructuredGenerationAttempt,
+  StructuredGenerationFailureReason,
+  StructuredGenerationReliabilityConfig,
+  StructuredGenerationRequestOptions,
 } from './generation'
 export {
   DefaultGameWorldValidator,
@@ -37,4 +41,6 @@ export {
   FallbackGameWorldGenerationProvider,
   DEFAULT_GAME_DESIGN_CAPABILITIES,
   DefaultGameDesignPromptBuilder,
+  DEFAULT_STRUCTURED_GENERATION_RELIABILITY,
+  StructuredGenerationError,
 } from './generation'

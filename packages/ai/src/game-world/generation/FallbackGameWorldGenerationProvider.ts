@@ -4,6 +4,7 @@ import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 import type { GameWorldGenerationResult } from './GameWorldGenerationDiagnostics'
 import type { GameGenerationTraceStage } from './GameWorldGenerationDiagnostics'
 import { InvalidGameWorldCandidateError } from './GameWorldGenerationProviderAdapter'
+import { StructuredGenerationError, type StructuredGenerationFailureReason } from './StructuredGenerationReliability'
 
 let traceSequence = 0
 
@@ -41,12 +42,15 @@ export class FallbackGameWorldGenerationProvider implements GameWorldGenerationP
           validationStatus: 'invalid' as const,
           validationErrors: Object.freeze([error instanceof Error ? error.message : 'AI generation failed']),
           fallbackReason: error instanceof Error ? error.message : 'AI generation failed',
+          failureReason: failureReason(error),
           ...(error instanceof InvalidGameWorldCandidateError ? { candidate: error.candidate } : {}),
           trace: Object.freeze({
             id: `generation-fallback-${++traceSequence}`,
             source: 'deterministic' as const,
             status: 'fallback' as const,
             stages: Object.freeze(fallbackStages(error, fallback.diagnostics)),
+            ...(error instanceof StructuredGenerationError ? { failureReason: error.reason } : {}),
+            ...(error instanceof StructuredGenerationError ? { attempts: error.attempts } : {}),
           }),
         }),
       })
@@ -54,10 +58,19 @@ export class FallbackGameWorldGenerationProvider implements GameWorldGenerationP
   }
 }
 
+function failureReason(error: unknown): StructuredGenerationFailureReason {
+  if (error instanceof InvalidGameWorldCandidateError) return error.reason
+  if (error instanceof StructuredGenerationError) return error.reason
+  return 'provider_error'
+}
+
 function fallbackStages(error: unknown, diagnostics: GameWorldGenerationResult['diagnostics'] | undefined): readonly GameGenerationTraceStage[] {
   const invalid = error instanceof InvalidGameWorldCandidateError
   const message = error instanceof Error ? error.message : 'AI generation failed'
-  const modelFailed = !invalid && !message.includes('Candidate parse failed')
+  const parseFailed = error instanceof StructuredGenerationError && (
+    error.reason === 'empty_response' || error.reason === 'malformed_response' || error.reason === 'output_truncated'
+  )
+  const modelFailed = !invalid && !parseFailed
   return [
     { name: 'REQUEST' as const, status: 'success' as const },
     { name: 'PROMPT_ASSEMBLY' as const, status: 'success' as const },

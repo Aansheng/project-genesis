@@ -34,7 +34,11 @@ function createCommandExecutor(worldStore: RuntimeWorldStore): { executor: Comma
   if (configuration.enabled && configuration.gatewayURL) {
     try {
       const modelProvider = new GameWorldGenerationProviderAdapter(
-        new LLMGameWorldGenerationCandidateProvider(new BrowserStructuredGenerationClient(configuration.gatewayURL)),
+        new LLMGameWorldGenerationCandidateProvider(new BrowserStructuredGenerationClient(configuration.gatewayURL), undefined, {
+          maxOutputTokens: configuration.maxOutputTokens ?? 4000,
+          timeoutMs: configuration.timeoutMs ?? 30000,
+          maxAttempts: configuration.maxAttempts ?? 2,
+        }),
         new DefaultGameWorldValidator(),
       )
       generationProvider = new FallbackGameWorldGenerationProvider(modelProvider, deterministicProvider)

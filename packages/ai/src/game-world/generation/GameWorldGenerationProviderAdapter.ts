@@ -5,6 +5,7 @@ import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 import type { GameWorldValidator } from './GameWorldValidator'
 import type { GameGenerationTrace } from './GameWorldGenerationDiagnostics'
 import type { GameWorldGenerationResult } from './GameWorldGenerationDiagnostics'
+import type { StructuredGenerationFailureReason } from './StructuredGenerationReliability'
 
 let traceSequence = 0
 const nextTraceId = (): string => `generation-${++traceSequence}`
@@ -17,6 +18,8 @@ export class InvalidGameWorldCandidateError extends Error {
     super(`Invalid game world candidate: ${errors.join('; ')}`)
     this.name = 'InvalidGameWorldCandidateError'
   }
+
+  readonly reason: StructuredGenerationFailureReason = 'candidate_invalid'
 }
 
 /** Converts raw structured provider output into a validated semantic world. */
@@ -50,6 +53,7 @@ export class GameWorldGenerationProviderAdapter implements GameWorldGenerationPr
         { name: 'WORLD_COMPILATION' as const, status: 'success' as const },
         { name: 'RUNTIME_INJECTION' as const, status: 'pending' as const },
       ]),
+      ...(this.candidateProvider.getGenerationAttempts ? { attempts: this.candidateProvider.getGenerationAttempts() } : {}),
     })
     return Object.freeze({
       world: result.world,

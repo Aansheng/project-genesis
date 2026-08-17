@@ -27,6 +27,8 @@ export class DefaultAIConfiguration implements AIConfiguration {
   readonly streaming = false
   readonly toolCalling = false
   readonly maxOutputTokens = undefined as number | undefined
+  readonly timeoutMs = undefined as number | undefined
+  readonly maxAttempts = undefined as number | undefined
   readonly apiKey = undefined as string | undefined
   readonly baseURL = undefined as string | undefined
   readonly gatewayURL = undefined as string | undefined

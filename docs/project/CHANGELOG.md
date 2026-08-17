@@ -6,6 +6,16 @@
 
 ---
 
+### WO-S12-012 - Structured AI Generation Reliability Foundation
+
+- Added typed server-side output budget, timeout, and bounded-attempt policy.
+- Added strict empty/malformed/truncated response classification and one-retry
+  policy for transient/provider failures.
+- Preserved validator authority, deterministic fallback, vendor-separated
+  OpenAI-compatible transport, and truthful generation attempt diagnostics.
+- Added ADR-0234, reliability capability documentation, and server configuration
+  documentation; architecture version v1.121 → v1.122.
+
 ## Sprint 12 - AI World Generation
 
 ### WO-S12-011 - AI Generation Observatory Trace Foundation

@@ -1,4 +1,5 @@
 import type { GameDesignSpecification, GameWorldModel } from '@genesis/shared'
+import type { StructuredGenerationAttempt, StructuredGenerationFailureReason } from './StructuredGenerationReliability'
 
 export type GameWorldGenerationSource = 'ai' | 'deterministic'
 
@@ -30,6 +31,8 @@ export interface GameGenerationTrace {
   readonly source: GameWorldGenerationSource
   readonly status: 'success' | 'fallback' | 'failed'
   readonly stages: readonly GameGenerationTraceStage[]
+  readonly attempts?: readonly StructuredGenerationAttempt[]
+  readonly failureReason?: StructuredGenerationFailureReason
 }
 
 export interface GameWorldGenerationDiagnostics {
@@ -40,6 +43,7 @@ export interface GameWorldGenerationDiagnostics {
   readonly specification?: GameDesignSpecification
   readonly worldEntityIds: readonly string[]
   readonly fallbackReason?: string
+  readonly failureReason?: StructuredGenerationFailureReason
   readonly trace?: GameGenerationTrace
 }
 

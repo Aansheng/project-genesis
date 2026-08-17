@@ -17,5 +17,11 @@ The gateway listens on `http://127.0.0.1:8787`, serves `POST
 are optional. The API key is read only by this server package and is never
 logged or returned to clients.
 
+Generation reliability is server-configured: `AI_MAX_OUTPUT_TOKENS` defaults to
+4000, `AI_TIMEOUT_MS` to 30000, and `AI_MAX_ATTEMPTS` to 2 (one request plus one
+retry). `AI_MAX_TOKENS` remains accepted as a compatibility alias. Retries are
+limited to transient provider failures and output truncation; candidate
+validation failures are not retried.
+
 For the web app, set `VITE_AI_ENABLED=true` and
 `VITE_AI_GATEWAY_URL=http://127.0.0.1:8787/api/world-generation`.
