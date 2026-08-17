@@ -87,6 +87,26 @@ const generation = computed(() => observatoryData.generationTrace)
   min-height: 0;
 }
 
+.generation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--studio-space-3);
+  padding: var(--studio-space-4);
+  border-bottom: 1px solid var(--studio-border);
+}
+
+.generation-summary p {
+  margin: 0;
+  color: var(--studio-text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.generation-summary p + p {
+  padding-top: var(--studio-space-2);
+  border-top: 1px solid var(--studio-border);
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
