@@ -16,7 +16,7 @@ export class OpenAIStructuredGenerationClient implements StructuredGenerationCli
     const response = await this.client.responses.create({
       model: this.config.model,
       input: JSON.stringify({
-        instruction: 'Return only a JSON game-world candidate with worldType and entities[{id,category,name}].',
+        instruction: 'Return only JSON for a semantic game design candidate: title, genre, optional theme{name}, difficulty, objectives[{type,target}], and entities[{id,category,name,role}]. Do not return runtime or renderer details.',
         request,
       }),
       temperature: this.config.temperature,

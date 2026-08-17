@@ -32,6 +32,22 @@ describe('structured game world generation contract', () => {
     expect(result.errors.length).toBe(4)
   })
 
+  it('preserves design semantics while projecting supported fields', () => {
+    const result = new DefaultGameWorldValidator().validate({
+      title: 'Ice Platformer', genre: 'platformer', theme: { name: 'ice' }, difficulty: 'medium',
+      objectives: [{ type: 'defeat-boss', target: 'final-boss' }],
+      entities: [{ id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' }],
+    })
+
+    expect(result.specification).toEqual({
+      title: 'Ice Platformer', genre: 'platformer', theme: { name: 'ice' }, difficulty: 'medium',
+      objectives: [{ type: 'defeat-boss', target: 'final-boss' }],
+      entities: [{ id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' }],
+    })
+    expect(result.world).toEqual({ worldType: 'platformer', entities: [{ id: 'boss', category: 'enemy', name: 'Boss' }] })
+    expect(Object.isFrozen(result.specification)).toBe(true)
+  })
+
   it('keeps provider output above DSL and runtime boundaries', async () => {
     const provider: GameWorldGenerationCandidateProvider = {
       generate: async () => ({

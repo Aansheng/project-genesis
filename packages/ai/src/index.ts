@@ -184,6 +184,8 @@ export type { SemanticWorldGenerator } from './game-world'
 export { DefaultSemanticWorldGenerator } from './game-world'
 export type { GameWorldGenerationRequest, GameWorldGenerationProvider, GameWorldGenerationCandidate, GameWorldGenerationCandidateEntity, GameWorldGenerationCandidateProvider, GameWorldValidationResult, GameWorldValidator, StructuredGenerationClient } from './game-world'
 export { DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, DeterministicGameWorldGenerationProvider, DeterministicGameWorldGenerationCandidateProvider, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider } from './game-world'
+export type { GameDesignWorldBuilder } from './game-design'
+export { DefaultGameDesignWorldBuilder } from './game-design'
 // ---------------------------------------------------------------------------
 // Game Intent — Pure Semantic Game Intent Extraction
 // ---------------------------------------------------------------------------

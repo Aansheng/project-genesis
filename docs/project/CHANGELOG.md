@@ -8,6 +8,16 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-008 - AI Game Design Specification Foundation
+
+- Added shared `GameDesignSpecification` contracts for title, genre, theme,
+  difficulty, objectives, and semantic entity roles.
+- Extended candidate validation to produce a deeply frozen specification and
+  compile only currently supported fields into `GameWorldModel`.
+- Kept runtime, renderer, DSL, layout, and template boundaries unchanged;
+  unsupported design semantics remain preserved or deferred.
+- Added design-contract regression coverage; architecture version v1.117 → v1.118.
+
 ### WO-S12-007 - AI Server Composition Root Foundation
 
 - Added executable `@genesis/ai-server` `main.ts` composition root with typed,

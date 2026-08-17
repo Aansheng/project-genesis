@@ -1,9 +1,11 @@
 import type { GameWorldModel } from '@genesis/shared'
+import type { GameDesignSpecification } from '@genesis/shared'
 
 export interface GameWorldValidationResult {
   readonly valid: boolean
   readonly errors: readonly string[]
   readonly world?: GameWorldModel
+  readonly specification?: GameDesignSpecification
 }
 
 /** Validates untrusted structured provider output before it enters the domain model. */
