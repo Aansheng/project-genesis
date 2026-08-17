@@ -8,6 +8,14 @@
 
 ## Sprint 12 - AI World Generation
 
+### WO-S12-010 - Real AI Game Design End-to-End Validation
+
+- Added internal generation diagnostics that distinguish AI output from deterministic fallback.
+- Diagnostics carry candidate, validation status/errors, accepted design specification, fallback reason, and runtime entity IDs.
+- Confirmed generic layout assigns distinct deterministic positions to arbitrary AI entity IDs.
+- Added `AI_GENERATION_CAPABILITY_MATRIX.md`; gameplay systems and theme rendering remain deferred.
+- Architecture version v1.119 → v1.120.
+
 ### Local Development Fix
 
 - `pnpm dev` no longer fails when `AI_API_KEY` is absent.

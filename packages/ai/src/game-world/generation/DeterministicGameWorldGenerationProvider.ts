@@ -5,6 +5,7 @@ import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 import { DefaultGameWorldValidator } from './DefaultGameWorldValidator'
 import { GameWorldGenerationProviderAdapter } from './GameWorldGenerationProviderAdapter'
 import { DeterministicGameWorldGenerationCandidateProvider } from './DeterministicGameWorldGenerationCandidateProvider'
+import type { GameWorldGenerationResult } from './GameWorldGenerationDiagnostics'
 
 /** Async-compatible adapter around the existing deterministic generator. */
 export class DeterministicGameWorldGenerationProvider implements GameWorldGenerationProvider {
@@ -19,5 +20,13 @@ export class DeterministicGameWorldGenerationProvider implements GameWorldGenera
 
   generate(request: GameWorldGenerationRequest) {
     return this.adapter.generate(request)
+  }
+
+  async generateWithDiagnostics(request: GameWorldGenerationRequest): Promise<GameWorldGenerationResult> {
+    const result = await this.adapter.generateWithDiagnostics(request)
+    return Object.freeze({
+      world: result.world,
+      diagnostics: Object.freeze({ ...result.diagnostics, source: 'deterministic' as const }),
+    })
   }
 }

@@ -14,6 +14,7 @@
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { World } from '@genesis/shared'
+import type { GameWorldGenerationDiagnostics } from '../../game-world/generation'
 
 export interface CreateWorldPipelineResult {
   /**
@@ -35,4 +36,5 @@ export interface CreateWorldPipelineResult {
    * completed without error.
    */
   readonly success: boolean
+  readonly generationDiagnostics?: GameWorldGenerationDiagnostics
 }

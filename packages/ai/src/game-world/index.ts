@@ -24,6 +24,9 @@ export type {
   GameDesignCapabilities,
   GameDesignPrompt,
   GameDesignPromptBuilder,
+  GameWorldGenerationDiagnostics,
+  GameWorldGenerationResult,
+  GameWorldGenerationSource,
 } from './generation'
 export {
   DefaultGameWorldValidator,

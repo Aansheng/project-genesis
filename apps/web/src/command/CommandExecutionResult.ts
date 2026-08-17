@@ -18,4 +18,5 @@ export interface CommandExecutionResult {
 
   /** Real summary data available to the Studio activity surface. */
   readonly entityCount?: number
+  readonly generationDiagnostics?: import('@genesis/ai').GameWorldGenerationDiagnostics
 }

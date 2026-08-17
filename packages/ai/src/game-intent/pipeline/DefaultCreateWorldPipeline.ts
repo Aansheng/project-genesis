@@ -192,14 +192,18 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
 
     const model = this.createDomainModel(command.input)
     const intent = this.gameIntentExtractor.extract(model)
-    const semanticWorld = await this.generationProvider.generate({
+    const generationRequest = {
       input: command.input,
       intent,
-    })
+    }
+    const generated = this.generationProvider.generateWithDiagnostics
+      ? await this.generationProvider.generateWithDiagnostics(generationRequest)
+      : { world: await this.generationProvider.generate(generationRequest), diagnostics: undefined }
+    const semanticWorld = generated.world
     const gameDsl = this.gameDslBuilder.build(semanticWorld)
     const projectionResult = this.projection.project(gameDsl)
 
-    return Object.freeze({ route: ROUTE_CREATE_WORLD, world: projectionResult.world, success: true })
+    return Object.freeze({ route: ROUTE_CREATE_WORLD, world: projectionResult.world, success: true, ...(generated.diagnostics ? { generationDiagnostics: generated.diagnostics } : {}) })
   }
 
   // -------------------------------------------------------------------------

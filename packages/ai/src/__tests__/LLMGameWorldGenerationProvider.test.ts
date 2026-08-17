@@ -51,6 +51,32 @@ describe('LLMGameWorldGenerationCandidateProvider', () => {
 })
 
 describe('LLM candidate validation and deterministic fallback', () => {
+  it('exposes AI source and the accepted rich design specification', async () => {
+    const provider = new GameWorldGenerationProviderAdapter(
+      new LLMGameWorldGenerationCandidateProvider({
+        generateStructured: async () => ({
+          title: '冰雪平台游戏', genre: 'platformer', theme: { name: 'ice' }, difficulty: 'medium',
+          entities: [
+            { id: 'player', category: 'player', name: 'Player' },
+            { id: 'enemy-1', category: 'enemy', name: 'Patrol Enemy 1', role: 'patrol' },
+            { id: 'enemy-2', category: 'enemy', name: 'Patrol Enemy 2', role: 'patrol' },
+            { id: 'checkpoint', category: 'quest', name: 'Checkpoint' },
+            { id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' },
+          ],
+        }),
+      }),
+      new DefaultGameWorldValidator(),
+    )
+
+    const result = await provider.generateWithDiagnostics({ ...request, input: '创建冰雪平台游戏' })
+    expect(result.diagnostics.source).toBe('ai')
+    expect(result.diagnostics.validationStatus).toBe('valid')
+    expect(result.diagnostics.specification?.theme).toEqual({ name: 'ice' })
+    expect(result.diagnostics.specification?.difficulty).toBe('medium')
+    expect(result.diagnostics.specification?.entities.filter(entity => entity.role === 'patrol')).toHaveLength(2)
+    expect(result.world.entities.map(entity => entity.id)).toEqual(['player', 'enemy-1', 'enemy-2', 'checkpoint', 'boss'])
+  })
+
   it('rejects invalid semantic responses at the existing validator boundary', async () => {
     const invalidClient: StructuredGenerationClient = {
       generateStructured: async () => ({
@@ -81,9 +107,12 @@ describe('LLM candidate validation and deterministic fallback', () => {
       new DeterministicGameWorldGenerationProvider(),
     )
 
-    const world = await provider.generate(request)
-    expect(world.worldType).toBe('platformer')
-    expect(world.entities).toHaveLength(6)
+    const result = await provider.generateWithDiagnostics(request)
+    expect(result.world.worldType).toBe('platformer')
+    expect(result.world.entities).toHaveLength(6)
+    expect(result.diagnostics.source).toBe('deterministic')
+    expect(result.diagnostics.validationStatus).toBe('invalid')
+    expect(result.diagnostics.fallbackReason).toContain('entities must not be empty')
   })
 
   it('runs through the async pipeline into the projected runtime world', async () => {
