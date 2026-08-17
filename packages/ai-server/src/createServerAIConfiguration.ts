@@ -1,7 +1,7 @@
 import type { AIConfiguration } from '@genesis/ai'
 
 export interface AIServerConfig {
-  readonly provider: 'openai'
+  readonly provider: 'openai' | 'openai-compatible'
   readonly apiKey?: string
   readonly model: string
   readonly port: number
@@ -32,7 +32,7 @@ function positiveNumberFromEnv(value: string | undefined, fallback: number, name
 /** Reads and validates server-only variables. Never use this module in the browser bundle. */
 export function createServerAIConfiguration(env: Record<string, string | undefined> = process.env): AIServerConfig {
   const provider = (env.AI_PROVIDER || 'openai').trim()
-  if (provider !== 'openai') throw new Error(`Unsupported AI_PROVIDER: ${provider}`)
+  if (provider !== 'openai' && provider !== 'openai-compatible') throw new Error(`Unsupported AI_PROVIDER: ${provider}`)
   const apiKey = env.AI_API_KEY?.trim()
   const model = env.AI_MODEL?.trim() || 'gpt-4o-mini'
   const maxOutputTokens = positiveNumberFromEnv(env.AI_MAX_OUTPUT_TOKENS ?? env.AI_MAX_TOKENS, 4000, 'AI_MAX_OUTPUT_TOKENS', 100000)

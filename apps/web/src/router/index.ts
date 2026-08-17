@@ -6,6 +6,7 @@ import {
 } from 'vue-router'
 import GameWorkspacePage from '../pages/game/GameWorkspacePage.vue'
 import ObservatoryPage from '../pages/observatory/ObservatoryPage.vue'
+import AISettingsPage from '../pages/settings/AISettingsPage.vue'
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -18,6 +19,7 @@ export const routes: RouteRecordRaw[] = [
     name: 'observatory',
     component: ObservatoryPage,
   },
+  { path: '/settings/ai', name: 'ai-settings', component: AISettingsPage },
 ]
 
 export function createAppRouter(history: RouterHistory = createWebHistory()) {

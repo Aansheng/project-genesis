@@ -1,13 +1,14 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import type { StructuredGenerationClient } from '@genesis/ai'
 import { createAIGatewayHandler } from './gateway'
+import { AIProviderConfigurationError, AIProviderConfigurationService } from './AIProviderConfigurationService'
 
 const ROUTE = '/api/world-generation'
 const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_PORT = 8787
 const MAX_BODY_BYTES = 1_000_000
 
-export interface AIServerOptions { readonly host?: string; readonly port?: number }
+export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService }
 export interface AIServerHandle { readonly server: Server; readonly host: string; readonly port: number }
 
 function configuredPort(value: string | undefined): number {
@@ -39,7 +40,7 @@ function writeResponse(response: ServerResponse, result: Response): void {
   response.setHeader('content-type', 'application/json; charset=utf-8')
   response.setHeader('access-control-allow-origin', '*')
   response.setHeader('access-control-allow-headers', 'content-type')
-  response.setHeader('access-control-allow-methods', 'POST, OPTIONS')
+  response.setHeader('access-control-allow-methods', 'GET, PUT, POST, OPTIONS')
   result.arrayBuffer().then((body) => response.end(Buffer.from(body)))
 }
 
@@ -52,7 +53,11 @@ function createRequest(request: IncomingMessage, body: string): Request {
 }
 
 export async function startAIServer(client: StructuredGenerationClient, options: AIServerOptions = {}): Promise<AIServerHandle> {
-  const handler = createAIGatewayHandler(client)
+  const configurationService = options.configurationService ?? new AIProviderConfigurationService(
+    { provider: 'openai', model: 'gpt-4o-mini', enabled: true, configured: true },
+    { apiKey: 'configured' }, client,
+  )
+  const handler = createAIGatewayHandler(() => configurationService.getClient())
   const host = options.host ?? DEFAULT_HOST
   const port = options.port ?? configuredPort(process.env.AI_PORT)
   const server = createServer(async (request, response) => {
@@ -60,12 +65,37 @@ export async function startAIServer(client: StructuredGenerationClient, options:
       response.statusCode = 204
       response.setHeader('access-control-allow-origin', '*')
       response.setHeader('access-control-allow-headers', 'content-type')
-      response.setHeader('access-control-allow-methods', 'POST, OPTIONS')
+      response.setHeader('access-control-allow-methods', 'GET, PUT, POST, OPTIONS')
       response.end()
       return
     }
     if (request.method === 'GET' && request.url?.split('?')[0] === '/health') {
       writeResponse(response, Response.json({ status: 'ok' }))
+      return
+    }
+    if (request.url?.split('?')[0] === '/api/ai/config') {
+      if (request.method === 'GET') {
+        writeResponse(response, Response.json(configurationService.getPublicConfiguration()))
+        return
+      }
+      if (request.method === 'PUT') {
+        try {
+          const value = JSON.parse(await readBody(request)) as Record<string, unknown>
+          writeResponse(response, Response.json(configurationService.configure(value)))
+        } catch (error) {
+          const message = error instanceof AIProviderConfigurationError ? error.message : 'Invalid AI configuration'
+          writeResponse(response, Response.json({ error: message }, { status: 400 }))
+        }
+        return
+      }
+    }
+    if (request.method === 'POST' && request.url?.split('?')[0] === '/api/ai/test') {
+      try {
+        await configurationService.testConnection()
+        writeResponse(response, Response.json({ success: true }))
+      } catch {
+        writeResponse(response, Response.json({ success: false, error: 'AI provider connection failed' }, { status: 502 }))
+      }
       return
     }
     if (request.url?.split('?')[0] !== ROUTE) {

@@ -32,13 +32,14 @@ function toProviderRequest(request: WorldGenerationRequest): GameWorldGeneration
 }
 
 /** Framework-neutral server handler; adapt it to the host's HTTP runtime. */
-export function createAIGatewayHandler(client: StructuredGenerationClient, promptBuilder = new DefaultGameDesignPromptBuilder()) {
+export function createAIGatewayHandler(client: StructuredGenerationClient | (() => StructuredGenerationClient), promptBuilder = new DefaultGameDesignPromptBuilder()) {
   return async (request: Request): Promise<Response> => {
     if (request.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 })
     try {
       const payload = validateRequest(await request.json())
       const providerRequest = toProviderRequest(payload)
-      const candidate = await client.generateStructured(providerRequest, promptBuilder.build(providerRequest))
+      const activeClient = typeof client === 'function' ? client() : client
+      const candidate = await activeClient.generateStructured(providerRequest, promptBuilder.build(providerRequest))
       if (candidate === undefined || JSON.stringify(candidate) === undefined) throw new Error('Invalid candidate')
       const response: WorldGenerationResponse = { candidate }
       return Response.json(response)

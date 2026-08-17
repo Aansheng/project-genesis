@@ -30,6 +30,7 @@ const entityCount = computed(() => {
       <RouterLink to="/observatory">
         Open Observatory <span aria-hidden="true">↗</span>
       </RouterLink>
+      <RouterLink to="/settings/ai">Settings</RouterLink>
     </div>
   </header>
 </template>

@@ -245,3 +245,85 @@ stop,
 diagnose,
 report,
 and recommend addressing the real bottleneck first.
+
+## UI / Visual Consistency Rules
+
+Genesis Studio has an established visual language.
+
+When creating or modifying any Web UI, visual consistency with the existing
+Genesis Studio takes priority over introducing new styling ideas.
+
+Do NOT treat each new module as an independent design exercise.
+
+The default rule is:
+
+existing visual language
+→ reuse
+→ extend minimally
+→ never replace locally without an explicit product requirement.
+
+---
+
+### Source of Truth
+
+Before creating or significantly modifying any UI, inspect the existing Studio
+implementation first.
+
+At minimum inspect the closest relevant components and styles, including where
+applicable:
+
+- GenesisStudioShell
+- StudioHeader
+- StudioWorkspace
+- WorldExplorerPanel
+- GameViewportPanel
+- InspectorPanel
+- StudioCommandBar
+- StudioCommandActivity
+- StudioObservatoryPanel
+- existing shared Studio CSS variables / design tokens
+- adjacent page/module styles
+
+Do not invent visual values before understanding the existing system.
+
+---
+
+### Existing Studio Visual Language Is Authoritative
+
+New Studio modules must visually belong to the same product.
+
+Preserve the established characteristics:
+
+- dark neutral editor-style surfaces
+- restrained blue primary accent
+- compact information density
+- subtle borders
+- restrained shadows
+- small/medium radii
+- consistent typography hierarchy
+- consistent panel headers
+- consistent spacing rhythm
+- consistent control heights
+- consistent focus / hover / selected states
+- canvas/editor-first visual hierarchy
+
+Avoid introducing a new visual theme inside one module.
+
+---
+
+### Reuse Existing Tokens
+
+Before adding any new literal styling value, search for an existing Studio token.
+
+Prefer:
+
+```css
+var(--genesis-bg)
+var(--genesis-surface-1)
+var(--genesis-surface-2)
+var(--genesis-border-subtle)
+var(--genesis-text-primary)
+var(--genesis-text-secondary)
+var(--genesis-accent)
+...
+```

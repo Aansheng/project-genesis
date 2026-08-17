@@ -4,6 +4,13 @@
 
 ---
 
+### WO-S12-013 - AI Provider Configuration Foundation
+
+- Added server-owned, in-memory AI provider configuration with environment bootstrap and runtime client replacement.
+- Added safe `GET`/`PUT /api/ai/config` and `POST /api/ai/test` routes; API keys are never returned or persisted in the browser.
+- Added a minimal Studio AI Provider settings surface with save, connection test, session-only honesty, and post-save key clearing.
+- Added ADR-0235; architecture version v1.122 → v1.123.
+
 ---
 
 ### WO-S12-012 - Structured AI Generation Reliability Foundation
