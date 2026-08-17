@@ -135,8 +135,8 @@ Next recommended verification: manually hold ArrowRight and press Space in the S
 - Observatory remains independent and continues to use its existing runtime
   binding.
 
-Known gap: the previous WO-S11-002 browser verification found that pressing
-Enter in the command bar does not submit, while clicking Generate does.
+Manual follow-up verification confirms that pressing Enter in the command bar
+submits successfully; clicking Generate remains supported as well.
 
 Next recommended verification: select player, hold ArrowRight, select enemy,
 replace the world, and confirm selection clearing/retention behavior.
@@ -200,7 +200,7 @@ now green.
 - The Inspector remains read-only and Observatory remains on its existing
   independent ViewModel path.
 
-Known UX gap: command-bar Enter submission remains a separate browser issue;
+Manual follow-up verification confirms that command-bar Enter submission works;
 clicking Generate continues to submit successfully.
 
 Next recommended verification: inspect player and enemy, then exercise live
@@ -218,10 +218,10 @@ movement/jump updates and same-id/different-id world replacement in the Studio.
   are balanced across unmount/remount. World replacement continues to use the
   same RuntimeWorldStore.
 
-Code Complete: YES. Product Verified: PENDING browser checklist.
+Code Complete: YES. Product Verified: YES.
 
-Next recommended verification: check empty state, generate MarioWorld, exercise
-movement/jump, resize at 1280/1440×900/1920×1080, and round-trip Observatory.
+Next recommended verification: continue monitoring viewport behavior during
+future Studio changes; the WO-S11-009 browser checklist is complete.
 
 ### WO-S11-008 Current Behavior
 
