@@ -10,7 +10,10 @@
 - Derived Studio and Observatory visual labels from asset kind and omitted
   entity metadata for background/terrain operations; character labels remain
   distinct.
-- Architecture remains v1.138; browser product verification is pending.
+- Final browser verification passed for environment FIFO progression, terminal
+  continuation, truthful Studio/Observatory metadata, playable runtime, and
+  stale-world suppression. Fixed environment thumbnail alt text and reported
+  `codex-cli` as its image model metadata. Architecture remains v1.138.
 
 ### WO — Game Design Codex CLI Provider & User-Selectable AI Mode
 

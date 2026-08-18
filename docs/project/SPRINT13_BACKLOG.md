@@ -86,5 +86,6 @@ must remain usable without an asset provider.
 - WO-S13-012B: fixed FIFO progression after rejected/terminal jobs by keeping
   queued state outside the job body and releasing capacity through the existing
   finally path; environment activity now derives Background/Terrain labels and
-  omits non-applicable entity bindings. Browser product verification remains
-  pending.
+  omits non-applicable entity bindings. Final browser verification passed for
+  FIFO progression, terminal continuation, metadata, gameplay, and stale-world
+  suppression; Code Complete = YES, Product Verified = YES.

@@ -51,7 +51,7 @@ export async function startConfiguredAIServer(
     createGameDesignClient,
   )
   if (config.gameDesignMode === 'api' && !config.apiKey) console.warn('AI_API_KEY is not configured; AI requests will use the browser deterministic fallback')
-  const server = await startAIServer(client, { ...config, configurationService, imageProvider, imageProviderName: config.image.provider, imageProviderModel: config.image.model })
+  const server = await startAIServer(client, { ...config, configurationService, imageProvider, imageProviderName: config.image.provider, imageProviderModel: config.image.provider === 'codex-cli' ? 'codex-cli' : config.image.model })
   console.log(`Genesis AI Gateway listening on http://${server.host}:${server.port}`)
   return server
 }

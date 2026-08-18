@@ -71,7 +71,7 @@ const detail = computed(() => {
       <span class="activity-detail">{{ visualDetail }}</span>
       <ul v-if="visualOperations.length > 1" class="visual-operation-list">
         <li v-for="operation in visualOperations" :key="operation.operationId">
-          <span>{{ operation.assetId }}</span><strong>{{ operation.stage ?? operation.status }}</strong>
+          <span>{{ assetArtworkLabel(operation) }}</span><strong>{{ operation.stage ?? operation.status }}</strong>
         </li>
       </ul>
     </div>

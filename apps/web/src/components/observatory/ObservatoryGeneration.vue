@@ -55,7 +55,7 @@ const labels: Record<string, string> = {
             v-if="imageGeneration.stage === 'ready' && imageGeneration.output?.resource?.uri && !imageGeneration.output.resource.uri.startsWith('data:')"
             class="visual-generation-preview"
             :src="imageGeneration.output.resource.uri"
-            alt="Generated player artwork preview"
+            :alt="`${assetArtworkLabel(imageGeneration)} preview`"
           >
           <p v-if="imageGeneration.failure" class="fallback-note"><span>Fallback</span>{{ imageGeneration.failure.message }}</p>
           </div>
