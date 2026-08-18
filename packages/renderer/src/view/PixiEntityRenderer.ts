@@ -176,6 +176,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
     for (const entity of world.entities) {
       if (!entity.position) continue
+      if (this.isEnvironmentRendered(entity.type)) continue
 
       const gfx = this._createGraphics()
       const visual = this.resolveVisual(entity.type)
@@ -210,6 +211,13 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._entityViews = views
 
     return { entities: views }
+  }
+
+  private isEnvironmentRendered(entityType: string): boolean {
+    if (entityType !== 'terrain' && entityType !== 'platform') return false
+    return this._assetManifest?.entries.some(entry =>
+      entry.target === 'environment' && entry.kind === 'terrain' && entry.status === 'resolved',
+    ) ?? false
   }
 
   clear(): void {

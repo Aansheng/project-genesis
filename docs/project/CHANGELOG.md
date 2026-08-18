@@ -1,5 +1,9 @@
 # Changelog
 
+- Updated environment terrain sprites to render at 1.5× their collision-bound
+  size, centered and bottom-aligned, so generated terrain reads as a visible
+  ground surface without changing runtime physics.
+
 > Records every completed Work Order for Project Genesis.
 
 ### WO-S13-012B — Environment Queue Progression & Metadata Correctness

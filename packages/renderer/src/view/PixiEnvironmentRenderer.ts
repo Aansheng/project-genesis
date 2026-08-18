@@ -6,6 +6,8 @@ import type { CameraController } from '../camera'
 import type { PixiAssetAdapter } from './PixiAssetAdapter'
 import { DefaultPixiAssetAdapter } from './PixiAssetAdapter'
 
+const terrainVisualScale = 1.5
+
 export interface PixiEnvironmentRendererOptions {
   readonly width: number
   readonly height: number
@@ -99,7 +101,12 @@ export class PixiEnvironmentRenderer {
     void this.resolveTexture(assetId).then(texture => {
       if (generation !== this.generation) return
       const sprite = this.createSprite(texture)
-      sprite.x = x; sprite.y = y; sprite.width = width; sprite.height = height
+      const visualWidth = width * terrainVisualScale
+      const visualHeight = height * terrainVisualScale
+      sprite.x = x - (visualWidth - width) / 2
+      sprite.y = y - (visualHeight - height)
+      sprite.width = visualWidth
+      sprite.height = visualHeight
       this.terrainLayer.addChild(sprite)
       this.onAssetApplication?.({ assetId, status: 'applied' })
     }).catch(() => this.onAssetApplication?.({ assetId, status: 'failed', reason: 'resolution' }))

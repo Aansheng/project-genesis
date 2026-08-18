@@ -10,6 +10,7 @@ const resource: ResolvedAssetResource = {
   assetId: 'player-asset', kind: 'character', target: 'entity', entityId: 'player', uri: '/player.png',
 }
 const manifest: AssetManifest = { entries: [{ assetId: resource.assetId, kind: resource.kind, target: resource.target, entityId: resource.entityId, status: 'resolved', resource: { uri: resource.uri } }] }
+const environmentManifest: AssetManifest = { entries: [{ assetId: 'terrain-asset', kind: 'terrain', target: 'environment', status: 'resolved', resource: { uri: '/terrain.png' } }] }
 
 function graphics(): Graphics {
   return { x: 0, y: 0, beginFill() {}, drawRect() {}, drawCircle() {}, endFill() {}, destroy() {} } as unknown as Graphics
@@ -28,6 +29,10 @@ function world(): RenderWorld {
   return { entities: [{ id: 'player', type: 'player', position: { x: 10, y: 20 } }] }
 }
 
+function terrainWorld(): RenderWorld {
+  return { entities: [{ id: 'ground', type: 'terrain', position: { x: 10, y: 20 } }] }
+}
+
 function store(result: AssetResolutionResult): AssetStore {
   return { get: () => undefined, has: () => false, resolve: async () => result, invalidate() {}, clear() {} }
 }
@@ -37,6 +42,20 @@ function sprite(): Sprite {
 }
 
 describe('Pixi sprite rendering foundation', () => {
+  it('does not draw primitive terrain over a resolved environment terrain asset', () => {
+    const c = container()
+    const renderer = new DefaultPixiEntityRenderer(c, {
+      createGraphics: graphics,
+      assetManifest: environmentManifest,
+      assetStore: store({ status: 'resolved', resource: { assetId: 'terrain-asset', kind: 'terrain', target: 'environment', uri: '/terrain.png' } }),
+      assetAdapter: { load: async () => ({ width: 64, height: 32 } as Texture), clear() {} },
+      createSprite: sprite,
+    })
+
+    expect(renderer.render(terrainWorld()).entities).toHaveLength(0)
+    expect(c.children).toHaveLength(0)
+  })
+
   it('keeps the primitive visible while pending, then upgrades it', async () => {
     let resolveTexture!: (texture: Texture) => void
     let graphicsDestroyCount = 0

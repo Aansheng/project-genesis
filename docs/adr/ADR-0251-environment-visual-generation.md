@@ -12,6 +12,8 @@ Accepted
   never creates fake entity bindings.
 - Background is viewport-space with deterministic `cover` fitting.
 - Terrain is world-space and decorates existing `terrain`/`platform` bounds;
+  generated terrain visuals render at 1.5× the bound size, centered horizontally
+  and bottom-aligned, while Runtime geometry remains unchanged.
   Runtime geometry, collision, and physics remain authoritative.
 - Unresolved, failed, or unavailable assets retain fallback visuals.
 
