@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-002 - Asset Specification Foundation
+
+- Added immutable semantic asset requirements for characters, terrain,
+  backgrounds, props, and icons.
+- Added deterministic asset IDs, entity bindings, shared visual context, and
+  minimal state/technical requirements without introducing files, textures,
+  manifests, or image generation.
+- Added ADR-0238 and updated the visual capability matrix; architecture version
+  v1.125 → v1.126.
+
 ### WO-S13-001 - Visual Design Specification Foundation
 
 - Added the shared, immutable `VisualDesignSpecification` semantic contract for

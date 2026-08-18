@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.125
+Architecture version: v1.126
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -15,8 +15,13 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Generic enemy visual role | YES | NO | NO | primitive fallback |
 | Boss visual role | YES | NO | NO | primitive fallback |
 | Checkpoint / goal visual role | YES | NO | NO | primitive fallback |
+| Asset requirement representation | YES | YES | NO | NO |
+| Asset identity | YES | YES | NO | NO |
+| Entity → asset binding | YES | YES | NO | NO |
+| Asset generated | NO | YES | NO | NO |
 
-The semantic layer is compiled deterministically from
-`GameDesignSpecification`. No image provider, manifest, texture, sprite, or
-renderer theme binding exists yet. Existing primitive geometry is the truthful
-fallback for entities that can be rendered today.
+The visual and asset layers are compiled deterministically from
+`GameDesignSpecification`. No image provider, `AssetManifest`, resolved
+resource, texture, sprite, or renderer theme binding exists yet. Existing
+primitive geometry is the truthful fallback for entities that can be rendered
+today.

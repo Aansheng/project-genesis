@@ -189,6 +189,8 @@ export type { GameDesignWorldBuilder } from './game-design'
 export { DefaultGameDesignWorldBuilder } from './game-design'
 export type { VisualDesignSpecificationBuilder } from './game-design'
 export { DefaultVisualDesignSpecificationBuilder } from './game-design'
+export type { AssetSpecificationBuilder } from './game-design'
+export { DefaultAssetSpecificationBuilder } from './game-design'
 // ---------------------------------------------------------------------------
 // Game Intent — Pure Semantic Game Intent Extraction
 // ---------------------------------------------------------------------------
