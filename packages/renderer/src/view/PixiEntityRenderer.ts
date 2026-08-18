@@ -111,6 +111,7 @@ export interface PixiEntityRenderer {
   render(world: RenderWorld): RenderWorldView
   clear(): void
   destroy?(): void
+  setAssetManifest?(manifest: AssetManifest | undefined): void
 }
 
 export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
@@ -120,7 +121,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _tileCatalog: PlatformTileCatalog | null
   private readonly _cameraController: CameraController | null
   private readonly _cameraAnchor: Readonly<{ x: number; y: number }>
-  private readonly _assetManifest: AssetManifest | null
+  private _assetManifest: AssetManifest | null
   private readonly _assetStore: AssetStore | null
   private readonly _assetAdapter: PixiAssetAdapter | null
   private readonly _createSprite: (texture: Texture) => Sprite
@@ -215,6 +216,10 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   destroy(): void {
     this.clear()
     this._assetAdapter?.clear()
+  }
+
+  setAssetManifest(manifest: AssetManifest | undefined): void {
+    this._assetManifest = manifest ?? null
   }
 
   private tryUpgradeToSprite(

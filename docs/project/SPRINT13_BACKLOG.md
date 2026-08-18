@@ -49,3 +49,6 @@ must remain usable without an asset provider.
   loading, static URI support, successful-resolution caching, and ADR-0240.
 - WO-S13-005: renderer-owned Pixi texture adapter, entity sprite binding,
   asynchronous primitive-to-sprite upgrade, and ADR-0241.
+- WO-S13-006: wired repository-owned static player/enemy/boss/checkpoint
+  fixtures through Studio generation, AssetManifest, AssetStore, and Pixi;
+  added ADR-0242.

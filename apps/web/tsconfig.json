@@ -16,6 +16,7 @@
       "@genesis/runtime": ["../../packages/runtime/src"],
       "@genesis/renderer": ["../../packages/renderer/src"],
       "@genesis/ai": ["../../packages/ai/src"],
+      "@genesis/assets": ["../../packages/assets/src"],
       "@genesis/shared": ["../../packages/shared/src"]
     }
   },

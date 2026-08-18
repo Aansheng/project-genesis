@@ -15,15 +15,33 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
-import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider } from '@genesis/ai'
+import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
+import type { AssetManifest } from '@genesis/shared'
+import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
+import { DefaultAssetManifestBuilder } from '@genesis/shared'
 import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
 import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
 import { useObservatoryDataStore } from './observatoryData'
+import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
 
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
+
+const EMPTY_ASSET_MANIFEST: AssetManifest = Object.freeze({ entries: Object.freeze([]) })
+
+function buildStaticAssetManifest(
+  specification: import('@genesis/shared').GameDesignSpecification | undefined,
+): AssetManifest {
+  if (!specification) return EMPTY_ASSET_MANIFEST
+  const visual = new DefaultVisualDesignSpecificationBuilder().build(specification)
+  const assets = new DefaultAssetSpecificationBuilder().build(visual)
+  return new DefaultAssetManifestBuilder().build(
+    assets,
+    createStaticAssetResolutions(assets.assets),
+  )
+}
 
 const DEFAULT_AI_GATEWAY_URL = 'http://127.0.0.1:8787/api/world-generation'
 
@@ -73,6 +91,8 @@ export function createCommandExecutor(
 export const useGameStore = defineStore('game', () => {
   const runtime = new Runtime()
   const worldStore: RuntimeWorldStore = new DefaultRuntimeWorldStore(runtime.world)
+  const assetStore = new DefaultAssetStore(new DefaultAssetResolver())
+  const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
   const renderVersion = ref(0)
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
@@ -127,6 +147,7 @@ export const useGameStore = defineStore('game', () => {
       commandStatus.value = result.success ? 'success' : 'error'
 
       if (result.success) {
+        assetManifest.value = buildStaticAssetManifest(result.generationDiagnostics?.specification)
         markWorldUpdated()
       }
       return result
@@ -145,6 +166,8 @@ export const useGameStore = defineStore('game', () => {
   return {
     runtime,
     worldStore,
+    assetStore,
+    assetManifest,
     renderVersion,
     selectedEntityId,
     selectedEntity,

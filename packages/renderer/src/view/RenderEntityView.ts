@@ -15,5 +15,5 @@ export interface RenderEntityView {
   readonly id: string
   readonly graphics: Graphics
   readonly sprite?: Sprite
-  readonly displayObject: Graphics | Sprite
+  readonly displayObject?: Graphics | Sprite
 }

@@ -10,11 +10,12 @@ export default defineConfig({
       '@genesis/runtime': resolve(__dirname, '../../packages/runtime/src'),
       '@genesis/renderer': resolve(__dirname, '../../packages/renderer/src'),
       '@genesis/ai': resolve(__dirname, '../../packages/ai/src'),
+      '@genesis/assets': resolve(__dirname, '../../packages/assets/src'),
       '@genesis/shared': resolve(__dirname, '../../packages/shared/src'),
     },
   },
   test: {
-    include: ['src/__tests__/**/*.test.ts'],
+    include: ['src/__tests__/**/*.test.ts', 'src/assets/__tests__/**/*.test.ts'],
     environment: 'jsdom',
     globals: true,
   },

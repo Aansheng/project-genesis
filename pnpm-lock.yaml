@@ -25,6 +25,7 @@ importers:
   apps/web:
     specifiers:
       '@genesis/ai': workspace:*
+      '@genesis/assets': workspace:*
       '@genesis/renderer': workspace:*
       '@genesis/runtime': workspace:*
       '@genesis/shared': workspace:*
@@ -41,6 +42,7 @@ importers:
       vue-tsc: ^2.0.0
     dependencies:
       '@genesis/ai': link:../../packages/ai
+      '@genesis/assets': link:../../packages/assets
       '@genesis/renderer': link:../../packages/renderer
       '@genesis/runtime': link:../../packages/runtime
       '@genesis/shared': link:../../packages/shared

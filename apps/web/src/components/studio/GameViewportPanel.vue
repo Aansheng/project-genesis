@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Application, Container } from 'pixi.js'
 import {
   DefaultAnimationFrameScheduler,
@@ -42,6 +42,7 @@ const viewportStatus = computed(() => {
 let pixiApp: Application | null = null
 let visLoop: RuntimeVisualizationLoop | null = null
 let runner: VisualizationRunner | null = null
+let entityRenderer: DefaultPixiEntityRenderer | null = null
 let inputProvider: KeyboardInputProvider | null = null
 let resizeObserver: ResizeObserver | null = null
 const cameraAnchor = { x: 400, y: 300 }
@@ -91,10 +92,16 @@ onMounted(() => {
 
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)
   const adapter = new DefaultRuntimeRendererAdapter()
-  const entityRenderer = new DefaultPixiEntityRenderer(entityContainer, {
+  const renderer = new DefaultPixiEntityRenderer(entityContainer, {
     catalog: new DefaultEntityVisualCatalog(),
     cameraController: new DefaultCameraController(),
     cameraAnchor,
+    assetManifest: store.assetManifest,
+    assetStore: store.assetStore,
+  })
+  entityRenderer = renderer
+  watch(() => store.renderVersion, () => {
+    entityRenderer?.setAssetManifest?.(store.assetManifest)
   })
   const worldProvider = new StoreBackedWorldProvider(store.worldStore)
   const worldSink = {
@@ -107,7 +114,7 @@ onMounted(() => {
   visLoop = new DefaultRuntimeVisualizationLoop(
     executionLoop,
     adapter,
-    entityRenderer,
+    renderer,
     store.worldStore.getWorld(),
     worldProvider,
     worldSink,
@@ -130,6 +137,8 @@ onUnmounted(() => {
   visLoop = null
   inputProvider?.detach()
   inputProvider = null
+  entityRenderer?.destroy?.()
+  entityRenderer = null
   pixiApp?.destroy(true, { children: true, texture: true })
   pixiApp = null
 })

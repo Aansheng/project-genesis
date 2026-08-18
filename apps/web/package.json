@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@genesis/ai": "workspace:*",
+    "@genesis/assets": "workspace:*",
     "@genesis/renderer": "workspace:*",
     "@genesis/runtime": "workspace:*",
     "@genesis/shared": "workspace:*",

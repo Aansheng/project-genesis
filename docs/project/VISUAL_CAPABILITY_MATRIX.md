@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.129
+Architecture version: v1.130
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -30,15 +30,15 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Pixi texture adapter | NO | NO | YES | YES |
 | Primitive fallback | YES | YES | YES | YES |
 | Mixed sprite + primitive world | NO | NO | YES | YES |
-| Production static asset wiring | NO | NO | NO | NOT YET |
+| Production static asset wiring | YES | YES | YES | YES |
+| Static character assets | YES | YES | YES | YES |
 | Background asset rendering | NO | NO | NO | NOT YET |
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
 | AI image generation | NO | NO | NO | NO |
 
 The visual and asset layers are compiled deterministically from
-`GameDesignSpecification`. No image provider, `AssetManifest`, resolved
-resource, texture, sprite, or renderer theme binding exists yet. Existing
-primitive geometry is the truthful fallback for entities that can be rendered
-today. Unresolved and failed manifest entries are intended to retain the future
-primitive fallback path; no manifest entry is rendered yet.
+`GameDesignSpecification`. Studio production wiring now resolves selected
+repository-owned static character/prop fixtures and passes the manifest/store
+to the Pixi renderer. Unresolved and failed entries retain primitive fallback.
+Terrain/background textures and animation remain deferred.

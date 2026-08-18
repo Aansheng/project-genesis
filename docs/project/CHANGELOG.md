@@ -2,6 +2,18 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-006 - Static Asset End-to-End Production Wiring
+
+- Added repository-owned static fixtures from `mockAssets` under
+  `apps/web/public/assets/genesis/` for player, enemy, boss, and checkpoint.
+- Studio now compiles generation specifications into a static AssetManifest,
+  reuses one AssetStore per session, and injects the current manifest/store into
+  the production Pixi renderer.
+- Unsupported assets remain unresolved and use primitive fallback; no terrain,
+  background, animation, or image-generation path was added.
+- Added ADR-0242 and updated the visual capability matrix; architecture version
+  v1.129 → v1.130.
+
 ### WO-S13-005 - Pixi Sprite Rendering Foundation
 
 - Added optional renderer-side `ResolvedAssetResource` → Pixi texture → Sprite
