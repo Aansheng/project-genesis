@@ -75,14 +75,16 @@ export type ImageGenerationResult =
       readonly operation?: ImageGenerationOperation
     }
 
-export type ImageGenerationOperationStatus = 'running' | 'succeeded' | 'failed'
+export type ImageGenerationOperationStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled'
 
 export type ImageGenerationActivityStage =
+  | 'queued'
   | 'preparing'
   | 'generating'
   | 'applying'
   | 'ready'
   | 'fallback'
+  | 'cancelled'
 
 export type ImageGenerationOutcome =
   | 'generated_and_applied'
@@ -102,6 +104,8 @@ export interface ImageGenerationOperation {
   readonly provider?: string
   readonly model?: string
   readonly entityId?: string
+  /** Asset IDs sharing this generated visual; the first remains canonical. */
+  readonly bindingAssetIds?: readonly string[]
   readonly assetKind?: AssetKind
   readonly artifactStatus?: 'pending' | 'published' | 'failed'
   readonly manifestStatus?: ImageGenerationManifestStatus

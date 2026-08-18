@@ -80,3 +80,6 @@ must remain usable without an asset provider.
   Codex CLI timeout, preserved typed HTTP failure details, bounded CLI child
   termination, and retained stale-result protection; successful real-CLI READY
   verification remains environment-dependent.
+- WO-S13-011: added canonical player/enemy/boss multi-asset orchestration,
+  FIFO bounded concurrency, partial success, incremental manifest/Pixi updates,
+  and stale-world suppression; added ADR-0250.

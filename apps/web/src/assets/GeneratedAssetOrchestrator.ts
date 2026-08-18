@@ -52,6 +52,7 @@ export function buildGeneratedAssetManifest(
   specification: AssetSpecification,
   currentManifest: AssetManifest,
   result: Extract<ImageGenerationResult, { status: 'success' }>,
+  assetIds: readonly string[] = [result.assetId],
 ): AssetManifest {
   const resolutions: Record<string, AssetResolutionInput> = {}
   for (const entry of currentManifest.entries) {
@@ -59,12 +60,12 @@ export function buildGeneratedAssetManifest(
       resolutions[entry.assetId] = { origin: entry.origin, resource: entry.resource, metadata: entry.metadata }
     }
   }
-  resolutions[result.assetId] = {
-    status: 'resolved',
-    origin: 'generated',
-    resource: result.asset.resource,
-    metadata: result.asset.metadata,
-  }
+  for (const assetId of assetIds) resolutions[assetId] = {
+      status: 'resolved',
+      origin: 'generated',
+      resource: result.asset.resource,
+      metadata: result.asset.metadata,
+    }
   return new DefaultAssetManifestBuilder().build(specification, resolutions)
 }
 

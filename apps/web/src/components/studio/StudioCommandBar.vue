@@ -37,14 +37,26 @@ async function submitCommand(): Promise<void> {
   display: grid;
   grid-template-columns: clamp(220px, 16vw, 250px) minmax(0, 1fr);
   align-items: center;
+  min-height: 0;
   gap: var(--studio-space-4);
-  min-height: 96px;
+  overflow: hidden;
   padding: var(--studio-space-4) var(--studio-space-5);
   border-top: 1px solid var(--studio-border);
   background: var(--studio-surface);
 }
 
+.studio-command-bar > * {
+  min-width: 0;
+  min-height: 0;
+}
+
+:deep(.command-activity) {
+  max-height: 64px;
+  overflow-y: auto;
+}
+
 form {
+  min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--studio-space-2);

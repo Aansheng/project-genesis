@@ -2,6 +2,13 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-011 - Multi-Asset Generation Orchestration
+
+- Added player/enemy/boss eligibility with semantic canonical-visual deduplication.
+- Added FIFO bounded scheduling (default concurrency 1), independent operation collection, partial fallback, incremental manifest updates, targeted invalidation, and stale-world suppression.
+- Extended Studio and Observatory visual activity to show multiple operations; checkpoint, terrain, and background remain static/deferred.
+- Added ADR-0250; architecture version v1.135 → v1.136.
+
 ### WO-S13-010B - Visual Generation Terminal Lifecycle Verification
 
 - Verified the real browser lifecycle through a controlled Codex CLI timeout:

@@ -5,7 +5,7 @@ import { useGameStore } from '../../stores/gameStore'
 
 const data = useObservatoryDataStore()
 const game = useGameStore()
-const imageGeneration = computed(() => game.imageGenerationOperation)
+const imageGenerations = computed(() => Object.values(game.visualGenerationOperations))
 const labels: Record<string, string> = {
   REQUEST: 'Request', PROMPT_ASSEMBLY: 'Prompt Assembly', MODEL_GENERATION: 'Model Generation',
   CANDIDATE_PARSE: 'Candidate Parse', VALIDATION: 'Validation', DESIGN_SPECIFICATION: 'Design Specification',
@@ -31,10 +31,11 @@ const labels: Record<string, string> = {
       <section class="generation-card visual-generation-card" aria-labelledby="visual-generation-title">
         <header class="card-heading">
           <h3 id="visual-generation-title">Image Generation</h3>
-          <span class="card-count">{{ imageGeneration?.stage ?? 'idle' }}</span>
+          <span class="card-count">{{ imageGenerations.filter(operation => operation.stage === 'ready').length }} / {{ imageGenerations.length }} ready</span>
         </header>
-        <p v-if="imageGeneration === null" class="card-copy">No player artwork operation.</p>
+        <p v-if="imageGenerations.length === 0" class="card-copy">No visual asset operations.</p>
         <template v-else>
+          <div v-for="imageGeneration in imageGenerations" :key="imageGeneration.operationId" class="visual-operation">
           <dl class="detail-list">
             <div><dt>Asset</dt><dd>Player artwork</dd></div>
             <div><dt>Asset ID</dt><dd>{{ imageGeneration.assetId }}</dd></div>
@@ -56,6 +57,7 @@ const labels: Record<string, string> = {
             alt="Generated player artwork preview"
           >
           <p v-if="imageGeneration.failure" class="fallback-note"><span>Fallback</span>{{ imageGeneration.failure.message }}</p>
+          </div>
         </template>
       </section>
 

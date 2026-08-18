@@ -16,9 +16,9 @@ const specification: AssetSpecification = {
 }
 
 describe('AI asset generation policy', () => {
-  it('selects only the player character', () => {
+  it('selects player, enemy, and boss characters', () => {
     expect(isAiGenerationEligible(specification.assets[0])).toBe(true)
-    expect(isAiGenerationEligible(specification.assets[1])).toBe(false)
+    expect(isAiGenerationEligible(specification.assets[1])).toBe(true)
     expect(selectAiGenerationRequirement(specification)?.id).toBe('player')
   })
 

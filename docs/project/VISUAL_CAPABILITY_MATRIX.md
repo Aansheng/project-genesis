@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.135
+Architecture version: v1.136
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -35,7 +35,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Background asset rendering | NO | NO | NO | NOT YET |
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
-| AI image generation | YES | YES | YES | YES for player; fallback for others |
+| AI image generation | YES | YES | YES | YES for player/enemy/boss; fallback for others |
 | Image generation domain | YES | NO | NO | NO |
 | Text-to-image request | YES | NO | NO | NO |
 | Image-to-image request | YES | NO | NO | NO |
@@ -49,7 +49,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Server-side image gateway | YES | NO | YES | NO |
 | Generated image artifact | YES | YES | YES | YES for player |
 | Visual generation activity | YES | YES | YES | YES for player |
-| Generated artwork applied status | YES | YES | YES | YES for player |
+| Generated artwork applied status | YES | YES | YES | YES for player/enemy/boss |
 
 WO-S13-009 adds a session-owned generated artifact bridge and asynchronous
 player Sprite upgrade. Data URIs remain provider/server transport details and

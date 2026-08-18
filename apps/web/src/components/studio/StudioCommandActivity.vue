@@ -3,6 +3,13 @@ import { computed } from 'vue'
 import { useGameStore } from '../../stores/gameStore'
 
 const store = useGameStore()
+const visualOperations = computed(() => Object.values(store.visualGenerationOperations))
+const visualSummary = computed(() => {
+  const ready = visualOperations.value.filter(operation => operation.stage === 'ready').length
+  const active = visualOperations.value.filter(operation => operation.stage === 'generating' || operation.stage === 'applying').length
+  const fallback = visualOperations.value.filter(operation => operation.stage === 'fallback').length
+  return { ready, active, fallback, total: visualOperations.value.length }
+})
 const title = computed(() => {
   if (store.commandStatus === 'running') return 'Creating world…'
   if (store.commandStatus === 'success') return 'World created'
@@ -10,6 +17,7 @@ const title = computed(() => {
   return 'Ready to create'
 })
 const visualTitle = computed(() => {
+  if (visualSummary.value.total > 1) return `${visualSummary.value.ready} / ${visualSummary.value.total} visual assets ready`
   switch (store.imageGenerationOperation?.stage) {
     case 'preparing': return 'Preparing player artwork…'
     case 'generating': return 'Generating player artwork…'
@@ -20,6 +28,7 @@ const visualTitle = computed(() => {
   }
 })
 const visualDetail = computed(() => {
+  if (visualSummary.value.total > 1) return `${visualSummary.value.active} generating · ${visualOperations.value.filter(operation => operation.stage === 'queued').length} queued${visualSummary.value.fallback ? ` · ${visualSummary.value.fallback} fallback` : ''}`
   switch (store.imageGenerationOperation?.stage) {
     case 'preparing': return 'Player fallback remains active'
     case 'generating': return 'Player fallback remains active'
@@ -50,14 +59,19 @@ const detail = computed(() => {
     <strong>{{ title }}</strong>
     <span class="activity-detail">{{ detail }}</span>
     <div
-      v-if="store.imageGenerationOperation"
+      v-if="visualOperations.length"
       class="visual-activity"
-      :class="`visual-activity--${store.imageGenerationOperation.stage ?? 'fallback'}`"
+      :class="`visual-activity--${store.imageGenerationOperation?.stage ?? 'fallback'}`"
       aria-live="polite"
     >
       <span class="activity-label"><i aria-hidden="true" />Visuals</span>
-      <strong><span v-if="store.imageGenerationOperation.stage === 'generating' || store.imageGenerationOperation.stage === 'applying'" aria-hidden="true">⟳ </span>{{ visualTitle }}</strong>
+      <strong><span v-if="store.imageGenerationOperation?.stage === 'generating' || store.imageGenerationOperation?.stage === 'applying'" aria-hidden="true">⟳ </span>{{ visualTitle }}</strong>
       <span class="activity-detail">{{ visualDetail }}</span>
+      <ul v-if="visualOperations.length > 1" class="visual-operation-list">
+        <li v-for="operation in visualOperations" :key="operation.operationId">
+          <span>{{ operation.assetId }}</span><strong>{{ operation.stage ?? operation.status }}</strong>
+        </li>
+      </ul>
     </div>
     <span class="sr-only">{{ store.lastCommand?.message }}</span>
   </div>
@@ -94,6 +108,23 @@ strong,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.visual-operation-list {
+  display: grid;
+  gap: var(--studio-space-1);
+  margin: var(--studio-space-1) 0 0;
+  padding: 0;
+  color: var(--studio-text-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  list-style: none;
+}
+
+.visual-operation-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--studio-space-2);
 }
 
 .visual-activity {

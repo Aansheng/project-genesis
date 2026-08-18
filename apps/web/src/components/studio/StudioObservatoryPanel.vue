@@ -7,7 +7,7 @@ const observatoryData = useObservatoryDataStore()
 const runtime = computed(() => observatoryData.viewModel.runtimeView)
 const generation = computed(() => observatoryData.generationTrace)
 const gameStore = useGameStore()
-const imageGeneration = computed(() => gameStore.imageGenerationOperation)
+const imageGenerations = computed(() => Object.values(gameStore.visualGenerationOperations))
 </script>
 
 <template>
@@ -24,21 +24,15 @@ const imageGeneration = computed(() => gameStore.imageGenerationOperation)
     <section class="generation-summary" aria-labelledby="image-generation-title">
       <div class="section-heading">
         <h3 id="image-generation-title">Image Generation</h3>
-        <span v-if="imageGeneration">{{ imageGeneration.status }}</span>
+        <span v-if="imageGenerations.length">{{ imageGenerations.filter(operation => operation.stage === 'ready').length }} / {{ imageGenerations.length }} ready</span>
       </div>
-      <p v-if="imageGeneration === null">No player artwork operation</p>
-      <template v-else>
-        <p>Asset <strong>Player artwork</strong> <code>{{ imageGeneration.assetId }}</code></p>
-        <p>Stage <strong>{{ imageGeneration.stage ?? imageGeneration.status }}</strong></p>
-        <p>Provider <strong>{{ imageGeneration.provider ?? 'server-selected' }}</strong></p>
-        <p v-if="imageGeneration.model">Model <strong>{{ imageGeneration.model }}</strong></p>
-        <p>Mode <strong>{{ imageGeneration.mode }}</strong></p>
-        <p>Artifact <strong>{{ imageGeneration.artifactStatus ?? 'pending' }}</strong></p>
-        <p>Manifest <strong>{{ imageGeneration.manifestStatus ?? 'pending' }}</strong></p>
-        <p>Renderer <strong>{{ imageGeneration.rendererStatus ?? 'pending' }}</strong></p>
-        <p>Fallback <strong>{{ imageGeneration.fallback ? 'Active' : 'No' }}</strong></p>
-        <p v-if="imageGeneration.failure">{{ imageGeneration.failure.message }}</p>
-      </template>
+      <p v-if="imageGenerations.length === 0">No visual generation operations</p>
+      <ul v-else class="visual-operation-list">
+        <li v-for="operation in imageGenerations" :key="operation.operationId">
+          <span>{{ operation.assetId }}</span>
+          <strong>{{ operation.stage ?? operation.status }}</strong>
+        </li>
+      </ul>
     </section>
     <div
       v-if="runtime.entityCount === 0"

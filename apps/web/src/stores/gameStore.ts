@@ -25,8 +25,9 @@ import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
 import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
 import { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
-import { buildImageGenerationRequest, selectAiGenerationRequirement } from '../assets/AssetGenerationPolicy'
+import { buildImageGenerationRequest, groupAiGenerationRequirements } from '../assets/AssetGenerationPolicy'
 import { buildGeneratedAssetManifest, createPendingImageGenerationOperation, finishImageGenerationOperation } from '../assets/GeneratedAssetOrchestrator'
+import { VisualAssetGenerationScheduler } from '../assets/VisualAssetGenerationScheduler'
 import { useObservatoryDataStore } from './observatoryData'
 import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
 
@@ -112,8 +113,23 @@ export const useGameStore = defineStore('game', () => {
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
   const lastCommand = ref<import('../command').CommandExecutionResult | null>(null)
-  const imageGenerationOperation = ref<ImageGenerationOperation | null>(null)
+  const visualGenerationOperations = ref<Record<string, ImageGenerationOperation>>({})
+  const imageGenerationOperation = computed<ImageGenerationOperation | null>(() => {
+    const operations = Object.values(visualGenerationOperations.value)
+    return operations.find(operation => operation.stage === 'generating' || operation.stage === 'applying')
+      ?? operations.at(-1)
+      ?? null
+  })
   let imageGenerationToken = 0
+  const scheduler = new VisualAssetGenerationScheduler<unknown>(1, (jobId, status) => {
+    const operation = visualGenerationOperations.value[jobId]
+    if (!operation || status === 'completed' || status === 'cancelled') return
+    setOperation({ ...operation, status: status === 'queued' ? 'queued' : 'running', stage: status === 'queued' ? 'queued' : 'generating' })
+  })
+
+  function setOperation(operation: ImageGenerationOperation): void {
+    visualGenerationOperations.value = { ...visualGenerationOperations.value, [operation.operationId]: operation }
+  }
 
   // --- Streaming UI state (inert — preserved for UI backward compatibility) ---
   const isStreaming = ref(false)
@@ -154,25 +170,24 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function generatePlayerArtwork(specification: AssetSpecification, manifest: AssetManifest): Promise<void> {
-    const requirement = selectAiGenerationRequirement(specification)
-    if (!requirement) return
-    const token = ++imageGenerationToken
+  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], token: number): Promise<void> {
+    const [requirement, bindings] = requirements
     const request = buildImageGenerationRequest(specification, requirement)
     const pending = createPendingImageGenerationOperation(request)
-    imageGenerationOperation.value = { ...pending, stage: 'generating' }
+    setOperation({ ...pending, bindingAssetIds: bindings.map(binding => binding.id), stage: 'queued', status: 'queued' })
     try {
       const result = await imageClient.generate(request)
       if (token !== imageGenerationToken) return
       if (result.status !== 'success') {
         const providerOperation = result.operation ?? pending
-        imageGenerationOperation.value = finishImageGenerationOperation({
+        setOperation(finishImageGenerationOperation({
           ...pending,
           ...providerOperation,
           operationId: pending.operationId,
           entityId: request.entityId,
           assetKind: request.constraints?.assetKind,
           input: pending.input,
+          bindingAssetIds: bindings.map(binding => binding.id),
         }, {
           status: 'failed',
           stage: 'fallback',
@@ -180,11 +195,11 @@ export const useGameStore = defineStore('game', () => {
           outcome: 'generation_failed_fallback',
           fallback: 'static',
           failure: result.failure,
-        })
+        }))
         return
       }
       const providerOperation = result.operation ?? pending
-      imageGenerationOperation.value = {
+      setOperation({
         ...pending,
         ...providerOperation,
         operationId: pending.operationId,
@@ -197,37 +212,41 @@ export const useGameStore = defineStore('game', () => {
         assetResolutionStatus: 'pending',
         rendererStatus: 'pending',
         fallback: 'static',
-      }
+        bindingAssetIds: bindings.map(binding => binding.id),
+      })
       assetStore.invalidate(result.assetId)
-      assetManifest.value = buildGeneratedAssetManifest(specification, manifest, result)
+      for (const binding of bindings) assetStore.invalidate(binding.id)
+      assetManifest.value = buildGeneratedAssetManifest(specification, assetManifest.value, result, bindings.map(binding => binding.id))
       markWorldUpdated()
     } catch (error) {
       if (token !== imageGenerationToken) return
-      imageGenerationOperation.value = finishImageGenerationOperation(pending, {
+      setOperation(finishImageGenerationOperation(pending, {
         status: 'failed',
         stage: 'fallback',
         artifactStatus: 'failed',
         outcome: 'generation_failed_fallback',
         fallback: 'static',
         failure: { code: 'provider_unavailable', message: error instanceof Error ? error.message : 'Image generation unavailable' },
-      })
+      }))
     }
   }
 
   function reportAssetApplication(event: { readonly assetId: string; readonly entityId: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
-    const operation = imageGenerationOperation.value
-    if (!operation || operation.assetId !== event.assetId || operation.stage !== 'applying') return
+    const operation = Object.values(visualGenerationOperations.value).find(item =>
+      item.stage === 'applying' && (item.assetId === event.assetId || item.bindingAssetIds?.includes(event.assetId)),
+    )
+    if (!operation) return
     if (event.status === 'applied') {
-      imageGenerationOperation.value = finishImageGenerationOperation(operation, {
+      setOperation(finishImageGenerationOperation(operation, {
         status: 'succeeded',
         stage: 'ready',
         assetResolutionStatus: 'resolved',
         rendererStatus: 'applied',
         outcome: 'generated_and_applied',
-      })
+      }))
       return
     }
-    imageGenerationOperation.value = finishImageGenerationOperation(operation, {
+    setOperation(finishImageGenerationOperation(operation, {
       status: 'failed',
       stage: 'fallback',
       assetResolutionStatus: event.reason === 'resolution' ? 'failed' : 'resolved',
@@ -235,7 +254,7 @@ export const useGameStore = defineStore('game', () => {
       outcome: 'generated_but_not_applied',
       fallback: 'static',
       failure: { code: 'invalid_output', message: event.reason === 'renderer' ? 'Generated artwork could not be displayed' : 'Generated artwork could not be resolved' },
-    })
+    }))
   }
 
   async function send(input: string) {
@@ -250,13 +269,22 @@ export const useGameStore = defineStore('game', () => {
       commandStatus.value = result.success ? 'success' : 'error'
 
       if (result.success) {
+        scheduler.cancel()
         imageGenerationToken++
-        imageGenerationOperation.value = null
+        visualGenerationOperations.value = {}
         const gameDesignSpecification = result.generationDiagnostics?.specification
         const assetSpecification = buildAssetSpecification(gameDesignSpecification)
         assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)
         markWorldUpdated()
-        if (assetSpecification) void generatePlayerArtwork(assetSpecification, assetManifest.value)
+        if (assetSpecification) {
+          const token = imageGenerationToken
+          for (const requirements of groupAiGenerationRequirements(assetSpecification)) {
+            scheduler.enqueue({
+              jobId: createPendingImageGenerationOperation(buildImageGenerationRequest(assetSpecification, requirements[0])).operationId,
+              run: () => generateArtwork(assetSpecification, requirements, token),
+            })
+          }
+        }
       }
       return result
     } catch (error) {
@@ -285,6 +313,7 @@ export const useGameStore = defineStore('game', () => {
     commandStatus,
     lastCommand,
     imageGenerationOperation,
+    visualGenerationOperations,
     reportAssetApplication,
     send,
     // Streaming state (inert — preserved for UI backward compatibility)
