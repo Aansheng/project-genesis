@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-005 - Pixi Sprite Rendering Foundation
+
+- Added optional renderer-side `ResolvedAssetResource` → Pixi texture → Sprite
+  conversion through injected `AssetManifest` and `AssetStore` inputs.
+- Preserved primitive rendering while assets are pending, unavailable, or
+  failed; successful resources upgrade without Runtime or world regeneration.
+- Added canonical entity binding, contain sizing, texture promise reuse,
+  lifecycle cleanup, ADR-0241, and capability updates.
+- Architecture version v1.128 → v1.129.
+
 ### WO-S13-004 - Asset Store & Resolver Foundation
 
 - Added isolated `@genesis/assets` with a neutral `AssetResolver`, injectable

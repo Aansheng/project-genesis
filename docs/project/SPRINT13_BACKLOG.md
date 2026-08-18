@@ -47,3 +47,5 @@ must remain usable without an asset provider.
   resolution states, static resolution fixtures, and ADR-0239.
 - WO-S13-004: isolated `@genesis/assets` resolver/store package with injectable
   loading, static URI support, successful-resolution caching, and ADR-0240.
+- WO-S13-005: renderer-owned Pixi texture adapter, entity sprite binding,
+  asynchronous primitive-to-sprite upgrade, and ADR-0241.

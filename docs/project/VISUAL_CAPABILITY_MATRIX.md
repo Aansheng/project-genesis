@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.128
+Architecture version: v1.129
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -26,7 +26,14 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Asset store | YES | YES | YES | NO |
 | Static URI resolution | YES | YES | YES | NO |
 | Binary/image decode | NO | NO | NO | NO |
-| Pixi sprite rendering | NO | NO | NO | NO |
+| Pixi sprite rendering | NO | NO | YES | YES |
+| Pixi texture adapter | NO | NO | YES | YES |
+| Primitive fallback | YES | YES | YES | YES |
+| Mixed sprite + primitive world | NO | NO | YES | YES |
+| Production static asset wiring | NO | NO | NO | NOT YET |
+| Background asset rendering | NO | NO | NO | NOT YET |
+| Tileset rendering | NO | NO | NO | NOT YET |
+| Animation | NO | NO | NO | NOT YET |
 | AI image generation | NO | NO | NO | NO |
 
 The visual and asset layers are compiled deterministically from

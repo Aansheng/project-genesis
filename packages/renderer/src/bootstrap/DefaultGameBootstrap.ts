@@ -50,6 +50,7 @@ import { PixiRenderer } from '../core'
 import type { PixiRendererOptions } from '../core'
 import { DefaultRuntimeRendererAdapter } from '../adapter'
 import { DefaultPixiEntityRenderer } from '../view'
+import type { PixiEntityRenderer } from '../view'
 import type { AnimationFrameScheduler } from '../runtime'
 import { DefaultAnimationFrameScheduler } from '../runtime'
 import type { RuntimeVisualizationLoop } from '../runtime'
@@ -97,6 +98,7 @@ export class DefaultGameBootstrap implements GameBootstrap {
   private renderer: Renderer | null = null
   private runner: VisualizationRunner | null = null
   private visualizationLoop: RuntimeVisualizationLoop | null = null
+  private entityRenderer: PixiEntityRenderer | null = null
   private scheduler: AnimationFrameScheduler | null = null
   private _running = false
 
@@ -149,6 +151,7 @@ export class DefaultGameBootstrap implements GameBootstrap {
     const adapter = new DefaultRuntimeRendererAdapter()
     const stageContainer = new Container()
     const entityRenderer = new DefaultPixiEntityRenderer(stageContainer)
+    this.entityRenderer = entityRenderer
 
     // 5. Create the visualization loop
     const visLoop = new DefaultRuntimeVisualizationLoop(
@@ -188,6 +191,11 @@ export class DefaultGameBootstrap implements GameBootstrap {
     if (this.visualizationLoop) {
       this.visualizationLoop.stop()
       this.visualizationLoop = null
+    }
+
+    if (this.entityRenderer) {
+      this.entityRenderer.destroy?.()
+      this.entityRenderer = null
     }
 
     // 3. Stop the scheduler

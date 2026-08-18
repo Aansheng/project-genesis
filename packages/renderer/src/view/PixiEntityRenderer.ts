@@ -1,7 +1,7 @@
 /**
  * PixiEntityRenderer — renders a RenderWorld onto a PixiJS canvas
- * using basic Graphics shapes with per-entity-type colors and sizes
- * (no sprites, no textures).
+ * using basic Graphics shapes with per-entity-type colors and sizes, with an
+ * optional asynchronous asset-to-Sprite upgrade.
  *
  * Rendering is driven by an EntityVisualCatalog and an optional
  * PlatformTileCatalog:
@@ -28,16 +28,12 @@
  *   - If no position: do not draw
  *   - If no catalog provided: fall back to 20×20 rectangle (backward compatible)
  *
- * Constraints (WO-S9-004, WO-S9-007, WO-S9-016):
- *   - No sprites
- *   - No textures
- *   - No assets
- *   - No animation
- *   - No gameplay rendering
- *   - Graphics only
+ * Primitive Graphics remains the fallback for all missing or failed assets.
  */
 
-import { Container, Graphics } from 'pixi.js'
+import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
+import type { AssetManifest } from '@genesis/shared'
+import type { AssetStore } from '@genesis/assets'
 import type { RenderWorld } from '../model'
 import type { RenderEntityView } from './RenderEntityView'
 import type { RenderWorldView } from './RenderWorldView'
@@ -45,6 +41,8 @@ import type { EntityVisualCatalog } from './EntityVisualCatalog'
 import type { EntityVisualDefinition } from './EntityVisualDefinition'
 import type { PlatformTileCatalog } from './world/PlatformTileCatalog'
 import type { CameraController } from '../camera'
+import type { PixiAssetAdapter } from './PixiAssetAdapter'
+import { DefaultPixiAssetAdapter } from './PixiAssetAdapter'
 
 /** Default fallback visual definition (20×20 rectangle). */
 const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
@@ -101,11 +99,18 @@ export interface PixiEntityRendererOptions {
 
   /** World-space camera position is rendered relative to this viewport anchor. */
   readonly cameraAnchor?: Readonly<{ x: number; y: number }>
+
+  /** Optional asset inputs. Omit both to retain primitive-only rendering. */
+  readonly assetManifest?: AssetManifest
+  readonly assetStore?: AssetStore
+  readonly assetAdapter?: PixiAssetAdapter
+  readonly createSprite?: (texture: Texture) => Sprite
 }
 
 export interface PixiEntityRenderer {
   render(world: RenderWorld): RenderWorldView
   clear(): void
+  destroy?(): void
 }
 
 export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
@@ -115,7 +120,12 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _tileCatalog: PlatformTileCatalog | null
   private readonly _cameraController: CameraController | null
   private readonly _cameraAnchor: Readonly<{ x: number; y: number }>
+  private readonly _assetManifest: AssetManifest | null
+  private readonly _assetStore: AssetStore | null
+  private readonly _assetAdapter: PixiAssetAdapter | null
+  private readonly _createSprite: (texture: Texture) => Sprite
   private _entityViews: RenderEntityView[] = []
+  private _renderGeneration = 0
 
   constructor(
     container: Container,
@@ -128,6 +138,11 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._tileCatalog = options?.tileCatalog ?? null
     this._cameraController = options?.cameraController ?? null
     this._cameraAnchor = options?.cameraAnchor ?? { x: 0, y: 0 }
+    this._assetManifest = options?.assetManifest ?? null
+    this._assetStore = options?.assetStore ?? null
+    this._assetAdapter = options?.assetAdapter ??
+      (this._assetStore ? new DefaultPixiAssetAdapter() : null)
+    this._createSprite = options?.createSprite ?? ((texture) => new Sprite(texture))
   }
 
   // ─── Public API ─────────────────────────────────────────────────────
@@ -142,6 +157,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
     // Clear previous render
     this.clear()
+    const generation = this._renderGeneration
 
     const views: RenderEntityView[] = []
 
@@ -169,8 +185,13 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
       this._container.addChild(gfx)
 
-      const view: RenderEntityView = { id: entity.id, graphics: gfx }
+      const view: RenderEntityView = {
+        id: entity.id,
+        graphics: gfx,
+        displayObject: gfx,
+      }
       views.push(view)
+      this.tryUpgradeToSprite(entity.id, view, visual, generation)
     }
 
     this._entityViews = views
@@ -179,11 +200,71 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   }
 
   clear(): void {
+    this._renderGeneration += 1
     for (const view of this._entityViews) {
       this._container.removeChild(view.graphics)
       view.graphics.destroy()
+      if (view.sprite) {
+        this._container.removeChild(view.sprite)
+        view.sprite.destroy({ texture: false, baseTexture: false })
+      }
     }
     this._entityViews = []
+  }
+
+  destroy(): void {
+    this.clear()
+    this._assetAdapter?.clear()
+  }
+
+  private tryUpgradeToSprite(
+    entityId: string,
+    view: RenderEntityView,
+    visual: EntityVisualDefinition,
+    generation: number,
+  ): void {
+    if (!this._assetManifest || !this._assetStore || !this._assetAdapter) return
+
+    const entry = this._assetManifest.entries.find(item => item.entityId === entityId)
+    if (!entry) return
+
+    const resource = this._assetStore.get(entry.assetId)
+    const resolved = resource
+      ? Promise.resolve({ status: 'resolved' as const, resource })
+      : this._assetStore.resolve(entry.assetId, this._assetManifest)
+
+    void resolved
+      .then(result => result.status === 'resolved'
+        ? this._assetAdapter!.load(result.resource)
+        : Promise.reject(new Error('asset unavailable')))
+      .then(texture => {
+        if (generation !== this._renderGeneration || !this._entityViews.includes(view)) return
+        this.upgrade(view, texture, visual)
+      })
+      .catch(() => {
+        // The primitive remains visible; failed resources never blank an entity.
+      })
+  }
+
+  private upgrade(
+    view: RenderEntityView,
+    texture: Texture,
+    visual: EntityVisualDefinition,
+  ): void {
+    const sprite = this._createSprite(texture)
+    sprite.anchor.set(0.5)
+    const nativeWidth = texture.width || visual.width
+    const nativeHeight = texture.height || visual.height
+    const scale = Math.min(visual.width / nativeWidth, visual.height / nativeHeight)
+    sprite.width = nativeWidth * scale
+    sprite.height = nativeHeight * scale
+    sprite.x = view.graphics.x
+    sprite.y = view.graphics.y
+
+    this._container.removeChild(view.graphics)
+    view.graphics.destroy()
+    this._container.addChild(sprite)
+    Object.assign(view, { sprite, displayObject: sprite })
   }
 
   // ─── Private ────────────────────────────────────────────────────────

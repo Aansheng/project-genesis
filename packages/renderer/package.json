@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@genesis/ai": "workspace:*",
+    "@genesis/assets": "workspace:*",
     "@genesis/runtime": "workspace:*",
     "@genesis/shared": "workspace:*",
     "pixi.js": "^7.4.3"
