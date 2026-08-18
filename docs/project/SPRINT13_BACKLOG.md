@@ -1,8 +1,8 @@
 # Sprint 13 Backlog — Visual & Asset Generation
 
 Sprint 13 should move the product from primitive geometry toward authored or
-generated 2D visuals. This is planning only; no Sprint 13 capability is
-implemented by the Sprint 12 freeze.
+generated 2D visuals. WO-S13-001 establishes the semantic visual layer; asset
+specification and realization remain future work.
 
 ## Architectural Principle
 
@@ -36,3 +36,8 @@ visuals).
 
 Missing assets must still render deterministic fallback geometry, and GameDesign
 must remain usable without an asset provider.
+
+## Completed
+
+- WO-S13-001: vendor-independent `VisualDesignSpecification`, deterministic
+  GameDesign → VisualDesign compilation, visual capability matrix, and ADR-0237.

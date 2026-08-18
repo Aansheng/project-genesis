@@ -2,6 +2,17 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-001 - Visual Design Specification Foundation
+
+- Added the shared, immutable `VisualDesignSpecification` semantic contract for
+  art direction, theme refinement, palette semantics, environment intent, and
+  entity visual roles.
+- Added a deterministic compiler in `@genesis/ai` with stable entity identity
+  and a neutral missing-theme fallback.
+- Kept Runtime, Renderer, primitive visuals, assets, and image generation
+  unchanged; added ADR-0237 and `VISUAL_CAPABILITY_MATRIX.md`.
+- Architecture version v1.124 → v1.125.
+
 ### WO-S12-015 - Runtime AI Provider Activation
 
 - Removed the build-time `VITE_AI_ENABLED` gate from production provider

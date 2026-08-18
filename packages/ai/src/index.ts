@@ -187,6 +187,8 @@ export type { StructuredGenerationAttempt, StructuredGenerationFailureReason, St
 export { DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, DeterministicGameWorldGenerationProvider, DeterministicGameWorldGenerationCandidateProvider, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DEFAULT_GAME_DESIGN_CAPABILITIES, DefaultGameDesignPromptBuilder, DEFAULT_STRUCTURED_GENERATION_RELIABILITY, StructuredGenerationError } from './game-world'
 export type { GameDesignWorldBuilder } from './game-design'
 export { DefaultGameDesignWorldBuilder } from './game-design'
+export type { VisualDesignSpecificationBuilder } from './game-design'
+export { DefaultVisualDesignSpecificationBuilder } from './game-design'
 // ---------------------------------------------------------------------------
 // Game Intent — Pure Semantic Game Intent Extraction
 // ---------------------------------------------------------------------------
