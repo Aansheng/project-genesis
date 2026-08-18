@@ -72,3 +72,7 @@ must remain usable without an asset provider.
   added session-owned artifact publication, immutable manifest replacement,
   targeted AssetStore invalidation, and Pixi visual upgrade; no persistence or
   multi-asset generation.
+- WO-S13-010: added structured visual-generation activity and execution facts,
+  preserved operation correlation through renderer application, separated world
+  readiness from visual enrichment, and extended the existing Observatory
+  Generation panel; no generic tracing engine or multi-asset orchestration.

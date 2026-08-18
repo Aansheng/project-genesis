@@ -19,6 +19,7 @@ export function buildImageGenerationRequest(
 ): ImageGenerationRequest {
   return {
     assetId: requirement.id,
+    ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     mode: 'text-to-image',
     prompt: [requirement.subject, requirement.visualRole].filter(Boolean).join('; '),
     subject: requirement.subject,

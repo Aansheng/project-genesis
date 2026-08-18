@@ -37,6 +37,7 @@ export interface ImageGenerationConstraints {
 /** Vendor-independent input for one image-generation operation. */
 export interface ImageGenerationRequest {
   readonly assetId: string
+  readonly entityId?: string
   readonly mode: ImageGenerationMode
   readonly prompt: string
   readonly subject?: string
@@ -76,13 +77,37 @@ export type ImageGenerationResult =
 
 export type ImageGenerationOperationStatus = 'running' | 'succeeded' | 'failed'
 
+export type ImageGenerationActivityStage =
+  | 'preparing'
+  | 'generating'
+  | 'applying'
+  | 'ready'
+  | 'fallback'
+
+export type ImageGenerationOutcome =
+  | 'generated_and_applied'
+  | 'generated_but_not_applied'
+  | 'generation_failed_fallback'
+
+export type ImageGenerationManifestStatus = 'pending' | 'updated' | 'failed'
+export type ImageGenerationAssetResolutionStatus = 'pending' | 'resolved' | 'failed'
+export type ImageGenerationRendererStatus = 'pending' | 'applied' | 'failed'
+
 export interface ImageGenerationOperation {
   readonly operationId: string
   readonly assetId: string
   readonly mode: ImageGenerationMode
   readonly status: ImageGenerationOperationStatus
+  readonly stage?: ImageGenerationActivityStage
   readonly provider?: string
+  readonly model?: string
+  readonly entityId?: string
+  readonly assetKind?: AssetKind
   readonly artifactStatus?: 'pending' | 'published' | 'failed'
+  readonly manifestStatus?: ImageGenerationManifestStatus
+  readonly assetResolutionStatus?: ImageGenerationAssetResolutionStatus
+  readonly rendererStatus?: ImageGenerationRendererStatus
+  readonly outcome?: ImageGenerationOutcome
   readonly input: {
     readonly subject?: string
     readonly prompt: string
@@ -94,6 +119,9 @@ export interface ImageGenerationOperation {
   }
   readonly failure?: ImageGenerationFailure
   readonly fallback?: 'static' | 'primitive'
+  readonly startedAt?: string
+  readonly completedAt?: string
+  readonly durationMs?: number
 }
 
 export interface ImageGenerationProvider {

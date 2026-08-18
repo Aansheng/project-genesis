@@ -27,6 +27,7 @@ export function createImageGenerationGatewayHandler(
   provider: ImageGenerationProvider,
   publisher?: GeneratedAssetPublisher,
   providerName?: string,
+  modelName?: string,
 ) {
   return async (request: Request): Promise<Response> => {
     if (request.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 })
@@ -42,6 +43,7 @@ export function createImageGenerationGatewayHandler(
           input: { ...(input.subject ? { subject: input.subject } : {}), prompt: input.prompt, visualContext: input.visualContext },
         }),
         ...(providerName ? { provider: providerName } : {}),
+        ...(modelName ? { model: modelName } : {}),
         ...(result.status === 'failed' ? { artifactStatus: 'failed' as const } : {}),
       }
       if (result.status !== 'success' || !publisher) {

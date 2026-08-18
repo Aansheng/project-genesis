@@ -15,7 +15,7 @@ when generation succeeds.
 
 The server publishes generated data URIs or provider-hosted image URLs into a
 session-owned `InMemoryGeneratedAssetPublisher`. The renderer-facing resource
-is `/api/generated-assets/{artifactId}`; arbitrary `data:` URIs are not added
+is `/api/generated-assets/{artifactId}.{extension}`; arbitrary `data:` URIs are not added
 to the generic `AssetResolver` allowlist. Session artifacts disappear when the
 AI server restarts and are not durable project assets.
 

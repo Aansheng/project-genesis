@@ -5,12 +5,29 @@ import { useGameStore } from '../../stores/gameStore'
 const store = useGameStore()
 const title = computed(() => {
   if (store.commandStatus === 'running') return 'Creating world…'
-  if (store.imageGenerationOperation?.status === 'running') return 'Generating player artwork…'
-  if (store.imageGenerationOperation?.status === 'succeeded') return 'Player artwork ready'
-  if (store.imageGenerationOperation?.status === 'failed') return 'Using fallback artwork'
   if (store.commandStatus === 'success') return 'World created'
   if (store.commandStatus === 'error') return 'Command not understood'
   return 'Ready to create'
+})
+const visualTitle = computed(() => {
+  switch (store.imageGenerationOperation?.stage) {
+    case 'preparing': return 'Preparing player artwork…'
+    case 'generating': return 'Generating player artwork…'
+    case 'applying': return 'Applying player artwork…'
+    case 'ready': return 'Player artwork ready'
+    case 'fallback': return 'Using fallback artwork'
+    default: return ''
+  }
+})
+const visualDetail = computed(() => {
+  switch (store.imageGenerationOperation?.stage) {
+    case 'preparing': return 'Player fallback remains active'
+    case 'generating': return 'Player fallback remains active'
+    case 'applying': return 'Manifest updated; waiting for Sprite application'
+    case 'ready': return 'Applied to player'
+    case 'fallback': return store.imageGenerationOperation.outcome === 'generated_but_not_applied' ? 'Artwork unavailable; using fallback visual' : 'Generation unavailable; using fallback visual'
+    default: return ''
+  }
 })
 const detail = computed(() => {
   if (store.commandStatus === 'success' && store.lastCommand?.entityCount !== undefined) {
@@ -32,6 +49,16 @@ const detail = computed(() => {
     <span class="activity-label"><i aria-hidden="true" />Activity</span>
     <strong>{{ title }}</strong>
     <span class="activity-detail">{{ detail }}</span>
+    <div
+      v-if="store.imageGenerationOperation"
+      class="visual-activity"
+      :class="`visual-activity--${store.imageGenerationOperation.stage ?? 'fallback'}`"
+      aria-live="polite"
+    >
+      <span class="activity-label"><i aria-hidden="true" />Visuals</span>
+      <strong><span v-if="store.imageGenerationOperation.stage === 'generating' || store.imageGenerationOperation.stage === 'applying'" aria-hidden="true">⟳ </span>{{ visualTitle }}</strong>
+      <span class="activity-detail">{{ visualDetail }}</span>
+    </div>
     <span class="sr-only">{{ store.lastCommand?.message }}</span>
   </div>
 </template>
@@ -67,6 +94,29 @@ strong,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.visual-activity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--studio-space-1);
+  margin-top: var(--studio-space-2);
+  padding-top: var(--studio-space-2);
+  border-top: 1px solid var(--studio-border);
+}
+
+.visual-activity--generating .activity-label i,
+.visual-activity--applying .activity-label i {
+  background: var(--studio-accent);
+}
+
+.visual-activity--ready .activity-label i {
+  background: var(--studio-success);
+}
+
+.visual-activity--fallback .activity-label i {
+  background: #e2b45f;
 }
 
 strong {

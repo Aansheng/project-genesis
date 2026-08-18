@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.134
+Architecture version: v1.135
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -48,6 +48,8 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Real text-to-image provider | YES | NO | YES | NO |
 | Server-side image gateway | YES | NO | YES | NO |
 | Generated image artifact | YES | YES | YES | YES for player |
+| Visual generation activity | YES | YES | YES | YES for player |
+| Generated artwork applied status | YES | YES | YES | YES for player |
 
 WO-S13-009 adds a session-owned generated artifact bridge and asynchronous
 player Sprite upgrade. Data URIs remain provider/server transport details and
@@ -64,6 +66,8 @@ The visual and asset layers are compiled deterministically from
 `GameDesignSpecification`. Studio production wiring now resolves selected
 repository-owned static character/prop fixtures and passes the manifest/store
 to the Pixi renderer. Unresolved and failed entries retain primitive fallback.
-Image-to-image, edit, and reference-guided remain domain-only. Generated asset
-publication into AssetManifest, AI-generated Sprite wiring, terrain/background
-textures, and animation remain deferred.
+Image-to-image, edit, and reference-guided remain domain-only. Visual generation
+activity now exposes the current player operation, safe artifact metadata,
+manifest/application status, renderer outcome, and fallback without exposing
+secrets or hidden reasoning. Multi-asset generation, terrain/background
+textures, persistence, and animation remain deferred.

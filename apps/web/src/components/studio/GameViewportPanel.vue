@@ -98,6 +98,7 @@ onMounted(() => {
     cameraAnchor,
     assetManifest: store.assetManifest,
     assetStore: store.assetStore,
+    onAssetApplication: store.reportAssetApplication,
   })
   entityRenderer = renderer
   watch(() => store.renderVersion, () => {

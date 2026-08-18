@@ -15,7 +15,7 @@ const DEFAULT_PORT = 8787
 const GENERATED_ASSET_ROUTE = '/api/generated-assets/'
 const MAX_BODY_BYTES = 1_000_000
 
-export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService; readonly imageProvider?: ImageGenerationProvider; readonly imageProviderName?: string; readonly generatedAssetPublisher?: GeneratedAssetPublisher }
+export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService; readonly imageProvider?: ImageGenerationProvider; readonly imageProviderName?: string; readonly imageProviderModel?: string; readonly generatedAssetPublisher?: GeneratedAssetPublisher }
 export interface AIServerHandle { readonly server: Server; readonly host: string; readonly port: number }
 
 function configuredPort(value: string | undefined): number {
@@ -68,7 +68,7 @@ export async function startAIServer(client: StructuredGenerationClient, options:
   )
   const handler = createAIGatewayHandler(() => configurationService.getClient())
   const generatedAssetPublisher = options.generatedAssetPublisher ?? new InMemoryGeneratedAssetPublisher()
-  const imageHandler = createImageGenerationGatewayHandler(options.imageProvider ?? new UnavailableImageGenerationProvider(), generatedAssetPublisher, options.imageProviderName)
+  const imageHandler = createImageGenerationGatewayHandler(options.imageProvider ?? new UnavailableImageGenerationProvider(), generatedAssetPublisher, options.imageProviderName, options.imageProviderModel)
   const host = options.host ?? DEFAULT_HOST
   const port = options.port ?? configuredPort(process.env.AI_PORT)
   const server = createServer(async (request, response) => {

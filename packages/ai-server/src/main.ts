@@ -46,7 +46,7 @@ export async function startConfiguredAIServer(
     (next) => new OpenAIStructuredGenerationClient({ ...config.ai, provider: next.provider, model: next.model, baseURL: next.baseURL, apiKey: next.apiKey, enabled: next.enabled }),
   )
   if (!config.apiKey) console.warn('AI_API_KEY is not configured; AI requests will use the browser deterministic fallback')
-  const server = await startAIServer(client, { ...config, configurationService, imageProvider, imageProviderName: config.image.provider })
+  const server = await startAIServer(client, { ...config, configurationService, imageProvider, imageProviderName: config.image.provider, imageProviderModel: config.image.model })
   console.log(`Genesis AI Gateway listening on http://${server.host}:${server.port}`)
   return server
 }

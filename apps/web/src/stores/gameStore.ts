@@ -26,7 +26,7 @@ import type { CommandExecutor } from '../command'
 import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
 import { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, selectAiGenerationRequirement } from '../assets/AssetGenerationPolicy'
-import { buildGeneratedAssetManifest, createPendingImageGenerationOperation } from '../assets/GeneratedAssetOrchestrator'
+import { buildGeneratedAssetManifest, createPendingImageGenerationOperation, finishImageGenerationOperation } from '../assets/GeneratedAssetOrchestrator'
 import { useObservatoryDataStore } from './observatoryData'
 import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
 
@@ -159,29 +159,75 @@ export const useGameStore = defineStore('game', () => {
     if (!requirement) return
     const token = ++imageGenerationToken
     const request = buildImageGenerationRequest(specification, requirement)
-    imageGenerationOperation.value = createPendingImageGenerationOperation(request)
+    const pending = createPendingImageGenerationOperation(request)
+    imageGenerationOperation.value = { ...pending, stage: 'generating' }
     try {
       const result = await imageClient.generate(request)
       if (token !== imageGenerationToken) return
-      imageGenerationOperation.value = result.operation ?? {
-        ...createPendingImageGenerationOperation(request),
-        status: result.status === 'success' ? 'succeeded' : 'failed',
-        artifactStatus: result.status === 'success' ? 'published' : 'failed',
-        ...(result.status === 'failed' ? { failure: result.failure } : {}),
+      if (result.status !== 'success') {
+        imageGenerationOperation.value = finishImageGenerationOperation(pending, {
+          status: 'failed',
+          stage: 'fallback',
+          artifactStatus: 'failed',
+          outcome: 'generation_failed_fallback',
+          fallback: 'static',
+          failure: result.failure,
+        })
+        return
       }
-      if (result.status !== 'success') return
+      const providerOperation = result.operation ?? pending
+      imageGenerationOperation.value = {
+        ...pending,
+        ...providerOperation,
+        operationId: pending.operationId,
+        entityId: request.entityId,
+        assetKind: request.constraints?.assetKind,
+        status: 'running',
+        stage: 'applying',
+        artifactStatus: providerOperation.artifactStatus ?? 'published',
+        manifestStatus: 'updated',
+        assetResolutionStatus: 'pending',
+        rendererStatus: 'pending',
+        fallback: 'static',
+      }
       assetStore.invalidate(result.assetId)
       assetManifest.value = buildGeneratedAssetManifest(specification, manifest, result)
       markWorldUpdated()
     } catch (error) {
       if (token !== imageGenerationToken) return
-      imageGenerationOperation.value = {
-        ...createPendingImageGenerationOperation(request),
+      imageGenerationOperation.value = finishImageGenerationOperation(pending, {
         status: 'failed',
+        stage: 'fallback',
         artifactStatus: 'failed',
+        outcome: 'generation_failed_fallback',
+        fallback: 'static',
         failure: { code: 'provider_unavailable', message: error instanceof Error ? error.message : 'Image generation unavailable' },
-      }
+      })
     }
+  }
+
+  function reportAssetApplication(event: { readonly assetId: string; readonly entityId: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
+    const operation = imageGenerationOperation.value
+    if (!operation || operation.assetId !== event.assetId || operation.stage !== 'applying') return
+    if (event.status === 'applied') {
+      imageGenerationOperation.value = finishImageGenerationOperation(operation, {
+        status: 'succeeded',
+        stage: 'ready',
+        assetResolutionStatus: 'resolved',
+        rendererStatus: 'applied',
+        outcome: 'generated_and_applied',
+      })
+      return
+    }
+    imageGenerationOperation.value = finishImageGenerationOperation(operation, {
+      status: 'failed',
+      stage: 'fallback',
+      assetResolutionStatus: event.reason === 'resolution' ? 'failed' : 'resolved',
+      rendererStatus: 'failed',
+      outcome: 'generated_but_not_applied',
+      fallback: 'static',
+      failure: { code: 'invalid_output', message: event.reason === 'renderer' ? 'Generated artwork could not be displayed' : 'Generated artwork could not be resolved' },
+    })
   }
 
   async function send(input: string) {
@@ -229,6 +275,7 @@ export const useGameStore = defineStore('game', () => {
     commandStatus,
     lastCommand,
     imageGenerationOperation,
+    reportAssetApplication,
     send,
     // Streaming state (inert — preserved for UI backward compatibility)
     isStreaming,

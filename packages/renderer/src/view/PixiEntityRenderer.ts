@@ -105,6 +105,12 @@ export interface PixiEntityRendererOptions {
   readonly assetStore?: AssetStore
   readonly assetAdapter?: PixiAssetAdapter
   readonly createSprite?: (texture: Texture) => Sprite
+  readonly onAssetApplication?: (event: {
+    readonly assetId: string
+    readonly entityId: string
+    readonly status: 'applied' | 'failed'
+    readonly reason?: 'resolution' | 'renderer'
+  }) => void
 }
 
 export interface PixiEntityRenderer {
@@ -126,6 +132,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _assetStore: AssetStore | null
   private readonly _assetAdapter: PixiAssetAdapter | null
   private readonly _createSprite: (texture: Texture) => Sprite
+  private readonly _onAssetApplication?: PixiEntityRendererOptions['onAssetApplication']
   private _entityViews: RenderEntityView[] = []
   private _renderGeneration = 0
 
@@ -148,6 +155,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._assetAdapter = options?.assetAdapter ??
       (this._assetStore ? new DefaultPixiAssetAdapter() : null)
     this._createSprite = options?.createSprite ?? ((texture) => new Sprite(texture))
+    this._onAssetApplication = options?.onAssetApplication
   }
 
   // ─── Public API ─────────────────────────────────────────────────────
@@ -257,10 +265,16 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         : Promise.reject(new Error('asset unavailable')))
       .then(texture => {
         if (generation !== this._renderGeneration || !this._entityViews.includes(view)) return
-        this.upgrade(view, texture, visual)
+        try {
+          this.upgrade(view, texture, visual)
+          this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'applied' })
+        } catch {
+          this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'failed', reason: 'renderer' })
+        }
       })
       .catch(() => {
         // The primitive remains visible; failed resources never blank an entity.
+        this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'failed', reason: 'resolution' })
       })
   }
 

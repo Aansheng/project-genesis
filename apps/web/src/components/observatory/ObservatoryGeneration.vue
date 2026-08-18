@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
+import { useGameStore } from '../../stores/gameStore'
 
 const data = useObservatoryDataStore()
+const game = useGameStore()
+const imageGeneration = computed(() => game.imageGenerationOperation)
 const labels: Record<string, string> = {
   REQUEST: 'Request', PROMPT_ASSEMBLY: 'Prompt Assembly', MODEL_GENERATION: 'Model Generation',
   CANDIDATE_PARSE: 'Candidate Parse', VALIDATION: 'Validation', DESIGN_SPECIFICATION: 'Design Specification',
@@ -23,6 +27,37 @@ const labels: Record<string, string> = {
         </div>
         <code class="generation-id">{{ data.generationTrace.id }}</code>
       </header>
+
+      <section class="generation-card visual-generation-card" aria-labelledby="visual-generation-title">
+        <header class="card-heading">
+          <h3 id="visual-generation-title">Image Generation</h3>
+          <span class="card-count">{{ imageGeneration?.stage ?? 'idle' }}</span>
+        </header>
+        <p v-if="imageGeneration === null" class="card-copy">No player artwork operation.</p>
+        <template v-else>
+          <dl class="detail-list">
+            <div><dt>Asset</dt><dd>Player artwork</dd></div>
+            <div><dt>Asset ID</dt><dd>{{ imageGeneration.assetId }}</dd></div>
+            <div><dt>Entity</dt><dd>{{ imageGeneration.entityId ?? 'player' }}</dd></div>
+            <div><dt>Provider</dt><dd>{{ imageGeneration.provider ?? 'server-selected' }}</dd></div>
+            <div v-if="imageGeneration.model"><dt>Model</dt><dd>{{ imageGeneration.model }}</dd></div>
+            <div><dt>Mode</dt><dd>{{ imageGeneration.mode }}</dd></div>
+            <div><dt>Generation</dt><dd>{{ imageGeneration.status }}</dd></div>
+            <div><dt>Artifact</dt><dd>{{ imageGeneration.artifactStatus ?? 'pending' }}</dd></div>
+            <div><dt>Manifest</dt><dd>{{ imageGeneration.manifestStatus ?? 'pending' }}</dd></div>
+            <div><dt>Asset resolution</dt><dd>{{ imageGeneration.assetResolutionStatus ?? 'pending' }}</dd></div>
+            <div><dt>Renderer</dt><dd>{{ imageGeneration.rendererStatus ?? 'pending' }}</dd></div>
+            <div><dt>Fallback</dt><dd>{{ imageGeneration.fallback ?? 'no' }}</dd></div>
+          </dl>
+          <img
+            v-if="imageGeneration.stage === 'ready' && imageGeneration.output?.resource?.uri && !imageGeneration.output.resource.uri.startsWith('data:')"
+            class="visual-generation-preview"
+            :src="imageGeneration.output.resource.uri"
+            alt="Generated player artwork preview"
+          >
+          <p v-if="imageGeneration.failure" class="fallback-note"><span>Fallback</span>{{ imageGeneration.failure.message }}</p>
+        </template>
+      </section>
 
       <div class="generation-layout">
         <aside class="generation-summary" aria-label="Generation summary">
@@ -102,6 +137,8 @@ h2 { margin: var(--obs-space-1) 0 0; color: var(--obs-text); font-size: 18px; le
 .summary-card dd { font-size: 18px; font-weight: 600; }
 .value-ai, .value-success { color: var(--obs-success) !important; } .value-deterministic, .value-fallback { color: var(--obs-warning, #f2b84b) !important; } .value-failed { color: var(--obs-danger, #f87171) !important; }
 .generation-card { gap: var(--obs-space-3); }
+.visual-generation-card { margin: var(--obs-space-4); }
+.visual-generation-preview { display: block; width: 96px; height: 96px; object-fit: contain; border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-bg); }
 .card-heading, .stages-header { display: flex; align-items: center; justify-content: space-between; gap: var(--obs-space-2); }
 .card-count, .stages-header > span, .card-meta { color: var(--obs-text-dim); font-family: var(--obs-font-mono); font-size: 11px; }
 .detail-list { display: grid; gap: var(--obs-space-2); margin: 0; }

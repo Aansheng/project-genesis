@@ -2,6 +2,19 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-010 - Visual Generation Activity & Execution Trace Experience
+
+- Extended the existing image-generation operation with stage, artifact,
+  manifest, asset-resolution, renderer, fallback, outcome, and safe timing facts.
+- Kept one browser correlation ID from request creation through artifact
+  publication, manifest replacement, and renderer application.
+- Separated World ready from Visuals generating/applying/ready in Studio Activity;
+  no simulated percentage progress was added.
+- Added renderer application callbacks and detailed image-generation facts,
+  sanitized failure state, and optional Genesis-owned thumbnail preview to the
+  existing Observatory Generation panel.
+- Added ADR-0249; architecture version v1.134 → v1.135.
+
 ### WO-S13-009 - AI Generated Asset to Studio End-to-End
 
 - Connected player-only image generation to Studio after world creation;

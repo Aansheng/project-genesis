@@ -12,13 +12,38 @@ import { buildImageGenerationRequest, selectAiGenerationRequirement } from './As
 export function createPendingImageGenerationOperation(
   request: ReturnType<typeof buildImageGenerationRequest>,
 ): ImageGenerationOperation {
+  const startedAt = new Date().toISOString()
   return {
     operationId: `image-generation-client-${request.assetId}`,
     assetId: request.assetId,
+    ...(request.entityId ? { entityId: request.entityId } : {}),
     mode: request.mode,
     status: 'running',
+    stage: 'preparing',
+    assetKind: request.constraints?.assetKind,
     artifactStatus: 'pending',
+    manifestStatus: 'pending',
+    assetResolutionStatus: 'pending',
+    rendererStatus: 'pending',
+    fallback: 'static',
+    startedAt,
     input: { subject: request.subject, prompt: request.prompt, visualContext: request.visualContext },
+  }
+}
+
+export function finishImageGenerationOperation(
+  operation: ImageGenerationOperation,
+  patch: Partial<ImageGenerationOperation> & { readonly status: ImageGenerationOperation['status'] },
+): ImageGenerationOperation {
+  const completedAt = patch.completedAt ?? (patch.stage === 'ready' || patch.stage === 'fallback' ? new Date().toISOString() : undefined)
+  const durationMs = completedAt && operation.startedAt
+    ? Math.max(0, Date.parse(completedAt) - Date.parse(operation.startedAt))
+    : patch.durationMs
+  return {
+    ...operation,
+    ...patch,
+    ...(completedAt ? { completedAt } : {}),
+    ...(durationMs !== undefined ? { durationMs } : {}),
   }
 }
 

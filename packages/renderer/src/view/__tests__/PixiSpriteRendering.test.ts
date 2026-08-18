@@ -54,9 +54,7 @@ describe('Pixi sprite rendering foundation', () => {
     expect(view.displayObject).toBe(view.graphics)
     await Promise.resolve()
     resolveTexture({ width: 24, height: 24 } as Texture)
-    await Promise.resolve()
-    await Promise.resolve()
-    await Promise.resolve()
+    await new Promise(resolve => setTimeout(resolve, 0))
     await Promise.resolve()
     expect(view.sprite).toBeDefined()
     expect(view.displayObject).toBe(view.sprite)
@@ -64,7 +62,32 @@ describe('Pixi sprite rendering foundation', () => {
     expect(graphicsDestroyCount).toBe(1)
   })
 
+  it('reports the renderer application only after the sprite is active', async () => {
+    let resolveTexture!: (texture: Texture) => void
+    const applications: Array<{ assetId: string; entityId: string; status: string }> = []
+    const adapter: PixiAssetAdapter = { load: () => new Promise(resolve => { resolveTexture = resolve }), clear() {} }
+    const renderer = new DefaultPixiEntityRenderer(container(), {
+      createGraphics: graphics,
+      assetManifest: manifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: adapter,
+      createSprite: sprite,
+      onAssetApplication: event => applications.push(event),
+    })
+
+    const view = renderer.render(world()).entities[0]
+    expect(applications).toHaveLength(0)
+    await Promise.resolve()
+    resolveTexture({ width: 24, height: 24 } as Texture)
+    await Promise.resolve()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(view.sprite).toBeDefined()
+    expect(applications).toEqual([{ assetId: 'player-asset', entityId: 'player', status: 'applied' }])
+  })
+
   it('retains the primitive when resolution fails', async () => {
+    const applications: Array<{ status: string; reason?: string }> = []
     const c = container()
     const renderer = new DefaultPixiEntityRenderer(c, {
       createGraphics: graphics,
@@ -72,11 +95,13 @@ describe('Pixi sprite rendering foundation', () => {
       assetStore: store({ status: 'failed', assetId: resource.assetId, reason: 'load_failed' }),
       assetAdapter: { load: async () => { throw new Error('bad texture') }, clear() {} },
       createSprite: sprite,
+      onAssetApplication: event => applications.push(event),
     })
 
     const view = renderer.render(world()).entities[0]
-    await Promise.resolve()
+    await new Promise(resolve => setTimeout(resolve, 0))
     expect(view.sprite).toBeUndefined()
     expect(view.displayObject).toBe(view.graphics)
+    expect(applications).toEqual([{ assetId: 'player-asset', entityId: 'player', status: 'failed', reason: 'resolution' }])
   })
 })

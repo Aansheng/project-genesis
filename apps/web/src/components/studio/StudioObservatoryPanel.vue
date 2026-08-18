@@ -28,10 +28,15 @@ const imageGeneration = computed(() => gameStore.imageGenerationOperation)
       </div>
       <p v-if="imageGeneration === null">No player artwork operation</p>
       <template v-else>
-        <p>Asset <strong>player</strong></p>
+        <p>Asset <strong>Player artwork</strong> <code>{{ imageGeneration.assetId }}</code></p>
+        <p>Stage <strong>{{ imageGeneration.stage ?? imageGeneration.status }}</strong></p>
         <p>Provider <strong>{{ imageGeneration.provider ?? 'server-selected' }}</strong></p>
+        <p v-if="imageGeneration.model">Model <strong>{{ imageGeneration.model }}</strong></p>
         <p>Mode <strong>{{ imageGeneration.mode }}</strong></p>
         <p>Artifact <strong>{{ imageGeneration.artifactStatus ?? 'pending' }}</strong></p>
+        <p>Manifest <strong>{{ imageGeneration.manifestStatus ?? 'pending' }}</strong></p>
+        <p>Renderer <strong>{{ imageGeneration.rendererStatus ?? 'pending' }}</strong></p>
+        <p>Fallback <strong>{{ imageGeneration.fallback ? 'Active' : 'No' }}</strong></p>
         <p v-if="imageGeneration.failure">{{ imageGeneration.failure.message }}</p>
       </template>
     </section>
