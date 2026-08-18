@@ -43,3 +43,5 @@ must remain usable without an asset provider.
   GameDesign → VisualDesign compilation, visual capability matrix, and ADR-0237.
 - WO-S13-002: vendor-independent `AssetSpecification`, deterministic
   VisualDesign → Asset compilation, stable entity-bound asset IDs, and ADR-0238.
+- WO-S13-003: immutable `AssetManifest`, canonical asset identity, partial
+  resolution states, static resolution fixtures, and ADR-0239.

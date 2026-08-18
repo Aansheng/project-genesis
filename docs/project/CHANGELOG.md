@@ -2,6 +2,17 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-003 - Asset Manifest & Asset Identity Foundation
+
+- Added shared immutable `AssetManifest` entries with canonical asset IDs,
+  entity bindings, resolution status, opaque resource URIs, safe metadata, and
+  vendor-neutral origin.
+- Added deterministic static manifest building with unresolved, resolved,
+  failed, and partial-resolution support; no filesystem, network, cache,
+  texture, or renderer integration was added.
+- Added ADR-0239 and updated the visual capability matrix; architecture version
+  v1.126 → v1.127.
+
 ### WO-S13-002 - Asset Specification Foundation
 
 - Added immutable semantic asset requirements for characters, terrain,
