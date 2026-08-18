@@ -4,6 +4,8 @@ export type { PixiEntityRenderer, PixiEntityRendererOptions } from './PixiEntity
 export { DefaultPixiEntityRenderer } from './PixiEntityRenderer'
 export type { PixiAssetAdapter } from './PixiAssetAdapter'
 export { DefaultPixiAssetAdapter } from './PixiAssetAdapter'
+export { PixiEnvironmentRenderer } from './PixiEnvironmentRenderer'
+export type { PixiEnvironmentRendererOptions } from './PixiEnvironmentRenderer'
 export type { EntityVisualDefinition } from './EntityVisualDefinition'
 export type { EntityVisualCatalog } from './EntityVisualCatalog'
 export { DefaultEntityVisualCatalog } from './DefaultEntityVisualCatalog'

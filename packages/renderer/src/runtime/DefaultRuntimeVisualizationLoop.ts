@@ -22,6 +22,7 @@ import type { World } from '@genesis/shared'
 import type { RuntimeExecutionLoop } from '@genesis/runtime'
 import type { RuntimeRendererAdapter } from '../adapter'
 import type { PixiEntityRenderer } from '../view'
+import type { PixiEnvironmentRenderer } from '../view'
 import type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 import type { VisualizationTickResult } from './VisualizationTickResult'
 import type { VisualizationWorldProvider } from './VisualizationWorldProvider'
@@ -35,6 +36,7 @@ export class DefaultRuntimeVisualizationLoop
   private readonly entityRenderer: PixiEntityRenderer
   private readonly worldProvider: VisualizationWorldProvider | undefined
   private readonly worldSink: RuntimeWorldSink | undefined
+  private readonly environmentRenderer: PixiEnvironmentRenderer | undefined
   private _currentWorld: World
   private _running: boolean
 
@@ -54,12 +56,14 @@ export class DefaultRuntimeVisualizationLoop
     initialWorld: World,
     worldProvider?: VisualizationWorldProvider,
     worldSink?: RuntimeWorldSink,
+    environmentRenderer?: PixiEnvironmentRenderer,
   ) {
     this.executionLoop = executionLoop
     this.rendererAdapter = rendererAdapter
     this.entityRenderer = entityRenderer
     this.worldProvider = worldProvider
     this.worldSink = worldSink
+    this.environmentRenderer = environmentRenderer
     this._currentWorld = worldProvider?.getWorld() ?? initialWorld
     this._running = false
   }
@@ -153,7 +157,9 @@ export class DefaultRuntimeVisualizationLoop
     // Step 2: Adapt to RenderWorld
     const renderWorld = this.rendererAdapter.adapt(newWorld)
 
-    // Step 3: Render on canvas and capture rendered entity count
+    this.environmentRenderer?.render(renderWorld)
+
+    // Step 3: Render entities on top and capture rendered entity count
     const renderView = this.entityRenderer.render(renderWorld)
 
     // Step 4: Store new world for next tick

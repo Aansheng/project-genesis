@@ -14,7 +14,7 @@
 **Sprint 10** — AI Generation Pipeline (Complete)
 **Sprint 11** - Genesis Studio Experience (Baseline Frozen)
 **Sprint 12** - AI World Generation (**Frozen**; runtime activation fixed and product verification complete)
-**Sprint 13** - Visual & Asset Generation (WO-S13-011 complete)
+**Sprint 13** - Visual & Asset Generation (WO-S13-012 complete)
 
 ---
 
@@ -23,11 +23,11 @@
 | Item | Status |
 | ----------------------- | --- |
 | Status | Sprint 12 **AI Game Design Generation Baseline — FROZEN**; Sprint 11 playable baseline remains frozen |
-| Architecture Version | v1.136 (Sprint 13) |
-| Last Completed WO | WO-S13-011 - Multi-Asset Generation Orchestration |
-| Current User-Visible Behavior | Studio reports World created independently from visual enrichment. Player, enemy, and boss canonical visuals enter a FIFO bounded queue (default concurrency 1), each with an independent operation and fallback; generated results update the immutable manifest and Pixi sprites incrementally. |
+| Architecture Version | v1.137 (Sprint 13) |
+| Last Completed WO | WO-S13-012 - Environment Visual Generation: Background & Terrain |
+| Current User-Visible Behavior | Studio creates a playable world immediately. Background and terrain environment jobs share the FIFO bounded queue (background first, terrain second, then character visuals); generated background covers the viewport and generated terrain decorates existing terrain/platform bounds incrementally, while failures retain fallback visuals. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia gameStore → CreateWorldPipeline → RuntimeWorldStore → playable Runtime/Pixi; in parallel: AssetSpecification → player ImageGenerationRequest → one browser correlation operation → BrowserImageGenerationClient → image gateway/provider → session GeneratedAssetPublisher → Genesis artifact URL → immutable AssetManifest → AssetStore/Pixi invalidation → renderer application callback → operation ready/applied; the same operation is consumed by Studio Activity and Observatory Generation. |
-| Current Blocking Issue | Generated artifacts are session-owned only and disappear on AI server restart; no persistence, alpha extraction, transparency guarantee, or animation exists. The synchronous gateway cannot expose an intermediate publishing event, so publishing is represented by completed artifact metadata rather than simulated progress. Real Codex CLI success remains environment-dependent; the controlled timeout/fallback path is verified. |
+| Current Blocking Issue | Generated artifacts are session-owned only and disappear on AI server restart; no persistence, alpha extraction, transparency guarantee, tiling, or animation exists. Background/terrain visuals are single bounded resources, not a tileset or parallax system. The synchronous gateway cannot expose an intermediate publishing event, so publishing is represented by completed artifact metadata rather than simulated progress. Real Codex CLI success remains environment-dependent; the controlled timeout/fallback path is verified. |
 | Product Verification | WO-S13-010B verified the real browser path through Codex CLI timeout: preparing/generating → structured timeout failure → fallback, with the world remaining playable and no permanent generating state. Successful READY after a real CLI image is still not observed in this environment. |
 | Next Recommended Verification | With a working Codex CLI image-generation session, create a world and verify the same operation reaches applying → ready only after the player Sprite is visible; then continue to multi-asset generation. |
 | Studio Status | Foundation active at `/`; World Explorer and Inspector are read-only real-data surfaces. |

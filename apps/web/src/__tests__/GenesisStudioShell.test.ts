@@ -185,6 +185,7 @@ describe('Genesis Studio Shell Foundation', () => {
     await wrapper.get('#studio-command-input').setValue('创建 MarioWorld')
     await wrapper.get('.studio-command-bar form').trigger('submit')
     await nextTick()
+    await nextTick()
 
     const world = worldStore.getWorld()
     const expectedIds = [
@@ -196,7 +197,7 @@ describe('Genesis Studio Shell Foundation', () => {
       'checkpoint',
     ]
 
-    expect(world.entities).toHaveLength(6)
+    await vi.waitFor(() => expect(worldStore.getWorld().entities).toHaveLength(6))
     expect(wrapper.findAll('.world-explorer-panel .entity-row')).toHaveLength(6)
     expectedIds.forEach((id) => {
       expect(wrapper.find('.world-explorer-panel').text()).toContain(id)

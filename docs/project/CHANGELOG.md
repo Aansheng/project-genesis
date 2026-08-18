@@ -2,6 +2,18 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-012 - Environment Visual Generation: Background & Terrain
+
+- Extended the existing bounded scheduler to generate background and terrain
+  requirements before character jobs, with environment-specific prompts and a
+  wide background aspect-ratio constraint.
+- Added a dedicated Pixi environment layer: background uses deterministic
+  viewport-cover fitting; terrain textures decorate existing terrain/platform
+  bounds without changing Runtime geometry or collision.
+- Preserved immediate world creation, incremental manifest updates, shared
+  AssetStore use, primitive/static fallbacks, and stale-result suppression.
+- Added ADR-0251; architecture version v1.136 → v1.137.
+
 ### WO-S13-011 - Multi-Asset Generation Orchestration
 
 - Added player/enemy/boss eligibility with semantic canonical-visual deduplication.

@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.136
+Architecture version: v1.137
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -32,7 +32,8 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Mixed sprite + primitive world | NO | NO | YES | YES |
 | Production static asset wiring | YES | YES | YES | YES |
 | Static character assets | YES | YES | YES | YES |
-| Background asset rendering | NO | NO | NO | NOT YET |
+| Background asset rendering | YES | YES | YES | Viewport-covering Pixi environment layer with fallback |
+| Terrain asset rendering | YES | YES | YES | Existing terrain/platform bounds decorated by Pixi environment layer |
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
 | AI image generation | YES | YES | YES | YES for player/enemy/boss; fallback for others |
@@ -69,5 +70,6 @@ to the Pixi renderer. Unresolved and failed entries retain primitive fallback.
 Image-to-image, edit, and reference-guided remain domain-only. Visual generation
 activity now exposes the current player operation, safe artifact metadata,
 manifest/application status, renderer outcome, and fallback without exposing
-secrets or hidden reasoning. Multi-asset generation, terrain/background
-textures, persistence, and animation remain deferred.
+secrets or hidden reasoning. Multi-asset generation now includes one
+background and one terrain visual per world. Persistence, tiling, and animation
+remain deferred.

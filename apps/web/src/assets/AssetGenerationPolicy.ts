@@ -4,13 +4,13 @@ import type {
   ImageGenerationRequest,
 } from '@genesis/shared'
 
-/** Player, enemies, and bosses are generated; props and environments stay static. */
+/** Generate the two environment visuals and canonical character visuals. */
 export function isAiGenerationEligible(requirement: AssetRequirement): boolean {
-  return requirement.kind === 'character' && (
+  return (requirement.target === 'environment' && (requirement.kind === 'background' || requirement.kind === 'terrain')) || (requirement.kind === 'character' && (
     requirement.visualRole === 'player character' ||
     requirement.visualRole === 'enemy creature' ||
     requirement.visualRole === 'boss character'
-  )
+  ))
 }
 
 export function selectAiGenerationRequirement(specification: AssetSpecification): AssetRequirement | undefined {
@@ -18,7 +18,8 @@ export function selectAiGenerationRequirement(specification: AssetSpecification)
 }
 
 export function selectAiGenerationRequirements(specification: AssetSpecification): readonly AssetRequirement[] {
-  return specification.assets.filter(isAiGenerationEligible)
+  const priority: Record<string, number> = { background: 0, terrain: 1, character: 2 }
+  return specification.assets.filter(isAiGenerationEligible).sort((a, b) => (priority[a.kind] ?? 9) - (priority[b.kind] ?? 9))
 }
 
 /** Stable semantic identity for one generated visual, independent of entity/index/provider. */
@@ -52,13 +53,14 @@ export function buildImageGenerationRequest(
     assetId: requirement.id,
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     mode: 'text-to-image',
-    prompt: [requirement.subject, requirement.visualRole].filter(Boolean).join('; '),
+    prompt: [requirement.subject, requirement.visualRole, requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : 'game character artwork'].filter(Boolean).join('; '),
     subject: requirement.subject,
     visualContext: specification.visualContext,
     constraints: {
       assetKind: requirement.kind,
       view: requirement.technicalProfile.view,
       transparentBackground: requirement.technicalProfile.transparentBackground,
+      ...(requirement.kind === 'background' ? { preferredAspectRatio: 16 / 9 } : {}),
     },
   }
 }

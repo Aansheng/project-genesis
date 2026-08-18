@@ -6,6 +6,7 @@ import {
   DefaultCameraController,
   DefaultEntityVisualCatalog,
   DefaultPixiEntityRenderer,
+  PixiEnvironmentRenderer,
   DefaultRuntimeRendererAdapter,
   DefaultRuntimeVisualizationLoop,
   DefaultVisualizationRunner,
@@ -43,6 +44,7 @@ let pixiApp: Application | null = null
 let visLoop: RuntimeVisualizationLoop | null = null
 let runner: VisualizationRunner | null = null
 let entityRenderer: DefaultPixiEntityRenderer | null = null
+let environmentRenderer: PixiEnvironmentRenderer | null = null
 let inputProvider: KeyboardInputProvider | null = null
 let resizeObserver: ResizeObserver | null = null
 const cameraAnchor = { x: 400, y: 300 }
@@ -58,6 +60,7 @@ function resizeViewport(): void {
   pixiApp.renderer?.resize?.(width, height)
   cameraAnchor.x = width / 2
   cameraAnchor.y = height / 2
+  environmentRenderer?.setViewport(width, height)
 }
 
 onMounted(() => {
@@ -72,14 +75,19 @@ onMounted(() => {
     autoDensity: true,
   })
   gameContainer.value.appendChild(pixiApp.view as HTMLCanvasElement)
-  resizeViewport()
+  const bounds = gameContainer.value?.getBoundingClientRect()
+  environmentRenderer?.setViewport(
+    Math.max(1, Math.round(bounds?.width || gameContainer.value?.clientWidth || 800)),
+    Math.max(1, Math.round(bounds?.height || gameContainer.value?.clientHeight || 600)),
+  )
   if (typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(resizeViewport)
     resizeObserver.observe(gameContainer.value)
   }
 
   const entityContainer = new Container()
-  pixiApp.stage.addChild(entityContainer)
+  const environmentContainer = new Container()
+  pixiApp.stage.addChild(environmentContainer, entityContainer)
 
   const systemRegistry = new DefaultRuntimeSystemRegistry()
   inputProvider = new KeyboardInputProvider(window)
@@ -92,9 +100,27 @@ onMounted(() => {
 
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)
   const adapter = new DefaultRuntimeRendererAdapter()
+  const cameraController = new DefaultCameraController()
+  try {
+    if (typeof PixiEnvironmentRenderer === 'function') {
+      environmentRenderer = new PixiEnvironmentRenderer(environmentContainer, {
+        width: 800,
+        height: 600,
+        cameraController,
+        cameraAnchor,
+        assetManifest: store.assetManifest,
+        assetStore: store.assetStore,
+        onAssetApplication: store.reportAssetApplication,
+      })
+    }
+  } catch {
+    // Test doubles may intentionally expose only the entity renderer surface.
+    environmentRenderer = null
+  }
+  resizeViewport()
   const renderer = new DefaultPixiEntityRenderer(entityContainer, {
     catalog: new DefaultEntityVisualCatalog(),
-    cameraController: new DefaultCameraController(),
+    cameraController,
     cameraAnchor,
     assetManifest: store.assetManifest,
     assetStore: store.assetStore,
@@ -103,6 +129,7 @@ onMounted(() => {
   entityRenderer = renderer
   watch(() => store.renderVersion, () => {
     entityRenderer?.setAssetManifest?.(store.assetManifest)
+    environmentRenderer?.setAssetManifest(store.assetManifest)
   })
   const worldProvider = new StoreBackedWorldProvider(store.worldStore)
   const worldSink = {
@@ -119,6 +146,7 @@ onMounted(() => {
     store.worldStore.getWorld(),
     worldProvider,
     worldSink,
+    environmentRenderer ?? undefined,
   )
   runner = new DefaultVisualizationRunner(
     new DefaultAnimationFrameScheduler(),
@@ -140,6 +168,8 @@ onUnmounted(() => {
   inputProvider = null
   entityRenderer?.destroy?.()
   entityRenderer = null
+  environmentRenderer?.destroy()
+  environmentRenderer = null
   pixiApp?.destroy(true, { children: true, texture: true })
   pixiApp = null
 })

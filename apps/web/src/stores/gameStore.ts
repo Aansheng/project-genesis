@@ -231,7 +231,7 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  function reportAssetApplication(event: { readonly assetId: string; readonly entityId: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
+  function reportAssetApplication(event: { readonly assetId: string; readonly entityId?: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
     const operation = Object.values(visualGenerationOperations.value).find(item =>
       item.stage === 'applying' && (item.assetId === event.assetId || item.bindingAssetIds?.includes(event.assetId)),
     )
