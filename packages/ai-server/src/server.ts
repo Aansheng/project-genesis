@@ -5,14 +5,17 @@ import { createAIGatewayHandler } from './gateway'
 import { createImageGenerationGatewayHandler } from './image-generation/gateway'
 import { AIProviderConfigurationError, AIProviderConfigurationService } from './AIProviderConfigurationService'
 import { UnavailableImageGenerationProvider } from './image-generation/UnavailableImageGenerationProvider'
+import { InMemoryGeneratedAssetPublisher } from './image-generation/GeneratedAssetPublisher'
+import type { GeneratedAssetPublisher } from './image-generation/GeneratedAssetPublisher'
 
 const ROUTE = '/api/world-generation'
 const IMAGE_ROUTE = '/api/image-generation'
 const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_PORT = 8787
+const GENERATED_ASSET_ROUTE = '/api/generated-assets/'
 const MAX_BODY_BYTES = 1_000_000
 
-export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService; readonly imageProvider?: ImageGenerationProvider }
+export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService; readonly imageProvider?: ImageGenerationProvider; readonly imageProviderName?: string; readonly generatedAssetPublisher?: GeneratedAssetPublisher }
 export interface AIServerHandle { readonly server: Server; readonly host: string; readonly port: number }
 
 function configuredPort(value: string | undefined): number {
@@ -41,7 +44,9 @@ function readBody(request: IncomingMessage): Promise<string> {
 
 function writeResponse(response: ServerResponse, result: Response): void {
   response.statusCode = result.status
-  response.setHeader('content-type', 'application/json; charset=utf-8')
+  response.setHeader('content-type', result.headers.get('content-type') ?? 'application/json; charset=utf-8')
+  const cacheControl = result.headers.get('cache-control')
+  if (cacheControl) response.setHeader('cache-control', cacheControl)
   response.setHeader('access-control-allow-origin', '*')
   response.setHeader('access-control-allow-headers', 'content-type')
   response.setHeader('access-control-allow-methods', 'GET, PUT, POST, OPTIONS')
@@ -62,7 +67,8 @@ export async function startAIServer(client: StructuredGenerationClient, options:
     { apiKey: 'configured' }, client,
   )
   const handler = createAIGatewayHandler(() => configurationService.getClient())
-  const imageHandler = createImageGenerationGatewayHandler(options.imageProvider ?? new UnavailableImageGenerationProvider())
+  const generatedAssetPublisher = options.generatedAssetPublisher ?? new InMemoryGeneratedAssetPublisher()
+  const imageHandler = createImageGenerationGatewayHandler(options.imageProvider ?? new UnavailableImageGenerationProvider(), generatedAssetPublisher, options.imageProviderName)
   const host = options.host ?? DEFAULT_HOST
   const port = options.port ?? configuredPort(process.env.AI_PORT)
   const server = createServer(async (request, response) => {
@@ -103,8 +109,13 @@ export async function startAIServer(client: StructuredGenerationClient, options:
       }
       return
     }
-    if (request.url?.split('?')[0] !== ROUTE) {
-      if (request.url?.split('?')[0] === IMAGE_ROUTE) {
+    const requestPath = request.url?.split('?')[0] ?? ''
+    if (request.method === 'GET' && requestPath.startsWith(GENERATED_ASSET_ROUTE)) {
+      writeResponse(response, generatedAssetPublisher.serve(requestPath.slice(GENERATED_ASSET_ROUTE.length).replace(/\.(?:png|jpg|webp)$/u, '')))
+      return
+    }
+    if (requestPath !== ROUTE) {
+      if (requestPath === IMAGE_ROUTE) {
         try {
           writeResponse(response, await imageHandler(createRequest(request, await readBody(request))))
         } catch {

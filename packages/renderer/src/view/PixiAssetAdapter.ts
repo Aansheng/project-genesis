@@ -3,6 +3,7 @@ import type { ResolvedAssetResource } from '@genesis/assets'
 
 export interface PixiAssetAdapter {
   load(resource: ResolvedAssetResource): Promise<Texture>
+  invalidate?(assetId: string): void
   clear(): void
 }
 
@@ -20,5 +21,9 @@ export class DefaultPixiAssetAdapter implements PixiAssetAdapter {
 
   clear(): void {
     this.textures.clear()
+  }
+
+  invalidate(assetId: string): void {
+    this.textures.delete(assetId)
   }
 }

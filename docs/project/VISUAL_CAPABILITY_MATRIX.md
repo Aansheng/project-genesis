@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.133
+Architecture version: v1.134
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -35,7 +35,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Background asset rendering | NO | NO | NO | NOT YET |
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
-| AI image generation | NO | NO | NO | NO |
+| AI image generation | YES | YES | YES | YES for player; fallback for others |
 | Image generation domain | YES | NO | NO | NO |
 | Text-to-image request | YES | NO | NO | NO |
 | Image-to-image request | YES | NO | NO | NO |
@@ -47,7 +47,12 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | AI-generated sprite | NO | NO | NO | NOT YET |
 | Real text-to-image provider | YES | NO | YES | NO |
 | Server-side image gateway | YES | NO | YES | NO |
-| Generated image artifact | YES | NO | YES | NO |
+| Generated image artifact | YES | YES | YES | YES for player |
+
+WO-S13-009 adds a session-owned generated artifact bridge and asynchronous
+player Sprite upgrade. Data URIs remain provider/server transport details and
+are not accepted by the generic AssetResolver. Codex CLI is experimental and
+local-only; generated artifacts are not durable project assets.
 
 DashScope native Qwen Image text-to-image is supported server-side. Its
 provider-hosted PNG URL is temporary (24 hours), and transparent character

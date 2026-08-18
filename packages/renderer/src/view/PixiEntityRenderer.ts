@@ -122,6 +122,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _cameraController: CameraController | null
   private readonly _cameraAnchor: Readonly<{ x: number; y: number }>
   private _assetManifest: AssetManifest | null
+  private _assetUris = new Map<string, string>()
   private readonly _assetStore: AssetStore | null
   private readonly _assetAdapter: PixiAssetAdapter | null
   private readonly _createSprite: (texture: Texture) => Sprite
@@ -140,6 +141,9 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._cameraController = options?.cameraController ?? null
     this._cameraAnchor = options?.cameraAnchor ?? { x: 0, y: 0 }
     this._assetManifest = options?.assetManifest ?? null
+    for (const entry of this._assetManifest?.entries ?? []) {
+      if (entry.resource?.uri) this._assetUris.set(entry.assetId, entry.resource.uri)
+    }
     this._assetStore = options?.assetStore ?? null
     this._assetAdapter = options?.assetAdapter ??
       (this._assetStore ? new DefaultPixiAssetAdapter() : null)
@@ -220,6 +224,14 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   }
 
   setAssetManifest(manifest: AssetManifest | undefined): void {
+    if (manifest && this._assetAdapter) {
+      for (const entry of manifest.entries) {
+        const nextUri = entry.resource?.uri
+        const previousUri = this._assetUris.get(entry.assetId)
+        if (nextUri && previousUri && nextUri !== previousUri) this._assetAdapter.invalidate?.(entry.assetId)
+        if (nextUri) this._assetUris.set(entry.assetId, nextUri)
+      }
+    }
     this._assetManifest = manifest ?? null
   }
 

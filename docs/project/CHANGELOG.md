@@ -2,6 +2,20 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-009 - AI Generated Asset to Studio End-to-End
+
+- Connected player-only image generation to Studio after world creation;
+  world creation is not blocked by image generation and enemy/boss/terrain/
+  background generation remains disabled.
+- Added a server-session generated artifact publisher and
+  `/api/generated-assets/{artifactId}` resource route. Provider data URIs never
+  enter the generic AssetResolver or renderer-facing manifest.
+- Successful player generation creates an immutable AssetManifest snapshot,
+  invalidates only the player in AssetStore, and lets Pixi upgrade the existing
+  static/primitive visual asynchronously. Failures retain the fallback visual.
+- Added Studio activity and Observatory image-generation status. Added
+  ADR-0248; architecture version v1.133 → v1.134.
+
 ### Codex CLI Image Service Prototype
 
 - Added experimental `IMAGE_AI_PROVIDER=codex-cli` selection through the

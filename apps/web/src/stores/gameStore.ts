@@ -16,7 +16,7 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest } from '@genesis/shared'
+import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification } from '@genesis/shared'
 import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
@@ -24,6 +24,9 @@ import { DefaultAssetManifestBuilder } from '@genesis/shared'
 import { DefaultCommandExecutor } from '../command'
 import type { CommandExecutor } from '../command'
 import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
+import { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
+import { buildImageGenerationRequest, selectAiGenerationRequirement } from '../assets/AssetGenerationPolicy'
+import { buildGeneratedAssetManifest, createPendingImageGenerationOperation } from '../assets/GeneratedAssetOrchestrator'
 import { useObservatoryDataStore } from './observatoryData'
 import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
 
@@ -31,12 +34,19 @@ export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
 const EMPTY_ASSET_MANIFEST: AssetManifest = Object.freeze({ entries: Object.freeze([]) })
 
-function buildStaticAssetManifest(
-  specification: import('@genesis/shared').GameDesignSpecification | undefined,
-): AssetManifest {
-  if (!specification) return EMPTY_ASSET_MANIFEST
+function buildAssetSpecification(
+  specification: GameDesignSpecification | undefined,
+): AssetSpecification | undefined {
+  if (!specification) return undefined
   const visual = new DefaultVisualDesignSpecificationBuilder().build(specification)
-  const assets = new DefaultAssetSpecificationBuilder().build(visual)
+  return new DefaultAssetSpecificationBuilder().build(visual)
+}
+
+function buildStaticAssetManifest(
+  specification: GameDesignSpecification | undefined,
+): AssetManifest {
+  const assets = buildAssetSpecification(specification)
+  if (!assets) return EMPTY_ASSET_MANIFEST
   return new DefaultAssetManifestBuilder().build(
     assets,
     createStaticAssetResolutions(assets.assets),
@@ -44,6 +54,10 @@ function buildStaticAssetManifest(
 }
 
 const DEFAULT_AI_GATEWAY_URL = 'http://127.0.0.1:8787/api/world-generation'
+
+function imageGatewayURL(gatewayURL: string): string {
+  return gatewayURL.replace(/\/api\/world-generation\/?$/u, '/api/image-generation')
+}
 
 export function createCommandExecutor(
   worldStore: RuntimeWorldStore,
@@ -98,6 +112,8 @@ export const useGameStore = defineStore('game', () => {
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
   const lastCommand = ref<import('../command').CommandExecutionResult | null>(null)
+  const imageGenerationOperation = ref<ImageGenerationOperation | null>(null)
+  let imageGenerationToken = 0
 
   // --- Streaming UI state (inert — preserved for UI backward compatibility) ---
   const isStreaming = ref(false)
@@ -106,6 +122,9 @@ export const useGameStore = defineStore('game', () => {
   const useStreaming = ref(false)
 
   const { executor: commandExecutor, useAsync: useAsyncGeneration } = createCommandExecutor(worldStore)
+  const imageClient = new BrowserImageGenerationClient(imageGatewayURL(
+    createAIConfiguration(import.meta.env).gatewayURL || DEFAULT_AI_GATEWAY_URL,
+  ))
 
   const selectedEntity = computed(() => {
     renderVersion.value
@@ -135,6 +154,36 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function generatePlayerArtwork(specification: AssetSpecification, manifest: AssetManifest): Promise<void> {
+    const requirement = selectAiGenerationRequirement(specification)
+    if (!requirement) return
+    const token = ++imageGenerationToken
+    const request = buildImageGenerationRequest(specification, requirement)
+    imageGenerationOperation.value = createPendingImageGenerationOperation(request)
+    try {
+      const result = await imageClient.generate(request)
+      if (token !== imageGenerationToken) return
+      imageGenerationOperation.value = result.operation ?? {
+        ...createPendingImageGenerationOperation(request),
+        status: result.status === 'success' ? 'succeeded' : 'failed',
+        artifactStatus: result.status === 'success' ? 'published' : 'failed',
+        ...(result.status === 'failed' ? { failure: result.failure } : {}),
+      }
+      if (result.status !== 'success') return
+      assetStore.invalidate(result.assetId)
+      assetManifest.value = buildGeneratedAssetManifest(specification, manifest, result)
+      markWorldUpdated()
+    } catch (error) {
+      if (token !== imageGenerationToken) return
+      imageGenerationOperation.value = {
+        ...createPendingImageGenerationOperation(request),
+        status: 'failed',
+        artifactStatus: 'failed',
+        failure: { code: 'provider_unavailable', message: error instanceof Error ? error.message : 'Image generation unavailable' },
+      }
+    }
+  }
+
   async function send(input: string) {
     commandStatus.value = 'running'
     try {
@@ -147,8 +196,11 @@ export const useGameStore = defineStore('game', () => {
       commandStatus.value = result.success ? 'success' : 'error'
 
       if (result.success) {
-        assetManifest.value = buildStaticAssetManifest(result.generationDiagnostics?.specification)
+        const gameDesignSpecification = result.generationDiagnostics?.specification
+        const assetSpecification = buildAssetSpecification(gameDesignSpecification)
+        assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)
         markWorldUpdated()
+        if (assetSpecification) void generatePlayerArtwork(assetSpecification, assetManifest.value)
       }
       return result
     } catch (error) {
@@ -176,6 +228,7 @@ export const useGameStore = defineStore('game', () => {
     log,
     commandStatus,
     lastCommand,
+    imageGenerationOperation,
     send,
     // Streaming state (inert — preserved for UI backward compatibility)
     isStreaming,

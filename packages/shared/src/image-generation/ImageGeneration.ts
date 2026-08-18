@@ -81,6 +81,8 @@ export interface ImageGenerationOperation {
   readonly assetId: string
   readonly mode: ImageGenerationMode
   readonly status: ImageGenerationOperationStatus
+  readonly provider?: string
+  readonly artifactStatus?: 'pending' | 'published' | 'failed'
   readonly input: {
     readonly subject?: string
     readonly prompt: string

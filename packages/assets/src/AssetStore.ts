@@ -13,6 +13,7 @@ export interface AssetStore {
 export class DefaultAssetStore implements AssetStore {
   private readonly cache = new Map<string, ResolvedAssetResource>()
   private readonly inFlight = new Map<string, Promise<AssetResolutionResult>>()
+  private readonly generations = new Map<string, number>()
 
   constructor(private readonly resolver: AssetResolver) {}
 
@@ -31,11 +32,12 @@ export class DefaultAssetStore implements AssetStore {
     const pending = this.inFlight.get(assetId)
     if (pending) return pending
 
+    const generation = this.generations.get(assetId) ?? 0
     const operation = this.resolver.resolve(assetId, manifest).then(result => {
-      if (result.status === 'resolved') this.cache.set(assetId, result.resource)
+      if (result.status === 'resolved' && generation === (this.generations.get(assetId) ?? 0)) this.cache.set(assetId, result.resource)
       return result
     }).finally(() => {
-      this.inFlight.delete(assetId)
+      if (this.inFlight.get(assetId) === operation) this.inFlight.delete(assetId)
     })
 
     this.inFlight.set(assetId, operation)
@@ -44,6 +46,8 @@ export class DefaultAssetStore implements AssetStore {
 
   invalidate(assetId: string): void {
     this.cache.delete(assetId)
+    this.generations.set(assetId, (this.generations.get(assetId) ?? 0) + 1)
+    this.inFlight.delete(assetId)
   }
 
   clear(): void {

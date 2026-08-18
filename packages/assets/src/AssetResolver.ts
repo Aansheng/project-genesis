@@ -24,7 +24,7 @@ function freeze<T extends object>(value: T): Readonly<T> {
   return Object.freeze(value)
 }
 
-function isSupportedUri(uri: string): boolean {
+export function isSupportedUri(uri: string): boolean {
   const value = uri.trim()
   if (!value || value.startsWith('asset://') || value.startsWith('file://') || value.startsWith('data:')) return false
   if (value.startsWith('/') || value.startsWith('./') || value.startsWith('../')) return true

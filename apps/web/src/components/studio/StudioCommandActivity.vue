@@ -5,6 +5,9 @@ import { useGameStore } from '../../stores/gameStore'
 const store = useGameStore()
 const title = computed(() => {
   if (store.commandStatus === 'running') return 'Creating world…'
+  if (store.imageGenerationOperation?.status === 'running') return 'Generating player artwork…'
+  if (store.imageGenerationOperation?.status === 'succeeded') return 'Player artwork ready'
+  if (store.imageGenerationOperation?.status === 'failed') return 'Using fallback artwork'
   if (store.commandStatus === 'success') return 'World created'
   if (store.commandStatus === 'error') return 'Command not understood'
   return 'Ready to create'
@@ -14,6 +17,8 @@ const detail = computed(() => {
     return `${store.lastCommand.entityCount} entit${store.lastCommand.entityCount === 1 ? 'y' : 'ies'}`
   }
   if (store.commandStatus === 'error') return store.lastCommand?.message
+  if (store.imageGenerationOperation?.status === 'succeeded') return 'AI-generated player sprite'
+  if (store.imageGenerationOperation?.status === 'failed') return 'The world remains playable'
   return 'Describe a game to begin'
 })
 </script>

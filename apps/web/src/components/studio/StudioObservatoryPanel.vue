@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
+import { useGameStore } from '../../stores/gameStore'
 
 const observatoryData = useObservatoryDataStore()
 const runtime = computed(() => observatoryData.viewModel.runtimeView)
 const generation = computed(() => observatoryData.generationTrace)
+const gameStore = useGameStore()
+const imageGeneration = computed(() => gameStore.imageGenerationOperation)
 </script>
 
 <template>
@@ -16,6 +19,20 @@ const generation = computed(() => observatoryData.generationTrace)
         <p>Validation: {{ generation.validation?.status ?? (generation.status === 'success' ? 'passed' : 'fallback') }}</p>
         <p v-if="generation.specification">Design: {{ generation.specification.genre }} · {{ generation.specification.theme ?? '—' }} · {{ generation.specification.difficulty ?? '—' }}</p>
         <p v-if="generation.world">Entities: {{ generation.world.entityCount }}</p>
+      </template>
+    </section>
+    <section class="generation-summary" aria-labelledby="image-generation-title">
+      <div class="section-heading">
+        <h3 id="image-generation-title">Image Generation</h3>
+        <span v-if="imageGeneration">{{ imageGeneration.status }}</span>
+      </div>
+      <p v-if="imageGeneration === null">No player artwork operation</p>
+      <template v-else>
+        <p>Asset <strong>player</strong></p>
+        <p>Provider <strong>{{ imageGeneration.provider ?? 'server-selected' }}</strong></p>
+        <p>Mode <strong>{{ imageGeneration.mode }}</strong></p>
+        <p>Artifact <strong>{{ imageGeneration.artifactStatus ?? 'pending' }}</strong></p>
+        <p v-if="imageGeneration.failure">{{ imageGeneration.failure.message }}</p>
       </template>
     </section>
     <div

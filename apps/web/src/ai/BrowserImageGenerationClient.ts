@@ -35,6 +35,10 @@ export class BrowserImageGenerationClient {
       if (!response.ok) throw new BrowserImageGatewayError('gateway_error', 'Image gateway unavailable')
       const body = await response.json() as Partial<ImageGenerationResult>
       if (body.status !== 'success' && body.status !== 'failed') throw new BrowserImageGatewayError('gateway_error', 'Invalid image gateway response')
+      if (body.status === 'success' && body.asset?.resource?.uri.startsWith('/api/generated-assets/')) {
+        const resource = { uri: new URL(body.asset.resource.uri, this.gatewayURL).toString() }
+        return { ...body, asset: { ...body.asset, resource }, operation: body.operation ? { ...body.operation, output: body.operation.output ? { ...body.operation.output, resource } : body.operation.output } : body.operation } as ImageGenerationResult
+      }
       return body as ImageGenerationResult
     } catch (error) {
       if (error instanceof BrowserImageGatewayError) throw error

@@ -50,13 +50,13 @@ describe('AI gateway runtime host', () => {
         mode: 'text-to-image',
         asset: {
           assetId: 'test-player',
-          resource: { uri: 'https://example.test/image.png' },
+          resource: { uri: 'data:image/png;base64,iVBORw0KGgo=' },
           metadata: { mimeType: 'image/png' },
           generationMode: 'text-to-image',
         },
       }),
     }
-    const service = await startAIServer({ generateStructured: vi.fn() }, { port: 0, imageProvider })
+    const service = await startAIServer({ generateStructured: vi.fn() }, { port: 0, imageProvider, imageProviderName: 'codex-cli' })
     try {
       const response = await fetch(`http://${service.host}:${service.port}/api/image-generation`, {
         method: 'POST',
@@ -73,7 +73,10 @@ describe('AI gateway runtime host', () => {
         }),
       })
       expect(response.status).toBe(200)
-      expect(await response.json()).toMatchObject({ status: 'success', assetId: 'test-player' })
+      expect(await response.json()).toMatchObject({ status: 'success', assetId: 'test-player', asset: { resource: { uri: '/api/generated-assets/generated-1.png' } }, operation: { provider: 'codex-cli', artifactStatus: 'published' } })
+      const artifact = await fetch(`http://${service.host}:${service.port}/api/generated-assets/generated-1.png`)
+      expect(artifact.status).toBe(200)
+      expect(artifact.headers.get('content-type')).toBe('image/png')
       expect(imageProvider.generate).toHaveBeenCalledOnce()
     } finally { await stopAIServer(service) }
   })

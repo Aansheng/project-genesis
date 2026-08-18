@@ -5,3 +5,5 @@ export type { ImageGenerationProviderConfig, ImageGenerationTransport } from './
 export type { DashScopeImageGenerationProviderConfig, DashScopeImageGenerationTransport } from './DashScopeImageGenerationProvider'
 export type { CodexCliImageGenerationProviderConfig, CodexCliRunResult, CodexCliRunner } from './CodexCliImageGenerationProvider'
 export { UnavailableImageGenerationProvider } from './UnavailableImageGenerationProvider'
+export { InMemoryGeneratedAssetPublisher } from './GeneratedAssetPublisher'
+export type { GeneratedAssetPublisher, PublishedGeneratedAsset } from './GeneratedAssetPublisher'

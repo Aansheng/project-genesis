@@ -10,4 +10,10 @@ describe('BrowserImageGenerationClient', () => {
     expect(fetcher).toHaveBeenCalledWith('/api/image-generation', expect.objectContaining({ method: 'POST', body: JSON.stringify(request) }))
     expect(result).toMatchObject({ status: 'success', assetId: 'test-player' })
   })
+
+  it('resolves session-owned artifact routes against the image gateway origin', async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 'success', assetId: 'test-player', mode: 'text-to-image', asset: { assetId: 'test-player', resource: { uri: '/api/generated-assets/generated-1.png' }, metadata: {}, generationMode: 'text-to-image' } }), { status: 200 }))
+    const result = await new BrowserImageGenerationClient('http://127.0.0.1:8787/api/image-generation', fetcher).generate(request)
+    expect(result).toMatchObject({ asset: { resource: { uri: 'http://127.0.0.1:8787/api/generated-assets/generated-1.png' } } })
+  })
 })

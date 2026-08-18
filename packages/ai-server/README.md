@@ -41,6 +41,12 @@ provider-hosted PNG URL that expires after 24 hours. Transparency is requested
 in the prompt when requested, but is not claimed as realized metadata. Image
 credentials are never returned to clients.
 
+Successful image generation is published into the current server session as
+`GET /api/generated-assets/{artifactId}`. These artifacts are temporary and
+are removed when the server restarts. The browser receives the generated
+resource URL through the image gateway; it never receives provider data URIs or
+provider credentials.
+
 `codex-cli` starts the locally authenticated `codex exec` command in an
 isolated temporary directory and expects it to write `generated.png`. It is an
 experimental local adapter, not a stable Codex image API: it requires the

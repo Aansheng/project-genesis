@@ -68,3 +68,7 @@ must remain usable without an asset provider.
 - Codex CLI image service prototype: added an experimental local CLI provider
   behind the existing image-generation gateway; no production stability or
   AssetManifest/Pixi wiring is claimed.
+- WO-S13-009: connected player-only AI generation to Studio asynchronously,
+  added session-owned artifact publication, immutable manifest replacement,
+  targeted AssetStore invalidation, and Pixi visual upgrade; no persistence or
+  multi-asset generation.
