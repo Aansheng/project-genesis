@@ -203,11 +203,12 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   clear(): void {
     this._renderGeneration += 1
     for (const view of this._entityViews) {
-      this._container.removeChild(view.graphics)
-      view.graphics.destroy()
       if (view.sprite) {
         this._container.removeChild(view.sprite)
         view.sprite.destroy({ texture: false, baseTexture: false })
+      } else {
+        this._container.removeChild(view.graphics)
+        view.graphics.destroy()
       }
     }
     this._entityViews = []

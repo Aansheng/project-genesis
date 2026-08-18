@@ -39,10 +39,11 @@ function sprite(): Sprite {
 describe('Pixi sprite rendering foundation', () => {
   it('keeps the primitive visible while pending, then upgrades it', async () => {
     let resolveTexture!: (texture: Texture) => void
+    let graphicsDestroyCount = 0
     const adapter: PixiAssetAdapter = { load: () => new Promise(resolve => { resolveTexture = resolve }), clear() {} }
     const c = container()
     const renderer = new DefaultPixiEntityRenderer(c, {
-      createGraphics: graphics,
+      createGraphics: () => ({ ...graphics(), destroy() { graphicsDestroyCount++ } } as unknown as Graphics),
       assetManifest: manifest,
       assetStore: store({ status: 'resolved', resource }),
       assetAdapter: adapter,
@@ -59,6 +60,8 @@ describe('Pixi sprite rendering foundation', () => {
     await Promise.resolve()
     expect(view.sprite).toBeDefined()
     expect(view.displayObject).toBe(view.sprite)
+    renderer.clear()
+    expect(graphicsDestroyCount).toBe(1)
   })
 
   it('retains the primitive when resolution fails', async () => {

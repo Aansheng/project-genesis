@@ -2,6 +2,17 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-006B - Studio Generation Timeout Recovery & Product Verification
+
+- Added a browser-side AbortController timeout boundary that honors the
+  existing 30-second per-attempt reliability contract and lets gateway
+  failures reach deterministic fallback.
+- Fixed duplicate destruction of primitive Graphics after asynchronous Sprite
+  upgrade; clean Studio browser verification now completes with no console
+  errors or warnings.
+- Added focused timeout coverage and ADR-0243; architecture version remains
+  v1.130 because this restores the existing lifecycle contract.
+
 ### WO-S13-006 - Static Asset End-to-End Production Wiring
 
 - Added repository-owned static fixtures from `mockAssets` under

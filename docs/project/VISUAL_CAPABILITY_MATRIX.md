@@ -11,17 +11,17 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Palette semantics | YES | NO | NO | NO |
 | Environment / terrain semantics | YES | NO | NO | NO |
 | Background semantics | YES | NO | NO | NO |
-| Player visual role | YES | NO | NO | primitive fallback |
-| Generic enemy visual role | YES | NO | NO | primitive fallback |
-| Boss visual role | YES | NO | NO | primitive fallback |
-| Checkpoint / goal visual role | YES | NO | NO | primitive fallback |
+| Player visual role | YES | YES | YES | Sprite with primitive fallback |
+| Generic enemy visual role | YES | YES | YES | Sprite with primitive fallback |
+| Boss visual role | YES | YES | YES | Sprite with primitive fallback |
+| Checkpoint / goal visual role | YES | YES | YES | Sprite with primitive fallback |
 | Asset requirement representation | YES | YES | NO | NO |
 | Asset identity | YES | YES | NO | NO |
 | Entity → asset binding | YES | YES | NO | NO |
 | Asset generated | NO | YES | NO | NO |
 | Asset manifest | YES | YES | YES | NO |
 | Partial resolution representation | YES | YES | YES | NO |
-| Actual asset store | NO | NO | NO | NO |
+| Actual asset store | NO | NO | YES | YES |
 | Asset resolver | YES | YES | YES | NO |
 | Asset store | YES | YES | YES | NO |
 | Static URI resolution | YES | YES | YES | NO |

@@ -15,4 +15,17 @@ describe('BrowserStructuredGenerationClient', () => {
     const malformed = new BrowserStructuredGenerationClient('/gateway', vi.fn().mockResolvedValue(new Response('{}', { status: 200 })))
     await expect(malformed.generateStructured({ input: 'x', intent: { genre: 'sandbox', title: 'x' } })).rejects.toThrow('Invalid AI gateway response')
   })
+
+  it('cancels a hanging gateway request at the configured timeout', async () => {
+    const fetcher = vi.fn((_url: URL | RequestInfo, init?: RequestInit) => new Promise<Response>((_, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true })
+    }))
+    const client = new BrowserStructuredGenerationClient('/gateway', fetcher)
+
+    await expect(client.generateStructured(
+      { input: 'x', intent: { genre: 'sandbox', title: 'x' } },
+      undefined,
+      { timeoutMs: 5, maxOutputTokens: 1 },
+    )).rejects.toMatchObject({ name: 'BrowserGatewayError', reason: 'timeout' })
+  })
 })

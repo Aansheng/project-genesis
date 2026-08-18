@@ -52,3 +52,6 @@ must remain usable without an asset provider.
 - WO-S13-006: wired repository-owned static player/enemy/boss/checkpoint
   fixtures through Studio generation, AssetManifest, AssetStore, and Pixi;
   added ADR-0242.
+- WO-S13-006B: added browser request timeout recovery, preserved deterministic
+  fallback, fixed duplicate Pixi Graphics destruction after Sprite upgrade,
+  and product-verified the unavailable-provider Studio path; added ADR-0243.
