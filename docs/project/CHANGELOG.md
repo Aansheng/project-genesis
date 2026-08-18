@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-004 - Asset Store & Resolver Foundation
+
+- Added isolated `@genesis/assets` with a neutral `AssetResolver`, injectable
+  resource loader, and mutable in-memory `AssetStore`.
+- Added static/public URI validation, structured unavailable/failed results,
+  successful-resolution caching, concurrent request sharing, retryable failures,
+  invalidation, and clear lifecycle boundaries.
+- Added ADR-0240 and updated the visual capability matrix; architecture version
+  v1.127 → v1.128.
+
 ### WO-S13-003 - Asset Manifest & Asset Identity Foundation
 
 - Added shared immutable `AssetManifest` entries with canonical asset IDs,

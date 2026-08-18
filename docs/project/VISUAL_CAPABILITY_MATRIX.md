@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.127
+Architecture version: v1.128
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -22,7 +22,10 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Asset manifest | YES | YES | YES | NO |
 | Partial resolution representation | YES | YES | YES | NO |
 | Actual asset store | NO | NO | NO | NO |
-| Asset resolver | NO | NO | NO | NO |
+| Asset resolver | YES | YES | YES | NO |
+| Asset store | YES | YES | YES | NO |
+| Static URI resolution | YES | YES | YES | NO |
+| Binary/image decode | NO | NO | NO | NO |
 | Pixi sprite rendering | NO | NO | NO | NO |
 | AI image generation | NO | NO | NO | NO |
 
