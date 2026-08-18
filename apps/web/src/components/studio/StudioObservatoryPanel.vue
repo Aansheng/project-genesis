@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
 import { useGameStore } from '../../stores/gameStore'
+import { assetArtworkLabel } from '../../assets/GeneratedAssetOrchestrator'
 
 const observatoryData = useObservatoryDataStore()
 const runtime = computed(() => observatoryData.viewModel.runtimeView)
@@ -29,7 +30,7 @@ const imageGenerations = computed(() => Object.values(gameStore.visualGeneration
       <p v-if="imageGenerations.length === 0">No visual generation operations</p>
       <ul v-else class="visual-operation-list">
         <li v-for="operation in imageGenerations" :key="operation.operationId">
-          <span>{{ operation.assetId }}</span>
+          <span>{{ assetArtworkLabel(operation) }}</span>
           <strong>{{ operation.stage ?? operation.status }}</strong>
         </li>
       </ul>

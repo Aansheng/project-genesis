@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useGameStore } from '../../stores/gameStore'
+import { assetArtworkLabel } from '../../assets/GeneratedAssetOrchestrator'
 
 const store = useGameStore()
 const visualOperations = computed(() => Object.values(store.visualGenerationOperations))
@@ -18,11 +19,12 @@ const title = computed(() => {
 })
 const visualTitle = computed(() => {
   if (visualSummary.value.total > 1) return `${visualSummary.value.ready} / ${visualSummary.value.total} visual assets ready`
+  const label = store.imageGenerationOperation ? assetArtworkLabel(store.imageGenerationOperation) : 'Visual artwork'
   switch (store.imageGenerationOperation?.stage) {
-    case 'preparing': return 'Preparing player artwork…'
-    case 'generating': return 'Generating player artwork…'
-    case 'applying': return 'Applying player artwork…'
-    case 'ready': return 'Player artwork ready'
+    case 'preparing': return `Preparing ${label.toLowerCase()}…`
+    case 'generating': return `Generating ${label.toLowerCase()}…`
+    case 'applying': return `Applying ${label.toLowerCase()}…`
+    case 'ready': return `${label} ready`
     case 'fallback': return 'Using fallback artwork'
     default: return ''
   }
@@ -30,10 +32,10 @@ const visualTitle = computed(() => {
 const visualDetail = computed(() => {
   if (visualSummary.value.total > 1) return `${visualSummary.value.active} generating · ${visualOperations.value.filter(operation => operation.stage === 'queued').length} queued${visualSummary.value.fallback ? ` · ${visualSummary.value.fallback} fallback` : ''}`
   switch (store.imageGenerationOperation?.stage) {
-    case 'preparing': return 'Player fallback remains active'
-    case 'generating': return 'Player fallback remains active'
+    case 'preparing': return `${assetArtworkLabel(store.imageGenerationOperation)} fallback remains active`
+    case 'generating': return `${assetArtworkLabel(store.imageGenerationOperation)} fallback remains active`
     case 'applying': return 'Manifest updated; waiting for Sprite application'
-    case 'ready': return 'Applied to player'
+    case 'ready': return `Applied: ${assetArtworkLabel(store.imageGenerationOperation)}`
     case 'fallback': return store.imageGenerationOperation.outcome === 'generated_but_not_applied' ? 'Artwork unavailable; using fallback visual' : 'Generation unavailable; using fallback visual'
     default: return ''
   }
@@ -43,7 +45,7 @@ const detail = computed(() => {
     return `${store.lastCommand.entityCount} entit${store.lastCommand.entityCount === 1 ? 'y' : 'ies'}`
   }
   if (store.commandStatus === 'error') return store.lastCommand?.message
-  if (store.imageGenerationOperation?.status === 'succeeded') return 'AI-generated player sprite'
+  if (store.imageGenerationOperation?.status === 'succeeded') return `AI-generated ${assetArtworkLabel(store.imageGenerationOperation).toLowerCase()}`
   if (store.imageGenerationOperation?.status === 'failed') return 'The world remains playable'
   return 'Describe a game to begin'
 })

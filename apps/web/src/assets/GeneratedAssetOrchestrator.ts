@@ -9,6 +9,19 @@ import { DefaultAssetManifestBuilder } from '@genesis/shared'
 import type { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, selectAiGenerationRequirement } from './AssetGenerationPolicy'
 
+export function assetArtworkLabel(operation: Pick<ImageGenerationOperation, 'assetKind' | 'entityId' | 'assetId'>): string {
+  if (operation.assetKind === 'background') return 'Background artwork'
+  if (operation.assetKind === 'terrain') return 'Terrain artwork'
+  if (operation.assetKind === 'character') {
+    const identity = `${operation.entityId ?? ''} ${operation.assetId}`.toLowerCase()
+    if (identity.includes('boss')) return 'Boss artwork'
+    if (identity.includes('enemy')) return 'Enemy artwork'
+    if (identity.includes('player')) return 'Player artwork'
+    return 'Character artwork'
+  }
+  return 'Visual artwork'
+}
+
 export function createPendingImageGenerationOperation(
   request: ReturnType<typeof buildImageGenerationRequest>,
 ): ImageGenerationOperation {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildImageGenerationRequest } from '../AssetGenerationPolicy'
-import { createPendingImageGenerationOperation, finishImageGenerationOperation } from '../GeneratedAssetOrchestrator'
+import { assetArtworkLabel, createPendingImageGenerationOperation, finishImageGenerationOperation } from '../GeneratedAssetOrchestrator'
 import type { AssetSpecification } from '@genesis/shared'
 
 const specification: AssetSpecification = {
@@ -17,6 +17,17 @@ const specification: AssetSpecification = {
 }
 
 describe('visual generation activity lifecycle', () => {
+  it('labels environment operations without inventing an entity', () => {
+    const request = buildImageGenerationRequest(specification, {
+      id: 'background-main', kind: 'background', target: 'environment', subject: 'forest', requiredStates: [],
+      technicalProfile: { transparentBackground: false, view: 'side' },
+    })
+    const operation = createPendingImageGenerationOperation(request)
+
+    expect(assetArtworkLabel(operation)).toBe('Background artwork')
+    expect(operation.entityId).toBeUndefined()
+  })
+
   it('keeps one correlation id while moving from generation to renderer-ready', () => {
     const request = buildImageGenerationRequest(specification, specification.assets[0])
     const pending = createPendingImageGenerationOperation(request)

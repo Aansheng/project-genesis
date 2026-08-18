@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
 import { useGameStore } from '../../stores/gameStore'
+import { assetArtworkLabel } from '../../assets/GeneratedAssetOrchestrator'
 
 const data = useObservatoryDataStore()
 const game = useGameStore()
@@ -37,9 +38,9 @@ const labels: Record<string, string> = {
         <template v-else>
           <div v-for="imageGeneration in imageGenerations" :key="imageGeneration.operationId" class="visual-operation">
           <dl class="detail-list">
-            <div><dt>Asset</dt><dd>Player artwork</dd></div>
+            <div><dt>Asset</dt><dd>{{ assetArtworkLabel(imageGeneration) }}</dd></div>
             <div><dt>Asset ID</dt><dd>{{ imageGeneration.assetId }}</dd></div>
-            <div><dt>Entity</dt><dd>{{ imageGeneration.entityId ?? 'player' }}</dd></div>
+            <div v-if="imageGeneration.entityId"><dt>Entity</dt><dd>{{ imageGeneration.entityId }}</dd></div>
             <div><dt>Provider</dt><dd>{{ imageGeneration.provider ?? 'server-selected' }}</dd></div>
             <div v-if="imageGeneration.model"><dt>Model</dt><dd>{{ imageGeneration.model }}</dd></div>
             <div><dt>Mode</dt><dd>{{ imageGeneration.mode }}</dd></div>

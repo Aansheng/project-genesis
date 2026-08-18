@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-012B — Environment Queue Progression & Metadata Correctness
+
+- Kept queued operation publication outside scheduler job execution so the
+  scheduler's running transition is authoritative, and ensured rejected jobs
+  release capacity through the existing FIFO drain.
+- Derived Studio and Observatory visual labels from asset kind and omitted
+  entity metadata for background/terrain operations; character labels remain
+  distinct.
+- Architecture remains v1.138; browser product verification is pending.
+
 ### WO — Game Design Codex CLI Provider & User-Selectable AI Mode
 
 - Added a server-only `codex-cli` structured game-design provider alongside

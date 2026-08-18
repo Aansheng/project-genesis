@@ -83,3 +83,8 @@ must remain usable without an asset provider.
 - WO-S13-011: added canonical player/enemy/boss multi-asset orchestration,
   FIFO bounded concurrency, partial success, incremental manifest/Pixi updates,
   and stale-world suppression; added ADR-0250.
+- WO-S13-012B: fixed FIFO progression after rejected/terminal jobs by keeping
+  queued state outside the job body and releasing capacity through the existing
+  finally path; environment activity now derives Background/Terrain labels and
+  omits non-applicable entity bindings. Browser product verification remains
+  pending.

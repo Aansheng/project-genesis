@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.137
+Architecture version: v1.138
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -36,7 +36,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Terrain asset rendering | YES | YES | YES | Existing terrain/platform bounds decorated by Pixi environment layer |
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
-| AI image generation | YES | YES | YES | YES for player/enemy/boss; fallback for others |
+| AI image generation | YES | YES | YES | YES for background/terrain/player/enemy/boss; fallback for others |
 | Image generation domain | YES | NO | NO | NO |
 | Text-to-image request | YES | NO | NO | NO |
 | Image-to-image request | YES | NO | NO | NO |
@@ -48,9 +48,9 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | AI-generated sprite | NO | NO | NO | NOT YET |
 | Real text-to-image provider | YES | NO | YES | NO |
 | Server-side image gateway | YES | NO | YES | NO |
-| Generated image artifact | YES | YES | YES | YES for player |
-| Visual generation activity | YES | YES | YES | YES for player |
-| Generated artwork applied status | YES | YES | YES | YES for player/enemy/boss |
+| Generated image artifact | YES | YES | YES | YES for environment and character operations |
+| Visual generation activity | YES | YES | YES | YES for environment and character operations |
+| Generated artwork applied status | YES | YES | YES | YES for environment and character operations |
 
 WO-S13-009 adds a session-owned generated artifact bridge and asynchronous
 player Sprite upgrade. Data URIs remain provider/server transport details and
@@ -68,7 +68,7 @@ The visual and asset layers are compiled deterministically from
 repository-owned static character/prop fixtures and passes the manifest/store
 to the Pixi renderer. Unresolved and failed entries retain primitive fallback.
 Image-to-image, edit, and reference-guided remain domain-only. Visual generation
-activity now exposes the current player operation, safe artifact metadata,
+activity now exposes visual operations with safe asset-kind metadata,
 manifest/application status, renderer outcome, and fallback without exposing
 secrets or hidden reasoning. Multi-asset generation now includes one
 background and one terrain visual per world. Persistence, tiling, and animation

@@ -174,7 +174,6 @@ export const useGameStore = defineStore('game', () => {
     const [requirement, bindings] = requirements
     const request = buildImageGenerationRequest(specification, requirement)
     const pending = createPendingImageGenerationOperation(request)
-    setOperation({ ...pending, bindingAssetIds: bindings.map(binding => binding.id), stage: 'queued', status: 'queued' })
     try {
       const result = await imageClient.generate(request)
       if (token !== imageGenerationToken) return
@@ -279,8 +278,11 @@ export const useGameStore = defineStore('game', () => {
         if (assetSpecification) {
           const token = imageGenerationToken
           for (const requirements of groupAiGenerationRequirements(assetSpecification)) {
+            const request = buildImageGenerationRequest(assetSpecification, requirements[0])
+            const pending = createPendingImageGenerationOperation(request)
+            setOperation({ ...pending, bindingAssetIds: requirements[1].map(binding => binding.id), stage: 'queued', status: 'queued' })
             scheduler.enqueue({
-              jobId: createPendingImageGenerationOperation(buildImageGenerationRequest(assetSpecification, requirements[0])).operationId,
+              jobId: pending.operationId,
               run: () => generateArtwork(assetSpecification, requirements, token),
             })
           }

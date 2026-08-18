@@ -43,6 +43,7 @@ export class VisualAssetGenerationScheduler<T> {
       this.statuses.set(job.jobId, 'running')
       this.onStatus?.(job.jobId, 'running')
       void job.run()
+        .catch(() => undefined)
         .finally(() => {
           this.running--
           this.statuses.set(job.jobId, 'completed')
