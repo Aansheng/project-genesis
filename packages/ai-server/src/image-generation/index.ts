@@ -1,3 +1,5 @@
 export { OpenAIImageGenerationProvider } from './OpenAIImageGenerationProvider'
+export { DashScopeImageGenerationProvider } from './DashScopeImageGenerationProvider'
 export type { ImageGenerationProviderConfig, ImageGenerationTransport } from './OpenAIImageGenerationProvider'
+export type { DashScopeImageGenerationProviderConfig, DashScopeImageGenerationTransport } from './DashScopeImageGenerationProvider'
 export { UnavailableImageGenerationProvider } from './UnavailableImageGenerationProvider'

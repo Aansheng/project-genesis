@@ -20,6 +20,11 @@ describe('AI server composition root', () => {
     expect(JSON.stringify(config.image)).toContain('image-secret')
   })
 
+  it('supports native DashScope image configuration', () => {
+    const config = createServerAIConfiguration({ IMAGE_AI_PROVIDER: 'dashscope', IMAGE_AI_API_KEY: 'secret' })
+    expect(config.image).toMatchObject({ provider: 'dashscope', model: 'qwen-image-3.0-pro' })
+  })
+
   it('shuts down only once for repeated signals', async () => {
     const exit = vi.fn()
     const stop = vi.fn().mockResolvedValue(undefined)

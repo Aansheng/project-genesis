@@ -5,6 +5,7 @@ import { startAIServer, stopAIServer, type AIServerHandle } from './server'
 import { AIProviderConfigurationService } from './AIProviderConfigurationService'
 import { OpenAIImageGenerationProvider } from './image-generation/OpenAIImageGenerationProvider'
 import { UnavailableImageGenerationProvider } from './image-generation/UnavailableImageGenerationProvider'
+import { DashScopeImageGenerationProvider } from './image-generation/DashScopeImageGenerationProvider'
 import { existsSync, readFileSync } from 'node:fs'
 
 loadLocalServerEnv()
@@ -30,8 +31,10 @@ export async function startConfiguredAIServer(
 ): Promise<AIServerHandle> {
   const config = createServerAIConfiguration(env)
   const client = config.apiKey ? new OpenAIStructuredGenerationClient(config.ai) : new UnavailableStructuredGenerationClient()
-  const imageProvider = config.image.apiKey
-    ? new OpenAIImageGenerationProvider({ model: config.image.model, apiKey: config.image.apiKey, baseURL: config.image.baseURL, timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts })
+  const imageProvider = config.image.apiKey && config.image.provider === 'dashscope'
+    ? new DashScopeImageGenerationProvider({ model: config.image.model, apiKey: config.image.apiKey, baseURL: config.image.baseURL, timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts })
+    : config.image.apiKey
+      ? new OpenAIImageGenerationProvider({ model: config.image.model, apiKey: config.image.apiKey, baseURL: config.image.baseURL, timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts })
     : new UnavailableImageGenerationProvider()
   const configurationService = new AIProviderConfigurationService(
     { provider: config.provider, model: config.model, baseURL: config.baseURL, enabled: Boolean(config.apiKey), configured: Boolean(config.apiKey) },

@@ -2,6 +2,20 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-008B - DashScope Native Image Provider Integration
+
+- Added a dedicated server-side `DashScopeImageGenerationProvider` for the
+  native Qwen Image multimodal generation endpoint, with semantic prompt
+  mapping, bounded timeout/retry, unsupported-mode failures, and normalized
+  PNG URL/dimension metadata.
+- Added explicit `IMAGE_AI_PROVIDER=dashscope` selection with a
+  `qwen-image-3.0-pro` default; API keys remain server-only and the browser
+  gateway contract is unchanged.
+- Documented 24-hour provider URL retention and the fact that transparent
+  character output is not guaranteed or verified. No AssetManifest, storage,
+  background removal, or Pixi wiring was added. Added ADR-0246; architecture
+  version v1.132 → v1.133.
+
 ### WO-S13-008 - Real Text-to-Image Provider Foundation
 
 - Added a server-only OpenAI/OpenAI-compatible text-to-image provider with

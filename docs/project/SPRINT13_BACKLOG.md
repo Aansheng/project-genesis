@@ -61,3 +61,7 @@ must remain usable without an asset provider.
 - WO-S13-008: added the server-side text-to-image provider, image gateway,
   separate `IMAGE_AI_*` configuration, browser gateway client, normalization,
   bounded reliability, and safe operation results; no AssetManifest wiring.
+- WO-S13-008B: added the native DashScope Qwen Image text-to-image adapter,
+  explicit server-side provider selection, normalized temporary PNG results,
+  and truthful non-transparency capability documentation; no AssetManifest or
+  Pixi wiring.

@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.132
+Architecture version: v1.133
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -48,6 +48,12 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Real text-to-image provider | YES | NO | YES | NO |
 | Server-side image gateway | YES | NO | YES | NO |
 | Generated image artifact | YES | NO | YES | NO |
+
+DashScope native Qwen Image text-to-image is supported server-side. Its
+provider-hosted PNG URL is temporary (24 hours), and transparent character
+output is not guaranteed or verified; no alpha metadata is claimed. Generated
+RGB images still require a future background-removal/alpha-extraction step
+before durable AssetManifest publication.
 
 The visual and asset layers are compiled deterministically from
 `GameDesignSpecification`. Studio production wiring now resolves selected
