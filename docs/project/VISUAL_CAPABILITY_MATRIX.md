@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.130
+Architecture version: v1.131
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -36,9 +36,19 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
 | AI image generation | NO | NO | NO | NO |
+| Image generation domain | YES | NO | NO | NO |
+| Text-to-image request | YES | NO | NO | NO |
+| Image-to-image request | YES | NO | NO | NO |
+| Image edit request | YES | NO | NO | NO |
+| Reference-guided request | YES | NO | NO | NO |
+| Real image provider | NO | NO | NO | NOT YET |
+| Generated asset storage | NO | NO | NO | NOT YET |
+| Generated asset → manifest | NO | NO | NO | NOT YET |
+| AI-generated sprite | NO | NO | NO | NOT YET |
 
 The visual and asset layers are compiled deterministically from
 `GameDesignSpecification`. Studio production wiring now resolves selected
 repository-owned static character/prop fixtures and passes the manifest/store
 to the Pixi renderer. Unresolved and failed entries retain primitive fallback.
-Terrain/background textures and animation remain deferred.
+Terrain/background textures, animation, provider execution, generated storage,
+and generated-asset manifest publication remain deferred.

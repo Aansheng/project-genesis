@@ -55,3 +55,6 @@ must remain usable without an asset provider.
 - WO-S13-006B: added browser request timeout recovery, preserved deterministic
   fallback, fixed duplicate Pixi Graphics destruction after Sprite upgrade,
   and product-verified the unavailable-provider Studio path; added ADR-0243.
+- WO-S13-007: added the vendor-independent image-generation request, result,
+  provider, capability, failure, and observable operation contracts; no real
+  provider or Studio wiring was added.

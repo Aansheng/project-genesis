@@ -2,6 +2,15 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-007 - Image Generation Domain & Provider Boundary
+
+- Added vendor-independent image-generation modes, request validation,
+  normalized generated-image results, provider capabilities, failure taxonomy,
+  and structured observable operations in `@genesis/shared`.
+- Preserved global visual context and canonical asset identity without adding
+  vendor SDKs, secrets, image storage, provider calls, or Studio wiring.
+- Added ADR-0244; architecture version v1.130 → v1.131.
+
 ### WO-S13-006B - Studio Generation Timeout Recovery & Product Verification
 
 - Added a browser-side AbortController timeout boundary that honors the
