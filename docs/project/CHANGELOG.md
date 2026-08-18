@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### Codex CLI Image Service Prototype
+
+- Added experimental `IMAGE_AI_PROVIDER=codex-cli` selection through the
+  existing image-generation gateway.
+- The provider runs locally authenticated `codex exec`, validates a generated
+  PNG in an isolated temporary directory, returns a normalized data URI, and
+  cleans up temporary files.
+- This is a local prototype only; it does not claim a stable Codex image API or
+  add AssetManifest/Pixi wiring. Added ADR-0247.
+
 ### WO-S13-008B - DashScope Native Image Provider Integration
 
 - Added a dedicated server-side `DashScopeImageGenerationProvider` for the

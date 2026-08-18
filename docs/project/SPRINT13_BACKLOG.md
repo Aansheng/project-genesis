@@ -65,3 +65,6 @@ must remain usable without an asset provider.
   explicit server-side provider selection, normalized temporary PNG results,
   and truthful non-transparency capability documentation; no AssetManifest or
   Pixi wiring.
+- Codex CLI image service prototype: added an experimental local CLI provider
+  behind the existing image-generation gateway; no production stability or
+  AssetManifest/Pixi wiring is claimed.

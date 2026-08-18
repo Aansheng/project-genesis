@@ -1,5 +1,7 @@
 export { OpenAIImageGenerationProvider } from './OpenAIImageGenerationProvider'
 export { DashScopeImageGenerationProvider } from './DashScopeImageGenerationProvider'
+export { CodexCliImageGenerationProvider } from './CodexCliImageGenerationProvider'
 export type { ImageGenerationProviderConfig, ImageGenerationTransport } from './OpenAIImageGenerationProvider'
 export type { DashScopeImageGenerationProviderConfig, DashScopeImageGenerationTransport } from './DashScopeImageGenerationProvider'
+export type { CodexCliImageGenerationProviderConfig, CodexCliRunResult, CodexCliRunner } from './CodexCliImageGenerationProvider'
 export { UnavailableImageGenerationProvider } from './UnavailableImageGenerationProvider'

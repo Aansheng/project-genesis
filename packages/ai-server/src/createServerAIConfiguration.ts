@@ -15,7 +15,7 @@ export interface AIServerConfig {
 }
 
 export interface ImageGenerationServerConfig {
-  readonly provider: 'openai' | 'openai-compatible' | 'dashscope'
+  readonly provider: 'openai' | 'openai-compatible' | 'dashscope' | 'codex-cli'
   readonly apiKey?: string
   readonly model: string
   readonly baseURL?: string
@@ -61,7 +61,7 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
     baseURL: env.AI_BASE_URL?.trim() || undefined,
   }
   const imageProvider = (env.IMAGE_AI_PROVIDER || 'openai').trim()
-  if (imageProvider !== 'openai' && imageProvider !== 'openai-compatible' && imageProvider !== 'dashscope') throw new Error(`Unsupported IMAGE_AI_PROVIDER: ${imageProvider}`)
+  if (imageProvider !== 'openai' && imageProvider !== 'openai-compatible' && imageProvider !== 'dashscope' && imageProvider !== 'codex-cli') throw new Error(`Unsupported IMAGE_AI_PROVIDER: ${imageProvider}`)
   const imageApiKey = env.IMAGE_AI_API_KEY?.trim()
   const imageTimeoutMs = positiveNumberFromEnv(env.IMAGE_AI_TIMEOUT_MS, 120000, 'IMAGE_AI_TIMEOUT_MS', 600000)
   const imageMaxAttempts = Math.min(2, positiveNumberFromEnv(env.IMAGE_AI_MAX_ATTEMPTS, 1, 'IMAGE_AI_MAX_ATTEMPTS', 2))

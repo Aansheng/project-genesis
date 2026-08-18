@@ -6,6 +6,7 @@ import { AIProviderConfigurationService } from './AIProviderConfigurationService
 import { OpenAIImageGenerationProvider } from './image-generation/OpenAIImageGenerationProvider'
 import { UnavailableImageGenerationProvider } from './image-generation/UnavailableImageGenerationProvider'
 import { DashScopeImageGenerationProvider } from './image-generation/DashScopeImageGenerationProvider'
+import { CodexCliImageGenerationProvider } from './image-generation/CodexCliImageGenerationProvider'
 import { existsSync, readFileSync } from 'node:fs'
 
 loadLocalServerEnv()
@@ -31,7 +32,9 @@ export async function startConfiguredAIServer(
 ): Promise<AIServerHandle> {
   const config = createServerAIConfiguration(env)
   const client = config.apiKey ? new OpenAIStructuredGenerationClient(config.ai) : new UnavailableStructuredGenerationClient()
-  const imageProvider = config.image.apiKey && config.image.provider === 'dashscope'
+  const imageProvider = config.image.provider === 'codex-cli'
+    ? new CodexCliImageGenerationProvider({ timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts, cliPath: env.CODEX_CLI_PATH })
+    : config.image.apiKey && config.image.provider === 'dashscope'
     ? new DashScopeImageGenerationProvider({ model: config.image.model, apiKey: config.image.apiKey, baseURL: config.image.baseURL, timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts })
     : config.image.apiKey
       ? new OpenAIImageGenerationProvider({ model: config.image.model, apiKey: config.image.apiKey, baseURL: config.image.baseURL, timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts })

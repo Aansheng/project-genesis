@@ -25,6 +25,11 @@ describe('AI server composition root', () => {
     expect(config.image).toMatchObject({ provider: 'dashscope', model: 'qwen-image-3.0-pro' })
   })
 
+  it('supports experimental Codex CLI image configuration', () => {
+    const config = createServerAIConfiguration({ IMAGE_AI_PROVIDER: 'codex-cli' })
+    expect(config.image).toMatchObject({ provider: 'codex-cli' })
+  })
+
   it('shuts down only once for repeated signals', async () => {
     const exit = vi.fn()
     const stop = vi.fn().mockResolvedValue(undefined)
