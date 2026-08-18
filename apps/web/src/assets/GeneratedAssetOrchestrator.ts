@@ -35,6 +35,7 @@ export function finishImageGenerationOperation(
   operation: ImageGenerationOperation,
   patch: Partial<ImageGenerationOperation> & { readonly status: ImageGenerationOperation['status'] },
 ): ImageGenerationOperation {
+  if (operation.stage === 'ready' || operation.stage === 'fallback') return operation
   const completedAt = patch.completedAt ?? (patch.stage === 'ready' || patch.stage === 'fallback' ? new Date().toISOString() : undefined)
   const durationMs = completedAt && operation.startedAt
     ? Math.max(0, Date.parse(completedAt) - Date.parse(operation.startedAt))

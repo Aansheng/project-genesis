@@ -76,3 +76,7 @@ must remain usable without an asset provider.
   preserved operation correlation through renderer application, separated world
   readiness from visual enrichment, and extended the existing Observatory
   Generation panel; no generic tracing engine or multi-asset orchestration.
+- WO-S13-010B: verified the real browser terminal fallback through a controlled
+  Codex CLI timeout, preserved typed HTTP failure details, bounded CLI child
+  termination, and retained stale-result protection; successful real-CLI READY
+  verification remains environment-dependent.

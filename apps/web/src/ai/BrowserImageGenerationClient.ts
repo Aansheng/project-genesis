@@ -32,9 +32,15 @@ export class BrowserImageGenerationClient {
         if (controller.signal.aborted) throw new BrowserImageGatewayError('timeout', 'Image gateway request timed out')
         throw new BrowserImageGatewayError('transport_error', error instanceof Error ? error.message : 'Image gateway transport failed')
       }
-      if (!response.ok) throw new BrowserImageGatewayError('gateway_error', 'Image gateway unavailable')
-      const body = await response.json() as Partial<ImageGenerationResult>
+      let body: Partial<ImageGenerationResult>
+      try {
+        body = await response.json() as Partial<ImageGenerationResult>
+      } catch {
+        throw new BrowserImageGatewayError('gateway_error', 'Image gateway unavailable')
+      }
       if (body.status !== 'success' && body.status !== 'failed') throw new BrowserImageGatewayError('gateway_error', 'Invalid image gateway response')
+      if (body.status === 'failed') return body as ImageGenerationResult
+      if (!response.ok) throw new BrowserImageGatewayError('gateway_error', 'Image gateway unavailable')
       if (body.status === 'success' && body.asset?.resource?.uri.startsWith('/api/generated-assets/')) {
         const resource = { uri: new URL(body.asset.resource.uri, this.gatewayURL).toString() }
         return { ...body, asset: { ...body.asset, resource }, operation: body.operation ? { ...body.operation, output: body.operation.output ? { ...body.operation.output, resource } : body.operation.output } : body.operation } as ImageGenerationResult

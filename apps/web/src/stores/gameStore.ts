@@ -165,7 +165,15 @@ export const useGameStore = defineStore('game', () => {
       const result = await imageClient.generate(request)
       if (token !== imageGenerationToken) return
       if (result.status !== 'success') {
-        imageGenerationOperation.value = finishImageGenerationOperation(pending, {
+        const providerOperation = result.operation ?? pending
+        imageGenerationOperation.value = finishImageGenerationOperation({
+          ...pending,
+          ...providerOperation,
+          operationId: pending.operationId,
+          entityId: request.entityId,
+          assetKind: request.constraints?.assetKind,
+          input: pending.input,
+        }, {
           status: 'failed',
           stage: 'fallback',
           artifactStatus: 'failed',
@@ -242,6 +250,8 @@ export const useGameStore = defineStore('game', () => {
       commandStatus.value = result.success ? 'success' : 'error'
 
       if (result.success) {
+        imageGenerationToken++
+        imageGenerationOperation.value = null
         const gameDesignSpecification = result.generationDiagnostics?.specification
         const assetSpecification = buildAssetSpecification(gameDesignSpecification)
         assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)

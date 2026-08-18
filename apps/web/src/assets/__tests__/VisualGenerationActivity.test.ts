@@ -60,4 +60,13 @@ describe('visual generation activity lifecycle', () => {
     expect(fallback.outcome).toBe('generation_failed_fallback')
     expect(fallback.failure?.message).toBe('provider unavailable')
   })
+
+  it('does not allow a terminal operation to regress to generating', () => {
+    const request = buildImageGenerationRequest(specification, specification.assets[0])
+    const ready = finishImageGenerationOperation(createPendingImageGenerationOperation(request), {
+      status: 'succeeded', stage: 'ready', rendererStatus: 'applied', outcome: 'generated_and_applied',
+    })
+    const next = finishImageGenerationOperation(ready, { status: 'running', stage: 'generating' })
+    expect(next).toBe(ready)
+  })
 })

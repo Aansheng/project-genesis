@@ -32,6 +32,14 @@ describe('CodexCliImageGenerationProvider', () => {
     await expect(provider.generate(request)).resolves.toMatchObject({ status: 'failed', failure: { code: 'invalid_output' } })
   })
 
+  it('terminates the runner through the abort signal and returns a typed timeout', async () => {
+    const provider = new CodexCliImageGenerationProvider({ timeoutMs: 5, maxAttempts: 1 }, async (_prompt, _workdir, signal) => {
+      await new Promise<void>(resolve => signal.addEventListener('abort', () => resolve(), { once: true }))
+      return { exitCode: 143, stdout: '', stderr: 'terminated' }
+    })
+    await expect(provider.generate(request)).resolves.toMatchObject({ status: 'failed', failure: { code: 'timeout' }, operation: { status: 'failed' } })
+  })
+
   it('rejects unsupported modes before starting the CLI', async () => {
     let called = false
     const provider = new CodexCliImageGenerationProvider({ timeoutMs: 1000, maxAttempts: 1 }, async () => { called = true; return { exitCode: 0, stdout: '', stderr: '' } })

@@ -61,12 +61,17 @@ function operation(request: ImageGenerationRequest, operationId: string, status:
 
 function defaultRunner(cliPath: string): CodexCliRunner {
   return (prompt, workdir, signal) => new Promise((resolvePromise, reject) => {
-    const child = spawn(cliPath, ['exec', '--ephemeral', '--json', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', workdir, prompt], { cwd: workdir, stdio: ['ignore', 'pipe', 'pipe'] })
+    const child = spawn(cliPath, ['exec', '--ephemeral', '--json', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', workdir, prompt], { cwd: workdir, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' })
     let stdout = ''
     let stderr = ''
     child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString() })
     child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString() })
-    const abort = (): void => { child.kill('SIGTERM') }
+    const abort = (): void => {
+      if (child.pid && process.platform !== 'win32') {
+        try { process.kill(-child.pid, 'SIGTERM'); return } catch { /* fall back to the direct child */ }
+      }
+      child.kill('SIGTERM')
+    }
     signal.addEventListener('abort', abort, { once: true })
     child.once('error', reject)
     child.once('close', (exitCode) => { signal.removeEventListener('abort', abort); resolvePromise({ exitCode: exitCode ?? 1, stdout, stderr }) })

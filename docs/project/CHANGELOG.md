@@ -2,6 +2,19 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-010B - Visual Generation Terminal Lifecycle Verification
+
+- Verified the real browser lifecycle through a controlled Codex CLI timeout:
+  the world remains playable while visual generation transitions to terminal
+  fallback and the Observatory reports `codex-cli`, `gpt-image-1`, and the
+  typed timeout failure.
+- Preserved structured failure bodies returned with HTTP 502 responses instead
+  of replacing them with a generic gateway error.
+- Added bounded Codex CLI child-process-group termination on timeout and kept
+  stale-result protection when a new world supersedes an older operation.
+- Architecture remains v1.135; successful real-CLI READY verification remains
+  environment-dependent and is explicitly not claimed.
+
 ### WO-S13-010 - Visual Generation Activity & Execution Trace Experience
 
 - Extended the existing image-generation operation with stage, artifact,
