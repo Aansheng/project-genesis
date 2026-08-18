@@ -7,13 +7,19 @@ const model = ref('')
 const baseURL = ref('')
 const apiKey = ref('')
 const enabled = ref(false)
+const mode = ref<'api' | 'codex-cli'>('api')
 const status = ref('')
 const busy = ref(false)
+
+function modeLabel(value: 'api' | 'codex-cli'): string {
+  return value === 'codex-cli' ? 'Local Codex CLI' : 'API Provider'
+}
 
 async function load(): Promise<void> {
   try {
     configuration.value = await fetchAIConfiguration()
     model.value = configuration.value.model
+    mode.value = configuration.value.mode ?? 'api'
     baseURL.value = configuration.value.baseURL || ''
     enabled.value = configuration.value.enabled
   } catch (error) { status.value = error instanceof Error ? error.message : 'AI settings unavailable' }
@@ -22,9 +28,9 @@ async function load(): Promise<void> {
 async function save(): Promise<void> {
   busy.value = true
   try {
-    configuration.value = await saveAIConfiguration({ provider: 'openai-compatible', model: model.value, baseURL: baseURL.value, apiKey: apiKey.value, enabled: enabled.value })
+    configuration.value = await saveAIConfiguration({ mode: mode.value, provider: 'openai-compatible', model: model.value, baseURL: baseURL.value, apiKey: apiKey.value, enabled: enabled.value })
     apiKey.value = ''
-    status.value = configuration.value.configured ? 'Configured' : 'Not configured'
+    status.value = configuration.value.configured ? `Saved: ${modeLabel(mode.value)}` : 'Not configured'
   } catch (error) { status.value = error instanceof Error ? error.message : 'Unable to save AI settings' }
   finally { busy.value = false }
 }
@@ -33,7 +39,7 @@ async function test(): Promise<void> {
   busy.value = true
   try {
     const result = await testAIConfiguration()
-    status.value = result.success ? 'Connected' : (result.error || 'Connection failed')
+    status.value = result.success ? `Connected: ${modeLabel(mode.value)}` : (result.error || 'Connection failed')
   } catch (error) { status.value = error instanceof Error ? error.message : 'Connection failed' }
   finally { busy.value = false }
 }
@@ -54,11 +60,20 @@ onMounted(load)
         <p>Configure the server-side provider for world generation.</p>
       </div>
       <form class="settings-card" @submit.prevent="save">
-        <label>Provider<select disabled><option>OpenAI Compatible</option></select></label>
-        <label>Base URL<input v-model="baseURL" type="url" placeholder="https://api.openai.com/v1"></label>
-        <label>Model<input v-model="model" required placeholder="gpt-4o-mini"></label>
-        <label>API Key<input v-model="apiKey" type="password" autocomplete="new-password" placeholder="Enter key to update"></label>
-        <label class="toggle"><input v-model="enabled" type="checkbox"> Enable AI generation</label>
+        <label>Game Design AI<select v-model="mode">
+          <option value="api">API Provider</option>
+          <option value="codex-cli">Local Codex CLI</option>
+        </select></label>
+        <template v-if="mode === 'api'">
+          <label>Provider<select disabled><option>OpenAI Compatible</option></select></label>
+          <label>Base URL<input v-model="baseURL" type="url" placeholder="https://api.openai.com/v1"></label>
+          <label>Model<input v-model="model" required placeholder="gpt-4o-mini"></label>
+          <label>API Key<input v-model="apiKey" type="password" autocomplete="new-password" placeholder="Enter key to update"></label>
+        </template>
+        <template v-else>
+          <p class="note">Uses the model configured by your local Codex login. No model selection is needed here; the browser never runs Codex or receives credentials.</p>
+        </template>
+        <label class="toggle"><input v-model="enabled" type="checkbox"> Enable game design AI</label>
         <div class="settings-actions"><button type="button" :disabled="busy" @click="test">Test Connection</button><button class="primary" type="submit" :disabled="busy">Save</button></div>
         <p class="status" role="status">Status: {{ status || (configuration?.configured ? 'Configured' : 'Not configured') }}</p>
         <p class="note">Configuration is held in server memory for this session. The API key is never returned to the browser.</p>

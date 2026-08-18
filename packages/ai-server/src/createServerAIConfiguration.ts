@@ -1,6 +1,7 @@
 import type { AIConfiguration } from '@genesis/ai'
 
 export interface AIServerConfig {
+  readonly gameDesignMode: 'api' | 'codex-cli'
   readonly provider: 'openai' | 'openai-compatible'
   readonly apiKey?: string
   readonly model: string
@@ -41,6 +42,8 @@ function positiveNumberFromEnv(value: string | undefined, fallback: number, name
 
 /** Reads and validates server-only variables. Never use this module in the browser bundle. */
 export function createServerAIConfiguration(env: Record<string, string | undefined> = process.env): AIServerConfig {
+  const gameDesignMode = (env.AI_GAME_DESIGN_MODE || 'api').trim()
+  if (gameDesignMode !== 'api' && gameDesignMode !== 'codex-cli') throw new Error(`Unsupported AI_GAME_DESIGN_MODE: ${gameDesignMode}`)
   const provider = (env.AI_PROVIDER || 'openai').trim()
   if (provider !== 'openai' && provider !== 'openai-compatible') throw new Error(`Unsupported AI_PROVIDER: ${provider}`)
   const apiKey = env.AI_API_KEY?.trim()
@@ -74,6 +77,7 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
     maxAttempts: imageMaxAttempts,
   } satisfies ImageGenerationServerConfig
   return {
+    gameDesignMode,
     provider,
     apiKey,
     model,

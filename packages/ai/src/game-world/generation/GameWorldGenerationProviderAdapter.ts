@@ -43,6 +43,7 @@ export class GameWorldGenerationProviderAdapter implements GameWorldGenerationPr
       id: nextTraceId(),
       source: 'ai',
       status: 'success',
+      ...(this.candidateProvider.getProviderMetadata?.() ?? {}),
       stages: Object.freeze([
         { name: 'REQUEST' as const, status: 'success' as const },
         { name: 'PROMPT_ASSEMBLY' as const, status: 'success' as const },

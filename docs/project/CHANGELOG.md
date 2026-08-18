@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO — Game Design Codex CLI Provider & User-Selectable AI Mode
+
+- Added a server-only `codex-cli` structured game-design provider alongside
+  the existing API-compatible provider path.
+- Added runtime mode selection through `/api/ai/config` and `/api/ai/test`,
+  with conditional controls in Genesis Studio Settings and provider metadata
+  in Observatory generation traces.
+- Preserved deterministic fallback and kept `IMAGE_AI_*` image configuration
+  independent. Added ADR-0252; architecture version v1.137 → v1.138.
+
 ### WO-S13-012 - Environment Visual Generation: Background & Terrain
 
 - Extended the existing bounded scheduler to generate background and terrain

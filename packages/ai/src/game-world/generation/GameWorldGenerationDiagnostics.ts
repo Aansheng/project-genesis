@@ -30,6 +30,8 @@ export interface GameGenerationTrace {
   readonly id: string
   readonly source: GameWorldGenerationSource
   readonly status: 'success' | 'fallback' | 'failed'
+  readonly provider?: string
+  readonly model?: string
   readonly stages: readonly GameGenerationTraceStage[]
   readonly attempts?: readonly StructuredGenerationAttempt[]
   readonly failureReason?: StructuredGenerationFailureReason

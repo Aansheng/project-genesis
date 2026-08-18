@@ -12,6 +12,10 @@ export class OpenAIStructuredGenerationClient implements StructuredGenerationCli
     this.client = client ?? new OpenAI({ apiKey: config.apiKey, baseURL: config.baseURL })
   }
 
+  getProviderMetadata(): { readonly provider: string; readonly model?: string } {
+    return { provider: this.config.provider === 'openai-compatible' ? 'openai-compatible' : 'openai', model: this.config.model }
+  }
+
   async generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
     const maxAttempts = Math.max(1, Math.min(2, Math.trunc(this.config.maxAttempts ?? 1)))
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {

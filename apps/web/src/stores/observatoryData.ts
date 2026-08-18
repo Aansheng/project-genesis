@@ -19,6 +19,8 @@ export interface ObservatoryGenerationTrace {
   readonly id: string
   readonly source: 'ai' | 'deterministic'
   readonly status: 'success' | 'fallback' | 'failed'
+  readonly provider?: string
+  readonly model?: string
   readonly stages: readonly ObservatoryGenerationStage[]
   readonly candidate?: {
     readonly title?: string
@@ -509,6 +511,8 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       id: stringValue(trace.id, 'generation'),
       source: trace.source === 'ai' ? 'ai' : 'deterministic',
       status: trace.status === 'fallback' ? 'fallback' : trace.status === 'failed' ? 'failed' : 'success',
+      ...(typeof trace.provider === 'string' ? { provider: trace.provider } : {}),
+      ...(typeof trace.model === 'string' ? { model: trace.model } : {}),
       stages: Object.freeze(Array.isArray(trace.stages) ? trace.stages.filter(isRecord).map(stage => Object.freeze({
         name: stringValue(stage.name, 'UNKNOWN'),
         status: stringValue(stage.status, 'not-applicable'),

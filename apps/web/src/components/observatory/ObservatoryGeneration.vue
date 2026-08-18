@@ -68,6 +68,14 @@ const labels: Record<string, string> = {
               <dt>Source</dt>
               <dd :class="`value-${data.generationTrace.source}`">{{ data.generationTrace.source }}</dd>
             </div>
+            <div v-if="data.generationTrace.provider" class="summary-card">
+              <dt>Provider</dt>
+              <dd>{{ data.generationTrace.provider }}</dd>
+            </div>
+            <div v-if="data.generationTrace.model" class="summary-card">
+              <dt>Model</dt>
+              <dd>{{ data.generationTrace.model }}</dd>
+            </div>
             <div class="summary-card">
               <dt>Status</dt>
               <dd :class="`value-${data.generationTrace.status}`">{{ data.generationTrace.status }}</dd>

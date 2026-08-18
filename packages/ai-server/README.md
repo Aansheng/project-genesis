@@ -21,6 +21,11 @@ The session-only settings API exposes `GET`/`PUT /api/ai/config` and
 `POST /api/ai/test`. It returns only public provider metadata; API keys remain
 in server memory and are not persisted across an AI server restart. Updating
 the configuration replaces the client used by subsequent generation requests.
+The game-design provider is selected with `AI_GAME_DESIGN_MODE=api` (the
+default) or `AI_GAME_DESIGN_MODE=codex-cli`. The latter runs the locally
+authenticated `codex exec` process on the server, never in the browser, and
+does not require `AI_API_KEY`. The settings page can switch this mode at
+runtime; `POST /api/ai/test` reports local CLI availability for this mode.
 
 Generation reliability is server-configured: `AI_MAX_OUTPUT_TOKENS` defaults to
 4000, `AI_TIMEOUT_MS` to 30000, and `AI_MAX_ATTEMPTS` to 2 (one request plus one
@@ -40,6 +45,9 @@ or data URI; DashScope uses its native multimodal endpoint and returns a
 provider-hosted PNG URL that expires after 24 hours. Transparency is requested
 in the prompt when requested, but is not claimed as realized metadata. Image
 credentials are never returned to clients.
+
+`AI_GAME_DESIGN_MODE` affects only structured game-world design. It does not
+change any `IMAGE_AI_*` setting or image-generation provider.
 
 Successful image generation is published into the current server session as
 `GET /api/generated-assets/{artifactId}`. These artifacts are temporary and

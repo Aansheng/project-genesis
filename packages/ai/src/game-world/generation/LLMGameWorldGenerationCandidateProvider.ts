@@ -24,6 +24,10 @@ export class LLMGameWorldGenerationCandidateProvider implements GameWorldGenerat
     return Object.freeze([...this.attempts])
   }
 
+  getProviderMetadata(): { readonly provider: string; readonly model?: string } | undefined {
+    return this.client.getProviderMetadata?.()
+  }
+
   async generate(request: GameWorldGenerationRequest): Promise<unknown> {
     this.attempts = []
     const prompt = this.promptBuilder.build(request)

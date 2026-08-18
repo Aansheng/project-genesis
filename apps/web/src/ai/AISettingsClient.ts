@@ -1,4 +1,5 @@
 export interface AIProviderPublicConfiguration {
+  mode: 'api' | 'codex-cli'
   provider: 'openai' | 'openai-compatible'
   model: string
   baseURL?: string
@@ -17,7 +18,7 @@ export async function fetchAIConfiguration(fetcher = fetch): Promise<AIProviderP
 }
 
 export async function saveAIConfiguration(
-  value: { provider: string; model: string; baseURL: string; apiKey: string; enabled: boolean },
+  value: { mode: 'api' | 'codex-cli'; provider: string; model: string; baseURL: string; apiKey: string; enabled: boolean },
   fetcher = fetch,
 ): Promise<AIProviderPublicConfiguration> {
   const response = await fetcher(configURL, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(value) })

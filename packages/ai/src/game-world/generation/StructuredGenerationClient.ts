@@ -4,5 +4,6 @@ import type { StructuredGenerationRequestOptions } from './StructuredGenerationR
 
 /** Minimal model boundary; implementations may use any structured-output vendor. */
 export interface StructuredGenerationClient {
+  getProviderMetadata?(): { readonly provider: string; readonly model?: string }
   generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown>
 }

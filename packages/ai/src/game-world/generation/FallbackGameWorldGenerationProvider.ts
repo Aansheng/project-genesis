@@ -48,6 +48,7 @@ export class FallbackGameWorldGenerationProvider implements GameWorldGenerationP
             id: `generation-fallback-${++traceSequence}`,
             source: 'deterministic' as const,
             status: 'fallback' as const,
+            ...(this.primary.getProviderMetadata?.() ?? {}),
             stages: Object.freeze(fallbackStages(error, fallback.diagnostics)),
             ...(error instanceof StructuredGenerationError ? { failureReason: error.reason } : {}),
             ...(error instanceof StructuredGenerationError ? { attempts: error.attempts } : {}),

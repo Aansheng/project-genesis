@@ -2,8 +2,10 @@ import type { AIConfiguration, GameWorldGenerationRequest, StructuredGenerationC
 import { OpenAIStructuredGenerationClient } from './OpenAIStructuredGenerationClient'
 
 export type AIProvider = 'openai' | 'openai-compatible'
+export type GameDesignProviderMode = 'api' | 'codex-cli'
 
 export interface AIProviderPublicConfiguration {
+  readonly mode?: GameDesignProviderMode
   readonly provider: AIProvider
   readonly model: string
   readonly baseURL?: string
@@ -12,6 +14,7 @@ export interface AIProviderPublicConfiguration {
 }
 
 export interface AIProviderConfigurationInput {
+  readonly mode?: string
   readonly provider?: string
   readonly model?: string
   readonly baseURL?: string
@@ -25,6 +28,10 @@ export class AIProviderConfigurationError extends Error {}
 
 function isProvider(value: string): value is AIProvider {
   return value === 'openai' || value === 'openai-compatible'
+}
+
+function isMode(value: string): value is GameDesignProviderMode {
+  return value === 'api' || value === 'codex-cli'
 }
 
 function validBaseURL(value: string | undefined): string | undefined {
@@ -62,6 +69,8 @@ export class AIProviderConfigurationService {
   getClient(): StructuredGenerationClient { return this.client }
 
   configure(input: AIProviderConfigurationInput): AIProviderPublicConfiguration {
+    const mode = input.mode ?? this.publicConfiguration.mode ?? 'api'
+    if (!isMode(mode)) throw new AIProviderConfigurationError('Unsupported game design provider mode')
     const provider = input.provider ?? this.publicConfiguration.provider
     if (!isProvider(provider)) throw new AIProviderConfigurationError('Unsupported AI provider')
     const model = (input.model ?? this.publicConfiguration.model).trim()
@@ -69,9 +78,9 @@ export class AIProviderConfigurationService {
     const baseURL = validBaseURL(input.baseURL ?? this.publicConfiguration.baseURL)
     const apiKey = input.apiKey?.trim() || this.secretConfiguration.apiKey
     const enabled = input.enabled ?? this.publicConfiguration.enabled
-    if (enabled && !apiKey) throw new AIProviderConfigurationError('API key is required when AI is enabled')
-    const next: AIProviderPublicConfiguration = { provider, model, baseURL, enabled, configured: Boolean(apiKey) }
-    const nextClient = enabled && apiKey ? this.createClient({ ...next, apiKey }) : unavailableClient()
+    if (enabled && mode === 'api' && !apiKey) throw new AIProviderConfigurationError('API key is required when API mode is enabled')
+    const next: AIProviderPublicConfiguration = { mode, provider, model, baseURL, enabled, configured: mode === 'codex-cli' || Boolean(apiKey) }
+    const nextClient = enabled && (mode === 'codex-cli' || apiKey) ? this.createClient({ ...next, apiKey }) : unavailableClient()
     this.publicConfiguration = next
     this.secretConfiguration = { apiKey }
     this.client = nextClient
@@ -79,7 +88,13 @@ export class AIProviderConfigurationService {
   }
 
   async testConnection(): Promise<void> {
-    if (!this.publicConfiguration.enabled || !this.secretConfiguration.apiKey) throw new AIProviderConfigurationError('AI provider is not configured')
+    if (!this.publicConfiguration.enabled) throw new AIProviderConfigurationError('AI provider is not enabled')
+    if ((this.publicConfiguration.mode ?? 'api') === 'codex-cli') {
+      const client = this.client as StructuredGenerationClient & { checkAvailability?: () => Promise<void> }
+      if (client.checkAvailability) return client.checkAvailability()
+      throw new AIProviderConfigurationError('Codex CLI availability check is unavailable')
+    }
+    if (!this.secretConfiguration.apiKey) throw new AIProviderConfigurationError('AI provider is not configured')
     const request: GameWorldGenerationRequest = { input: 'connection test; return valid JSON', intent: { genre: 'sandbox', title: 'connection test' } }
     await this.client.generateStructured(request)
   }

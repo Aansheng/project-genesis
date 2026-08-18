@@ -2,11 +2,12 @@ import { OpenAIStructuredGenerationClient } from './OpenAIStructuredGenerationCl
 import { UnavailableStructuredGenerationClient } from './UnavailableStructuredGenerationClient'
 import { createServerAIConfiguration } from './createServerAIConfiguration'
 import { startAIServer, stopAIServer, type AIServerHandle } from './server'
-import { AIProviderConfigurationService } from './AIProviderConfigurationService'
+import { AIProviderConfigurationService, type AIProviderClientFactory } from './AIProviderConfigurationService'
 import { OpenAIImageGenerationProvider } from './image-generation/OpenAIImageGenerationProvider'
 import { UnavailableImageGenerationProvider } from './image-generation/UnavailableImageGenerationProvider'
 import { DashScopeImageGenerationProvider } from './image-generation/DashScopeImageGenerationProvider'
 import { CodexCliImageGenerationProvider } from './image-generation/CodexCliImageGenerationProvider'
+import { CodexCliStructuredGenerationClient } from './CodexCliStructuredGenerationClient'
 import { existsSync, readFileSync } from 'node:fs'
 
 loadLocalServerEnv()
@@ -24,6 +25,7 @@ function loadLocalServerEnv(): void {
 
 export function createAIServerClient(env: Record<string, string | undefined> = process.env) {
   const config = createServerAIConfiguration(env)
+  if (config.gameDesignMode === 'codex-cli') return new CodexCliStructuredGenerationClient({ cliPath: env.CODEX_CLI_PATH, timeoutMs: config.timeoutMs, maxAttempts: config.maxAttempts })
   return config.apiKey ? new OpenAIStructuredGenerationClient(config.ai) : new UnavailableStructuredGenerationClient()
 }
 
@@ -31,7 +33,10 @@ export async function startConfiguredAIServer(
   env: Record<string, string | undefined> = process.env,
 ): Promise<AIServerHandle> {
   const config = createServerAIConfiguration(env)
-  const client = config.apiKey ? new OpenAIStructuredGenerationClient(config.ai) : new UnavailableStructuredGenerationClient()
+  const client = createAIServerClient(env)
+  const createGameDesignClient: AIProviderClientFactory = (next) => next.mode === 'codex-cli'
+    ? new CodexCliStructuredGenerationClient({ cliPath: env.CODEX_CLI_PATH, timeoutMs: config.timeoutMs, maxAttempts: config.maxAttempts })
+    : new OpenAIStructuredGenerationClient({ ...config.ai, provider: next.provider, model: next.model, baseURL: next.baseURL, apiKey: next.apiKey, enabled: next.enabled })
   const imageProvider = config.image.provider === 'codex-cli'
     ? new CodexCliImageGenerationProvider({ timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts, cliPath: env.CODEX_CLI_PATH })
     : config.image.apiKey && config.image.provider === 'dashscope'
@@ -40,12 +45,12 @@ export async function startConfiguredAIServer(
       ? new OpenAIImageGenerationProvider({ model: config.image.model, apiKey: config.image.apiKey, baseURL: config.image.baseURL, timeoutMs: config.image.timeoutMs, maxAttempts: config.image.maxAttempts })
     : new UnavailableImageGenerationProvider()
   const configurationService = new AIProviderConfigurationService(
-    { provider: config.provider, model: config.model, baseURL: config.baseURL, enabled: Boolean(config.apiKey), configured: Boolean(config.apiKey) },
+    { mode: config.gameDesignMode, provider: config.provider, model: config.model, baseURL: config.baseURL, enabled: config.gameDesignMode === 'codex-cli' || Boolean(config.apiKey), configured: config.gameDesignMode === 'codex-cli' || Boolean(config.apiKey) },
     { apiKey: config.apiKey },
     client,
-    (next) => new OpenAIStructuredGenerationClient({ ...config.ai, provider: next.provider, model: next.model, baseURL: next.baseURL, apiKey: next.apiKey, enabled: next.enabled }),
+    createGameDesignClient,
   )
-  if (!config.apiKey) console.warn('AI_API_KEY is not configured; AI requests will use the browser deterministic fallback')
+  if (config.gameDesignMode === 'api' && !config.apiKey) console.warn('AI_API_KEY is not configured; AI requests will use the browser deterministic fallback')
   const server = await startAIServer(client, { ...config, configurationService, imageProvider, imageProviderName: config.image.provider, imageProviderModel: config.image.model })
   console.log(`Genesis AI Gateway listening on http://${server.host}:${server.port}`)
   return server

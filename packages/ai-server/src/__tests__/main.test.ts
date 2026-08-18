@@ -30,6 +30,11 @@ describe('AI server composition root', () => {
     expect(config.image).toMatchObject({ provider: 'codex-cli' })
   })
 
+  it('supports independent Codex CLI game-design mode', () => {
+    const config = createServerAIConfiguration({ AI_GAME_DESIGN_MODE: 'codex-cli', IMAGE_AI_PROVIDER: 'dashscope' })
+    expect(config).toMatchObject({ gameDesignMode: 'codex-cli', image: { provider: 'dashscope' } })
+  })
+
   it('shuts down only once for repeated signals', async () => {
     const exit = vi.fn()
     const stop = vi.fn().mockResolvedValue(undefined)
