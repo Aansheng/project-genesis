@@ -1,14 +1,18 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import type { StructuredGenerationClient } from '@genesis/ai'
+import type { ImageGenerationProvider } from '@genesis/shared'
 import { createAIGatewayHandler } from './gateway'
+import { createImageGenerationGatewayHandler } from './image-generation/gateway'
 import { AIProviderConfigurationError, AIProviderConfigurationService } from './AIProviderConfigurationService'
+import { UnavailableImageGenerationProvider } from './image-generation/UnavailableImageGenerationProvider'
 
 const ROUTE = '/api/world-generation'
+const IMAGE_ROUTE = '/api/image-generation'
 const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_PORT = 8787
 const MAX_BODY_BYTES = 1_000_000
 
-export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService }
+export interface AIServerOptions { readonly host?: string; readonly port?: number; readonly configurationService?: AIProviderConfigurationService; readonly imageProvider?: ImageGenerationProvider }
 export interface AIServerHandle { readonly server: Server; readonly host: string; readonly port: number }
 
 function configuredPort(value: string | undefined): number {
@@ -58,6 +62,7 @@ export async function startAIServer(client: StructuredGenerationClient, options:
     { apiKey: 'configured' }, client,
   )
   const handler = createAIGatewayHandler(() => configurationService.getClient())
+  const imageHandler = createImageGenerationGatewayHandler(options.imageProvider ?? new UnavailableImageGenerationProvider())
   const host = options.host ?? DEFAULT_HOST
   const port = options.port ?? configuredPort(process.env.AI_PORT)
   const server = createServer(async (request, response) => {
@@ -99,6 +104,14 @@ export async function startAIServer(client: StructuredGenerationClient, options:
       return
     }
     if (request.url?.split('?')[0] !== ROUTE) {
+      if (request.url?.split('?')[0] === IMAGE_ROUTE) {
+        try {
+          writeResponse(response, await imageHandler(createRequest(request, await readBody(request))))
+        } catch {
+          writeResponse(response, Response.json({ error: 'Image generation unavailable' }, { status: 502 }))
+        }
+        return
+      }
       writeResponse(response, Response.json({ error: 'Not found' }, { status: 404 }))
       return
     }

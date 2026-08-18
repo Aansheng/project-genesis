@@ -11,6 +11,16 @@ export interface AIServerConfig {
   readonly timeoutMs: number
   readonly maxAttempts: number
   readonly ai: AIConfiguration
+  readonly image: ImageGenerationServerConfig
+}
+
+export interface ImageGenerationServerConfig {
+  readonly provider: 'openai' | 'openai-compatible'
+  readonly apiKey?: string
+  readonly model: string
+  readonly baseURL?: string
+  readonly timeoutMs: number
+  readonly maxAttempts: number
 }
 
 function numberFromEnv(value: string | undefined, fallback: number, name: string): number {
@@ -50,6 +60,19 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
     ...(apiKey ? { apiKey } : {}),
     baseURL: env.AI_BASE_URL?.trim() || undefined,
   }
+  const imageProvider = (env.IMAGE_AI_PROVIDER || 'openai').trim()
+  if (imageProvider !== 'openai' && imageProvider !== 'openai-compatible') throw new Error(`Unsupported IMAGE_AI_PROVIDER: ${imageProvider}`)
+  const imageApiKey = env.IMAGE_AI_API_KEY?.trim()
+  const imageTimeoutMs = positiveNumberFromEnv(env.IMAGE_AI_TIMEOUT_MS, 120000, 'IMAGE_AI_TIMEOUT_MS', 600000)
+  const imageMaxAttempts = Math.min(2, positiveNumberFromEnv(env.IMAGE_AI_MAX_ATTEMPTS, 1, 'IMAGE_AI_MAX_ATTEMPTS', 2))
+  const image = {
+    provider: imageProvider,
+    apiKey: imageApiKey,
+    model: env.IMAGE_AI_MODEL?.trim() || 'gpt-image-1',
+    baseURL: env.IMAGE_AI_BASE_URL?.trim() || undefined,
+    timeoutMs: imageTimeoutMs,
+    maxAttempts: imageMaxAttempts,
+  } satisfies ImageGenerationServerConfig
   return {
     provider,
     apiKey,
@@ -61,5 +84,6 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
     timeoutMs,
     maxAttempts,
     ai,
+    image,
   }
 }

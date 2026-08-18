@@ -14,6 +14,12 @@ describe('AI server composition root', () => {
     expect(() => createServerAIConfiguration({ AI_PROVIDER: 'openai', AI_API_KEY: 'x', AI_PORT: '70000' })).toThrow('AI_PORT')
   })
 
+  it('keeps image provider configuration separate and server-only', () => {
+    const config = createServerAIConfiguration({ IMAGE_AI_API_KEY: 'image-secret', IMAGE_AI_MODEL: 'gpt-image-1', IMAGE_AI_TIMEOUT_MS: '120000' })
+    expect(config.image).toMatchObject({ model: 'gpt-image-1', timeoutMs: 120000, maxAttempts: 1 })
+    expect(JSON.stringify(config.image)).toContain('image-secret')
+  })
+
   it('shuts down only once for repeated signals', async () => {
     const exit = vi.fn()
     const stop = vi.fn().mockResolvedValue(undefined)

@@ -40,4 +40,41 @@ describe('AI gateway runtime host', () => {
       expect(body).not.toContain('stack')
     } finally { await stopAIServer(service.server) }
   })
+
+  it('serves normalized image generation through the dedicated route', async () => {
+    const imageProvider = {
+      supports: () => true,
+      generate: vi.fn().mockResolvedValue({
+        status: 'success',
+        assetId: 'test-player',
+        mode: 'text-to-image',
+        asset: {
+          assetId: 'test-player',
+          resource: { uri: 'https://example.test/image.png' },
+          metadata: { mimeType: 'image/png' },
+          generationMode: 'text-to-image',
+        },
+      }),
+    }
+    const service = await startAIServer({ generateStructured: vi.fn() }, { port: 0, imageProvider })
+    try {
+      const response = await fetch(`http://${service.host}:${service.port}/api/image-generation`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          assetId: 'test-player',
+          mode: 'text-to-image',
+          prompt: 'winter adventurer',
+          visualContext: {
+            artDirection: 'stylized-2d',
+            theme: { sourceTheme: 'snow', visualTheme: 'snow' },
+            palette: { temperature: 'cool', contrast: 'standard', mood: 'bright' },
+          },
+        }),
+      })
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ status: 'success', assetId: 'test-player' })
+      expect(imageProvider.generate).toHaveBeenCalledOnce()
+    } finally { await stopAIServer(service) }
+  })
 })

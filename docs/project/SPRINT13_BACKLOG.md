@@ -58,3 +58,6 @@ must remain usable without an asset provider.
 - WO-S13-007: added the vendor-independent image-generation request, result,
   provider, capability, failure, and observable operation contracts; no real
   provider or Studio wiring was added.
+- WO-S13-008: added the server-side text-to-image provider, image gateway,
+  separate `IMAGE_AI_*` configuration, browser gateway client, normalization,
+  bounded reliability, and safe operation results; no AssetManifest wiring.

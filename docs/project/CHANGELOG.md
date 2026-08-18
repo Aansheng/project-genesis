@@ -2,6 +2,16 @@
 
 > Records every completed Work Order for Project Genesis.
 
+### WO-S13-008 - Real Text-to-Image Provider Foundation
+
+- Added a server-only OpenAI/OpenAI-compatible text-to-image provider with
+  semantic prompt mapping, explicit unsupported modes, bounded timeout/retry,
+  safe failure mapping, and normalized URL/base64 image resources.
+- Added `POST /api/image-generation`, an environment-only `IMAGE_AI_*`
+  configuration boundary, and a browser client that calls Genesis only.
+- Preserved the static AssetCatalog/Sprite path; no AssetManifest or Renderer
+  integration was added. Added ADR-0245; architecture version v1.131 → v1.132.
+
 ### WO-S13-007 - Image Generation Domain & Provider Boundary
 
 - Added vendor-independent image-generation modes, request validation,

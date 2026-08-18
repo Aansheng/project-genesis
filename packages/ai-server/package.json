@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@genesis/ai": "workspace:*",
+    "@genesis/shared": "workspace:*",
     "openai": "^4.73.0"
   },
   "devDependencies": {

@@ -64,12 +64,14 @@ export type ImageGenerationResult =
       readonly assetId: string
       readonly mode: ImageGenerationMode
       readonly asset: GeneratedImageAsset
+      readonly operation?: ImageGenerationOperation
     }
   | {
       readonly status: 'failed'
       readonly assetId: string
       readonly mode: ImageGenerationMode
       readonly failure: ImageGenerationFailure
+      readonly operation?: ImageGenerationOperation
     }
 
 export type ImageGenerationOperationStatus = 'running' | 'succeeded' | 'failed'
