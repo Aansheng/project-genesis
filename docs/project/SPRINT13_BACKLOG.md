@@ -89,3 +89,8 @@ must remain usable without an asset provider.
   omits non-applicable entity bindings. Final browser verification passed for
   FIFO progression, terminal continuation, metadata, gameplay, and stale-world
   suppression; Code Complete = YES, Product Verified = YES.
+- WO-S13-013: generalized generation eligibility to meaningful semantic
+  characters and props, added deterministic visual archetypes, deduplicated
+  repeated semantic entities before FIFO enqueue, and exposed shared binding
+  IDs in visual operations; added ADR-0253. Sprint 13 implementation is now
+  frozen; Sprint 14 should target natural-language world evolution.

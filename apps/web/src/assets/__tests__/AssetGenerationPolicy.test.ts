@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildImageGenerationRequest, isAiGenerationEligible, selectAiGenerationRequirement } from '../AssetGenerationPolicy'
+import { buildImageGenerationRequest, groupAiGenerationRequirements, isAiGenerationEligible, selectAiGenerationRequirement } from '../AssetGenerationPolicy'
 import { buildGeneratedAssetManifest } from '../GeneratedAssetOrchestrator'
 import type { AssetSpecification, ImageGenerationResult } from '@genesis/shared'
 
@@ -28,6 +28,29 @@ describe('AI asset generation policy', () => {
       visualContext: specification.visualContext,
       constraints: { assetKind: 'character', view: 'side', transparentBackground: true },
     })
+  })
+
+  it('generates meaningful semantic assets and keeps technical markers static-only', () => {
+    const assets = [
+      { ...specification.assets[0], id: 'cow-1', entityId: 'cow-1', subject: 'Cow', visualArchetype: 'Cow' },
+      { ...specification.assets[0], id: 'cow-2', entityId: 'cow-2', subject: 'Cow', visualArchetype: 'Cow' },
+      { ...specification.assets[0], id: 'merchant', entityId: 'merchant', kind: 'character' as const, subject: 'Merchant', visualArchetype: 'Merchant' },
+      { ...specification.assets[0], id: 'checkpoint', kind: 'prop' as const, visualRole: 'checkpoint marker', subject: 'Checkpoint' },
+    ]
+    const next = { ...specification, assets }
+    expect(assets.slice(0, 3).every(isAiGenerationEligible)).toBe(true)
+    expect(isAiGenerationEligible(assets[3])).toBe(false)
+    expect(groupAiGenerationRequirements(next)).toHaveLength(2)
+    expect(groupAiGenerationRequirements(next)[0][1]).toHaveLength(2)
+  })
+
+  it('keeps distinct semantic archetypes separate', () => {
+    const assets = specification.assets.map((asset, index) => ({
+      ...asset, id: `entity-${index}`, entityId: `entity-${index}`,
+      subject: index === 0 ? 'Slime' : 'Skeleton',
+      visualArchetype: index === 0 ? 'Slime' : 'Skeleton',
+    }))
+    expect(groupAiGenerationRequirements({ ...specification, assets })).toHaveLength(2)
   })
 
   it('creates a new immutable manifest snapshot for a generated resource', () => {

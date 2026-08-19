@@ -280,7 +280,7 @@ export const useGameStore = defineStore('game', () => {
           for (const requirements of groupAiGenerationRequirements(assetSpecification)) {
             const request = buildImageGenerationRequest(assetSpecification, requirements[0])
             const pending = createPendingImageGenerationOperation(request)
-            setOperation({ ...pending, bindingAssetIds: requirements[1].map(binding => binding.id), stage: 'queued', status: 'queued' })
+        setOperation({ ...pending, bindingAssetIds: requirements[1].map(binding => binding.id), bindingEntityIds: requirements[1].flatMap(binding => binding.entityId ? [binding.entityId] : []), stage: 'queued', status: 'queued' })
             scheduler.enqueue({
               jobId: pending.operationId,
               run: () => generateArtwork(assetSpecification, requirements, token),

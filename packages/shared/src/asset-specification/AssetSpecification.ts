@@ -27,6 +27,7 @@ export interface AssetRequirement {
   readonly subject: string
   readonly entityId?: string
   readonly visualRole?: string
+  readonly visualArchetype?: string
   readonly requiredStates: readonly AssetVisualState[]
   readonly technicalProfile: AssetTechnicalProfile
 }

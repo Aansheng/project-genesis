@@ -4,13 +4,12 @@ import type {
   ImageGenerationRequest,
 } from '@genesis/shared'
 
-/** Generate the two environment visuals and canonical character visuals. */
+/** Meaningful semantic assets are eligible; technical markers remain static-only. */
 export function isAiGenerationEligible(requirement: AssetRequirement): boolean {
-  return (requirement.target === 'environment' && (requirement.kind === 'background' || requirement.kind === 'terrain')) || (requirement.kind === 'character' && (
-    requirement.visualRole === 'player character' ||
-    requirement.visualRole === 'enemy creature' ||
-    requirement.visualRole === 'boss character'
-  ))
+  if (requirement.target === 'environment') return requirement.kind === 'background' || requirement.kind === 'terrain'
+  if (requirement.kind === 'character') return true
+  if (requirement.kind === 'prop') return requirement.visualRole !== 'checkpoint marker' && requirement.visualRole !== 'goal marker'
+  return false
 }
 
 export function selectAiGenerationRequirement(specification: AssetSpecification): AssetRequirement | undefined {
@@ -26,7 +25,7 @@ export function selectAiGenerationRequirements(specification: AssetSpecification
 export function visualGenerationIdentity(specification: AssetSpecification, requirement: AssetRequirement): string {
   return JSON.stringify({
     kind: requirement.kind,
-    visualRole: requirement.visualRole,
+    archetype: requirement.visualArchetype ?? requirement.subject ?? requirement.visualRole,
     subject: requirement.subject,
     context: specification.visualContext,
   })
@@ -53,8 +52,9 @@ export function buildImageGenerationRequest(
     assetId: requirement.id,
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     mode: 'text-to-image',
-    prompt: [requirement.subject, requirement.visualRole, requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : 'game character artwork'].filter(Boolean).join('; '),
+    prompt: [requirement.subject, requirement.visualRole, requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : requirement.kind === 'prop' ? 'reusable game prop artwork' : 'game character artwork'].filter(Boolean).join('; '),
     subject: requirement.subject,
+    ...(requirement.visualArchetype ? { visualArchetype: requirement.visualArchetype } : {}),
     visualContext: specification.visualContext,
     constraints: {
       assetKind: requirement.kind,

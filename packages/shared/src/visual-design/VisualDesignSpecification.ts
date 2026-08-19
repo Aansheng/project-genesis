@@ -30,6 +30,7 @@ export interface EntityVisualDesign {
   readonly entityId: string
   readonly category: EntityCategory
   readonly visualRole: string
+  readonly visualArchetype?: string
 }
 
 /** Semantic appearance intent; no assets, renderer values, or provider state. */

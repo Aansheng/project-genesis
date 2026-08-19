@@ -59,15 +59,23 @@ function deriveVisualRole(entity: GameDesignEntity): string {
   return 'world element'
 }
 
+function deriveVisualArchetype(entity: GameDesignEntity, visualRole: string): string {
+  return entity.name.trim() || visualRole
+}
+
 export class DefaultVisualDesignSpecificationBuilder implements VisualDesignSpecificationBuilder {
   build(specification: GameDesignSpecification): VisualDesignSpecification {
     const sourceTheme = specification.theme?.name?.trim() || 'none'
     const theme = resolveTheme(specification.theme?.name)
-    const entities = specification.entities.map(entity => freeze({
-      entityId: entity.id,
-      category: entity.category,
-      visualRole: deriveVisualRole(entity),
-    }))
+    const entities = specification.entities.map(entity => {
+      const visualRole = deriveVisualRole(entity)
+      return freeze({
+        entityId: entity.id,
+        category: entity.category,
+        visualRole,
+        visualArchetype: deriveVisualArchetype(entity, visualRole),
+      })
+    })
 
     return freeze({
       artDirection: 'stylized-2d',

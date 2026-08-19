@@ -16,10 +16,12 @@ function freeze<T extends object>(value: T): Readonly<T> {
 }
 
 function entityAssetKind(visualRole: string, category: string): AssetKind {
-  if (category === 'item') return 'icon'
+  if (category === 'item') return 'prop'
   if (category === 'quest' || category === 'building' || visualRole.includes('marker')) return 'prop'
   if (category === 'player' || category === 'enemy' || category === 'npc' || visualRole.includes('character')) return 'character'
-  if (category === 'terrain') return 'terrain'
+  // Entity terrain (trees, rocks, resources) is a renderable prop; only the
+  // generated environment requirement below uses the terrain kind.
+  if (category === 'terrain') return 'prop'
   return 'prop'
 }
 
@@ -29,7 +31,8 @@ function entityStates(kind: AssetKind, category: string): readonly AssetVisualSt
   return Object.freeze<AssetVisualState[]>(['idle'])
 }
 
-function entitySubject(visualRole: string, kind: AssetKind): string {
+function entitySubject(visualRole: string, kind: AssetKind, visualArchetype?: string): string {
+  if (visualArchetype?.trim() && (kind === 'character' || kind === 'prop')) return visualArchetype
   if (kind === 'character') return visualRole
   if (kind === 'terrain') return visualRole === 'terrain element' ? 'themed platform terrain' : visualRole
   if (kind === 'icon') return visualRole
@@ -58,7 +61,8 @@ function createEntityRequirement(
     kind,
     target: 'entity' as AssetTarget,
     entityId: entity.entityId,
-    subject: entitySubject(entity.visualRole, kind),
+    visualArchetype: entity.visualArchetype,
+    subject: entitySubject(entity.visualRole, kind, entity.visualArchetype),
     visualRole: entity.visualRole,
     requiredStates: entityStates(kind, entity.category),
     technicalProfile: freeze({ transparentBackground: true, view: 'side' }),

@@ -2,10 +2,11 @@
 
 ## 1. Executive Summary
 
-Architecture remains **v1.138**. The Sprint 13 visual pipeline is now a
+Architecture is now **v1.139**. The Sprint 13 visual pipeline is now a
 playable generated prototype, not yet a visually complete generated game.
 Environment generation is generalized across all worlds, while character
-generation is still narrowly eligible for player, generic enemy, and boss.
+generation is eligible for meaningful characters and props by semantic asset
+kind, with technical markers remaining static-only.
 
 The highest-impact gap is **generalized visual asset eligibility with semantic
 archetypes**. Farm animals/crops/buildings, RPG NPCs, survival props, and
@@ -14,10 +15,10 @@ sandbox animals/natural props can be represented semantically and receive an
 job is created. They therefore remain primitive (except the existing static
 checkpoint fixture). This is more visible than latency or style consistency.
 
-Recommendation: implement exactly one final Sprint 13 WO for generalized
-eligibility and archetype-aware canonical identity, then freeze Sprint 13.
-Do not add image-to-image or reference guidance before this coverage gap is
-closed.
+Post-fix: WO-S13-013 closes the eligibility gap. Repeated named entities now
+deduplicate by semantic archetype before queueing, while distinct species and
+visual contexts remain separate. Browser verification is the final freeze
+check; image-to-image and reference guidance remain deferred.
 
 ## 2. Current Sprint 13 Capability
 
@@ -288,7 +289,7 @@ archetype-aware identity and a focused mutation/delta design.
 
 ## Verification Record
 
-- Architecture: **v1.138 → v1.138**.
+- Architecture: **v1.138 → v1.139**.
 - Shared tests: **194 passed**.
 - Assets tests: **13 passed**.
 - AI tests: **9,357 passed**.
@@ -300,8 +301,8 @@ archetype-aware identity and a focused mutation/delta design.
 - Manual provider/browser latency and thumbnail verification: **pending**;
   no live provider session was started for this source-backed audit.
 
-Code Complete: **YES** (documentation-only audit; no architecture or runtime
-code changed).
+Code Complete: **YES**. Product Verified: **PENDING** browser cross-genre
+checklist.
 
 Product Audit Complete: **YES — source-backed audit delivered**.
 

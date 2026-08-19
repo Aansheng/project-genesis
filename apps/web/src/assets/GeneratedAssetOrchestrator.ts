@@ -9,10 +9,11 @@ import { DefaultAssetManifestBuilder } from '@genesis/shared'
 import type { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, selectAiGenerationRequirement } from './AssetGenerationPolicy'
 
-export function assetArtworkLabel(operation: Pick<ImageGenerationOperation, 'assetKind' | 'entityId' | 'assetId'>): string {
+export function assetArtworkLabel(operation: Pick<ImageGenerationOperation, 'assetKind' | 'entityId' | 'assetId' | 'visualArchetype'>): string {
   if (operation.assetKind === 'background') return 'Background artwork'
   if (operation.assetKind === 'terrain') return 'Terrain artwork'
-  if (operation.assetKind === 'character') {
+  if (operation.assetKind === 'character' || operation.assetKind === 'prop') {
+    if (operation.visualArchetype?.trim()) return `${operation.visualArchetype} artwork`
     const identity = `${operation.entityId ?? ''} ${operation.assetId}`.toLowerCase()
     if (identity.includes('boss')) return 'Boss artwork'
     if (identity.includes('enemy')) return 'Enemy artwork'
@@ -30,6 +31,7 @@ export function createPendingImageGenerationOperation(
     operationId: `image-generation-client-${request.assetId}`,
     assetId: request.assetId,
     ...(request.entityId ? { entityId: request.entityId } : {}),
+    ...(request.visualArchetype ? { visualArchetype: request.visualArchetype } : {}),
     mode: request.mode,
     status: 'running',
     stage: 'preparing',

@@ -40,6 +40,8 @@ const labels: Record<string, string> = {
           <dl class="detail-list">
             <div><dt>Asset</dt><dd>{{ assetArtworkLabel(imageGeneration) }}</dd></div>
             <div><dt>Asset ID</dt><dd>{{ imageGeneration.assetId }}</dd></div>
+            <div v-if="imageGeneration.visualArchetype"><dt>Archetype</dt><dd>{{ imageGeneration.visualArchetype }}</dd></div>
+            <div v-if="imageGeneration.bindingEntityIds?.length"><dt>Bindings</dt><dd>{{ imageGeneration.bindingEntityIds.join(', ') }}</dd></div>
             <div v-if="imageGeneration.entityId"><dt>Entity</dt><dd>{{ imageGeneration.entityId }}</dd></div>
             <div><dt>Provider</dt><dd>{{ imageGeneration.provider ?? 'server-selected' }}</dd></div>
             <div v-if="imageGeneration.model"><dt>Model</dt><dd>{{ imageGeneration.model }}</dd></div>

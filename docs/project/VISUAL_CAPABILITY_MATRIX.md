@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.138
+Architecture version: v1.139
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -14,6 +14,8 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Player visual role | YES | YES | YES | Sprite with primitive fallback |
 | Generic enemy visual role | YES | YES | YES | Sprite with primitive fallback |
 | Boss visual role | YES | YES | YES | Sprite with primitive fallback |
+| NPC / animal semantic archetypes | YES | YES | YES | Sprite with primitive fallback |
+| Meaningful prop / structure archetypes | YES | YES | YES | Sprite with primitive fallback |
 | Checkpoint / goal visual role | YES | YES | YES | Sprite with primitive fallback |
 | Asset requirement representation | YES | YES | NO | NO |
 | Asset identity | YES | YES | NO | NO |
@@ -36,7 +38,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Terrain asset rendering | YES | YES | YES | Existing terrain/platform bounds decorated by Pixi environment layer |
 | Tileset rendering | NO | NO | NO | NOT YET |
 | Animation | NO | NO | NO | NOT YET |
-| AI image generation | YES | YES | YES | YES for background/terrain/player/enemy/boss; fallback for others |
+| AI image generation | YES | YES | YES | YES for meaningful character/prop/environment assets; static-only technical markers |
 | Image generation domain | YES | NO | NO | NO |
 | Text-to-image request | YES | NO | NO | NO |
 | Image-to-image request | YES | NO | NO | NO |
@@ -73,3 +75,8 @@ manifest/application status, renderer outcome, and fallback without exposing
 secrets or hidden reasoning. Multi-asset generation now includes one
 background and one terrain visual per world. Persistence, tiling, and animation
 remain deferred.
+
+WO-S13-013 adds provider-independent semantic archetypes from upstream entity
+names. Stable entity asset IDs remain per-entity, while matching archetypes
+share one generation operation/resource with multiple bindings. Grouping keeps
+enemy species, NPC/animal/prop names, and incompatible visual contexts distinct.

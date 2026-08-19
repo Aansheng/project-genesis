@@ -41,6 +41,7 @@ export interface ImageGenerationRequest {
   readonly mode: ImageGenerationMode
   readonly prompt: string
   readonly subject?: string
+  readonly visualArchetype?: string
   readonly visualContext: AssetVisualContext
   readonly constraints?: ImageGenerationConstraints
   readonly sourceAsset?: ImageGenerationSource
@@ -104,8 +105,10 @@ export interface ImageGenerationOperation {
   readonly provider?: string
   readonly model?: string
   readonly entityId?: string
+  readonly visualArchetype?: string
   /** Asset IDs sharing this generated visual; the first remains canonical. */
   readonly bindingAssetIds?: readonly string[]
+  readonly bindingEntityIds?: readonly string[]
   readonly assetKind?: AssetKind
   readonly artifactStatus?: 'pending' | 'published' | 'failed'
   readonly manifestStatus?: ImageGenerationManifestStatus

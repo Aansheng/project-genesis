@@ -1,5 +1,14 @@
 # Changelog
 
+### WO-S13-013 - Generalized Visual Asset Eligibility & Semantic Archetypes
+
+- Generalized visual eligibility to meaningful character, NPC, animal, prop,
+  structure, background, and terrain assets while keeping technical markers
+  static-only.
+- Added deterministic upstream semantic archetypes; repeated archetypes share
+  one FIFO generation job/resource with multiple bindings. Added ADR-0253;
+  architecture version v1.138 → v1.139.
+
 - Updated environment terrain sprites to render at 1.5× their collision-bound
   size, centered and bottom-aligned, so generated terrain reads as a visible
   ground surface without changing runtime physics.
