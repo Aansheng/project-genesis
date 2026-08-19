@@ -193,6 +193,7 @@ h3 {
 }
 
 .runtime-summary div,
+.visual-operation-list li,
 .runtime-entities li,
 .unavailable-sections p {
   display: flex;
@@ -212,23 +213,27 @@ dt,
 dd,
 .runtime-entities span:first-child {
   margin: 0;
-  color: var(--studio-text);
+  color: var(--studio-text-dim);
   font-family: var(--studio-font-mono);
   font-size: 12px;
 }
 
+.visual-operation-list,
 .runtime-entities {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.visual-operation-list span,
 .runtime-entities span:first-child {
   overflow: hidden;
+  color: var(--studio-text-dim);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.visual-operation-list strong,
 .runtime-entities span:last-child {
   color: var(--studio-text-dim);
   font-size: 11px;
