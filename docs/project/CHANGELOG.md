@@ -1,5 +1,18 @@
 # Changelog
 
+### WO-POST-S13-001 — Runtime/Visual Geometry Alignment & Visual Scale Correctness
+
+- Confirmed `GroundCollisionSystem` remains authoritative and healthy; the
+  defect was renderer geometry/scale misalignment, not collision regression.
+- Added shared render-bound projection for primitive and generated terrain;
+  terrain/platform assets now fit actual world bounds with no image-driven
+  geometry or arbitrary 1.5× expansion.
+- Added semantic visual envelopes and feet anchors for player, enemy, NPC,
+  merchant, animal, prop, building, and boss visuals. Viewport size and image
+  intrinsic resolution do not redefine world scale.
+- Added ADR-0254; architecture version v1.139 → v1.140. Sprint 13 remains
+  frozen.
+
 ### WO-S13-013 - Generalized Visual Asset Eligibility & Semantic Archetypes
 
 - Generalized visual eligibility to meaningful character, NPC, animal, prop,

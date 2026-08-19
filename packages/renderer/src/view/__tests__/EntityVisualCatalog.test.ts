@@ -35,11 +35,12 @@ describe('player mapping', () => {
     expect(visual.shape).toBe('circle')
   })
 
-  it('returns 24x24 dimensions', () => {
+  it('returns a readable 48x48 game-space envelope', () => {
     const catalog = createCatalog()
     const visual = catalog.getVisual('player')
-    expect(visual.width).toBe(24)
-    expect(visual.height).toBe(24)
+    expect(visual.width).toBe(48)
+    expect(visual.height).toBe(48)
+    expect(visual.anchor).toBe('feet')
   })
 })
 
@@ -50,11 +51,12 @@ describe('enemy mapping', () => {
     expect(visual.shape).toBe('rectangle')
   })
 
-  it('returns 20x20 dimensions', () => {
+  it('returns a readable 40x48 game-space envelope', () => {
     const catalog = createCatalog()
     const visual = catalog.getVisual('enemy')
-    expect(visual.width).toBe(20)
-    expect(visual.height).toBe(20)
+    expect(visual.width).toBe(40)
+    expect(visual.height).toBe(48)
+    expect(visual.anchor).toBe('feet')
   })
 })
 
@@ -65,11 +67,12 @@ describe('merchant mapping', () => {
     expect(visual.shape).toBe('rectangle')
   })
 
-  it('returns 28x20 dimensions', () => {
+  it('returns a readable 44x52 game-space envelope', () => {
     const catalog = createCatalog()
     const visual = catalog.getVisual('merchant')
-    expect(visual.width).toBe(28)
-    expect(visual.height).toBe(20)
+    expect(visual.width).toBe(44)
+    expect(visual.height).toBe(52)
+    expect(visual.anchor).toBe('feet')
   })
 })
 
@@ -80,11 +83,12 @@ describe('boss mapping', () => {
     expect(visual.shape).toBe('rectangle')
   })
 
-  it('returns 40x40 dimensions', () => {
+  it('returns a distinct larger 72x88 game-space envelope', () => {
     const catalog = createCatalog()
     const visual = catalog.getVisual('boss')
-    expect(visual.width).toBe(40)
-    expect(visual.height).toBe(40)
+    expect(visual.width).toBe(72)
+    expect(visual.height).toBe(88)
+    expect(visual.anchor).toBe('feet')
   })
 })
 

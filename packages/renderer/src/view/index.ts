@@ -9,6 +9,8 @@ export type { PixiEnvironmentRendererOptions } from './PixiEnvironmentRenderer'
 export type { EntityVisualDefinition } from './EntityVisualDefinition'
 export type { EntityVisualCatalog } from './EntityVisualCatalog'
 export { DefaultEntityVisualCatalog } from './DefaultEntityVisualCatalog'
+export type { RenderBounds, RenderAnchor } from './RenderGeometry'
+export { projectRenderBounds, getRenderAnchor } from './RenderGeometry'
 
 // World / Tile-based rendering
 export type { PlatformTileDefinition } from './world'

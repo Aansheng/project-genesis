@@ -558,8 +558,8 @@ describe('Catalog-driven rendering — player', () => {
     const world = makeWorld([makeEntity('hero', 'player', { x: 100, y: 200 })])
     renderer.render(world)
 
-    expect(container._state.childAt(0)!.x).toBe(100)
-    expect(container._state.childAt(0)!.y).toBe(200)
+    expect(container._state.childAt(0)!.x).toBe(76)
+    expect(container._state.childAt(0)!.y).toBe(152)
   })
 })
 
@@ -574,8 +574,8 @@ describe('Catalog-driven rendering — enemy', () => {
     renderer.render(world)
 
     const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
-    expect(gfx._data.rectW).toBe(20)
-    expect(gfx._data.rectH).toBe(20)
+    expect(gfx._data.rectW).toBe(40)
+    expect(gfx._data.rectH).toBe(48)
   })
 })
 
@@ -590,8 +590,8 @@ describe('Catalog-driven rendering — merchant', () => {
     renderer.render(world)
 
     const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
-    expect(gfx._data.rectW).toBe(28)
-    expect(gfx._data.rectH).toBe(20)
+    expect(gfx._data.rectW).toBe(44)
+    expect(gfx._data.rectH).toBe(52)
   })
 })
 
@@ -606,8 +606,8 @@ describe('Catalog-driven rendering — boss', () => {
     renderer.render(world)
 
     const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
-    expect(gfx._data.rectW).toBe(40)
-    expect(gfx._data.rectH).toBe(40)
+    expect(gfx._data.rectW).toBe(72)
+    expect(gfx._data.rectH).toBe(88)
   })
 })
 
@@ -672,8 +672,8 @@ describe('Catalog-driven rendering — multiple renders', () => {
 
     // Verify boss dimensions
     const gfx = container._state.childAt(0) as unknown as { _data: MockGraphicsData }
-    expect(gfx._data.rectW).toBe(40)
-    expect(gfx._data.rectH).toBe(40)
+    expect(gfx._data.rectW).toBe(72)
+    expect(gfx._data.rectH).toBe(88)
   })
 })
 
@@ -733,22 +733,22 @@ describe('Catalog integration', () => {
     expect(entities.childAt(0)._data.rectW).toBe(0)
     expect(entities.childAt(0)._data.rectH).toBe(0)
     // Player x/y position
-    expect(entities.childAt(0).x).toBe(0)
+    expect(entities.childAt(0).x).toBe(-24)
 
     // Enemy: 20x20 rectangle
-    expect(entities.childAt(1)._data.rectW).toBe(20)
-    expect(entities.childAt(1)._data.rectH).toBe(20)
-    expect(entities.childAt(1).x).toBe(50)
+    expect(entities.childAt(1)._data.rectW).toBe(40)
+    expect(entities.childAt(1)._data.rectH).toBe(48)
+    expect(entities.childAt(1).x).toBe(30)
 
-    // Merchant: 28x20 rectangle
-    expect(entities.childAt(2)._data.rectW).toBe(28)
-    expect(entities.childAt(2)._data.rectH).toBe(20)
-    expect(entities.childAt(2).x).toBe(100)
+    // Merchant: 44x52 rectangle
+    expect(entities.childAt(2)._data.rectW).toBe(44)
+    expect(entities.childAt(2)._data.rectH).toBe(52)
+    expect(entities.childAt(2).x).toBe(78)
 
-    // Boss: 40x40 rectangle
-    expect(entities.childAt(3)._data.rectW).toBe(40)
-    expect(entities.childAt(3)._data.rectH).toBe(40)
-    expect(entities.childAt(3).x).toBe(150)
+    // Boss: 72x88 rectangle
+    expect(entities.childAt(3)._data.rectW).toBe(72)
+    expect(entities.childAt(3)._data.rectH).toBe(88)
+    expect(entities.childAt(3).x).toBe(114)
 
     // Unknown: 20x20 rectangle (default)
     expect(entities.childAt(4)._data.rectW).toBe(20)

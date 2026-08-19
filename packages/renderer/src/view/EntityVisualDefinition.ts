@@ -28,4 +28,10 @@ export interface EntityVisualDefinition {
    *   where radius = Math.min(width, height) / 2
    */
   readonly shape: 'rectangle' | 'circle'
+
+  /**
+   * The world-space anchor represented by an entity PositionComponent.
+   * `feet` keeps generated character sprites on the Runtime contact point.
+   */
+  readonly anchor?: 'top-left' | 'center' | 'feet'
 }

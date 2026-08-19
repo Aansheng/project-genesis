@@ -3,10 +3,10 @@
  * EntityVisualCatalog.
  *
  * Mappings:
- *   player:     circle,   24×24
- *   enemy:      rectangle, 20×20
- *   merchant:   rectangle, 28×20
- *   boss:       rectangle, 40×40
+ *   player:     circle,   48×48, feet anchored
+ *   enemy:      rectangle, 40×48, feet anchored
+ *   merchant:   rectangle, 40×48, feet anchored
+ *   boss:       rectangle, 72×88, feet anchored
  *   terrain:    rectangle, 64×32  (wide platform)
  *   platform:   rectangle, 96×24  (horizontal platform)
  *   goal:       rectangle, 24×96  (tall flag-style)
@@ -29,39 +29,70 @@ const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
   width: 20,
   height: 20,
   shape: 'rectangle',
+  anchor: 'top-left',
 })
 
 /** Predefined visual definitions for known entity types. */
 const VISUAL_MAP: Readonly<Record<string, EntityVisualDefinition>> = Object.freeze({
   player: Object.freeze<EntityVisualDefinition>({
-    width: 24,
-    height: 24,
+    width: 48,
+    height: 48,
     shape: 'circle',
+    anchor: 'feet',
   }),
   enemy: Object.freeze<EntityVisualDefinition>({
-    width: 20,
-    height: 20,
+    width: 40,
+    height: 48,
     shape: 'rectangle',
+    anchor: 'feet',
   }),
   merchant: Object.freeze<EntityVisualDefinition>({
-    width: 28,
-    height: 20,
+    width: 44,
+    height: 52,
     shape: 'rectangle',
+    anchor: 'feet',
   }),
   boss: Object.freeze<EntityVisualDefinition>({
+    width: 72,
+    height: 88,
+    shape: 'rectangle',
+    anchor: 'feet',
+  }),
+  npc: Object.freeze<EntityVisualDefinition>({
+    width: 40,
+    height: 52,
+    shape: 'rectangle',
+    anchor: 'feet',
+  }),
+  animal: Object.freeze<EntityVisualDefinition>({
     width: 40,
     height: 40,
     shape: 'rectangle',
+    anchor: 'feet',
+  }),
+  prop: Object.freeze<EntityVisualDefinition>({
+    width: 48,
+    height: 48,
+    shape: 'rectangle',
+    anchor: 'top-left',
+  }),
+  building: Object.freeze<EntityVisualDefinition>({
+    width: 128,
+    height: 96,
+    shape: 'rectangle',
+    anchor: 'top-left',
   }),
   terrain: Object.freeze<EntityVisualDefinition>({
     width: 64,
     height: 32,
     shape: 'rectangle',
+    anchor: 'top-left',
   }),
   platform: Object.freeze<EntityVisualDefinition>({
     width: 96,
     height: 24,
     shape: 'rectangle',
+    anchor: 'top-left',
   }),
   goal: Object.freeze<EntityVisualDefinition>({
     width: 24,

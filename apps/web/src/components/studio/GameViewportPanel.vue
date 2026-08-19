@@ -48,6 +48,7 @@ let environmentRenderer: PixiEnvironmentRenderer | null = null
 let inputProvider: KeyboardInputProvider | null = null
 let resizeObserver: ResizeObserver | null = null
 const cameraAnchor = { x: 400, y: 300 }
+const visualCatalog = new DefaultEntityVisualCatalog()
 
 function resizeViewport(): void {
   const container = gameContainer.value
@@ -110,6 +111,7 @@ onMounted(() => {
         cameraAnchor,
         assetManifest: store.assetManifest,
         assetStore: store.assetStore,
+        visualCatalog,
         onAssetApplication: store.reportAssetApplication,
       })
     }
@@ -119,7 +121,7 @@ onMounted(() => {
   }
   resizeViewport()
   const renderer = new DefaultPixiEntityRenderer(entityContainer, {
-    catalog: new DefaultEntityVisualCatalog(),
+    catalog: visualCatalog,
     cameraController,
     cameraAnchor,
     assetManifest: store.assetManifest,

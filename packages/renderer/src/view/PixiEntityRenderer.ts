@@ -35,6 +35,7 @@ import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
 import type { AssetManifest } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
 import type { RenderWorld } from '../model'
+import type { RenderEntity } from '../model'
 import type { RenderEntityView } from './RenderEntityView'
 import type { RenderWorldView } from './RenderWorldView'
 import type { EntityVisualCatalog } from './EntityVisualCatalog'
@@ -43,12 +44,14 @@ import type { PlatformTileCatalog } from './world/PlatformTileCatalog'
 import type { CameraController } from '../camera'
 import type { PixiAssetAdapter } from './PixiAssetAdapter'
 import { DefaultPixiAssetAdapter } from './PixiAssetAdapter'
+import { getRenderAnchor, projectRenderBounds } from './RenderGeometry'
 
 /** Default fallback visual definition (20×20 rectangle). */
 const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
   width: 20,
   height: 20,
   shape: 'rectangle',
+  anchor: 'top-left',
 })
 
 /**
@@ -184,9 +187,10 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
       gfx.beginFill(color)
 
+      const bounds = projectRenderBounds(entity.position, visual)
       if (visual.shape === 'circle') {
         const radius = Math.min(visual.width, visual.height) / 2
-        gfx.drawCircle(0, 0, radius)
+        gfx.drawCircle(visual.width / 2, visual.height / 2, radius)
       } else {
         gfx.drawRect(0, 0, visual.width, visual.height)
       }
@@ -194,8 +198,8 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       gfx.endFill()
 
       // Position the graphics in world space
-      gfx.x = entity.position.x
-      gfx.y = entity.position.y
+      gfx.x = bounds.x
+      gfx.y = bounds.y
 
       this._container.addChild(gfx)
 
@@ -205,7 +209,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         displayObject: gfx,
       }
       views.push(view)
-      this.tryUpgradeToSprite(entity.id, view, visual, generation)
+      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, generation)
     }
 
     this._entityViews = views
@@ -255,6 +259,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     entityId: string,
     view: RenderEntityView,
     visual: EntityVisualDefinition,
+    position: NonNullable<RenderEntity['position']>,
     generation: number,
   ): void {
     if (!this._assetManifest || !this._assetStore || !this._assetAdapter) return
@@ -274,7 +279,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       .then(texture => {
         if (generation !== this._renderGeneration || !this._entityViews.includes(view)) return
         try {
-          this.upgrade(view, texture, visual)
+          this.upgrade(view, texture, visual, position)
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'applied' })
         } catch {
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'failed', reason: 'renderer' })
@@ -290,16 +295,18 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     view: RenderEntityView,
     texture: Texture,
     visual: EntityVisualDefinition,
+    position: NonNullable<RenderEntity['position']>,
   ): void {
     const sprite = this._createSprite(texture)
-    sprite.anchor.set(0.5)
+    const anchor = getRenderAnchor(visual)
+    sprite.anchor.set(anchor.x, anchor.y)
     const nativeWidth = texture.width || visual.width
     const nativeHeight = texture.height || visual.height
     const scale = Math.min(visual.width / nativeWidth, visual.height / nativeHeight)
     sprite.width = nativeWidth * scale
     sprite.height = nativeHeight * scale
-    sprite.x = view.graphics.x
-    sprite.y = view.graphics.y
+    sprite.x = position.x
+    sprite.y = position.y
 
     this._container.removeChild(view.graphics)
     view.graphics.destroy()

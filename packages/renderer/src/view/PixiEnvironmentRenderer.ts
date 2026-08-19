@@ -5,8 +5,9 @@ import type { RenderWorld } from '../model'
 import type { CameraController } from '../camera'
 import type { PixiAssetAdapter } from './PixiAssetAdapter'
 import { DefaultPixiAssetAdapter } from './PixiAssetAdapter'
-
-const terrainVisualScale = 1.5
+import type { EntityVisualCatalog } from './EntityVisualCatalog'
+import { DefaultEntityVisualCatalog } from './DefaultEntityVisualCatalog'
+import { projectRenderBounds, type RenderBounds } from './RenderGeometry'
 
 export interface PixiEnvironmentRendererOptions {
   readonly width: number
@@ -16,32 +17,42 @@ export interface PixiEnvironmentRendererOptions {
   readonly assetManifest?: AssetManifest
   readonly assetStore?: AssetStore
   readonly assetAdapter?: PixiAssetAdapter
+  readonly visualCatalog?: EntityVisualCatalog
+  readonly createGraphics?: () => Graphics
+  readonly createContainer?: () => Container
   readonly createSprite?: (texture: Texture) => Sprite
   readonly onAssetApplication?: (event: { readonly assetId: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }) => void
 }
 
 /** World-level visuals; no environment asset is a Runtime entity. */
 export class PixiEnvironmentRenderer {
-  private readonly backgroundLayer = new Container()
-  private readonly terrainLayer = new Container()
+  private readonly backgroundLayer: Container
+  private readonly terrainLayer: Container
   private readonly cameraController: CameraController | null
   private readonly cameraAnchor: Readonly<{ x: number; y: number }>
   private readonly assetStore: AssetStore | null
   private readonly assetAdapter: PixiAssetAdapter | null
   private readonly createSprite: (texture: Texture) => Sprite
   private readonly onAssetApplication?: PixiEnvironmentRendererOptions['onAssetApplication']
+  private readonly visualCatalog: EntityVisualCatalog
+  private readonly createGraphics: () => Graphics
   private width: number
   private height: number
   private manifest: AssetManifest | null
   private generation = 0
 
   constructor(private readonly root: Container, options: PixiEnvironmentRendererOptions) {
+    const createContainer = options.createContainer ?? (() => new Container())
+    this.backgroundLayer = createContainer()
+    this.terrainLayer = createContainer()
     this.width = options.width
     this.height = options.height
     this.cameraController = options.cameraController ?? null
     this.cameraAnchor = options.cameraAnchor ?? { x: 0, y: 0 }
     this.assetStore = options.assetStore ?? null
     this.assetAdapter = options.assetAdapter ?? (this.assetStore ? new DefaultPixiAssetAdapter() : null)
+    this.visualCatalog = options.visualCatalog ?? new DefaultEntityVisualCatalog()
+    this.createGraphics = options.createGraphics ?? (() => new Graphics())
     this.createSprite = options.createSprite ?? ((texture) => new Sprite(texture))
     this.onAssetApplication = options.onAssetApplication
     this.manifest = options.assetManifest ?? null
@@ -59,7 +70,8 @@ export class PixiEnvironmentRenderer {
     if (terrain && this.assetStore && this.assetAdapter) {
       for (const entity of world.entities) {
         if ((entity.type !== 'terrain' && entity.type !== 'platform') || !entity.position) continue
-        this.upgradeTerrain(terrain.assetId, entity.position.x, entity.position.y, entity.type === 'platform' ? 96 : 64, entity.type === 'platform' ? 24 : 32, generation)
+        const bounds = projectRenderBounds(entity.position, this.visualCatalog.getVisual(entity.type))
+        this.upgradeTerrain(terrain.assetId, bounds, generation)
       }
     }
     const background = this.manifest?.entries.find(entry => entry.kind === 'background' && entry.status === 'resolved')
@@ -84,7 +96,7 @@ export class PixiEnvironmentRenderer {
   }
 
   private drawFallbackBackground(): void {
-    const fallback = new Graphics()
+    const fallback = this.createGraphics()
     fallback.beginFill(0x0c0d10).drawRect(0, 0, this.width, this.height).endFill()
     this.backgroundLayer.addChild(fallback)
   }
@@ -97,16 +109,15 @@ export class PixiEnvironmentRenderer {
     return resolved.then(result => result.status === 'resolved' ? this.assetAdapter!.load(result.resource) : Promise.reject(new Error('environment asset unavailable')))
   }
 
-  private upgradeTerrain(assetId: string, x: number, y: number, width: number, height: number, generation: number): void {
+  private upgradeTerrain(assetId: string, bounds: RenderBounds, generation: number): void {
     void this.resolveTexture(assetId).then(texture => {
       if (generation !== this.generation) return
       const sprite = this.createSprite(texture)
-      const visualWidth = width * terrainVisualScale
-      const visualHeight = height * terrainVisualScale
-      sprite.x = x - (visualWidth - width) / 2
-      sprite.y = y - (visualHeight - height)
-      sprite.width = visualWidth
-      sprite.height = visualHeight
+      sprite.x = bounds.x
+      sprite.y = bounds.y
+      // The generated image is skin; the Runtime/render bounds remain authoritative.
+      sprite.width = bounds.width
+      sprite.height = bounds.height
       this.terrainLayer.addChild(sprite)
       this.onAssetApplication?.({ assetId, status: 'applied' })
     }).catch(() => this.onAssetApplication?.({ assetId, status: 'failed', reason: 'resolution' }))

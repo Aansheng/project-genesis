@@ -158,8 +158,8 @@ describe('Visual Mapping Integration', () => {
       // Player uses drawCircle (rect data remains 0), enemy uses drawRect
       expect(gfx1._data.rectW).toBe(0)
       expect(gfx1._data.rectH).toBe(0)
-      expect(gfx2._data.rectW).toBe(20)
-      expect(gfx2._data.rectH).toBe(20)
+      expect(gfx2._data.rectW).toBe(40)
+      expect(gfx2._data.rectH).toBe(48)
     })
 
     it('merchant renders differently from boss', () => {
@@ -174,12 +174,12 @@ describe('Visual Mapping Integration', () => {
       const gfx1 = c1._state.childAt(0) as unknown as { _data: MockGraphicsData }
       const gfx2 = c2._state.childAt(0) as unknown as { _data: MockGraphicsData }
 
-      // Merchant: 28x20
-      expect(gfx1._data.rectW).toBe(28)
-      expect(gfx1._data.rectH).toBe(20)
-      // Boss: 40x40
-      expect(gfx2._data.rectW).toBe(40)
-      expect(gfx2._data.rectH).toBe(40)
+      // Merchant: 44x52
+      expect(gfx1._data.rectW).toBe(44)
+      expect(gfx1._data.rectH).toBe(52)
+      // Boss: 72x88
+      expect(gfx2._data.rectW).toBe(72)
+      expect(gfx2._data.rectH).toBe(88)
     })
 
     it('all five renderable types produce different outputs', () => {
@@ -223,13 +223,13 @@ describe('Visual Mapping Integration', () => {
       const renderer = createCatalogRenderer(container)
       renderer.render(makeWorld([makeEntity('hero', 'player', { x: 10, y: 20 })]))
 
-      expect(container._state.childAt(0)!.x).toBe(10)
-      expect(container._state.childAt(0)!.y).toBe(20)
+      expect(container._state.childAt(0)!.x).toBe(-14)
+      expect(container._state.childAt(0)!.y).toBe(-28)
     })
   })
 
   describe('different entity types have different sizes', () => {
-    it('enemy is 20x20, merchant is 28x20, boss is 40x40', () => {
+    it('enemy is 40x48, merchant is 44x52, boss is 72x88', () => {
       const container = createMockContainer()
       const renderer = createCatalogRenderer(container)
 
@@ -243,17 +243,17 @@ describe('Visual Mapping Integration', () => {
       const gfx1 = container._state.childAt(1) as unknown as { _data: MockGraphicsData }
       const gfx2 = container._state.childAt(2) as unknown as { _data: MockGraphicsData }
 
-      // Enemy: 20x20
-      expect(gfx0._data.rectW).toBe(20)
-      expect(gfx0._data.rectH).toBe(20)
+      // Enemy: 40x48
+      expect(gfx0._data.rectW).toBe(40)
+      expect(gfx0._data.rectH).toBe(48)
 
-      // Merchant: 28x20
-      expect(gfx1._data.rectW).toBe(28)
-      expect(gfx1._data.rectH).toBe(20)
+      // Merchant: 44x52
+      expect(gfx1._data.rectW).toBe(44)
+      expect(gfx1._data.rectH).toBe(52)
 
-      // Boss: 40x40
-      expect(gfx2._data.rectW).toBe(40)
-      expect(gfx2._data.rectH).toBe(40)
+      // Boss: 72x88
+      expect(gfx2._data.rectW).toBe(72)
+      expect(gfx2._data.rectH).toBe(88)
     })
   })
 

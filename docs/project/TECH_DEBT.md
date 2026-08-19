@@ -3,6 +3,13 @@
 > Intentionally postponed improvements.
 > Items are not bugs — they are deliberate trade-offs.
 
+## Post-Sprint-13 Visual Correctness
+
+| Item | Status / Evidence |
+| --- | --- |
+| Terrain tiling/autotiling | Deferred visual-quality work. Generated terrain now fits each authoritative world bound by stretching the shared resource; add TilingSprite/tileset behavior only when texture distortion becomes a measured product issue. |
+| Generated transparency and persistence | Still deferred. Geometry/scale correctness does not require alpha extraction or durable artifact storage. |
+
 ## Sprint 12 Baseline Freeze Audit
 
 | Item | Status / Evidence |

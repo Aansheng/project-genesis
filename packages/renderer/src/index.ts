@@ -50,6 +50,8 @@ export type { PixiEnvironmentRendererOptions } from './view'
 export type { EntityVisualDefinition } from './view'
 export type { EntityVisualCatalog } from './view'
 export { DefaultEntityVisualCatalog } from './view'
+export type { RenderBounds, RenderAnchor } from './view'
+export { projectRenderBounds, getRenderAnchor } from './view'
 
 // Runtime Visualization Loop types
 export type { RuntimeVisualizationLoop } from './runtime'

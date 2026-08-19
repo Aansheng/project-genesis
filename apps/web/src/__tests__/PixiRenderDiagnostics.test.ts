@@ -453,8 +453,8 @@ const container = createMockContainer()
 
       // Verify Graphics was positioned at the entity's position
       const gfx = container.children[0] as Graphics
-      expect(gfx.x).toBe(100)
-      expect(gfx.y).toBe(200)
+      expect(gfx.x).toBe(76)
+      expect(gfx.y).toBe(152)
     })
 
     it('entity with PositionComponent has correct position data', () => {
