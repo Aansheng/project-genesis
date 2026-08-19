@@ -30,6 +30,10 @@ describe('AI server composition root', () => {
     expect(config.image).toMatchObject({ provider: 'codex-cli' })
   })
 
+  it('keeps the default image timeout bounded beyond the browser safety window', () => {
+    expect(createServerAIConfiguration({}).image.timeoutMs).toBe(300000)
+  })
+
   it('supports independent Codex CLI game-design mode', () => {
     const config = createServerAIConfiguration({ AI_GAME_DESIGN_MODE: 'codex-cli', IMAGE_AI_PROVIDER: 'dashscope' })
     expect(config).toMatchObject({ gameDesignMode: 'codex-cli', image: { provider: 'dashscope' } })

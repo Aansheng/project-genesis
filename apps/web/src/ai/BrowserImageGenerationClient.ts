@@ -2,7 +2,7 @@ import type { ImageGenerationRequest, ImageGenerationResult } from '@genesis/sha
 
 export type BrowserImageGatewayFailureReason = 'timeout' | 'transport_error' | 'gateway_error'
 
-const DEFAULT_IMAGE_GATEWAY_TIMEOUT_MS = 125_000
+const DEFAULT_IMAGE_GATEWAY_TIMEOUT_MS = 305_000
 
 export class BrowserImageGatewayError extends Error {
   constructor(readonly reason: BrowserImageGatewayFailureReason, message: string) {

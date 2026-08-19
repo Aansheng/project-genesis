@@ -11,8 +11,11 @@
   existing safe workspace/path and PNG-signature validation.
 - Browser verification observed real Codex background/terrain success and real
   player `running → timeout/fallback`; FIFO scheduling advanced and no browser
-  console errors appeared. Generated player replacement remains provider-
-  pending, so the post-S13 correctness phase is not closed.
+  console errors appeared. With the bounded provider timeout widened to 300s
+  and browser safety timeout to 305s, a real player completed
+  `published → manifest updated → resolved → renderer applied → ready` while
+  preserving Runtime identity and position. Final generated-player jump/re-land
+  sampling remains to be reconfirmed before closing the phase.
 
 ### WO-POST-S13-002 — Deterministic World Layout & Fallback Visual Binding Correctness
 

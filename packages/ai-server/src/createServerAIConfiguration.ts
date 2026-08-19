@@ -66,7 +66,7 @@ export function createServerAIConfiguration(env: Record<string, string | undefin
   const imageProvider = (env.IMAGE_AI_PROVIDER || 'openai').trim()
   if (imageProvider !== 'openai' && imageProvider !== 'openai-compatible' && imageProvider !== 'dashscope' && imageProvider !== 'codex-cli') throw new Error(`Unsupported IMAGE_AI_PROVIDER: ${imageProvider}`)
   const imageApiKey = env.IMAGE_AI_API_KEY?.trim()
-  const imageTimeoutMs = positiveNumberFromEnv(env.IMAGE_AI_TIMEOUT_MS, 120000, 'IMAGE_AI_TIMEOUT_MS', 600000)
+  const imageTimeoutMs = positiveNumberFromEnv(env.IMAGE_AI_TIMEOUT_MS, 300000, 'IMAGE_AI_TIMEOUT_MS', 600000)
   const imageMaxAttempts = Math.min(2, positiveNumberFromEnv(env.IMAGE_AI_MAX_ATTEMPTS, 1, 'IMAGE_AI_MAX_ATTEMPTS', 2))
   const image = {
     provider: imageProvider,

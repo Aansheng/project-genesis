@@ -38,7 +38,7 @@ Image generation is a separate server-only boundary. Configure it with
 experimental `codex-cli`),
 `IMAGE_AI_API_KEY`, `IMAGE_AI_MODEL` (default `gpt-image-1`, or
 `qwen-image-3.0-pro` for DashScope), and optional `IMAGE_AI_BASE_URL`.
-`IMAGE_AI_TIMEOUT_MS` defaults to 120000 and `IMAGE_AI_MAX_ATTEMPTS` defaults
+`IMAGE_AI_TIMEOUT_MS` defaults to 300000 and `IMAGE_AI_MAX_ATTEMPTS` defaults
 to 1, capped at 2. It serves `POST /api/image-generation` and currently
 supports only `text-to-image`. The response contains a normalized provider URL
 or data URI; DashScope uses its native multimodal endpoint and returns a
