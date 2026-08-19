@@ -31,6 +31,16 @@ describe('DefaultGravitySystem — velocity contract', () => {
     const result = new DefaultGravitySystem().updateWithResult(world(entity(0), staticEntity))
     expect(result.result.affectedEntities).toBe(1); expect(result.world.entities[1]).toBe(staticEntity)
   })
+  it('seeds a positioned player without velocity for playable gravity', () => {
+    const player = Object.freeze({
+      id: 'player', type: 'player', x: 10, y: 20,
+      components: Object.freeze([createPositionComponent(10, 20)]),
+    }) as unknown as Entity
+    const result = new DefaultGravitySystem(3).updateWithResult(world(player))
+    expect(result.result.affectedEntities).toBe(1)
+    expect(result.world.entities[0].components?.find((c) => c.type === 'velocity')?.properties).toEqual({ x: 0, y: 3 })
+    expect(result.world.entities[0].y).toBe(20)
+  })
   it('is immutable, frozen, and deterministic', () => {
     const source = world(entity(-1)); const system = new DefaultGravitySystem(2)
     const first = system.update(source); const second = system.update(source)

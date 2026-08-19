@@ -80,9 +80,12 @@ describe('WO-S10-010: playable platformer runtime wiring', () => {
     expect(playerPosition(runtime.store).x).toBe(initial.x + 3)
 
     runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }))
+    for (let index = 0; index < 100; index++) runtime.loop.tick()
+    expect(playerPosition(runtime.store).y).toBe(400)
+
     runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }))
     runtime.loop.tick()
-    expect(playerPosition(runtime.store).y).toBeLessThan(initial.y)
+    expect(playerPosition(runtime.store).y).toBeLessThan(400)
 
     runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }))
     for (let index = 0; index < 300; index++) runtime.loop.tick()

@@ -121,6 +121,7 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(wrapper.find('.viewport-status').text()).toBe('Empty')
     expect(wrapper.find('.viewport-controls').text()).toContain('Arrow Keys')
     expect(wrapper.find('.viewport-controls').text()).toContain('Space')
+    expect(wrapper.find('.game-container').attributes('tabindex')).toBe('0')
     expect(wrapper.find('.studio-command-bar button').text()).toBe('Generate')
     expect(useGameStore().commandStatus).toBe('idle')
     expect(wrapper.text()).not.toMatch(/model|latency|tokens|saved|sync/i)

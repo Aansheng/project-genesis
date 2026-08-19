@@ -5,7 +5,10 @@
  * On each tick, gravity increments the y value of a player's
  * VelocityComponent. Position is applied by VerticalMotionSystem.
  *
- * Entities without a PositionComponent are passed through unchanged.
+ * Players with a PositionComponent but no VelocityComponent receive an
+ * initial zero velocity so a newly-created playable world enters the normal
+ * gravity/motion/collision pipeline on its first tick. Other entities without
+ * a VelocityComponent are passed through unchanged.
  *
  * Two entry points:
  * - update(world):       pure World → World transformation (RuntimeSystem contract)
@@ -16,6 +19,7 @@
  * - Stateless: no internal state between ticks
  * - Deterministic: same (world, gravity) always produces same output
  * - Immutable: output World is deeply frozen; input is never mutated
+ * - Player without VelocityComponent: initialized and affected by gravity
  * - Entity without PositionComponent: ignored (passed through unchanged)
  * - Empty world: no-op (returns frozen copy)
  *
@@ -28,6 +32,7 @@
 import type { World, Entity } from '@genesis/shared'
 import {
   createVelocityComponent,
+  isPositionComponent,
   isVelocityComponent,
 } from '@genesis/shared'
 import type { GravitySystem } from './GravitySystem'
@@ -98,7 +103,7 @@ export class DefaultGravitySystem implements GravitySystem {
     let affectedEntities = 0
 
     for (const entity of world.entities) {
-      if (this.hasVelocityComponent(entity)) {
+      if (this.isGravityAffected(entity)) {
         affectedEntities++
       }
     }
@@ -113,18 +118,19 @@ export class DefaultGravitySystem implements GravitySystem {
     const updatedEntities: Entity[] = []
 
     for (const entity of world.entities) {
-      if (this.hasVelocityComponent(entity)) {
-        const oldVelocity = this.findVelocityComponent(entity)!
+      if (this.isGravityAffected(entity)) {
+        const oldVelocity = this.findVelocityComponent(entity)
         const newVelocityComponent = createVelocityComponent(
-          oldVelocity.properties.x,
-          oldVelocity.properties.y + this.gravity,
+          oldVelocity?.properties.x ?? 0,
+          (oldVelocity?.properties.y ?? 0) + this.gravity,
         )
         const updatedComponents = entity.components
-          ? Object.freeze(
-              entity.components.map((c) =>
+          ? Object.freeze([
+              ...entity.components.map((c) =>
                 isVelocityComponent(c) ? newVelocityComponent : c,
               ),
-            )
+              ...(oldVelocity ? [] : [newVelocityComponent]),
+            ])
           : Object.freeze([newVelocityComponent])
 
         updatedEntities.push(
@@ -168,6 +174,12 @@ export class DefaultGravitySystem implements GravitySystem {
     }
 
     return false
+  }
+
+  /** Players need a velocity seed to enter the playable gravity pipeline. */
+  private isGravityAffected(entity: Entity): boolean {
+    return this.hasVelocityComponent(entity)
+      || (entity.type === 'player' && entity.components?.some(isPositionComponent) === true)
   }
 
   /**

@@ -13,6 +13,14 @@
   merchants, villagers, and slimes with deterministic counts.
 - Added camera reset on world replacement and focused fallback/Sprite binding
   coverage. Added ADR-0255; architecture version v1.140 → v1.141.
+- Final browser verification exposed and fixed two runtime usability gaps within
+  v1.141: newly-created players now receive an initial velocity seed so they
+  enter gravity/ground collision, and the Pixi viewport is focusable so Space
+  and Arrow input is not discarded while an Explorer button is focused.
+- Browser verification passed for fallback fall/land/jump/re-land, Farm, RPG,
+  and World A → World B. `codex-cli` background publishing/apply and controlled
+  terrain fallback were observed; provider-available player replacement remains
+  environment-pending because its operation did not reach terminal state.
 
 ### WO-POST-S13-001 — Runtime/Visual Geometry Alignment & Visual Scale Correctness
 

@@ -64,6 +64,10 @@ function resizeViewport(): void {
   environmentRenderer?.setViewport(width, height)
 }
 
+function focusGameViewport(): void {
+  gameContainer.value?.focus()
+}
+
 onMounted(() => {
   if (!gameContainer.value) return
 
@@ -200,6 +204,8 @@ onUnmounted(() => {
         ref="gameContainer"
         class="game-container"
         aria-label="Playable game canvas"
+        tabindex="0"
+        @pointerdown="focusGameViewport"
       >
         <div
           v-if="viewportStatus === 'Empty'"
@@ -306,6 +312,11 @@ h2 {
   background: var(--studio-bg);
   box-shadow: 0 16px 48px rgb(3 4 7 / 38%);
   line-height: 0;
+}
+
+.game-container:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 2px;
 }
 
 .game-container :deep(canvas) {
