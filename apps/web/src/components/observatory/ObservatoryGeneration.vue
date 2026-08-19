@@ -36,9 +36,14 @@ const labels: Record<string, string> = {
         </header>
         <p v-if="imageGenerations.length === 0" class="card-copy">No visual asset operations.</p>
         <template v-else>
-          <div v-for="imageGeneration in imageGenerations" :key="imageGeneration.operationId" class="visual-operation">
-          <dl class="detail-list">
-            <div><dt>Asset</dt><dd>{{ assetArtworkLabel(imageGeneration) }}</dd></div>
+          <article v-for="imageGeneration in imageGenerations" :key="imageGeneration.operationId" class="visual-operation">
+          <header class="visual-operation-header">
+            <strong class="visual-operation-title">{{ assetArtworkLabel(imageGeneration) }}</strong>
+            <span class="visual-operation-status" :class="`visual-operation-status--${imageGeneration.stage ?? imageGeneration.status}`">
+              {{ imageGeneration.stage ?? imageGeneration.status }}
+            </span>
+          </header>
+          <dl class="detail-list visual-operation-details">
             <div><dt>Asset ID</dt><dd>{{ imageGeneration.assetId }}</dd></div>
             <div v-if="imageGeneration.visualArchetype"><dt>Archetype</dt><dd>{{ imageGeneration.visualArchetype }}</dd></div>
             <div v-if="imageGeneration.bindingEntityIds?.length"><dt>Bindings</dt><dd>{{ imageGeneration.bindingEntityIds.join(', ') }}</dd></div>
@@ -60,7 +65,7 @@ const labels: Record<string, string> = {
             :alt="`${assetArtworkLabel(imageGeneration)} preview`"
           >
           <p v-if="imageGeneration.failure" class="fallback-note"><span>Fallback</span>{{ imageGeneration.failure.message }}</p>
-          </div>
+          </article>
         </template>
       </section>
 
@@ -151,6 +156,16 @@ h2 { margin: var(--obs-space-1) 0 0; color: var(--obs-text); font-size: 18px; le
 .value-ai, .value-success { color: var(--obs-success) !important; } .value-deterministic, .value-fallback { color: var(--obs-warning, #f2b84b) !important; } .value-failed { color: var(--obs-danger, #f87171) !important; }
 .generation-card { gap: var(--obs-space-3); }
 .visual-generation-card { margin: var(--obs-space-4); }
+.visual-operation { display: flex; flex-direction: column; gap: var(--obs-space-1); padding: var(--obs-space-2) var(--obs-space-3); border: 1px solid transparent; border-radius: var(--obs-radius-s, 6px); background: transparent; }
+.visual-operation + .visual-operation { margin-top: var(--obs-space-1); }
+.visual-operation:hover { border-color: var(--obs-border); background: var(--obs-surface-2); }
+.visual-operation-header { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; gap: var(--obs-space-1); }
+.visual-operation-title { min-width: 0; overflow: hidden; color: var(--obs-text); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.visual-operation-status { flex: 0 0 auto; color: var(--obs-text-dim); font-family: var(--obs-font-mono); font-size: 10px; text-transform: uppercase; }
+.visual-operation-status--ready, .visual-operation-status--succeeded { color: var(--obs-success); }
+.visual-operation-status--generating, .visual-operation-status--applying, .visual-operation-status--running { color: var(--obs-accent); }
+.visual-operation-status--fallback, .visual-operation-status--failed { color: var(--obs-warning, #f2b84b); }
+.visual-operation-details { padding-top: var(--obs-space-2); border-top: 1px solid var(--obs-border); }
 .visual-generation-preview { display: block; width: 96px; height: 96px; object-fit: contain; border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-bg); }
 .card-heading, .stages-header { display: flex; align-items: center; justify-content: space-between; gap: var(--obs-space-2); }
 .card-count, .stages-header > span, .card-meta { color: var(--obs-text-dim); font-family: var(--obs-font-mono); font-size: 11px; }

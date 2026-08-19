@@ -298,11 +298,16 @@ archetype-aware identity and a focused mutation/delta design.
 - Repository typecheck/lint/build: **blocked before task execution by Turbo
   local TLS/keychain initialization (`Unable to set up TLS`; no keychain)**.
 - `git diff --check`: run after document creation.
-- Manual provider/browser latency and thumbnail verification: **pending**;
-  no live provider session was started for this source-backed audit.
+- Final browser verification: **passed** on 2026-08-19 using the local
+  Codex CLI-backed game-design/image gateway. Farm produced 10 entities and 6
+  visual jobs; Cow had 3 bindings, Crop had 5 bindings, and Barn was a prop
+  job. RPG produced distinct Merchant/Villager/Slime jobs; mixed enemies
+  produced distinct Slime/Skeleton/Wolf jobs. Survival and Sandbox produced
+  semantic prop/animal/structure operations. Runtime remained active and
+  browser console error logs were empty. Successive worlds cleared old
+  Activity entries, preserving stale-world isolation.
 
-Code Complete: **YES**. Product Verified: **PENDING** browser cross-genre
-checklist.
+Code Complete: **YES**. Product Verified: **YES**. Sprint 13 Freeze: **YES**.
 
 Product Audit Complete: **YES — source-backed audit delivered**.
 

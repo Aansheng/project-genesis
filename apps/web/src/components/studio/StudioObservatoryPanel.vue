@@ -133,8 +133,8 @@ const imageGenerations = computed(() => Object.values(gameStore.visualGeneration
 }
 
 .empty-state p {
-  color: var(--studio-text);
-  font-weight: 600;
+  color: var(--studio-text-muted);
+  font-weight: 650;
 }
 
 .empty-state span,

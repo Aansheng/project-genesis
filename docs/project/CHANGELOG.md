@@ -8,6 +8,8 @@
 - Added deterministic upstream semantic archetypes; repeated archetypes share
   one FIFO generation job/resource with multiple bindings. Added ADR-0253;
   architecture version v1.138 → v1.139.
+- Final browser verification passed across Farm, RPG, mixed enemy species,
+  Survival, and Sandbox scenarios. Sprint 13 is frozen; Product Verified = YES.
 
 - Updated environment terrain sprites to render at 1.5× their collision-bound
   size, centered and bottom-aligned, so generated terrain reads as a visible
