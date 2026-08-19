@@ -1,5 +1,19 @@
 # Changelog
 
+### WO-POST-S13-002 — Deterministic World Layout & Fallback Visual Binding Correctness
+
+- Kept `DefaultWorldLayoutGenerator` as the single layout authority while
+  replacing index-based placement with stable identity/category placement.
+- Spawned the player at a deterministic world-space point above the existing
+  `groundY=400` floor and added readable genre anchors plus distinct repeated
+  entity slots.
+- Rejected generated candidates without exactly one player so the existing
+  deterministic fallback preserves a playable world.
+- Added the minimal Chinese farm/RPG fallback extraction needed for cows,
+  merchants, villagers, and slimes with deterministic counts.
+- Added camera reset on world replacement and focused fallback/Sprite binding
+  coverage. Added ADR-0255; architecture version v1.140 → v1.141.
+
 ### WO-POST-S13-001 — Runtime/Visual Geometry Alignment & Visual Scale Correctness
 
 - Confirmed `GroundCollisionSystem` remains authoritative and healthy; the

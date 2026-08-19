@@ -109,6 +109,7 @@ export const useGameStore = defineStore('game', () => {
   const assetStore = new DefaultAssetStore(new DefaultAssetResolver())
   const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
   const renderVersion = ref(0)
+  const worldRevision = ref(0)
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
@@ -274,6 +275,7 @@ export const useGameStore = defineStore('game', () => {
         const gameDesignSpecification = result.generationDiagnostics?.specification
         const assetSpecification = buildAssetSpecification(gameDesignSpecification)
         assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)
+        worldRevision.value++
         markWorldUpdated()
         if (assetSpecification) {
           const token = imageGenerationToken
@@ -307,6 +309,7 @@ export const useGameStore = defineStore('game', () => {
     assetStore,
     assetManifest,
     renderVersion,
+    worldRevision,
     selectedEntityId,
     selectedEntity,
     selectEntity,

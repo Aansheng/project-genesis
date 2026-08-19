@@ -769,7 +769,7 @@ describe('immutability', () => {
     const extractor = new DefaultGameIntentExtractor()
     const result = extractor.extract(createModel('Super Mario'))
     expect(() => {
-      ;(result as unknown as Record<string, unknown>).genre = 'farm'
+      (result as unknown as Record<string, unknown>).genre = 'farm'
     }).toThrow()
   })
 
@@ -777,7 +777,7 @@ describe('immutability', () => {
     const extractor = new DefaultGameIntentExtractor()
     const result = extractor.extract(createModel('Super Mario'))
     expect(() => {
-      ;(result as unknown as Record<string, unknown>).title = 'New Title'
+      (result as unknown as Record<string, unknown>).title = 'New Title'
     }).toThrow()
   })
 })

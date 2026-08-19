@@ -71,12 +71,16 @@ describe('Pixi sprite rendering foundation', () => {
 
     const view = renderer.render(world()).entities[0]
     expect(view.displayObject).toBe(view.graphics)
+    expect(c.children).toEqual([view.graphics])
     await Promise.resolve()
     resolveTexture({ width: 24, height: 24 } as Texture)
     await new Promise(resolve => setTimeout(resolve, 0))
     await Promise.resolve()
     expect(view.sprite).toBeDefined()
     expect(view.displayObject).toBe(view.sprite)
+    expect(c.children).toEqual([view.sprite])
+    expect(view.sprite?.x).toBe(10)
+    expect(view.sprite?.y).toBe(20)
     renderer.clear()
     expect(graphicsDestroyCount).toBe(1)
   })

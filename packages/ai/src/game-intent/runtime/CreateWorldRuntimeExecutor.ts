@@ -25,6 +25,7 @@
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { CreateWorldPipelineResult } from '../pipeline/CreateWorldPipelineResult'
+import type { World } from '@genesis/shared'
 
 // ---------------------------------------------------------------------------
 // Local WorldStore interface
@@ -39,7 +40,10 @@ import type { CreateWorldPipelineResult } from '../pipeline/CreateWorldPipelineR
  */
 export interface WorldStore {
   /** Set the currently active world. */
-  setWorld(world: { entities: Array<{ id: string; type: string; x: number; y: number }> }): void
+  setWorld(world: World): void
+
+  /** Read the currently active world. */
+  getWorld(): World
 
 }
 

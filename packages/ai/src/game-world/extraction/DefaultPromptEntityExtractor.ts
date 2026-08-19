@@ -8,7 +8,7 @@
  * No LLM, no NLP, no semantic analysis, no interpretation.
  *
  * Supported keywords (case-insensitive):
- * - 'npc':       merchant, farmer, villager
+ * - 'npc':       merchant, farmer, villager, cow
  * - 'building':  barn, storage, town
  * - 'quest':     quest
  * - 'enemy':     boss, enemy
@@ -40,6 +40,8 @@ interface KeywordEntry {
 
   /** The keyword to match (lowercase). */
   readonly keyword: string
+  readonly aliases?: readonly string[]
+  readonly label?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -59,9 +61,10 @@ interface KeywordEntry {
  */
 const KEYWORD_CATALOG: readonly KeywordEntry[] = Object.freeze([
   // NPCs
-  { keyword: 'merchant', category: 'npc' },
+  { keyword: 'merchant', category: 'npc', aliases: ['商人'] },
   { keyword: 'farmer', category: 'npc' },
-  { keyword: 'villager', category: 'npc' },
+  { keyword: 'villager', category: 'npc', aliases: ['村民'] },
+  { keyword: 'cow', category: 'npc', aliases: ['cows', '牛', '奶牛'], label: 'Cow' },
 
   // Buildings
   { keyword: 'barn', category: 'building' },
@@ -74,6 +77,7 @@ const KEYWORD_CATALOG: readonly KeywordEntry[] = Object.freeze([
   // Enemies
   { keyword: 'boss', category: 'enemy' },
   { keyword: 'enemy', category: 'enemy' },
+  { keyword: 'slime', category: 'enemy', aliases: ['slimes', '史莱姆'], label: 'Slime' },
 
   // Terrain
   { keyword: 'forest', category: 'terrain' },
@@ -176,7 +180,7 @@ export class DefaultPromptEntityExtractor implements PromptEntityExtractor {
     const results: ExtractedEntity[] = []
 
     for (const entry of KEYWORD_CATALOG) {
-      if (lowerTitle.includes(entry.keyword)) {
+      if ([entry.keyword, ...(entry.aliases ?? [])].some(keyword => lowerTitle.includes(keyword))) {
         // Skip duplicates
         if (seen.has(entry.keyword)) {
           continue
@@ -186,7 +190,7 @@ export class DefaultPromptEntityExtractor implements PromptEntityExtractor {
         results.push(
           Object.freeze({
             category: entry.category,
-            name: this.capitalize(entry.keyword),
+            name: entry.label ?? this.capitalize(entry.keyword),
           }),
         )
       }

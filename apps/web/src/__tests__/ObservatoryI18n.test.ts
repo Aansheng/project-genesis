@@ -640,6 +640,7 @@ describe('i18n — zh-CN rendering (default)', () => {
       '执行图谱',
       '世界图谱',
       '设置',
+      '生成追踪',
     ])
   })
 
@@ -778,6 +779,7 @@ describe('i18n — en-US rendering', () => {
       'Trace Graph',
       'World Graph',
       'Settings',
+      'Generation',
     ])
   })
 

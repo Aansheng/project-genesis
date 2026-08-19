@@ -79,6 +79,11 @@ export class DefaultCameraController implements CameraController {
     return this._state
   }
 
+  reset(): void {
+    this._state = DEFAULT_CAMERA_STATE
+    this.initialized = false
+  }
+
   // ---------------------------------------------------------------------------
   // Private Helpers
   // ---------------------------------------------------------------------------

@@ -14,6 +14,7 @@ import { DefaultCreateWorldPipeline } from '../game-intent/pipeline/DefaultCreat
 import { DefaultCreateWorldRuntimeExecutor } from '../game-intent/runtime/DefaultCreateWorldRuntimeExecutor'
 import type { CreateWorldRuntimeExecutor, WorldStore } from '../game-intent/runtime/CreateWorldRuntimeExecutor'
 import type { World } from '@genesis/shared'
+import type { GameDsl } from '@genesis/shared'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -21,7 +22,7 @@ import type { World } from '@genesis/shared'
 
 function createDefaultProjection() {
   return {
-    project(dsl: { world?: { entities: Array<{ id: string; type: string }> } }): { world: World } {
+    project(dsl: GameDsl): { world: World } {
       const entities = (dsl.world?.entities ?? []).map((e) => ({
         id: e.id,
         type: e.type,
@@ -185,6 +186,7 @@ describe('dependency injection', () => {
       setWorld(world: World): void {
         injectedWorld = world
       },
+      getWorld: () => ({ entities: [] }),
     }
     const executor = createExecutor(trackingStore)
     executor.execute('create mario')
@@ -198,6 +200,7 @@ describe('dependency injection', () => {
       setWorld(_world: World): void {
         injected = true
       },
+      getWorld: () => ({ entities: [] }),
     }
     const executor = createExecutor(trackingStore)
     executor.execute('hello')

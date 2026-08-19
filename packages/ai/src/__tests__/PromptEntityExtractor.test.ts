@@ -52,6 +52,16 @@ function createEmptyModel(): PromptAssemblyDomainModel {
 // ---------------------------------------------------------------------------
 
 describe('single keyword', () => {
+  it('extracts Chinese farm and RPG actors with canonical names', () => {
+    const result = createExtractor().extract(createModelWithTitleRecord('3头牛 史莱姆 商人 村民'))
+    expect(result).toEqual([
+      { category: 'npc', name: 'Merchant' },
+      { category: 'npc', name: 'Villager' },
+      { category: 'npc', name: 'Cow' },
+      { category: 'enemy', name: 'Slime' },
+    ])
+  })
+
   it('extracts merchant from title', () => {
     const result = createExtractor().extract(createModelWithTitleRecord('merchant'))
     expect(result).toHaveLength(1)

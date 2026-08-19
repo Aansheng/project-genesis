@@ -60,6 +60,8 @@ export class DefaultGameWorldValidator implements GameWorldValidator {
         if (typeof entity.category !== 'string' || !CATEGORIES.includes(entity.category as EntityCategory)) errors.push(`entities[${index}].category must be a supported semantic category`)
         if (entity.role !== undefined && (typeof entity.role !== 'string' || entity.role.trim() === '')) errors.push(`entities[${index}].role must be a non-empty string when provided`)
       })
+      const playerCount = entities.filter(entity => isRecord(entity) && entity.category === 'player').length
+      if (playerCount !== 1) errors.push('entities must contain exactly one player')
     }
 
     if (errors.length > 0) return { valid: false, errors: Object.freeze(errors) }

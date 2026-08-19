@@ -29,4 +29,9 @@ describe('DefaultCameraController — dead-zone contract', () => {
     const camera = new DefaultCameraController(); camera.update(world(80, 300)); camera.update(world(321, 300))
     expect(camera.update(empty())).toEqual({ x: 81, y: 300 })
   })
+  it('resets state for a replacement world instead of reusing the old offset', () => {
+    const camera = new DefaultCameraController(); camera.update(world(80, 300)); camera.update(world(321, 300))
+    camera.reset?.()
+    expect(camera.update(world(80, 300))).toEqual({ x: 0, y: 300 })
+  })
 })

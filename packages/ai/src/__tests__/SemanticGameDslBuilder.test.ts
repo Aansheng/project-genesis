@@ -396,8 +396,8 @@ describe('component mapping', () => {
 
   it('position component uses the deterministic generic layout', () => {
     const result = createBuilder().build(createRpgWorld())
-    expect(result.world.entities[0].components[1]).toEqual({ type: 'position', properties: { x: 80, y: 80 } })
-    expect(result.world.entities[1].components[1]).toEqual({ type: 'position', properties: { x: 200, y: 80 } })
+    expect(result.world.entities[0].components[1]).toEqual({ type: 'position', properties: { x: 80, y: 300 } })
+    expect(result.world.entities[1].components[1]).toEqual({ type: 'position', properties: { x: 460, y: 400 } })
   })
 
   it('component properties contain category', () => {

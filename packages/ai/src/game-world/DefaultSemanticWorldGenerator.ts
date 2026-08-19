@@ -325,28 +325,20 @@ export class DefaultSemanticWorldGenerator implements SemanticWorldGenerator {
       return [...templateEntities]
     }
 
-    // Build a set of existing template entity names for deduplication
-    const existingNames = new Set<string>()
-    for (const entity of templateEntities) {
-      existingNames.add(entity.name.toLowerCase())
-    }
-
-    // Collect new expanded entities (those not already in template)
     const result: GameWorldEntity[] = [...templateEntities]
+    const counts = new Map<string, number>()
+    for (const entity of result) counts.set(entity.name.toLowerCase(), (counts.get(entity.name.toLowerCase()) ?? 0) + 1)
 
     for (const expanded of expandedEntities) {
       const lowerName = expanded.name.toLowerCase()
-
-      // Skip if this name already exists in template entities
-      if (existingNames.has(lowerName)) {
-        continue
-      }
-
-      // Note: we do NOT add to existingNames here to allow count-expanded
-      // entities (which share the same name) to pass through. The keyword
-      // extractor already handles deduplication before expansion.
-
-      result.push(expanded)
+      const currentCount = counts.get(lowerName) ?? 0
+      const hasExplicitCount = /-\d+$/u.test(expanded.id)
+      if (currentCount > 0 && !hasExplicitCount) continue
+      const requestedCount = Number(expanded.id.match(/-(\d+)$/u)?.[1] ?? 1)
+      if (currentCount >= requestedCount) continue
+      const suffix = currentCount === 0 ? '' : `-${currentCount + 1}`
+      result.push(suffix ? { ...expanded, id: `${lowerName}${suffix}` } : expanded)
+      counts.set(lowerName, currentCount + 1)
     }
 
     return result

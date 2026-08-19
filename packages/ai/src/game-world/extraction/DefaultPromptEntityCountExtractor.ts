@@ -14,8 +14,8 @@
  * - Word: one, two, three, four, five, six, seven, eight, nine, ten
  *
  * Supported entity keywords (shared with DefaultPromptEntityExtractor):
- *   merchant, farmer, villager, barn, storage, town, quest,
- *   boss, enemy, forest, platform, checkpoint, tree, stone, campfire
+ *   merchant, farmer, villager, cow, barn, storage, town, quest,
+ *   boss, enemy, slime, forest, platform, checkpoint, tree, stone, campfire
  *
  * Design:
  * - Pure: no side effects, no I/O, no external calls
@@ -64,12 +64,14 @@ const ENTITY_KEYWORDS: readonly string[] = Object.freeze([
   'merchant',
   'farmer',
   'villager',
+  'cow',
   'barn',
   'storage',
   'town',
   'quest',
   'boss',
   'enemy',
+  'slime',
   'forest',
   'platform',
   'checkpoint',
@@ -171,9 +173,10 @@ export class DefaultPromptEntityCountExtractor
    */
   private matchCounts(title: string): readonly ExtractedEntityCount[] {
     const lowerTitle = title.toLowerCase()
+    const compactMatches = this.matchCompactCounts(lowerTitle)
     const tokens = this.tokenize(lowerTitle)
 
-    if (tokens.length < 2) {
+    if (tokens.length < 2 && compactMatches.size === 0) {
       return Object.freeze([])
     }
 
@@ -206,6 +209,10 @@ export class DefaultPromptEntityCountExtractor
       rawMatches.set(matchedKeyword, count)
     }
 
+    for (const [keyword, count] of compactMatches) {
+      if (!rawMatches.has(keyword)) rawMatches.set(keyword, count)
+    }
+
     // Build result in catalog order
     const results: ExtractedEntityCount[] = []
 
@@ -221,6 +228,37 @@ export class DefaultPromptEntityCountExtractor
     }
 
     return Object.freeze(results)
+  }
+
+  private matchCompactCounts(title: string): ReadonlyMap<string, number> {
+    const aliases: Readonly<Record<string, readonly string[]>> = Object.freeze({
+      cow: Object.freeze(['cow', 'cows', '牛', '奶牛']),
+      slime: Object.freeze(['slime', 'slimes', '史莱姆']),
+      merchant: Object.freeze(['merchant', '商人']),
+      villager: Object.freeze(['villager', 'villagers', '村民']),
+    })
+    const numberPattern = '(?:[0-9]+|一个|两个|三个|四个|五个|六个|七个|八个|九个|十个|一|二|三|四|五|六|七|八|九|十)'
+    const matches = new Map<string, number>()
+    for (const keyword of Object.keys(aliases)) {
+      for (const alias of aliases[keyword]) {
+        const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const match = title.match(new RegExp(`(?:^|[^0-9])(${numberPattern})\\s*(?:只|头|个)?\\s*${escaped}`, 'u'))
+        if (match) {
+          matches.set(keyword, this.parseLocalizedNumber(match[1]))
+          break
+        }
+      }
+    }
+    return matches
+  }
+
+  private parseLocalizedNumber(value: string): number {
+    const compactWords: Readonly<Record<string, number>> = {
+      一: 1, 一个: 1, 二: 2, 两个: 2, 两: 2, 三: 3, 三个: 3,
+      四: 4, 四个: 4, 五: 5, 五个: 5, 六: 6, 六个: 6,
+      七: 7, 七个: 7, 八: 8, 八个: 8, 九: 9, 九个: 9, 十: 10, 十个: 10,
+    }
+    return compactWords[value] ?? Number(value)
   }
 
   /**
@@ -290,6 +328,15 @@ export class DefaultPromptEntityCountExtractor
    * @returns The matched keyword, or undefined
    */
   private matchEntityKeyword(word: string): string | undefined {
+    const aliases: Readonly<Record<string, readonly string[]>> = {
+      cow: ['cow', 'cows', '牛', '奶牛'],
+      slime: ['slime', 'slimes', '史莱姆'],
+      merchant: ['merchant', '商人'],
+      villager: ['villager', 'villagers', '村民'],
+    }
+    for (const keyword of Object.keys(aliases)) {
+      if (aliases[keyword].includes(word)) return keyword
+    }
     for (const keyword of ENTITY_KEYWORDS) {
       // Direct match
       if (word === keyword) {

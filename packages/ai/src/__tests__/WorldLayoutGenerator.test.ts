@@ -34,7 +34,7 @@ describe('DefaultWorldLayoutGenerator', () => {
     expect(new Set(Object.values(first.positions).map(({ x, y }) => `${x}:${y}`)).size).toBe(6)
   })
 
-  it('uses a generic deterministic layout for non-platformer worlds and unknown ids', () => {
+  it('uses a grounded deterministic layout for non-platformer worlds and unknown ids', () => {
     const generator = new DefaultWorldLayoutGenerator()
     const world: GameWorldModel = {
       worldType: 'farm',
@@ -44,9 +44,41 @@ describe('DefaultWorldLayoutGenerator', () => {
       ],
     }
     expect(generator.generate(world).positions).toEqual({
-      custom: { x: 80, y: 80 },
-      'custom-2': { x: 200, y: 80 },
+      custom: { x: 648, y: 384 },
+      'custom-2': { x: 376, y: 400 },
     })
+  })
+
+  it('keeps player spawn and repeated placements independent of entity order', () => {
+    const generator = new DefaultWorldLayoutGenerator()
+    const world: GameWorldModel = {
+      worldType: 'farm',
+      entities: [
+        { id: 'cow-1', category: 'npc', name: 'Cow' },
+        { id: 'player', category: 'player', name: 'Player' },
+        { id: 'cow-2', category: 'npc', name: 'Cow' },
+        { id: 'ground', category: 'terrain', name: 'Ground' },
+      ],
+    }
+    const reversed = { ...world, entities: [...world.entities].reverse() }
+    const first = generator.generate(world).positions
+    const second = generator.generate(reversed).positions
+
+    expect(first).toEqual(second)
+    expect(first.player).toEqual({ x: 80, y: 300 })
+    expect(first.ground?.y).toBe(400)
+    expect(first['cow-1']).not.toEqual(first['cow-2'])
+  })
+
+  it('keeps genre anchors readable around the shared player spawn', () => {
+    const generator = new DefaultWorldLayoutGenerator()
+    const farm = generator.generate({ worldType: 'farm', entities: [{ id: 'player', category: 'player', name: 'Player' }, { id: 'barn', category: 'building', name: 'Barn' }] })
+    const rpg = generator.generate({ worldType: 'rpg', entities: [{ id: 'player', category: 'player', name: 'Player' }, { id: 'town', category: 'building', name: 'Town' }] })
+
+    expect(farm.positions.player).toEqual({ x: 80, y: 300 })
+    expect(rpg.positions.player).toEqual({ x: 80, y: 300 })
+    expect(farm.positions.barn).toEqual({ x: 320, y: 304 })
+    expect(rpg.positions.town).toEqual({ x: 320, y: 304 })
   })
 
   it('handles empty and large worlds without mutating input', () => {

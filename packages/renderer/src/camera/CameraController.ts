@@ -30,4 +30,7 @@ export interface CameraController {
    * @returns Frozen CameraState from the last update
    */
   getState(): CameraState
+
+  /** Reset state before a new Runtime world is presented. */
+  reset?(): void
 }

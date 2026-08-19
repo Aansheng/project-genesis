@@ -36,15 +36,24 @@ describe('structured game world generation contract', () => {
     const result = new DefaultGameWorldValidator().validate({
       title: 'Ice Platformer', genre: 'platformer', theme: { name: 'ice' }, difficulty: 'medium',
       objectives: [{ type: 'defeat-boss', target: 'final-boss' }],
-      entities: [{ id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' }],
+      entities: [
+        { id: 'player', category: 'player', name: 'Player' },
+        { id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' },
+      ],
     })
 
     expect(result.specification).toEqual({
       title: 'Ice Platformer', genre: 'platformer', theme: { name: 'ice' }, difficulty: 'medium',
       objectives: [{ type: 'defeat-boss', target: 'final-boss' }],
-      entities: [{ id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' }],
+      entities: [
+        { id: 'player', category: 'player', name: 'Player' },
+        { id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' },
+      ],
     })
-    expect(result.world).toEqual({ worldType: 'platformer', entities: [{ id: 'boss', category: 'enemy', name: 'Boss' }] })
+    expect(result.world).toEqual({ worldType: 'platformer', entities: [
+      { id: 'player', category: 'player', name: 'Player' },
+      { id: 'boss', category: 'enemy', name: 'Boss' },
+    ] })
     expect(Object.isFrozen(result.specification)).toBe(true)
   })
 
@@ -64,5 +73,14 @@ describe('structured game world generation contract', () => {
       worldType: 'sandbox',
       entities: [{ id: 'player', category: 'player', name: 'Player' }],
     })
+  })
+
+  it('rejects a generated world without exactly one player', () => {
+    const validator = new DefaultGameWorldValidator()
+    expect(validator.validate({ worldType: 'farm', entities: [{ id: 'cow', category: 'npc', name: 'Cow' }] }).errors).toContain('entities must contain exactly one player')
+    expect(validator.validate({ worldType: 'farm', entities: [
+      { id: 'player-1', category: 'player', name: 'Player 1' },
+      { id: 'player-2', category: 'player', name: 'Player 2' },
+    ] }).errors).toContain('entities must contain exactly one player')
   })
 })

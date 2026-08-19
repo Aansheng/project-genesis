@@ -177,7 +177,7 @@ describe('immutability', () => {
     const factory = new DefaultMarioWorldFactory()
     const model = factory.create()
     expect(() => {
-      ;(model as unknown as Record<string, unknown>).worldType = 'farm'
+      (model as unknown as Record<string, unknown>).worldType = 'farm'
     }).toThrow()
   })
 
@@ -185,7 +185,7 @@ describe('immutability', () => {
     const factory = new DefaultMarioWorldFactory()
     const model = factory.create()
     expect(() => {
-      ;(model.entities as unknown as unknown[]).pop()
+      (model.entities as unknown as unknown[]).pop()
     }).toThrow()
   })
 })

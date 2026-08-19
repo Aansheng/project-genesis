@@ -102,6 +102,7 @@ onMounted(() => {
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)
   const adapter = new DefaultRuntimeRendererAdapter()
   const cameraController = new DefaultCameraController()
+  watch(() => store.worldRevision, () => cameraController.reset?.(), { flush: 'sync' })
   try {
     if (typeof PixiEnvironmentRenderer === 'function') {
       environmentRenderer = new PixiEnvironmentRenderer(environmentContainer, {

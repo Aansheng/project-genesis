@@ -1103,12 +1103,13 @@ describe('entity count extraction — mixed entities', () => {
 
 describe('entity count extraction — deduplication', () => {
   it('count-expanded entity that matches template name is skipped', () => {
-    // Farm template has "Storage" — "2 storages" extracted but deduplicated
+    // Farm template has one "Storage"; the requested second instance is added.
     const result = createGenerator().generate(
       createModelWithTitleRecord('Farm 2 storages'),
     )
-    // Farm template: 8 entities, extracted "storage" skipped (in template)
-    expect(result.entities).toHaveLength(8)
+    // Farm template: 8 entities + storage-2
+    expect(result.entities).toHaveLength(9)
+    expect(result.entities[8].id).toBe('storage-2')
   })
 
   it('count-expanded entity not in template is added with suffix', () => {
@@ -1166,6 +1167,19 @@ describe('entity count extraction — ordering', () => {
 // ---------------------------------------------------------------------------
 
 describe('entity count extraction — compatibility', () => {
+  it('creates distinct deterministic farm cows from the Chinese fallback prompt', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('创建一个农场游戏，3头牛'))
+    const cows = result.entities.filter(entity => entity.name === 'Cow')
+    expect(cows.map(entity => entity.id)).toEqual(['cow-1', 'cow-2', 'cow-3'])
+  })
+
+  it('creates a readable Chinese RPG actor set without duplicating the template merchant', () => {
+    const result = createGenerator().generate(createModelWithTitleRecord('创建一个 RPG，有一个商人、两个村民和三个史莱姆'))
+    expect(result.entities.filter(entity => entity.name === 'Merchant')).toHaveLength(1)
+    expect(result.entities.filter(entity => entity.name === 'Villager').map(entity => entity.id)).toEqual(['villager', 'villager-2'])
+    expect(result.entities.filter(entity => entity.name === 'Slime').map(entity => entity.id)).toEqual(['slime-1', 'slime-2', 'slime-3'])
+  })
+
   it('existing entity extraction still works without counts', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Farm campfire'))
     expect(result.entities).toHaveLength(9)
@@ -1175,7 +1189,7 @@ describe('entity count extraction — compatibility', () => {
   it('world type detection still works with count content', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Farm 2 merchants'))
     expect(result.worldType).toBe('farm')
-    expect(result.entities).toHaveLength(8) // "merchant" deduplicated
+    expect(result.entities).toHaveLength(9) // template merchant + merchant-2
   })
 
   it('all entity categories are valid with counts', () => {

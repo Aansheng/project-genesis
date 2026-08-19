@@ -53,6 +53,20 @@ function createEmptyModel(): PromptAssemblyDomainModel {
 // ---------------------------------------------------------------------------
 
 describe('numeric counts', () => {
+  it('extracts compact Chinese counts', () => {
+    const result = createExtractor().extractCounts(createModelWithTitleRecord('创建一个农场游戏，3头牛'))
+    expect(result).toEqual([{ name: 'cow', count: 3 }])
+  })
+
+  it('extracts Chinese actor counts with measure words', () => {
+    const result = createExtractor().extractCounts(createModelWithTitleRecord('一个商人、两个村民和三个史莱姆'))
+    expect(result).toEqual([
+      { name: 'merchant', count: 1 },
+      { name: 'villager', count: 2 },
+      { name: 'slime', count: 3 },
+    ])
+  })
+
   it('extracts "2 farmers" as count 2', () => {
     const result = createExtractor().extractCounts(createModelWithTitleRecord('2 farmers'))
     expect(result).toHaveLength(1)
