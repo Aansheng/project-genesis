@@ -1,5 +1,19 @@
 # Changelog
 
+### WO-POST-S13-003 — Codex CLI Image Generation Terminal Lifecycle & Player Replacement Verification
+
+- Added an independent provider timeout race so a Codex CLI runner that ignores
+  abort or never closes cannot leave an image operation running indefinitely.
+- Hardened Unix process-group cleanup with `SIGTERM` followed by bounded
+  `SIGKILL` fallback, and made temporary-directory cleanup non-blocking after
+  the result has been harvested.
+- Added JSONL extraction for `generated_images` PNG paths while retaining the
+  existing safe workspace/path and PNG-signature validation.
+- Browser verification observed real Codex background/terrain success and real
+  player `running → timeout/fallback`; FIFO scheduling advanced and no browser
+  console errors appeared. Generated player replacement remains provider-
+  pending, so the post-S13 correctness phase is not closed.
+
 ### WO-POST-S13-002 — Deterministic World Layout & Fallback Visual Binding Correctness
 
 - Kept `DefaultWorldLayoutGenerator` as the single layout authority while

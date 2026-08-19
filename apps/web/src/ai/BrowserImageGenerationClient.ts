@@ -2,6 +2,8 @@ import type { ImageGenerationRequest, ImageGenerationResult } from '@genesis/sha
 
 export type BrowserImageGatewayFailureReason = 'timeout' | 'transport_error' | 'gateway_error'
 
+const DEFAULT_IMAGE_GATEWAY_TIMEOUT_MS = 125_000
+
 export class BrowserImageGatewayError extends Error {
   constructor(readonly reason: BrowserImageGatewayFailureReason, message: string) {
     super(message)
@@ -16,7 +18,7 @@ export class BrowserImageGenerationClient {
     private readonly fetcher: typeof fetch = globalThis.fetch.bind(globalThis),
   ) {}
 
-  async generate(request: ImageGenerationRequest, timeoutMs = 120_000): Promise<ImageGenerationResult> {
+  async generate(request: ImageGenerationRequest, timeoutMs = DEFAULT_IMAGE_GATEWAY_TIMEOUT_MS): Promise<ImageGenerationResult> {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), timeoutMs)
     try {

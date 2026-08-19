@@ -27,6 +27,16 @@ describe('CodexCliImageGenerationProvider', () => {
     expect(result).toMatchObject({ status: 'success', assetId: 'codex-player', asset: { metadata: { mimeType: 'image/png' }, generationMode: 'text-to-image' }, operation: { status: 'succeeded' } })
   })
 
+  it('harvests a PNG path from a generated_images JSONL event', async () => {
+    const provider = new CodexCliImageGenerationProvider({ timeoutMs: 1000, maxAttempts: 1 }, async (prompt, _workdir) => {
+      const outputPath = prompt.match(/Save the final image exactly to: (.+)/u)?.[1]
+      if (!outputPath) throw new Error('missing output path')
+      await writeFile(outputPath, png)
+      return { exitCode: 0, stdout: `{"type":"generated_images","generated_images":[{"path":"${outputPath}"}]}\n{"type":"completed"}`, stderr: '' }
+    })
+    await expect(provider.generate(request)).resolves.toMatchObject({ status: 'success', asset: { metadata: { mimeType: 'image/png' } } })
+  })
+
   it('returns invalid_output when Codex exits without an image', async () => {
     const provider = new CodexCliImageGenerationProvider({ timeoutMs: 1000, maxAttempts: 1 }, async () => ({ exitCode: 0, stdout: 'done', stderr: '' }))
     await expect(provider.generate(request)).resolves.toMatchObject({ status: 'failed', failure: { code: 'invalid_output' } })
@@ -38,6 +48,17 @@ describe('CodexCliImageGenerationProvider', () => {
       return { exitCode: 143, stdout: '', stderr: 'terminated' }
     })
     await expect(provider.generate(request)).resolves.toMatchObject({ status: 'failed', failure: { code: 'timeout' }, operation: { status: 'failed' } })
+  })
+
+  it('returns a timeout even when a runner ignores abort and never settles', async () => {
+    let calls = 0
+    const provider = new CodexCliImageGenerationProvider({ timeoutMs: 5, maxAttempts: 2 }, async () => {
+      calls++
+      await new Promise<void>(() => undefined)
+      return { exitCode: 0, stdout: '', stderr: '' }
+    })
+    await expect(provider.generate(request)).resolves.toMatchObject({ status: 'failed', failure: { code: 'timeout' } })
+    expect(calls).toBe(1)
   })
 
   it('rejects unsupported modes before starting the CLI', async () => {

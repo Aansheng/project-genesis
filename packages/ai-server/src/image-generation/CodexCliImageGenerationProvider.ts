@@ -64,23 +64,55 @@ function defaultRunner(cliPath: string): CodexCliRunner {
     const child = spawn(cliPath, ['exec', '--ephemeral', '--json', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', workdir, prompt], { cwd: workdir, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' })
     let stdout = ''
     let stderr = ''
+    let forceKill: ReturnType<typeof setTimeout> | undefined
+    const kill = (name: NodeJS.Signals): void => {
+      if (child.pid && process.platform !== 'win32') {
+        try { process.kill(-child.pid, name); return } catch { /* fall back to the direct child */ }
+      }
+      try { child.kill(name) } catch { /* process already exited */ }
+    }
     child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString() })
     child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString() })
     const abort = (): void => {
-      if (child.pid && process.platform !== 'win32') {
-        try { process.kill(-child.pid, 'SIGTERM'); return } catch { /* fall back to the direct child */ }
-      }
-      child.kill('SIGTERM')
+      kill('SIGTERM')
+      forceKill = setTimeout(() => kill('SIGKILL'), 250)
+    }
+    const cleanup = (): void => {
+      signal.removeEventListener('abort', abort)
+      if (forceKill !== undefined) clearTimeout(forceKill)
     }
     signal.addEventListener('abort', abort, { once: true })
-    child.once('error', reject)
-    child.once('close', (exitCode) => { signal.removeEventListener('abort', abort); resolvePromise({ exitCode: exitCode ?? 1, stdout, stderr }) })
+    child.once('error', (error) => { cleanup(); reject(error) })
+    child.once('close', (exitCode) => { cleanup(); resolvePromise({ exitCode: exitCode ?? 1, stdout, stderr }) })
   })
+}
+
+function imagePathsFromJsonl(stdout: string): readonly string[] {
+  const paths: string[] = []
+  const collect = (value: unknown, key = ''): void => {
+    if (typeof value === 'string') {
+      const normalizedKey = key.toLowerCase()
+      if ((normalizedKey.includes('image') || normalizedKey.includes('path') || normalizedKey.includes('file')) && /\.png$/u.test(value)) paths.push(value)
+      return
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) collect(item, key)
+      return
+    }
+    if (typeof value !== 'object' || value === null) return
+    for (const [entryKey, entryValue] of Object.entries(value)) collect(entryValue, entryKey)
+  }
+  for (const line of stdout.split(/\r?\n/u)) {
+    if (!line.trim()) continue
+    try { collect(JSON.parse(line)) } catch { /* codex may emit non-JSON diagnostics */ }
+  }
+  return paths
 }
 
 function imagePathsFromOutput(stdout: string, expectedPath: string): readonly string[] {
   const generatedRoot = resolve(process.env.CODEX_HOME || join(homedir(), '.codex'), 'generated_images')
   const candidates = [
+    ...imagePathsFromJsonl(stdout),
     stdout.match(/IMAGE_PATH=(.+)/u)?.[1]?.trim(),
     ...([...stdout.matchAll(/(\/[^\s"']+\.png)/gu)].map((match) => match[1])),
     expectedPath,
@@ -116,10 +148,19 @@ export class CodexCliImageGenerationProvider implements ImageGenerationProvider 
       const workdir = await mkdtemp(join(tmpdir(), 'genesis-codex-image-'))
       const outputPath = join(workdir, 'generated.png')
       const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs)
+      let runPromise: Promise<CodexCliRunResult> | undefined
+      let timeout: ReturnType<typeof setTimeout> | undefined
       try {
         await writeFile(join(workdir, 'request.txt'), promptFor(request, outputPath), 'utf8')
-        const result = await this.runner(promptFor(request, outputPath), workdir, controller.signal)
+        runPromise = this.runner(promptFor(request, outputPath), workdir, controller.signal)
+        const timedResult = new Promise<CodexCliRunResult>((resolveResult, rejectResult) => {
+          timeout = setTimeout(() => {
+            controller.abort()
+            rejectResult(new Error('Codex CLI image generation timed out'))
+          }, this.config.timeoutMs)
+          runPromise!.then(resolveResult, rejectResult)
+        })
+        const result = await timedResult
         if (controller.signal.aborted) {
           const error = failure('timeout', 'Codex CLI image generation timed out')
           return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error) }
@@ -140,12 +181,13 @@ export class CodexCliImageGenerationProvider implements ImageGenerationProvider 
           return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error) }
         }
       } catch {
+        if (controller.signal.aborted && runPromise) await Promise.race([runPromise.catch(() => undefined), new Promise<void>((resolveResult) => setTimeout(resolveResult, 500))])
         const error = failure(controller.signal.aborted ? 'timeout' : attempt === attempts ? 'provider_unavailable' : 'generation_failed', controller.signal.aborted ? 'Codex CLI image generation timed out' : 'Codex CLI could not be started')
         if (error.code === 'generation_failed') continue
         return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error) }
       } finally {
-        clearTimeout(timeout)
-        await rm(workdir, { recursive: true, force: true })
+        if (timeout !== undefined) clearTimeout(timeout)
+        await rm(workdir, { recursive: true, force: true }).catch(() => undefined)
       }
     }
     throw new Error('Image generation attempt policy exhausted')
