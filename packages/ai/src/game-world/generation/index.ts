@@ -1,7 +1,7 @@
 export type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 export type { GameGenerationStageName, GameGenerationStageStatus, GameGenerationTrace, GameGenerationTraceStage, GameWorldGenerationDiagnostics, GameWorldGenerationResult, GameWorldGenerationSource } from './GameWorldGenerationDiagnostics'
 export type { GameWorldGenerationProvider } from './GameWorldGenerationProvider'
-export type { StructuredGenerationClient } from './StructuredGenerationClient'
+export type { StructuredGenerationClient, StructuredGenerationRequest } from './StructuredGenerationClient'
 export type { StructuredGenerationAttempt, StructuredGenerationFailureReason, StructuredGenerationReliabilityConfig, StructuredGenerationRequestOptions } from './StructuredGenerationReliability'
 export { DEFAULT_STRUCTURED_GENERATION_RELIABILITY, StructuredGenerationError } from './StructuredGenerationReliability'
 export type { GameDesignCapabilities, GameDesignPrompt, GameDesignPromptBuilder } from './GameDesignPromptBuilder'

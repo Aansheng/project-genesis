@@ -1,9 +1,12 @@
 import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 import type { GameDesignPrompt } from './GameDesignPromptBuilder'
 import type { StructuredGenerationRequestOptions } from './StructuredGenerationReliability'
+import type { WorldEvolutionStructuredGenerationRequest } from '../../world-evolution/WorldEvolutionStructuredGenerationRequest'
+
+export type StructuredGenerationRequest = GameWorldGenerationRequest | WorldEvolutionStructuredGenerationRequest
 
 /** Minimal model boundary; implementations may use any structured-output vendor. */
 export interface StructuredGenerationClient {
   getProviderMetadata?(): { readonly provider: string; readonly model?: string }
-  generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown>
+  generateStructured(request: StructuredGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown>
 }

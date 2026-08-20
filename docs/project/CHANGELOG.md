@@ -1,5 +1,23 @@
 # Changelog
 
+### WO-S14-001 — World Evolution Intent, Semantic Delta & Operation History Foundation
+
+- Added the provider-neutral `WorldEvolutionRequest`, semantic intent,
+  immutable `WorldSemanticDelta`, target resolution, validation, operation
+  history, safe planning stages, and correlated evolution domain events.
+- Reused the existing API/Codex structured-generation boundary. The current
+  semantic world is explicit context; no Runtime, AssetManifest, Renderer, or
+  world rebuild occurs during planning.
+- Connected real planning facts to Observatory History, Diff, Timeline, Trace,
+  and Event Stream. Diff is labelled `PLANNED · Runtime unchanged`; a new
+  world clears prior evolution projections.
+- Added ADR-0256 and Sprint 14 backlog documentation. Architecture version
+  v1.141 → v1.142.
+- Regression and real browser verification passed for Farm creation,
+  “把所有牛改成羊”, target IDs `cow-1`/`cow-2`/`cow-3`, Observatory
+  correlation, and Runtime non-mutation. Code Complete = YES; Product
+  Verified = YES.
+
 ### WO-OBS-001 — Observatory Truth Audit & Mock Retirement
 
 - Retired production dependence on the Sprint 6/v1.29 Observatory demo fixture;

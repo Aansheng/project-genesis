@@ -6,6 +6,7 @@
  * - additional genre keyword confidence boost:
  *   - contains "mario", "farm", "rpg", or "survival" → confidence = 1.0 (with creation keyword)
  *   - creation keyword only (no genre keyword) → confidence = 0.8
+ * - a supported evolution verb plus a known semantic target → route = world-evolution
  * - otherwise → route = unknown, confidence = 0.0
  *
  * Pure. Stateless. Deterministic. Immutable. Frozen output.
@@ -46,6 +47,17 @@ const KEYWORD_RPG = 'rpg'
 /** Survival genre keyword. */
 const KEYWORD_SURVIVAL = 'survival'
 
+const EVOLUTION_KEYWORDS = [
+  '把', '增加', '添加', '新增', '删除', '移除', '改成', '改为', '变成', '修改', '提升', '整个世界',
+  'add', 'remove', 'delete', 'replace', 'change', 'update', 'turn', 'make',
+] as const
+
+/** Semantic anchors currently understood by the v1 evolution planner. */
+const EVOLUTION_TARGET_KEYWORDS = [
+  '牛', '羊', '商人', '机器人', '村民', '史莱姆', '骷髅', '狼', 'boss', '世界', '夜晚', '白天', '主题',
+  'cow', 'sheep', 'merchant', 'robot', 'villager', 'slime', 'skeleton', 'wolf', 'world', 'night', 'day', 'theme',
+] as const
+
 // ---------------------------------------------------------------------------
 // Confidence levels
 // ---------------------------------------------------------------------------
@@ -65,6 +77,9 @@ const CONFIDENCE_UNKNOWN = 0.0
 
 /** Route for world creation intent. */
 const ROUTE_CREATE_WORLD: IntentRoute = 'create-world'
+
+/** Route for modifying the current semantic world. */
+const ROUTE_WORLD_EVOLUTION: IntentRoute = 'world-evolution'
 
 /** Route for unknown intent. */
 const ROUTE_UNKNOWN: IntentRoute = 'unknown'
@@ -99,6 +114,12 @@ function hasGenreKeyword(input: string): boolean {
   )
 }
 
+function hasEvolutionKeyword(input: string): boolean {
+  const lower = input.toLowerCase()
+  return EVOLUTION_KEYWORDS.some(keyword => lower.includes(keyword.toLowerCase())) &&
+    EVOLUTION_TARGET_KEYWORDS.some(keyword => lower.includes(keyword.toLowerCase()))
+}
+
 // ---------------------------------------------------------------------------
 // DefaultIntentRouter
 // ---------------------------------------------------------------------------
@@ -124,6 +145,10 @@ export class DefaultIntentRouter implements IntentRouter {
     if (hasCreate) {
       const confidence = hasGenre ? CONFIDENCE_DEFINITE : CONFIDENCE_STRONG
       return Object.freeze({ route: ROUTE_CREATE_WORLD, confidence })
+    }
+
+    if (hasEvolutionKeyword(input)) {
+      return Object.freeze({ route: ROUTE_WORLD_EVOLUTION, confidence: CONFIDENCE_STRONG })
     }
 
     return Object.freeze({ route: ROUTE_UNKNOWN, confidence: CONFIDENCE_UNKNOWN })

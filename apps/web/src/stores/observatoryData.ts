@@ -8,6 +8,8 @@ import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
+import type { WorldSemanticDelta, WorldEvolutionOperation } from '@genesis/shared'
+import type { WorldEvolutionPlanResult } from '@genesis/ai'
 
 export interface ObservatoryGenerationStage {
   readonly name: string
@@ -68,6 +70,58 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   const viewModel = ref<ObservatoryViewModel>(EMPTY_VIEW_MODEL)
   const bridgeData = ref<ObservatoryBridgeData>(EMPTY_BRIDGE_DATA)
   const generationTrace = ref<ObservatoryGenerationTrace | null>(null)
+
+  function recordWorldEvolution(plan: WorldEvolutionPlanResult): void {
+    const operation = plan.operation
+    const current = viewModel.value
+    const traceView = Object.freeze([
+      ...current.traceView,
+      buildEvolutionTrace(operation),
+    ])
+    const timelineView = Object.freeze([
+      ...current.timelineView,
+      buildEvolutionTimeline(operation),
+    ])
+    const historyView = Object.freeze([
+      ...current.historyView,
+      buildEvolutionHistory(operation),
+    ])
+    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta) : undefined
+    const diffView = diff ? Object.freeze([...current.diffView, diff]) : current.diffView
+    const events = Object.freeze([
+      ...operation.events.map(event => Object.freeze({
+        id: event.id,
+        timestamp: event.timestamp,
+        level: event.type === 'world.evolution.validation_failed' ? 'warning' as const : 'info' as const,
+        source: 'world-evolution',
+        message: event.message,
+      })),
+      ...current.eventStreamView.events,
+    ])
+    viewModel.value = Object.freeze({
+      ...current,
+      overview: Object.freeze({
+        traceCount: traceView.length,
+        timelineCount: timelineView.length,
+        historyCount: historyView.length,
+      }),
+      traceView,
+      timelineView,
+      historyView,
+      diffView,
+      eventStreamView: Object.freeze({ events }),
+    })
+  }
+
+  /** Keep only the active world's evolution projections in the current SPA session. */
+  function resetEvolution(_worldId: string): void {
+    const runtimeView = viewModel.value.runtimeView
+    viewModel.value = Object.freeze({
+      ...EMPTY_VIEW_MODEL,
+      runtimeView,
+    })
+    bridgeData.value = EMPTY_BRIDGE_DATA
+  }
 
   function loadGenerationTrace(raw: unknown): void {
     if (!isRecord(raw) || !isRecord(raw.trace)) {
@@ -137,9 +191,9 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   }
 
   /** Replace only the runtime section from the authoritative Runtime world. */
-  function loadRuntimeWorld(world: World): void {
+  function loadRuntimeWorld(world: World, worldId?: string): void {
     const runtimeView = {
-      worldId: '',
+      worldId: worldId ?? viewModel.value.runtimeView.worldId,
       entityCount: world.entities.length,
       systemCount: 0,
       eventCount: 0,
@@ -161,8 +215,9 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     }
 
     const next = adapter.adapt({ runtimeView })
+    const current = viewModel.value
     viewModel.value = Object.freeze({
-      ...EMPTY_VIEW_MODEL,
+      ...current,
       runtimeView: next.runtimeView,
     })
     bridgeData.value = EMPTY_BRIDGE_DATA
@@ -176,8 +231,86 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     loadMockObservatory,
     loadRealObservatory,
     loadRuntimeWorld,
+    recordWorldEvolution,
+    resetEvolution,
   }
 })
+
+function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryViewModel['traceView'][number] {
+  return Object.freeze({
+    id: `trace-${operation.operationId}`,
+    strategy: `World Evolution · ${operation.source}`,
+    timestamp: operation.createdAt,
+    plan: `${operation.instruction}\n\n${operation.stages.map(stage => `${stage.name}: ${stage.status}`).join('\n')}`,
+    snapshot: Object.freeze([
+      { key: 'operationId', value: operation.operationId },
+      { key: 'worldId', value: operation.worldId },
+      { key: 'status', value: operation.status },
+      { key: 'targets', value: operation.resolvedTargetIds.join(', ') || 'none' },
+    ]),
+    metadata: Object.freeze({
+      source: operation.source,
+      ...(operation.provider ? { provider: operation.provider } : {}),
+      ...(operation.model ? { model: operation.model } : {}),
+      operationId: operation.operationId,
+      worldId: operation.worldId,
+      status: operation.status,
+    }),
+    operationId: operation.operationId,
+    worldId: operation.worldId,
+    status: operation.status,
+  })
+}
+
+function buildEvolutionTimeline(operation: WorldEvolutionOperation): ObservatoryViewModel['timelineView'][number] {
+  return Object.freeze({
+    id: `timeline-${operation.operationId}`,
+    entryCount: operation.stages.length,
+    entries: Object.freeze(operation.stages.map((stage, index) => Object.freeze({
+      index,
+      strategy: `${stage.name} · ${stage.status}`,
+      timestamp: stage.timestamp,
+    }))),
+  })
+}
+
+function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryViewModel['historyView'][number] {
+  return Object.freeze({
+    id: `history-${operation.operationId}`,
+    timestamp: operation.createdAt,
+    prompt: operation.instruction,
+    result: operation.status === 'validated'
+      ? 'Validated plan; Runtime unchanged'
+      : `${operation.status}: ${operation.failureReason ?? 'no semantic delta produced'}`,
+    evolution: Object.freeze(operation.deltaSummary ? [{ name: operation.deltaSummary }] : []),
+    operationId: operation.operationId,
+    worldId: operation.worldId,
+    status: operation.status,
+  })
+}
+
+function buildEvolutionDiff(operation: WorldEvolutionOperation, delta: WorldSemanticDelta): ObservatoryViewModel['diffView'][number] {
+  const added: { readonly name: string }[] = []
+  const removed: { readonly name: string }[] = []
+  const changed: { readonly name: string }[] = []
+  for (const item of delta.operations) {
+    if (item.kind === 'add-entity') added.push({ name: `${item.semantic.name} ×${item.count}` })
+    if (item.kind === 'remove-entity') removed.push(...item.targetIds.map(id => ({ name: id })))
+    if (item.kind === 'replace-entity-semantic') changed.push(...item.targetIds.map((id, index) => ({ name: `${id}: ${item.from[index]?.name ?? item.from[0]?.name ?? 'semantic'} → ${item.replacement.name}` })))
+    if (item.kind === 'update-world-property') changed.push({ name: `${item.property}: ${item.from ?? 'unset'} → ${item.to}` })
+  }
+  return Object.freeze({
+    id: `diff-${operation.operationId}`,
+    timestamp: operation.createdAt,
+    added: Object.freeze(added),
+    removed: Object.freeze(removed),
+    changed: Object.freeze(changed),
+    operationId: operation.operationId,
+    worldId: operation.worldId,
+    status: 'planned' as const,
+    targetIds: Object.freeze([...operation.resolvedTargetIds]),
+  })
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null

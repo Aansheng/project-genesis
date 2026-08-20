@@ -16,13 +16,13 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification } from '@genesis/shared'
-import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider } from '@genesis/ai'
-import type { GameWorldGenerationProvider } from '@genesis/ai'
+import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, WorldEvolutionRequest } from '@genesis/shared'
+import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider } from '@genesis/ai'
+import type { GameWorldGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultAssetManifestBuilder } from '@genesis/shared'
 import { DefaultCommandExecutor } from '../command'
-import type { CommandExecutor } from '../command'
+import type { CommandExecutionResult, CommandExecutor } from '../command'
 import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenerationClient'
 import { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, groupAiGenerationRequirements } from '../assets/AssetGenerationPolicy'
@@ -64,11 +64,12 @@ export function createCommandExecutor(
   worldStore: RuntimeWorldStore,
   env: Record<string, string | undefined> = import.meta.env,
   fetcher: typeof fetch = globalThis.fetch.bind(globalThis),
-): { executor: CommandExecutor; useAsync: boolean } {
+): { executor: CommandExecutor; useAsync: boolean; evolutionPlanner?: WorldEvolutionPlanner } {
   const configuration = createAIConfiguration(env)
   const deterministicProvider = new DeterministicGameWorldGenerationProvider()
   let generationProvider: GameWorldGenerationProvider = deterministicProvider
   let useAsync = false
+  let evolutionPlanner: WorldEvolutionPlanner | undefined
 
   // The server owns runtime provider availability. The browser always uses the
   // gateway when one is known; unavailable/disabled server state is handled by
@@ -85,6 +86,15 @@ export function createCommandExecutor(
         new DefaultGameWorldValidator(),
       )
       generationProvider = new FallbackGameWorldGenerationProvider(modelProvider, deterministicProvider)
+      evolutionPlanner = new DefaultWorldEvolutionPlanner(
+        new StructuredWorldEvolutionCandidateProvider(
+          new BrowserStructuredGenerationClient(gatewayURL, fetcher),
+          {
+            maxOutputTokens: configuration.maxOutputTokens ?? 4000,
+            timeoutMs: configuration.timeoutMs ?? 30000,
+          },
+        ),
+      )
       useAsync = true
     } catch {
       // Missing browser permission or invalid configuration keeps the app deterministic.
@@ -100,7 +110,7 @@ export function createCommandExecutor(
     generationProvider,
   )
   const createWorldExecutor = new DefaultCreateWorldRuntimeExecutor(pipeline, worldStore)
-  return { executor: new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor), useAsync }
+  return { executor: new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor), useAsync, evolutionPlanner }
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -110,6 +120,9 @@ export const useGameStore = defineStore('game', () => {
   const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
   const renderVersion = ref(0)
   const worldRevision = ref(0)
+  const currentWorldId = ref('')
+  const semanticWorld = ref<GameWorldModel | null>(null)
+  const semanticProperties = ref<{ readonly theme?: string; readonly timeOfDay?: string }>({})
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
@@ -122,6 +135,7 @@ export const useGameStore = defineStore('game', () => {
       ?? null
   })
   let imageGenerationToken = 0
+  let evolutionOperationSequence = 0
   const scheduler = new VisualAssetGenerationScheduler<unknown>(1, (jobId, status) => {
     const operation = visualGenerationOperations.value[jobId]
     if (!operation || status === 'completed' || status === 'cancelled') return
@@ -138,7 +152,7 @@ export const useGameStore = defineStore('game', () => {
   const streamingFinished = ref(false)
   const useStreaming = ref(false)
 
-  const { executor: commandExecutor, useAsync: useAsyncGeneration } = createCommandExecutor(worldStore)
+  const { executor: commandExecutor, useAsync: useAsyncGeneration, evolutionPlanner } = createCommandExecutor(worldStore)
   const imageClient = new BrowserImageGenerationClient(imageGatewayURL(
     createAIConfiguration(import.meta.env).gatewayURL || DEFAULT_AI_GATEWAY_URL,
   ))
@@ -257,9 +271,16 @@ export const useGameStore = defineStore('game', () => {
     }))
   }
 
-  async function send(input: string) {
+  async function send(input: string): Promise<CommandExecutionResult> {
     commandStatus.value = 'running'
     try {
+      if (new DefaultIntentRouter().route(input).route === 'world-evolution') {
+        const result = await planEvolution(input, evolutionPlanner)
+        lastCommand.value = result
+        log.value.push(result.message)
+        commandStatus.value = result.success ? 'success' : 'error'
+        return result
+      }
       const result = useAsyncGeneration && commandExecutor.executeAsync
         ? await commandExecutor.executeAsync(input)
         : commandExecutor.execute(input)
@@ -273,9 +294,16 @@ export const useGameStore = defineStore('game', () => {
         imageGenerationToken++
         visualGenerationOperations.value = {}
         const gameDesignSpecification = result.generationDiagnostics?.specification
+        semanticWorld.value = result.semanticWorld ?? null
+        semanticProperties.value = gameDesignSpecification?.theme?.name
+          ? { theme: gameDesignSpecification.theme.name }
+          : {}
         const assetSpecification = buildAssetSpecification(gameDesignSpecification)
         assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)
         worldRevision.value++
+        currentWorldId.value = `world-${worldRevision.value}`
+        useObservatoryDataStore().resetEvolution(currentWorldId.value)
+        useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentWorldId.value)
         markWorldUpdated()
         if (assetSpecification) {
           const token = imageGenerationToken
@@ -292,7 +320,7 @@ export const useGameStore = defineStore('game', () => {
       }
       return result
     } catch (error) {
-      const result = {
+      const result: CommandExecutionResult = {
         success: false,
         message: error instanceof Error ? error.message : 'Command failed',
       }
@@ -303,6 +331,38 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function planEvolution(input: string, planner: WorldEvolutionPlanner | undefined): Promise<import('../command').CommandExecutionResult> {
+    if (!planner || semanticWorld.value === null || !currentWorldId.value) {
+      return { success: false, message: 'Cannot evolve: no current semantic world is available' }
+    }
+    const request: WorldEvolutionRequest = Object.freeze({
+      operationId: `evolution-${++evolutionOperationSequence}`,
+      instruction: input,
+      createdAt: new Date().toISOString(),
+      context: Object.freeze({
+        worldId: currentWorldId.value,
+        semanticWorld: semanticWorld.value,
+        properties: semanticProperties.value,
+      }),
+    })
+    const plan: WorldEvolutionPlanResult = await planner.plan(request)
+    if (plan.operation.worldId === currentWorldId.value) {
+      useObservatoryDataStore().recordWorldEvolution(plan)
+    }
+    if (plan.status === 'validated') {
+      return {
+        success: true,
+        message: `Planned world evolution: ${plan.delta.summary} (Runtime unchanged)`,
+        evolutionPlan: plan,
+      }
+    }
+    return {
+      success: false,
+      message: `World evolution ${plan.status}: ${plan.reason}`,
+      evolutionPlan: plan,
+    }
+  }
+
   return {
     runtime,
     worldStore,
@@ -310,6 +370,8 @@ export const useGameStore = defineStore('game', () => {
     assetManifest,
     renderVersion,
     worldRevision,
+    currentWorldId,
+    semanticWorld,
     selectedEntityId,
     selectedEntity,
     selectEntity,

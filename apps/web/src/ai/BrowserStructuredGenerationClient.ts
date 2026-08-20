@@ -1,4 +1,4 @@
-import type { GameDesignPrompt, GameWorldGenerationRequest, StructuredGenerationClient, StructuredGenerationRequestOptions } from '@genesis/ai'
+import type { GameDesignPrompt, StructuredGenerationClient, StructuredGenerationRequest, StructuredGenerationRequestOptions } from '@genesis/ai'
 
 export type BrowserGatewayFailureReason = 'timeout' | 'transport_error' | 'gateway_error'
 
@@ -20,7 +20,7 @@ export class BrowserStructuredGenerationClient implements StructuredGenerationCl
   ) {}
 
   async generateStructured(
-    request: GameWorldGenerationRequest,
+    request: StructuredGenerationRequest,
     _prompt?: GameDesignPrompt,
     options?: StructuredGenerationRequestOptions,
   ): Promise<unknown> {

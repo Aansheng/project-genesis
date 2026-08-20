@@ -65,6 +65,7 @@ export class DefaultCommandExecutor implements CommandExecutor {
           success: true,
           message: `Created world with ${entityCount} entit${entityCount === 1 ? 'y' : 'ies'}`,
           entityCount,
+          semanticWorld: pipelineResult.semanticWorld,
           generationDiagnostics: pipelineResult.generationDiagnostics,
         }
       }
@@ -95,6 +96,7 @@ export class DefaultCommandExecutor implements CommandExecutor {
           success: true,
           message: `Created world with ${entityCount} entit${entityCount === 1 ? 'y' : 'ies'}`,
           entityCount,
+          semanticWorld: pipelineResult.semanticWorld,
           generationDiagnostics: pipelineResult.generationDiagnostics,
         }
       }

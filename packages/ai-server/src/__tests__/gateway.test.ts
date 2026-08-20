@@ -20,6 +20,43 @@ describe('AI gateway', () => {
     )
   })
 
+  it('forwards world-evolution requests through the same structured client boundary', async () => {
+    const candidate = {
+      kind: 'replace-entity-semantic',
+      selector: { semantic: 'cow', match: 'all' },
+      replacement: { semantic: 'sheep' },
+    }
+    const client = { generateStructured: vi.fn().mockResolvedValue(candidate) }
+    const request = {
+      kind: 'world-evolution',
+      operationId: 'evolution-1',
+      instruction: '把所有牛改成羊',
+      context: {
+        worldId: 'world-a',
+        semanticWorld: {
+          worldType: 'sandbox',
+          entities: [{ id: 'cow-1', name: 'Cow', category: 'npc', semantic: 'cow' }],
+        },
+      },
+    }
+
+    const response = await createAIGatewayHandler(client)(new Request('http://gateway', {
+      method: 'POST',
+      body: JSON.stringify(request),
+      headers: { 'content-type': 'application/json' },
+    }))
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ candidate })
+    expect(client.generateStructured).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({
+        system: expect.stringContaining('world evolution'),
+        user: expect.stringContaining('把所有牛改成羊'),
+      }),
+    )
+  })
+
   it('hides provider failures and rejects malformed payloads', async () => {
     const failing = createAIGatewayHandler({ generateStructured: vi.fn().mockRejectedValue(new Error('secret')) })
     const failed = await failing(new Request('http://gateway', { method: 'POST', body: JSON.stringify({ input: 'x' }) }))

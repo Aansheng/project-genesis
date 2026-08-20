@@ -26,4 +26,15 @@ describe('CodexCliStructuredGenerationClient', () => {
     await expect(timeout.generateStructured(request)).rejects.toMatchObject({ reason: 'timeout' })
     expect(aborted).toHaveBeenCalledOnce()
   })
+
+  it('accepts the operation alias used by evolution candidates', async () => {
+    const runner = vi.fn().mockResolvedValue({
+      exitCode: 0,
+      stderr: '',
+      stdout: JSON.stringify({ operation: 'replace', target: { semantic: 'cow' }, replacement: { name: 'sheep' } }),
+    })
+    const client = new CodexCliStructuredGenerationClient({ timeoutMs: 100, maxAttempts: 1 }, runner)
+
+    await expect(client.generateStructured(request)).resolves.toMatchObject({ operation: 'replace' })
+  })
 })

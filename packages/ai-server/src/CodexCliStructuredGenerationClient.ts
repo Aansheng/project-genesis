@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import type { GameDesignPrompt, GameWorldGenerationRequest, StructuredGenerationClient, StructuredGenerationRequestOptions, StructuredGenerationFailureReason } from '@genesis/ai'
+import type { GameDesignPrompt, StructuredGenerationClient, StructuredGenerationRequest, StructuredGenerationRequestOptions, StructuredGenerationFailureReason } from '@genesis/ai'
 import { StructuredGenerationError } from '@genesis/ai'
 
 export interface CodexCliStructuredGenerationClientConfig {
@@ -19,7 +19,18 @@ export type CodexCliStructuredRunner = (prompt: string, signal: AbortSignal) => 
 const candidateShape = (value: unknown): value is Record<string, unknown> => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const record = value as Record<string, unknown>
-  return Array.isArray(record.entities) && (typeof record.genre === 'string' || typeof record.worldType === 'string')
+  const operation = typeof record.operation === 'string' ? record.operation : undefined
+  return (
+    Array.isArray(record.entities) && (typeof record.genre === 'string' || typeof record.worldType === 'string')
+  ) || (
+    (typeof record.kind === 'string' && [
+      'add', 'add-entity', 'remove', 'remove-entity', 'replace', 'replace-archetype',
+      'replace-entity', 'replace-entity-semantic', 'update-entity', 'update-entity-property',
+      'update-world', 'update-world-property',
+    ].includes(record.kind)) ||
+    (operation !== undefined && ['add', 'add-entity', 'remove', 'remove-entity', 'replace', 'replace-entity', 'replace-archetype', 'replace-entity-semantic', 'update-world', 'update-world-property', 'update-entity', 'update-entity-property'].includes(operation)) ||
+    (typeof record.action === 'string' && ['add', 'add-entity', 'remove', 'remove-entity', 'replace', 'replace-entity', 'replace-archetype', 'replace-entity-semantic', 'update-world', 'update-world-property', 'update-entity', 'update-entity-property'].includes(record.action))
+  )
 }
 
 function parseJsonText(value: string): unknown {
@@ -99,7 +110,7 @@ export class CodexCliStructuredGenerationClient implements StructuredGenerationC
     })
   }
 
-  async generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
+  async generateStructured(request: StructuredGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
     const maxAttempts = Math.max(1, Math.min(2, Math.trunc(this.config.maxAttempts)))
     const timeoutMs = options?.timeoutMs ?? this.config.timeoutMs
     const input = prompt ? `${prompt.system}\n\n${prompt.user}\n\nReturn only the JSON candidate object.` : JSON.stringify(request)

@@ -21,6 +21,7 @@ export type {
   GameWorldValidationResult,
   GameWorldValidator,
   StructuredGenerationClient,
+  StructuredGenerationRequest,
   GameDesignCapabilities,
   GameDesignPrompt,
   GameDesignPromptBuilder,

@@ -81,6 +81,29 @@ const UNKNOWN_RESULT: CreateWorldPipelineResult = Object.freeze({
   success: false,
 })
 
+function createSuccessfulResult(
+  world: World,
+  semanticWorld: GameWorldModel,
+  generationDiagnostics?: CreateWorldPipelineResult['generationDiagnostics'],
+): CreateWorldPipelineResult {
+  const result = {
+    route: ROUTE_CREATE_WORLD,
+    world,
+    success: true,
+    ...(generationDiagnostics ? { generationDiagnostics } : {}),
+  }
+
+  // Keep the old enumerable result shape stable while exposing the semantic
+  // snapshot to the web command boundary that owns the current session.
+  Object.defineProperty(result, 'semanticWorld', {
+    configurable: false,
+    enumerable: false,
+    value: semanticWorld,
+    writable: false,
+  })
+  return Object.freeze(result) as CreateWorldPipelineResult
+}
+
 // ---------------------------------------------------------------------------
 // DefaultCreateWorldPipeline
 // ---------------------------------------------------------------------------
@@ -172,11 +195,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     const projectionResult = this.projection.project(gameDsl)
 
     // Step 7: Return result
-    return Object.freeze({
-      route: ROUTE_CREATE_WORLD,
-      world: projectionResult.world,
-      success: true,
-    })
+    return createSuccessfulResult(projectionResult.world, gameWorldModel)
   }
 
   /** Async provider path reserved for LLM-backed generation; sync callers remain unchanged. */
@@ -216,7 +235,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
             : undefined,
         })
       : undefined
-    return Object.freeze({ route: ROUTE_CREATE_WORLD, world: projectionResult.world, success: true, ...(diagnostics ? { generationDiagnostics: diagnostics } : {}) })
+    return createSuccessfulResult(projectionResult.world, semanticWorld, diagnostics)
   }
 
   // -------------------------------------------------------------------------

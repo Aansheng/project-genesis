@@ -65,6 +65,9 @@ export interface TraceViewModel {
   readonly plan: string
   readonly snapshot: readonly TraceSnapshotEntryVM[]
   readonly metadata: Readonly<Record<string, unknown>>
+  readonly operationId?: string
+  readonly worldId?: string
+  readonly status?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -111,6 +114,7 @@ export interface HistoryDTO {
 export interface TimelineEntryViewModel {
   readonly index: number
   readonly strategy: string
+  readonly timestamp?: string
 }
 
 /**
@@ -146,6 +150,9 @@ export interface HistoryViewModel {
   readonly prompt: string
   readonly result: string
   readonly evolution: readonly HistoryEvolutionEntryViewModel[]
+  readonly operationId?: string
+  readonly worldId?: string
+  readonly status?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -169,6 +176,10 @@ export interface DiffViewModel {
   readonly added: readonly DiffChangeViewModel[]
   readonly removed: readonly DiffChangeViewModel[]
   readonly changed: readonly DiffChangeViewModel[]
+  readonly operationId?: string
+  readonly worldId?: string
+  readonly status?: 'planned' | 'applied'
+  readonly targetIds?: readonly string[]
 }
 
 // ---------------------------------------------------------------------------

@@ -62,6 +62,7 @@ defineProps<{
             <TimelineEntryCard
               :index="entry.index"
               :strategy="entry.strategy"
+              :timestamp="entry.timestamp"
             />
           </li>
         </ul>

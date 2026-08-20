@@ -4,6 +4,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   index: number
   strategy: string
+  timestamp?: string
 }>()
 
 const headingId = computed(() => `timeline-entry-${props.index}`)
@@ -24,6 +25,10 @@ const headingId = computed(() => `timeline-entry-${props.index}`)
       <span class="timeline-entry-card-strategy">
         {{ strategy }}
       </span>
+      <time
+        v-if="timestamp"
+        class="timeline-entry-card-time"
+      >{{ timestamp }}</time>
     </header>
   </article>
 </template>
@@ -58,5 +63,11 @@ const headingId = computed(() => `timeline-entry-${props.index}`)
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--obs-text, #f5f5f4);
+}
+
+.timeline-entry-card-time {
+  font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
+  font-size: 11px;
+  color: var(--obs-text-dim, #63636d);
 }
 </style>

@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import { StructuredGenerationError, type AIConfiguration, type GameDesignPrompt, type GameWorldGenerationRequest, type StructuredGenerationClient, type StructuredGenerationRequestOptions } from '@genesis/ai'
+import { StructuredGenerationError, type AIConfiguration, type GameDesignPrompt, type StructuredGenerationClient, type StructuredGenerationRequest, type StructuredGenerationRequestOptions } from '@genesis/ai'
 
 type OpenAIClient = Pick<OpenAI, 'chat'>
 
@@ -16,7 +16,7 @@ export class OpenAIStructuredGenerationClient implements StructuredGenerationCli
     return { provider: this.config.provider === 'openai-compatible' ? 'openai-compatible' : 'openai', model: this.config.model }
   }
 
-  async generateStructured(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
+  async generateStructured(request: StructuredGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
     const maxAttempts = Math.max(1, Math.min(2, Math.trunc(this.config.maxAttempts ?? 1)))
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -29,7 +29,7 @@ export class OpenAIStructuredGenerationClient implements StructuredGenerationCli
     throw new StructuredGenerationError('provider_error', 'Structured generation provider error')
   }
 
-  private async generateOnce(request: GameWorldGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
+  private async generateOnce(request: StructuredGenerationRequest, prompt?: GameDesignPrompt, options?: StructuredGenerationRequestOptions): Promise<unknown> {
     const timeoutMs = options?.timeoutMs ?? this.config.timeoutMs ?? 30000
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), timeoutMs)

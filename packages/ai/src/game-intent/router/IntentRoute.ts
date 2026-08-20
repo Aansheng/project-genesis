@@ -19,8 +19,9 @@
 /**
  * IntentRoute — the classified route for a user's natural language request.
  *
- * Two supported routes:
+ * Supported routes:
  * - 'create-world' — the user intends to create a new game world
+ * - 'world-evolution' — the user intends to modify the current semantic world
  * - 'unknown' — the intent cannot be determined
  */
-export type IntentRoute = 'create-world' | 'unknown'
+export type IntentRoute = 'create-world' | 'world-evolution' | 'unknown'

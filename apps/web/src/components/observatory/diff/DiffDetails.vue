@@ -21,9 +21,13 @@ defineProps<{
   >
     <template v-if="entry">
       <header class="diff-details-header">
-        <h2 class="diff-details-title">
-          Diff Details
-        </h2>
+          <h2 class="diff-details-title">
+            Diff Details
+          </h2>
+          <span
+            v-if="entry.status === 'planned'"
+            class="diff-status"
+          >PLANNED · Runtime unchanged</span>
         <dl class="diff-meta-grid">
           <div class="diff-meta-item">
             <dt class="diff-meta-label">
@@ -175,6 +179,16 @@ defineProps<{
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--obs-text-dim, #63636d);
+}
+
+.diff-status {
+  display: inline-block;
+  margin-bottom: var(--obs-space-3, 12px);
+  color: var(--obs-accent, #6e7bff);
+  font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .diff-meta-grid {

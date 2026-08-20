@@ -14,6 +14,7 @@
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { World } from '@genesis/shared'
+import type { GameWorldModel } from '@genesis/shared'
 import type { GameWorldGenerationDiagnostics } from '../../game-world/generation'
 
 export interface CreateWorldPipelineResult {
@@ -29,6 +30,9 @@ export interface CreateWorldPipelineResult {
    * this will be an empty World with no entities.
    */
   readonly world: World
+
+  /** The semantic snapshot used to compile this Runtime world. */
+  readonly semanticWorld?: GameWorldModel
 
   /**
    * Whether the pipeline completed successfully.
