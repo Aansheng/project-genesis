@@ -151,4 +151,34 @@ describe('DefaultAssetStore', () => {
     expect(store.get('terrain-main')?.assetId).toBe('terrain-main')
     expect(resolver.resolve).toHaveBeenCalledTimes(2)
   })
+
+  it('does not cache a stale in-flight result after targeted invalidation', async () => {
+    let releaseOld!: () => void
+    let releaseNew!: () => void
+    let calls = 0
+    const resolver = {
+      resolve: vi.fn(() => {
+        calls += 1
+        if (calls === 1) return new Promise<AssetResolutionResult>(resolve => {
+          releaseOld = () => resolve({ status: 'resolved', resource: { assetId: 'player-main', kind: 'character', target: 'entity', uri: '/old.png' } })
+        })
+        return new Promise<AssetResolutionResult>(resolve => {
+          releaseNew = () => resolve({ status: 'resolved', resource: { assetId: 'player-main', kind: 'character', target: 'entity', uri: '/new.png' } })
+        })
+      }),
+    }
+    const store = new DefaultAssetStore(resolver)
+    const old = store.resolve('player-main', manifest)
+    store.invalidate('player-main')
+    const next = store.resolve('player-main', manifest)
+
+    releaseOld()
+    await old
+    expect(store.get('player-main')).toBeUndefined()
+    releaseNew()
+    await next
+
+    expect(store.get('player-main')?.uri).toBe('/new.png')
+    expect(calls).toBe(2)
+  })
 })

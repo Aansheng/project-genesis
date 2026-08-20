@@ -39,6 +39,9 @@ export class PixiEnvironmentRenderer {
   private width: number
   private height: number
   private manifest: AssetManifest | null
+  private readonly assetUris = new Map<string, string>()
+  private readonly pendingAssetReplacements = new Set<string>()
+  private backgroundSprite: Sprite | null = null
   private generation = 0
 
   constructor(private readonly root: Container, options: PixiEnvironmentRendererOptions) {
@@ -56,6 +59,9 @@ export class PixiEnvironmentRenderer {
     this.createSprite = options.createSprite ?? ((texture) => new Sprite(texture))
     this.onAssetApplication = options.onAssetApplication
     this.manifest = options.assetManifest ?? null
+    for (const entry of this.manifest?.entries ?? []) {
+      if (entry.resource?.uri) this.assetUris.set(entry.assetId, entry.resource.uri)
+    }
     this.root.addChild(this.backgroundLayer, this.terrainLayer)
     this.drawFallbackBackground()
   }
@@ -75,10 +81,28 @@ export class PixiEnvironmentRenderer {
       }
     }
     const background = this.manifest?.entries.find(entry => entry.kind === 'background' && entry.status === 'resolved')
+    const preservedBackground = background && this.pendingAssetReplacements.has(background.assetId) ? this.backgroundSprite : null
+    this.backgroundLayer.removeChildren().forEach(child => {
+      if (child !== preservedBackground) child.destroy()
+    })
+    if (preservedBackground) this.backgroundLayer.addChild(preservedBackground)
     if (background && this.assetStore && this.assetAdapter) this.upgradeBackground(background.assetId, generation)
   }
 
   setAssetManifest(manifest: AssetManifest | undefined): void {
+    const nextUris = new Map<string, string>()
+    for (const entry of manifest?.entries ?? []) {
+      const nextUri = entry.resource?.uri
+      if (!nextUri) continue
+      nextUris.set(entry.assetId, nextUri)
+      const previousUri = this.assetUris.get(entry.assetId)
+      if (previousUri && nextUri !== previousUri) {
+        this.pendingAssetReplacements.add(entry.assetId)
+        this.assetAdapter?.invalidate?.(entry.assetId)
+      }
+    }
+    this.assetUris.clear()
+    for (const [assetId, uri] of nextUris) this.assetUris.set(assetId, uri)
     this.manifest = manifest ?? null
   }
 
@@ -99,6 +123,7 @@ export class PixiEnvironmentRenderer {
     const fallback = this.createGraphics()
     fallback.beginFill(0x0c0d10).drawRect(0, 0, this.width, this.height).endFill()
     this.backgroundLayer.addChild(fallback)
+    this.backgroundSprite = null
   }
 
   private resolveTexture(assetId: string): Promise<Texture> {
@@ -132,6 +157,8 @@ export class PixiEnvironmentRenderer {
       sprite.x = (this.width - sprite.width) / 2; sprite.y = (this.height - sprite.height) / 2
       this.backgroundLayer.removeChildren().forEach(child => child.destroy())
       this.backgroundLayer.addChild(sprite)
+      this.backgroundSprite = sprite
+      this.pendingAssetReplacements.delete(assetId)
       this.onAssetApplication?.({ assetId, status: 'applied' })
     }).catch(() => this.onAssetApplication?.({ assetId, status: 'failed', reason: 'resolution' }))
   }

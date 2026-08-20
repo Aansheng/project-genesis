@@ -9,6 +9,8 @@ export type {
   VisualEvolutionPlanner,
   VisualEvolutionPlanningOptions,
   VisualEvolutionStatus,
+  VisualAssetExecutionResult,
+  VisualAssetExecutionStatus,
   VisualRequirementReplacement,
   VisualWorldImpact,
 } from './VisualEvolution'

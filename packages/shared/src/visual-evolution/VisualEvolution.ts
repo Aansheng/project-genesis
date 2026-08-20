@@ -7,6 +7,37 @@ import type { EvolutionWorldProperty } from '../world-evolution/WorldEvolution'
 
 export type VisualEvolutionStatus = 'planned' | 'no_visual_impact' | 'already_planned' | 'failed'
 
+/** Execution state after a visual delta has been planned. */
+export type VisualAssetExecutionStatus =
+  | 'queued'
+  | 'executing'
+  | 'generated'
+  | 'manifest_rebound'
+  | 'completed'
+  | 'failed'
+  | 'stale'
+  | 'already_synced'
+
+/** Provider-independent execution facts safe for Observatory/UI consumption. */
+export interface VisualAssetExecutionResult {
+  readonly operationId: string
+  readonly worldId: string
+  readonly semanticRevision: number
+  readonly visualRevision: number
+  readonly status: VisualAssetExecutionStatus
+  readonly generationRequiredAssetIds: readonly string[]
+  readonly generatedCanonicalAssetIds: readonly string[]
+  readonly reboundAssetIds: readonly string[]
+  readonly removedAssetIds: readonly string[]
+  readonly retainedAssetIds: readonly string[]
+  readonly failedAssetIds: readonly string[]
+  readonly fallbackAssetIds: readonly string[]
+  readonly rendererAppliedEntityIds: readonly string[]
+  readonly manifestRevision: number
+  readonly previousVisualRetained: boolean
+  readonly failureReason?: string
+}
+
 export type VisualEvolutionFailureReason =
   | 'invalid_mutation'
   | 'invalid_runtime_evolution'

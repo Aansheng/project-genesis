@@ -8,7 +8,7 @@ import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
-import type { WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan } from '@genesis/shared'
+import type { WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan, VisualAssetExecutionResult } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
 
 export interface ObservatoryGenerationStage {
@@ -77,14 +77,14 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     const traceView = upsertById(current.traceView, buildEvolutionTrace(operation))
     const timelineView = upsertById(current.timelineView, buildEvolutionTimeline(operation))
     const historyView = upsertById(current.historyView, buildEvolutionHistory(operation))
-    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation, plan.runtimeSync, plan.visualPlan) : undefined
+    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation, plan.runtimeSync, plan.visualPlan, plan.visualExecution) : undefined
     const diffView = diff ? upsertById(current.diffView, diff) : current.diffView
     const operationEventIds = new Set(operation.events.map(event => event.id))
     const events = Object.freeze([
       ...operation.events.map(event => Object.freeze({
         id: event.id,
         timestamp: event.timestamp,
-        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed' || event.type === 'world.evolution.visual_delta_failed'
+        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed' || event.type === 'world.evolution.visual_delta_failed' || event.type === 'world.evolution.visual_sync_failed'
           ? 'error' as const
           : event.type === 'world.evolution.validation_failed' || event.type === 'world.evolution.needs_clarification'
             ? 'warning' as const
@@ -257,6 +257,14 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.visualRevision !== undefined ? [{ key: 'visualRevision', value: String(operation.visualRevision) }] : []),
       ...(operation.visualPlanning ? [{ key: 'visualPlanning', value: operation.visualPlanning }] : []),
       ...(operation.visualGenerationRequired !== undefined ? [{ key: 'visualGenerationRequired', value: String(operation.visualGenerationRequired) }] : []),
+      ...(operation.assetExecution ? [{ key: 'assetExecution', value: operation.assetExecution }] : []),
+      ...(operation.assetGenerationStarted !== undefined ? [{ key: 'assetGenerationStarted', value: String(operation.assetGenerationStarted) }] : []),
+      ...(operation.assetGenerated !== undefined ? [{ key: 'assetGenerated', value: String(operation.assetGenerated) }] : []),
+      ...(operation.assetManifestRevision !== undefined ? [{ key: 'assetManifestRevision', value: String(operation.assetManifestRevision) }] : []),
+      ...(operation.assetRebound !== undefined ? [{ key: 'assetRebound', value: String(operation.assetRebound) }] : []),
+      ...(operation.assetRemoved !== undefined ? [{ key: 'assetRemoved', value: String(operation.assetRemoved) }] : []),
+      ...(operation.assetRendererApplied !== undefined ? [{ key: 'assetRendererApplied', value: String(operation.assetRendererApplied) }] : []),
+      ...(operation.visualSynchronization ? [{ key: 'visualSynchronization', value: operation.visualSynchronization }] : []),
       { key: 'targets', value: operation.resolvedTargetIds.join(', ') || 'none' },
     ]),
     metadata: Object.freeze({
@@ -272,6 +280,14 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.visualRevision !== undefined ? { visualRevision: operation.visualRevision } : {}),
       ...(operation.visualPlanning ? { visualPlanning: operation.visualPlanning } : {}),
       ...(operation.visualGenerationRequired !== undefined ? { visualGenerationRequired: operation.visualGenerationRequired } : {}),
+      ...(operation.assetExecution ? { assetExecution: operation.assetExecution } : {}),
+      ...(operation.assetGenerationStarted !== undefined ? { assetGenerationStarted: operation.assetGenerationStarted } : {}),
+      ...(operation.assetGenerated !== undefined ? { assetGenerated: operation.assetGenerated } : {}),
+      ...(operation.assetManifestRevision !== undefined ? { assetManifestRevision: operation.assetManifestRevision } : {}),
+      ...(operation.assetRebound !== undefined ? { assetRebound: operation.assetRebound } : {}),
+      ...(operation.assetRemoved !== undefined ? { assetRemoved: operation.assetRemoved } : {}),
+      ...(operation.assetRendererApplied !== undefined ? { assetRendererApplied: operation.assetRendererApplied } : {}),
+      ...(operation.visualSynchronization ? { visualSynchronization: operation.visualSynchronization } : {}),
     }),
     operationId: operation.operationId,
     worldId: operation.worldId,
@@ -297,13 +313,41 @@ function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryV
     || operation.status === 'runtime_sync_failed'
     || operation.status === 'visual_delta_planned'
     || operation.status === 'visual_planning_failed'
+    || operation.status === 'asset_execution_started'
+    || operation.status === 'asset_generation_started'
+    || operation.status === 'asset_generated'
+    || operation.status === 'manifest_rebound'
+    || operation.status === 'asset_resolved'
+    || operation.status === 'renderer_applied'
+    || operation.status === 'visual_sync_completed'
+    || operation.status === 'visual_sync_failed'
+    || operation.status === 'asset_execution_stale'
+    || operation.status === 'asset_execution_already_synced'
   const semanticFailed = operation.status === 'semantic_application_failed'
   const runtimeFailed = operation.status === 'runtime_sync_failed'
   const runtimeSynchronized = operation.status === 'runtime_synchronized'
     || operation.status === 'visual_delta_planned'
     || operation.status === 'visual_planning_failed'
+    || operation.status === 'asset_execution_started'
+    || operation.status === 'asset_generation_started'
+    || operation.status === 'asset_generated'
+    || operation.status === 'manifest_rebound'
+    || operation.status === 'asset_resolved'
+    || operation.status === 'renderer_applied'
+    || operation.status === 'visual_sync_completed'
+    || operation.status === 'visual_sync_failed'
+    || operation.status === 'asset_execution_stale'
+    || operation.status === 'asset_execution_already_synced'
   const visualPlanned = operation.status === 'visual_delta_planned'
   const visualFailed = operation.status === 'visual_planning_failed'
+  const assetInProgress = operation.status === 'asset_execution_started'
+    || operation.status === 'asset_generation_started'
+    || operation.status === 'asset_generated'
+    || operation.status === 'manifest_rebound'
+    || operation.status === 'asset_resolved'
+    || operation.status === 'renderer_applied'
+  const assetCompleted = operation.status === 'visual_sync_completed' || operation.status === 'asset_execution_already_synced'
+  const assetFailed = operation.status === 'visual_sync_failed' || operation.status === 'asset_execution_stale'
   const runtimeResult = operation.runtimeSynchronization === 'no_runtime_impact'
     ? 'Runtime no runtime impact'
     : 'Runtime synchronized'
@@ -314,7 +358,15 @@ function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryV
     id: `history-${operation.operationId}`,
     timestamp: operation.createdAt,
     prompt: operation.instruction,
-    result: visualPlanned
+    result: assetCompleted
+      ? operation.status === 'asset_execution_already_synced'
+        ? `Semantic change applied; ${runtimeResult}; Asset execution already synchronized`
+        : `Semantic change applied; ${runtimeResult}; Asset execution completed; Visual synchronized`
+      : assetFailed
+        ? `Semantic change applied; ${runtimeResult}; Asset execution failed; Previous visual retained: ${operation.failureReason ?? 'unknown error'}`
+        : assetInProgress
+          ? `Semantic change applied; ${runtimeResult}; Visual delta planned; Asset execution pending`
+        : visualPlanned
       ? `Semantic change applied; ${runtimeResult}; Visual delta planned; ${visualResult}`
       : visualFailed
         ? `Semantic change applied; ${runtimeResult}; Visual planning failed: ${operation.failureReason ?? 'unknown error'}`
@@ -343,6 +395,14 @@ function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryV
     ...(operation.visualRevision !== undefined ? { visualRevision: operation.visualRevision } : {}),
     ...(operation.visualPlanning ? { visualPlanning: operation.visualPlanning } : {}),
     ...(operation.visualGenerationRequired !== undefined ? { visualGenerationRequired: operation.visualGenerationRequired } : {}),
+    ...(operation.assetExecution ? { assetExecution: operation.assetExecution } : {}),
+    ...(operation.assetGenerationStarted !== undefined ? { assetGenerationStarted: operation.assetGenerationStarted } : {}),
+    ...(operation.assetGenerated !== undefined ? { assetGenerated: operation.assetGenerated } : {}),
+    ...(operation.assetManifestRevision !== undefined ? { assetManifestRevision: operation.assetManifestRevision } : {}),
+    ...(operation.assetRebound !== undefined ? { assetRebound: operation.assetRebound } : {}),
+    ...(operation.assetRemoved !== undefined ? { assetRemoved: operation.assetRemoved } : {}),
+    ...(operation.assetRendererApplied !== undefined ? { assetRendererApplied: operation.assetRendererApplied } : {}),
+    ...(operation.visualSynchronization ? { visualSynchronization: operation.visualSynchronization } : {}),
     ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }
@@ -353,6 +413,7 @@ function buildEvolutionDiff(
   mutation?: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>['mutation'],
   runtimeSync?: RuntimeEvolutionResult,
   visualPlan?: VisualEvolutionPlan,
+  visualExecution?: VisualAssetExecutionResult,
 ): ObservatoryViewModel['diffView'][number] {
   const added: { readonly name: string }[] = []
   const removed: { readonly name: string }[] = []
@@ -393,6 +454,13 @@ function buildEvolutionDiff(
       changed.push({ name: `Asset execution: ${visualPlan.noVisualImpactReason}` })
     }
   }
+  if (visualExecution) {
+    if (visualExecution.generatedCanonicalAssetIds.length > 0) changed.push({ name: `Asset generated: ${visualExecution.generatedCanonicalAssetIds.join(', ')}` })
+    if (visualExecution.reboundAssetIds.length > 0) changed.push({ name: `Manifest rebound: ${visualExecution.reboundAssetIds.length} targeted binding(s)` })
+    if (visualExecution.removedAssetIds.length > 0) changed.push({ name: `Manifest removed: ${visualExecution.removedAssetIds.join(', ')}` })
+    if (visualExecution.status === 'failed' || visualExecution.status === 'stale') changed.push({ name: `Asset execution failed; previous visual retained` })
+    if (visualExecution.status === 'completed') changed.push({ name: `Renderer applied: ${visualExecution.rendererAppliedEntityIds.length} entity binding(s)` })
+  }
   return Object.freeze({
     id: `diff-${operation.operationId}`,
     timestamp: operation.createdAt,
@@ -401,7 +469,7 @@ function buildEvolutionDiff(
     changed: Object.freeze(changed),
     operationId: operation.operationId,
     worldId: operation.worldId,
-    status: operation.status === 'semantic_applied' || operation.status === 'runtime_synchronized' || operation.status === 'runtime_sync_failed' || operation.status === 'visual_delta_planned' || operation.status === 'visual_planning_failed'
+    status: operation.status === 'semantic_applied' || operation.status === 'runtime_synchronized' || operation.status === 'runtime_sync_failed' || operation.status === 'visual_delta_planned' || operation.status === 'visual_planning_failed' || operation.status === 'asset_execution_started' || operation.status === 'asset_generation_started' || operation.status === 'asset_generated' || operation.status === 'manifest_rebound' || operation.status === 'asset_resolved' || operation.status === 'renderer_applied' || operation.status === 'visual_sync_completed' || operation.status === 'visual_sync_failed' || operation.status === 'asset_execution_stale' || operation.status === 'asset_execution_already_synced'
       ? 'applied' as const
       : 'planned' as const,
     targetIds: Object.freeze([...operation.resolvedTargetIds]),
@@ -427,6 +495,14 @@ function buildEvolutionDiff(
       visualBindingOnlyEntityIds: Object.freeze([...new Set(visualPlan.bindingOnlyChanges.flatMap(change => change.entityId ? [change.entityId] : []))]),
       visualOrphanedAssetIds: Object.freeze([...visualPlan.assetImpactPlan.orphanedAssetIds]),
     } : {}),
+    ...(operation.assetExecution ? { assetExecution: operation.assetExecution } : {}),
+    ...(operation.assetGenerationStarted !== undefined ? { assetGenerationStarted: operation.assetGenerationStarted } : {}),
+    ...(operation.assetGenerated !== undefined ? { assetGenerated: operation.assetGenerated } : {}),
+    ...(operation.assetManifestRevision !== undefined ? { assetManifestRevision: operation.assetManifestRevision } : {}),
+    ...(operation.assetRebound !== undefined ? { assetRebound: operation.assetRebound } : {}),
+    ...(operation.assetRemoved !== undefined ? { assetRemoved: operation.assetRemoved } : {}),
+    ...(operation.assetRendererApplied !== undefined ? { assetRendererApplied: operation.assetRendererApplied } : {}),
+    ...(operation.visualSynchronization ? { visualSynchronization: operation.visualSynchronization } : {}),
     ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }

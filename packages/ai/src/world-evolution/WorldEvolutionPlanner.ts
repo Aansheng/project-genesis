@@ -64,6 +64,7 @@ export type WorldEvolutionPlanResult =
       readonly mutation?: SemanticWorldMutationResult
       readonly runtimeSync?: RuntimeEvolutionResult
       readonly visualPlan?: VisualEvolutionPlan
+      readonly visualExecution?: import('@genesis/shared').VisualAssetExecutionResult
     }
   | {
       readonly status: 'needs_clarification' | 'unsupported' | 'failed'

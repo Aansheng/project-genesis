@@ -159,6 +159,14 @@ export interface HistoryViewModel {
   readonly visualRevision?: number
   readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
   readonly visualGenerationRequired?: number
+  readonly assetExecution?: 'pending' | 'running' | 'completed' | 'failed' | 'stale' | 'already_synced'
+  readonly assetGenerationStarted?: number
+  readonly assetGenerated?: number
+  readonly assetManifestRevision?: number
+  readonly assetRebound?: number
+  readonly assetRemoved?: number
+  readonly assetRendererApplied?: number
+  readonly visualSynchronization?: 'pending' | 'synchronized' | 'failed' | 'previous_retained'
   readonly failureReason?: string
 }
 
@@ -196,6 +204,14 @@ export interface DiffViewModel {
   readonly visualRevision?: number
   readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
   readonly visualGenerationRequired?: number
+  readonly assetExecution?: 'pending' | 'running' | 'completed' | 'failed' | 'stale' | 'already_synced'
+  readonly assetGenerationStarted?: number
+  readonly assetGenerated?: number
+  readonly assetManifestRevision?: number
+  readonly assetRebound?: number
+  readonly assetRemoved?: number
+  readonly assetRendererApplied?: number
+  readonly visualSynchronization?: 'pending' | 'synchronized' | 'failed' | 'previous_retained'
   readonly visualAffectedArchetypes?: readonly string[]
   readonly visualBindingOnlyEntityIds?: readonly string[]
   readonly visualOrphanedAssetIds?: readonly string[]

@@ -1,5 +1,25 @@
 # Changelog
 
+### WO-S14-005 — Targeted Asset Execution, Manifest Rebinding & Incremental Visual Synchronization
+
+- Added the deterministic `VisualAssetEvolutionExecutor` consuming only the
+  S14-004 planner-owned canonical generation set. Existing image client,
+  scheduler, AssetStore, and Pixi seams remain the execution boundaries.
+- Cow ×3 → Sheep now produces one Sheep generation request, keeps the previous
+  visual active while work is pending, and rebinds all three stable asset IDs
+  to one validated generated resource. Add, replace, background-only night,
+  partial remove, and all-remove paths remain targeted.
+- Added generation-safe targeted AssetStore invalidation, identity-preserving
+  manifest rebinding with manifest revision facts, stale world/revision/token
+  rejection, idempotency, and failure fallback with semantic/Runtime state
+  retained.
+- Connected real asset execution and renderer application stages/events to
+  Observatory History, Diff, Timeline, Trace, Event Stream, and Generation
+  Trace. Added executor, store, renderer, and web integration coverage.
+- Added ADR-0260. Architecture version v1.145 → v1.146. Code Complete = YES;
+  Product Verified = PENDING — the primary controlled Cow ×3 → Sheep browser
+  scenario passed, while the remaining live matrix is still pending.
+
 ### WO-S14-004 — Visual Delta Planning & Targeted Asset Impact Analysis
 
 - Added the provider-independent deterministic `DefaultVisualEvolutionPlanner`

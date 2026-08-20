@@ -1,4 +1,5 @@
 import type { EntityCategory, GameWorldModel } from '../game-world'
+import type { VisualAssetExecutionResult } from '../visual-evolution/VisualEvolution'
 
 /** The semantic breadth of an evolution request. */
 export type EvolutionScope = 'entity' | 'archetype-group' | 'world'
@@ -165,6 +166,16 @@ export type WorldEvolutionOperationStatus =
   | 'visual_impact_analyzing'
   | 'visual_delta_planned'
   | 'visual_planning_failed'
+  | 'asset_execution_started'
+  | 'asset_generation_started'
+  | 'asset_generated'
+  | 'manifest_rebound'
+  | 'asset_resolved'
+  | 'renderer_applied'
+  | 'visual_sync_completed'
+  | 'visual_sync_failed'
+  | 'asset_execution_stale'
+  | 'asset_execution_already_synced'
 
 export type WorldEvolutionStageName =
   | 'REQUEST_RECEIVED'
@@ -182,6 +193,14 @@ export type WorldEvolutionStageName =
   | 'VISUAL_IMPACT_STARTED'
   | 'VISUAL_DELTA_PLANNED'
   | 'VISUAL_DELTA_FAILED'
+  | 'ASSET_EXECUTION_STARTED'
+  | 'ASSET_GENERATION_STARTED'
+  | 'ASSET_GENERATED'
+  | 'MANIFEST_REBOUND'
+  | 'ASSET_RESOLVED'
+  | 'RENDERER_APPLIED'
+  | 'VISUAL_SYNC_COMPLETED'
+  | 'VISUAL_SYNC_FAILED'
 
 export type WorldEvolutionStageStatus = 'success' | 'failed' | 'not-applicable'
 
@@ -206,6 +225,13 @@ export type WorldEvolutionEventType =
   | 'world.evolution.visual_impact_started'
   | 'world.evolution.visual_delta_planned'
   | 'world.evolution.visual_delta_failed'
+  | 'world.evolution.asset_execution_started'
+  | 'world.evolution.asset_generation_started'
+  | 'world.evolution.asset_generated'
+  | 'world.evolution.manifest_rebound'
+  | 'world.evolution.renderer_applied'
+  | 'world.evolution.visual_sync_completed'
+  | 'world.evolution.visual_sync_failed'
 
 export interface WorldEvolutionEvent {
   readonly id: string
@@ -232,6 +258,15 @@ export interface WorldEvolutionOperation {
   readonly visualRevision?: number
   readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
   readonly visualGenerationRequired?: number
+  readonly assetExecution?: 'pending' | 'running' | 'completed' | 'failed' | 'stale' | 'already_synced'
+  readonly assetGenerationStarted?: number
+  readonly assetGenerated?: number
+  readonly assetManifestRevision?: number
+  readonly assetRebound?: number
+  readonly assetRemoved?: number
+  readonly assetRendererApplied?: number
+  readonly visualSynchronization?: 'pending' | 'synchronized' | 'failed' | 'previous_retained'
+  readonly visualExecution?: VisualAssetExecutionResult
   readonly source: WorldEvolutionSource
   readonly provider?: string
   readonly model?: string

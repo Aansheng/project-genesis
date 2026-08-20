@@ -7,13 +7,14 @@ world evolution while keeping the current semantic world authoritative.
 
 `Natural Language → WorldEvolutionRequest → WorldEvolutionIntent →
 WorldSemanticDelta → semantic application → targeted Runtime synchronization →
-visual impact analysis → targeted asset impact plan → Observatory`
+visual impact analysis → targeted asset impact plan → canonical asset execution →
+manifest/store rebinding → incremental Renderer synchronization → Observatory`
 
-Semantic application, Runtime synchronization, and visual planning are
-separate commits. S14-003 applies only the targeted Runtime delta after
-semantic commit. S14-004 plans only immutable visual/specification deltas; it
-must not mutate AssetManifest, Renderer assets, generated image state, or the
-generation scheduler.
+Semantic application, Runtime synchronization, visual planning, and visual
+execution are separate commits. S14-003 applies only the targeted Runtime
+delta after semantic commit. S14-004 plans immutable visual/specification
+deltas. S14-005 executes only the planner-owned canonical set and mutates only
+affected manifest/store/renderer bindings.
 
 ## Completed
 
@@ -85,11 +86,35 @@ generation scheduler.
   background-only night planning, Runtime/entity continuity, Observatory lifecycle,
   zero console errors, and unchanged image count through no-generation changes.
 
+### WO-S14-005 — Targeted Asset Execution, Manifest Rebinding & Incremental Visual Synchronization
+
+- Added `VisualAssetEvolutionExecutor` at the existing web asset-policy seam.
+  It consumes only S14-004 `generationRequired` canonical requirements and
+  reuses the existing image client, FIFO scheduler, AssetStore, and Pixi
+  manifest application path.
+- Cow ×3 → Sheep issues exactly one Sheep request, preserves the old visual
+  while queued/generating/applying, then rebinds all three stable bindings to
+  one generated resource. Add/replace/night/remove paths remain targeted;
+  unrelated manifest entries preserve identity and partial shared removals do
+  not retire the remaining resource.
+- Added generation-safe targeted invalidation, off-to-side manifest validation,
+  manifest revision facts, stale world/revision/token rejection, queued-job
+  cancellation handoff, idempotent execution, and failure fallback that keeps
+  semantic/Runtime state unchanged.
+- Connected `ASSET_EXECUTION_STARTED` through `VISUAL_SYNC_COMPLETED`/failed
+  stages and real domain events to Observatory, including generation counts,
+  manifest rebinds, renderer-applied bindings, and previous-visual retention.
+- Added executor, AssetStore, renderer, and web integration regression tests.
+- Architecture version: v1.145 → v1.146.
+- Code Complete: YES.
+- Product Verified: PENDING — the primary controlled Cow ×3 → Sheep browser
+  scenario passed; the remaining multi-scenario matrix and direct movement-input
+  subcheck remain required.
+
 ## Next Work Order Boundary
 
-### WO-S14-005 — Canonical Visual Delta Execution
+### WO-S14-006 — Durable Generated Asset Lifecycle
 
-Execute only the canonical generation-required set produced by S14-004, then
-apply manifest/store/renderer changes with explicit binding and orphan safety.
-Keep unchanged assets untouched and preserve Runtime/player/camera/loop
-continuity.
+Only address durable generated-asset storage, URI lifecycle, cleanup, and
+recovery if S14-005 browser verification confirms those are the next product
+bottlenecks. Do not expand into animation, undo, or a scheduler redesign.

@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.145
+Architecture version: v1.146
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -24,7 +24,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Targeted archetype impact analysis | YES | YES | NO | NO |
 | Canonical generation-required set | YES | YES | NO | NO |
 | Visual revision/session correlation | YES | YES | NO | NO |
-| Asset generated | NO | YES | NO | NO |
+| Asset generated | NO | YES | YES | YES for successful targeted execution |
 | Asset manifest | YES | YES | YES | NO |
 | Partial resolution representation | YES | YES | YES | NO |
 | Actual asset store | NO | NO | YES | YES |
@@ -50,8 +50,8 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Reference-guided request | YES | NO | NO | NO |
 | Real image provider | NO | NO | NO | NOT YET |
 | Generated asset storage | NO | NO | NO | NOT YET |
-| Generated asset → manifest | NO | NO | NO | NOT YET |
-| AI-generated sprite | NO | NO | NO | NOT YET |
+| Generated asset → manifest | YES | YES | YES | YES for targeted session bindings |
+| AI-generated sprite | YES | YES | YES | YES through incremental Pixi replacement with primitive fallback |
 | Real text-to-image provider | YES | NO | YES | NO |
 | Server-side image gateway | YES | NO | YES | NO |
 | Generated image artifact | YES | YES | YES | YES for environment and character operations |
@@ -85,11 +85,14 @@ names. Stable entity asset IDs remain per-entity, while matching archetypes
 share one generation operation/resource with multiple bindings. Grouping keeps
 enemy species, NPC/animal/prop names, and incompatible visual contexts distinct.
 
-WO-S14-004 adds planning, but not execution, for semantic world evolution. The
-current session stores immutable VisualDesignSpecification and
-AssetSpecification revisions; the planner reports canonical additions,
-replacements, removals/orphans, rebinding, unaffected assets, and world-level
-visual dependencies. Theme/palette changes are broad eligible impact and the
-current `timeOfDay` policy is background-only. `AssetManifest`, `AssetStore`,
-image-generation operations, Pixi textures, and renderer bindings remain
-unchanged until WO-S14-005.
+WO-S14-004 adds deterministic planning and WO-S14-005 executes only its
+canonical generation-required set. The current session stores immutable
+VisualDesignSpecification and AssetSpecification revisions; the planner reports
+canonical additions, replacements, removals/orphans, rebinding, unaffected
+assets, and world-level visual dependencies. The executor validates generated
+resources, commits targeted manifest updates, invalidates only affected
+AssetStore entries, and lets the existing Pixi entity/environment renderers
+replace affected sprites/textures incrementally. Theme/palette changes are
+broad eligible impact and the current `timeOfDay` policy is background-only.
+Generated URIs remain session-owned; durable storage, binary decode/optimization,
+animation, and undo remain deferred.

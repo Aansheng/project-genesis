@@ -13,6 +13,8 @@ import type { Graphics, Sprite } from 'pixi.js'
 
 export interface RenderEntityView {
   readonly id: string
+  /** Asset binding currently associated with this entity, when one exists. */
+  readonly assetId?: string
   readonly graphics: Graphics
   readonly sprite?: Sprite
   readonly displayObject?: Graphics | Sprite

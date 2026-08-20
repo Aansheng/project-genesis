@@ -132,6 +132,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _cameraAnchor: Readonly<{ x: number; y: number }>
   private _assetManifest: AssetManifest | null
   private _assetUris = new Map<string, string>()
+  private readonly _pendingAssetReplacements = new Set<string>()
   private readonly _assetStore: AssetStore | null
   private readonly _assetAdapter: PixiAssetAdapter | null
   private readonly _createSprite: (texture: Texture) => Sprite
@@ -171,6 +172,11 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       this._container.position.y = this._cameraAnchor.y - camera.y
     }
 
+    // Keep an already-visible generated Sprite for a changed binding until the
+    // replacement texture is ready. Primitive-only views still follow the
+    // existing clear-and-render path.
+    const preservedViews = this.detachPendingAssetViews()
+
     // Clear previous render
     this.clear()
     const generation = this._renderGeneration
@@ -181,9 +187,20 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       if (!entity.position) continue
       if (this.isEnvironmentRendered(entity.type)) continue
 
+      const preserved = preservedViews.get(entity.id)
+      if (preserved?.sprite) {
+        preserved.sprite.x = entity.position.x
+        preserved.sprite.y = entity.position.y
+        this._container.addChild(preserved.sprite)
+        views.push(preserved)
+        this.tryUpgradeToSprite(entity.id, preserved, this.resolveVisual(entity.type), entity.position, generation)
+        continue
+      }
+
       const gfx = this._createGraphics()
       const visual = this.resolveVisual(entity.type)
       const color = this.resolveColor(entity.type)
+      const assetEntry = this._assetManifest?.entries.find(entry => entry.entityId === entity.id)
 
       gfx.beginFill(color)
 
@@ -205,6 +222,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
       const view: RenderEntityView = {
         id: entity.id,
+        ...(assetEntry ? { assetId: assetEntry.assetId } : {}),
         graphics: gfx,
         displayObject: gfx,
       }
@@ -244,15 +262,35 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   }
 
   setAssetManifest(manifest: AssetManifest | undefined): void {
-    if (manifest && this._assetAdapter) {
-      for (const entry of manifest.entries) {
-        const nextUri = entry.resource?.uri
-        const previousUri = this._assetUris.get(entry.assetId)
-        if (nextUri && previousUri && nextUri !== previousUri) this._assetAdapter.invalidate?.(entry.assetId)
-        if (nextUri) this._assetUris.set(entry.assetId, nextUri)
+    const nextUris = new Map<string, string>()
+    for (const entry of manifest?.entries ?? []) {
+      const nextUri = entry.resource?.uri
+      if (!nextUri) continue
+      nextUris.set(entry.assetId, nextUri)
+      const previousUri = this._assetUris.get(entry.assetId)
+      if (previousUri && nextUri !== previousUri) {
+        this._pendingAssetReplacements.add(entry.assetId)
+        this._assetAdapter?.invalidate?.(entry.assetId)
       }
     }
+    this._assetUris = nextUris
     this._assetManifest = manifest ?? null
+  }
+
+  private detachPendingAssetViews(): Map<string, RenderEntityView> {
+    const preserved = new Map<string, RenderEntityView>()
+    if (!this._pendingAssetReplacements.size) return preserved
+    const remaining: RenderEntityView[] = []
+    for (const view of this._entityViews) {
+      if (view.assetId && this._pendingAssetReplacements.has(view.assetId) && view.sprite) {
+        this._container.removeChild(view.sprite)
+        preserved.set(view.id, view)
+      } else {
+        remaining.push(view)
+      }
+    }
+    this._entityViews = remaining
+    return preserved
   }
 
   private tryUpgradeToSprite(
@@ -280,6 +318,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         if (generation !== this._renderGeneration || !this._entityViews.includes(view)) return
         try {
           this.upgrade(view, texture, visual, position)
+          this._pendingAssetReplacements.delete(entry.assetId)
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'applied' })
         } catch {
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'failed', reason: 'renderer' })
@@ -308,8 +347,10 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     sprite.x = position.x
     sprite.y = position.y
 
-    this._container.removeChild(view.graphics)
-    view.graphics.destroy()
+    const previousDisplay = view.sprite ?? view.graphics
+    this._container.removeChild(previousDisplay)
+    if (view.sprite) view.sprite.destroy({ texture: false, baseTexture: false })
+    else view.graphics.destroy()
     this._container.addChild(sprite)
     Object.assign(view, { sprite, displayObject: sprite })
   }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Container, Graphics, Sprite, Texture } from 'pixi.js'
 import type { AssetManifest } from '@genesis/shared'
 import type { AssetStore, AssetResolutionResult, ResolvedAssetResource } from '@genesis/assets'
@@ -126,5 +126,62 @@ describe('Pixi sprite rendering foundation', () => {
     expect(view.sprite).toBeUndefined()
     expect(view.displayObject).toBe(view.graphics)
     expect(applications).toEqual([{ assetId: 'player-asset', entityId: 'player', status: 'failed', reason: 'resolution' }])
+  })
+
+  it('retains an existing Sprite while a rebound resource is loading', async () => {
+    let releaseNewTexture!: (texture: Texture) => void
+    let currentResource = resource
+    const oldTexture = { width: 24, height: 24 } as Texture
+    const newTexture = { width: 24, height: 24 } as Texture
+    const oldSpriteDestroy = vi.fn()
+    const adapter: PixiAssetAdapter = {
+      load: (nextResource) => nextResource.uri === '/new.png'
+        ? new Promise(resolve => { releaseNewTexture = resolve })
+        : Promise.resolve(oldTexture),
+      invalidate: vi.fn(),
+      clear() {},
+    }
+    const assetStore: AssetStore = {
+      get: () => currentResource,
+      has: () => true,
+      resolve: async () => ({ status: 'resolved' as const, resource: currentResource }),
+      invalidate: () => {},
+      clear: () => {},
+    }
+    const sprites: Sprite[] = []
+    const c = container()
+    const renderer = new DefaultPixiEntityRenderer(c, {
+      createGraphics: graphics,
+      assetManifest: manifest,
+      assetStore,
+      assetAdapter: adapter,
+      createSprite: () => {
+        const next = { ...sprite(), destroy: oldSpriteDestroy } as unknown as Sprite
+        sprites.push(next)
+        return next
+      },
+    })
+
+    const first = renderer.render(world()).entities[0]
+    await Promise.resolve()
+    await Promise.resolve()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(first.sprite).toBeDefined()
+    const oldSprite = first.sprite
+
+    currentResource = { ...resource, uri: '/new.png' }
+    renderer.setAssetManifest({ entries: [{ ...manifest.entries[0]!, resource: { uri: '/new.png' } }] })
+    const rebound = renderer.render(world()).entities[0]
+    expect(rebound.displayObject).toBe(oldSprite)
+    expect(c.children).toEqual([oldSprite])
+
+    await Promise.resolve()
+    await Promise.resolve()
+    releaseNewTexture(newTexture)
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(rebound.sprite).toBe(sprites[1])
+    expect(c.children).toEqual([sprites[1]])
+    expect(oldSpriteDestroy).toHaveBeenCalledOnce()
   })
 })

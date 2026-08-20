@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Container, Graphics, Sprite, Texture } from 'pixi.js'
 import type { AssetManifest } from '@genesis/shared'
 import type { AssetStore, AssetResolutionResult, ResolvedAssetResource } from '@genesis/assets'
@@ -113,5 +113,23 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
     const terrainLayer = root.children[1] as unknown as Container & { position: { x: number; y: number } }
     expect(terrainLayer.position.x).toBe(350)
     expect(terrainLayer.position.y).toBe(280)
+  })
+
+  it('invalidates only a changed environment resource when the manifest is rebound', () => {
+    const root = rootContainer()
+    const invalidate = vi.fn()
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      assetManifest: manifest,
+      assetAdapter: { load: async () => ({ width: 1024, height: 1024 } as Texture), invalidate, clear() {} },
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+    })
+
+    renderer.setAssetManifest({ entries: [{ ...manifest.entries[0]!, resource: { uri: '/night.png' } }] })
+
+    expect(invalidate).toHaveBeenCalledOnce()
+    expect(invalidate).toHaveBeenCalledWith('terrain-main')
   })
 })

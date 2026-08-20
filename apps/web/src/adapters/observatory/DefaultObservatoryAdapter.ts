@@ -305,6 +305,26 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         ? { visualPlanning: safeGet<'pending' | 'planned' | 'no_visual_impact' | 'failed'>(item, 'visualPlanning') }
         : {}),
       ...(typeof safeGet(item, 'visualGenerationRequired') === 'number' ? { visualGenerationRequired: safeGet<number>(item, 'visualGenerationRequired') } : {}),
+      ...(safeGet(item, 'assetExecution') === 'pending'
+        || safeGet(item, 'assetExecution') === 'running'
+        || safeGet(item, 'assetExecution') === 'completed'
+        || safeGet(item, 'assetExecution') === 'failed'
+        || safeGet(item, 'assetExecution') === 'stale'
+        || safeGet(item, 'assetExecution') === 'already_synced'
+        ? { assetExecution: safeGet<'pending' | 'running' | 'completed' | 'failed' | 'stale' | 'already_synced'>(item, 'assetExecution') }
+        : {}),
+      ...(typeof safeGet(item, 'assetGenerationStarted') === 'number' ? { assetGenerationStarted: safeGet<number>(item, 'assetGenerationStarted') } : {}),
+      ...(typeof safeGet(item, 'assetGenerated') === 'number' ? { assetGenerated: safeGet<number>(item, 'assetGenerated') } : {}),
+      ...(typeof safeGet(item, 'assetManifestRevision') === 'number' ? { assetManifestRevision: safeGet<number>(item, 'assetManifestRevision') } : {}),
+      ...(typeof safeGet(item, 'assetRebound') === 'number' ? { assetRebound: safeGet<number>(item, 'assetRebound') } : {}),
+      ...(typeof safeGet(item, 'assetRemoved') === 'number' ? { assetRemoved: safeGet<number>(item, 'assetRemoved') } : {}),
+      ...(typeof safeGet(item, 'assetRendererApplied') === 'number' ? { assetRendererApplied: safeGet<number>(item, 'assetRendererApplied') } : {}),
+      ...(safeGet(item, 'visualSynchronization') === 'pending'
+        || safeGet(item, 'visualSynchronization') === 'synchronized'
+        || safeGet(item, 'visualSynchronization') === 'failed'
+        || safeGet(item, 'visualSynchronization') === 'previous_retained'
+        ? { visualSynchronization: safeGet<'pending' | 'synchronized' | 'failed' | 'previous_retained'>(item, 'visualSynchronization') }
+        : {}),
       ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
   }
@@ -464,6 +484,26 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         ? { visualPlanning: safeGet<'pending' | 'planned' | 'no_visual_impact' | 'failed'>(item, 'visualPlanning') }
         : {}),
       ...(typeof safeGet(item, 'visualGenerationRequired') === 'number' ? { visualGenerationRequired: safeGet<number>(item, 'visualGenerationRequired') } : {}),
+      ...(safeGet(item, 'assetExecution') === 'pending'
+        || safeGet(item, 'assetExecution') === 'running'
+        || safeGet(item, 'assetExecution') === 'completed'
+        || safeGet(item, 'assetExecution') === 'failed'
+        || safeGet(item, 'assetExecution') === 'stale'
+        || safeGet(item, 'assetExecution') === 'already_synced'
+        ? { assetExecution: safeGet<'pending' | 'running' | 'completed' | 'failed' | 'stale' | 'already_synced'>(item, 'assetExecution') }
+        : {}),
+      ...(typeof safeGet(item, 'assetGenerationStarted') === 'number' ? { assetGenerationStarted: safeGet<number>(item, 'assetGenerationStarted') } : {}),
+      ...(typeof safeGet(item, 'assetGenerated') === 'number' ? { assetGenerated: safeGet<number>(item, 'assetGenerated') } : {}),
+      ...(typeof safeGet(item, 'assetManifestRevision') === 'number' ? { assetManifestRevision: safeGet<number>(item, 'assetManifestRevision') } : {}),
+      ...(typeof safeGet(item, 'assetRebound') === 'number' ? { assetRebound: safeGet<number>(item, 'assetRebound') } : {}),
+      ...(typeof safeGet(item, 'assetRemoved') === 'number' ? { assetRemoved: safeGet<number>(item, 'assetRemoved') } : {}),
+      ...(typeof safeGet(item, 'assetRendererApplied') === 'number' ? { assetRendererApplied: safeGet<number>(item, 'assetRendererApplied') } : {}),
+      ...(safeGet(item, 'visualSynchronization') === 'pending'
+        || safeGet(item, 'visualSynchronization') === 'synchronized'
+        || safeGet(item, 'visualSynchronization') === 'failed'
+        || safeGet(item, 'visualSynchronization') === 'previous_retained'
+        ? { visualSynchronization: safeGet<'pending' | 'synchronized' | 'failed' | 'previous_retained'>(item, 'visualSynchronization') }
+        : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'visualAffectedArchetypes')) ? { visualAffectedArchetypes: Object.freeze(stringList(safeGet<unknown[]>(item, 'visualAffectedArchetypes'))) } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'visualBindingOnlyEntityIds')) ? { visualBindingOnlyEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'visualBindingOnlyEntityIds'))) } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'visualOrphanedAssetIds')) ? { visualOrphanedAssetIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'visualOrphanedAssetIds'))) } : {}),

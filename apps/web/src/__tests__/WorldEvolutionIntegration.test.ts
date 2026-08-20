@@ -79,6 +79,29 @@ function gateway(): typeof fetch {
   }) as typeof fetch
 }
 
+function gatewayWithImages(): { readonly fetcher: typeof fetch; readonly imageRequests: readonly { readonly assetId: string; readonly visualArchetype?: string }[] } {
+  const imageRequests: { assetId: string; visualArchetype?: string }[] = []
+  const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body ?? '{}')) as { assetId?: string; visualArchetype?: string; kind?: string; input?: string; instruction?: string }
+    if (body.assetId) {
+      imageRequests.push({ assetId: body.assetId, ...(body.visualArchetype ? { visualArchetype: body.visualArchetype } : {}) })
+      return Response.json({
+        status: 'success',
+        assetId: body.assetId,
+        mode: 'text-to-image',
+        asset: {
+          assetId: body.assetId,
+          resource: { uri: `/generated/${body.visualArchetype ?? body.assetId}.png` },
+          metadata: { width: 64, height: 64 },
+          generationMode: 'text-to-image',
+        },
+      })
+    }
+    return gateway()(_input, init)
+  }) as typeof fetch
+  return { fetcher, imageRequests }
+}
+
 describe('World Evolution Studio integration', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -99,13 +122,14 @@ describe('World Evolution Studio integration', () => {
 
     expect(result.success).toBe(true)
     expect(result.evolutionPlan?.status).toBe('validated')
-    expect(result.evolutionPlan?.operation.status).toBe('visual_delta_planned')
+    expect(result.evolutionPlan?.operation.status).toBe('asset_execution_started')
     expect(game.semanticRevision).toBe(1)
     expect(game.semanticWorld?.entities.filter(entity => entity.id.startsWith('cow-')).map(entity => entity.name)).toEqual(['Sheep', 'Sheep', 'Sheep'])
     expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
     expect(game.assetManifest).toBe(beforeManifestReference)
-    expect(Object.keys(game.visualGenerationOperations)).toEqual(beforeImageOperationIds)
+    expect(Object.keys(game.visualGenerationOperations)).toEqual(expect.arrayContaining(beforeImageOperationIds))
+    expect(Object.keys(game.visualGenerationOperations).length).toBeGreaterThan(beforeImageOperationIds.length)
     expect(game.visualDesignSpecification?.entities.filter(entity => entity.entityId.startsWith('cow-')).map(entity => entity.visualArchetype)).toEqual(['Sheep', 'Sheep', 'Sheep'])
     expect(game.assetSpecification?.assets.filter(asset => asset.entityId?.startsWith('cow-')).map(asset => asset.visualArchetype)).toEqual(['Sheep', 'Sheep', 'Sheep'])
     expect(game.assetSpecification?.assets.find(asset => asset.entityId === 'player-1')).toBe(beforePlayerAsset)
@@ -137,8 +161,9 @@ describe('World Evolution Studio integration', () => {
       'RUNTIME_SYNC_COMPLETED · success',
       'VISUAL_IMPACT_STARTED · success',
       'VISUAL_DELTA_PLANNED · success',
+      'ASSET_EXECUTION_STARTED · success',
     ])
-    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'visual_delta_planned', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1, visualRevision: 1, visualPlanning: 'planned', visualGenerationRequired: 1 })
+    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'asset_execution_started', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1, visualRevision: 1, visualPlanning: 'planned', visualGenerationRequired: 1, assetExecution: 'running' })
     expect(observatory.viewModel.eventStreamView.events.map(event => event.source)).toContain('world-evolution')
     expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).toContain('Semantic world mutation applied; Runtime synchronization started')
     expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).not.toContain('Semantic world mutation applied; Runtime synchronization pending')
@@ -184,7 +209,7 @@ describe('World Evolution Studio integration', () => {
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
     const addedPlan = added.evolutionPlan
     expect(addedPlan?.status).toBe('validated')
-    expect(addedPlan?.operation.status).toBe('visual_delta_planned')
+    expect(addedPlan?.operation.status).toBe('asset_execution_started')
     if (addedPlan?.status === 'validated') expect(addedPlan.visualPlan?.generationRequired).toHaveLength(1)
     expect(observatory.viewModel.diffView[0]?.added.map(item => item.name)).toEqual([
       'merchant-1: Merchant', 'merchant-2: Merchant', 'merchant-3: Merchant',
@@ -210,11 +235,47 @@ describe('World Evolution Studio integration', () => {
     const result = await game.send('删除 Boss')
 
     expect(result.success).toBe(true)
-    expect(result.evolutionPlan?.operation.status).toBe('visual_delta_planned')
+    expect(result.evolutionPlan?.operation.status).toBe('visual_sync_completed')
     expect(game.semanticWorld?.entities.some(entity => entity.id === 'boss-1')).toBe(false)
     expect(game.worldStore.getWorld().entities.some(entity => entity.id === 'boss-1')).toBe(false)
     expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
     expect(observatory.viewModel.diffView.at(-1)?.removed).toEqual([{ name: 'boss-1' }])
     expect(observatory.viewModel.diffView.at(-1)?.visualGenerationRequired).toBe(0)
+  })
+
+  it('executes one Sheep request, rebinds three assets, and completes after targeted renderer callbacks', async () => {
+    const controlled = gatewayWithImages()
+    vi.stubGlobal('fetch', controlled.fetcher)
+    const game = useGameStore()
+    const observatory = useObservatoryDataStore()
+    await game.send('创建一个农场游戏，3头牛')
+
+    const evolution = await game.send('把所有牛改成羊')
+    expect(evolution.success).toBe(true)
+    await vi.waitFor(() => expect(controlled.imageRequests.filter(request => request.visualArchetype === 'Sheep')).toHaveLength(1))
+    await vi.waitFor(() => expect(game.assetManifest.entries.filter(entry => entry.entityId?.startsWith('cow-') && entry.origin === 'generated')).toHaveLength(3))
+
+    expect(controlled.imageRequests.filter(request => request.visualArchetype === 'Sheep')).toHaveLength(1)
+    expect(game.assetManifest.entries.filter(entry => entry.entityId?.startsWith('cow-')).map(entry => entry.resource?.uri)).toEqual([
+      '/generated/Sheep.png', '/generated/Sheep.png', '/generated/Sheep.png',
+    ])
+    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'cow-1', 'cow-2', 'cow-3', 'crop-1', 'barn-1'])
+
+    const sheepOperation = Object.values(game.visualGenerationOperations).find(operation => operation.visualArchetype === 'Sheep' && operation.stage === 'applying')
+    expect(sheepOperation).toBeDefined()
+    for (const entityId of ['cow-1', 'cow-2', 'cow-3']) {
+      game.reportAssetApplication({ assetId: `entity-${entityId}-primary`, entityId, status: 'applied' })
+    }
+    await vi.waitFor(() => expect(observatory.viewModel.historyView[0]?.result).toContain('Visual synchronized'))
+    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'visual_sync_completed', assetExecution: 'completed', assetGenerated: 1, assetRebound: 3, assetRendererApplied: 3 })
+    expect(observatory.viewModel.timelineView[0]?.entries.map(entry => entry.strategy)).toEqual(expect.arrayContaining([
+      'ASSET_EXECUTION_STARTED · success',
+      'ASSET_GENERATION_STARTED · success',
+      'ASSET_GENERATED · success',
+      'MANIFEST_REBOUND · success',
+      'ASSET_RESOLVED · success',
+      'RENDERER_APPLIED · success',
+      'VISUAL_SYNC_COMPLETED · success',
+    ]))
   })
 })

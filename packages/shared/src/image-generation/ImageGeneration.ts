@@ -21,6 +21,9 @@ export type ImageGenerationFailureCode =
   | 'generation_failed'
   | 'timeout'
   | 'invalid_output'
+  | 'stale_operation'
+  | 'manifest_commit_failed'
+  | 'renderer_failed'
 
 export interface ImageGenerationSource {
   readonly assetId: string
