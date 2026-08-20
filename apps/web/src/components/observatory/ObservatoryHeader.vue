@@ -44,6 +44,12 @@ function onLanguageChange(event: Event): void {
       >{{ store.version }}</span>
     </div>
     <div class="header-right">
+      <RouterLink
+        class="game-link"
+        to="/"
+      >
+        Game
+      </RouterLink>
       <div class="locale-switcher">
         <select
           class="locale-select"
@@ -125,7 +131,28 @@ function onLanguageChange(event: Event): void {
 .header-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: var(--obs-space-4);
+}
+
+.game-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--obs-accent);
+  font-family: var(--obs-font-mono);
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.game-link:hover {
+  color: var(--obs-text);
+}
+
+.game-link:focus-visible {
+  border-radius: var(--obs-radius-s);
+  outline: 2px solid var(--obs-accent);
+  outline-offset: 3px;
 }
 
 .locale-switcher {

@@ -8,12 +8,6 @@ onUnmounted(() => document.body.classList.remove('observatory'))
 
 <template>
   <main class="observatory-page">
-    <RouterLink
-      class="game-link"
-      to="/"
-    >
-      Game
-    </RouterLink>
     <ObservatoryShell />
   </main>
 </template>
@@ -26,16 +20,5 @@ body.observatory {
   min-width: 1280px;
   overflow-x: hidden;
   background: #0a0a0b;
-}
-
-.observatory-page .game-link {
-  position: fixed;
-  z-index: 10;
-  top: 16px;
-  right: 168px;
-  color: #8caaff;
-  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
-  font-size: 12px;
-  text-decoration: none;
 }
 </style>

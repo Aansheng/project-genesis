@@ -26,7 +26,29 @@ import ObservatoryEventStream from '../components/observatory/events/Observatory
 // ---------------------------------------------------------------------------
 
 function mountShell(): VueWrapper {
-  return mount(ObservatoryShell)
+  return mount(ObservatoryShell, {
+    global: {
+      stubs: {
+        RouterLink: {
+          props: ['to'],
+          template: '<a :href="to"><slot /></a>',
+        },
+      },
+    },
+  })
+}
+
+function mountHeader(): VueWrapper {
+  return mount(ObservatoryHeader, {
+    global: {
+      stubs: {
+        RouterLink: {
+          props: ['to'],
+          template: '<a :href="to"><slot /></a>',
+        },
+      },
+    },
+  })
 }
 
 function mountSidebar(attachTo?: HTMLElement): VueWrapper {
@@ -135,28 +157,36 @@ describe('observatory header', () => {
   })
 
   it('renders the observatory title in the header', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('.header-title').text()).toBe('Observatory')
   })
 
   it('renders the status badge with Ready', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('.header-badge').text()).toContain('Ready')
   })
 
   it('renders the current architecture version', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('.header-version').text()).toBe('v1.141')
   })
 
   it('renders the current phase on the right side', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('.header-sprint').text()).toBe('Post-Sprint 13')
+  })
+
+  it('keeps the Game link in the header right layout flow', () => {
+    const wrapper = mountHeader()
+    const right = wrapper.find('.header-right')
+
+    expect(right.find('.game-link').attributes('href')).toBe('/')
+    expect(right.find('.locale-switcher').exists()).toBe(true)
   })
 
   it('updates the status badge when the store status changes', async () => {
     const store = useObservatoryStore()
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     store.setStatus('Building')
     await nextTick()
     expect(wrapper.find('.header-badge').text()).toContain('Building')
@@ -164,24 +194,24 @@ describe('observatory header', () => {
 
   it('updates the version when the store version changes', async () => {
     const store = useObservatoryStore()
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     store.setVersion('v1.30')
     await nextTick()
     expect(wrapper.find('.header-version').text()).toBe('v1.30')
   })
 
   it('exposes an accessible status role', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('.header-badge').attributes('role')).toBe('status')
   })
 
   it('exposes an accessible banner landmark', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('header').attributes('role')).toBe('banner')
   })
 
   it('exposes an accessible label on the version element', () => {
-    const wrapper = mount(ObservatoryHeader)
+    const wrapper = mountHeader()
     expect(wrapper.find('.header-version').attributes('aria-label')).toBe(
       'Version',
     )
