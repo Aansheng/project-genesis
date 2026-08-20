@@ -5,8 +5,8 @@
 export interface WorldNodeData {
   id: string
   name: string
-  type: 'world' | 'location' | 'npc' | 'quest'
-  status: 'active' | 'inactive'
+  type: string
+  status: 'active' | 'inactive' | 'empty'
 }
 </script>
 
@@ -111,7 +111,7 @@ defineProps<{
   background: var(--obs-success, #4ade80);
 }
 
-.world-graph-node--inactive .world-graph-node-status-dot {
+.world-graph-node--empty .world-graph-node-status-dot {
   background: var(--obs-text-dim, #63636d);
 }
 
@@ -135,7 +135,7 @@ defineProps<{
   border-color: rgba(74, 222, 128, 0.25);
 }
 
-.world-graph-node--inactive {
+.world-graph-node--empty {
   border-color: rgba(99, 99, 109, 0.25);
 }
 </style>

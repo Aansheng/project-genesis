@@ -353,7 +353,7 @@ describe('Genesis Studio Shell Foundation', () => {
     await useGameStore(pinia).send('创建 MarioWorld')
     await nextTick()
     const panel = wrapper.find('.studio-observatory-panel')
-    expect(panel.text()).toContain('runtime-world')
+    expect(panel.text()).not.toContain('runtime-world')
     expect(panel.text()).toContain('6')
     expect(panel.text()).toContain('player')
     expect(panel.text()).toContain('terrain')

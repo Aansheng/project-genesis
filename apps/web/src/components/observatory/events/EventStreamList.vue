@@ -25,7 +25,7 @@ defineProps<{
     v-else
     class="event-stream-empty"
   >
-    No events
+    No events. No domain events available.
   </p>
 </template>
 

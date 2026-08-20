@@ -20,7 +20,18 @@
 | Provider configuration persistence | Server-memory only. Configuration is lost on AI-server restart; no browser or disk secret persistence. |
 | Gateway hardening | No authentication or rate limiting. Out of scope for the freeze. |
 | Visual generation | No visual asset system. Semantic theme/difficulty/roles remain preserve-only or generic primitive output. |
-| Legacy paths | MockPlanner and streaming state remain test-only/inert compatibility paths; mock Observatory hydration remains test/demo-only. |
+| Legacy paths | MockPlanner and streaming state remain test-only/inert compatibility paths. Observatory demo data is isolated under the Vitest fixture boundary and has no production hydration path. |
+
+## Observatory producers deferred to Sprint 14
+
+| Surface | Required authoritative producer |
+| --- | --- |
+| History | Session-scoped natural-language world evolution operations |
+| Diff | `WorldSemanticDelta` |
+| Timeline | Timestamped evolution planning/application lifecycle |
+| Trace | Correlated world-evolution operation chain |
+| Event Stream | Meaningful world-evolution domain events (not frame ticks) |
+| Execution Graph | Structured live operation graph, if product need is proven |
 
 ---
 

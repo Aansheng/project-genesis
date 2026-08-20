@@ -85,7 +85,7 @@ const metadataJson = computed(() =>
       v-else
       class="trace-empty"
     >
-      No trace selected
+      No trace selected. No trace available for the current session/operation.
     </p>
   </article>
 </template>

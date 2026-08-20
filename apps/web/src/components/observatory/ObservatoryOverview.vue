@@ -1,354 +1,91 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useObservatoryStore } from '../../stores/observatory'
+import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
-import { useI18n } from '../../stores/i18n'
+import { PROJECT_METADATA } from '../../projectMetadata'
 
-const store = useObservatoryStore()
+const gameStore = useGameStore()
 const dataStore = useObservatoryDataStore()
-const i18n = useI18n()
 
-// Mock data is intentionally test/demo-only; production starts empty/real.
-if (import.meta.env.MODE === 'test') dataStore.loadMockObservatory()
-
-interface Artifact {
-  key: 'trace' | 'timeline' | 'history'
-  count: number
-}
-
-/**
- * Artifact counts derived from ObservatoryViewModel via DefaultObservatoryAdapter.
- */
-const artifacts = computed<readonly Artifact[]>(() => {
-  const vm = dataStore.viewModel
-  return [
-    { key: 'trace', count: vm.overview.traceCount },
-    { key: 'timeline', count: vm.overview.timelineCount },
-    { key: 'history', count: vm.overview.historyCount },
-  ]
-})
-
-interface SnapshotItem {
-  key: string
-  value: number | boolean
-}
-
-/**
- * Snapshot items derived from the current ObservatoryViewModel.
- */
-const snapshotItems = computed<readonly SnapshotItem[]>(() => {
-  const vm = dataStore.viewModel
-  const totalArtifactCount =
-    vm.overview.traceCount + vm.overview.timelineCount + vm.overview.historyCount
-  return [
-    { key: 'artifactCount', value: totalArtifactCount },
-    { key: 'hasTrace', value: vm.overview.traceCount > 0 },
-    { key: 'hasTimeline', value: vm.overview.timelineCount > 0 },
-    { key: 'hasHistory', value: vm.overview.historyCount > 0 },
-    { key: 'hasTraceSnapshot', value: vm.trace.length > 0 },
-    { key: 'hasTimelineSnapshot', value: vm.timeline.length > 0 },
-    { key: 'hasHistorySnapshot', value: vm.history.length > 0 },
-  ]
-})
-
-function artifactLabel(key: string): string {
-  return i18n.t(`observatory.panels.${key}`)
-}
-
-function artifactDescription(key: string): string {
-  return i18n.t(`observatory.artifacts.${key}Desc`)
-}
-
-function snapshotLabel(key: string): string {
-  return i18n.t(`observatory.snapshot.${key}`)
-}
-
-function formatSnapshotValue(value: number | boolean): string {
-  if (typeof value === 'boolean')
-    return value ? i18n.t('observatory.common.yes') : i18n.t('observatory.common.no')
-  return String(value)
-}
+const runtime = computed(() => dataStore.viewModel.runtimeView)
+const generation = computed(() => dataStore.generationTrace)
+const operations = computed(() => Object.values(gameStore.visualGenerationOperations))
+const manifestEntries = computed(() => gameStore.assetManifest.entries)
+const currentTitle = computed(() => generation.value?.specification?.title ?? generation.value?.candidate?.title)
+const currentGenre = computed(() => generation.value?.specification?.genre ?? generation.value?.candidate?.genre)
+const visualCounts = computed(() => ({
+  total: operations.value.length,
+  ready: operations.value.filter((item) => item.stage === 'ready').length,
+  active: operations.value.filter((item) => item.stage === 'queued' || item.stage === 'generating' || item.stage === 'applying').length,
+  fallback: operations.value.filter((item) => item.stage === 'fallback').length,
+}))
+const assetCounts = computed(() => ({
+  total: manifestEntries.value.length,
+  generated: manifestEntries.value.filter((item) => item.origin === 'generated').length,
+  static: manifestEntries.value.filter((item) => item.origin === 'static').length,
+  fallback: manifestEntries.value.filter((item) => item.origin === 'fallback').length,
+}))
 </script>
 
 <template>
   <div class="observatory-overview">
-    <!-- Section 1 — Artifact Summary -->
-    <section
-      class="overview-section"
-      aria-labelledby="artifact-summary-title"
-    >
-      <h2
-        id="artifact-summary-title"
-        class="overview-section-title"
-      >
-        {{ i18n.t('observatory.sections.artifactSummary') }}
-      </h2>
-      <div class="artifact-grid">
-        <article
-          v-for="artifact in artifacts"
-          :key="artifact.key"
-          class="artifact-card"
-          tabindex="0"
-          :aria-label="`${artifactLabel(artifact.key)} artifact: ${artifact.count} records`"
-        >
-          <h3 class="artifact-card-title">
-            {{ artifactLabel(artifact.key) }}
-          </h3>
-          <dl>
-            <dt class="artifact-card-label">
-              {{ i18n.t('observatory.labels.count') }}
-            </dt>
-            <dd class="artifact-card-count">
-              {{ artifact.count }}
-            </dd>
-          </dl>
-          <p class="artifact-card-description">
-            {{ artifactDescription(artifact.key) }}
-          </p>
+    <section class="overview-section" aria-labelledby="current-world-title">
+      <h2 id="current-world-title" class="overview-section-title">Current World</h2>
+      <div v-if="currentTitle || runtime.entityCount > 0" class="fact-grid">
+        <article class="fact-card">
+          <span class="fact-label">Title</span>
+          <strong>{{ currentTitle ?? 'Unavailable' }}</strong>
         </article>
+        <article class="fact-card">
+          <span class="fact-label">Genre</span>
+          <strong>{{ currentGenre ?? 'Unavailable' }}</strong>
+        </article>
+        <article class="fact-card">
+          <span class="fact-label">Runtime entities</span>
+          <strong>{{ runtime.entityCount }}</strong>
+        </article>
+      </div>
+      <p v-else class="empty-state">No current world is available in this session.</p>
+    </section>
+
+    <section class="overview-section" aria-labelledby="generation-title">
+      <h2 id="generation-title" class="overview-section-title">Game Generation</h2>
+      <dl v-if="generation" class="fact-list">
+        <div><dt>Source</dt><dd>{{ generation.source }}</dd></div>
+        <div><dt>Outcome</dt><dd>{{ generation.status }}</dd></div>
+        <div v-if="generation.provider"><dt>Provider</dt><dd>{{ generation.provider }}</dd></div>
+        <div v-if="generation.model"><dt>Model</dt><dd>{{ generation.model }}</dd></div>
+      </dl>
+      <p v-else class="empty-state">No game generation has been recorded for this session.</p>
+    </section>
+
+    <section class="overview-section" aria-labelledby="visual-title">
+      <h2 id="visual-title" class="overview-section-title">Visual Generation &amp; Assets</h2>
+      <div class="fact-grid">
+        <article class="fact-card"><span class="fact-label">Visual operations</span><strong>{{ visualCounts.total }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Ready / Active / Fallback</span><strong>{{ visualCounts.ready }} / {{ visualCounts.active }} / {{ visualCounts.fallback }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Manifest assets</span><strong>{{ assetCounts.total }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Generated / Static / Fallback</span><strong>{{ assetCounts.generated }} / {{ assetCounts.static }} / {{ assetCounts.fallback }}</strong></article>
       </div>
     </section>
 
-    <!-- Section 2 — Observatory Snapshot -->
-    <section
-      class="overview-section"
-      aria-labelledby="snapshot-summary-title"
-    >
-      <h2
-        id="snapshot-summary-title"
-        class="overview-section-title"
-      >
-        {{ i18n.t('observatory.sections.observatorySnapshot') }}
-      </h2>
-      <dl class="snapshot-grid">
-        <div
-          v-for="item in snapshotItems"
-          :key="item.key"
-          class="snapshot-item"
-        >
-          <dt class="snapshot-label">
-            {{ snapshotLabel(item.key) }}
-          </dt>
-          <dd
-            class="snapshot-value"
-            :class="{
-              'snapshot-value--off':
-                typeof item.value === 'boolean' && !item.value,
-            }"
-          >
-            <span
-              v-if="typeof item.value === 'boolean'"
-              class="snapshot-dot"
-              :class="{ 'snapshot-dot--off': !item.value }"
-              aria-hidden="true"
-            />
-            {{ formatSnapshotValue(item.value) }}
-          </dd>
-        </div>
-      </dl>
-    </section>
-
-    <!-- Section 3 — System Status -->
-    <section
-      class="overview-section"
-      aria-labelledby="system-status-title"
-    >
-      <h2
-        id="system-status-title"
-        class="overview-section-title"
-      >
-        {{ i18n.t('observatory.sections.systemStatus') }}
-      </h2>
-      <dl class="system-status-list">
-        <div class="system-status-item">
-          <dt class="system-status-label">
-            {{ i18n.t('observatory.labels.version') }}
-          </dt>
-          <dd class="system-status-value">
-            {{ store.version }}
-          </dd>
-        </div>
-        <div class="system-status-item">
-          <dt class="system-status-label">
-            {{ i18n.t('observatory.labels.sprint') }}
-          </dt>
-          <dd class="system-status-value">
-            {{ i18n.t('observatory.labels.sprint') }} 6
-          </dd>
-        </div>
-        <div class="system-status-item">
-          <dt class="system-status-label">
-            {{ i18n.t('observatory.labels.status') }}
-          </dt>
-          <dd class="system-status-value">
-            {{ store.status }}
-          </dd>
-        </div>
+    <section class="overview-section" aria-labelledby="system-title">
+      <h2 id="system-title" class="overview-section-title">System</h2>
+      <dl class="fact-list">
+        <div><dt>Architecture version</dt><dd>{{ PROJECT_METADATA.architectureVersion }}</dd></div>
+        <div><dt>Phase</dt><dd>{{ PROJECT_METADATA.currentSprint }}</dd></div>
       </dl>
     </section>
   </div>
 </template>
 
 <style scoped>
-.observatory-overview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--obs-space-5, 24px);
-}
-
-.overview-section {
-  min-width: 0;
-}
-
-.overview-section-title {
-  margin: 0 0 var(--obs-space-3, 12px);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--obs-text-dim, #63636d);
-}
-
-.artifact-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--obs-space-4, 16px);
-}
-
-.artifact-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--obs-space-2, 8px);
-  padding: var(--obs-space-4, 16px);
-  border: 1px solid var(--obs-border, #232327);
-  border-radius: var(--obs-radius-m, 10px);
-  background: var(--obs-surface, #111113);
-  transition:
-    border-color 0.12s ease,
-    background-color 0.12s ease;
-}
-
-.artifact-card:focus-visible {
-  outline: 2px solid var(--obs-accent, #6e7bff);
-  outline-offset: -2px;
-}
-
-.artifact-card:hover {
-  border-color: var(--obs-border-strong, #303036);
-}
-
-.artifact-card-title {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--obs-text, #f5f5f4);
-}
-
-.artifact-card dl {
-  margin: 0;
-  display: flex;
-  align-items: baseline;
-  gap: var(--obs-space-2, 8px);
-}
-
-.artifact-card-label {
-  font-size: 11px;
-  color: var(--obs-text-dim, #63636d);
-}
-
-.artifact-card-count {
-  margin: 0;
-  font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--obs-text, #f5f5f4);
-}
-
-.artifact-card-description {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--obs-text-muted, #a1a1aa);
-}
-
-.snapshot-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--obs-space-3, 12px);
-  margin: 0;
-}
-
-.snapshot-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--obs-space-1, 4px);
-  padding: var(--obs-space-3, 12px) var(--obs-space-4, 16px);
-  border: 1px solid var(--obs-border, #232327);
-  border-radius: var(--obs-radius-s, 6px);
-  background: var(--obs-surface, #111113);
-}
-
-.snapshot-label {
-  font-size: 12px;
-  color: var(--obs-text-muted, #a1a1aa);
-}
-
-.snapshot-value {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--obs-space-1, 4px);
-  margin: 0;
-  font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--obs-success, #4ade80);
-}
-
-.snapshot-value--off {
-  color: var(--obs-text-dim, #63636d);
-}
-
-.snapshot-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--obs-success, #4ade80);
-}
-
-.snapshot-dot--off {
-  background: var(--obs-text-dim, #63636d);
-}
-
-.system-status-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--obs-space-2, 8px);
-  margin: 0;
-}
-
-.system-status-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--obs-space-4, 16px);
-  padding: var(--obs-space-3, 12px) var(--obs-space-4, 16px);
-  border: 1px solid var(--obs-border, #232327);
-  border-radius: var(--obs-radius-s, 6px);
-  background: var(--obs-surface, #111113);
-}
-
-.system-status-label {
-  font-size: 13px;
-  color: var(--obs-text-muted, #a1a1aa);
-}
-
-.system-status-value {
-  margin: 0;
-  font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--obs-text, #f5f5f4);
-}
+.observatory-overview { display: flex; flex-direction: column; gap: var(--obs-space-5); }
+.overview-section-title { margin: 0 0 var(--obs-space-3); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--obs-text-dim); }
+.fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--obs-space-3); }
+.fact-card, .fact-list > div { display: flex; flex-direction: column; gap: var(--obs-space-1); padding: var(--obs-space-4); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-m); background: var(--obs-surface); }
+.fact-card strong, .fact-list dd { margin: 0; color: var(--obs-text); font-family: var(--obs-font-mono); font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.fact-label, .fact-list dt { color: var(--obs-text-dim); font-size: 11px; }
+.fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--obs-space-3); margin: 0; }
+.empty-state { margin: 0; padding: var(--obs-space-4); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-m); background: var(--obs-surface); color: var(--obs-text-dim); font-size: 13px; }
 </style>

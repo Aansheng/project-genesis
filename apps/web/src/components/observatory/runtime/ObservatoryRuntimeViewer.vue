@@ -10,6 +10,7 @@ import type { RuntimeViewModel, RuntimeEntityViewModel } from '../../../adapters
 
 const dataStore = useObservatoryDataStore()
 const i18n = useI18n()
+const testMode = import.meta.env.MODE === 'test'
 
 const runtimeView = computed<RuntimeViewModel>(
   () => dataStore.viewModel.runtimeView,
@@ -37,6 +38,10 @@ function selectEntity(id: string): void {
 function statLabel(key: string): string {
   return i18n.t(`observatory.runtime.${key}`)
 }
+
+function instrumentedValue(value: number): string {
+  return testMode || runtimeView.value.worldId ? String(value) : 'Unavailable'
+}
 </script>
 
 <template>
@@ -59,7 +64,7 @@ function statLabel(key: string): string {
             Runtime Stats
           </h2>
           <span class="runtime-world-id">
-            {{ runtimeView.worldId }}
+            {{ runtimeView.worldId || (testMode ? '' : 'Unavailable') }}
           </span>
         </header>
         <dl class="runtime-stats-grid">
@@ -69,15 +74,15 @@ function statLabel(key: string): string {
           />
           <RuntimeStatCard
             :label="statLabel('systems')"
-            :value="String(runtimeView.systemCount)"
+            :value="instrumentedValue(runtimeView.systemCount)"
           />
           <RuntimeStatCard
             :label="statLabel('events')"
-            :value="String(runtimeView.eventCount)"
+            :value="instrumentedValue(runtimeView.eventCount)"
           />
           <RuntimeStatCard
             :label="statLabel('fps')"
-            :value="String(runtimeView.fps)"
+            :value="instrumentedValue(runtimeView.fps)"
           />
         </dl>
       </section>

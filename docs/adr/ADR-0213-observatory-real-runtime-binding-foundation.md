@@ -18,8 +18,9 @@ data store. The store adapts the current Runtime world through the existing
 `DefaultObservatoryAdapter` contract, exposing entity ids, types, components,
 and PositionComponent coordinates.
 
-Production no longer hydrates mock data. Mock hydration remains available via
-the explicit `loadMockObservatory()` API and is retained for tests/demo paths.
+Production no longer hydrates mock data. As of WO-OBS-001, the demo payload is
+isolated under the Vitest fixture boundary; the compatibility
+`loadMockObservatory()` hook has no production payload or fallback.
 Unsupported sections remain empty rather than falling back to unrelated mock
 records.
 
@@ -35,3 +36,13 @@ records.
 
 Binding tests cover MarioWorld entities, components, positions, replacements,
 repeated sync, immutability, empty worlds, and explicit mock compatibility.
+
+## WO-OBS-001 truth audit addendum
+
+Overview now reads current Runtime, latest generation diagnostics, current
+visual operations, and the AssetManifest directly from their existing session
+stores. World Graph is a read-only projection of the bound Runtime entities.
+The stale static Execution Graph is retired. Unsupported Trace, Timeline,
+History, Diff, and Event Stream surfaces show explicit empty states. No new
+session authority or architecture contract was introduced; architecture remains
+v1.141.

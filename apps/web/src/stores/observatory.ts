@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { PROJECT_METADATA } from '../projectMetadata'
 
 /**
  * Observatory panels — the canonical navigation order for the Observatory Shell.
@@ -43,7 +44,7 @@ export const OBSERVATORY_PANELS: readonly ObservatoryPanel[] = [
 export const useObservatoryStore = defineStore('observatory', () => {
   const selectedPanel = ref<ObservatoryPanel>('Overview')
   const status = ref('Ready')
-  const version = ref('v1.29')
+  const version = ref<string>(PROJECT_METADATA.architectureVersion)
 
   function selectPanel(panel: ObservatoryPanel): void {
     selectedPanel.value = panel

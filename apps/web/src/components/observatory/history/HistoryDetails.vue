@@ -100,7 +100,7 @@ defineProps<{
       v-else
       class="history-empty"
     >
-      No history entry selected
+      No history entry selected. No prior world operations recorded in this session.
     </p>
   </article>
 </template>

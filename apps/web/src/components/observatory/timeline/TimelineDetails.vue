@@ -72,7 +72,7 @@ defineProps<{
       v-else
       class="timeline-empty"
     >
-      No timeline selected
+      No timeline selected. No timeline events recorded for this session.
     </p>
   </article>
 </template>

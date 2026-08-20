@@ -2,6 +2,7 @@
 import { useObservatoryStore } from '../../stores/observatory'
 import { useI18n } from '../../stores/i18n'
 import type { Language } from '../../i18n'
+import { PROJECT_METADATA } from '../../projectMetadata'
 
 const store = useObservatoryStore()
 const i18n = useI18n()
@@ -62,7 +63,7 @@ function onLanguageChange(event: Event): void {
           aria-hidden="true"
         >▼</span>
       </div>
-      <span class="header-sprint">{{ i18n.t('observatory.labels.sprint') }} 6</span>
+      <span class="header-sprint">{{ PROJECT_METADATA.currentSprint }}</span>
     </div>
   </header>
 </template>

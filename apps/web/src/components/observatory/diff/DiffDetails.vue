@@ -148,7 +148,7 @@ defineProps<{
       v-else
       class="diff-empty"
     >
-      No diff selected
+      No diff selected. No semantic world delta recorded.
     </p>
   </article>
 </template>

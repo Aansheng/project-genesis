@@ -1,5 +1,24 @@
 # Changelog
 
+### WO-OBS-001 — Observatory Truth Audit & Mock Retirement
+
+- Retired production dependence on the Sprint 6/v1.29 Observatory demo fixture;
+  the compatibility fixture now exists only under the Vitest boundary.
+- Rebuilt Overview from current Runtime, latest generation diagnostics, visual
+  operations, and AssetManifest facts. Centralized the displayed architecture
+  version at v1.141.
+- Replaced the stale execution graph with an honest unavailable state and the
+  stale world fixture with a current Runtime entity projection. Timeline,
+  History, Diff, Trace, and Event Stream remain explicitly empty until real
+  producers exist.
+- Preserved real Runtime and Generation Trace bindings, added truthfulness
+  regression coverage, and documented Sprint 14 producer boundaries. No
+  architecture bump.
+- Browser verification passed across all Full Observatory tabs and a real
+  MarioWorld → Farm replacement. Current-world surfaces contained only Farm
+  facts, unsupported surfaces stayed explicitly empty, and the browser console
+  reported no warnings or errors.
+
 ### WO-POST-S13-003 — Codex CLI Image Generation Terminal Lifecycle & Player Replacement Verification
 
 - Added an independent provider timeout race so a Codex CLI runner that ignores

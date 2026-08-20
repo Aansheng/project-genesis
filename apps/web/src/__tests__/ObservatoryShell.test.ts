@@ -56,11 +56,11 @@ describe('observatory store', () => {
     setActivePinia(createPinia())
   })
 
-  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.29', () => {
+  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.141', () => {
     const store = useObservatoryStore()
     expect(store.selectedPanel).toBe('Overview')
     expect(store.status).toBe('Ready')
-    expect(store.version).toBe('v1.29')
+    expect(store.version).toBe('v1.141')
   })
 
   it('defaults selectedPanel to Overview', () => {
@@ -73,9 +73,9 @@ describe('observatory store', () => {
     expect(store.status).toBe('Ready')
   })
 
-  it('defaults version to v1.29', () => {
+  it('defaults version to v1.141', () => {
     const store = useObservatoryStore()
-    expect(store.version).toBe('v1.29')
+    expect(store.version).toBe('v1.141')
   })
 
   it('selectPanel updates selectedPanel', () => {
@@ -144,14 +144,14 @@ describe('observatory header', () => {
     expect(wrapper.find('.header-badge').text()).toContain('Ready')
   })
 
-  it('renders the version v1.29', () => {
+  it('renders the current architecture version', () => {
     const wrapper = mount(ObservatoryHeader)
-    expect(wrapper.find('.header-version').text()).toBe('v1.29')
+    expect(wrapper.find('.header-version').text()).toBe('v1.141')
   })
 
-  it('renders the Sprint 6 label on the right side', () => {
+  it('renders the current phase on the right side', () => {
     const wrapper = mount(ObservatoryHeader)
-    expect(wrapper.find('.header-sprint').text()).toBe('Sprint 6')
+    expect(wrapper.find('.header-sprint').text()).toBe('Post-Sprint 13')
   })
 
   it('updates the status badge when the store status changes', async () => {
@@ -873,8 +873,8 @@ describe('observatory shell', () => {
     const wrapper = mountShell()
     expect(wrapper.text()).toContain('Observatory')
     expect(wrapper.text()).toContain('Ready')
-    expect(wrapper.text()).toContain('v1.29')
-    expect(wrapper.text()).toContain('Sprint 6')
+    expect(wrapper.text()).toContain('v1.141')
+    expect(wrapper.text()).toContain('Post-Sprint 13')
   })
 
   it('renders the runtime viewer when Runtime is selected from the sidebar', async () => {
