@@ -12,6 +12,7 @@ export type {
   WorldEvolutionEventType,
   WorldEvolutionIntent,
   WorldEvolutionOperation,
+  WorldEvolutionOperationStatus,
   WorldEvolutionOperationKind,
   WorldEvolutionPlanStatus,
   WorldEvolutionRequest,
@@ -20,6 +21,16 @@ export type {
   WorldEvolutionStageName,
   WorldEvolutionStageStatus,
   WorldEvolutionWorldContext,
+  WorldSemanticProperties,
   WorldSemanticDelta,
   WorldSemanticDeltaOperation,
 } from './WorldEvolution'
+export type {
+  SemanticWorldDeltaApplier,
+  SemanticWorldDeltaApplicationOptions,
+  SemanticWorldMutationFailureReason,
+  SemanticWorldMutationResult,
+  SemanticWorldMutationStatus,
+  SemanticWorldPropertyUpdate,
+} from './SemanticWorldDeltaApplier'
+export { DefaultSemanticWorldDeltaApplier } from './SemanticWorldDeltaApplier'

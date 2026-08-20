@@ -29,6 +29,7 @@ export class DefaultWorldEvolutionPromptBuilder implements WorldEvolutionPromptB
     const user = JSON.stringify({
       world: {
         id: request.context.worldId,
+        revision: request.context.semanticRevision ?? 0,
         type: request.context.semanticWorld.worldType,
         properties: request.context.properties ?? {},
         entities: request.context.semanticWorld.entities.map(entity => ({

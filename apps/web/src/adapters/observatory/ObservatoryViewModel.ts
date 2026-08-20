@@ -153,6 +153,9 @@ export interface HistoryViewModel {
   readonly operationId?: string
   readonly worldId?: string
   readonly status?: string
+  readonly semanticRevision?: number
+  readonly runtimeSynchronization?: 'pending' | 'not-applicable'
+  readonly failureReason?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -180,6 +183,9 @@ export interface DiffViewModel {
   readonly worldId?: string
   readonly status?: 'planned' | 'applied'
   readonly targetIds?: readonly string[]
+  readonly semanticRevision?: number
+  readonly runtimeSynchronization?: 'pending' | 'not-applicable'
+  readonly failureReason?: string
 }
 
 // ---------------------------------------------------------------------------

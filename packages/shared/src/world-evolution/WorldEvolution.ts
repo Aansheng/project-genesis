@@ -37,6 +37,12 @@ export type EvolutionEntityProperty = 'movementSpeed'
 export type EvolutionValueOperation = 'set' | 'multiply'
 export type EvolutionWorldProperty = 'theme' | 'timeOfDay'
 
+/** World-level semantic properties currently owned by the semantic session. */
+export interface WorldSemanticProperties {
+  readonly theme?: string
+  readonly timeOfDay?: string
+}
+
 /** Compact, provider-independent intent model. */
 export type WorldEvolutionIntent =
   | {
@@ -76,10 +82,9 @@ export type WorldEvolutionIntent =
 export interface WorldEvolutionWorldContext {
   readonly worldId: string
   readonly semanticWorld: GameWorldModel
-  readonly properties?: Readonly<{
-    readonly theme?: string
-    readonly timeOfDay?: string
-  }>
+  readonly properties?: WorldSemanticProperties
+  /** Monotonic semantic revision captured when the request was planned. */
+  readonly semanticRevision?: number
 }
 
 export interface WorldEvolutionRequest {
@@ -136,6 +141,8 @@ export type WorldSemanticDeltaOperation =
 export interface WorldSemanticDelta {
   readonly operationId: string
   readonly worldId: string
+  /** Revision of the semantic world used for target resolution. */
+  readonly semanticRevision?: number
   readonly operations: readonly WorldSemanticDeltaOperation[]
   readonly summary: string
 }
@@ -147,6 +154,12 @@ export type WorldEvolutionPlanStatus =
   | 'unsupported'
   | 'failed'
 
+export type WorldEvolutionOperationStatus =
+  | WorldEvolutionPlanStatus
+  | 'applying_semantic'
+  | 'semantic_applied'
+  | 'semantic_application_failed'
+
 export type WorldEvolutionStageName =
   | 'REQUEST_RECEIVED'
   | 'PROMPT_ASSEMBLY'
@@ -154,6 +167,9 @@ export type WorldEvolutionStageName =
   | 'CANDIDATE_PARSE'
   | 'TARGET_RESOLUTION'
   | 'DELTA_VALIDATION'
+  | 'SEMANTIC_APPLICATION_STARTED'
+  | 'SEMANTIC_APPLICATION_COMPLETED'
+  | 'SEMANTIC_APPLICATION_FAILED'
 
 export type WorldEvolutionStageStatus = 'success' | 'failed' | 'not-applicable'
 
@@ -169,6 +185,9 @@ export type WorldEvolutionEventType =
   | 'world.evolution.planned'
   | 'world.evolution.validation_failed'
   | 'world.evolution.needs_clarification'
+  | 'world.evolution.semantic_application_started'
+  | 'world.evolution.semantic_applied'
+  | 'world.evolution.semantic_application_failed'
 
 export interface WorldEvolutionEvent {
   readonly id: string
@@ -186,9 +205,10 @@ export interface WorldEvolutionOperation {
   readonly operationId: string
   readonly worldId: string
   readonly instruction: string
-  readonly status: WorldEvolutionPlanStatus
+  readonly status: WorldEvolutionOperationStatus
   readonly createdAt: string
   readonly completedAt?: string
+  readonly semanticRevision?: number
   readonly source: WorldEvolutionSource
   readonly provider?: string
   readonly model?: string

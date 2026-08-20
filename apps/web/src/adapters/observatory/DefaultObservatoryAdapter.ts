@@ -83,6 +83,10 @@ function safeCount(value: unknown): number {
   return 0
 }
 
+function stringList(value: unknown[] | undefined): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
 /** Safely convert a value to a boolean, returning false for missing/invalid. */
 function safeBool(value: unknown): boolean {
   return value === true
@@ -278,6 +282,14 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       prompt: String(safeGet(item, 'prompt') ?? ''),
       result: String(safeGet(item, 'result') ?? ''),
       evolution,
+      ...(typeof safeGet(item, 'operationId') === 'string' ? { operationId: safeGet<string>(item, 'operationId') } : {}),
+      ...(typeof safeGet(item, 'worldId') === 'string' ? { worldId: safeGet<string>(item, 'worldId') } : {}),
+      ...(typeof safeGet(item, 'status') === 'string' ? { status: safeGet<string>(item, 'status') } : {}),
+      ...(typeof safeGet(item, 'semanticRevision') === 'number' ? { semanticRevision: safeGet<number>(item, 'semanticRevision') } : {}),
+      ...(safeGet(item, 'runtimeSynchronization') === 'pending' || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
+        ? { runtimeSynchronization: safeGet<'pending' | 'not-applicable'>(item, 'runtimeSynchronization') }
+        : {}),
+      ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
   }
 
@@ -405,12 +417,22 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
   }
 
   private adaptDiffViewItem(item: Record<string, unknown>): DiffViewModel {
+    const status = safeGet(item, 'status')
     return {
       id: String(safeGet(item, 'id') ?? ''),
       timestamp: String(safeGet(item, 'timestamp') ?? ''),
       added: this.adaptDiffChangeArray(item, 'added'),
       removed: this.adaptDiffChangeArray(item, 'removed'),
       changed: this.adaptDiffChangeArray(item, 'changed'),
+      ...(status === 'planned' || status === 'applied' ? { status } : {}),
+      ...(typeof safeGet(item, 'operationId') === 'string' ? { operationId: safeGet<string>(item, 'operationId') } : {}),
+      ...(typeof safeGet(item, 'worldId') === 'string' ? { worldId: safeGet<string>(item, 'worldId') } : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'targetIds')) ? { targetIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'targetIds'))) } : {}),
+      ...(typeof safeGet(item, 'semanticRevision') === 'number' ? { semanticRevision: safeGet<number>(item, 'semanticRevision') } : {}),
+      ...(safeGet(item, 'runtimeSynchronization') === 'pending' || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
+        ? { runtimeSynchronization: safeGet<'pending' | 'not-applicable'>(item, 'runtimeSynchronization') }
+        : {}),
+      ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
   }
 

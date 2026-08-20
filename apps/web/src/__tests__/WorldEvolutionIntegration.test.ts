@@ -5,8 +5,38 @@ import { useObservatoryDataStore } from '../stores/observatoryData'
 
 function gateway(): typeof fetch {
   return vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-    const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string }
+    const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string; input?: string; instruction?: string }
     if (body.kind === 'world-evolution') {
+      if (body.instruction?.includes('删除')) {
+        return Response.json({
+          candidate: {
+            kind: 'remove-entity',
+            scope: 'archetype-group',
+            target: body.instruction.includes('Boss')
+              ? { semantic: 'boss', match: 'one' }
+              : { semantic: 'sheep', match: 'all' },
+          },
+        })
+      }
+      if (body.instruction?.includes('增加')) {
+        return Response.json({
+          candidate: {
+            kind: 'add-entity',
+            semantic: { name: 'merchant', category: 'npc' },
+            count: body.instruction.includes('三个') ? 3 : 1,
+          },
+        })
+      }
+      if (body.instruction?.includes('夜晚')) {
+        return Response.json({
+          candidate: {
+            kind: 'update-world-property',
+            scope: 'world',
+            property: 'timeOfDay',
+            value: 'night',
+          },
+        })
+      }
       return Response.json({
         candidate: {
           kind: 'replace-entity-semantic',
@@ -14,6 +44,20 @@ function gateway(): typeof fetch {
           target: { semantic: 'cow', match: 'all' },
           replacement: { name: 'sheep' },
           preserveIdentity: true,
+        },
+      })
+    }
+    if (body.input?.toLocaleLowerCase().includes('rpg')) {
+      return Response.json({
+        candidate: {
+          title: 'RPG',
+          genre: 'rpg',
+          entities: [
+            { id: 'player-1', category: 'player', name: 'Player' },
+            { id: 'merchant-1', category: 'npc', name: 'Merchant' },
+            { id: 'villager-1', category: 'npc', name: 'Villager' },
+            { id: 'boss-1', category: 'enemy', name: 'Boss' },
+          ],
         },
       })
     }
@@ -41,7 +85,7 @@ describe('World Evolution Studio integration', () => {
     vi.stubGlobal('fetch', gateway())
   })
 
-  it('plans a real semantic delta while Runtime and assets remain unchanged', async () => {
+  it('applies a semantic delta while Runtime and assets remain unchanged', async () => {
     const game = useGameStore()
     const observatory = useObservatoryDataStore()
     await game.send('创建一个农场游戏，3头牛')
@@ -52,13 +96,17 @@ describe('World Evolution Studio integration', () => {
 
     expect(result.success).toBe(true)
     expect(result.evolutionPlan?.status).toBe('validated')
+    expect(result.evolutionPlan?.operation.status).toBe('semantic_applied')
+    expect(game.semanticRevision).toBe(1)
+    expect(game.semanticWorld?.entities.filter(entity => entity.id.startsWith('cow-')).map(entity => entity.name)).toEqual(['Sheep', 'Sheep', 'Sheep'])
     expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
     expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'cow-1', 'cow-2', 'cow-3', 'crop-1', 'barn-1'])
     expect(observatory.viewModel.historyView).toHaveLength(1)
     expect(observatory.viewModel.historyView[0]?.prompt).toBe('把所有牛改成羊')
-    expect(observatory.viewModel.historyView[0]?.result).toContain('Runtime unchanged')
-    expect(observatory.viewModel.diffView[0]?.status).toBe('planned')
+    expect(observatory.viewModel.historyView[0]?.result).toContain('Semantic change applied')
+    expect(observatory.viewModel.historyView[0]?.result).toContain('Runtime synchronization pending')
+    expect(observatory.viewModel.diffView[0]?.status).toBe('applied')
     expect(observatory.viewModel.diffView[0]?.targetIds).toEqual(['cow-1', 'cow-2', 'cow-3'])
     expect(observatory.viewModel.diffView[0]?.changed.map(item => item.name)).toEqual([
       'cow-1: Cow → Sheep', 'cow-2: Cow → Sheep', 'cow-3: Cow → Sheep',
@@ -70,9 +118,16 @@ describe('World Evolution Studio integration', () => {
       'CANDIDATE_PARSE · success',
       'TARGET_RESOLUTION · success',
       'DELTA_VALIDATION · success',
+      'SEMANTIC_APPLICATION_STARTED · success',
+      'SEMANTIC_APPLICATION_COMPLETED · success',
     ])
-    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'validated', worldId: 'world-1' })
+    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'semantic_applied', worldId: 'world-1', semanticRevision: 1 })
     expect(observatory.viewModel.eventStreamView.events.map(event => event.source)).toContain('world-evolution')
+
+    const next = await game.send('删除所有羊')
+    expect(next.success).toBe(true)
+    expect(game.semanticWorld?.entities.some(entity => entity.name === 'Sheep')).toBe(false)
+    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'cow-1', 'cow-2', 'cow-3', 'crop-1', 'barn-1'])
   })
 
   it('isolates World A evolution history when World B becomes current', async () => {
@@ -90,5 +145,46 @@ describe('World Evolution Studio integration', () => {
     expect(observatory.viewModel.timelineView).toHaveLength(0)
     expect(observatory.viewModel.traceView).toHaveLength(0)
     expect(observatory.viewModel.runtimeView.worldId).toBe('world-2')
+  })
+
+  it('adds counted semantic entities and applies a world property without touching Runtime', async () => {
+    const game = useGameStore()
+    const observatory = useObservatoryDataStore()
+    await game.send('创建一个农场游戏，3头牛')
+    const beforeRuntime = JSON.stringify(game.worldStore.getWorld())
+    const beforeManifest = JSON.stringify(game.assetManifest)
+
+    const added = await game.send('增加三个商人')
+
+    expect(added.success).toBe(true)
+    expect(game.semanticWorld?.entities.filter(entity => entity.name === 'Merchant').map(entity => entity.id)).toEqual(['merchant-1', 'merchant-2', 'merchant-3'])
+    expect(game.semanticRevision).toBe(1)
+    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
+    expect(observatory.viewModel.diffView[0]?.added.map(item => item.name)).toEqual([
+      'merchant-1: Merchant', 'merchant-2: Merchant', 'merchant-3: Merchant',
+    ])
+
+    const themed = await game.send('把整个世界改成夜晚')
+    expect(themed.success).toBe(true)
+    expect(game.semanticProperties.timeOfDay).toBe('night')
+    expect(game.semanticRevision).toBe(2)
+    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    expect(observatory.viewModel.historyView.at(-1)?.result).toContain('Runtime synchronization pending')
+  })
+
+  it('removes a semantic entity while the old Runtime entity remains visible', async () => {
+    const game = useGameStore()
+    const observatory = useObservatoryDataStore()
+    await game.send('创建一个 RPG')
+    const beforeRuntime = JSON.stringify(game.worldStore.getWorld())
+
+    const result = await game.send('删除 Boss')
+
+    expect(result.success).toBe(true)
+    expect(game.semanticWorld?.entities.some(entity => entity.id === 'boss-1')).toBe(false)
+    expect(game.worldStore.getWorld().entities.some(entity => entity.id === 'boss-1')).toBe(true)
+    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    expect(observatory.viewModel.diffView.at(-1)?.removed).toEqual([{ name: 'boss-1' }])
   })
 })

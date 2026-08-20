@@ -49,6 +49,7 @@ function freezeRequest(request: WorldEvolutionRequest, createdAt: string): World
     createdAt,
     context: Object.freeze({
       worldId: request.context.worldId.trim(),
+      ...(request.context.semanticRevision !== undefined ? { semanticRevision: request.context.semanticRevision } : {}),
       semanticWorld: Object.freeze({
         worldType: request.context.semanticWorld.worldType,
         entities: Object.freeze(request.context.semanticWorld.entities.map(entity => Object.freeze({ ...entity }))),
@@ -74,6 +75,7 @@ function validRequest(request: unknown): request is WorldEvolutionRequest {
   if (!isRecord(request) || typeof request.operationId !== 'string' || request.operationId.trim() === '') return false
   if (typeof request.instruction !== 'string' || request.instruction.trim() === '') return false
   if (!isRecord(request.context) || typeof request.context.worldId !== 'string' || request.context.worldId.trim() === '') return false
+  if (request.context.semanticRevision !== undefined && (typeof request.context.semanticRevision !== 'number' || !Number.isInteger(request.context.semanticRevision) || request.context.semanticRevision < 0)) return false
   const world = request.context.semanticWorld
   return isRecord(world) && typeof world.worldType === 'string' && Array.isArray(world.entities) && world.entities.every(entity => isRecord(entity) && typeof entity.id === 'string' && typeof entity.name === 'string' && isCategory(entity.category))
 }
@@ -210,7 +212,7 @@ export class DeterministicWorldEvolutionCandidateProvider implements WorldEvolut
       return Object.freeze({ kind: 'replace-entity-semantic', scope: 'entity', target: { semantic: 'merchant', match: 'one' }, replacement: { name: 'robot' }, preserveIdentity: true })
     }
     if ((text.includes('增加') || text.includes('添加') || text.includes('新增') || text.includes('add')) && (text.includes('商人') || text.includes('merchant'))) {
-      return Object.freeze({ kind: 'add-entity', scope: 'entity', semantic: { name: 'merchant', category: 'npc' }, count: 1 })
+      return Object.freeze({ kind: 'add-entity', scope: 'entity', semantic: { name: 'merchant', category: 'npc' }, count: requestedCount(request.instruction) })
     }
     if ((text.includes('删除') || text.includes('移除') || text.includes('remove') || text.includes('delete')) && (text.includes('boss') || text.includes('首领'))) {
       return Object.freeze({ kind: 'remove-entity', scope: 'entity', target: { semantic: 'boss', match: 'one' } })
@@ -249,6 +251,14 @@ function sourceFor(provider: WorldEvolutionCandidateProvider): WorldEvolutionSou
   return provider.getProviderMetadata?.()?.provider === 'deterministic' ? 'deterministic' : 'ai'
 }
 
+function requestedCount(instruction: string): number {
+  const match = instruction.match(/(?:增加|添加|新增|add)\s*(?:(\d+)|(一个|一|两个|两|三个|三|四个|四|五个|五))?/iu)
+  if (!match) return 1
+  if (match[1]) return Math.max(1, Number(match[1]))
+  const chinese = { 一个: 1, 一: 1, 两个: 2, 两: 2, 三个: 3, 三: 3, 四个: 4, 四: 4, 五个: 5, 五: 5 } as const
+  return match[2] ? chinese[match[2] as keyof typeof chinese] : 1
+}
+
 function freezeDelta(delta: WorldSemanticDelta): WorldSemanticDelta {
   const freezeOperation = (operation: WorldSemanticDeltaOperation): WorldSemanticDeltaOperation => {
     if (operation.kind === 'add-entity') {
@@ -267,6 +277,7 @@ function freezeDelta(delta: WorldSemanticDelta): WorldSemanticDelta {
   }
   return Object.freeze({
     ...delta,
+    ...(delta.semanticRevision !== undefined ? { semanticRevision: delta.semanticRevision } : {}),
     operations: Object.freeze(delta.operations.map(freezeOperation)),
   })
 }
@@ -423,6 +434,7 @@ export class DefaultWorldEvolutionPlanner implements WorldEvolutionPlanner {
     const delta = freezeDelta(Object.freeze({
       operationId: request.operationId,
       worldId: request.context.worldId,
+      ...(request.context.semanticRevision !== undefined ? { semanticRevision: request.context.semanticRevision } : {}),
       operations: Object.freeze([operation]),
       summary: summary(operation),
     }))
@@ -488,6 +500,7 @@ export class DefaultWorldEvolutionPlanner implements WorldEvolutionPlanner {
     return Object.freeze({
       operationId: request.operationId,
       worldId: request.context.worldId,
+      ...(request.context.semanticRevision !== undefined ? { semanticRevision: request.context.semanticRevision } : {}),
       instruction: request.instruction,
       status,
       createdAt: request.createdAt ?? this.clock(),

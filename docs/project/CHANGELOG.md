@@ -1,5 +1,23 @@
 # Changelog
 
+### WO-S14-002 — Semantic World Delta Application Foundation
+
+- Added the provider-independent `DefaultSemanticWorldDeltaApplier` and an
+  immutable, atomic mutation result for semantic replace, group replace, add,
+  remove, and supported world-property operations.
+- Made the web session's paired semantic world/properties/revision state the
+  single mutation authority. Validated imperative evolution commands now
+  auto-apply semantically while preserving entity IDs and leaving Runtime,
+  AssetManifest, AssetStore, Renderer, camera, and image generation untouched.
+- Added world/session and semantic-revision stale protection, deterministic
+  `name-1` ID allocation, unsupported `movementSpeed` handling, and regression
+  coverage for atomicity and immutability.
+- Extended operation lifecycle and Observatory History, Diff, Timeline, Trace,
+  and Event Stream facts through semantic application. Runtime/World Graph
+  remain Runtime projections and are labelled as synchronization-pending.
+- Added ADR-0257 and updated the project state/truth audit. Architecture
+  version v1.142 → v1.143. Runtime synchronization is deferred to WO-S14-003.
+
 ### WO-S14-001 — World Evolution Intent, Semantic Delta & Operation History Foundation
 
 - Added the provider-neutral `WorldEvolutionRequest`, semantic intent,

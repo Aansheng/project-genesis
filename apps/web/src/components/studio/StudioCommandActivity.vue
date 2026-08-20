@@ -4,12 +4,20 @@ import { useGameStore } from '../../stores/gameStore'
 
 const store = useGameStore()
 const title = computed(() => {
+  if (store.lastCommand?.evolutionPlan) {
+    if (store.commandStatus === 'running') return 'Applying semantic change…'
+    if (store.commandStatus === 'success') return 'Semantic change applied'
+    if (store.commandStatus === 'error') return 'Semantic change failed'
+  }
   if (store.commandStatus === 'running') return 'Creating world…'
   if (store.commandStatus === 'success') return 'World created'
   if (store.commandStatus === 'error') return 'Command not understood'
   return 'Ready to create'
 })
 const detail = computed(() => {
+  if (store.lastCommand?.evolutionPlan?.status === 'validated') {
+    return store.lastCommand.evolutionPlan.delta.summary
+  }
   if (store.commandStatus === 'success' && store.lastCommand?.entityCount !== undefined) {
     return `${store.lastCommand.entityCount} entit${store.lastCommand.entityCount === 1 ? 'y' : 'ies'}`
   }

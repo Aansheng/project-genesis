@@ -74,29 +74,25 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   function recordWorldEvolution(plan: WorldEvolutionPlanResult): void {
     const operation = plan.operation
     const current = viewModel.value
-    const traceView = Object.freeze([
-      ...current.traceView,
-      buildEvolutionTrace(operation),
-    ])
-    const timelineView = Object.freeze([
-      ...current.timelineView,
-      buildEvolutionTimeline(operation),
-    ])
-    const historyView = Object.freeze([
-      ...current.historyView,
-      buildEvolutionHistory(operation),
-    ])
-    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta) : undefined
-    const diffView = diff ? Object.freeze([...current.diffView, diff]) : current.diffView
+    const traceView = upsertById(current.traceView, buildEvolutionTrace(operation))
+    const timelineView = upsertById(current.timelineView, buildEvolutionTimeline(operation))
+    const historyView = upsertById(current.historyView, buildEvolutionHistory(operation))
+    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation) : undefined
+    const diffView = diff ? upsertById(current.diffView, diff) : current.diffView
+    const operationEventIds = new Set(operation.events.map(event => event.id))
     const events = Object.freeze([
       ...operation.events.map(event => Object.freeze({
         id: event.id,
         timestamp: event.timestamp,
-        level: event.type === 'world.evolution.validation_failed' ? 'warning' as const : 'info' as const,
+        level: event.type === 'world.evolution.semantic_application_failed'
+          ? 'error' as const
+          : event.type === 'world.evolution.validation_failed' || event.type === 'world.evolution.needs_clarification'
+            ? 'warning' as const
+            : 'info' as const,
         source: 'world-evolution',
         message: event.message,
       })),
-      ...current.eventStreamView.events,
+      ...current.eventStreamView.events.filter(event => !operationEventIds.has(event.id)),
     ])
     viewModel.value = Object.freeze({
       ...current,
@@ -236,6 +232,14 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
   }
 })
 
+function upsertById<T extends { readonly id: string }>(items: readonly T[], next: T): readonly T[] {
+  const index = items.findIndex(item => item.id === next.id)
+  if (index < 0) return Object.freeze([...items, next])
+  const updated = [...items]
+  updated[index] = next
+  return Object.freeze(updated)
+}
+
 function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryViewModel['traceView'][number] {
   return Object.freeze({
     id: `trace-${operation.operationId}`,
@@ -246,6 +250,7 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       { key: 'operationId', value: operation.operationId },
       { key: 'worldId', value: operation.worldId },
       { key: 'status', value: operation.status },
+      ...(operation.semanticRevision !== undefined ? [{ key: 'semanticRevision', value: String(operation.semanticRevision) }] : []),
       { key: 'targets', value: operation.resolvedTargetIds.join(', ') || 'none' },
     ]),
     metadata: Object.freeze({
@@ -255,6 +260,7 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       operationId: operation.operationId,
       worldId: operation.worldId,
       status: operation.status,
+      ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
     }),
     operationId: operation.operationId,
     worldId: operation.worldId,
@@ -275,26 +281,45 @@ function buildEvolutionTimeline(operation: WorldEvolutionOperation): Observatory
 }
 
 function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryViewModel['historyView'][number] {
+  const semanticApplied = operation.status === 'semantic_applied'
+  const semanticFailed = operation.status === 'semantic_application_failed'
   return Object.freeze({
     id: `history-${operation.operationId}`,
     timestamp: operation.createdAt,
     prompt: operation.instruction,
-    result: operation.status === 'validated'
-      ? 'Validated plan; Runtime unchanged'
-      : `${operation.status}: ${operation.failureReason ?? 'no semantic delta produced'}`,
+    result: semanticApplied
+      ? 'Semantic change applied; Runtime synchronization pending'
+      : semanticFailed
+        ? `Semantic application failed: ${operation.failureReason ?? 'unknown error'}`
+        : operation.status === 'validated'
+          ? 'Validated plan; Runtime unchanged'
+          : `${operation.status}: ${operation.failureReason ?? 'no semantic delta produced'}`,
     evolution: Object.freeze(operation.deltaSummary ? [{ name: operation.deltaSummary }] : []),
     operationId: operation.operationId,
     worldId: operation.worldId,
     status: operation.status,
+    ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
+    ...(semanticApplied ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }
 
-function buildEvolutionDiff(operation: WorldEvolutionOperation, delta: WorldSemanticDelta): ObservatoryViewModel['diffView'][number] {
+function buildEvolutionDiff(
+  operation: WorldEvolutionOperation,
+  delta: WorldSemanticDelta,
+  mutation?: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>['mutation'],
+): ObservatoryViewModel['diffView'][number] {
   const added: { readonly name: string }[] = []
   const removed: { readonly name: string }[] = []
   const changed: { readonly name: string }[] = []
   for (const item of delta.operations) {
-    if (item.kind === 'add-entity') added.push({ name: `${item.semantic.name} ×${item.count}` })
+    if (item.kind === 'add-entity') {
+      if (mutation?.status === 'applied' && mutation.addedEntities.length > 0) {
+        added.push(...mutation.addedEntities.map(entity => ({ name: `${entity.id}: ${entity.name}` })))
+      } else {
+        added.push({ name: `${item.semantic.name} ×${item.count}` })
+      }
+    }
     if (item.kind === 'remove-entity') removed.push(...item.targetIds.map(id => ({ name: id })))
     if (item.kind === 'replace-entity-semantic') changed.push(...item.targetIds.map((id, index) => ({ name: `${id}: ${item.from[index]?.name ?? item.from[0]?.name ?? 'semantic'} → ${item.replacement.name}` })))
     if (item.kind === 'update-world-property') changed.push({ name: `${item.property}: ${item.from ?? 'unset'} → ${item.to}` })
@@ -307,8 +332,11 @@ function buildEvolutionDiff(operation: WorldEvolutionOperation, delta: WorldSema
     changed: Object.freeze(changed),
     operationId: operation.operationId,
     worldId: operation.worldId,
-    status: 'planned' as const,
+    status: operation.status === 'semantic_applied' ? 'applied' as const : 'planned' as const,
     targetIds: Object.freeze([...operation.resolvedTargetIds]),
+    ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
+    ...(operation.status === 'semantic_applied' ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }
 

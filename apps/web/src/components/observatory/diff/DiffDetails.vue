@@ -21,13 +21,21 @@ defineProps<{
   >
     <template v-if="entry">
       <header class="diff-details-header">
-          <h2 class="diff-details-title">
-            Diff Details
-          </h2>
-          <span
-            v-if="entry.status === 'planned'"
-            class="diff-status"
-          >PLANNED · Runtime unchanged</span>
+        <h2 class="diff-details-title">
+          Diff Details
+        </h2>
+        <span
+          v-if="entry.status === 'applied'"
+          class="diff-status"
+        >SEMANTIC APPLIED · Runtime synchronization pending</span>
+        <span
+          v-else-if="entry.status === 'planned'"
+          class="diff-status"
+        >PLANNED · Runtime unchanged</span>
+        <span
+          v-if="entry.failureReason"
+          class="diff-status diff-status--failed"
+        >APPLICATION FAILED · {{ entry.failureReason }}</span>
         <dl class="diff-meta-grid">
           <div class="diff-meta-item">
             <dt class="diff-meta-label">

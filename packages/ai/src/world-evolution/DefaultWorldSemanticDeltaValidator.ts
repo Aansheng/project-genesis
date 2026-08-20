@@ -20,9 +20,11 @@ export class DefaultWorldSemanticDeltaValidator implements WorldSemanticDeltaVal
     const errors: string[] = []
     if (delta.operationId !== request.operationId) errors.push('delta operation does not belong to the request')
     if (delta.worldId !== request.context.worldId) errors.push('delta belongs to a different world')
+    if (request.context.semanticRevision !== undefined && delta.semanticRevision !== request.context.semanticRevision) errors.push('delta was planned against a different semantic revision')
     if (!Array.isArray(delta.operations) || delta.operations.length === 0) errors.push('delta must contain at least one operation')
 
     const currentIds = new Set(request.context.semanticWorld.entities.map(entity => entity.id))
+    if (currentIds.size !== request.context.semanticWorld.entities.length) errors.push('current semantic world contains duplicate entity IDs')
     const seenTargets = new Map<string, string>()
     for (const operation of delta.operations ?? []) {
       if (operation.kind === 'add-entity') {

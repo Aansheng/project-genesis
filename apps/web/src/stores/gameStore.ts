@@ -16,7 +16,8 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, WorldEvolutionRequest } from '@genesis/shared'
+import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult } from '@genesis/shared'
+import { DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
 import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
@@ -34,6 +35,7 @@ import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
 const EMPTY_ASSET_MANIFEST: AssetManifest = Object.freeze({ entries: Object.freeze([]) })
+const EMPTY_SEMANTIC_PROPERTIES: WorldSemanticProperties = Object.freeze({})
 
 function buildAssetSpecification(
   specification: GameDesignSpecification | undefined,
@@ -55,6 +57,68 @@ function buildStaticAssetManifest(
 }
 
 const DEFAULT_AI_GATEWAY_URL = 'http://127.0.0.1:8787/api/world-generation'
+
+interface CurrentSemanticWorldState {
+  readonly worldId: string
+  readonly semanticWorld: GameWorldModel | null
+  readonly properties: WorldSemanticProperties
+  readonly semanticRevision: number
+}
+
+function freezeSemanticState(state: CurrentSemanticWorldState): CurrentSemanticWorldState {
+  return Object.freeze({
+    ...state,
+    properties: Object.freeze({ ...state.properties }),
+  })
+}
+
+function withSemanticApplication(
+  plan: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>,
+  mutation: SemanticWorldMutationResult,
+): Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }> {
+  const startedAt = new Date().toISOString()
+  const completedAt = new Date().toISOString()
+  const applied = mutation.status === 'applied'
+  const stages: readonly WorldEvolutionStage[] = Object.freeze([
+    ...plan.operation.stages,
+    Object.freeze({ name: 'SEMANTIC_APPLICATION_STARTED' as const, status: 'success' as const, timestamp: startedAt }),
+    Object.freeze({
+      name: applied ? 'SEMANTIC_APPLICATION_COMPLETED' : 'SEMANTIC_APPLICATION_FAILED',
+      status: applied ? 'success' : 'failed',
+      timestamp: completedAt,
+      ...(mutation.failureReason ? { error: mutation.failureReason } : {}),
+    }),
+  ])
+  const events: readonly WorldEvolutionEvent[] = Object.freeze([
+    ...plan.operation.events,
+    Object.freeze({
+      id: `${plan.operation.operationId}:semantic_application_started`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: 'world.evolution.semantic_application_started' as const,
+      timestamp: startedAt,
+      message: 'Semantic world application started',
+    }),
+    Object.freeze({
+      id: `${plan.operation.operationId}:${applied ? 'semantic_applied' : 'semantic_application_failed'}`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: applied ? 'world.evolution.semantic_applied' : 'world.evolution.semantic_application_failed',
+      timestamp: completedAt,
+      message: applied ? 'Semantic world mutation applied; Runtime synchronization pending' : `Semantic world mutation failed: ${mutation.failureReason ?? 'unknown error'}`,
+    }),
+  ])
+  const operation = Object.freeze({
+    ...plan.operation,
+    status: applied ? 'semantic_applied' as const : 'semantic_application_failed' as const,
+    completedAt,
+    semanticRevision: applied ? mutation.updatedRevision : mutation.previousRevision,
+    ...(applied ? {} : { failureReason: mutation.failureReason ?? 'invalid_delta' }),
+    stages,
+    events,
+  })
+  return Object.freeze({ ...plan, operation, mutation })
+}
 
 function imageGatewayURL(gatewayURL: string): string {
   return gatewayURL.replace(/\/api\/world-generation\/?$/u, '/api/image-generation')
@@ -120,9 +184,12 @@ export const useGameStore = defineStore('game', () => {
   const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
   const renderVersion = ref(0)
   const worldRevision = ref(0)
-  const currentWorldId = ref('')
-  const semanticWorld = ref<GameWorldModel | null>(null)
-  const semanticProperties = ref<{ readonly theme?: string; readonly timeOfDay?: string }>({})
+  const semanticState = ref<CurrentSemanticWorldState | null>(null)
+  const currentWorldId = computed(() => semanticState.value?.worldId ?? '')
+  const semanticWorld = computed(() => semanticState.value?.semanticWorld ?? null)
+  const semanticProperties = computed<WorldSemanticProperties>(() => semanticState.value?.properties ?? EMPTY_SEMANTIC_PROPERTIES)
+  const semanticRevision = computed(() => semanticState.value?.semanticRevision ?? 0)
+  const semanticWorldDeltaApplier = new DefaultSemanticWorldDeltaApplier()
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
@@ -294,14 +361,18 @@ export const useGameStore = defineStore('game', () => {
         imageGenerationToken++
         visualGenerationOperations.value = {}
         const gameDesignSpecification = result.generationDiagnostics?.specification
-        semanticWorld.value = result.semanticWorld ?? null
-        semanticProperties.value = gameDesignSpecification?.theme?.name
-          ? { theme: gameDesignSpecification.theme.name }
-          : {}
         const assetSpecification = buildAssetSpecification(gameDesignSpecification)
         assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)
         worldRevision.value++
-        currentWorldId.value = `world-${worldRevision.value}`
+        const nextWorldId = `world-${worldRevision.value}`
+        semanticState.value = freezeSemanticState({
+          worldId: nextWorldId,
+          semanticWorld: result.semanticWorld ?? null,
+          properties: gameDesignSpecification?.theme?.name
+            ? { theme: gameDesignSpecification.theme.name }
+            : {},
+          semanticRevision: 0,
+        })
         useObservatoryDataStore().resetEvolution(currentWorldId.value)
         useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentWorldId.value)
         markWorldUpdated()
@@ -332,7 +403,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function planEvolution(input: string, planner: WorldEvolutionPlanner | undefined): Promise<import('../command').CommandExecutionResult> {
-    if (!planner || semanticWorld.value === null || !currentWorldId.value) {
+    const stateAtRequest = semanticState.value
+    if (!planner || !stateAtRequest?.semanticWorld || !stateAtRequest.worldId) {
       return { success: false, message: 'Cannot evolve: no current semantic world is available' }
     }
     const request: WorldEvolutionRequest = Object.freeze({
@@ -340,26 +412,55 @@ export const useGameStore = defineStore('game', () => {
       instruction: input,
       createdAt: new Date().toISOString(),
       context: Object.freeze({
-        worldId: currentWorldId.value,
-        semanticWorld: semanticWorld.value,
-        properties: semanticProperties.value,
+        worldId: stateAtRequest.worldId,
+        semanticWorld: stateAtRequest.semanticWorld,
+        properties: stateAtRequest.properties,
+        semanticRevision: stateAtRequest.semanticRevision,
       }),
     })
     const plan: WorldEvolutionPlanResult = await planner.plan(request)
-    if (plan.operation.worldId === currentWorldId.value) {
-      useObservatoryDataStore().recordWorldEvolution(plan)
+    if (plan.status !== 'validated') {
+      if (plan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(plan)
+      return {
+        success: false,
+        message: `World evolution ${plan.status}: ${plan.reason}`,
+        evolutionPlan: plan,
+      }
     }
-    if (plan.status === 'validated') {
+
+    const currentState = semanticState.value
+    const mutation = currentState?.semanticWorld
+      ? semanticWorldDeltaApplier.apply(currentState.semanticWorld, plan.delta, {
+        worldId: currentState.worldId,
+        semanticRevision: currentState.semanticRevision,
+        properties: currentState.properties,
+      })
+      : undefined
+    if (!mutation) {
+      return { success: false, message: 'World evolution semantic application failed: no current semantic world' }
+    }
+
+    const appliedPlan = withSemanticApplication(plan, mutation)
+    if (mutation.status === 'applied') {
+      semanticState.value = freezeSemanticState({
+        worldId: currentState!.worldId,
+        semanticWorld: mutation.updatedWorld,
+        properties: mutation.updatedProperties,
+        semanticRevision: mutation.updatedRevision,
+      })
+    }
+    if (appliedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(appliedPlan)
+    if (mutation.status === 'applied') {
       return {
         success: true,
-        message: `Planned world evolution: ${plan.delta.summary} (Runtime unchanged)`,
-        evolutionPlan: plan,
+        message: `Semantic world updated: ${plan.delta.summary} (Runtime synchronization pending)`,
+        evolutionPlan: appliedPlan,
       }
     }
     return {
       success: false,
-      message: `World evolution ${plan.status}: ${plan.reason}`,
-      evolutionPlan: plan,
+      message: `World evolution semantic application failed: ${mutation.failureReason ?? 'unknown error'}`,
+      evolutionPlan: appliedPlan,
     }
   }
 
@@ -372,6 +473,8 @@ export const useGameStore = defineStore('game', () => {
     worldRevision,
     currentWorldId,
     semanticWorld,
+    semanticProperties,
+    semanticRevision,
     selectedEntityId,
     selectedEntity,
     selectEntity,
