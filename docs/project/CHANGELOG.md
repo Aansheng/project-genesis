@@ -16,9 +16,14 @@
 - Connected real asset execution and renderer application stages/events to
   Observatory History, Diff, Timeline, Trace, Event Stream, and Generation
   Trace. Added executor, store, renderer, and web integration coverage.
+- Normalized explicit current entity IDs in evolution instructions before
+  target resolution, enabling safe partial removal from a shared archetype
+  while preserving explicit all-group semantics.
 - Added ADR-0260. Architecture version v1.145 → v1.146. Code Complete = YES;
-  Product Verified = PENDING — the primary controlled Cow ×3 → Sheep browser
-  scenario passed, while the remaining live matrix is still pending.
+  Product Verified = YES — real browser verification passed for Cow ×3 → Sheep
+  movement continuity and one-request visual replacement, partial shared
+  binding removal, Merchant → Robot, zero-generation Boss removal, full
+  Observatory lifecycle evidence, and empty browser error/warning logs.
 
 ### WO-S14-004 — Visual Delta Planning & Targeted Asset Impact Analysis
 

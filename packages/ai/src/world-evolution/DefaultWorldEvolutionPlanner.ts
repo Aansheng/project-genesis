@@ -318,23 +318,32 @@ function semanticHintForInstruction(instruction: string, intent: Extract<WorldEv
   )?.name
 }
 
+function explicitEntityIdForInstruction(instruction: string, entityIds: readonly string[]): string | undefined {
+  return [...entityIds]
+    .sort((left, right) => right.length - left.length)
+    .find(entityId => new RegExp(`(?:^|[^A-Za-z0-9_-])${entityId.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}(?:$|[^A-Za-z0-9_-])`, 'iu').test(instruction))
+}
+
 /** Preserve explicit user target language when a provider returns a generic selector. */
-function alignIntentWithInstruction(intent: WorldEvolutionIntent, instruction: string): WorldEvolutionIntent {
+function alignIntentWithInstruction(intent: WorldEvolutionIntent, instruction: string, entityIds: readonly string[]): WorldEvolutionIntent {
   if (!('target' in intent)) return intent
   const targetIntent = intent as Extract<WorldEvolutionIntent, { readonly target: EvolutionTargetSelector }>
   const hint = semanticHintForInstruction(instruction, targetIntent)
   const targetSemantic = targetIntent.target.semantic?.toLocaleLowerCase()
   const shouldUseHint = hint !== undefined && (targetSemantic === undefined || GENERIC_TARGET_SEMANTICS.has(targetSemantic))
   const all = explicitlyRequestsAll(instruction)
-  if (!shouldUseHint && !all) return intent
+  const explicitEntityId = all ? undefined : explicitEntityIdForInstruction(instruction, entityIds)
+  if (!shouldUseHint && !all && !explicitEntityId) return intent
   return Object.freeze({
     ...targetIntent,
-    ...(all ? { scope: 'archetype-group' as const } : {}),
-    target: Object.freeze({
-      ...targetIntent.target,
-      ...(shouldUseHint ? { semantic: hint } : {}),
-      ...(all ? { match: 'all' as const } : {}),
-    }),
+    ...(explicitEntityId ? { scope: 'entity' as const } : all ? { scope: 'archetype-group' as const } : {}),
+    target: explicitEntityId
+      ? Object.freeze({ entityId: explicitEntityId })
+      : Object.freeze({
+          ...targetIntent.target,
+          ...(shouldUseHint ? { semantic: hint } : {}),
+          ...(all ? { match: 'all' as const } : {}),
+        }),
   })
 }
 
@@ -411,7 +420,7 @@ export class DefaultWorldEvolutionPlanner implements WorldEvolutionPlanner {
 
     let intent: WorldEvolutionIntent
     try {
-      intent = freezeIntent(alignIntentWithInstruction(parseWorldEvolutionCandidate(candidate), request.instruction))
+      intent = freezeIntent(alignIntentWithInstruction(parseWorldEvolutionCandidate(candidate), request.instruction, request.context.semanticWorld.entities.map(entity => entity.id)))
       stages.push(stageName('CANDIDATE_PARSE', 'success', this.clock()))
     } catch (error) {
       stages.push(stageName('CANDIDATE_PARSE', 'failed', this.clock()))

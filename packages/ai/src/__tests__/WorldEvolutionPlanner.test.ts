@@ -135,6 +135,26 @@ describe('World Evolution planner', () => {
     if (ambiguous.status === 'needs_clarification') expect(ambiguous.operation.failureReason).toBe('ambiguous_target')
   })
 
+  it('honors an explicit current entity ID for a targeted removal', async () => {
+    const provider: WorldEvolutionCandidateProvider = {
+      source: 'ai',
+      generate: async () => ({ kind: 'remove-entity', target: { semantic: 'sheep', match: 'one' } }),
+    }
+    const result = await planner(provider).plan(request('删除 cow-1', {
+      worldType: 'farm',
+      entities: [
+        { id: 'cow-1', category: 'npc', name: 'Sheep' },
+        { id: 'cow-2', category: 'npc', name: 'Sheep' },
+        { id: 'cow-3', category: 'npc', name: 'Sheep' },
+      ],
+    }))
+
+    expect(result.status).toBe('validated')
+    if (result.status !== 'validated') return
+    expect(result.intent).toMatchObject({ scope: 'entity', target: { entityId: 'cow-1' } })
+    expect(result.operation.resolvedTargetIds).toEqual(['cow-1'])
+  })
+
   it('keeps explicit group language authoritative when a provider omits match', async () => {
     const provider: WorldEvolutionCandidateProvider = {
       source: 'ai',
