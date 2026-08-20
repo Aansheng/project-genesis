@@ -9,6 +9,13 @@ export type { DiffViewModel as DiffEntry } from '../../../adapters/observatory'
 <script setup lang="ts">
 import DiffChangeCard from './DiffChangeCard.vue'
 
+function appliedStatusLabel(entry: DiffEntry): string {
+  if (entry.runtimeSynchronization === 'synchronized') return 'SEMANTIC APPLIED · RUNTIME SYNCHRONIZED · VISUAL PENDING'
+  if (entry.runtimeSynchronization === 'no_runtime_impact') return 'SEMANTIC APPLIED · RUNTIME NO IMPACT · VISUAL PENDING'
+  if (entry.runtimeSynchronization === 'failed') return 'SEMANTIC APPLIED · RUNTIME SYNC FAILED'
+  return 'SEMANTIC APPLIED · RUNTIME SYNCHRONIZATION PENDING'
+}
+
 defineProps<{
   entry: DiffEntry | null
 }>()
@@ -27,7 +34,7 @@ defineProps<{
         <span
           v-if="entry.status === 'applied'"
           class="diff-status"
-        >SEMANTIC APPLIED · Runtime synchronization pending</span>
+        >{{ appliedStatusLabel(entry) }}</span>
         <span
           v-else-if="entry.status === 'planned'"
           class="diff-status"

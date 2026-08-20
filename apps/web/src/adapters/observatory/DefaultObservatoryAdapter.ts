@@ -286,8 +286,13 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       ...(typeof safeGet(item, 'worldId') === 'string' ? { worldId: safeGet<string>(item, 'worldId') } : {}),
       ...(typeof safeGet(item, 'status') === 'string' ? { status: safeGet<string>(item, 'status') } : {}),
       ...(typeof safeGet(item, 'semanticRevision') === 'number' ? { semanticRevision: safeGet<number>(item, 'semanticRevision') } : {}),
-      ...(safeGet(item, 'runtimeSynchronization') === 'pending' || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
-        ? { runtimeSynchronization: safeGet<'pending' | 'not-applicable'>(item, 'runtimeSynchronization') }
+      ...(typeof safeGet(item, 'runtimeSemanticRevision') === 'number' ? { runtimeSemanticRevision: safeGet<number>(item, 'runtimeSemanticRevision') } : {}),
+      ...(safeGet(item, 'runtimeSynchronization') === 'pending'
+        || safeGet(item, 'runtimeSynchronization') === 'synchronized'
+        || safeGet(item, 'runtimeSynchronization') === 'no_runtime_impact'
+        || safeGet(item, 'runtimeSynchronization') === 'failed'
+        || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
+        ? { runtimeSynchronization: safeGet<'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'>(item, 'runtimeSynchronization') }
         : {}),
       ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
@@ -429,9 +434,17 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       ...(typeof safeGet(item, 'worldId') === 'string' ? { worldId: safeGet<string>(item, 'worldId') } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'targetIds')) ? { targetIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'targetIds'))) } : {}),
       ...(typeof safeGet(item, 'semanticRevision') === 'number' ? { semanticRevision: safeGet<number>(item, 'semanticRevision') } : {}),
-      ...(safeGet(item, 'runtimeSynchronization') === 'pending' || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
-        ? { runtimeSynchronization: safeGet<'pending' | 'not-applicable'>(item, 'runtimeSynchronization') }
+      ...(typeof safeGet(item, 'runtimeSemanticRevision') === 'number' ? { runtimeSemanticRevision: safeGet<number>(item, 'runtimeSemanticRevision') } : {}),
+      ...(safeGet(item, 'runtimeSynchronization') === 'pending'
+        || safeGet(item, 'runtimeSynchronization') === 'synchronized'
+        || safeGet(item, 'runtimeSynchronization') === 'no_runtime_impact'
+        || safeGet(item, 'runtimeSynchronization') === 'failed'
+        || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
+        ? { runtimeSynchronization: safeGet<'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'>(item, 'runtimeSynchronization') }
         : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeAffectedEntityIds')) ? { runtimeAffectedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeAffectedEntityIds'))) } : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeAddedEntityIds')) ? { runtimeAddedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeAddedEntityIds'))) } : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeRemovedEntityIds')) ? { runtimeRemovedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeRemovedEntityIds'))) } : {}),
       ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
   }

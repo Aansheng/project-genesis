@@ -13,10 +13,10 @@
  */
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { Runtime, DefaultRuntimeWorldStore } from '@genesis/runtime'
+import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult } from '@genesis/shared'
+import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult } from '@genesis/shared'
 import { DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
 import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
@@ -90,7 +90,9 @@ function withSemanticApplication(
     }),
   ])
   const events: readonly WorldEvolutionEvent[] = Object.freeze([
-    ...plan.operation.events,
+    ...plan.operation.events.map(event => event.type === 'world.evolution.semantic_applied'
+      ? Object.freeze({ ...event, message: 'Semantic world mutation applied; Runtime synchronization started' })
+      : event),
     Object.freeze({
       id: `${plan.operation.operationId}:semantic_application_started`,
       operationId: plan.operation.operationId,
@@ -105,7 +107,7 @@ function withSemanticApplication(
       worldId: plan.operation.worldId,
       type: applied ? 'world.evolution.semantic_applied' : 'world.evolution.semantic_application_failed',
       timestamp: completedAt,
-      message: applied ? 'Semantic world mutation applied; Runtime synchronization pending' : `Semantic world mutation failed: ${mutation.failureReason ?? 'unknown error'}`,
+      message: applied ? 'Semantic world mutation applied; Runtime synchronization started' : `Semantic world mutation failed: ${mutation.failureReason ?? 'unknown error'}`,
     }),
   ])
   const operation = Object.freeze({
@@ -118,6 +120,63 @@ function withSemanticApplication(
     events,
   })
   return Object.freeze({ ...plan, operation, mutation })
+}
+
+function withRuntimeSynchronization(
+  plan: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>,
+  runtimeSync: RuntimeEvolutionResult,
+): Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }> {
+  const startedAt = new Date().toISOString()
+  const completedAt = new Date().toISOString()
+  const failed = runtimeSync.status === 'failed'
+  const stages: readonly WorldEvolutionStage[] = Object.freeze([
+    ...plan.operation.stages,
+    Object.freeze({ name: 'RUNTIME_SYNC_STARTED' as const, status: 'success' as const, timestamp: startedAt }),
+    Object.freeze({
+      name: failed ? 'RUNTIME_SYNC_FAILED' : 'RUNTIME_SYNC_COMPLETED',
+      status: failed ? 'failed' : 'success',
+      timestamp: completedAt,
+      ...(runtimeSync.failureReason ? { error: runtimeSync.failureReason } : {}),
+    }),
+  ])
+  const events: readonly WorldEvolutionEvent[] = Object.freeze([
+    ...plan.operation.events,
+    Object.freeze({
+      id: `${plan.operation.operationId}:runtime_sync_started`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: 'world.evolution.runtime_sync_started' as const,
+      timestamp: startedAt,
+      message: 'Runtime synchronization started',
+    }),
+    Object.freeze({
+      id: `${plan.operation.operationId}:${failed ? 'runtime_sync_failed' : 'runtime_synced'}`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: failed ? 'world.evolution.runtime_sync_failed' as const : 'world.evolution.runtime_synced' as const,
+      timestamp: completedAt,
+      message: failed
+        ? `Runtime synchronization failed: ${runtimeSync.failureReason ?? 'unknown error'}`
+        : runtimeSync.status === 'no_runtime_impact'
+          ? 'Runtime synchronization completed; no Runtime field was affected'
+          : runtimeSync.status === 'already_applied'
+            ? 'Runtime synchronization already applied; no duplicate mutation committed'
+            : 'Runtime synchronization completed',
+    }),
+  ])
+  const operation = Object.freeze({
+    ...plan.operation,
+    status: failed ? 'runtime_sync_failed' as const : 'runtime_synchronized' as const,
+    completedAt,
+    runtimeSemanticRevision: runtimeSync.updatedRevision,
+    runtimeSynchronization: failed
+      ? 'failed' as const
+      : runtimeSync.runtimeImpact === 'none' ? 'no_runtime_impact' as const : 'synchronized' as const,
+    ...(failed ? { failureReason: runtimeSync.failureReason ?? 'runtime_sync_failed' } : {}),
+    stages,
+    events,
+  })
+  return Object.freeze({ ...plan, operation, runtimeSync })
 }
 
 function imageGatewayURL(gatewayURL: string): string {
@@ -190,6 +249,10 @@ export const useGameStore = defineStore('game', () => {
   const semanticProperties = computed<WorldSemanticProperties>(() => semanticState.value?.properties ?? EMPTY_SEMANTIC_PROPERTIES)
   const semanticRevision = computed(() => semanticState.value?.semanticRevision ?? 0)
   const semanticWorldDeltaApplier = new DefaultSemanticWorldDeltaApplier()
+  const runtimeWorldEvolutionSynchronizer = new DefaultRuntimeWorldEvolutionSynchronizer()
+  const runtimeSemanticRevision = ref(0)
+  const runtimeSyncWorldId = ref('')
+  const lastRuntimeSyncOperationId = ref<string | null>(null)
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
@@ -373,6 +436,9 @@ export const useGameStore = defineStore('game', () => {
             : {},
           semanticRevision: 0,
         })
+        runtimeSemanticRevision.value = 0
+        runtimeSyncWorldId.value = nextWorldId
+        lastRuntimeSyncOperationId.value = null
         useObservatoryDataStore().resetEvolution(currentWorldId.value)
         useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentWorldId.value)
         markWorldUpdated()
@@ -449,14 +515,41 @@ export const useGameStore = defineStore('game', () => {
         semanticRevision: mutation.updatedRevision,
       })
     }
-    if (appliedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(appliedPlan)
     if (mutation.status === 'applied') {
+      const runtimeSync = runtimeWorldEvolutionSynchronizer.synchronize(worldStore.getWorld(), mutation, {
+        worldId: runtimeSyncWorldId.value || currentState!.worldId,
+        runtimeRevision: runtimeSemanticRevision.value,
+        ...(lastRuntimeSyncOperationId.value ? { lastAppliedOperationId: lastRuntimeSyncOperationId.value } : {}),
+      })
+      const synchronizedPlan = withRuntimeSynchronization(appliedPlan, runtimeSync)
+      if (runtimeSync.status === 'synchronized') {
+        worldStore.setWorld(runtimeSync.updatedWorld)
+        markWorldUpdated()
+      }
+      if (runtimeSync.status !== 'failed') {
+        runtimeSemanticRevision.value = runtimeSync.updatedRevision
+        runtimeSyncWorldId.value = currentState!.worldId
+        lastRuntimeSyncOperationId.value = mutation.operationId
+        useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentState!.worldId)
+      }
+      if (synchronizedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(synchronizedPlan)
+      if (runtimeSync.status !== 'failed') {
+        const runtimeMessage = runtimeSync.runtimeImpact === 'none'
+          ? 'Runtime no runtime impact'
+          : 'Runtime synchronized'
+        return {
+          success: true,
+          message: `Semantic world updated: ${plan.delta.summary} (${runtimeMessage}; visual synchronization pending)`,
+          evolutionPlan: synchronizedPlan,
+        }
+      }
       return {
-        success: true,
-        message: `Semantic world updated: ${plan.delta.summary} (Runtime synchronization pending)`,
-        evolutionPlan: appliedPlan,
+        success: false,
+        message: `Semantic world updated, but Runtime synchronization failed: ${runtimeSync.failureReason ?? 'unknown error'}`,
+        evolutionPlan: synchronizedPlan,
       }
     }
+    if (appliedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(appliedPlan)
     return {
       success: false,
       message: `World evolution semantic application failed: ${mutation.failureReason ?? 'unknown error'}`,
@@ -475,6 +568,8 @@ export const useGameStore = defineStore('game', () => {
     semanticWorld,
     semanticProperties,
     semanticRevision,
+    runtimeSemanticRevision,
+    runtimeSyncWorldId,
     selectedEntityId,
     selectedEntity,
     selectEntity,

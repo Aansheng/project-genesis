@@ -46,3 +46,18 @@ export type { GameBootstrapConfig } from './bootstrap'
 // Runtime World Store Foundation (WO-S10-003)
 export type { RuntimeWorldStore } from './world'
 export { DefaultRuntimeWorldStore } from './world'
+
+// Targeted semantic-to-Runtime synchronization
+export type {
+  RuntimeEvolutionFailureReason,
+  RuntimeEvolutionImpact,
+  RuntimeEvolutionResult,
+  RuntimeEvolutionStatus,
+  RuntimeEvolutionSynchronizationOptions,
+  RuntimePreservedComponentFacts,
+  RuntimeWorldEvolutionSynchronizer as RuntimeWorldEvolutionSynchronizerContract,
+} from '@genesis/shared'
+export {
+  DefaultRuntimeWorldEvolutionSynchronizer,
+  RuntimeWorldEvolutionSynchronizer,
+} from './evolution'

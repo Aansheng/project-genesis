@@ -85,7 +85,7 @@ describe('World Evolution Studio integration', () => {
     vi.stubGlobal('fetch', gateway())
   })
 
-  it('applies a semantic delta while Runtime and assets remain unchanged', async () => {
+  it('applies a targeted semantic delta to Runtime while assets remain unchanged', async () => {
     const game = useGameStore()
     const observatory = useObservatoryDataStore()
     await game.send('创建一个农场游戏，3头牛')
@@ -96,17 +96,20 @@ describe('World Evolution Studio integration', () => {
 
     expect(result.success).toBe(true)
     expect(result.evolutionPlan?.status).toBe('validated')
-    expect(result.evolutionPlan?.operation.status).toBe('semantic_applied')
+    expect(result.evolutionPlan?.operation.status).toBe('runtime_synchronized')
     expect(game.semanticRevision).toBe(1)
     expect(game.semanticWorld?.entities.filter(entity => entity.id.startsWith('cow-')).map(entity => entity.name)).toEqual(['Sheep', 'Sheep', 'Sheep'])
-    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
     expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'cow-1', 'cow-2', 'cow-3', 'crop-1', 'barn-1'])
+    expect(game.worldStore.getWorld().entities.filter(entity => entity.id.startsWith('cow-')).every(entity => entity.components?.find(component => component.type === 'semantic')?.properties.name === 'Sheep')).toBe(true)
     expect(observatory.viewModel.historyView).toHaveLength(1)
     expect(observatory.viewModel.historyView[0]?.prompt).toBe('把所有牛改成羊')
     expect(observatory.viewModel.historyView[0]?.result).toContain('Semantic change applied')
-    expect(observatory.viewModel.historyView[0]?.result).toContain('Runtime synchronization pending')
+    expect(observatory.viewModel.historyView[0]?.result).toContain('Runtime synchronized')
+    expect(observatory.viewModel.historyView[0]?.result).toContain('Visual synchronization pending')
     expect(observatory.viewModel.diffView[0]?.status).toBe('applied')
+    expect(observatory.viewModel.diffView[0]?.runtimeSynchronization).toBe('synchronized')
     expect(observatory.viewModel.diffView[0]?.targetIds).toEqual(['cow-1', 'cow-2', 'cow-3'])
     expect(observatory.viewModel.diffView[0]?.changed.map(item => item.name)).toEqual([
       'cow-1: Cow → Sheep', 'cow-2: Cow → Sheep', 'cow-3: Cow → Sheep',
@@ -120,14 +123,18 @@ describe('World Evolution Studio integration', () => {
       'DELTA_VALIDATION · success',
       'SEMANTIC_APPLICATION_STARTED · success',
       'SEMANTIC_APPLICATION_COMPLETED · success',
+      'RUNTIME_SYNC_STARTED · success',
+      'RUNTIME_SYNC_COMPLETED · success',
     ])
-    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'semantic_applied', worldId: 'world-1', semanticRevision: 1 })
+    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'runtime_synchronized', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1 })
     expect(observatory.viewModel.eventStreamView.events.map(event => event.source)).toContain('world-evolution')
+    expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).toContain('Semantic world mutation applied; Runtime synchronization started')
+    expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).not.toContain('Semantic world mutation applied; Runtime synchronization pending')
 
     const next = await game.send('删除所有羊')
     expect(next.success).toBe(true)
     expect(game.semanticWorld?.entities.some(entity => entity.name === 'Sheep')).toBe(false)
-    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'cow-1', 'cow-2', 'cow-3', 'crop-1', 'barn-1'])
+    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'crop-1', 'barn-1'])
   })
 
   it('isolates World A evolution history when World B becomes current', async () => {
@@ -147,7 +154,7 @@ describe('World Evolution Studio integration', () => {
     expect(observatory.viewModel.runtimeView.worldId).toBe('world-2')
   })
 
-  it('adds counted semantic entities and applies a world property without touching Runtime', async () => {
+  it('adds counted entities to Runtime and keeps world-property changes Runtime-neutral', async () => {
     const game = useGameStore()
     const observatory = useObservatoryDataStore()
     await game.send('创建一个农场游戏，3头牛')
@@ -159,7 +166,8 @@ describe('World Evolution Studio integration', () => {
     expect(added.success).toBe(true)
     expect(game.semanticWorld?.entities.filter(entity => entity.name === 'Merchant').map(entity => entity.id)).toEqual(['merchant-1', 'merchant-2', 'merchant-3'])
     expect(game.semanticRevision).toBe(1)
-    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    const afterAddRuntime = JSON.stringify(game.worldStore.getWorld())
+    expect(afterAddRuntime).not.toBe(beforeRuntime)
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
     expect(observatory.viewModel.diffView[0]?.added.map(item => item.name)).toEqual([
       'merchant-1: Merchant', 'merchant-2: Merchant', 'merchant-3: Merchant',
@@ -169,11 +177,12 @@ describe('World Evolution Studio integration', () => {
     expect(themed.success).toBe(true)
     expect(game.semanticProperties.timeOfDay).toBe('night')
     expect(game.semanticRevision).toBe(2)
-    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
-    expect(observatory.viewModel.historyView.at(-1)?.result).toContain('Runtime synchronization pending')
+    expect(JSON.stringify(game.worldStore.getWorld())).toBe(afterAddRuntime)
+    expect(observatory.viewModel.historyView.at(-1)?.result).toContain('Runtime no runtime impact')
+    expect(observatory.viewModel.diffView.at(-1)?.runtimeSynchronization).toBe('no_runtime_impact')
   })
 
-  it('removes a semantic entity while the old Runtime entity remains visible', async () => {
+  it('removes the targeted Runtime entity without changing unrelated entities', async () => {
     const game = useGameStore()
     const observatory = useObservatoryDataStore()
     await game.send('创建一个 RPG')
@@ -183,8 +192,8 @@ describe('World Evolution Studio integration', () => {
 
     expect(result.success).toBe(true)
     expect(game.semanticWorld?.entities.some(entity => entity.id === 'boss-1')).toBe(false)
-    expect(game.worldStore.getWorld().entities.some(entity => entity.id === 'boss-1')).toBe(true)
-    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    expect(game.worldStore.getWorld().entities.some(entity => entity.id === 'boss-1')).toBe(false)
+    expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
     expect(observatory.viewModel.diffView.at(-1)?.removed).toEqual([{ name: 'boss-1' }])
   })
 })

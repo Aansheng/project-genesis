@@ -1,5 +1,26 @@
 # Changelog
 
+### WO-S14-003 — Targeted Runtime Mutation & Semantic Synchronization
+
+- Added the provider-independent `DefaultRuntimeWorldEvolutionSynchronizer`
+  and immutable `RuntimeEvolutionResult` contract. Semantic replacement updates
+  only the target Runtime IDs' actual `type`/`semantic` fields while preserving
+  position, velocity, gameplay components, and live player state.
+- Added deterministic targeted additions with collision-free safe placement and
+  existing semantic/position defaults; exact removals reject player deletion
+  safely. World-property changes report `no_runtime_impact`; `movementSpeed`
+  remains unsupported.
+- Added atomic off-to-the-side Runtime application, world/session and revision
+  guards, a Runtime semantic revision marker, operation idempotency, and one
+  `RuntimeWorldStore.setWorld` commit. The existing execution loop, renderer,
+  camera, system registry, AssetManifest, AssetStore, and image queue remain
+  intact.
+- Connected Runtime synchronization stages/events to Observatory History, Diff,
+  Timeline, Trace, Event Stream, Runtime, and World Graph. Visual status remains
+  explicitly pending and new entities use the existing primitive fallback.
+- Added targeted synchronizer and web integration coverage. Added ADR-0258;
+  architecture version v1.143 → v1.144.
+
 ### WO-S14-002 — Semantic World Delta Application Foundation
 
 - Added the provider-independent `DefaultSemanticWorldDeltaApplier` and an

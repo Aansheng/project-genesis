@@ -26,6 +26,15 @@ export type {
   WorldSemanticDeltaOperation,
 } from './WorldEvolution'
 export type {
+  RuntimeEvolutionFailureReason,
+  RuntimeEvolutionImpact,
+  RuntimeEvolutionResult,
+  RuntimeEvolutionStatus,
+  RuntimeEvolutionSynchronizationOptions,
+  RuntimePreservedComponentFacts,
+  RuntimeWorldEvolutionSynchronizer,
+} from './RuntimeWorldEvolution'
+export type {
   SemanticWorldDeltaApplier,
   SemanticWorldDeltaApplicationOptions,
   SemanticWorldMutationFailureReason,

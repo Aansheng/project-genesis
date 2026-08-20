@@ -6,6 +6,7 @@ import type {
   WorldEvolutionStage,
   WorldSemanticDelta,
   SemanticWorldMutationResult,
+  RuntimeEvolutionResult,
 } from '@genesis/shared'
 import type { GameDesignPrompt } from '../game-world/generation/GameDesignPromptBuilder'
 
@@ -60,6 +61,7 @@ export type WorldEvolutionPlanResult =
       readonly delta: WorldSemanticDelta
       readonly operation: WorldEvolutionOperation
       readonly mutation?: SemanticWorldMutationResult
+      readonly runtimeSync?: RuntimeEvolutionResult
     }
   | {
       readonly status: 'needs_clarification' | 'unsupported' | 'failed'

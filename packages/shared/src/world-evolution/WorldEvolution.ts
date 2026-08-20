@@ -159,6 +159,9 @@ export type WorldEvolutionOperationStatus =
   | 'applying_semantic'
   | 'semantic_applied'
   | 'semantic_application_failed'
+  | 'runtime_syncing'
+  | 'runtime_synchronized'
+  | 'runtime_sync_failed'
 
 export type WorldEvolutionStageName =
   | 'REQUEST_RECEIVED'
@@ -170,6 +173,9 @@ export type WorldEvolutionStageName =
   | 'SEMANTIC_APPLICATION_STARTED'
   | 'SEMANTIC_APPLICATION_COMPLETED'
   | 'SEMANTIC_APPLICATION_FAILED'
+  | 'RUNTIME_SYNC_STARTED'
+  | 'RUNTIME_SYNC_COMPLETED'
+  | 'RUNTIME_SYNC_FAILED'
 
 export type WorldEvolutionStageStatus = 'success' | 'failed' | 'not-applicable'
 
@@ -188,6 +194,9 @@ export type WorldEvolutionEventType =
   | 'world.evolution.semantic_application_started'
   | 'world.evolution.semantic_applied'
   | 'world.evolution.semantic_application_failed'
+  | 'world.evolution.runtime_sync_started'
+  | 'world.evolution.runtime_synced'
+  | 'world.evolution.runtime_sync_failed'
 
 export interface WorldEvolutionEvent {
   readonly id: string
@@ -209,6 +218,8 @@ export interface WorldEvolutionOperation {
   readonly createdAt: string
   readonly completedAt?: string
   readonly semanticRevision?: number
+  readonly runtimeSemanticRevision?: number
+  readonly runtimeSynchronization?: 'pending' | 'synchronized' | 'no_runtime_impact' | 'failed'
   readonly source: WorldEvolutionSource
   readonly provider?: string
   readonly model?: string

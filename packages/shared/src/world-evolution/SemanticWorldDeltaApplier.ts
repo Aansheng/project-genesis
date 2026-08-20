@@ -35,6 +35,7 @@ export interface SemanticWorldPropertyUpdate {
 /** Immutable result of one atomic semantic-world delta application. */
 export interface SemanticWorldMutationResult {
   readonly status: SemanticWorldMutationStatus
+  readonly operationId: string
   readonly worldId: string
   readonly previousWorld: GameWorldModel
   readonly updatedWorld: GameWorldModel
@@ -127,9 +128,11 @@ function baseResult(
   properties: WorldSemanticProperties,
   revision: number,
   failureReason?: SemanticWorldMutationFailureReason,
+  operationId = '',
 ): SemanticWorldMutationResult {
   return Object.freeze({
     status,
+    operationId,
     worldId,
     previousWorld: world,
     updatedWorld: world,
@@ -161,21 +164,22 @@ export class DefaultSemanticWorldDeltaApplier implements SemanticWorldDeltaAppli
     const properties = freezeProperties(options.properties)
     const previousRevision = options.semanticRevision ?? 0
     const worldId = options.worldId ?? (delta && typeof delta === 'object' ? delta.worldId : '')
-    const invalid = baseResult('failed', world, worldId, properties, previousRevision, 'invalid_delta')
+    const operationId = delta && typeof delta === 'object' && typeof delta.operationId === 'string' ? delta.operationId : ''
+    const invalid = baseResult('failed', world, worldId, properties, previousRevision, 'invalid_delta', operationId)
 
     if (!world || typeof world !== 'object' || !Array.isArray(world.entities) || !delta || typeof delta !== 'object') return invalid
     if (options.worldId !== undefined && delta.worldId !== options.worldId) {
-      return baseResult('failed', world, worldId, properties, previousRevision, 'world_mismatch')
+      return baseResult('failed', world, worldId, properties, previousRevision, 'world_mismatch', operationId)
     }
     if (options.semanticRevision !== undefined && delta.semanticRevision !== options.semanticRevision) {
-      return baseResult('failed', world, worldId, properties, previousRevision, 'stale_revision')
+      return baseResult('failed', world, worldId, properties, previousRevision, 'stale_revision', operationId)
     }
     if (!Array.isArray(delta.operations) || delta.operations.length === 0) return invalid
 
     const usedIds = new Set<string>()
     for (const entity of world.entities) {
       if (!entity || typeof entity.id !== 'string' || usedIds.has(entity.id)) {
-        return baseResult('failed', world, worldId, properties, previousRevision, 'duplicate_entity_id')
+        return baseResult('failed', world, worldId, properties, previousRevision, 'duplicate_entity_id', operationId)
       }
       usedIds.add(entity.id)
     }
@@ -192,7 +196,7 @@ export class DefaultSemanticWorldDeltaApplier implements SemanticWorldDeltaAppli
     const worldPropertyUpdates: SemanticWorldPropertyUpdate[] = []
 
     const fail = (reason: SemanticWorldMutationFailureReason): SemanticWorldMutationResult =>
-      baseResult('failed', world, worldId, properties, previousRevision, reason)
+      baseResult('failed', world, worldId, properties, previousRevision, reason, operationId)
 
     for (const operation of delta.operations) {
       if (!operation || typeof operation !== 'object') return fail('invalid_delta')
@@ -279,6 +283,7 @@ export class DefaultSemanticWorldDeltaApplier implements SemanticWorldDeltaAppli
     const frozenApplied = Object.freeze(appliedOperations)
     return Object.freeze({
       status: 'applied',
+      operationId,
       worldId,
       previousWorld: world,
       updatedWorld,

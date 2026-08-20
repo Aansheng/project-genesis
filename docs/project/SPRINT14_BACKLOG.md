@@ -8,9 +8,9 @@ world evolution while keeping the current semantic world authoritative.
 `Natural Language → WorldEvolutionRequest → WorldEvolutionIntent →
 WorldSemanticDelta → semantic application → updated semantic authority → Observatory`
 
-Semantic application is separate from Runtime execution. S14-002 mutates only
-the current semantic authority; it must not mutate Runtime, AssetManifest,
-Renderer, or generated assets.
+Semantic application is separate from Runtime execution. S14-003 applies only
+the targeted Runtime delta after semantic commit; it must not mutate
+AssetManifest, Renderer assets, or generated image state.
 
 ## Completed
 
@@ -49,14 +49,21 @@ Renderer, or generated assets.
 
 ## Next Work Order Boundary
 
-Define and implement a separate Runtime application contract for the already
-applied semantic `WorldSemanticDelta` operations:
+### WO-S14-003 — Targeted Runtime Mutation & Semantic Synchronization
 
-1. identity preservation for semantic replacement;
-2. deterministic ID allocation for additions;
-3. RuntimeWorldStore mutation and renderer synchronization;
-4. AssetManifest invalidation/rebinding;
-5. applied vs planned Observatory status and post-apply World Graph truth.
+- Added the provider-independent Runtime synchronization contract and
+  deterministic targeted synchronizer.
+- Preserved replacement identity, Runtime state/components, exact removal,
+  deterministic safe add placement, and player-removal safety.
+- Connected one-shot `RuntimeWorldStore.setWorld` commits and revision-based
+  idempotency to the existing renderer loop without rebuilding the world.
+- Connected Runtime synchronization lifecycle facts to Observatory and kept
+  visual synchronization pending with unchanged AssetManifest/image counts.
+- Architecture version: v1.143 → v1.144.
+- Code Complete: YES.
+- Product Verified: YES — live Farm/RPG replace-add-remove, movement continuity,
+  world-property no-impact, Observatory lifecycle, unchanged asset counts, and
+  empty browser error/warning logs were verified.
 
-Until that work is accepted, “semantic applied; Runtime synchronization
-pending” is the required product behavior.
+The remaining boundary is optional visual-asset evolution; Runtime semantic
+synchronization is now live and truthful.

@@ -8,7 +8,7 @@ import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
-import type { WorldSemanticDelta, WorldEvolutionOperation } from '@genesis/shared'
+import type { WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
 
 export interface ObservatoryGenerationStage {
@@ -77,14 +77,14 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     const traceView = upsertById(current.traceView, buildEvolutionTrace(operation))
     const timelineView = upsertById(current.timelineView, buildEvolutionTimeline(operation))
     const historyView = upsertById(current.historyView, buildEvolutionHistory(operation))
-    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation) : undefined
+    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation, plan.runtimeSync) : undefined
     const diffView = diff ? upsertById(current.diffView, diff) : current.diffView
     const operationEventIds = new Set(operation.events.map(event => event.id))
     const events = Object.freeze([
       ...operation.events.map(event => Object.freeze({
         id: event.id,
         timestamp: event.timestamp,
-        level: event.type === 'world.evolution.semantic_application_failed'
+        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed'
           ? 'error' as const
           : event.type === 'world.evolution.validation_failed' || event.type === 'world.evolution.needs_clarification'
             ? 'warning' as const
@@ -251,6 +251,8 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       { key: 'worldId', value: operation.worldId },
       { key: 'status', value: operation.status },
       ...(operation.semanticRevision !== undefined ? [{ key: 'semanticRevision', value: String(operation.semanticRevision) }] : []),
+      ...(operation.runtimeSemanticRevision !== undefined ? [{ key: 'runtimeSemanticRevision', value: String(operation.runtimeSemanticRevision) }] : []),
+      ...(operation.runtimeSynchronization ? [{ key: 'runtimeSynchronization', value: operation.runtimeSynchronization }] : []),
       { key: 'targets', value: operation.resolvedTargetIds.join(', ') || 'none' },
     ]),
     metadata: Object.freeze({
@@ -261,6 +263,8 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       worldId: operation.worldId,
       status: operation.status,
       ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
+      ...(operation.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: operation.runtimeSemanticRevision } : {}),
+      ...(operation.runtimeSynchronization ? { runtimeSynchronization: operation.runtimeSynchronization } : {}),
     }),
     operationId: operation.operationId,
     worldId: operation.worldId,
@@ -282,24 +286,37 @@ function buildEvolutionTimeline(operation: WorldEvolutionOperation): Observatory
 
 function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryViewModel['historyView'][number] {
   const semanticApplied = operation.status === 'semantic_applied'
+    || operation.status === 'runtime_synchronized'
+    || operation.status === 'runtime_sync_failed'
   const semanticFailed = operation.status === 'semantic_application_failed'
+  const runtimeFailed = operation.status === 'runtime_sync_failed'
+  const runtimeSynchronized = operation.status === 'runtime_synchronized'
   return Object.freeze({
     id: `history-${operation.operationId}`,
     timestamp: operation.createdAt,
     prompt: operation.instruction,
-    result: semanticApplied
-      ? 'Semantic change applied; Runtime synchronization pending'
-      : semanticFailed
-        ? `Semantic application failed: ${operation.failureReason ?? 'unknown error'}`
-        : operation.status === 'validated'
-          ? 'Validated plan; Runtime unchanged'
-          : `${operation.status}: ${operation.failureReason ?? 'no semantic delta produced'}`,
+    result: runtimeSynchronized
+      ? operation.runtimeSynchronization === 'no_runtime_impact'
+        ? 'Semantic change applied; Runtime no runtime impact; Visual synchronization pending'
+        : 'Semantic change applied; Runtime synchronized; Visual synchronization pending'
+      : runtimeFailed
+        ? `Semantic change applied; Runtime synchronization failed: ${operation.failureReason ?? 'unknown error'}`
+        : semanticApplied
+          ? 'Semantic change applied; Runtime synchronization pending'
+          : semanticFailed
+            ? `Semantic application failed: ${operation.failureReason ?? 'unknown error'}`
+            : operation.status === 'validated'
+              ? 'Validated plan; Runtime unchanged'
+              : `${operation.status}: ${operation.failureReason ?? 'no semantic delta produced'}`,
     evolution: Object.freeze(operation.deltaSummary ? [{ name: operation.deltaSummary }] : []),
     operationId: operation.operationId,
     worldId: operation.worldId,
     status: operation.status,
     ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
-    ...(semanticApplied ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(operation.runtimeSynchronization
+      ? { runtimeSynchronization: operation.runtimeSynchronization }
+      : semanticApplied ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(operation.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: operation.runtimeSemanticRevision } : {}),
     ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }
@@ -308,6 +325,7 @@ function buildEvolutionDiff(
   operation: WorldEvolutionOperation,
   delta: WorldSemanticDelta,
   mutation?: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>['mutation'],
+  runtimeSync?: RuntimeEvolutionResult,
 ): ObservatoryViewModel['diffView'][number] {
   const added: { readonly name: string }[] = []
   const removed: { readonly name: string }[] = []
@@ -332,10 +350,19 @@ function buildEvolutionDiff(
     changed: Object.freeze(changed),
     operationId: operation.operationId,
     worldId: operation.worldId,
-    status: operation.status === 'semantic_applied' ? 'applied' as const : 'planned' as const,
+    status: operation.status === 'semantic_applied' || operation.status === 'runtime_synchronized' || operation.status === 'runtime_sync_failed'
+      ? 'applied' as const
+      : 'planned' as const,
     targetIds: Object.freeze([...operation.resolvedTargetIds]),
     ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
-    ...(operation.status === 'semantic_applied' ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(operation.runtimeSynchronization
+      ? { runtimeSynchronization: operation.runtimeSynchronization }
+      : operation.status === 'semantic_applied' ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(runtimeSync ? {
+      runtimeAffectedEntityIds: Object.freeze([...runtimeSync.affectedEntityIds]),
+      runtimeAddedEntityIds: Object.freeze([...runtimeSync.addedEntityIds]),
+      runtimeRemovedEntityIds: Object.freeze([...runtimeSync.removedEntityIds]),
+    } : {}),
     ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }
