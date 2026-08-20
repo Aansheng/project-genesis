@@ -8,7 +8,7 @@ import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
-import type { WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult } from '@genesis/shared'
+import type { WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
 
 export interface ObservatoryGenerationStage {
@@ -77,19 +77,20 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     const traceView = upsertById(current.traceView, buildEvolutionTrace(operation))
     const timelineView = upsertById(current.timelineView, buildEvolutionTimeline(operation))
     const historyView = upsertById(current.historyView, buildEvolutionHistory(operation))
-    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation, plan.runtimeSync) : undefined
+    const diff = plan.status === 'validated' ? buildEvolutionDiff(operation, plan.delta, plan.mutation, plan.runtimeSync, plan.visualPlan) : undefined
     const diffView = diff ? upsertById(current.diffView, diff) : current.diffView
     const operationEventIds = new Set(operation.events.map(event => event.id))
     const events = Object.freeze([
       ...operation.events.map(event => Object.freeze({
         id: event.id,
         timestamp: event.timestamp,
-        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed'
+        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed' || event.type === 'world.evolution.visual_delta_failed'
           ? 'error' as const
           : event.type === 'world.evolution.validation_failed' || event.type === 'world.evolution.needs_clarification'
             ? 'warning' as const
             : 'info' as const,
         source: 'world-evolution',
+        type: event.type,
         message: event.message,
       })),
       ...current.eventStreamView.events.filter(event => !operationEventIds.has(event.id)),
@@ -253,6 +254,9 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.semanticRevision !== undefined ? [{ key: 'semanticRevision', value: String(operation.semanticRevision) }] : []),
       ...(operation.runtimeSemanticRevision !== undefined ? [{ key: 'runtimeSemanticRevision', value: String(operation.runtimeSemanticRevision) }] : []),
       ...(operation.runtimeSynchronization ? [{ key: 'runtimeSynchronization', value: operation.runtimeSynchronization }] : []),
+      ...(operation.visualRevision !== undefined ? [{ key: 'visualRevision', value: String(operation.visualRevision) }] : []),
+      ...(operation.visualPlanning ? [{ key: 'visualPlanning', value: operation.visualPlanning }] : []),
+      ...(operation.visualGenerationRequired !== undefined ? [{ key: 'visualGenerationRequired', value: String(operation.visualGenerationRequired) }] : []),
       { key: 'targets', value: operation.resolvedTargetIds.join(', ') || 'none' },
     ]),
     metadata: Object.freeze({
@@ -265,6 +269,9 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
       ...(operation.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: operation.runtimeSemanticRevision } : {}),
       ...(operation.runtimeSynchronization ? { runtimeSynchronization: operation.runtimeSynchronization } : {}),
+      ...(operation.visualRevision !== undefined ? { visualRevision: operation.visualRevision } : {}),
+      ...(operation.visualPlanning ? { visualPlanning: operation.visualPlanning } : {}),
+      ...(operation.visualGenerationRequired !== undefined ? { visualGenerationRequired: operation.visualGenerationRequired } : {}),
     }),
     operationId: operation.operationId,
     worldId: operation.worldId,
@@ -288,18 +295,34 @@ function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryV
   const semanticApplied = operation.status === 'semantic_applied'
     || operation.status === 'runtime_synchronized'
     || operation.status === 'runtime_sync_failed'
+    || operation.status === 'visual_delta_planned'
+    || operation.status === 'visual_planning_failed'
   const semanticFailed = operation.status === 'semantic_application_failed'
   const runtimeFailed = operation.status === 'runtime_sync_failed'
   const runtimeSynchronized = operation.status === 'runtime_synchronized'
+    || operation.status === 'visual_delta_planned'
+    || operation.status === 'visual_planning_failed'
+  const visualPlanned = operation.status === 'visual_delta_planned'
+  const visualFailed = operation.status === 'visual_planning_failed'
+  const runtimeResult = operation.runtimeSynchronization === 'no_runtime_impact'
+    ? 'Runtime no runtime impact'
+    : 'Runtime synchronized'
+  const visualResult = operation.visualGenerationRequired && operation.visualGenerationRequired > 0
+    ? 'Asset execution pending'
+    : 'no asset generation required'
   return Object.freeze({
     id: `history-${operation.operationId}`,
     timestamp: operation.createdAt,
     prompt: operation.instruction,
-    result: runtimeSynchronized
-      ? operation.runtimeSynchronization === 'no_runtime_impact'
-        ? 'Semantic change applied; Runtime no runtime impact; Visual synchronization pending'
-        : 'Semantic change applied; Runtime synchronized; Visual synchronization pending'
-      : runtimeFailed
+    result: visualPlanned
+      ? `Semantic change applied; ${runtimeResult}; Visual delta planned; ${visualResult}`
+      : visualFailed
+        ? `Semantic change applied; ${runtimeResult}; Visual planning failed: ${operation.failureReason ?? 'unknown error'}`
+        : runtimeSynchronized
+          ? operation.runtimeSynchronization === 'no_runtime_impact'
+            ? 'Semantic change applied; Runtime no runtime impact; Visual planning pending'
+            : 'Semantic change applied; Runtime synchronized; Visual planning pending'
+          : runtimeFailed
         ? `Semantic change applied; Runtime synchronization failed: ${operation.failureReason ?? 'unknown error'}`
         : semanticApplied
           ? 'Semantic change applied; Runtime synchronization pending'
@@ -317,6 +340,9 @@ function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryV
       ? { runtimeSynchronization: operation.runtimeSynchronization }
       : semanticApplied ? { runtimeSynchronization: 'pending' as const } : {}),
     ...(operation.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: operation.runtimeSemanticRevision } : {}),
+    ...(operation.visualRevision !== undefined ? { visualRevision: operation.visualRevision } : {}),
+    ...(operation.visualPlanning ? { visualPlanning: operation.visualPlanning } : {}),
+    ...(operation.visualGenerationRequired !== undefined ? { visualGenerationRequired: operation.visualGenerationRequired } : {}),
     ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })
 }
@@ -326,6 +352,7 @@ function buildEvolutionDiff(
   delta: WorldSemanticDelta,
   mutation?: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>['mutation'],
   runtimeSync?: RuntimeEvolutionResult,
+  visualPlan?: VisualEvolutionPlan,
 ): ObservatoryViewModel['diffView'][number] {
   const added: { readonly name: string }[] = []
   const removed: { readonly name: string }[] = []
@@ -342,6 +369,30 @@ function buildEvolutionDiff(
     if (item.kind === 'replace-entity-semantic') changed.push(...item.targetIds.map((id, index) => ({ name: `${id}: ${item.from[index]?.name ?? item.from[0]?.name ?? 'semantic'} → ${item.replacement.name}` })))
     if (item.kind === 'update-world-property') changed.push({ name: `${item.property}: ${item.from ?? 'unset'} → ${item.to}` })
   }
+  if (visualPlan) {
+    for (const replacement of visualPlan.replacedVisualRequirements) {
+      changed.push({
+        name: `Visual: ${replacement.before.visualArchetype ?? replacement.before.subject} → ${replacement.after.visualArchetype ?? replacement.after.subject}`,
+      })
+    }
+    for (const requirement of visualPlan.addedVisualRequirements) {
+      changed.push({ name: `Visual archetype added: ${requirement.visualArchetype ?? requirement.subject}` })
+    }
+    for (const requirement of visualPlan.removedVisualRequirements) {
+      changed.push({ name: `Visual archetype removed: ${requirement.visualArchetype ?? requirement.subject}` })
+    }
+    for (const impact of visualPlan.worldLevelVisualImpact) {
+      changed.push({ name: `Visual ${impact.property}: ${impact.reason}` })
+    }
+    for (const binding of visualPlan.bindingOnlyChanges) {
+      changed.push({ name: `Visual binding ${binding.action.toLocaleLowerCase()}: ${binding.entityId ?? binding.assetId ?? 'unknown'}` })
+    }
+    if (visualPlan.generationRequired.length > 0) {
+      changed.push({ name: `Asset execution: ${visualPlan.generationRequired.length} canonical visual requirement(s) pending` })
+    } else if (visualPlan.noVisualImpactReason) {
+      changed.push({ name: `Asset execution: ${visualPlan.noVisualImpactReason}` })
+    }
+  }
   return Object.freeze({
     id: `diff-${operation.operationId}`,
     timestamp: operation.createdAt,
@@ -350,7 +401,7 @@ function buildEvolutionDiff(
     changed: Object.freeze(changed),
     operationId: operation.operationId,
     worldId: operation.worldId,
-    status: operation.status === 'semantic_applied' || operation.status === 'runtime_synchronized' || operation.status === 'runtime_sync_failed'
+    status: operation.status === 'semantic_applied' || operation.status === 'runtime_synchronized' || operation.status === 'runtime_sync_failed' || operation.status === 'visual_delta_planned' || operation.status === 'visual_planning_failed'
       ? 'applied' as const
       : 'planned' as const,
     targetIds: Object.freeze([...operation.resolvedTargetIds]),
@@ -362,6 +413,19 @@ function buildEvolutionDiff(
       runtimeAffectedEntityIds: Object.freeze([...runtimeSync.affectedEntityIds]),
       runtimeAddedEntityIds: Object.freeze([...runtimeSync.addedEntityIds]),
       runtimeRemovedEntityIds: Object.freeze([...runtimeSync.removedEntityIds]),
+    } : {}),
+    ...(visualPlan ? {
+      visualRevision: visualPlan.updatedVisualRevision,
+      visualPlanning: visualPlan.status === 'failed'
+        ? 'failed' as const
+        : visualPlan.status === 'no_visual_impact' ? 'no_visual_impact' as const : 'planned' as const,
+      visualGenerationRequired: visualPlan.generationRequired.length,
+      visualAffectedArchetypes: Object.freeze([...new Set([
+        ...visualPlan.oldArchetypes.flatMap(archetype => archetype.visualArchetype ? [archetype.visualArchetype] : []),
+        ...visualPlan.newArchetypes.flatMap(archetype => archetype.visualArchetype ? [archetype.visualArchetype] : []),
+      ])]),
+      visualBindingOnlyEntityIds: Object.freeze([...new Set(visualPlan.bindingOnlyChanges.flatMap(change => change.entityId ? [change.entityId] : []))]),
+      visualOrphanedAssetIds: Object.freeze([...visualPlan.assetImpactPlan.orphanedAssetIds]),
     } : {}),
     ...(operation.failureReason ? { failureReason: operation.failureReason } : {}),
   })

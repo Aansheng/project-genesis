@@ -6,11 +6,14 @@ world evolution while keeping the current semantic world authoritative.
 ## Architectural Principle
 
 `Natural Language → WorldEvolutionRequest → WorldEvolutionIntent →
-WorldSemanticDelta → semantic application → updated semantic authority → Observatory`
+WorldSemanticDelta → semantic application → targeted Runtime synchronization →
+visual impact analysis → targeted asset impact plan → Observatory`
 
-Semantic application is separate from Runtime execution. S14-003 applies only
-the targeted Runtime delta after semantic commit; it must not mutate
-AssetManifest, Renderer assets, or generated image state.
+Semantic application, Runtime synchronization, and visual planning are
+separate commits. S14-003 applies only the targeted Runtime delta after
+semantic commit. S14-004 plans only immutable visual/specification deltas; it
+must not mutate AssetManifest, Renderer assets, generated image state, or the
+generation scheduler.
 
 ## Completed
 
@@ -47,8 +50,6 @@ AssetManifest, Renderer assets, or generated image state.
   Theme, follow-up evolution against updated semantics, Runtime non-mutation,
   and Observatory truth.
 
-## Next Work Order Boundary
-
 ### WO-S14-003 — Targeted Runtime Mutation & Semantic Synchronization
 
 - Added the provider-independent Runtime synchronization contract and
@@ -57,13 +58,38 @@ AssetManifest, Renderer assets, or generated image state.
   deterministic safe add placement, and player-removal safety.
 - Connected one-shot `RuntimeWorldStore.setWorld` commits and revision-based
   idempotency to the existing renderer loop without rebuilding the world.
-- Connected Runtime synchronization lifecycle facts to Observatory and kept
-  visual synchronization pending with unchanged AssetManifest/image counts.
+- Connected Runtime synchronization lifecycle facts to Observatory and handed
+  visual execution off with unchanged AssetManifest/image counts.
 - Architecture version: v1.143 → v1.144.
 - Code Complete: YES.
 - Product Verified: YES — live Farm/RPG replace-add-remove, movement continuity,
   world-property no-impact, Observatory lifecycle, unchanged asset counts, and
   empty browser error/warning logs were verified.
 
-The remaining boundary is optional visual-asset evolution; Runtime semantic
-synchronization is now live and truthful.
+### WO-S14-004 — Visual Delta Planning & Targeted Asset Impact Analysis
+
+- Added the provider-independent deterministic visual evolution planner and
+  immutable visual/asset impact plan contracts.
+- Reused the existing visual generation identity and grouping policy to plan
+  canonical generation requirements, binding-only changes, orphaned assets,
+  replacements, additions, removals, and unaffected asset/archetype facts.
+- Stored current VisualDesignSpecification and AssetSpecification state with a
+  per-world visual revision. Theme/palette changes are broad eligible impact;
+  `timeOfDay` is background-only in the current visual model.
+- Connected visual lifecycle facts to History, Diff, Timeline, Trace, and Event
+  Stream. No image generation, scheduler enqueue, AssetManifest/AssetStore
+  mutation, texture replacement, or visual-world rebuild occurs.
+- Architecture version: v1.144 → v1.145.
+- Code Complete: YES.
+- Product Verified: YES — live browser matrix verified Farm/RPG replace-add-remove,
+  background-only night planning, Runtime/entity continuity, Observatory lifecycle,
+  zero console errors, and unchanged image count through no-generation changes.
+
+## Next Work Order Boundary
+
+### WO-S14-005 — Canonical Visual Delta Execution
+
+Execute only the canonical generation-required set produced by S14-004, then
+apply manifest/store/renderer changes with explicit binding and orphan safety.
+Keep unchanged assets untouched and preserve Runtime/player/camera/loop
+continuity.

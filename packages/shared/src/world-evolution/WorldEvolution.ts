@@ -162,6 +162,9 @@ export type WorldEvolutionOperationStatus =
   | 'runtime_syncing'
   | 'runtime_synchronized'
   | 'runtime_sync_failed'
+  | 'visual_impact_analyzing'
+  | 'visual_delta_planned'
+  | 'visual_planning_failed'
 
 export type WorldEvolutionStageName =
   | 'REQUEST_RECEIVED'
@@ -176,6 +179,9 @@ export type WorldEvolutionStageName =
   | 'RUNTIME_SYNC_STARTED'
   | 'RUNTIME_SYNC_COMPLETED'
   | 'RUNTIME_SYNC_FAILED'
+  | 'VISUAL_IMPACT_STARTED'
+  | 'VISUAL_DELTA_PLANNED'
+  | 'VISUAL_DELTA_FAILED'
 
 export type WorldEvolutionStageStatus = 'success' | 'failed' | 'not-applicable'
 
@@ -197,6 +203,9 @@ export type WorldEvolutionEventType =
   | 'world.evolution.runtime_sync_started'
   | 'world.evolution.runtime_synced'
   | 'world.evolution.runtime_sync_failed'
+  | 'world.evolution.visual_impact_started'
+  | 'world.evolution.visual_delta_planned'
+  | 'world.evolution.visual_delta_failed'
 
 export interface WorldEvolutionEvent {
   readonly id: string
@@ -220,6 +229,9 @@ export interface WorldEvolutionOperation {
   readonly semanticRevision?: number
   readonly runtimeSemanticRevision?: number
   readonly runtimeSynchronization?: 'pending' | 'synchronized' | 'no_runtime_impact' | 'failed'
+  readonly visualRevision?: number
+  readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
+  readonly visualGenerationRequired?: number
   readonly source: WorldEvolutionSource
   readonly provider?: string
   readonly model?: string

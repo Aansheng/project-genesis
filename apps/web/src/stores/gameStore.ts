@@ -16,7 +16,7 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult } from '@genesis/shared'
+import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult } from '@genesis/shared'
 import { DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
 import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
@@ -29,6 +29,7 @@ import { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient
 import { buildImageGenerationRequest, groupAiGenerationRequirements } from '../assets/AssetGenerationPolicy'
 import { buildGeneratedAssetManifest, createPendingImageGenerationOperation, finishImageGenerationOperation } from '../assets/GeneratedAssetOrchestrator'
 import { VisualAssetGenerationScheduler } from '../assets/VisualAssetGenerationScheduler'
+import { DefaultVisualEvolutionPlanner } from '../assets/VisualEvolutionPlanner'
 import { useObservatoryDataStore } from './observatoryData'
 import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
 
@@ -37,12 +38,18 @@ export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 const EMPTY_ASSET_MANIFEST: AssetManifest = Object.freeze({ entries: Object.freeze([]) })
 const EMPTY_SEMANTIC_PROPERTIES: WorldSemanticProperties = Object.freeze({})
 
+function buildVisualDesignSpecification(
+  specification: GameDesignSpecification | undefined,
+): VisualDesignSpecification | undefined {
+  if (!specification) return undefined
+  return new DefaultVisualDesignSpecificationBuilder().build(specification)
+}
+
 function buildAssetSpecification(
   specification: GameDesignSpecification | undefined,
 ): AssetSpecification | undefined {
-  if (!specification) return undefined
-  const visual = new DefaultVisualDesignSpecificationBuilder().build(specification)
-  return new DefaultAssetSpecificationBuilder().build(visual)
+  const visual = buildVisualDesignSpecification(specification)
+  return visual ? new DefaultAssetSpecificationBuilder().build(visual) : undefined
 }
 
 function buildStaticAssetManifest(
@@ -179,6 +186,62 @@ function withRuntimeSynchronization(
   return Object.freeze({ ...plan, operation, runtimeSync })
 }
 
+function withVisualPlanning(
+  plan: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>,
+  visualPlan: VisualEvolutionPlan,
+): Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }> {
+  const startedAt = new Date().toISOString()
+  const completedAt = new Date().toISOString()
+  const failed = visualPlan.status === 'failed'
+  const stages: readonly WorldEvolutionStage[] = Object.freeze([
+    ...plan.operation.stages,
+    Object.freeze({ name: 'VISUAL_IMPACT_STARTED' as const, status: 'success' as const, timestamp: startedAt }),
+    Object.freeze({
+      name: failed ? 'VISUAL_DELTA_FAILED' : 'VISUAL_DELTA_PLANNED',
+      status: failed ? 'failed' : 'success',
+      timestamp: completedAt,
+      ...(visualPlan.failureReason ? { error: visualPlan.failureReason } : {}),
+    }),
+  ])
+  const events: readonly WorldEvolutionEvent[] = Object.freeze([
+    ...plan.operation.events,
+    Object.freeze({
+      id: `${plan.operation.operationId}:visual_impact_started`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: 'world.evolution.visual_impact_started' as const,
+      timestamp: startedAt,
+      message: 'Visual impact analysis started',
+    }),
+    Object.freeze({
+      id: `${plan.operation.operationId}:${failed ? 'visual_delta_failed' : 'visual_delta_planned'}`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: failed ? 'world.evolution.visual_delta_failed' as const : 'world.evolution.visual_delta_planned' as const,
+      timestamp: completedAt,
+      message: failed
+        ? `Visual delta planning failed: ${visualPlan.failureReason ?? 'unknown error'}`
+        : visualPlan.generationRequired.length > 0
+          ? `Visual delta planned; ${visualPlan.generationRequired.length} canonical visual generation requirement(s) pending`
+          : 'Visual delta planned; no asset generation required',
+    }),
+  ])
+  const operation = Object.freeze({
+    ...plan.operation,
+    status: failed ? 'visual_planning_failed' as const : 'visual_delta_planned' as const,
+    completedAt,
+    visualRevision: visualPlan.updatedVisualRevision,
+    visualPlanning: failed
+      ? 'failed' as const
+      : visualPlan.status === 'no_visual_impact' ? 'no_visual_impact' as const : 'planned' as const,
+    visualGenerationRequired: visualPlan.generationRequired.length,
+    ...(failed ? { failureReason: visualPlan.failureReason ?? 'visual_planning_failed' } : {}),
+    stages,
+    events,
+  })
+  return Object.freeze({ ...plan, operation, visualPlan })
+}
+
 function imageGatewayURL(gatewayURL: string): string {
   return gatewayURL.replace(/\/api\/world-generation\/?$/u, '/api/image-generation')
 }
@@ -241,6 +304,8 @@ export const useGameStore = defineStore('game', () => {
   const worldStore: RuntimeWorldStore = new DefaultRuntimeWorldStore(runtime.world)
   const assetStore = new DefaultAssetStore(new DefaultAssetResolver())
   const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
+  const visualDesignSpecification = ref<VisualDesignSpecification | null>(null)
+  const assetSpecificationState = ref<AssetSpecification | null>(null)
   const renderVersion = ref(0)
   const worldRevision = ref(0)
   const semanticState = ref<CurrentSemanticWorldState | null>(null)
@@ -250,9 +315,12 @@ export const useGameStore = defineStore('game', () => {
   const semanticRevision = computed(() => semanticState.value?.semanticRevision ?? 0)
   const semanticWorldDeltaApplier = new DefaultSemanticWorldDeltaApplier()
   const runtimeWorldEvolutionSynchronizer = new DefaultRuntimeWorldEvolutionSynchronizer()
+  const visualEvolutionPlanner = new DefaultVisualEvolutionPlanner()
   const runtimeSemanticRevision = ref(0)
   const runtimeSyncWorldId = ref('')
   const lastRuntimeSyncOperationId = ref<string | null>(null)
+  const visualRevision = ref(0)
+  const lastVisualPlanOperationId = ref<string | null>(null)
   const selectedEntityId = ref<string | null>(null)
   const log = ref<string[]>([])
   const commandStatus = ref<CommandStatus>('idle')
@@ -424,7 +492,12 @@ export const useGameStore = defineStore('game', () => {
         imageGenerationToken++
         visualGenerationOperations.value = {}
         const gameDesignSpecification = result.generationDiagnostics?.specification
-        const assetSpecification = buildAssetSpecification(gameDesignSpecification)
+        const nextVisualDesign = buildVisualDesignSpecification(gameDesignSpecification)
+        const nextAssetSpecification = nextVisualDesign
+          ? new DefaultAssetSpecificationBuilder().build(nextVisualDesign)
+          : undefined
+        visualDesignSpecification.value = nextVisualDesign ?? null
+        assetSpecificationState.value = nextAssetSpecification ?? null
         assetManifest.value = buildStaticAssetManifest(gameDesignSpecification)
         worldRevision.value++
         const nextWorldId = `world-${worldRevision.value}`
@@ -439,18 +512,20 @@ export const useGameStore = defineStore('game', () => {
         runtimeSemanticRevision.value = 0
         runtimeSyncWorldId.value = nextWorldId
         lastRuntimeSyncOperationId.value = null
+        visualRevision.value = 0
+        lastVisualPlanOperationId.value = null
         useObservatoryDataStore().resetEvolution(currentWorldId.value)
         useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentWorldId.value)
         markWorldUpdated()
-        if (assetSpecification) {
+        if (nextAssetSpecification) {
           const token = imageGenerationToken
-          for (const requirements of groupAiGenerationRequirements(assetSpecification)) {
-            const request = buildImageGenerationRequest(assetSpecification, requirements[0])
+          for (const requirements of groupAiGenerationRequirements(nextAssetSpecification)) {
+            const request = buildImageGenerationRequest(nextAssetSpecification, requirements[0])
             const pending = createPendingImageGenerationOperation(request)
         setOperation({ ...pending, bindingAssetIds: requirements[1].map(binding => binding.id), bindingEntityIds: requirements[1].flatMap(binding => binding.entityId ? [binding.entityId] : []), stage: 'queued', status: 'queued' })
             scheduler.enqueue({
               jobId: pending.operationId,
-              run: () => generateArtwork(assetSpecification, requirements, token),
+              run: () => generateArtwork(nextAssetSpecification, requirements, token),
             })
           }
         }
@@ -505,6 +580,9 @@ export const useGameStore = defineStore('game', () => {
     if (!mutation) {
       return { success: false, message: 'World evolution semantic application failed: no current semantic world' }
     }
+    if (!visualDesignSpecification.value || !assetSpecificationState.value) {
+      return { success: false, message: 'World evolution visual planning failed: current visual specifications are unavailable' }
+    }
 
     const appliedPlan = withSemanticApplication(plan, mutation)
     if (mutation.status === 'applied') {
@@ -532,17 +610,50 @@ export const useGameStore = defineStore('game', () => {
         lastRuntimeSyncOperationId.value = mutation.operationId
         useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentState!.worldId)
       }
-      if (synchronizedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(synchronizedPlan)
       if (runtimeSync.status !== 'failed') {
+        const visualPlan = visualEvolutionPlanner.plan(
+          mutation.previousWorld,
+          mutation.updatedWorld,
+          mutation,
+          runtimeSync,
+          visualDesignSpecification.value,
+          assetSpecificationState.value,
+          {
+            worldId: currentState!.worldId,
+            semanticRevision: currentState!.semanticRevision,
+            runtimeRevision: runtimeSync.previousRevision,
+            visualRevision: visualRevision.value,
+            ...(lastVisualPlanOperationId.value ? { lastPlannedOperationId: lastVisualPlanOperationId.value } : {}),
+          },
+        )
+        const plannedEvolution = withVisualPlanning(synchronizedPlan, visualPlan)
+        if (visualPlan.status !== 'failed' && visualPlan.status !== 'already_planned') {
+          visualDesignSpecification.value = visualPlan.updatedVisualDesign
+          assetSpecificationState.value = visualPlan.updatedAssetSpecification
+          visualRevision.value = visualPlan.updatedVisualRevision
+          lastVisualPlanOperationId.value = mutation.operationId
+        }
+        if (plannedEvolution.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(plannedEvolution)
         const runtimeMessage = runtimeSync.runtimeImpact === 'none'
           ? 'Runtime no runtime impact'
           : 'Runtime synchronized'
+        if (visualPlan.status === 'failed') {
+          return {
+            success: false,
+            message: `Semantic world updated; ${runtimeMessage}, but visual planning failed: ${visualPlan.failureReason ?? 'unknown error'}`,
+            evolutionPlan: plannedEvolution,
+          }
+        }
+        const visualMessage = visualPlan.generationRequired.length > 0
+          ? `Visual delta planned; ${visualPlan.generationRequired.length} canonical asset execution(s) pending`
+          : 'Visual delta planned; no asset generation required'
         return {
           success: true,
-          message: `Semantic world updated: ${plan.delta.summary} (${runtimeMessage}; visual synchronization pending)`,
-          evolutionPlan: synchronizedPlan,
+          message: `Semantic world updated: ${plan.delta.summary} (${runtimeMessage}; ${visualMessage})`,
+          evolutionPlan: plannedEvolution,
         }
       }
+      if (synchronizedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(synchronizedPlan)
       return {
         success: false,
         message: `Semantic world updated, but Runtime synchronization failed: ${runtimeSync.failureReason ?? 'unknown error'}`,
@@ -568,6 +679,9 @@ export const useGameStore = defineStore('game', () => {
     semanticWorld,
     semanticProperties,
     semanticRevision,
+    visualDesignSpecification,
+    assetSpecification: assetSpecificationState,
+    visualRevision,
     runtimeSemanticRevision,
     runtimeSyncWorldId,
     selectedEntityId,

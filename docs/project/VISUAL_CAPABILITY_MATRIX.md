@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.139
+Architecture version: v1.145
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -20,6 +20,10 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Asset requirement representation | YES | YES | NO | NO |
 | Asset identity | YES | YES | NO | NO |
 | Entity → asset binding | YES | YES | NO | NO |
+| Visual evolution delta plan | YES | YES | NO | NO |
+| Targeted archetype impact analysis | YES | YES | NO | NO |
+| Canonical generation-required set | YES | YES | NO | NO |
+| Visual revision/session correlation | YES | YES | NO | NO |
 | Asset generated | NO | YES | NO | NO |
 | Asset manifest | YES | YES | YES | NO |
 | Partial resolution representation | YES | YES | YES | NO |
@@ -80,3 +84,12 @@ WO-S13-013 adds provider-independent semantic archetypes from upstream entity
 names. Stable entity asset IDs remain per-entity, while matching archetypes
 share one generation operation/resource with multiple bindings. Grouping keeps
 enemy species, NPC/animal/prop names, and incompatible visual contexts distinct.
+
+WO-S14-004 adds planning, but not execution, for semantic world evolution. The
+current session stores immutable VisualDesignSpecification and
+AssetSpecification revisions; the planner reports canonical additions,
+replacements, removals/orphans, rebinding, unaffected assets, and world-level
+visual dependencies. Theme/palette changes are broad eligible impact and the
+current `timeOfDay` policy is background-only. `AssetManifest`, `AssetStore`,
+image-generation operations, Pixi textures, and renderer bindings remain
+unchanged until WO-S14-005.

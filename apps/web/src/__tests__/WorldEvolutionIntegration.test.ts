@@ -91,29 +91,39 @@ describe('World Evolution Studio integration', () => {
     await game.send('创建一个农场游戏，3头牛')
     const beforeRuntime = JSON.stringify(game.worldStore.getWorld())
     const beforeManifest = JSON.stringify(game.assetManifest)
+    const beforeManifestReference = game.assetManifest
+    const beforeImageOperationIds = Object.keys(game.visualGenerationOperations)
+    const beforePlayerAsset = game.assetSpecification?.assets.find(asset => asset.entityId === 'player-1')
 
     const result = await game.send('把所有牛改成羊')
 
     expect(result.success).toBe(true)
     expect(result.evolutionPlan?.status).toBe('validated')
-    expect(result.evolutionPlan?.operation.status).toBe('runtime_synchronized')
+    expect(result.evolutionPlan?.operation.status).toBe('visual_delta_planned')
     expect(game.semanticRevision).toBe(1)
     expect(game.semanticWorld?.entities.filter(entity => entity.id.startsWith('cow-')).map(entity => entity.name)).toEqual(['Sheep', 'Sheep', 'Sheep'])
     expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
+    expect(game.assetManifest).toBe(beforeManifestReference)
+    expect(Object.keys(game.visualGenerationOperations)).toEqual(beforeImageOperationIds)
+    expect(game.visualDesignSpecification?.entities.filter(entity => entity.entityId.startsWith('cow-')).map(entity => entity.visualArchetype)).toEqual(['Sheep', 'Sheep', 'Sheep'])
+    expect(game.assetSpecification?.assets.filter(asset => asset.entityId?.startsWith('cow-')).map(asset => asset.visualArchetype)).toEqual(['Sheep', 'Sheep', 'Sheep'])
+    expect(game.assetSpecification?.assets.find(asset => asset.entityId === 'player-1')).toBe(beforePlayerAsset)
     expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'cow-1', 'cow-2', 'cow-3', 'crop-1', 'barn-1'])
     expect(game.worldStore.getWorld().entities.filter(entity => entity.id.startsWith('cow-')).every(entity => entity.components?.find(component => component.type === 'semantic')?.properties.name === 'Sheep')).toBe(true)
     expect(observatory.viewModel.historyView).toHaveLength(1)
     expect(observatory.viewModel.historyView[0]?.prompt).toBe('把所有牛改成羊')
     expect(observatory.viewModel.historyView[0]?.result).toContain('Semantic change applied')
     expect(observatory.viewModel.historyView[0]?.result).toContain('Runtime synchronized')
-    expect(observatory.viewModel.historyView[0]?.result).toContain('Visual synchronization pending')
+    expect(observatory.viewModel.historyView[0]?.result).toContain('Visual delta planned')
+    expect(observatory.viewModel.historyView[0]?.result).toContain('Asset execution pending')
     expect(observatory.viewModel.diffView[0]?.status).toBe('applied')
     expect(observatory.viewModel.diffView[0]?.runtimeSynchronization).toBe('synchronized')
     expect(observatory.viewModel.diffView[0]?.targetIds).toEqual(['cow-1', 'cow-2', 'cow-3'])
-    expect(observatory.viewModel.diffView[0]?.changed.map(item => item.name)).toEqual([
+    expect(observatory.viewModel.diffView[0]?.changed.map(item => item.name)).toEqual(expect.arrayContaining([
       'cow-1: Cow → Sheep', 'cow-2: Cow → Sheep', 'cow-3: Cow → Sheep',
-    ])
+      'Visual: Cow → Sheep', 'Asset execution: 1 canonical visual requirement(s) pending',
+    ]))
     expect(observatory.viewModel.timelineView[0]?.entries.map(entry => entry.strategy)).toEqual([
       'REQUEST_RECEIVED · success',
       'PROMPT_ASSEMBLY · success',
@@ -125,11 +135,14 @@ describe('World Evolution Studio integration', () => {
       'SEMANTIC_APPLICATION_COMPLETED · success',
       'RUNTIME_SYNC_STARTED · success',
       'RUNTIME_SYNC_COMPLETED · success',
+      'VISUAL_IMPACT_STARTED · success',
+      'VISUAL_DELTA_PLANNED · success',
     ])
-    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'runtime_synchronized', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1 })
+    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'visual_delta_planned', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1, visualRevision: 1, visualPlanning: 'planned', visualGenerationRequired: 1 })
     expect(observatory.viewModel.eventStreamView.events.map(event => event.source)).toContain('world-evolution')
     expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).toContain('Semantic world mutation applied; Runtime synchronization started')
     expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).not.toContain('Semantic world mutation applied; Runtime synchronization pending')
+    expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).toContain('Visual delta planned; 1 canonical visual generation requirement(s) pending')
 
     const next = await game.send('删除所有羊')
     expect(next.success).toBe(true)
@@ -169,6 +182,10 @@ describe('World Evolution Studio integration', () => {
     const afterAddRuntime = JSON.stringify(game.worldStore.getWorld())
     expect(afterAddRuntime).not.toBe(beforeRuntime)
     expect(JSON.stringify(game.assetManifest)).toBe(beforeManifest)
+    const addedPlan = added.evolutionPlan
+    expect(addedPlan?.status).toBe('validated')
+    expect(addedPlan?.operation.status).toBe('visual_delta_planned')
+    if (addedPlan?.status === 'validated') expect(addedPlan.visualPlan?.generationRequired).toHaveLength(1)
     expect(observatory.viewModel.diffView[0]?.added.map(item => item.name)).toEqual([
       'merchant-1: Merchant', 'merchant-2: Merchant', 'merchant-3: Merchant',
     ])
@@ -180,6 +197,8 @@ describe('World Evolution Studio integration', () => {
     expect(JSON.stringify(game.worldStore.getWorld())).toBe(afterAddRuntime)
     expect(observatory.viewModel.historyView.at(-1)?.result).toContain('Runtime no runtime impact')
     expect(observatory.viewModel.diffView.at(-1)?.runtimeSynchronization).toBe('no_runtime_impact')
+    expect(observatory.viewModel.diffView.at(-1)?.visualPlanning).toBe('planned')
+    expect(observatory.viewModel.diffView.at(-1)?.visualGenerationRequired).toBe(1)
   })
 
   it('removes the targeted Runtime entity without changing unrelated entities', async () => {
@@ -191,9 +210,11 @@ describe('World Evolution Studio integration', () => {
     const result = await game.send('删除 Boss')
 
     expect(result.success).toBe(true)
+    expect(result.evolutionPlan?.operation.status).toBe('visual_delta_planned')
     expect(game.semanticWorld?.entities.some(entity => entity.id === 'boss-1')).toBe(false)
     expect(game.worldStore.getWorld().entities.some(entity => entity.id === 'boss-1')).toBe(false)
     expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
     expect(observatory.viewModel.diffView.at(-1)?.removed).toEqual([{ name: 'boss-1' }])
+    expect(observatory.viewModel.diffView.at(-1)?.visualGenerationRequired).toBe(0)
   })
 })

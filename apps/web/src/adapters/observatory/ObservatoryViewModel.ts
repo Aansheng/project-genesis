@@ -156,6 +156,9 @@ export interface HistoryViewModel {
   readonly semanticRevision?: number
   readonly runtimeSemanticRevision?: number
   readonly runtimeSynchronization?: 'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'
+  readonly visualRevision?: number
+  readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
+  readonly visualGenerationRequired?: number
   readonly failureReason?: string
 }
 
@@ -190,6 +193,12 @@ export interface DiffViewModel {
   readonly runtimeAffectedEntityIds?: readonly string[]
   readonly runtimeAddedEntityIds?: readonly string[]
   readonly runtimeRemovedEntityIds?: readonly string[]
+  readonly visualRevision?: number
+  readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
+  readonly visualGenerationRequired?: number
+  readonly visualAffectedArchetypes?: readonly string[]
+  readonly visualBindingOnlyEntityIds?: readonly string[]
+  readonly visualOrphanedAssetIds?: readonly string[]
   readonly failureReason?: string
 }
 
@@ -247,6 +256,7 @@ export interface EventViewModel {
   readonly timestamp: string
   readonly level: EventLevel
   readonly source: string
+  readonly type?: string
   readonly message: string
 }
 

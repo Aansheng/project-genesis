@@ -10,6 +10,11 @@ export type { DiffViewModel as DiffEntry } from '../../../adapters/observatory'
 import DiffChangeCard from './DiffChangeCard.vue'
 
 function appliedStatusLabel(entry: DiffEntry): string {
+  if (entry.visualPlanning === 'failed') return 'SEMANTIC APPLIED · RUNTIME SYNCHRONIZED · VISUAL PLANNING FAILED'
+  const runtimeLabel = entry.runtimeSynchronization === 'no_runtime_impact' ? 'RUNTIME NO IMPACT' : 'RUNTIME SYNCHRONIZED'
+  if (entry.visualPlanning === 'planned' && (entry.visualGenerationRequired ?? 0) > 0) return `SEMANTIC APPLIED · ${runtimeLabel} · VISUAL DELTA PLANNED · ASSET EXECUTION PENDING`
+  if (entry.visualPlanning === 'no_visual_impact') return `SEMANTIC APPLIED · ${runtimeLabel} · VISUAL DELTA PLANNED · NO ASSET GENERATION`
+  if (entry.visualPlanning === 'planned') return `SEMANTIC APPLIED · ${runtimeLabel} · VISUAL DELTA PLANNED`
   if (entry.runtimeSynchronization === 'synchronized') return 'SEMANTIC APPLIED · RUNTIME SYNCHRONIZED · VISUAL PENDING'
   if (entry.runtimeSynchronization === 'no_runtime_impact') return 'SEMANTIC APPLIED · RUNTIME NO IMPACT · VISUAL PENDING'
   if (entry.runtimeSynchronization === 'failed') return 'SEMANTIC APPLIED · RUNTIME SYNC FAILED'

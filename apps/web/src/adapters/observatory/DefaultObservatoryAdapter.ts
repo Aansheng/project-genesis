@@ -230,6 +230,9 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       metadata: Object.freeze({
         ...safeGet<Record<string, unknown>>(item, 'metadata'),
       }),
+      ...(typeof safeGet(item, 'operationId') === 'string' ? { operationId: safeGet<string>(item, 'operationId') } : {}),
+      ...(typeof safeGet(item, 'worldId') === 'string' ? { worldId: safeGet<string>(item, 'worldId') } : {}),
+      ...(typeof safeGet(item, 'status') === 'string' ? { status: safeGet<string>(item, 'status') } : {}),
     }
   }
 
@@ -294,6 +297,14 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
         ? { runtimeSynchronization: safeGet<'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'>(item, 'runtimeSynchronization') }
         : {}),
+      ...(typeof safeGet(item, 'visualRevision') === 'number' ? { visualRevision: safeGet<number>(item, 'visualRevision') } : {}),
+      ...(safeGet(item, 'visualPlanning') === 'pending'
+        || safeGet(item, 'visualPlanning') === 'planned'
+        || safeGet(item, 'visualPlanning') === 'no_visual_impact'
+        || safeGet(item, 'visualPlanning') === 'failed'
+        ? { visualPlanning: safeGet<'pending' | 'planned' | 'no_visual_impact' | 'failed'>(item, 'visualPlanning') }
+        : {}),
+      ...(typeof safeGet(item, 'visualGenerationRequired') === 'number' ? { visualGenerationRequired: safeGet<number>(item, 'visualGenerationRequired') } : {}),
       ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
   }
@@ -445,6 +456,17 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeAffectedEntityIds')) ? { runtimeAffectedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeAffectedEntityIds'))) } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeAddedEntityIds')) ? { runtimeAddedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeAddedEntityIds'))) } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeRemovedEntityIds')) ? { runtimeRemovedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeRemovedEntityIds'))) } : {}),
+      ...(typeof safeGet(item, 'visualRevision') === 'number' ? { visualRevision: safeGet<number>(item, 'visualRevision') } : {}),
+      ...(safeGet(item, 'visualPlanning') === 'pending'
+        || safeGet(item, 'visualPlanning') === 'planned'
+        || safeGet(item, 'visualPlanning') === 'no_visual_impact'
+        || safeGet(item, 'visualPlanning') === 'failed'
+        ? { visualPlanning: safeGet<'pending' | 'planned' | 'no_visual_impact' | 'failed'>(item, 'visualPlanning') }
+        : {}),
+      ...(typeof safeGet(item, 'visualGenerationRequired') === 'number' ? { visualGenerationRequired: safeGet<number>(item, 'visualGenerationRequired') } : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'visualAffectedArchetypes')) ? { visualAffectedArchetypes: Object.freeze(stringList(safeGet<unknown[]>(item, 'visualAffectedArchetypes'))) } : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'visualBindingOnlyEntityIds')) ? { visualBindingOnlyEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'visualBindingOnlyEntityIds'))) } : {}),
+      ...(Array.isArray(safeGet<unknown[]>(item, 'visualOrphanedAssetIds')) ? { visualOrphanedAssetIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'visualOrphanedAssetIds'))) } : {}),
       ...(typeof safeGet(item, 'failureReason') === 'string' ? { failureReason: safeGet<string>(item, 'failureReason') } : {}),
     }
   }
@@ -551,6 +573,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       timestamp: String(safeGet(item, 'timestamp') ?? ''),
       level: this.adaptEventLevel(safeGet(item, 'level')),
       source: String(safeGet(item, 'source') ?? ''),
+      ...(typeof safeGet(item, 'type') === 'string' ? { type: safeGet<string>(item, 'type') } : {}),
       message: String(safeGet(item, 'message') ?? ''),
     }
   }

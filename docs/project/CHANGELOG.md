@@ -1,5 +1,31 @@
 # Changelog
 
+### WO-S14-004 — Visual Delta Planning & Targeted Asset Impact Analysis
+
+- Added the provider-independent deterministic `DefaultVisualEvolutionPlanner`
+  and immutable `VisualEvolutionPlan`/`AssetImpactPlan` contracts. Planning
+  consumes the semantic mutation and Runtime synchronization result, then
+  derives targeted VisualDesignSpecification and AssetSpecification deltas
+  from current semantic names and stable entity IDs.
+- Reused `AssetGenerationPolicy` canonical grouping so Cow ×3 → Sheep produces
+  one generation-required canonical requirement with three bindings. Distinct
+  archetypes remain separate; additions, replacements, partial shared removal,
+  orphaned assets, binding-only changes, and unaffected asset IDs/archetypes are
+  explicit plan facts.
+- Added typed world-level visual dependencies: theme/palette changes are broad
+  eligible impact, while `timeOfDay` affects only the current background model.
+  Visual revision/session guards, stale checks, immutable targeted spec commits,
+  and idempotent repeated planning preserve previous state on failure.
+- Connected visual planning to the real `gameStore` evolution path and
+  Observatory History, Diff, Timeline, Trace, and Event Stream. Evolution does
+  not call image generation, mutate AssetManifest/AssetStore, replace Pixi
+  textures, or rebuild the visual world; canonical asset execution is pending.
+- Added planner, web integration, Observatory, revision, grouping, and
+  no-mutation regression coverage; added ADR-0259. Architecture version
+  v1.144 → v1.145. Code Complete = YES; Product Verified = YES — live browser
+  matrix passed for targeted Farm/RPG evolution, Observatory lifecycle, Runtime
+  continuity, zero console errors, and unchanged image/manifest/store state.
+
 ### WO-S14-003 — Targeted Runtime Mutation & Semantic Synchronization
 
 - Added the provider-independent `DefaultRuntimeWorldEvolutionSynchronizer`
