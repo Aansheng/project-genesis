@@ -10,6 +10,13 @@
 | Terrain tiling/autotiling | Deferred visual-quality work. Generated terrain now fits each authoritative world bound by stretching the shared resource; add TilingSprite/tileset behavior only when texture distortion becomes a measured product issue. |
 | Generated transparency and persistence | Still deferred. Geometry/scale correctness does not require alpha extraction or durable artifact storage. |
 
+## Post-Sprint-14 World Evolution Freeze
+
+| Item | Status / Evidence |
+| --- | --- |
+| Durable generated-asset lifecycle | Generated gateway URIs remain session-owned. Current-SPA multi-turn reuse is verified; reuse after reload, server restart, or project reopen is not guaranteed. Add durable publication, recovery, and cleanup only when persistence is the active product bottleneck. |
+| Persistent evolution history / undo | Observatory and evolution state are session-scoped. Persistence and inverse operations remain deferred; neither is required for targeted live-world evolution. |
+
 ## Sprint 12 Baseline Freeze Audit
 
 | Item | Status / Evidence |

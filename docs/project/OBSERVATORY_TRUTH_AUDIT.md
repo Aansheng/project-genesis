@@ -1,11 +1,11 @@
-# Observatory Truth Audit — WO-OBS-001 / WO-S14-005
+# Observatory Truth Audit — WO-OBS-001 / WO-S14-006
 
 Architecture is v1.146. This audit records production behavior; test fixtures are excluded.
-The S14-004 planning browser matrix passed on 2026-08-20. The controlled
-S14-005 Cow ×3 → Sheep execution scenario also passed: one Sheep request,
-retained interim visuals, targeted rebinding, complete Observatory lifecycle,
-and no console errors. The remaining multi-scenario matrix and direct movement
-input subcheck are still pending.
+The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
+recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
+generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
+operation projections, real ready artifacts, and no browser console errors. Superseded
+create-world visual operations now terminate as cancelled rather than remaining stale.
 
 | Surface | Component | Store / view model | Classification | Current producer | Session correlation | Current-world truth | Misleading risk / treatment |
 | --- | --- | --- | --- | --- | --- | --- | --- |

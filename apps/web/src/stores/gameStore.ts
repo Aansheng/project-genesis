@@ -452,6 +452,19 @@ export const useGameStore = defineStore('game', () => {
     visualGenerationOperations.value = { ...visualGenerationOperations.value, [operation.operationId]: operation }
   }
 
+  function cancelSupersededVisualOperations(): void {
+    for (const operation of Object.values(visualGenerationOperations.value)) {
+      if (operation.stage === 'ready' || operation.stage === 'fallback' || operation.stage === 'cancelled') continue
+      setOperation(finishImageGenerationOperation(operation, {
+        status: 'cancelled',
+        stage: 'cancelled',
+        outcome: 'generation_failed_fallback',
+        fallback: 'static',
+        failure: { code: 'stale_operation', message: 'Visual generation superseded by newer world evolution' },
+      }))
+    }
+  }
+
   // --- Streaming UI state (inert — preserved for UI backward compatibility) ---
   const isStreaming = ref(false)
   const streamingText = ref('')
@@ -874,6 +887,8 @@ export const useGameStore = defineStore('game', () => {
         if (visualPlan.status !== 'already_planned') {
           scheduler.cancel()
           imageGenerationToken++
+          cancelSupersededVisualOperations()
+          activeVisualExecutions.clear()
           const execution: ActiveVisualExecution = {
             plan: plannedEvolution,
             imageOperationIds: new Set(),

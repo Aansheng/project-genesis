@@ -107,14 +107,27 @@ affected manifest/store/renderer bindings.
 - Added executor, AssetStore, renderer, and web integration regression tests.
 - Architecture version: v1.145 → v1.146.
 - Code Complete: YES.
-- Product Verified: PENDING — the primary controlled Cow ×3 → Sheep browser
-  scenario passed; the remaining multi-scenario matrix and direct movement-input
-  subcheck remain required.
+- Product Verified: YES — the controlled scenario and final continuous multi-turn browser
+  session passed.
+
+### WO-S14-006 — Multi-Turn World Evolution E2E & Sprint Freeze
+
+- Verified one continuous world/session through Cow→Sheep, explicit single binding remove,
+  Merchant add, Night background replacement, and final gameplay.
+- Recorded canonical generation accounting 1/0/1/1, revision progression 1→4, unaffected
+  asset preservation, renderer application, and full multi-operation Observatory truth.
+- Fixed superseded create-world visual Activity so nonterminal jobs converge to cancelled;
+  added one focused regression without changing architecture contracts.
+- Added the Sprint 14 review and freeze decision.
+- Architecture version: v1.146 → v1.146.
+- Code Complete: YES.
+- Product Verified: YES.
+- FROZEN: YES.
 
 ## Next Work Order Boundary
 
-### WO-S14-006 — Durable Generated Asset Lifecycle
+### Sprint 15 — Gameplay Mechanics Foundation
 
-Only address durable generated-asset storage, URI lifecycle, cleanup, and
-recovery if S14-005 browser verification confirms those are the next product
-bottlenecks. Do not expand into animation, undo, or a scheduler redesign.
+Move the product from playable generated worlds toward generated rules and mechanically
+complete mini-games. Keep durable generated-asset lifecycle and Generation Context as
+separate follow-up concerns; do not fold them into the frozen Sprint 14 architecture.

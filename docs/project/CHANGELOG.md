@@ -1,5 +1,22 @@
 # Changelog
 
+### WO-S14-006 — Multi-Turn World Evolution E2E & Sprint Freeze
+
+- Product verified one continuous `world-1` session across Cow ×3 → Sheep, explicit
+  single-Sheep removal, Merchant add, and background-only Night, with canonical generation
+  counts 1/0/1/1 and semantic/Runtime/visual revisions advancing 1→4.
+- Preserved live player identity, position, input, gravity, landing, camera, Runtime loop,
+  unrelated assets, and renderer containers. Final gameplay reached `(158,400)` and
+  completed a post-Night jump/re-land.
+- Fixed the first incorrect E2E transition: unfinished create-world visual jobs superseded
+  by evolution now converge to `cancelled` instead of remaining falsely queued/generating.
+  Added a focused store regression; no new subsystem or contract was introduced.
+- Verified four independent History/Diff/Timeline/Trace operations, generation-free remove
+  stages, correlated Event Stream, final Runtime/World Graph/Overview, real Codex CLI
+  Generation Trace, sanitized output, and empty browser error/warning logs.
+- Added `SPRINT14_REVIEW.md` and froze Sprint 14. Architecture remains v1.146. Code
+  Complete = YES; Product Verified = YES; FROZEN = YES.
+
 ### WO-S14-005 — Targeted Asset Execution, Manifest Rebinding & Incremental Visual Synchronization
 
 - Added the deterministic `VisualAssetEvolutionExecutor` consuming only the

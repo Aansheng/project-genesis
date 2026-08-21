@@ -278,4 +278,39 @@ describe('World Evolution Studio integration', () => {
       'VISUAL_SYNC_COMPLETED · success',
     ]))
   })
+
+  it('marks superseded create-world visual jobs as cancelled before evolution generation starts', async () => {
+    let releaseInitialImage!: (response: Response) => void
+    let delayed = true
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? '{}')) as { assetId?: string; visualArchetype?: string }
+      if (!body.assetId) return gateway()(input, init)
+      if (delayed) {
+        delayed = false
+        return new Promise<Response>(resolve => { releaseInitialImage = resolve })
+      }
+      return Response.json({
+        status: 'success',
+        assetId: body.assetId,
+        mode: 'text-to-image',
+        asset: {
+          assetId: body.assetId,
+          resource: { uri: `/generated/${body.visualArchetype ?? body.assetId}.png` },
+          generationMode: 'text-to-image',
+        },
+      })
+    }) as typeof fetch
+    vi.stubGlobal('fetch', fetcher)
+    const game = useGameStore()
+    await game.send('创建一个农场游戏，3头牛')
+    const createWorldOperationIds = Object.keys(game.visualGenerationOperations)
+    expect(createWorldOperationIds.length).toBeGreaterThan(1)
+
+    await game.send('把所有牛改成羊')
+
+    expect(createWorldOperationIds.map(id => game.visualGenerationOperations[id]?.stage)).toEqual(
+      createWorldOperationIds.map(() => 'cancelled'),
+    )
+    releaseInitialImage(Response.json({ status: 'failed', failure: { code: 'stale_operation', message: 'superseded' } }))
+  })
 })
