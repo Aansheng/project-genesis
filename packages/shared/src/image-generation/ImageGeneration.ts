@@ -7,6 +7,10 @@ import type {
   AssetResourceMetadata,
   AssetResourceReference,
 } from '../asset-manifest'
+import type {
+  GenerationContextTraceMetadata,
+  ImageGenerationContext,
+} from '../generation-context'
 
 export type ImageGenerationMode =
   | 'text-to-image'
@@ -46,6 +50,8 @@ export interface ImageGenerationRequest {
   readonly subject?: string
   readonly visualArchetype?: string
   readonly visualContext: AssetVisualContext
+  /** Immutable current-state projection used to assemble this request. */
+  readonly generationContext?: ImageGenerationContext
   readonly constraints?: ImageGenerationConstraints
   readonly sourceAsset?: ImageGenerationSource
   readonly referenceAssets?: readonly ImageGenerationSource[]
@@ -113,6 +119,8 @@ export interface ImageGenerationOperation {
   readonly bindingAssetIds?: readonly string[]
   readonly bindingEntityIds?: readonly string[]
   readonly assetKind?: AssetKind
+  /** Safe context facts only; the full snapshot is not rendered by default. */
+  readonly contextMetadata?: GenerationContextTraceMetadata
   readonly artifactStatus?: 'pending' | 'published' | 'failed'
   readonly manifestStatus?: ImageGenerationManifestStatus
   readonly assetResolutionStatus?: ImageGenerationAssetResolutionStatus

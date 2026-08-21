@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.146
+Architecture version: v1.147
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -96,3 +96,9 @@ replace affected sprites/textures incrementally. Theme/palette changes are
 broad eligible impact and the current `timeOfDay` policy is background-only.
 Generated URIs remain session-owned; durable storage, binary decode/optimization,
 animation, and undo remain deferred.
+
+WO-S15-000 adds an immutable capability-specific image-generation context at
+the existing request seam. It includes current semantic/visual/asset facts,
+stable canonical bindings, and bounded metadata-only continuity hints. Prompt
+assembly remains provider-neutral; reference bytes, resource URIs, similarity
+search, and durable persistence remain deferred.

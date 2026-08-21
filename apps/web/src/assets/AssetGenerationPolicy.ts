@@ -1,6 +1,7 @@
 import type {
   AssetRequirement,
   AssetSpecification,
+  ImageGenerationContext,
   ImageGenerationRequest,
 } from '@genesis/shared'
 
@@ -47,20 +48,56 @@ export function groupAiGenerationRequirements(
 export function buildImageGenerationRequest(
   specification: AssetSpecification,
   requirement: AssetRequirement,
+  generationContext?: ImageGenerationContext,
 ): ImageGenerationRequest {
-  return {
+  const prompt = generationContext ? buildContextualImagePrompt(requirement, generationContext) : [
+    requirement.subject,
+    requirement.visualRole,
+    requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : requirement.kind === 'prop' ? 'reusable game prop artwork' : 'game character artwork',
+  ].filter(Boolean).join('; ')
+  return Object.freeze({
     assetId: requirement.id,
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     mode: 'text-to-image',
-    prompt: [requirement.subject, requirement.visualRole, requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : requirement.kind === 'prop' ? 'reusable game prop artwork' : 'game character artwork'].filter(Boolean).join('; '),
+    prompt,
     subject: requirement.subject,
     ...(requirement.visualArchetype ? { visualArchetype: requirement.visualArchetype } : {}),
     visualContext: specification.visualContext,
+    ...(generationContext ? { generationContext } : {}),
     constraints: {
       assetKind: requirement.kind,
       view: requirement.technicalProfile.view,
       transparentBackground: requirement.technicalProfile.transparentBackground,
       ...(requirement.kind === 'background' ? { preferredAspectRatio: 16 / 9 } : {}),
     },
-  }
+  })
+}
+
+function buildContextualImagePrompt(
+  requirement: AssetRequirement,
+  context: ImageGenerationContext,
+): string {
+  const references = context.references.map(reference => reference.visualArchetype ?? reference.subject).join(', ')
+  return [
+    'GAME CONTEXT',
+    context.game.worldType ? `world type: ${context.game.worldType}` : undefined,
+    context.game.theme ? `current theme: ${context.game.theme}` : undefined,
+    context.game.timeOfDay ? `time of day: ${context.game.timeOfDay}` : undefined,
+    'VISUAL CONTEXT',
+    `art direction: ${context.visual.artDirection}`,
+    `theme: ${context.visual.theme.sourceTheme}; visual theme: ${context.visual.theme.visualTheme}`,
+    `palette: ${context.visual.palette.temperature}, ${context.visual.palette.contrast}, ${context.visual.palette.mood}`,
+    'TARGET ASSET',
+    `subject: ${context.asset.subject}`,
+    context.asset.visualRole ? `role: ${context.asset.visualRole}` : undefined,
+    context.asset.visualArchetype ? `archetype: ${context.asset.visualArchetype}` : undefined,
+    `kind: ${context.asset.kind}`,
+    context.visual.environment ? `environment: ${context.visual.environment.background}; ${context.visual.environment.atmosphere}` : undefined,
+    references ? `metadata-only visual neighbors: ${references}` : undefined,
+    'CONSTRAINTS',
+    context.asset.technicalProfile.view ? `view: ${context.asset.technicalProfile.view}` : undefined,
+    context.asset.technicalProfile.transparentBackground ? 'isolated subject, transparent background' : undefined,
+    requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : requirement.kind === 'prop' ? 'reusable game prop artwork' : 'game character artwork',
+    'no text, no logos',
+  ].filter((value): value is string => Boolean(value)).join('\n')
 }

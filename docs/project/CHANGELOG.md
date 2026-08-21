@@ -1,5 +1,27 @@
 # Changelog
 
+### WO-S15-000 — Capability-Specific Generation Context Foundation
+
+- Added immutable provider-neutral generation-context contracts and builders
+  for world evolution, image generation, and game design, plus a typed gameplay
+  extension point without introducing a gameplay specification.
+- Rebuilt world-evolution prompt context from current semantic authority and
+  preserved semantic/Runtime/visual revision and stale-operation guards.
+- Connected image context at initial creation and visual evolution. Requests
+  now carry current world/visual/asset facts, canonical bindings, bounded
+  metadata-only neighbors, and deterministic `GAME CONTEXT`, `VISUAL CONTEXT`,
+  `TARGET ASSET`, and `CONSTRAINTS` sections.
+- Added safe Observatory context metadata only: scope, world, revisions, target
+  archetype, binding count, and reference metadata count. Secrets, raw provider
+  payloads/events, URIs, image bytes, and hidden reasoning remain excluded.
+- Added authority/minimization/immutability/revision/provider-neutrality,
+  prompt, current-ID truth, world-isolation, and security regressions. Added
+  ADR-0261 and `SPRINT15_BACKLOG.md`.
+- Architecture version v1.146 → v1.147. Code Complete = YES; Product Verified
+  = YES — local browser verification covered current-name/stable-ID truth,
+  revision metadata, follow-up rebuild, world isolation, and empty browser
+  warning/error logs.
+
 ### WO-S14-006 — Multi-Turn World Evolution E2E & Sprint Freeze
 
 - Product verified one continuous `world-1` session across Cow ×3 → Sheep, explicit

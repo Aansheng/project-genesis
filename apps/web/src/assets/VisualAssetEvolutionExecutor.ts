@@ -5,12 +5,15 @@ import type {
   AssetResourceMetadata,
   AssetResourceReference,
   AssetSpecification,
+  GameWorldModel,
   ImageGenerationFailureCode,
   ImageGenerationOperation,
   VisualAssetExecutionResult,
   VisualAssetExecutionStatus,
   VisualEvolutionPlan,
+  WorldSemanticProperties,
 } from '@genesis/shared'
+import { DefaultImageGenerationContextBuilder } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
 import type { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, groupAiGenerationRequirements } from './AssetGenerationPolicy'
@@ -40,9 +43,13 @@ export interface VisualAssetExecutionProgress {
 export interface VisualAssetEvolutionExecutionContext {
   readonly worldId: string
   readonly semanticRevision: number
+  readonly runtimeSemanticRevision?: number
   readonly visualRevision: number
   readonly manifestRevision: number
   readonly token: number
+  readonly semanticWorld?: GameWorldModel
+  readonly properties?: WorldSemanticProperties
+  readonly architectureVersion?: string
 }
 
 export interface VisualAssetEvolutionExecutorOptions {
@@ -258,7 +265,30 @@ export class VisualAssetEvolutionExecutor {
       const bindings = bindingsFor(plan.updatedAssetSpecification, canonical)
       const bindingAssetIds = bindings.map(binding => binding.id)
       const bindingEntityIds = bindings.flatMap(binding => binding.entityId ? [binding.entityId] : [])
-      const request = buildImageGenerationRequest(plan.updatedAssetSpecification, canonical)
+      const visualDesign = plan.updatedVisualDesign
+      const visualContext = plan.updatedAssetSpecification.visualContext
+      const generationContext = new DefaultImageGenerationContextBuilder().build({
+        metadata: {
+          worldId: context.worldId,
+          operationId: plan.operationId,
+          semanticRevision: context.semanticRevision,
+          ...(context.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: context.runtimeSemanticRevision } : {}),
+          visualRevision: context.visualRevision,
+          ...(context.architectureVersion ? { architectureVersion: context.architectureVersion } : {}),
+        },
+        ...(context.semanticWorld ? { semanticWorld: context.semanticWorld } : {}),
+        ...(context.properties ? { properties: context.properties } : {}),
+        visualDesign: {
+          artDirection: visualDesign.artDirection ?? visualContext.artDirection,
+          theme: visualDesign.theme ?? visualContext.theme,
+          palette: visualDesign.palette ?? visualContext.palette,
+          ...(visualDesign.environment ? { environment: visualDesign.environment } : {}),
+        },
+        assetSpecification: plan.updatedAssetSpecification,
+        requirement: canonical,
+        bindings,
+      })
+      const request = buildImageGenerationRequest(plan.updatedAssetSpecification, canonical, generationContext)
       const jobId = `image-generation-client-${plan.operationId}-${canonical.id}`
       const pending = {
         ...createPendingImageGenerationOperation(request),

@@ -126,8 +126,10 @@ affected manifest/store/renderer bindings.
 
 ## Next Work Order Boundary
 
-### Sprint 15 — Gameplay Mechanics Foundation
+### Sprint 15 — Capability-Specific Generation Context Foundation
 
-Move the product from playable generated worlds toward generated rules and mechanically
-complete mini-games. Keep durable generated-asset lifecycle and Generation Context as
-separate follow-up concerns; do not fold them into the frozen Sprint 14 architecture.
+WO-S15-000 now provides the capability-specific context boundary while keeping
+the Sprint 14 semantic/Runtime/visual pipeline authoritative. See
+`SPRINT15_BACKLOG.md`. Gameplay mechanics generation remains the next boundary;
+durable generated-asset lifecycle and richer reference-guided generation stay
+deferred.

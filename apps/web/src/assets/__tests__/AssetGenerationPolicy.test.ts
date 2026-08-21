@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { DefaultImageGenerationContextBuilder } from '@genesis/shared'
 import { buildImageGenerationRequest, groupAiGenerationRequirements, isAiGenerationEligible, selectAiGenerationRequirement } from '../AssetGenerationPolicy'
 import { buildGeneratedAssetManifest } from '../GeneratedAssetOrchestrator'
 import type { AssetSpecification, ImageGenerationResult } from '@genesis/shared'
@@ -28,6 +29,33 @@ describe('AI asset generation policy', () => {
       visualContext: specification.visualContext,
       constraints: { assetKind: 'character', view: 'side', transparentBackground: true },
     })
+  })
+
+  it('assembles deterministic provider-neutral sections from a bounded context', () => {
+    const requirement = specification.assets[0]
+    const context = new DefaultImageGenerationContextBuilder().build({
+      metadata: { worldId: 'world-a', semanticRevision: 2, visualRevision: 1 },
+      semanticWorld: { worldType: 'farm', entities: [{ id: 'player', category: 'player', name: 'Player' }] },
+      properties: { theme: 'forest', timeOfDay: 'day' },
+      visualDesign: {
+        artDirection: specification.visualContext.artDirection,
+        theme: specification.visualContext.theme,
+        palette: specification.visualContext.palette,
+        environment: { terrain: 'grass', background: 'forest', atmosphere: 'clear' },
+      },
+      assetSpecification: specification,
+      requirement,
+    })
+    const request = buildImageGenerationRequest(specification, requirement, context)
+
+    expect(request.prompt).toContain('GAME CONTEXT')
+    expect(request.prompt).toContain('VISUAL CONTEXT')
+    expect(request.prompt).toContain('TARGET ASSET')
+    expect(request.prompt).toContain('CONSTRAINTS')
+    expect(request.prompt).toContain('forest hero')
+    expect(request.prompt).not.toContain('worldId')
+    expect(request.prompt).not.toContain('assetIds')
+    expect(request.generationContext).toBe(context)
   })
 
   it('generates meaningful semantic assets and keeps technical markers static-only', () => {

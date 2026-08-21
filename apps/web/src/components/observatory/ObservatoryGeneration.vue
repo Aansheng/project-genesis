@@ -48,6 +48,13 @@ const labels: Record<string, string> = {
             <div v-if="imageGeneration.visualArchetype"><dt>Archetype</dt><dd>{{ imageGeneration.visualArchetype }}</dd></div>
             <div v-if="imageGeneration.bindingEntityIds?.length"><dt>Bindings</dt><dd>{{ imageGeneration.bindingEntityIds.join(', ') }}</dd></div>
             <div v-if="imageGeneration.entityId"><dt>Entity</dt><dd>{{ imageGeneration.entityId }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata"><dt>Context</dt><dd>{{ imageGeneration.contextMetadata.scope }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata?.worldId"><dt>Context world</dt><dd>{{ imageGeneration.contextMetadata.worldId }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata?.semanticRevision !== undefined"><dt>Semantic revision</dt><dd>{{ imageGeneration.contextMetadata.semanticRevision }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata?.runtimeSemanticRevision !== undefined"><dt>Runtime revision</dt><dd>{{ imageGeneration.contextMetadata.runtimeSemanticRevision }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata?.visualRevision !== undefined"><dt>Visual revision</dt><dd>{{ imageGeneration.contextMetadata.visualRevision }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata?.bindingCount !== undefined"><dt>Context bindings</dt><dd>{{ imageGeneration.contextMetadata.bindingCount }}</dd></div>
+            <div v-if="imageGeneration.contextMetadata?.referenceMetadataCount !== undefined"><dt>Context neighbors</dt><dd>{{ imageGeneration.contextMetadata.referenceMetadataCount }}</dd></div>
             <div><dt>Provider</dt><dd>{{ imageGeneration.provider ?? 'server-selected' }}</dd></div>
             <div v-if="imageGeneration.model"><dt>Model</dt><dd>{{ imageGeneration.model }}</dd></div>
             <div><dt>Mode</dt><dd>{{ imageGeneration.mode }}</dd></div>

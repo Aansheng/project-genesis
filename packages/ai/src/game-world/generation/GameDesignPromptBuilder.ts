@@ -1,5 +1,11 @@
-import type { EntityCategory, GameDifficulty, GameObjectiveType, WorldType } from '@genesis/shared'
-import type { GameIntent } from '../../game-intent/GameIntent'
+import type {
+  EntityCategory,
+  GameDifficulty,
+  GameObjectiveType,
+  GenerationContextMetadata,
+  WorldType,
+} from '@genesis/shared'
+import { DefaultGameDesignGenerationContextBuilder } from '@genesis/shared'
 import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
 
 export interface GameDesignCapabilities {
@@ -14,6 +20,7 @@ export interface GameDesignCapabilities {
 export interface GameDesignPrompt {
   readonly system: string
   readonly user: string
+  readonly generationContext?: GenerationContextMetadata
 }
 
 export interface GameDesignPromptBuilder {
@@ -33,10 +40,18 @@ const list = (values: readonly string[]) => values.join(', ')
 
 /** Pure, vendor-independent assembly of the semantic game-design prompt. */
 export class DefaultGameDesignPromptBuilder implements GameDesignPromptBuilder {
+  private readonly contextBuilder = new DefaultGameDesignGenerationContextBuilder()
+
   constructor(private readonly capabilities: GameDesignCapabilities = DEFAULT_GAME_DESIGN_CAPABILITIES) {}
 
   build(request: GameWorldGenerationRequest): GameDesignPrompt {
     const { capabilities } = this
+    const generationContext = this.contextBuilder.build({
+      instruction: request.input,
+      genre: request.intent.genre,
+      title: request.intent.title,
+      capabilities,
+    })
     const system = [
       'You are a game design planner for Project Genesis.',
       'Convert the user request into one semantic game design candidate. Do not implement engine code.',
@@ -53,9 +68,8 @@ export class DefaultGameDesignPromptBuilder implements GameDesignPromptBuilder {
       'Do not expose chain-of-thought; return only the final candidate.',
     ].join('\n')
     const user = JSON.stringify({
-      request: request.input,
-      intent: request.intent as GameIntent,
+      context: generationContext,
     })
-    return Object.freeze({ system, user })
+    return Object.freeze({ system, user, generationContext })
   }
 }

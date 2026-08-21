@@ -1,6 +1,6 @@
-# Observatory Truth Audit — WO-OBS-001 / WO-S14-006
+# Observatory Truth Audit — WO-OBS-001 / WO-S15-000
 
-Architecture is v1.146. This audit records production behavior; test fixtures are excluded.
+Architecture is v1.147. This audit records production behavior; test fixtures are excluded.
 The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
 recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
 generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
@@ -10,7 +10,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 | Surface | Component | Store / view model | Classification | Current producer | Session correlation | Current-world truth | Misleading risk / treatment |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Overview | `ObservatoryOverview` | `observatoryData` + `gameStore` | REAL / PARTIAL | Runtime binding, latest `GameGenerationTrace`, visual operations, AssetManifest | Current SPA stores | Yes; unavailable fields are omitted or labelled | Legacy v1.29 mock retired; real cards only |
-| Trace | `ObservatoryTraceViewer` | `ObservatoryViewModel.traceView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `recordWorldEvolution` projects planning, semantic, Runtime sync, asset, manifest, renderer, and failure stages with safe metadata | `operationId + worldId + semanticRevision + runtimeSemanticRevision + visualRevision + manifestRevision` | Yes for current operation; stale results remain failed facts and never rebind | No hidden reasoning or synthetic Runtime ticks |
+| Trace | `ObservatoryTraceViewer` | `ObservatoryViewModel.traceView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `recordWorldEvolution` projects planning, semantic, Runtime sync, asset, manifest, renderer, and failure stages with safe metadata, including bounded generation-context summaries | `operationId + worldId + semanticRevision + runtimeSemanticRevision + visualRevision + manifestRevision + contextScope` | Yes for current operation; stale results remain failed facts and never rebind | No hidden reasoning or synthetic Runtime ticks |
 | Timeline | `ObservatoryTimelineViewer` | `ObservatoryViewModel.timelineView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation.stages` with planning, semantic, Runtime synchronization, generation, manifest, resolution, renderer, and sync timestamps | `operationId + worldId` | Yes for current operation | Only emitted stages; no synthetic Runtime ticks |
 | History | `ObservatoryHistoryViewer` | `ObservatoryViewModel.historyView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation` instruction, status, revisions, asset counts, manifest revision, and renderer counts | `operationId + worldId + visualRevision + manifestRevision` | Reports asset execution completed/failed, visual synchronized, or previous visual retained | Never claims success before the renderer callback |
 | Diff | `ObservatoryDiffViewer` | `ObservatoryViewModel.diffView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | Actual `WorldSemanticDelta`, `SemanticWorldMutationResult`, `RuntimeEvolutionResult`, `VisualEvolutionPlan`, and `VisualAssetExecutionResult` | `operationId + worldId + targetIds + visualRevision + manifestRevision` | Layered semantic, Runtime IDs, visual archetypes, targeted rebound/removed IDs, renderer counts, and fallback facts | Does not claim unrelated assets changed |
@@ -18,14 +18,14 @@ create-world visual operations now terminate as cancelled rather than remaining 
 | Execution Graph | `ObservatoryTraceGraph` | None | EMPTY-BY-DESIGN | No live graph producer | None | N/A | Old hardcoded CreateWorld/CreateFarm topology removed |
 | World Graph | `ObservatoryWorldGraph` | Runtime view projection | REAL / PARTIAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes; current entities/types only | Old Farm/Barn/HarvestQuest fixture removed |
 | Runtime | `ObservatoryRuntimeViewer` | `ObservatoryViewModel.runtimeView` | REAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes | Uninstrumented system/event/FPS values display unavailable |
-| Generation Trace | `ObservatoryGeneration` | `observatoryData.generationTrace` + `gameStore.visualGenerationOperations` | REAL | Latest generation diagnostics and image operations | Latest current-session generation | Yes | Safe provider/model/stages only; transport secrets excluded |
+| Generation Trace | `ObservatoryGeneration` | `observatoryData.generationTrace` + `gameStore.visualGenerationOperations` | REAL | Latest generation diagnostics and image operations, including safe context scope/world/revision/binding/reference counts | Latest current-session generation | Yes | Safe provider/model/stages/context summaries only; transport secrets, raw payloads, URIs, and image bytes excluded |
 
 ## Retired mock paths
 
 - The production store no longer contains the Sprint 6 farm/history/diff/event demo builder.
 - `ObservatoryOverview` no longer auto-hydrates mock data in test mode.
 - The legacy fixture lives only under `src/__tests__/fixtures` and is installed by Vitest setup for historical tests.
-- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.146.
+- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.147.
 
 ## Sprint 14 producers
 
@@ -53,3 +53,13 @@ successful visual synchronization, and previous-visual fallback. New worlds
 reset evolution, Runtime, visual, and manifest revision markers, and stale
 operations cannot cross world/session, semantic-revision, Runtime-revision,
 visual-plan, or execution-token boundaries.
+
+## Sprint 15 context producer
+
+WO-S15-000 keeps the full generation context out of Observatory and projects
+only safe summaries. Image operations expose capability scope, current world,
+semantic/Runtime/visual revisions, target archetype, canonical binding count,
+and bounded metadata-only reference count. World-evolution traces expose the
+same scope/revision facts when available. Secrets, raw provider events,
+provider payloads, hidden reasoning, resource URIs, and binary data are not
+copied into the UI model.

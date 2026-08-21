@@ -1,5 +1,9 @@
 import type { EntityCategory, GameWorldModel } from '../game-world'
 import type { VisualAssetExecutionResult } from '../visual-evolution/VisualEvolution'
+import type {
+  GenerationContextTraceMetadata,
+  WorldEvolutionGenerationContext,
+} from '../generation-context'
 
 /** The semantic breadth of an evolution request. */
 export type EvolutionScope = 'entity' | 'archetype-group' | 'world'
@@ -86,12 +90,20 @@ export interface WorldEvolutionWorldContext {
   readonly properties?: WorldSemanticProperties
   /** Monotonic semantic revision captured when the request was planned. */
   readonly semanticRevision?: number
+  /** Runtime semantic revision relevant to a later visual/application guard. */
+  readonly runtimeSemanticRevision?: number
+  /** Current visual revision when the operation was requested. */
+  readonly visualRevision?: number
+  /** Real Studio interaction focus, if it targets a current semantic entity. */
+  readonly selectedEntityId?: string
 }
 
 export interface WorldEvolutionRequest {
   readonly operationId: string
   readonly instruction: string
   readonly context: WorldEvolutionWorldContext
+  /** Immutable capability snapshot derived from `context`; never an authority. */
+  readonly generationContext?: WorldEvolutionGenerationContext
   readonly createdAt?: string
 }
 
@@ -270,6 +282,7 @@ export interface WorldEvolutionOperation {
   readonly source: WorldEvolutionSource
   readonly provider?: string
   readonly model?: string
+  readonly contextMetadata?: GenerationContextTraceMetadata
   readonly kind?: WorldEvolutionOperationKind
   readonly scope?: EvolutionScope
   readonly resolvedTargetIds: readonly string[]

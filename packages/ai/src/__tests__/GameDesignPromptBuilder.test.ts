@@ -20,6 +20,11 @@ describe('DefaultGameDesignPromptBuilder', () => {
     expect(first.system).not.toContain('think step by step')
     expect(first.user).toContain('冰雪平台游戏')
     expect(first.user).toContain('platformer')
+    expect(first.generationContext).toMatchObject({
+      scope: 'game-design',
+      request: { instruction: request.input, genre: 'platformer', title: '冰雪平台游戏' },
+    })
+    expect(Object.isFrozen(first.generationContext)).toBe(true)
   })
 
   it('does not teach implementation details as output fields', () => {

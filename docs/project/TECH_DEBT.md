@@ -17,6 +17,15 @@
 | Durable generated-asset lifecycle | Generated gateway URIs remain session-owned. Current-SPA multi-turn reuse is verified; reuse after reload, server restart, or project reopen is not guaranteed. Add durable publication, recovery, and cleanup only when persistence is the active product bottleneck. |
 | Persistent evolution history / undo | Observatory and evolution state are session-scoped. Persistence and inverse operations remain deferred; neither is required for targeted live-world evolution. |
 
+## Post-Sprint-15 Generation Context
+
+| Item | Status / Evidence |
+| --- | --- |
+| Conversation continuity / global history | Deferred. Context is rebuilt from current authoritative state for each capability; no global memory or Context Store was added. |
+| Reference-guided image generation | Deferred. Image context carries at most three deterministic metadata-only neighboring requirements; reference bytes, URIs, and similarity search are not transported. |
+| Context caching and reuse | Deferred. Builders create immutable per-request snapshots; cache invalidation and persistence are not needed for the current playable pipeline. |
+| Gameplay mechanics context | Deferred to S15-001. A typed `GameplayGenerationContext<T>` extension point exists, but no gameplay specification or mechanics orchestration was introduced. |
+
 ## Sprint 12 Baseline Freeze Audit
 
 | Item | Status / Evidence |

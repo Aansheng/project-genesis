@@ -15,6 +15,7 @@ import type {
   WorldSemanticDelta,
   WorldSemanticDeltaOperation,
 } from '@genesis/shared'
+import { DefaultWorldEvolutionGenerationContextBuilder, summarizeGenerationContext } from '@genesis/shared'
 import type {
   WorldEvolutionCandidateProvider,
   WorldEvolutionPlanResult,
@@ -43,19 +44,36 @@ function isCategory(value: unknown): value is EntityCategory {
 }
 
 function freezeRequest(request: WorldEvolutionRequest, createdAt: string): WorldEvolutionRequest {
+  const context = Object.freeze({
+    worldId: request.context.worldId.trim(),
+    ...(request.context.semanticRevision !== undefined ? { semanticRevision: request.context.semanticRevision } : {}),
+    ...(request.context.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: request.context.runtimeSemanticRevision } : {}),
+    ...(request.context.visualRevision !== undefined ? { visualRevision: request.context.visualRevision } : {}),
+    ...(request.context.selectedEntityId ? { selectedEntityId: request.context.selectedEntityId.trim() } : {}),
+    semanticWorld: Object.freeze({
+      worldType: request.context.semanticWorld.worldType,
+      entities: Object.freeze(request.context.semanticWorld.entities.map(entity => Object.freeze({ ...entity }))),
+    }),
+    ...(request.context.properties ? { properties: Object.freeze({ ...request.context.properties }) } : {}),
+  })
+  const generationContext = new DefaultWorldEvolutionGenerationContextBuilder().build({
+    metadata: {
+      worldId: context.worldId,
+      operationId: request.operationId.trim(),
+      ...(context.semanticRevision !== undefined ? { semanticRevision: context.semanticRevision } : {}),
+      ...(context.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: context.runtimeSemanticRevision } : {}),
+      ...(context.visualRevision !== undefined ? { visualRevision: context.visualRevision } : {}),
+    },
+    semanticWorld: context.semanticWorld,
+    ...(context.properties ? { properties: context.properties } : {}),
+    ...(context.selectedEntityId ? { selectedEntityId: context.selectedEntityId } : {}),
+  })
   return Object.freeze({
     operationId: request.operationId.trim(),
     instruction: request.instruction.trim(),
     createdAt,
-    context: Object.freeze({
-      worldId: request.context.worldId.trim(),
-      ...(request.context.semanticRevision !== undefined ? { semanticRevision: request.context.semanticRevision } : {}),
-      semanticWorld: Object.freeze({
-        worldType: request.context.semanticWorld.worldType,
-        entities: Object.freeze(request.context.semanticWorld.entities.map(entity => Object.freeze({ ...entity }))),
-      }),
-      ...(request.context.properties ? { properties: Object.freeze({ ...request.context.properties }) } : {}),
-    }),
+    context,
+    generationContext,
   })
 }
 
@@ -76,6 +94,8 @@ function validRequest(request: unknown): request is WorldEvolutionRequest {
   if (typeof request.instruction !== 'string' || request.instruction.trim() === '') return false
   if (!isRecord(request.context) || typeof request.context.worldId !== 'string' || request.context.worldId.trim() === '') return false
   if (request.context.semanticRevision !== undefined && (typeof request.context.semanticRevision !== 'number' || !Number.isInteger(request.context.semanticRevision) || request.context.semanticRevision < 0)) return false
+  if (request.context.runtimeSemanticRevision !== undefined && (typeof request.context.runtimeSemanticRevision !== 'number' || !Number.isInteger(request.context.runtimeSemanticRevision) || request.context.runtimeSemanticRevision < 0)) return false
+  if (request.context.visualRevision !== undefined && (typeof request.context.visualRevision !== 'number' || !Number.isInteger(request.context.visualRevision) || request.context.visualRevision < 0)) return false
   const world = request.context.semanticWorld
   return isRecord(world) && typeof world.worldType === 'string' && Array.isArray(world.entities) && world.entities.every(entity => isRecord(entity) && typeof entity.id === 'string' && typeof entity.name === 'string' && isCategory(entity.category))
 }
@@ -517,6 +537,7 @@ export class DefaultWorldEvolutionPlanner implements WorldEvolutionPlanner {
       source: this.source,
       ...(metadata?.provider ? { provider: metadata.provider } : {}),
       ...(metadata?.model ? { model: metadata.model } : {}),
+      ...(request.generationContext ? { contextMetadata: summarizeGenerationContext(request.generationContext) } : {}),
       ...(intent ? { kind: intent.kind, scope: intent.scope } : {}),
       resolvedTargetIds: Object.freeze([...resolvedTargetIds]),
       ...(deltaSummary ? { deltaSummary } : {}),

@@ -242,6 +242,7 @@ function upsertById<T extends { readonly id: string }>(items: readonly T[], next
 }
 
 function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryViewModel['traceView'][number] {
+  const contextMetadata = operation.contextMetadata
   return Object.freeze({
     id: `trace-${operation.operationId}`,
     strategy: `World Evolution · ${operation.source}`,
@@ -265,6 +266,10 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.assetRemoved !== undefined ? [{ key: 'assetRemoved', value: String(operation.assetRemoved) }] : []),
       ...(operation.assetRendererApplied !== undefined ? [{ key: 'assetRendererApplied', value: String(operation.assetRendererApplied) }] : []),
       ...(operation.visualSynchronization ? [{ key: 'visualSynchronization', value: operation.visualSynchronization }] : []),
+      ...(contextMetadata ? [{ key: 'contextScope', value: contextMetadata.scope }] : []),
+      ...(contextMetadata?.targetArchetype ? [{ key: 'contextTargetArchetype', value: contextMetadata.targetArchetype }] : []),
+      ...(contextMetadata?.bindingCount !== undefined ? [{ key: 'contextBindingCount', value: String(contextMetadata.bindingCount) }] : []),
+      ...(contextMetadata?.referenceMetadataCount !== undefined ? [{ key: 'contextReferenceMetadataCount', value: String(contextMetadata.referenceMetadataCount) }] : []),
       { key: 'targets', value: operation.resolvedTargetIds.join(', ') || 'none' },
     ]),
     metadata: Object.freeze({
@@ -288,6 +293,10 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.assetRemoved !== undefined ? { assetRemoved: operation.assetRemoved } : {}),
       ...(operation.assetRendererApplied !== undefined ? { assetRendererApplied: operation.assetRendererApplied } : {}),
       ...(operation.visualSynchronization ? { visualSynchronization: operation.visualSynchronization } : {}),
+      ...(contextMetadata ? { contextScope: contextMetadata.scope } : {}),
+      ...(contextMetadata?.targetArchetype ? { contextTargetArchetype: contextMetadata.targetArchetype } : {}),
+      ...(contextMetadata?.bindingCount !== undefined ? { contextBindingCount: contextMetadata.bindingCount } : {}),
+      ...(contextMetadata?.referenceMetadataCount !== undefined ? { contextReferenceMetadataCount: contextMetadata.referenceMetadataCount } : {}),
     }),
     operationId: operation.operationId,
     worldId: operation.worldId,

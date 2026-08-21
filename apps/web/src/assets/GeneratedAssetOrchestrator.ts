@@ -5,7 +5,7 @@ import type {
   ImageGenerationOperation,
   ImageGenerationResult,
 } from '@genesis/shared'
-import { DefaultAssetManifestBuilder } from '@genesis/shared'
+import { DefaultAssetManifestBuilder, summarizeGenerationContext } from '@genesis/shared'
 import type { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, selectAiGenerationRequirement } from './AssetGenerationPolicy'
 
@@ -36,6 +36,7 @@ export function createPendingImageGenerationOperation(
     status: 'running',
     stage: 'preparing',
     assetKind: request.constraints?.assetKind,
+    ...(request.generationContext ? { contextMetadata: summarizeGenerationContext(request.generationContext) } : {}),
     artifactStatus: 'pending',
     manifestStatus: 'pending',
     assetResolutionStatus: 'pending',

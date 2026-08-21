@@ -16,8 +16,8 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
-import { DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
+import type { AssetManifest, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
+import { DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
 import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
@@ -34,6 +34,7 @@ import { VisualAssetEvolutionExecutor } from '../assets/VisualAssetEvolutionExec
 import type { VisualAssetExecutionProgress, VisualAssetExecutionStage } from '../assets/VisualAssetEvolutionExecutor'
 import { useObservatoryDataStore } from './observatoryData'
 import { createStaticAssetResolutions } from '../assets/StaticAssetCatalog'
+import { PROJECT_METADATA } from '../projectMetadata'
 
 export type CommandStatus = 'idle' | 'running' | 'success' | 'error'
 
@@ -475,6 +476,7 @@ export const useGameStore = defineStore('game', () => {
   const imageClient = new BrowserImageGenerationClient(imageGatewayURL(
     createAIConfiguration(import.meta.env).gatewayURL || DEFAULT_AI_GATEWAY_URL,
   ))
+  const imageGenerationContextBuilder = new DefaultImageGenerationContextBuilder()
   const visualAssetEvolutionExecutor = new VisualAssetEvolutionExecutor({
     imageClient,
     scheduler,
@@ -482,7 +484,8 @@ export const useGameStore = defineStore('game', () => {
     isCurrent: context => context.token === imageGenerationToken
       && context.worldId === currentWorldId.value
       && context.semanticRevision === semanticRevision.value
-      && context.visualRevision === visualRevision.value,
+      && context.visualRevision === visualRevision.value
+      && (context.runtimeSemanticRevision === undefined || context.runtimeSemanticRevision === runtimeSemanticRevision.value),
     onOperation: operation => {
       const activeOperationId = [...activeVisualExecutions.keys()].find(operationId =>
         operation.operationId.startsWith(`image-generation-client-${operationId}-`),
@@ -537,9 +540,9 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], token: number): Promise<void> {
+  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], generationContext: ImageGenerationContext, token: number): Promise<void> {
     const [requirement, bindings] = requirements
-    const request = buildImageGenerationRequest(specification, requirement)
+    const request = buildImageGenerationRequest(specification, requirement, generationContext)
     const pending = createPendingImageGenerationOperation(request)
     try {
       const result = await imageClient.generate(request)
@@ -758,15 +761,39 @@ export const useGameStore = defineStore('game', () => {
         useObservatoryDataStore().resetEvolution(currentWorldId.value)
         useObservatoryDataStore().loadRuntimeWorld(worldStore.getWorld(), currentWorldId.value)
         markWorldUpdated()
-        if (nextAssetSpecification) {
+        if (nextAssetSpecification && nextVisualDesign) {
           const token = imageGenerationToken
           for (const requirements of groupAiGenerationRequirements(nextAssetSpecification)) {
-            const request = buildImageGenerationRequest(nextAssetSpecification, requirements[0])
+            const [requirement, bindings] = requirements
+            const operationId = `image-generation-client-${requirement.id}`
+            const generationContext = imageGenerationContextBuilder.build({
+              metadata: {
+                worldId: nextWorldId,
+                operationId,
+                semanticRevision: 0,
+                runtimeSemanticRevision: 0,
+                visualRevision: 0,
+                architectureVersion: PROJECT_METADATA.architectureVersion,
+              },
+              ...(result.semanticWorld ? { semanticWorld: result.semanticWorld } : {}),
+              ...(gameDesignSpecification?.theme?.name ? { properties: { theme: gameDesignSpecification.theme.name } } : {}),
+              visualDesign: nextVisualDesign,
+              assetSpecification: nextAssetSpecification,
+              requirement,
+              bindings,
+            })
+            const request = buildImageGenerationRequest(nextAssetSpecification, requirement, generationContext)
             const pending = createPendingImageGenerationOperation(request)
-        setOperation({ ...pending, bindingAssetIds: requirements[1].map(binding => binding.id), bindingEntityIds: requirements[1].flatMap(binding => binding.entityId ? [binding.entityId] : []), stage: 'queued', status: 'queued' })
+            setOperation({
+              ...pending,
+              bindingAssetIds: bindings.map(binding => binding.id),
+              bindingEntityIds: bindings.flatMap(binding => binding.entityId ? [binding.entityId] : []),
+              stage: 'queued',
+              status: 'queued',
+            })
             scheduler.enqueue({
               jobId: pending.operationId,
-              run: () => generateArtwork(nextAssetSpecification, requirements, token),
+              run: () => generateArtwork(nextAssetSpecification, requirements, generationContext, token),
             })
           }
         }
@@ -798,6 +825,9 @@ export const useGameStore = defineStore('game', () => {
         semanticWorld: stateAtRequest.semanticWorld,
         properties: stateAtRequest.properties,
         semanticRevision: stateAtRequest.semanticRevision,
+        runtimeSemanticRevision: runtimeSemanticRevision.value,
+        visualRevision: visualRevision.value,
+        ...(selectedEntityId.value ? { selectedEntityId: selectedEntityId.value } : {}),
       }),
     })
     const plan: WorldEvolutionPlanResult = await planner.plan(request)
@@ -899,9 +929,13 @@ export const useGameStore = defineStore('game', () => {
           const executionContext = {
             worldId: currentState!.worldId,
             semanticRevision: visualPlan.semanticRevision,
+            runtimeSemanticRevision: runtimeSync.updatedRevision,
             visualRevision: visualPlan.updatedVisualRevision,
             manifestRevision: assetManifestRevision.value,
             token: imageGenerationToken,
+            semanticWorld: mutation.updatedWorld,
+            properties: mutation.updatedProperties,
+            architectureVersion: PROJECT_METADATA.architectureVersion,
           }
           const executionPromise = visualAssetEvolutionExecutor.execute(visualPlan, assetManifest.value, executionContext)
           void executionPromise.then(result => {

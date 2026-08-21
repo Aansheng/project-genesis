@@ -79,12 +79,12 @@ function gateway(): typeof fetch {
   }) as typeof fetch
 }
 
-function gatewayWithImages(): { readonly fetcher: typeof fetch; readonly imageRequests: readonly { readonly assetId: string; readonly visualArchetype?: string }[] } {
-  const imageRequests: { assetId: string; visualArchetype?: string }[] = []
+function gatewayWithImages(): { readonly fetcher: typeof fetch; readonly imageRequests: readonly { readonly assetId: string; readonly visualArchetype?: string; readonly generationContext?: Record<string, unknown> }[] } {
+  const imageRequests: { assetId: string; visualArchetype?: string; generationContext?: Record<string, unknown> }[] = []
   const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-    const body = JSON.parse(String(init?.body ?? '{}')) as { assetId?: string; visualArchetype?: string; kind?: string; input?: string; instruction?: string }
+    const body = JSON.parse(String(init?.body ?? '{}')) as { assetId?: string; visualArchetype?: string; generationContext?: Record<string, unknown>; kind?: string; input?: string; instruction?: string }
     if (body.assetId) {
-      imageRequests.push({ assetId: body.assetId, ...(body.visualArchetype ? { visualArchetype: body.visualArchetype } : {}) })
+      imageRequests.push({ assetId: body.assetId, ...(body.visualArchetype ? { visualArchetype: body.visualArchetype } : {}), ...(body.generationContext ? { generationContext: body.generationContext } : {}) })
       return Response.json({
         status: 'success',
         assetId: body.assetId,
@@ -163,7 +163,7 @@ describe('World Evolution Studio integration', () => {
       'VISUAL_DELTA_PLANNED · success',
       'ASSET_EXECUTION_STARTED · success',
     ])
-    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'asset_execution_started', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1, visualRevision: 1, visualPlanning: 'planned', visualGenerationRequired: 1, assetExecution: 'running' })
+    expect(observatory.viewModel.traceView[0]?.metadata).toMatchObject({ status: 'asset_execution_started', worldId: 'world-1', semanticRevision: 1, runtimeSemanticRevision: 1, visualRevision: 1, visualPlanning: 'planned', visualGenerationRequired: 1, assetExecution: 'running', contextScope: 'world-evolution' })
     expect(observatory.viewModel.eventStreamView.events.map(event => event.source)).toContain('world-evolution')
     expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).toContain('Semantic world mutation applied; Runtime synchronization started')
     expect(observatory.viewModel.eventStreamView.events.map(event => event.message)).not.toContain('Semantic world mutation applied; Runtime synchronization pending')
@@ -256,6 +256,18 @@ describe('World Evolution Studio integration', () => {
     await vi.waitFor(() => expect(game.assetManifest.entries.filter(entry => entry.entityId?.startsWith('cow-') && entry.origin === 'generated')).toHaveLength(3))
 
     expect(controlled.imageRequests.filter(request => request.visualArchetype === 'Sheep')).toHaveLength(1)
+    const sheepRequest = controlled.imageRequests.find(request => request.visualArchetype === 'Sheep')
+    expect(sheepRequest?.generationContext).toMatchObject({
+      scope: 'image-generation',
+      worldId: 'world-1',
+      semanticRevision: 1,
+      runtimeSemanticRevision: 1,
+      visualRevision: 1,
+      game: { worldType: 'farm', theme: 'green fields' },
+      visual: { targetArchetype: 'Sheep' },
+      asset: { subject: 'Sheep', visualArchetype: 'Sheep', entityIds: ['cow-1', 'cow-2', 'cow-3'] },
+    })
+    expect(JSON.stringify(sheepRequest?.generationContext)).not.toContain('uri')
     expect(game.assetManifest.entries.filter(entry => entry.entityId?.startsWith('cow-')).map(entry => entry.resource?.uri)).toEqual([
       '/generated/Sheep.png', '/generated/Sheep.png', '/generated/Sheep.png',
     ])
@@ -263,6 +275,15 @@ describe('World Evolution Studio integration', () => {
 
     const sheepOperation = Object.values(game.visualGenerationOperations).find(operation => operation.visualArchetype === 'Sheep' && operation.stage === 'applying')
     expect(sheepOperation).toBeDefined()
+    expect(sheepOperation?.contextMetadata).toMatchObject({
+      scope: 'image-generation',
+      worldId: 'world-1',
+      semanticRevision: 1,
+      runtimeSemanticRevision: 1,
+      visualRevision: 1,
+      targetArchetype: 'Sheep',
+      bindingCount: 3,
+    })
     for (const entityId of ['cow-1', 'cow-2', 'cow-3']) {
       game.reportAssetApplication({ assetId: `entity-${entityId}-primary`, entityId, status: 'applied' })
     }
