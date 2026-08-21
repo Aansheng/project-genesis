@@ -1,5 +1,29 @@
 # Changelog
 
+### WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
+
+- Added the Runtime-owned post-system gameplay rule seam: deterministic
+  trigger matching, current semantic/Runtime condition evaluation, and a
+  trusted single-action `REMOVE_ENTITY` executor.
+- Connected world/session/semantic revision binding, whole-rule support gating,
+  bounded exactly-once event/rule consumption, missing-target safety, and
+  Player-removal protection. Deferred/partial/unsupported rules cannot execute
+  partially; no provider code, eval, score, damage, goal, spawn, or generic
+  gameplay manager was added.
+- Reused `WorldMutator` for immutable targeted Runtime mutation. The existing
+  Renderer/WorldStore commit path naturally removes the entity visually and
+  emits `ENTITY_REMOVED` at the next boundary.
+- Forwarded rule outcomes as a separate bounded Observatory `Gameplay Rule`
+  projection while preserving raw `GameplayEvent` facts as a distinct stream.
+  Deterministic collectible generation now recognizes `coin` as an `item`, and
+  the generated collect rule is remove-only.
+- Added ADR-0265, Runtime vertical-slice tests, affected AI/Web regression
+  updates, capability/truth-audit updates, and architecture version
+  v1.150 → v1.151. Code Complete = YES; Product Verified = YES — local Studio
+  browser verification passed for player → coin contact, remove-only execution,
+  next-boundary `ENTITY_REMOVED`, continued player control, and clean console
+  warning/error logs.
+
 ### WO-S15-003 — Trigger / Condition / Action Rule Model Foundation
 
 - Added immutable shared `GameplayRuleSpecification` and `GameplayRuleSet`

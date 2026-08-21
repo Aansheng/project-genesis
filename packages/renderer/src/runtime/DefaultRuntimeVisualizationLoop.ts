@@ -20,7 +20,7 @@
  */
 import type { World } from '@genesis/shared'
 import type { GameplayEventObserver } from '@genesis/shared'
-import type { RuntimeExecutionLoop } from '@genesis/runtime'
+import type { GameplayRuleExecutionObserver, RuntimeExecutionLoop } from '@genesis/runtime'
 import type { RuntimeRendererAdapter } from '../adapter'
 import type { PixiEntityRenderer } from '../view'
 import type { PixiEnvironmentRenderer } from '../view'
@@ -39,6 +39,7 @@ export class DefaultRuntimeVisualizationLoop
   private readonly worldSink: RuntimeWorldSink | undefined
   private readonly environmentRenderer: PixiEnvironmentRenderer | undefined
   private readonly gameplayEventObserver: GameplayEventObserver | undefined
+  private readonly gameplayRuleExecutionObserver: GameplayRuleExecutionObserver | undefined
   private _currentWorld: World
   private _running: boolean
 
@@ -60,6 +61,7 @@ export class DefaultRuntimeVisualizationLoop
     worldSink?: RuntimeWorldSink,
     environmentRenderer?: PixiEnvironmentRenderer,
     gameplayEventObserver?: GameplayEventObserver,
+    gameplayRuleExecutionObserver?: GameplayRuleExecutionObserver,
   ) {
     this.executionLoop = executionLoop
     this.rendererAdapter = rendererAdapter
@@ -68,6 +70,7 @@ export class DefaultRuntimeVisualizationLoop
     this.worldSink = worldSink
     this.environmentRenderer = environmentRenderer
     this.gameplayEventObserver = gameplayEventObserver
+    this.gameplayRuleExecutionObserver = gameplayRuleExecutionObserver
     this._currentWorld = worldProvider?.getWorld() ?? initialWorld
     this._running = false
   }
@@ -156,9 +159,9 @@ export class DefaultRuntimeVisualizationLoop
     }
 
     // Step 1: Execute runtime systems
-    const executionResult = this.gameplayEventObserver
+    const executionResult = this.gameplayEventObserver || this.gameplayRuleExecutionObserver
       ? this.executionLoop.tickWithResult(this._currentWorld)
-      : { world: this.executionLoop.tick(this._currentWorld), gameplayEvents: [] }
+      : { world: this.executionLoop.tick(this._currentWorld), gameplayEvents: [], gameplayRuleResults: [] }
     const newWorld = executionResult.world
 
     // Step 2: Adapt to RenderWorld
@@ -170,6 +173,7 @@ export class DefaultRuntimeVisualizationLoop
     const renderView = this.entityRenderer.render(renderWorld)
 
     this.gameplayEventObserver?.observe(executionResult.gameplayEvents ?? [])
+    this.gameplayRuleExecutionObserver?.observe(executionResult.gameplayRuleResults ?? [])
 
     // Step 4: Store new world for next tick
     this._currentWorld = newWorld

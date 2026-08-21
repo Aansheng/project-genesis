@@ -24,11 +24,11 @@
 | Conversation continuity / global history | Deferred. Context is rebuilt from current authoritative state for each capability; no global memory or Context Store was added. |
 | Reference-guided image generation | Deferred. Image context carries at most three deterministic metadata-only neighboring requirements; reference bytes, URIs, and similarity search are not transported. |
 | Context caching and reuse | Deferred. Builders create immutable per-request snapshots; cache invalidation and persistence are not needed for the current playable pipeline. |
-| Gameplay execution | Deferred beyond S15-003. GameplaySpecification records desired mechanics, GameplayRuleSet records validated Trigger/Condition/Action intent, and Runtime observes a bounded fact vocabulary; no rule matching/evaluation or collect, damage, XP, goals, timers, spawns, or win/lose execution exists yet. |
+| Gameplay execution | Deferred beyond S15-004's bounded remove-only slice. GameplaySpecification records desired mechanics, GameplayRuleSet records validated Trigger/Condition/Action intent, and Runtime executes only supported single `REMOVE_ENTITY` rules after finalized contact facts; damage, score/XP, goals, timers, spawns, rich actions, and win/lose remain deferred. |
 | Gameplay revision persistence | Current gameplayRevision is session-scoped and replaced with the current world; durable gameplay history and evolution remain deferred. |
 | Gameplay event persistence/replay | Runtime events are ephemeral and Observatory history is session-scoped/bounded at 100 entries. Add persistence or replay only when a measured debugging or gameplay requirement exists. |
 | Rich collision geometry | S15-002 uses explicit small AABB `collision-bounds` components for contact observation. Directional collision resolution, terrain colliders, and physics remain deferred until a concrete scenario needs them. |
-| Gameplay rule execution | S15-003 stores immutable rules and derives capability truth only. Trigger matching, conditions, actions, collection, damage, score, progression, completion, and generated execution remain deferred to S15-004 or a measured later slice. |
+| Gameplay rule execution | S15-004 adds bounded matching, category/archetype/ID/component conditions, and single `REMOVE_ENTITY` mutation. Multi-action transactions, numeric state, damage, score, progression, completion, spawns, and generated execution remain deferred to a measured later slice. |
 | Gameplay rule evolution | A semantic world mutation marks the current RuleSet stale instead of silently rebinding rules to changed entities. Targeted mechanic synchronization remains deferred until a concrete evolution scenario proves the need. |
 
 ## Sprint 12 Baseline Freeze Audit

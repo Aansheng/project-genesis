@@ -10,6 +10,7 @@ import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
 import type { GameplayEvent, WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan, VisualAssetExecutionResult } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
+import type { GameplayRuleExecutionResult } from '@genesis/runtime'
 
 export interface ObservatoryGenerationStage {
   readonly name: string
@@ -55,7 +56,7 @@ export interface ObservatoryGenerationTrace {
     readonly ruleSupportedCount?: number
     readonly rulePartialCount?: number
     readonly ruleDeferredCount?: number
-    readonly ruleExecutionStatus?: 'not-active'
+    readonly ruleExecutionStatus?: 'not-active' | 'active'
     readonly ruleBindingStatus?: 'current' | 'stale'
     readonly primaryGoal?: string
   }
@@ -147,6 +148,29 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     viewModel.value = Object.freeze({
       ...current,
       eventStreamView: Object.freeze({ events: nextEvents }),
+    })
+  }
+
+  /** Project rule outcomes as a separate bounded Observatory domain entry. */
+  function recordRuntimeGameplayRuleResults(results: readonly GameplayRuleExecutionResult[]): void {
+    if (results.length === 0) return
+    const current = viewModel.value
+    const projected = results.map(result => Object.freeze({
+      id: `${result.eventId}:${result.ruleId}`,
+      timestamp: ruleTickLabel(result.eventId),
+      level: result.status === 'executed' ? 'info' as const : result.status === 'conditions_failed' ? 'info' as const : 'warning' as const,
+      source: 'Gameplay Rule',
+      type: 'RULE_EXECUTION',
+      message: gameplayRuleMessage(result),
+    })).reverse()
+    const eventIds = new Set<string>(projected.map(event => event.id))
+    const events = Object.freeze([
+      ...projected,
+      ...current.eventStreamView.events.filter(event => !eventIds.has(event.id)),
+    ].slice(0, EVENT_STREAM_HISTORY_LIMIT))
+    viewModel.value = Object.freeze({
+      ...current,
+      eventStreamView: Object.freeze({ events }),
     })
   }
 
@@ -271,6 +295,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     loadRealObservatory,
     loadRuntimeWorld,
     recordRuntimeGameplayEvents,
+    recordRuntimeGameplayRuleResults,
     recordWorldEvolution,
     resetEvolution,
   }
@@ -287,6 +312,18 @@ function gameplayEventMessage(event: GameplayEvent): string {
     case 'ENTITY_REMOVED':
       return `${event.type} · ${event.targetEntityId}`
   }
+}
+
+function gameplayRuleMessage(result: GameplayRuleExecutionResult): string {
+  const action = result.actionResults[0]
+  const target = result.affectedEntityIds.join(', ') || action?.targetEntityIds.join(', ') || 'none'
+  return `${result.ruleId} · ${result.status}${target === 'none' ? '' : ` · ${target}`}`
+}
+
+function ruleTickLabel(eventId: string): string {
+  const parts = eventId.split(':')
+  const tick = parts.length > 1 ? parts[parts.length - 2] : undefined
+  return tick ? `tick ${tick}` : 'rule'
 }
 
 function upsertById<T extends { readonly id: string }>(items: readonly T[], next: T): readonly T[] {
@@ -630,7 +667,9 @@ function gameplaySummary(
       ruleSupportedCount: rules.filter(rule => rule.supportStatus === 'supported').length,
       rulePartialCount: rules.filter(rule => rule.supportStatus === 'partially_supported').length,
       ruleDeferredCount: rules.filter(rule => rule.supportStatus === 'deferred').length,
-      ...(isRecord(ruleSet.execution) && ruleSet.execution.status === 'not-active' ? { ruleExecutionStatus: 'not-active' as const } : {}),
+      ...(isRecord(ruleSet.execution) && (ruleSet.execution.status === 'not-active' || ruleSet.execution.status === 'active')
+        ? { ruleExecutionStatus: ruleSet.execution.status as 'not-active' | 'active' }
+        : {}),
       ...(ruleSet.bindingStatus === 'current' || ruleSet.bindingStatus === 'stale' ? { ruleBindingStatus: ruleSet.bindingStatus } : {}),
     } : {}),
     ...(isRecord(goal) && typeof goal.description === 'string' ? { primaryGoal: goal.description } : {}),

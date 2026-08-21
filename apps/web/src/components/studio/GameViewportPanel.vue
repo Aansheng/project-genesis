@@ -27,6 +27,7 @@ import {
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeSystemRegistry,
 } from '@genesis/runtime'
+import type { GameplayRuleExecutionObserver, RuntimeGameplayRuleExecutionConfig } from '@genesis/runtime'
 import type { GameplayEventObserver } from '@genesis/shared'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
@@ -56,6 +57,11 @@ const visualCatalog = new DefaultEntityVisualCatalog()
 const gameplayEventObserver: GameplayEventObserver = {
   observe(events) {
     observatoryDataStore.recordRuntimeGameplayEvents(events)
+  },
+}
+const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {
+  observe(results) {
+    observatoryDataStore.recordRuntimeGameplayRuleResults(results)
   },
 }
 
@@ -113,7 +119,13 @@ onMounted(() => {
   systemRegistry.register(new DefaultGroundCollisionSystem(400))
   systemRegistry.register(new DefaultEntityContactSystem())
 
-  const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry, store.gameplayEventCollector)
+  const ruleExecutionConfig: RuntimeGameplayRuleExecutionConfig = {
+    getRuleSet: () => store.gameplayRuleSet,
+    getWorldId: () => store.currentWorldId || undefined,
+    getSemanticRevision: () => store.semanticRevision,
+    getSemanticWorld: () => store.semanticWorld ?? undefined,
+  }
+  const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry, store.gameplayEventCollector, ruleExecutionConfig)
   const adapter = new DefaultRuntimeRendererAdapter()
   const cameraController = new DefaultCameraController()
   watch(() => store.worldRevision, () => cameraController.reset?.(), { flush: 'sync' })
@@ -168,6 +180,7 @@ onMounted(() => {
     worldSink,
     environmentRenderer ?? undefined,
     gameplayEventObserver,
+    gameplayRuleExecutionObserver,
   )
   runner = new DefaultVisualizationRunner(
     new DefaultAnimationFrameScheduler(),

@@ -16,12 +16,32 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Completed
 
+### WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
+
+- Added the smallest production Runtime seam after system ticks finalize their
+  immutable event batch: deterministic rule matching, trusted condition
+  evaluation, and a single-action `REMOVE_ENTITY` executor.
+- Connected the active supported RuleSet to the actual Studio loop through
+  dependency-injected world/session/semantic bindings. Deferred, partial, and
+  unsupported rules are gated as whole rules; no provider code, eval, score,
+  damage, goal, spawn, or rich transaction path was added.
+- Resolved selectors from current semantic/Runtime facts, protected the Player,
+  used `WorldMutator`, preserved exactly-once bounded event/rule consumption,
+  and allowed committed removal to emit `ENTITY_REMOVED` on the next boundary.
+- Forwarded rule results separately through Renderer to Observatory and kept
+  the natural Runtime World → Renderer entity removal path. Added focused
+  Runtime vertical-slice coverage and updated architecture to v1.151.
+- Code Complete: YES. Product Verified: YES — local Studio browser verification
+  passed for player → coin contact, remove-only execution, next-boundary
+  `ENTITY_REMOVED`, continued player control, and clean console warning/error
+  logs.
+
 ### WO-S15-003 — Trigger / Condition / Action Rule Model Foundation
 
 - Added immutable provider-neutral `GameplayRuleSpecification` and
   `GameplayRuleSet` contracts with typed triggers, event-participant/entity
   selectors, a small condition vocabulary, typed actions, deterministic rule
-  IDs, and explicit `Planning only` execution state.
+  IDs, and explicit execution state.
 - Added Genesis-owned rule primitive capability truth. The real v1 event set is
   limited to contact-start, jump, landing, add, and remove; contact direction,
   numeric state, entity property, damage, and goal completion remain deferred.
@@ -31,16 +51,16 @@ bindings and current semantic names remain the source of visual archetype truth.
   claims never become authoritative.
 - Added deterministic GameplaySpecification → RuleSet mappings for generic
   platformer, farm, and survival interactions, including coin, stomp, side
-  damage, goal, and question-block-compatible representations without Runtime
-  execution.
+  damage, goal, and question-block-compatible representations. The supported
+  collect rule is now remove-only; richer effects remain gated.
 - Extended GameplayGenerationContext and prompt vocabulary with allowed event,
   condition, action, and capability facts. Create World now stores a
   world-bound RuleSet beside GameplaySpecification; world replacement replaces
   both, while semantic evolution marks the old RuleSet stale pending mechanics
   synchronization.
-- Added truthful Overview rule counts/detail and retained the real Event Stream
-  as facts only. Added ADR-0264, capability truth updates, focused AI/Web tests,
-  and architecture version v1.149 → v1.150.
+- Added truthful Overview rule counts/detail and retained rule results as a
+  separate surface from real Event Stream facts. Added ADR-0264, capability
+  truth updates, focused AI/Web tests, and architecture version v1.149 → v1.150.
 - Code Complete: YES. Product Verified: YES — browser-verified Platformer/Farm/Survivor
   RuleSet isolation, real contact facts, planning-only execution, no
   `TIMER_ELAPSED`, and empty error/warning logs.
@@ -121,8 +141,9 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 - Runtime gameplay execution: collect, damage, enemy AI, goals, failure,
   timers, spawn execution, XP/levels/upgrades, and win/lose rules.
-- Trigger matching, condition evaluation, and GameplayAction execution remain
-  deferred to S15-004; S15-003 stores descriptions only.
+- Beyond the S15-004 remove-only slice: score/numeric state, damage/health,
+  enemy AI, goals/win/lose, timers, spawn execution, property/velocity
+  actions, rich multi-action transactions, and gameplay-rule evolution.
 - Durable gameplay revision/history and gameplay evolution.
 - Conversation memory/history, RAG, vector retrieval, and global context
   stores.
@@ -133,8 +154,8 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Next work order boundary
 
-### S15-004 — Event-Driven Gameplay Rule Execution Boundary
+### S15-005 — Next Gameplay Capability Boundary
 
-Choose one concrete event-driven gameplay scenario and add only the smallest
-Trigger Matcher → Condition Evaluator → GameplayAction Executor path. Keep
-Runtime facts, rule interpretation, and mutation/result execution separate.
+Choose the next concrete event-driven gameplay scenario only after the S15-004
+browser verification exposes a measured product bottleneck. Keep Runtime facts,
+rule interpretation, and mutation/result execution separate.

@@ -130,10 +130,7 @@ function deterministicRules(
       'Collectible contact',
       'collect-reward',
       [categoryCondition(player, 'player'), categoryCondition(target, 'item')],
-      [
-        Object.freeze({ type: 'REMOVE_ENTITY', target }),
-        Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'score', amount: 1 }),
-      ],
+      [Object.freeze({ type: 'REMOVE_ENTITY', target })],
     ))
   }
 
@@ -277,9 +274,9 @@ export class DefaultGameplayRuleBuilder implements GameplayRuleBuilder {
       capabilityCatalogVersion: capabilities.version,
       rules,
       execution: {
-        enabled: false as const,
-        status: 'not-active' as const,
-        message: 'Planning only; Trigger/Condition/Action execution is not enabled.' as const,
+        enabled: true,
+        status: 'active' as const,
+        message: 'Runtime execution is active for supported rules; deferred rules remain gated.' as const,
       },
       metadata: {
         source,

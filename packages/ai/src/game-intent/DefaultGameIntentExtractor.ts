@@ -2,7 +2,7 @@
  * DefaultGameIntentExtractor — default implementation of GameIntentExtractor.
  *
  * Detection rules:
- * - contains "mario" → genre = platformer
+ * - contains "mario", "platformer", or the Chinese platformer phrase → genre = platformer
  * - contains "farm"  → genre = farm
  * - contains "rpg"   → genre = rpg
  * - contains "survival" or "survivor" → genre = survival
@@ -24,6 +24,9 @@ import type { GameIntentExtractor } from './GameIntentExtractor'
 
 /** Platformer detection keyword. */
 const KEYWORD_PLATFORMER = 'mario'
+
+/** Direct platformer wording used by the Studio and Chinese product examples. */
+const PLATFORMER_ALIASES: readonly string[] = Object.freeze(['platformer', '平台跳跃', '平台游戏', '平台'])
 
 /** Farm detection keyword. */
 const KEYWORD_FARM = 'farm'
@@ -107,7 +110,7 @@ export class DefaultGameIntentExtractor implements GameIntentExtractor {
 
     let genre: GameGenre
 
-    if (lowerTitle.includes(KEYWORD_PLATFORMER)) {
+    if (lowerTitle.includes(KEYWORD_PLATFORMER) || PLATFORMER_ALIASES.some(keyword => lowerTitle.includes(keyword))) {
       genre = 'platformer'
     } else if (lowerTitle.includes(KEYWORD_FARM)) {
       genre = 'farm'

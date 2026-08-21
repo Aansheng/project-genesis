@@ -13,6 +13,7 @@
  */
 import type { World } from '@genesis/shared'
 import type { GameplayEvent } from '@genesis/shared'
+import type { GameplayRuleExecutionResult } from '../gameplay'
 
 export interface ExecutionTickResult {
   /**
@@ -33,4 +34,7 @@ export interface ExecutionTickResult {
 
   /** Ephemeral, immutable gameplay facts emitted during this tick. */
   readonly gameplayEvents?: readonly GameplayEvent[]
+
+  /** Rule results produced after the Runtime systems finalized their facts. */
+  readonly gameplayRuleResults?: readonly GameplayRuleExecutionResult[]
 }

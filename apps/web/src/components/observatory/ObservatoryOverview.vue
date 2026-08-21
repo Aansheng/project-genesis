@@ -96,7 +96,7 @@ const assetCounts = computed(() => ({
         <article class="fact-card"><span class="fact-label">Rules</span><strong>{{ gameplayRuleCounts.total }}</strong></article>
         <article class="fact-card"><span class="fact-label">Supported</span><strong>{{ gameplayRuleCounts.supported }}</strong></article>
         <article class="fact-card"><span class="fact-label">Partial / Deferred</span><strong>{{ gameplayRuleCounts.partial }} / {{ gameplayRuleCounts.deferred }}</strong></article>
-        <article class="fact-card"><span class="fact-label">Execution</span><strong>Planning only</strong></article>
+        <article class="fact-card"><span class="fact-label">Execution</span><strong>{{ gameplayRules.bindingStatus === 'stale' ? 'Stale / disabled' : gameplayRules.execution.status === 'active' ? 'Active · supported slice' : 'Planning only' }}</strong></article>
       </div>
       <p v-else class="empty-state">No gameplay rule set is available for this session.</p>
       <article v-if="primaryGameplayRule" class="rule-detail">
@@ -107,7 +107,7 @@ const assetCounts = computed(() => ({
         <span>Actions · {{ primaryGameplayRule.actions.length }} · {{ primaryGameplayRule.actions.map(action => action.type).join(', ') || 'none' }}</span>
         <span>Support · {{ primaryGameplayRule.supportStatus }}</span>
       </article>
-      <p v-if="gameplayRules" class="rule-execution-note">Rule execution is not active; Runtime Event Stream remains facts only.</p>
+      <p v-if="gameplayRules" class="rule-execution-note">Runtime executes only current supported rules; deferred or stale rules remain gated.</p>
     </section>
 
     <section class="overview-section" aria-labelledby="visual-title">

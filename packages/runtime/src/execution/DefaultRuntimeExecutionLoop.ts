@@ -19,12 +19,13 @@
  *   the input World reference changes
  *
  * Design principles:
- * - Simple: no ECS scheduler, no prioritized execution, no conditional logic
+ * - Simple: no ECS scheduler or general-purpose scheduler; supported gameplay
+ *   rules run only in the bounded post-system phase
  * - Minimal state: tick/event sequencing is local to one Runtime session
  * - Framework-independent: no Vue, Pinia, or web framework imports
  * - UI-independent: no ViewModel or UI type imports
  */
-import type { World } from '@genesis/shared'
+import type { GameWorldModel, GameplayEvent, GameplayRuleSet, World } from '@genesis/shared'
 import type { RuntimeSystemRegistry } from '../system'
 import type { RuntimeExecutionLoop } from './RuntimeExecutionLoop'
 import type { ExecutionTickResult } from './ExecutionTickResult'
@@ -32,12 +33,28 @@ import {
   DefaultRuntimeGameplayEventCollector,
   type RuntimeGameplayEventCollector,
 } from '../events'
+import {
+  DefaultGameplayRuleExecutor,
+  type GameplayRuleExecutionBatch,
+  type GameplayRuleExecutor,
+} from '../gameplay'
+
+export interface RuntimeGameplayRuleExecutionConfig {
+  readonly getRuleSet: () => GameplayRuleSet | null | undefined
+  readonly getWorldId?: () => string | undefined
+  readonly getSessionId?: () => string | undefined
+  readonly getSemanticRevision?: () => number | undefined
+  readonly getSemanticWorld?: () => GameWorldModel | null | undefined
+  readonly executor?: GameplayRuleExecutor
+}
 
 export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
   private readonly registry: RuntimeSystemRegistry
   readonly gameplayEventCollector: RuntimeGameplayEventCollector
   private tickNumber = 0
   private lastOutputWorld: World | undefined
+  private readonly gameplayRuleExecution?: RuntimeGameplayRuleExecutionConfig
+  private readonly gameplayRuleExecutor: GameplayRuleExecutor
 
   /**
    * @param registry — the RuntimeSystemRegistry providing systems to execute
@@ -45,9 +62,12 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
   constructor(
     registry: RuntimeSystemRegistry,
     gameplayEventCollector: RuntimeGameplayEventCollector = new DefaultRuntimeGameplayEventCollector(),
+    gameplayRuleExecution?: RuntimeGameplayRuleExecutionConfig,
   ) {
     this.registry = registry
     this.gameplayEventCollector = gameplayEventCollector
+    this.gameplayRuleExecution = gameplayRuleExecution
+    this.gameplayRuleExecutor = gameplayRuleExecution?.executor ?? new DefaultGameplayRuleExecutor()
   }
 
   /**
@@ -83,13 +103,18 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
     this.gameplayEventCollector.beginTick(this.tickNumber)
 
     if (systems.length === 0) {
+      const gameplayEvents = this.gameplayEventCollector.endTick()
+      const gameplayRules = this.executeGameplayRules(world, gameplayEvents)
       const outputWorld = Object.freeze({
-        world: Object.freeze({
-          entities: Object.freeze([...world.entities]),
-        }) as unknown as World,
+        // Preserve the foundation loop's copy-on-empty-registry behavior
+        // when no rule mutation was committed.
+        world: gameplayRules.results.length > 0
+          ? gameplayRules.world
+          : Object.freeze({ entities: Object.freeze([...gameplayRules.world.entities]) }) as unknown as World,
         executedSystems: Object.freeze([]),
         systemCount: 0,
-        gameplayEvents: this.gameplayEventCollector.endTick(),
+        gameplayEvents,
+        gameplayRuleResults: gameplayRules.results,
       })
       this.lastOutputWorld = outputWorld.world
       return outputWorld
@@ -101,13 +126,38 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
       current = system.update(current)
     }
 
+    const gameplayEvents = this.gameplayEventCollector.endTick()
+    const gameplayRules = this.executeGameplayRules(current, gameplayEvents)
     const result = Object.freeze({
-      world: current,
+      world: gameplayRules.world,
       executedSystems: Object.freeze(executedSystems),
       systemCount: systems.length,
-      gameplayEvents: this.gameplayEventCollector.endTick(),
+      gameplayEvents,
+      gameplayRuleResults: gameplayRules.results,
     })
-    this.lastOutputWorld = current
+    this.lastOutputWorld = gameplayRules.world
     return result
+  }
+
+  private executeGameplayRules(
+    world: World,
+    events: readonly GameplayEvent[],
+  ): GameplayRuleExecutionBatch {
+    const execution = this.gameplayRuleExecution
+    if (!execution) return Object.freeze({ world, results: Object.freeze([]) })
+    const ruleSet = execution.getRuleSet()
+    if (!ruleSet) return Object.freeze({ world, results: Object.freeze([]) })
+
+    const worldId = execution.getWorldId?.()
+    const sessionId = execution.getSessionId?.()
+    const semanticRevision = execution.getSemanticRevision?.()
+    const semanticWorld = execution.getSemanticWorld?.()
+    return this.gameplayRuleExecutor.execute(events, ruleSet, Object.freeze({
+      world,
+      ...(worldId !== undefined ? { worldId } : {}),
+      ...(sessionId !== undefined ? { sessionId } : {}),
+      ...(semanticRevision !== undefined ? { semanticRevision } : {}),
+      ...(semanticWorld !== undefined && semanticWorld !== null ? { semanticWorld } : {}),
+    }))
   }
 }

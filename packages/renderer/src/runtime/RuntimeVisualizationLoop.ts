@@ -24,10 +24,13 @@
  */
 import type { VisualizationTickResult } from './VisualizationTickResult'
 import type { World } from '@genesis/shared'
+import type { GameplayRuleExecutionObserver } from '@genesis/runtime'
 
 export interface RuntimeWorldSink {
   setWorld(world: World): void
 }
+
+export type { GameplayRuleExecutionObserver }
 
 export interface RuntimeVisualizationLoop {
   /**

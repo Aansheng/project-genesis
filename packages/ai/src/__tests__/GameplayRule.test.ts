@@ -93,7 +93,7 @@ describe('GameplayRule foundation', () => {
     expect(ruleSet.rules.find(rule => rule.ruleId === 'collect-coin')?.supportStatus).toBe('partially_supported')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'enemy-side-damage')?.supportStatus).toBe('deferred')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'reach-goal')?.supportStatus).toBe('deferred')
-    expect(ruleSet.execution.status).toBe('not-active')
+    expect(ruleSet.execution.status).toBe('active')
     expect(Object.isFrozen(ruleSet)).toBe(true)
     expect(Object.isFrozen(ruleSet.rules[0])).toBe(true)
     expect(world.entities).toHaveLength(5)

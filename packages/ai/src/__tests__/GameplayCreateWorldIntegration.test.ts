@@ -45,7 +45,7 @@ describe('Gameplay create-world integration', () => {
     expect(result.success).toBe(true)
     expect(result.gameplaySpecification?.gameplayRevision).toBe(1)
     expect(result.gameplaySpecification?.mechanics.some(item => item.id === 'player-jump')).toBe(true)
-    expect(result.gameplayRuleSet?.execution.status).toBe('not-active')
+    expect(result.gameplayRuleSet?.execution.status).toBe('active')
     expect(Object.keys(result)).toEqual(['route', 'world', 'success'])
   })
 
@@ -113,6 +113,6 @@ describe('Gameplay create-world integration', () => {
     expect(result.gameplayDiagnostics?.validationStatus).toBe('invalid')
     expect(result.gameplayDiagnostics?.fallbackReason).toContain('gameplay provider unavailable')
     expect(result.gameplayRuleSet?.metadata.source).toBe('deterministic')
-    expect(result.gameplayRuleSet?.execution.status).toBe('not-active')
+    expect(result.gameplayRuleSet?.execution.status).toBe('active')
   })
 })

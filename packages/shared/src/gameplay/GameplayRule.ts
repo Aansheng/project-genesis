@@ -130,9 +130,9 @@ export interface GameplayRuleSpecification {
 export type GameplayRuleSetBindingStatus = 'current' | 'stale'
 
 export interface GameplayRuleExecutionInfo {
-  readonly enabled: false
-  readonly status: 'not-active'
-  readonly message: 'Planning only; Trigger/Condition/Action execution is not enabled.'
+  readonly enabled: boolean
+  readonly status: 'not-active' | 'active'
+  readonly message: string
 }
 
 export interface GameplayRuleSetMetadata {

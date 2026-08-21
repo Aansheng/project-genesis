@@ -66,7 +66,7 @@ describe('Gameplay generation web integration', () => {
     expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'collect-coin')?.supportStatus).toBe('deferred')
     expect(result.gameplayDiagnostics?.validationStatus).toBe('valid')
     expect(result.gameplayRuleSet?.bindingStatus).toBe('current')
-    expect(result.gameplayRuleSet?.execution.status).toBe('not-active')
+    expect(result.gameplayRuleSet?.execution.status).toBe('active')
   })
 
   it('keeps world creation successful when gameplay generation is unavailable', async () => {

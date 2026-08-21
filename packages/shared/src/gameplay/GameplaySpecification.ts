@@ -189,10 +189,10 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   Object.freeze({ id: 'condition-boolean-equals', kind: 'condition' as const, description: 'Boolean Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
   Object.freeze({ id: 'condition-component-exists', kind: 'condition' as const, description: 'Check a whitelisted Runtime component type on an entity.', status: 'supported' as const }),
   Object.freeze({ id: 'action-remove-entity', kind: 'action' as const, description: 'Remove an entity through the existing immutable World mutation primitive.', status: 'supported' as const }),
-  Object.freeze({ id: 'action-spawn-entity', kind: 'action' as const, description: 'Describe an entity addition through the existing typed entity mutation primitive.', status: 'supported' as const }),
+  Object.freeze({ id: 'action-spawn-entity', kind: 'action' as const, description: 'Describe an entity addition through the existing typed entity mutation primitive; rule execution is deferred.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-change-numeric-state', kind: 'action' as const, description: 'Change score/XP-like state; no generic gameplay state store exists yet.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-set-entity-property', kind: 'action' as const, description: 'Set a whitelisted entity property; rule execution is not active.', status: 'deferred' as const }),
-  Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Describe a typed velocity component update for a future executor.', status: 'supported' as const }),
+  Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Apply velocity remains deferred until a trusted rule executor exists for it.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-complete-goal', kind: 'action' as const, description: 'Complete a goal; no goal state or completion executor exists yet.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-damage-entity', kind: 'action' as const, description: 'Apply damage; no health/damage resolver exists yet.', status: 'deferred' as const }),
 ])
@@ -231,7 +231,7 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     }),
     Object.freeze({
       id: 'gameplay-event-observation',
-      description: 'Runtime emits bounded normalized gameplay facts without executing gameplay rules.',
+      description: 'Runtime emits bounded normalized gameplay facts; the supported remove-only RuleSet slice may interpret them after the system boundary.',
       mechanicIds: Object.freeze(['runtime-gameplay-events']),
     }),
     Object.freeze({

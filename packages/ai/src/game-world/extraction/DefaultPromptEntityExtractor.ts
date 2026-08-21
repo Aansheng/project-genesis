@@ -13,7 +13,7 @@
  * - 'quest':     quest
  * - 'enemy':     boss, enemy
  * - 'terrain':   forest, tree, stone
- * - 'item':      campfire
+ * - 'item':      coin, campfire
  * - 'terrain':   platform, checkpoint
  *
  * Design:
@@ -57,7 +57,7 @@ interface KeywordEntry {
  * - quest:     quest
  * - enemy:     boss, enemy
  * - terrain:   forest, platform, checkpoint, tree, stone
- * - item:      campfire
+ * - item:      coin, campfire
  */
 const KEYWORD_CATALOG: readonly KeywordEntry[] = Object.freeze([
   // NPCs
@@ -87,6 +87,7 @@ const KEYWORD_CATALOG: readonly KeywordEntry[] = Object.freeze([
   { keyword: 'stone', category: 'terrain' },
 
   // Items
+  { keyword: 'coin', category: 'item', aliases: ['coins', '金币'], label: 'Coin' },
   { keyword: 'campfire', category: 'item' },
 ])
 

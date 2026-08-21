@@ -134,6 +134,18 @@ describe('genre detection — platformer', () => {
     const result = extractor.extract(createModel('mario'))
     expect(result.genre).toBe('platformer')
   })
+
+  it('should detect platformer from the direct English genre name', () => {
+    const extractor = new DefaultGameIntentExtractor()
+    const result = extractor.extract(createModel('create a platformer with a coin'))
+    expect(result.genre).toBe('platformer')
+  })
+
+  it('should detect platformer from the Chinese product wording', () => {
+    const extractor = new DefaultGameIntentExtractor()
+    const result = extractor.extract(createModel('生成一个平台跳跃游戏，有一个玩家和一个金币'))
+    expect(result.genre).toBe('platformer')
+  })
 })
 
 // ---------------------------------------------------------------------------

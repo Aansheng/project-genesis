@@ -14,6 +14,7 @@ export { DefaultRuntimeSystemRegistry, NoOpRuntimeSystem } from './system'
 // Runtime Execution Loop Foundation
 export type { RuntimeExecutionLoop, ExecutionTickResult } from './execution'
 export { DefaultRuntimeExecutionLoop } from './execution'
+export type { RuntimeGameplayRuleExecutionConfig } from './execution/DefaultRuntimeExecutionLoop'
 export type { RuntimeGameplayEventCollector } from './events'
 export { DefaultRuntimeGameplayEventCollector } from './events'
 
@@ -64,3 +65,27 @@ export {
   DefaultRuntimeWorldEvolutionSynchronizer,
   RuntimeWorldEvolutionSynchronizer,
 } from './evolution'
+
+// Gameplay rule execution vertical slice (WO-S15-004)
+export type {
+  GameplayActionExecutionRequest,
+  GameplayActionExecutionResult,
+  GameplayActionExecutionStatus,
+  GameplayActionExecutor,
+  GameplayConditionEvaluation,
+  GameplayConditionEvaluationStatus,
+  GameplayConditionEvaluator,
+  GameplayRuleExecutionBatch,
+  GameplayRuleExecutionContext,
+  GameplayRuleExecutionObserver,
+  GameplayRuleExecutionResult,
+  GameplayRuleExecutionStatus,
+  GameplayRuleExecutor,
+  GameplayRuleMatcher,
+} from './gameplay'
+export {
+  DefaultGameplayActionExecutor,
+  DefaultGameplayConditionEvaluator,
+  DefaultGameplayRuleExecutor,
+  DefaultGameplayRuleMatcher,
+} from './gameplay'
