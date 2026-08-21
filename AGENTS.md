@@ -43,6 +43,26 @@ If documentation and source code disagree:
 
 ---
 
+## Engineering Control Plane
+
+Repository-native Supervisor projections live under docs/engineering/.
+
+Before supervised engineering work, read:
+
+- docs/engineering/MASTER_GOAL.md
+- docs/engineering/ENGINEERING_INVARIANTS.md
+- docs/engineering/CURRENT_STATE.md
+- docs/engineering/WORK_QUEUE.md
+- docs/engineering/AGENT_OPERATING_POLICY.md
+
+These files coordinate engineering work; they do not replace source code,
+accepted ADRs, PROJECT_STATE.md, Sprint reviews, or capability matrices.
+Resolve conflicts against the higher-authority source and update stale
+projections. The initial Supervisor continuation mode is one work item, then
+stop for review.
+
+---
+
 ## Before Every WO
 
 Before modifying code:
