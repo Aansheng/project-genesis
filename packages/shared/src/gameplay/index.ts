@@ -36,7 +36,6 @@ export type {
   GameplayCondition,
   GameplayRuleConditionMode,
   GameplayConditionType,
-  GameplayContactDirection,
   GameplayEntitySelector,
   GameplayNumericOperator,
   GameplayNumericReference,
@@ -61,6 +60,7 @@ export {
 } from './GameplayRule'
 export type {
   GameplayEvent,
+  GameplayContactDirection,
   GameplayEventDraft,
   GameplayEventMetadata,
   GameplayEventObserver,

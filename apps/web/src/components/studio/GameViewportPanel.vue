@@ -57,6 +57,9 @@ const visualCatalog = new DefaultEntityVisualCatalog()
 const gameplayEventObserver: GameplayEventObserver = {
   observe(events) {
     observatoryDataStore.recordRuntimeGameplayEvents(events)
+    if (events.some(event => event.type === 'ENTITY_ADDED' || event.type === 'ENTITY_REMOVED')) {
+      observatoryDataStore.loadRuntimeWorld(store.worldStore.getWorld(), store.currentWorldId)
+    }
   },
 }
 const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {

@@ -1,5 +1,31 @@
 # Changelog
 
+### WO-S15-005 — Enemy Stomp Gameplay Rule Vertical Slice
+
+- Extended `ENTITY_CONTACT_STARTED` with a required typed direction derived
+  only from Runtime-owned position/collision-bounds AABB geometry. The generic
+  `CONTACT_DIRECTION_EQUALS` condition now executes for top/non-top contacts.
+- Promoted generic `APPLY_VELOCITY` as a trusted immutable Runtime action and
+  executed the approved `enemy-stomp` RuleSet as
+  `REMOVE_ENTITY(eventTarget)` followed by `APPLY_VELOCITY(eventActor)`.
+  Actions use staged all-or-nothing rule semantics with explicit rollback truth;
+  no generic transaction framework or genre-specific Runtime system was added.
+- Kept damage, health, goals, score/XP, timers, spawners, question blocks,
+  arbitrary code, unrelated rich multi-action rules, and gameplay-rule
+  evolution deferred. Observatory now shows direction, condition/rule status,
+  commit state, and per-action outcomes without presenting deferred damage as
+  executed.
+- Fixed the Renderer observer publication boundary so Web projections read the
+  newly committed Runtime World before recording gameplay observations, and
+  narrowed enemy-contact capability promotion to the validated player/enemy
+  top-contact outcome.
+- Added ADR-0266, focused Runtime/AI/Shared/Web coverage, affected-package
+  regression coverage, architecture review, and architecture version
+  v1.151 → v1.152. Code Complete = YES; Product Verified = YES — MANUAL Studio
+  browser evidence showed real top/non-top contacts, enemy Runtime/Renderer
+  removal, committed action results, bounce/re-land, continued control, no
+  rebuild/camera reset, stale/deferred gates, and clean browser logs.
+
 ### WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
 
 - Added the Runtime-owned post-system gameplay rule seam: deterministic

@@ -1,6 +1,6 @@
-# Observatory Truth Audit — WO-OBS-001 / WO-S15-002 / WO-S15-004
+# Observatory Truth Audit — WO-OBS-001 / WO-S15-002 / WO-S15-004 / WO-S15-005
 
-Architecture is v1.151. This audit records production behavior; test fixtures are excluded.
+Architecture is v1.152. This audit records production behavior; test fixtures are excluded.
 The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
 recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
 generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
@@ -25,7 +25,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 - The production store no longer contains the Sprint 6 farm/history/diff/event demo builder.
 - `ObservatoryOverview` no longer auto-hydrates mock data in test mode.
 - The legacy fixture lives only under `src/__tests__/fixtures` and is installed by Vitest setup for historical tests.
-- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.151.
+- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.152.
 
 ## Sprint 14 producers
 
@@ -95,17 +95,29 @@ persistence or replay claim.
 ## Sprint 15 gameplay rule producer
 
 WO-S15-003 adds a real current-session `GameplayRuleSet` beside the
-`GameplaySpecification`. S15-004 activates only the supported remove-only
-slice: after systems finalize a batch, `GameplayEvent` flows through the
-generic matcher, trusted condition evaluator, and single-action executor into
-the immutable Runtime World mutation path. Rule IDs, selectors, and support
-status remain Genesis-normalized/derived; raw provider rule payloads and code
-are excluded. The RuleSet is bound to the current world ID and
-semantic/gameplay revisions; semantic evolution marks it stale because
-automatic mechanics synchronization is not implemented.
+`GameplaySpecification`. S15-004 activates the supported remove-only slice;
+WO-S15-005 adds the approved generic enemy-stomp path: after systems finalize a
+batch, a Runtime-owned contact direction flows through the generic matcher,
+trusted condition evaluator, and staged multi-action executor into the
+immutable Runtime World mutation path. Rule IDs, selectors, support status,
+action status, and commit/rollback truth remain Genesis-normalized/derived;
+raw provider rule payloads and code are excluded. The RuleSet is bound to the
+current world ID and semantic/gameplay revisions; semantic evolution marks it
+stale because automatic mechanics synchronization is not implemented.
 
 `GameplaySpecification` means desired mechanics; `GameplayRuleSet` means
 validated structured rule intent; `GameplayEvent` means Runtime facts; rule
-results are separate bounded Observatory entries. Deferred/partial/unsupported
-rules do not partially execute, and no score, damage, goal, spawn, velocity,
-property, or arbitrary-code path is active.
+results are separate bounded Observatory entries. The contact event includes
+Runtime-owned `direction`, and rule entries show per-action status and whether
+the staged rule committed. Deferred/partial/unsupported rules do not execute;
+damage, health, goal, spawn, property, score, and arbitrary-code paths remain
+inactive.
+
+WO-S15-005 MANUAL browser evidence on 2026-08-21 recorded a real
+`direction=bottom` contact with `conditions_failed`, then a real
+`direction=top` contact with `enemy-stomp · executed · committed`, both
+`REMOVE_ENTITY:executed` and `APPLY_VELOCITY:executed`, and a committed
+`ENTITY_REMOVED · enemy`. The Runtime projection then contained five entities
+with no enemy, while later `ENTITY_LANDED` and `ENTITY_JUMPED` facts confirmed
+continuity. The Renderer now publishes the committed world before observers
+read it, so Runtime and diagnostics remain current at the same boundary.

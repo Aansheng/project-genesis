@@ -4,6 +4,7 @@ import {
   DefaultGameplaySpecificationBuilder,
   DefaultGameplaySpecificationValidator,
   GameplayGenerationProviderAdapter,
+  buildDefaultGameplaySpecificationCandidate,
 } from '../index'
 import { DEFAULT_GAMEPLAY_CAPABILITY_CATALOG, DefaultGameplayGenerationContextBuilder } from '@genesis/shared'
 import type { GameWorldModel } from '@genesis/shared'
@@ -37,7 +38,11 @@ describe('GameplaySpecification foundation', () => {
     expect(Object.isFrozen(specification.mechanics)).toBe(true)
     expect(specification.gameLoop.completionMode).toBe('goal')
     expect(specification.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
-    expect(specification.mechanics.find(item => item.id === 'enemy-stomp')?.supportStatus).toBe('deferred')
+    expect(specification.mechanics.find(item => item.id === 'enemy-stomp')?.supportStatus).toBe('supported')
+    expect(specification.interactions?.find(item => item.id === 'player-enemy-contact')).toMatchObject({
+      supportStatus: 'supported',
+      outcome: expect.stringContaining('removes the enemy'),
+    })
     expect(specification.goals?.[0]?.targetEntityId).toBe('goal')
   })
 
@@ -57,6 +62,25 @@ describe('GameplaySpecification foundation', () => {
     expect(survivor.mechanics.some(item => item.id === 'enemy-chase')).toBe(true)
     expect(farm.mechanics.some(item => item.id === 'enemy-stomp')).toBe(false)
     expect(farm.mechanics.some(item => item.id === 'choose-skill')).toBe(false)
+  })
+
+  it('does not promote an arbitrary enemy-contact interaction by concept alone', () => {
+    const defaultCandidate = buildDefaultGameplaySpecificationCandidate(platformer)
+    const candidate = Object.freeze({
+      ...defaultCandidate,
+      interactions: Object.freeze([
+        Object.freeze({
+          ...defaultCandidate.interactions![0],
+          outcome: 'Enemy contact triggers an unspecified provider effect.',
+        }),
+      ]),
+    })
+    const specification = new DefaultGameplaySpecificationBuilder().build({
+      semanticWorld: platformer,
+      candidate,
+    })
+
+    expect(specification.interactions?.[0]?.supportStatus).toBe('deferred')
   })
 
   it('normalizes unsupported provider claims instead of trusting them', () => {

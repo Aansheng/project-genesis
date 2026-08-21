@@ -304,7 +304,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
 function gameplayEventMessage(event: GameplayEvent): string {
   switch (event.type) {
     case 'ENTITY_CONTACT_STARTED':
-      return `${event.type} · ${event.actorEntityId} → ${event.targetEntityId}`
+      return `${event.type} · ${event.actorEntityId} → ${event.targetEntityId} · direction=${event.direction}`
     case 'ENTITY_LANDED':
     case 'ENTITY_JUMPED':
       return `${event.type} · ${event.actorEntityId}`
@@ -317,7 +317,11 @@ function gameplayEventMessage(event: GameplayEvent): string {
 function gameplayRuleMessage(result: GameplayRuleExecutionResult): string {
   const action = result.actionResults[0]
   const target = result.affectedEntityIds.join(', ') || action?.targetEntityIds.join(', ') || 'none'
-  return `${result.ruleId} · ${result.status}${target === 'none' ? '' : ` · ${target}`}`
+  const actions = result.actionResults
+    .map(item => `${item.actionType}:${item.status}`)
+    .join(', ')
+  const commit = result.committed ? 'committed' : 'not-committed'
+  return `${result.ruleId} · ${result.status} · ${commit}${actions ? ` · ${actions}` : ''}${target === 'none' ? '' : ` · ${target}`}`
 }
 
 function ruleTickLabel(eventId: string): string {

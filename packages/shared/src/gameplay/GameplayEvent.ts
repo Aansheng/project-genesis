@@ -12,6 +12,8 @@ export type GameplayEventType =
   | 'ENTITY_ADDED'
   | 'ENTITY_REMOVED'
 
+export type GameplayContactDirection = 'top' | 'bottom' | 'left' | 'right'
+
 export interface GameplayEventPosition {
   readonly x: number
   readonly y: number
@@ -25,6 +27,8 @@ export type GameplayEventDraft =
       readonly type: 'ENTITY_CONTACT_STARTED'
       readonly actorEntityId: string
       readonly targetEntityId: string
+      /** The side of the target from which the actor entered contact. */
+      readonly direction: GameplayContactDirection
       readonly position?: GameplayEventPosition
       readonly payload?: GameplayEventPayload
     }

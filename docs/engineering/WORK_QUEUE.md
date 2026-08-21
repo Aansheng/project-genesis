@@ -60,35 +60,50 @@ verification: Markdown inspection, dry run, source/wiring audit, git diff check,
 product_verification: NOT_APPLICABLE — no user-visible product behavior changed.
 human_decision_required: NO
 
-## WO-S15-005 — Next Gameplay Capability Boundary
+## WO-S15-005 — Enemy Stomp Gameplay Rule Vertical Slice
 
-status: READY
+status: DONE
 priority: P1
-dependencies: WO-S15-004 DONE; measured Studio bottleneck required
+dependencies: WO-S15-004 DONE; measured Studio bottleneck satisfied by the
+  approved ENEMY STOMP decision
 architecture_before: v1.151
-architecture_expected_after: TBD after human-approved scenario; no bump is
-  implied by queue status
-mission: Select and implement one concrete event-driven gameplay scenario that
-  addresses a measured product bottleneck while keeping Runtime facts, rule
-  interpretation, trusted mutation, and result observation separate.
-allowed_scope: Record the measured bottleneck; choose one event/condition/action
-  path; finalize its shared contract; extend only the minimum trusted Runtime
-  primitive; add focused tests, architecture review, and required product
-  verification.
-forbidden_scope: Broad gameplay engine, generic Manager/workflow layer, score
-  or state store without a scenario need, multiple unrelated mechanics,
-  provider-executed code, eval/scripts, full-world rebuild, or autonomous
-  Sprint continuation.
-acceptance: Scenario and user-path evidence are approved; capability truth,
-  authority boundaries, stale-world behavior, and unsupported behavior are
-  explicit; tests and required product verification pass.
-verification: Targeted tests, affected package tests, TypeScript, ESLint,
-  regression/build checks as applicable, architecture review, and AUTO/MANUAL/
-  PENDING/BLOCKED Product Verification classification.
-product_verification: REQUIRED when the chosen scenario changes user-visible
-  gameplay; evidence must be real user-path evidence.
-human_decision_required: YES — choose the scenario and acceptance boundary
-  after reviewing the measured bottleneck.
+architecture_after: v1.152
+architecture_expected_after: v1.152
+mission: Execute the approved generic enemy-stomp scenario end to end: a
+  Runtime-owned AABB contact from player above enemy emits direction=top,
+  matches the enemy-stomp GameplayRule, validates player/enemy/top conditions,
+  and commits remove-target plus upward player velocity while preserving the
+  existing Runtime/Renderer loop.
+allowed_scope: Finalize the typed contact-direction event contract; derive
+  direction only from Runtime position/collision-bounds geometry; execute the
+  existing generic GameplayRuleSet through the smallest trusted APPLY_VELOCITY
+  primitive; define rule-level staged all-or-nothing semantics for the two
+  trusted actions; update Genesis capability truth, focused regressions,
+  Observatory evidence, and real Studio product verification.
+forbidden_scope: Mario-specific Runtime/System or EnemyStompSystem; damage,
+  health, goals, score, XP, timers, spawners, question blocks, arbitrary code,
+  eval/scripts, generic transaction framework, rich gameplay engine, silent
+  partial commits, Runtime/world/Renderer full rebuild, provider capability
+  authority, gameplay-rule evolution, or automatic WO-S15-006 continuation.
+acceptance: ENEMY STOMP is supported only through the generic rule path;
+  contact direction is a truthful Runtime geometry fact; top contact matches
+  and non-top contact does not; player/enemy conditions pass; REMOVE_ENTITY
+  and APPLY_VELOCITY both commit exactly once; a failed later action rolls back
+  earlier staged actions without partial commit; stale RuleSet/World A facts
+  cannot affect World B; deferred damage remains visibly non-executed; tests,
+  architecture review, and required product verification pass.
+verification: PASS — Runtime/Shared/AI/Web focused and affected-package tests,
+  TypeScript, ESLint, relevant regression suites, web build, git diff check,
+  independent architecture review, and AUTO/MANUAL/PENDING/BLOCKED Product
+  Verification classification. Browser evidence showed contact direction,
+  rule match, conditions passed, both action results, enemy removal in Runtime
+  and Renderer, upward bounce, re-landing, continued control, no camera reset,
+  no rebuild, exactly-once behavior, stale isolation, and clean console.
+product_verification: YES — MANUAL Studio verification completed on 2026-08-21;
+  AUTO gates cover stale isolation, rollback, exactly-once, and Observatory
+  truth, while the real browser path covers the visible gameplay sequence.
+human_decision_required: NO — ENEMY STOMP and its acceptance boundary were
+  explicitly approved in the Supervisor request on 2026-08-21.
 
 ## Queue transition vocabulary
 

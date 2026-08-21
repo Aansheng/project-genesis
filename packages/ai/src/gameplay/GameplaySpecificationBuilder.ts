@@ -13,7 +13,10 @@ import type {
   GameplaySupportStatus,
 } from '@genesis/shared'
 import { DEFAULT_GAMEPLAY_CAPABILITY_CATALOG } from '@genesis/shared'
-import type { GameplaySpecificationCandidate } from './GameplaySpecificationCandidate'
+import type {
+  GameplayInteractionCandidate,
+  GameplaySpecificationCandidate,
+} from './GameplaySpecificationCandidate'
 
 export interface GameplaySpecificationBuilderInput {
   readonly semanticWorld: GameWorldModel
@@ -70,6 +73,27 @@ function participant(role: 'subject' | 'target', id: string): { readonly role: t
   return Object.freeze({ role, entityId: id })
 }
 
+function isSupportedEnemyStompInteraction(
+  interaction: GameplayInteractionCandidate,
+  semanticWorld: GameWorldModel,
+  enemyStompSupported: boolean,
+): boolean {
+  if (!enemyStompSupported || interaction.concept !== 'enemy-contact') return false
+  const playerId = entityId(semanticWorld, entity => entity.category === 'player')
+  const enemyId = entityId(semanticWorld, entity => entity.category === 'enemy')
+  if (!playerId || !enemyId) return false
+  const hasPlayerSubject = interaction.participants.some(participantItem =>
+    participantItem.role === 'subject' && participantItem.entityId === playerId,
+  )
+  const hasEnemyTarget = interaction.participants.some(participantItem =>
+    participantItem.role === 'target' && participantItem.entityId === enemyId,
+  )
+  return hasPlayerSubject
+    && hasEnemyTarget
+    && interaction.outcome.toLowerCase().includes('top contact removes the enemy')
+    && interaction.outcome.toLowerCase().includes('upward player velocity')
+}
+
 function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
   const playerId = entityId(world, entity => entity.category === 'player') ?? 'player'
   const enemyId = entityId(world, entity => entity.category === 'enemy')
@@ -82,7 +106,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanic('player-jump', 'movement', 'Player jumps over terrain and hazards.', 'supported', playerId),
       mechanic('gravity', 'state-change', 'Gravity affects vertical player motion.', 'supported', playerId),
       mechanic('basic-collision', 'state-change', 'Ground collision keeps entities on the playable plane.', 'supported'),
-      mechanic('enemy-stomp', 'combat', 'Player can defeat an enemy by a downward contact.', 'deferred', playerId, enemyId ? 'enemy' : undefined),
+      mechanic('enemy-stomp', 'combat', 'Player can defeat an enemy by a downward contact and bounce upward.', 'supported', playerId, enemyId ? 'enemy' : undefined),
       mechanic('collect-reward', 'collection', 'Player collects a reward during traversal.', 'deferred', playerId, itemId ? 'item' : undefined),
       mechanic('reach-goal', 'goal', 'Player reaches the level goal.', 'deferred', playerId, goalId ? 'goal' : undefined),
       mechanic('player-death', 'failure', 'Player death ends or resets the attempt.', 'deferred', playerId),
@@ -92,8 +116,8 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       id: 'player-enemy-contact',
       participants: Object.freeze([participant('subject', playerId), participant('target', enemyId)]),
       concept: 'enemy-contact',
-      outcome: 'Damage or stomp resolution is intentionally deferred to a later rule system.',
-      supportStatus: 'deferred',
+      outcome: 'A top contact removes the enemy and applies an upward player velocity through the generic Runtime rule path.',
+      supportStatus: 'supported',
     }))
     if (goalId) interactions.push(Object.freeze({
       id: 'player-goal-reach',
@@ -256,12 +280,17 @@ export class DefaultGameplaySpecificationBuilder implements GameplaySpecificatio
       ...(input.metadata?.architectureVersion ? { architectureVersion: input.metadata.architectureVersion } : {}),
     })
     const mechanics = buildMechanics(candidate.mechanics, capabilities)
+    const enemyStompSupported = mechanics.some(mechanic =>
+      mechanic.id === 'enemy-stomp' && mechanic.supportStatus === 'supported',
+    )
     const interactions = candidate.interactions?.map(item => Object.freeze({
       id: item.id,
       participants: Object.freeze(item.participants.map(participant => Object.freeze({ ...participant }))),
       concept: item.concept,
       outcome: item.outcome,
-      supportStatus: 'deferred' as const,
+      supportStatus: isSupportedEnemyStompInteraction(item, input.semanticWorld, enemyStompSupported)
+        ? 'supported' as const
+        : 'deferred' as const,
     }))
     const progression: GameplayProgressionSpecification | undefined = candidate.progression
       ? Object.freeze({

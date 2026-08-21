@@ -1,5 +1,6 @@
 import type { EntityCategory } from '../game-world'
-import type { GameplayEventType } from './GameplayEvent'
+import type { GameplayContactDirection, GameplayEventType } from './GameplayEvent'
+export type { GameplayContactDirection } from './GameplayEvent'
 import type {
   GameplayCapabilityCatalog,
   GameplayRulePrimitiveCapability,
@@ -25,7 +26,6 @@ export type GameplayEntitySelector =
   | { readonly kind: 'archetype'; readonly archetype: string }
   | { readonly kind: 'role'; readonly role: string }
 
-export type GameplayContactDirection = 'top' | 'bottom' | 'left' | 'right'
 export type GameplayNumericOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
 
 export type GameplayNumericReference =

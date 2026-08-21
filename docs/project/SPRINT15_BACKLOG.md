@@ -16,6 +16,31 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Completed
 
+### WO-S15-005 — Enemy Stomp Gameplay Rule Vertical Slice
+
+- Approved ENEMY STOMP as the primary product scenario: a player entering an
+  enemy from above must produce a real Runtime contact fact with
+  `direction=top`, match the generic `enemy-stomp` RuleSet entry, pass the
+  player/enemy/top conditions, remove the enemy, and apply an upward player
+  velocity.
+- Extended the Runtime-owned contact fact with required typed direction from
+  collision-bounds AABB crossings/overlap geometry. Renderer dimensions, Pixi,
+  sprites, textures, and pixels remain outside collision authority.
+- Promoted only the trusted generic `APPLY_VELOCITY` primitive and executed the
+  two actions with deterministic rule-level staged all-or-nothing semantics;
+  failed later actions roll back earlier staged actions without silent partial
+  commit. Existing exactly-once and stale/world/session guards remain active.
+- Kept damage, health, goals, score/XP, timers, spawners, question blocks,
+  arbitrary code, genre-specific systems, full rebuilds, and gameplay-rule
+  evolution deferred. Observatory exposes raw direction and per-action
+  commit/status truth separately from raw Runtime facts.
+- Architecture version: v1.151 → v1.152.
+- Code Complete: YES after required automated gates. Product Verified: YES —
+  MANUAL local Studio browser evidence recorded on 2026-08-21: real bottom
+  contact was rejected, real top contact matched and committed both actions,
+  enemy disappeared from Runtime/Renderer, player bounced and re-landed, and
+  post-stomp movement/jump continued with no browser warnings/errors.
+
 ### WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
 
 - Added the smallest production Runtime seam after system ticks finalize their
@@ -139,11 +164,11 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Deferred by design
 
-- Runtime gameplay execution: collect, damage, enemy AI, goals, failure,
-  timers, spawn execution, XP/levels/upgrades, and win/lose rules.
-- Beyond the S15-004 remove-only slice: score/numeric state, damage/health,
-  enemy AI, goals/win/lose, timers, spawn execution, property/velocity
-  actions, rich multi-action transactions, and gameplay-rule evolution.
+- Runtime gameplay execution: damage, enemy AI, goals, failure, timers, spawn
+  execution, XP/levels/upgrades, and win/lose rules.
+- Beyond the S15-005 slice: score/numeric state, damage/health, enemy AI,
+  goals/win/lose, timers, spawn execution, property actions, unrelated rich
+  multi-action transactions, and gameplay-rule evolution.
 - Durable gameplay revision/history and gameplay evolution.
 - Conversation memory/history, RAG, vector retrieval, and global context
   stores.
@@ -154,8 +179,13 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Next work order boundary
 
-### S15-005 — Next Gameplay Capability Boundary
+### S15-006 — Next Gameplay Capability Boundary
 
-Choose the next concrete event-driven gameplay scenario only after the S15-004
+Selection is intentionally not automatic. The Supervisor stopped after
+WO-S15-005 under `continuation_mode = ONE_WORK_ITEM`; the next READY work order
+requires a new measured bottleneck and review.
+
+Choose the next concrete event-driven gameplay scenario only after the S15-005
 browser verification exposes a measured product bottleneck. Keep Runtime facts,
-rule interpretation, and mutation/result execution separate.
+rule interpretation, and mutation/result execution separate; do not execute
+WO-S15-006 automatically.

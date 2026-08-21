@@ -319,6 +319,39 @@ describe('RuntimeVisualizationLoop Integration', () => {
       expect(container._state.childAt(0)!.x).toBe(20) // Progressed
     })
 
+    it('publishes the committed Runtime World before gameplay observers read it', () => {
+      const executionLoop = createMovementExecutionLoop(5, 0)
+      const adapter = new IntegrationRendererAdapter()
+      const container = createMockContainer()
+      let publishedWorld: World | undefined
+      let observedX: number | undefined
+      const loop = new DefaultRuntimeVisualizationLoop(
+        executionLoop,
+        adapter,
+        new DefaultPixiEntityRenderer(container, {
+          createGraphics: () => createMockGraphics() as unknown as Graphics,
+        }),
+        createWorldWithMovingEntity(),
+        undefined,
+        {
+          setWorld(world: World): void {
+            publishedWorld = world
+          },
+        },
+        undefined,
+        {
+          observe(): void {
+            observedX = publishedWorld?.entities[0]?.x
+          },
+        },
+      )
+
+      loop.start()
+      loop.tick()
+
+      expect(observedX).toBe(15)
+    })
+
     it('clear between ticks re-renders correctly', () => {
       const executionLoop = createMovementExecutionLoop(10, 10)
       const adapter = new IntegrationRendererAdapter()

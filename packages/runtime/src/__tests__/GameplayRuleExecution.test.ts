@@ -12,9 +12,11 @@ import type {
 import {
   createCollisionBoundsComponent,
   createPositionComponent,
+  isVelocityComponent,
 } from '@genesis/shared'
 import {
   DefaultEntityContactSystem,
+  DefaultGameplayActionExecutor,
   DefaultGameplayConditionEvaluator,
   DefaultGameplayRuleExecutor,
   DefaultGameplayRuleMatcher,
@@ -76,6 +78,7 @@ function contactEvent(eventId = 'world-1:1:0'): GameplayEvent {
     type: 'ENTITY_CONTACT_STARTED',
     actorEntityId: 'player',
     targetEntityId: 'coin-1',
+    direction: 'left',
   })
 }
 
@@ -109,7 +112,7 @@ function rule(
 
 function ruleSet(
   rules: readonly GameplayRuleSpecification[] = [rule()],
-  options: { readonly bindingStatus?: 'current' | 'stale'; readonly semanticRevision?: number } = {},
+  options: { readonly bindingStatus?: 'current' | 'stale'; readonly semanticRevision?: number; readonly sessionId?: string } = {},
 ): GameplayRuleSet {
   const semanticRevision = options.semanticRevision ?? 0
   return Object.freeze({
@@ -119,6 +122,7 @@ function ruleSet(
     semanticRevision,
     sourceSemanticRevision: semanticRevision,
     worldId: 'world-1',
+    ...(options.sessionId ? { sessionId: options.sessionId } : {}),
     bindingStatus: options.bindingStatus ?? 'current',
     capabilityCatalogVersion: 'v1' as const,
     rules: Object.freeze([...rules]),
@@ -131,10 +135,11 @@ function ruleSet(
   })
 }
 
-function context(world: World, semanticRevision = 0) {
+function context(world: World, semanticRevision = 0, sessionId = 'session-1') {
   return Object.freeze({
     world,
     worldId: 'world-1',
+    sessionId,
     semanticRevision,
     semanticWorld,
   })
@@ -166,6 +171,7 @@ describe('Gameplay rule execution vertical slice', () => {
       eventId: 'world-1:1:0',
       ruleId: 'collect-reward',
       status: 'executed',
+      committed: true,
       affectedEntityIds: ['coin-1'],
       actionResults: [{ actionType: 'REMOVE_ENTITY', status: 'executed' }],
     }])
@@ -231,6 +237,159 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(result.status).toBe('passed')
   })
 
+  it('evaluates contact direction with truthful negation and no guessing', () => {
+    const evaluator = new DefaultGameplayConditionEvaluator()
+    const top = Object.freeze({ ...contactEvent('world-1:2:1'), direction: 'top' as const })
+    const right = Object.freeze({ ...contactEvent('world-1:2:2'), direction: 'right' as const })
+    const executionContext = context(runtimeWorld())
+
+    expect(evaluator.evaluate([
+      { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top' },
+    ], top, executionContext).status).toBe('passed')
+    expect(evaluator.evaluate([
+      { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top' },
+    ], right, executionContext).status).toBe('failed')
+    expect(evaluator.evaluate([
+      { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top', negated: true },
+    ], top, executionContext).status).toBe('failed')
+    expect(evaluator.evaluate([
+      { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top', negated: true },
+    ], right, executionContext).status).toBe('passed')
+    expect(evaluator.evaluate([
+      { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top' },
+    ], Object.freeze({ ...top, direction: undefined }) as unknown as GameplayEvent, executionContext).status).toBe('unsupported')
+  })
+
+  it('executes the generic two-action enemy stomp and commits both mutations', () => {
+    const stompWorld = Object.freeze({
+      entities: Object.freeze([
+        entity('player', 'player', 'Player', 0, 0, true),
+        entity('enemy-1', 'enemy', 'Enemy', 8, 0, true),
+      ]),
+    }) as unknown as World
+    const stompSemanticWorld = Object.freeze({
+      worldType: 'platformer' as const,
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player' as const, name: 'Player' }),
+        Object.freeze({ id: 'enemy-1', category: 'enemy' as const, name: 'Enemy' }),
+      ]),
+    })
+    const actor = Object.freeze({ kind: 'eventActor' as const })
+    const target = Object.freeze({ kind: 'eventTarget' as const })
+    const stompRule = rule({
+      ruleId: 'enemy-stomp',
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: actor, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: target, category: 'enemy' },
+        { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top' },
+      ],
+      actions: [
+        { type: 'REMOVE_ENTITY', target },
+        { type: 'APPLY_VELOCITY', target: actor, velocity: { y: -12, mode: 'set' } },
+      ],
+    })
+    const result = new DefaultGameplayRuleExecutor().executeEvent(
+      Object.freeze({ ...contactEvent('world-1:6:0'), targetEntityId: 'enemy-1', direction: 'top' }),
+      ruleSet([stompRule]),
+      Object.freeze({ ...context(stompWorld), semanticWorld: stompSemanticWorld }),
+    )
+
+    expect(result.results).toMatchObject([{
+      ruleId: 'enemy-stomp',
+      status: 'executed',
+      committed: true,
+      affectedEntityIds: ['enemy-1', 'player'],
+      actionResults: [
+        { actionType: 'REMOVE_ENTITY', status: 'executed' },
+        { actionType: 'APPLY_VELOCITY', status: 'executed' },
+      ],
+    }])
+    expect(result.world.entities.map(item => item.id)).toEqual(['player'])
+    expect(result.world.entities[0]?.components?.find(isVelocityComponent)?.properties).toEqual({ x: 0, y: -12 })
+  })
+
+  it('rolls back earlier staged actions when a later action fails', () => {
+    const removeExecutor = new DefaultGameplayActionExecutor()
+    const failingExecutor = {
+      execute(request: Parameters<DefaultGameplayActionExecutor['execute']>[0]) {
+        if (request.action.type === 'REMOVE_ENTITY') return removeExecutor.execute(request)
+        return Object.freeze({
+          ruleId: request.ruleId,
+          eventId: request.event.eventId,
+          actionType: request.action.type,
+          status: 'failed' as const,
+          targetEntityIds: Object.freeze([]),
+          worldBefore: request.context.world,
+          worldAfter: request.context.world,
+          failureReason: 'injected_failure',
+        })
+      },
+    }
+    const actor = Object.freeze({ kind: 'eventActor' as const })
+    const target = Object.freeze({ kind: 'eventTarget' as const })
+    const result = new DefaultGameplayRuleExecutor(
+      new DefaultGameplayRuleMatcher(),
+      new DefaultGameplayConditionEvaluator(),
+      failingExecutor,
+    ).executeEvent(
+      contactEvent('world-1:7:0'),
+      ruleSet([rule({
+        ruleId: 'staged-failure',
+        actions: [
+          { type: 'REMOVE_ENTITY', target },
+          { type: 'APPLY_VELOCITY', target: actor, velocity: { y: -12, mode: 'set' } },
+        ],
+      })]),
+      context(runtimeWorld()),
+    )
+
+    expect(result.world.entities.map(item => item.id)).toEqual(['player', 'coin-1', 'ground'])
+    expect(result.results).toMatchObject([{
+      status: 'execution_failed',
+      committed: false,
+      affectedEntityIds: [],
+      actionResults: [
+        { actionType: 'REMOVE_ENTITY', status: 'rolled_back' },
+        { actionType: 'APPLY_VELOCITY', status: 'failed', failureReason: 'injected_failure' },
+      ],
+    }])
+    expect(result.results[0]?.actionResults[0]).not.toHaveProperty('mutation')
+  })
+
+  it('supports set, add, component creation, and non-player entity selectors generically', () => {
+    const genericWorld = Object.freeze({
+      entities: Object.freeze([entity('npc-1', 'npc', 'Merchant', 0, 0)]),
+    }) as unknown as World
+    const event = Object.freeze({
+      eventId: 'world-1:8:0',
+      worldId: 'world-1',
+      tick: 8,
+      sequence: 0,
+      type: 'ENTITY_JUMPED' as const,
+      actorEntityId: 'npc-1',
+    })
+    const executor = new DefaultGameplayActionExecutor()
+    const baseContext = context(genericWorld)
+    const set = executor.execute({
+      ruleId: 'velocity-set',
+      event,
+      action: { type: 'APPLY_VELOCITY', target: { kind: 'eventActor' }, velocity: { y: -12 } },
+      context: baseContext,
+    })
+    expect(set.status).toBe('executed')
+    expect(set.worldAfter.entities[0]?.components?.find(isVelocityComponent)?.properties).toEqual({ x: 0, y: -12 })
+
+    const add = executor.execute({
+      ruleId: 'velocity-add',
+      event,
+      action: { type: 'APPLY_VELOCITY', target: { kind: 'eventActor' }, velocity: { x: 3, y: 2, mode: 'add' } },
+      context: Object.freeze({ ...baseContext, world: set.worldAfter }),
+    })
+    expect(add.status).toBe('executed')
+    expect(add.worldAfter.entities[0]?.components?.find(isVelocityComponent)?.properties).toEqual({ x: 3, y: -10 })
+    expect(add.mutation).toMatchObject({ type: 'VELOCITY_UPDATED', targetEntityId: 'npc-1' })
+  })
+
   it('blocks deferred and stale rules without mutating the current World', () => {
     const world = runtimeWorld()
     const deferred = rule({
@@ -281,5 +440,32 @@ describe('Gameplay rule execution vertical slice', () => {
       reason: 'player_removal_protected',
     }])
     expect(protectedResult.world.entities.map(item => item.id)).toContain('player')
+  })
+
+  it('does not let a World A event affect a RuleSet bound to World B', () => {
+    const worldB = runtimeWorld()
+    const worldBRuleSet = Object.freeze({ ...ruleSet(), worldId: 'world-2' })
+    const result = new DefaultGameplayRuleExecutor().executeEvent(
+      contactEvent('world-1:9:0'),
+      worldBRuleSet,
+      Object.freeze({ ...context(worldB), worldId: 'world-2' }),
+    )
+
+    expect(result.world).toBe(worldB)
+    expect(result.world.entities.map(item => item.id)).toEqual(['player', 'coin-1', 'ground'])
+    expect(result.results).toMatchObject([{ status: 'stale', committed: false, reason: 'stale_rule_binding' }])
+  })
+
+  it('does not let a session-bound RuleSet execute in another Runtime session', () => {
+    const world = runtimeWorld()
+    const sessionRuleSet = Object.freeze({ ...ruleSet(), sessionId: 'session-a' })
+    const result = new DefaultGameplayRuleExecutor().executeEvent(
+      contactEvent('world-1:10:0'),
+      sessionRuleSet,
+      context(world, 0, 'session-b'),
+    )
+
+    expect(result.world).toBe(world)
+    expect(result.results).toMatchObject([{ status: 'stale', committed: false, reason: 'stale_rule_binding' }])
   })
 })

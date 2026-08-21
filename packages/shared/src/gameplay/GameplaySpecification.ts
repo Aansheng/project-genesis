@@ -184,7 +184,7 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   Object.freeze({ id: 'condition-entity-category-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity category.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-entity-archetype-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity name/archetype.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-entity-id-equals', kind: 'condition' as const, description: 'Compare an event participant with an existing stable semantic entity ID.', status: 'supported' as const }),
-  Object.freeze({ id: 'condition-contact-direction-equals', kind: 'condition' as const, description: 'Contact direction is a reserved rule shape; S15-002 does not emit direction yet.', status: 'deferred' as const }),
+  Object.freeze({ id: 'condition-contact-direction-equals', kind: 'condition' as const, description: 'Compare the typed Runtime AABB contact direction, including a narrow negated form.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-number-compare', kind: 'condition' as const, description: 'Numeric Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
   Object.freeze({ id: 'condition-boolean-equals', kind: 'condition' as const, description: 'Boolean Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
   Object.freeze({ id: 'condition-component-exists', kind: 'condition' as const, description: 'Check a whitelisted Runtime component type on an entity.', status: 'supported' as const }),
@@ -192,7 +192,7 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   Object.freeze({ id: 'action-spawn-entity', kind: 'action' as const, description: 'Describe an entity addition through the existing typed entity mutation primitive; rule execution is deferred.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-change-numeric-state', kind: 'action' as const, description: 'Change score/XP-like state; no generic gameplay state store exists yet.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-set-entity-property', kind: 'action' as const, description: 'Set a whitelisted entity property; rule execution is not active.', status: 'deferred' as const }),
-  Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Apply velocity remains deferred until a trusted rule executor exists for it.', status: 'deferred' as const }),
+  Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Set or add a Runtime VelocityComponent through immutable World mutation.', status: 'supported' as const }),
   Object.freeze({ id: 'action-complete-goal', kind: 'action' as const, description: 'Complete a goal; no goal state or completion executor exists yet.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-damage-entity', kind: 'action' as const, description: 'Apply damage; no health/damage resolver exists yet.', status: 'deferred' as const }),
 ])
@@ -250,6 +250,11 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
       mechanicIds: Object.freeze(['event-entity-contact-started']),
     }),
     Object.freeze({
+      id: 'enemy-stomp',
+      description: 'A supported generic contact rule removes an enemy target and applies an upward player velocity.',
+      mechanicIds: Object.freeze(['enemy-stomp']),
+    }),
+    Object.freeze({
       id: 'mutation-event-observation',
       description: 'Committed Runtime World ID-set changes emit ENTITY_ADDED or ENTITY_REMOVED facts.',
       mechanicIds: Object.freeze(['event-entity-added', 'event-entity-removed']),
@@ -268,6 +273,7 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'event-entity-contact-started',
     'event-entity-added',
     'event-entity-removed',
+    'enemy-stomp',
   ]),
   rulePrimitives: DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES,
 })

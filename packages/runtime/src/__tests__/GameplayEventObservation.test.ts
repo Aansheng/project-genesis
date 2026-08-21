@@ -120,12 +120,37 @@ describe('Runtime gameplay event observation', () => {
       type: 'ENTITY_CONTACT_STARTED',
       actorEntityId: 'player',
       targetEntityId: 'coin-1',
+      direction: 'left',
     }])
     expect(batch(collector, 2, () => contact.update(overlap))).toHaveLength(0)
     expect(batch(collector, 3, () => contact.update(separated))).toHaveLength(0)
     expect(batch(collector, 4, () => contact.update(overlap))).toHaveLength(1)
     expect(batch(collector, 5, () => contact.update(world(entity('player', 'player', 100, 100, true)))).length).toBe(0)
     expect(batch(collector, 6, () => contact.update(overlap))).toHaveLength(1)
+  })
+
+  it('derives top, bottom, left, and right from previous AABB crossings', () => {
+    const cases = [
+      { direction: 'top' as const, initial: [100, 70] as const, contact: [100, 95] as const },
+      { direction: 'bottom' as const, initial: [100, 130] as const, contact: [100, 105] as const },
+      { direction: 'left' as const, initial: [70, 100] as const, contact: [95, 100] as const },
+      { direction: 'right' as const, initial: [130, 100] as const, contact: [105, 100] as const },
+    ]
+
+    for (const [index, testCase] of cases.entries()) {
+      const collector = new DefaultRuntimeGameplayEventCollector()
+      const contact = new DefaultEntityContactSystem()
+      contact.setGameplayEventSink(collector)
+      const target = entity('target', 'enemy', 100, 100, true)
+      const initial = world(entity('player', 'player', testCase.initial[0], testCase.initial[1], true), target)
+      const entered = world(entity('player', 'player', testCase.contact[0], testCase.contact[1], true), target)
+
+      expect(batch(collector, index * 2 + 1, () => contact.update(initial))).toHaveLength(0)
+      expect(batch(collector, index * 2 + 2, () => contact.update(entered))).toMatchObject([{
+        type: 'ENTITY_CONTACT_STARTED',
+        direction: testCase.direction,
+      }])
+    }
   })
 
   it('emits entity mutations only after committed ID-set changes', () => {

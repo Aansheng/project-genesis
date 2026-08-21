@@ -3,18 +3,18 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.151
+architecture_version: v1.152
 current_sprint: Sprint 15
-current_work_order: WO-S15-004
+current_work_order: WO-S15-005
 current_work_order_status: completed
 current_control_plane_work_order: WO-META-003
 current_control_plane_work_order_status: completed
-last_completed_work_order: WO-META-003
-last_completed_product_work_order: WO-S15-004
-next_ready_work_order: WO-S15-005
-product_architecture_changed: false
-sprint_status: S15 product slice complete through S15-004; next boundary staged
-product_verified: yes, for WO-S15-004
+last_completed_work_order: WO-S15-005
+last_completed_product_work_order: WO-S15-005
+next_ready_work_order: NONE — stop per ONE_WORK_ITEM; do not auto-execute WO-S15-006
+product_architecture_changed: true
+sprint_status: S15 product slice complete through WO-S15-005; Supervisor stopped at the continuation boundary
+product_verified: yes, for WO-S15-005 (MANUAL Studio verification)
 control_plane_status: initialized; one-work-item continuation
 
 ## Completed
@@ -24,6 +24,10 @@ control_plane_status: initialized; one-work-item continuation
 - Sprint 15 GameplaySpecification, bounded GameplayEvent observation, validated
   GameplayRuleSet, and the single supported REMOVE_ENTITY execution slice are
   complete and browser-verified.
+- WO-S15-005 is complete and browser-verified: Runtime AABB contact direction,
+  generic enemy-stomp matching, staged REMOVE_ENTITY + APPLY_VELOCITY,
+  enemy Runtime/Renderer removal, bounce/re-land, continued control, and
+  truthful Observatory evidence are connected.
 - WO-META-003 repository-native engineering control plane is complete.
 
 ## Active capabilities
@@ -34,7 +38,10 @@ control_plane_status: initialized; one-work-item continuation
   targeted entity mutation.
 - Bounded Runtime gameplay facts: jump, landing, contact-start, add, remove.
 - Genesis-validated gameplay rules with only current supported rules executable.
-- Single REMOVE_ENTITY rule execution after finalized Runtime events.
+- Generic REMOVE_ENTITY and APPLY_VELOCITY rule execution after finalized
+  Runtime events; the approved enemy-stomp rule is the bounded two-action slice.
+- Typed Runtime-owned contact direction and deterministic rule-level staged
+  all-or-nothing execution for the two trusted stomp actions.
 - Pixi Renderer synchronization and truthful Observatory projections.
 - Targeted semantic, Runtime, visual, and asset evolution in the current
   session, with stale/revision guards.
@@ -43,8 +50,8 @@ control_plane_status: initialized; one-work-item continuation
 
 - Score or other numeric gameplay state.
 - Damage, health resolution, enemy AI, goals, win/lose, timers, spawns,
-  progression, rich actions, multi-action transactions, and gameplay-rule
-  evolution.
+  progression, rich actions, unrelated rich multi-action transactions, and
+  gameplay-rule evolution.
 - Durable gameplay/context/evolution history, replay, persistence, and reload
   recovery.
 - Reference-image transport, similarity search, durable generated assets,
@@ -53,7 +60,11 @@ control_plane_status: initialized; one-work-item continuation
 ## Known environment issues
 
 - Existing AI package lint debt is recorded in docs/project/TECH_DEBT.md and is
-  unrelated to this documentation-only work item.
+  unrelated to WO-S15-005.
+- In this managed environment, the root `pnpm typecheck` Turbo wrapper cannot
+  initialize its API client because TLS/keychain access is unavailable; direct
+  TypeScript checks for all affected packages pass. A parallel Renderer Vitest
+  run can also expose jsdom canvas noise; the standalone Renderer suite passes.
 - Compatibility exports, test-only mock Observatory loading, inert streaming
   state, and legacy Canvas2D renderWorld() remain in the repository; current
   production Studio wiring does not use them.
@@ -70,9 +81,9 @@ own capability-focused work item rather than broadening WO-META-003.
 ## Current product gaps
 
 The current product is a playable bounded slice, not a complete general
-gameplay engine. The next product work must be selected from a measured
-user-visible bottleneck and must keep Runtime facts, rule interpretation,
-mutation, and result observation separate.
+gameplay engine. WO-S15-005 has no remaining blocker; the next product work
+must be selected from a measured user-visible bottleneck and must keep Runtime
+facts, rule interpretation, mutation, and result observation separate.
 
 ## Authority
 

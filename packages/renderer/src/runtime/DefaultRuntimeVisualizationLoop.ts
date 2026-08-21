@@ -172,12 +172,15 @@ export class DefaultRuntimeVisualizationLoop
     // Step 3: Render entities on top and capture rendered entity count
     const renderView = this.entityRenderer.render(renderWorld)
 
-    this.gameplayEventObserver?.observe(executionResult.gameplayEvents ?? [])
-    this.gameplayRuleExecutionObserver?.observe(executionResult.gameplayRuleResults ?? [])
-
-    // Step 4: Store new world for next tick
+    // Step 4: Store the authoritative Runtime result before observers read it.
+    // Web projections may use the observer callback to inspect the current
+    // Runtime world; publishing after observation would expose the prior tick.
     this._currentWorld = newWorld
     this.worldSink?.setWorld(newWorld)
+
+    // Step 5: Publish observations after the Runtime result is authoritative.
+    this.gameplayEventObserver?.observe(executionResult.gameplayEvents ?? [])
+    this.gameplayRuleExecutionObserver?.observe(executionResult.gameplayRuleResults ?? [])
 
     return renderView.entities.length
   }

@@ -3,6 +3,7 @@ import type {
   EntityCategory,
   GameWorldModel,
   GameplayAction,
+  GameplayContactDirection,
   GameplayCondition,
   GameplayEvent,
   GameplayEntitySelector,
@@ -10,6 +11,10 @@ import type {
   GameplayRuleSet,
   GameplayRuleSpecification,
   World,
+} from '@genesis/shared'
+import {
+  createVelocityComponent,
+  isVelocityComponent,
 } from '@genesis/shared'
 import { DefaultWorldMutator } from '../mutation'
 import type { WorldMutator } from '../mutation'
@@ -25,6 +30,7 @@ const ENTITY_CATEGORIES: readonly EntityCategory[] = Object.freeze([
   'item',
   'quest',
 ])
+const CONTACT_DIRECTIONS: readonly GameplayContactDirection[] = Object.freeze(['top', 'bottom', 'left', 'right'])
 
 export type GameplayConditionEvaluationStatus = 'passed' | 'failed' | 'unsupported'
 
@@ -69,7 +75,7 @@ export interface GameplayConditionEvaluator {
   ): GameplayConditionEvaluation
 }
 
-export type GameplayActionExecutionStatus = 'executed' | 'failed' | 'unsupported'
+export type GameplayActionExecutionStatus = 'executed' | 'failed' | 'unsupported' | 'rolled_back'
 
 export interface GameplayActionExecutionRequest {
   readonly ruleId: string
@@ -87,10 +93,16 @@ export interface GameplayActionExecutionResult {
   readonly worldBefore: World
   readonly worldAfter: World
   readonly failureReason?: string
-  readonly mutation?: {
-    readonly type: 'ENTITY_REMOVED'
-    readonly targetEntityId: string
-  }
+  readonly mutation?:
+    | {
+        readonly type: 'ENTITY_REMOVED'
+        readonly targetEntityId: string
+      }
+    | {
+        readonly type: 'VELOCITY_UPDATED'
+        readonly targetEntityId: string
+        readonly velocity: { readonly x: number; readonly y: number }
+      }
 }
 
 export interface GameplayActionExecutor {
@@ -110,6 +122,7 @@ export interface GameplayRuleExecutionResult {
   readonly ruleId: string
   readonly matchedTrigger: GameplayEvent['type']
   readonly status: GameplayRuleExecutionStatus
+  readonly committed: boolean
   readonly conditionResult?: GameplayConditionEvaluation
   readonly actionResults: readonly GameplayActionExecutionResult[]
   readonly affectedEntityIds: readonly string[]
@@ -328,11 +341,16 @@ export class DefaultGameplayConditionEvaluator implements GameplayConditionEvalu
     event: GameplayEvent,
     context: GameplayRuleExecutionContext,
   ): GameplayConditionEvaluation['conditions'][number] {
-    if (
-      condition.type === 'CONTACT_DIRECTION_EQUALS'
-      || condition.type === 'NUMBER_COMPARE'
-      || condition.type === 'BOOLEAN_EQUALS'
-    ) {
+    if (condition.type === 'CONTACT_DIRECTION_EQUALS') {
+      if (event.type !== 'ENTITY_CONTACT_STARTED' || !CONTACT_DIRECTIONS.includes(event.direction)) {
+        return conditionResult(condition.type, 'unsupported', 'contact_direction_unavailable')
+      }
+      const matches = event.direction === condition.direction
+      const passed = condition.negated ? !matches : matches
+      return conditionResult(condition.type, passed ? 'passed' : 'failed', 'contact_direction_mismatch')
+    }
+
+    if (condition.type === 'NUMBER_COMPARE' || condition.type === 'BOOLEAN_EQUALS') {
       return conditionResult(condition.type, 'unsupported', 'condition_not_executable')
     }
 
@@ -374,7 +392,7 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       worldAfter: context.world,
     }
 
-    if (action.type !== 'REMOVE_ENTITY') {
+    if (action.type !== 'REMOVE_ENTITY' && action.type !== 'APPLY_VELOCITY') {
       return Object.freeze({
         ...base,
         status: 'unsupported' as const,
@@ -391,17 +409,82 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       })
     }
 
-    const targetFacts = semanticFactsOf(target, context.semanticWorld)
-    if (target.type === 'player' || targetFacts.category === 'player') {
+    if (action.type === 'REMOVE_ENTITY') {
+      const targetFacts = semanticFactsOf(target, context.semanticWorld)
+      if (target.type === 'player' || targetFacts.category === 'player') {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'player_removal_protected',
+        })
+      }
+
+      const worldAfter = this.worldMutator.removeEntity(context.world, target.id)
+      if (worldAfter.entities.some(entity => entity.id === target.id)) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'runtime_mutation_failed',
+        })
+      }
+
       return Object.freeze({
         ...base,
-        status: 'failed' as const,
-        failureReason: 'player_removal_protected',
+        status: 'executed' as const,
+        targetEntityIds: Object.freeze([target.id]),
+        worldAfter,
+        mutation: Object.freeze({ type: 'ENTITY_REMOVED' as const, targetEntityId: target.id }),
       })
     }
 
-    const worldAfter = this.worldMutator.removeEntity(context.world, target.id)
-    if (worldAfter.entities.some(entity => entity.id === target.id)) {
+    const velocity = action.velocity
+    const hasX = velocity.x !== undefined
+    const hasY = velocity.y !== undefined
+    if ((!hasX && !hasY) || (hasX && !Number.isFinite(velocity.x)) || (hasY && !Number.isFinite(velocity.y))) {
+      return Object.freeze({
+        ...base,
+        status: 'failed' as const,
+        failureReason: 'velocity_axes_must_be_finite',
+      })
+    }
+    const mode = velocity.mode ?? 'set'
+    if (mode !== 'set' && mode !== 'add') {
+      return Object.freeze({
+        ...base,
+        status: 'failed' as const,
+        failureReason: 'invalid_velocity_mode',
+      })
+    }
+
+    const existingVelocity = target.components?.find(isVelocityComponent)
+    const currentX = existingVelocity && Number.isFinite(existingVelocity.properties.x) ? existingVelocity.properties.x : 0
+    const currentY = existingVelocity && Number.isFinite(existingVelocity.properties.y) ? existingVelocity.properties.y : 0
+    const nextX = hasX
+      ? mode === 'add' ? currentX + velocity.x! : velocity.x!
+      : currentX
+    const nextY = hasY
+      ? mode === 'add' ? currentY + velocity.y! : velocity.y!
+      : currentY
+    if (!Number.isFinite(nextX) || !Number.isFinite(nextY)) {
+      return Object.freeze({
+        ...base,
+        status: 'failed' as const,
+        failureReason: 'velocity_result_must_be_finite',
+      })
+    }
+
+    const nextVelocity = createVelocityComponent(nextX, nextY)
+    const components = [...(target.components ?? [])]
+    const velocityIndex = components.findIndex(isVelocityComponent)
+    if (velocityIndex === -1) components.push(nextVelocity)
+    else components[velocityIndex] = nextVelocity
+    const worldAfter = this.worldMutator.replaceEntity(context.world, Object.freeze({
+      ...target,
+      components: Object.freeze(components),
+    }) as unknown as Entity)
+    const updated = worldAfter.entities.find(entity => entity.id === target.id)
+    const updatedVelocity = updated?.components?.find(isVelocityComponent)
+    if (!updatedVelocity || updatedVelocity.properties.x !== nextX || updatedVelocity.properties.y !== nextY) {
       return Object.freeze({
         ...base,
         status: 'failed' as const,
@@ -414,7 +497,11 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       status: 'executed' as const,
       targetEntityIds: Object.freeze([target.id]),
       worldAfter,
-      mutation: Object.freeze({ type: 'ENTITY_REMOVED' as const, targetEntityId: target.id }),
+      mutation: Object.freeze({
+        type: 'VELOCITY_UPDATED' as const,
+        targetEntityId: target.id,
+        velocity: Object.freeze({ x: nextX, y: nextY }),
+      }),
     })
   }
 }
@@ -424,6 +511,7 @@ function executionResult(
   rule: GameplayRuleSpecification,
   status: GameplayRuleExecutionStatus,
   options: {
+    readonly committed?: boolean
     readonly conditionResult?: GameplayConditionEvaluation
     readonly actionResults?: readonly GameplayActionExecutionResult[]
     readonly affectedEntityIds?: readonly string[]
@@ -435,11 +523,29 @@ function executionResult(
     ruleId: rule.ruleId,
     matchedTrigger: event.type,
     status,
+    committed: options.committed ?? false,
     ...(options.conditionResult ? { conditionResult: options.conditionResult } : {}),
     actionResults: Object.freeze([...(options.actionResults ?? [])]),
     affectedEntityIds: Object.freeze([...(options.affectedEntityIds ?? [])]),
     ...(options.reason ? { reason: options.reason } : {}),
   })
+}
+
+function rolledBackActionResult(
+  result: GameplayActionExecutionResult,
+  rollbackWorld: World,
+): GameplayActionExecutionResult {
+  const { mutation: _mutation, ...withoutMutation } = result
+  void _mutation
+  return Object.freeze({
+    ...withoutMutation,
+    status: 'rolled_back' as const,
+    worldAfter: rollbackWorld,
+  })
+}
+
+function affectedEntityIds(actionResults: readonly GameplayActionExecutionResult[]): readonly string[] {
+  return Object.freeze([...new Set(actionResults.flatMap(result => result.targetEntityIds))])
 }
 
 function sessionKey(ruleSet: GameplayRuleSet, context: GameplayRuleExecutionContext): string {
@@ -509,30 +615,57 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
           continue
         }
 
-        // S15-004 deliberately has no multi-action transaction. A one-action
-        // whitelist keeps future partial-action semantics from appearing accidentally.
-        if (rule.actions.length !== 1 || rule.actions[0].type !== 'REMOVE_ENTITY') {
+        if (rule.actions.length === 0) {
           results.push(executionResult(event, rule, 'unsupported', {
             conditionResult,
-            reason: 'only_single_remove_entity_action_is_executable',
+            reason: 'rule_has_no_actions',
           }))
           continue
         }
 
-        const actionResult = this.actionExecutor.execute({
-          ruleId: rule.ruleId,
-          event,
-          action: rule.actions[0],
-          context: eventContext,
-        })
-        const status = actionResult.status === 'executed' ? 'executed' as const : actionResult.status === 'unsupported' ? 'unsupported' as const : 'execution_failed' as const
-        results.push(executionResult(event, rule, status, {
+        const ruleStartWorld = world
+        let stagedWorld = ruleStartWorld
+        const actionResults: GameplayActionExecutionResult[] = []
+        let failedAction: GameplayActionExecutionResult | undefined
+
+        for (const action of rule.actions) {
+          const actionResult = this.actionExecutor.execute({
+            ruleId: rule.ruleId,
+            event,
+            action,
+            context: Object.freeze({ ...context, world: stagedWorld }),
+          })
+          actionResults.push(actionResult)
+          if (actionResult.status !== 'executed') {
+            failedAction = actionResult
+            break
+          }
+          stagedWorld = actionResult.worldAfter
+        }
+
+        if (failedAction) {
+          const rolledBackResults = actionResults.map((actionResult, index) =>
+            index < actionResults.length - 1
+              ? rolledBackActionResult(actionResult, ruleStartWorld)
+              : actionResult,
+          )
+          results.push(executionResult(event, rule, 'execution_failed', {
+            conditionResult,
+            actionResults: rolledBackResults,
+            affectedEntityIds: [],
+            reason: failedAction.failureReason,
+          }))
+          world = ruleStartWorld
+          continue
+        }
+
+        world = stagedWorld
+        results.push(executionResult(event, rule, 'executed', {
+          committed: true,
           conditionResult,
-          actionResults: [actionResult],
-          affectedEntityIds: actionResult.targetEntityIds,
-          reason: actionResult.failureReason,
+          actionResults,
+          affectedEntityIds: affectedEntityIds(actionResults),
         }))
-        if (actionResult.status === 'executed') world = actionResult.worldAfter
       }
     }
 
