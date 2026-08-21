@@ -1,6 +1,6 @@
-# Observatory Truth Audit — WO-OBS-001 / WO-S15-000
+# Observatory Truth Audit — WO-OBS-001 / WO-S15-001
 
-Architecture is v1.147. This audit records production behavior; test fixtures are excluded.
+Architecture is v1.148. This audit records production behavior; test fixtures are excluded.
 The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
 recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
 generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
@@ -25,7 +25,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 - The production store no longer contains the Sprint 6 farm/history/diff/event demo builder.
 - `ObservatoryOverview` no longer auto-hydrates mock data in test mode.
 - The legacy fixture lives only under `src/__tests__/fixtures` and is installed by Vitest setup for historical tests.
-- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.147.
+- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.148.
 
 ## Sprint 14 producers
 
@@ -63,3 +63,13 @@ and bounded metadata-only reference count. World-evolution traces expose the
 same scope/revision facts when available. Secrets, raw provider events,
 provider payloads, hidden reasoning, resource URIs, and binary data are not
 copied into the UI model.
+
+## Sprint 15 gameplay producer
+
+WO-S15-001 adds a real gameplay summary producer from the current
+`GameplaySpecification` and generation diagnostics. Generation Trace and the
+Overview/Generation cards expose only source, validation status, revision,
+mechanic count, supported/deferred counts, and primary goal. Deferred mechanics
+are not represented as executed systems, timeline stages, event-stream facts,
+or fake Runtime state. A missing specification remains an explicit unavailable
+state.

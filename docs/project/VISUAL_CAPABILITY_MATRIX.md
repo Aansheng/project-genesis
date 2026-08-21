@@ -1,6 +1,6 @@
 # Visual Capability Matrix
 
-Architecture version: v1.147
+Architecture version: v1.148
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 

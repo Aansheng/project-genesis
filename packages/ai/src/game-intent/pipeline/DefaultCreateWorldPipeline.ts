@@ -32,6 +32,9 @@
 import type { World } from '@genesis/shared'
 import type { GameDsl } from '@genesis/shared'
 import type { GameWorldModel } from '@genesis/shared'
+import type { GameplayGenerationContext } from '@genesis/shared'
+import type { GameplaySpecification } from '@genesis/shared'
+import { DEFAULT_GAMEPLAY_CAPABILITY_CATALOG, DefaultGameplayGenerationContextBuilder } from '@genesis/shared'
 import type { PromptAssemblyDomainModel } from '../../observatory/domain'
 import type { IntentRouter } from '../router/IntentRouter'
 import type { GameIntentExtractor } from '../GameIntentExtractor'
@@ -42,6 +45,8 @@ import type { CreateWorldPipelineResult } from './CreateWorldPipelineResult'
 import type { CreateWorldPipeline } from './CreateWorldPipeline'
 import type { GameWorldGenerationProvider } from '../../game-world/generation'
 import { DeterministicGameWorldGenerationProvider } from '../../game-world/generation'
+import type { GameplayGenerationProvider, GameplayGenerationResult, GameplayGenerationRequest } from '../../gameplay'
+import { DeterministicGameplayGenerationProvider, DefaultGameplaySpecificationBuilder } from '../../gameplay'
 
 // ---------------------------------------------------------------------------
 // Local projection interface
@@ -85,6 +90,7 @@ function createSuccessfulResult(
   world: World,
   semanticWorld: GameWorldModel,
   generationDiagnostics?: CreateWorldPipelineResult['generationDiagnostics'],
+  gameplayResult?: GameplayGenerationResult,
 ): CreateWorldPipelineResult {
   const result = {
     route: ROUTE_CREATE_WORLD,
@@ -101,6 +107,20 @@ function createSuccessfulResult(
     value: semanticWorld,
     writable: false,
   })
+  if (gameplayResult) {
+    Object.defineProperty(result, 'gameplaySpecification', {
+      configurable: false,
+      enumerable: false,
+      value: gameplayResult.specification,
+      writable: false,
+    })
+    Object.defineProperty(result, 'gameplayDiagnostics', {
+      configurable: false,
+      enumerable: false,
+      value: gameplayResult.diagnostics,
+      writable: false,
+    })
+  }
   return Object.freeze(result) as CreateWorldPipelineResult
 }
 
@@ -121,6 +141,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
   private readonly gameDslBuilder: SemanticGameDslBuilder
   private readonly projection: Projection
   private readonly generationProvider: GameWorldGenerationProvider
+  private readonly gameplayProvider: GameplayGenerationProvider
 
   /**
    * Construct a DefaultCreateWorldPipeline with injected dependencies.
@@ -138,6 +159,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     gameDslBuilder: SemanticGameDslBuilder,
     projection: Projection,
     generationProvider: GameWorldGenerationProvider = new DeterministicGameWorldGenerationProvider(),
+    gameplayProvider: GameplayGenerationProvider = new DeterministicGameplayGenerationProvider(new DefaultGameplaySpecificationBuilder()),
   ) {
     this.intentRouter = intentRouter
     this.gameIntentExtractor = gameIntentExtractor
@@ -145,6 +167,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     this.gameDslBuilder = gameDslBuilder
     this.projection = projection
     this.generationProvider = generationProvider
+    this.gameplayProvider = gameplayProvider
   }
 
   /**
@@ -195,7 +218,12 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     const projectionResult = this.projection.project(gameDsl)
 
     // Step 7: Return result
-    return createSuccessfulResult(projectionResult.world, gameWorldModel)
+    return createSuccessfulResult(
+      projectionResult.world,
+      gameWorldModel,
+      undefined,
+      deterministicGameplayResult(gameWorldModel),
+    )
   }
 
   /** Async provider path reserved for LLM-backed generation; sync callers remain unchanged. */
@@ -222,6 +250,27 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     const gameDsl = this.gameDslBuilder.build(semanticWorld)
     const projectionResult = this.projection.project(gameDsl)
 
+    const gameplayRequest = createGameplayRequest(command.input, semanticWorld)
+    let gameplayResult: GameplayGenerationResult
+    try {
+      if (this.gameplayProvider.generateWithDiagnostics) {
+        gameplayResult = await this.gameplayProvider.generateWithDiagnostics(gameplayRequest)
+      } else {
+        const specification = await this.gameplayProvider.generate(gameplayRequest)
+        gameplayResult = {
+          specification,
+          diagnostics: {
+            source: 'ai',
+            validationStatus: 'valid',
+            validationErrors: Object.freeze([]),
+            specification,
+          },
+        }
+      }
+    } catch (error) {
+      gameplayResult = deterministicGameplayResult(semanticWorld, error)
+    }
+
     const diagnostics = generated.diagnostics
       ? Object.freeze({
           ...generated.diagnostics,
@@ -235,7 +284,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
             : undefined,
         })
       : undefined
-    return createSuccessfulResult(projectionResult.world, semanticWorld, diagnostics)
+    return createSuccessfulResult(projectionResult.world, semanticWorld, diagnostics, gameplayResult)
   }
 
   // -------------------------------------------------------------------------
@@ -259,4 +308,35 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
       }),
     }) as unknown as PromptAssemblyDomainModel
   }
+}
+
+function createGameplayRequest(input: string, semanticWorld: GameWorldModel): GameplayGenerationRequest {
+  const context: GameplayGenerationContext = new DefaultGameplayGenerationContextBuilder().build({
+    metadata: { gameplayRevision: 0 },
+    semanticWorld,
+    capabilities: DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
+    instruction: input,
+  })
+  return Object.freeze({ kind: 'gameplay-generation', input, context })
+}
+
+function deterministicGameplayResult(semanticWorld: GameWorldModel, error?: unknown): GameplayGenerationResult {
+  const specification: GameplaySpecification = new DefaultGameplaySpecificationBuilder().build({
+    semanticWorld,
+    gameplayRevision: 1,
+    metadata: Object.freeze({
+      source: 'deterministic',
+      ...(error ? { warnings: Object.freeze([error instanceof Error ? error.message : 'Gameplay generation failed']) } : {}),
+    }),
+  })
+  return Object.freeze({
+    specification,
+    diagnostics: Object.freeze({
+      source: 'deterministic',
+      validationStatus: error ? 'invalid' as const : 'valid' as const,
+      validationErrors: Object.freeze(error ? [error instanceof Error ? error.message : 'Gameplay generation failed'] : []),
+      specification,
+      ...(error ? { fallbackReason: error instanceof Error ? error.message : 'Gameplay generation failed' } : {}),
+    }),
+  })
 }

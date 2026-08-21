@@ -19,6 +19,8 @@ export interface CommandExecutionResult {
   /** Real summary data available to the Studio activity surface. */
   readonly entityCount?: number
   readonly generationDiagnostics?: import('@genesis/ai').GameWorldGenerationDiagnostics
+  readonly gameplayDiagnostics?: import('@genesis/ai').GameplayGenerationDiagnostics
+  readonly gameplaySpecification?: import('@genesis/shared').GameplaySpecification
   readonly semanticWorld?: import('@genesis/shared').GameWorldModel
   readonly evolutionPlan?: import('@genesis/ai').WorldEvolutionPlanResult
 }

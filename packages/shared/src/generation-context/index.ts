@@ -9,6 +9,7 @@ export type {
   GenerationContextTraceMetadata,
   GameplayGenerationContext,
   GameplayGenerationContextBuilder,
+  GameplayGenerationContextBuilderInput,
   ImageGenerationAssetContext,
   ImageGenerationContext,
   ImageGenerationContextBuilder,
@@ -21,6 +22,7 @@ export type {
 } from './GenerationContext'
 export {
   DefaultGameDesignGenerationContextBuilder,
+  DefaultGameplayGenerationContextBuilder,
   DefaultImageGenerationContextBuilder,
   DefaultWorldEvolutionGenerationContextBuilder,
   summarizeGenerationContext,

@@ -8,7 +8,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { DefaultGameIntentExtractor } from '../game-intent/DefaultGameIntentExtractor'
-import type { GameIntent, GameGenre } from '../game-intent/GameIntent'
+import type { GameGenre } from '../game-intent/GameIntent'
 import type { PromptAssemblyDomainModel } from '../observatory/domain/PromptAssemblyDomainModel'
 
 // ---------------------------------------------------------------------------
@@ -250,6 +250,12 @@ describe('genre detection — rpg', () => {
 // ---------------------------------------------------------------------------
 
 describe('genre detection — survival', () => {
+  it('should detect survival from the common "survivor" alias', () => {
+    const extractor = new DefaultGameIntentExtractor()
+    const result = extractor.extract(createModel('Create a survivor-style game'))
+    expect(result.genre).toBe('survival')
+  })
+
   it('should detect survival from "Survival"', () => {
     const extractor = new DefaultGameIntentExtractor()
     const result = extractor.extract(createModel('Survival Island'))

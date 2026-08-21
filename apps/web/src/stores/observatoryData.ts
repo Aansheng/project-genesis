@@ -43,6 +43,16 @@ export interface ObservatoryGenerationTrace {
   readonly world?: { readonly entityCount: number; readonly entityIds: readonly string[] }
   readonly validation?: { readonly status: string; readonly errors: readonly string[] }
   readonly fallbackReason?: string
+  readonly gameplay?: {
+    readonly available: boolean
+    readonly source: 'ai' | 'deterministic'
+    readonly validationStatus: string
+    readonly revision: number
+    readonly mechanicCount: number
+    readonly supportedCount: number
+    readonly deferredCount: number
+    readonly primaryGoal?: string
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -120,7 +130,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     bridgeData.value = EMPTY_BRIDGE_DATA
   }
 
-  function loadGenerationTrace(raw: unknown): void {
+  function loadGenerationTrace(raw: unknown, gameplaySpecification?: unknown, gameplayDiagnostics?: unknown): void {
     if (!isRecord(raw) || !isRecord(raw.trace)) {
       generationTrace.value = null
       return
@@ -128,6 +138,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     const trace = raw.trace
     const candidate = semanticDesign(raw.candidate)
     const specification = semanticDesign(raw.specification)
+    const gameplay = gameplaySummary(gameplaySpecification, gameplayDiagnostics)
     generationTrace.value = Object.freeze({
       id: stringValue(trace.id, 'generation'),
       source: trace.source === 'ai' ? 'ai' : 'deterministic',
@@ -147,6 +158,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       },
       ...(Array.isArray(raw.worldEntityIds) ? { world: { entityCount: raw.worldEntityIds.length, entityIds: stringArray(raw.worldEntityIds) } } : {}),
       ...(typeof raw.fallbackReason === 'string' ? { fallbackReason: raw.fallbackReason } : {}),
+      ...(gameplay ? { gameplay } : {}),
     })
   }
 
@@ -544,4 +556,29 @@ function semanticDesign(value: unknown): ObservatoryGenerationTrace['candidate']
     objectives: Array.isArray(value.objectives) ? value.objectives.filter(isRecord).map(item => stringValue(item.type, 'unknown')) : [],
     entities,
   }
+}
+
+function gameplaySummary(
+  specification: unknown,
+  diagnostics: unknown,
+): ObservatoryGenerationTrace['gameplay'] | undefined {
+  if (!isRecord(specification)) return undefined
+  const mechanics = Array.isArray(specification.mechanics) ? specification.mechanics.filter(isRecord) : []
+  const supportedCount = mechanics.filter(mechanic => mechanic.supportStatus === 'supported').length
+  const deferredCount = mechanics.filter(mechanic => mechanic.supportStatus === 'deferred').length
+  const goal = Array.isArray(specification.goals) ? specification.goals.find(isRecord) : undefined
+  const source = isRecord(diagnostics) && diagnostics.source === 'ai' ? 'ai' : 'deterministic'
+  const validationStatus = isRecord(diagnostics) && typeof diagnostics.validationStatus === 'string'
+    ? diagnostics.validationStatus
+    : 'valid'
+  return Object.freeze({
+    available: true,
+    source,
+    validationStatus,
+    revision: typeof specification.gameplayRevision === 'number' ? specification.gameplayRevision : 0,
+    mechanicCount: mechanics.length,
+    supportedCount,
+    deferredCount,
+    ...(isRecord(goal) && typeof goal.description === 'string' ? { primaryGoal: goal.description } : {}),
+  })
 }

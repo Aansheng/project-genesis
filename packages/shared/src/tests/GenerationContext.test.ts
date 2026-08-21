@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   DefaultGameDesignGenerationContextBuilder,
+  DefaultGameplayGenerationContextBuilder,
   DefaultImageGenerationContextBuilder,
   DefaultWorldEvolutionGenerationContextBuilder,
 } from '../generation-context'
+import { DEFAULT_GAMEPLAY_CAPABILITY_CATALOG } from '../gameplay'
 import type { AssetRequirement, AssetSpecification } from '../asset-specification'
 import type { GameWorldModel } from '../game-world'
 import type { VisualDesignSpecification } from '../visual-design'
@@ -155,5 +157,23 @@ describe('generation context builders', () => {
     expect(context.capabilities.realizedSemantics).toEqual(['semantic-world'])
     expect(context).not.toHaveProperty('world')
     expect(Object.isFrozen(context.capabilities)).toBe(true)
+  })
+
+  it('builds gameplay context from current semantic entities and capability truth', () => {
+    const context = new DefaultGameplayGenerationContextBuilder().build({
+      metadata: { worldId: 'world-1', semanticRevision: 3, gameplayRevision: 0 },
+      semanticWorld,
+      capabilities: DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
+      instruction: 'design the farm loop',
+    })
+
+    expect(Object.isFrozen(context)).toBe(true)
+    expect(Object.isFrozen(context.semanticWorld)).toBe(true)
+    expect(Object.isFrozen(context.semanticWorld.entities)).toBe(true)
+    expect(context.game.worldType).toBe('farm')
+    expect(context.semanticWorld.entities.map(entity => entity.id)).toEqual(['cow-1', 'cow-2', 'cow-3', 'barn-1'])
+    expect(context.capabilities.supportedMechanicIds).toContain('player-move')
+    expect(context).not.toHaveProperty('pixi')
+    expect(context).not.toHaveProperty('rawProviderLogs')
   })
 })

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { CodexCliStructuredGenerationClient, extractCodexStructuredCandidate } from '../CodexCliStructuredGenerationClient'
+import type { GameplayGenerationRequest } from '@genesis/ai'
 
 const request = { input: 'create a farm', intent: { genre: 'farm' as const, title: 'farm' } }
 
@@ -36,5 +37,35 @@ describe('CodexCliStructuredGenerationClient', () => {
     const client = new CodexCliStructuredGenerationClient({ timeoutMs: 100, maxAttempts: 1 }, runner)
 
     await expect(client.generateStructured(request)).resolves.toMatchObject({ operation: 'replace' })
+  })
+
+  it('extracts gameplay candidates without exposing CLI event metadata', async () => {
+    const gameplayCandidate = {
+      gameLoop: { objective: 'Move' },
+      playerMechanics: ['player-move'],
+      mechanics: [{ id: 'player-move', kind: 'movement', description: 'Move' }],
+    }
+    const runner = vi.fn().mockResolvedValue({
+      exitCode: 0,
+      stderr: 'private event metadata',
+      stdout: JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: JSON.stringify(gameplayCandidate) } }),
+    })
+    const client = new CodexCliStructuredGenerationClient({ timeoutMs: 100, maxAttempts: 1 }, runner)
+    const gameplayRequest = {
+      kind: 'gameplay-generation' as const,
+      input: 'move',
+      context: {
+        scope: 'gameplay-generation' as const,
+        game: { worldType: 'platformer' as const },
+        semanticWorld: { entities: [] },
+        capabilities: { version: 'v1' as const, capabilities: [], supportedMechanicIds: [] },
+        instruction: 'move',
+      },
+    } satisfies GameplayGenerationRequest
+
+    await expect(client.generateStructured(gameplayRequest)).resolves.toMatchObject({
+      playerMechanics: ['player-move'],
+    })
+    expect(JSON.stringify(await client.generateStructured(gameplayRequest))).not.toContain('private event metadata')
   })
 })

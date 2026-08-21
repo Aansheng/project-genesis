@@ -13,6 +13,15 @@ const operations = computed(() => Object.values(gameStore.visualGenerationOperat
 const manifestEntries = computed(() => gameStore.assetManifest.entries)
 const currentTitle = computed(() => generation.value?.specification?.title ?? generation.value?.candidate?.title)
 const currentGenre = computed(() => generation.value?.specification?.genre ?? generation.value?.candidate?.genre)
+const gameplay = computed(() => gameStore.gameplaySpecification)
+const gameplayCounts = computed(() => {
+  const mechanics = gameplay.value?.mechanics ?? []
+  return {
+    mechanics: mechanics.length,
+    supported: mechanics.filter(item => item.supportStatus === 'supported').length,
+    deferred: mechanics.filter(item => item.supportStatus === 'deferred').length,
+  }
+})
 const visualCounts = computed(() => ({
   total: operations.value.length,
   ready: operations.value.filter((item) => item.stage === 'ready').length,
@@ -57,6 +66,17 @@ const assetCounts = computed(() => ({
         <div v-if="generation.model"><dt>Model</dt><dd>{{ generation.model }}</dd></div>
       </dl>
       <p v-else class="empty-state">No game generation has been recorded for this session.</p>
+    </section>
+
+    <section class="overview-section" aria-labelledby="gameplay-title">
+      <h2 id="gameplay-title" class="overview-section-title">Gameplay Specification</h2>
+      <div v-if="gameplay" class="fact-grid">
+        <article class="fact-card"><span class="fact-label">Revision</span><strong>{{ gameplay.gameplayRevision }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Mechanics</span><strong>{{ gameplayCounts.mechanics }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Supported / Deferred</span><strong>{{ gameplayCounts.supported }} / {{ gameplayCounts.deferred }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Primary objective</span><strong>{{ gameplay.gameLoop.objective }}</strong></article>
+      </div>
+      <p v-else class="empty-state">No gameplay specification is available for this session.</p>
     </section>
 
     <section class="overview-section" aria-labelledby="visual-title">

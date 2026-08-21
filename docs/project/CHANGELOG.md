@@ -1,5 +1,28 @@
 # Changelog
 
+### WO-S15-001 — GameplaySpecification & Game Loop Domain Foundation
+
+- Added immutable provider-neutral `GameplaySpecification` and compact
+  `GameLoopSpecification` contracts covering mechanic categories, player
+  mechanics, interactions, goals, failure conditions, progression, and spawn
+  rules.
+- Added the truthful Runtime capability catalog: movement, jump, gravity,
+  basic ground collision, and entity add/remove are supported; collection,
+  combat resolution, enemy behavior, goals, failure, timers, spawning,
+  progression, and win/lose execution remain deferred.
+- Added gameplay context minimization, deterministic platformer/survival/farm
+  defaults, candidate validation, immutable building, capability correction,
+  structured provider reuse, and deterministic fallback. Unsupported provider
+  claims can never become `supported`.
+- Connected gameplay generation to create-world and the web session store as a
+  sibling authority. Runtime files and the existing playable movement slice
+  were not changed. World creation remains successful when gameplay generation
+  fails.
+- Added truthful Observatory gameplay summaries, capability matrix, ADR-0262,
+  integration/security/failure coverage, and browser verification.
+- Architecture version v1.147 → v1.148. Code Complete = YES; Product Verified
+  = YES.
+
 ### WO-S15-000 — Capability-Specific Generation Context Foundation
 
 - Added immutable provider-neutral generation-context contracts and builders

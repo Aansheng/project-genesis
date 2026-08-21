@@ -67,6 +67,8 @@ export class DefaultCommandExecutor implements CommandExecutor {
           entityCount,
           semanticWorld: pipelineResult.semanticWorld,
           generationDiagnostics: pipelineResult.generationDiagnostics,
+          gameplaySpecification: pipelineResult.gameplaySpecification,
+          gameplayDiagnostics: pipelineResult.gameplayDiagnostics,
         }
       }
 
@@ -98,6 +100,8 @@ export class DefaultCommandExecutor implements CommandExecutor {
           entityCount,
           semanticWorld: pipelineResult.semanticWorld,
           generationDiagnostics: pipelineResult.generationDiagnostics,
+          gameplaySpecification: pipelineResult.gameplaySpecification,
+          gameplayDiagnostics: pipelineResult.gameplayDiagnostics,
         }
       }
 

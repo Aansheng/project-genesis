@@ -16,10 +16,10 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
+import type { AssetManifest, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
 import { DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
-import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider } from '@genesis/ai'
-import type { GameWorldGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
+import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider, DefaultGameplaySpecificationBuilder, DefaultGameplaySpecificationValidator, DeterministicGameplayGenerationProvider, GameplayGenerationProviderAdapter, FallbackGameplayGenerationProvider, LLMGameplayGenerationCandidateProvider } from '@genesis/ai'
+import type { GameWorldGenerationProvider, GameplayGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultAssetManifestBuilder } from '@genesis/shared'
 import { DefaultCommandExecutor } from '../command'
@@ -350,7 +350,9 @@ export function createCommandExecutor(
 ): { executor: CommandExecutor; useAsync: boolean; evolutionPlanner?: WorldEvolutionPlanner } {
   const configuration = createAIConfiguration(env)
   const deterministicProvider = new DeterministicGameWorldGenerationProvider()
+  const deterministicGameplayProvider: GameplayGenerationProvider = new DeterministicGameplayGenerationProvider(new DefaultGameplaySpecificationBuilder())
   let generationProvider: GameWorldGenerationProvider = deterministicProvider
+  let gameplayProvider: GameplayGenerationProvider = deterministicGameplayProvider
   let useAsync = false
   let evolutionPlanner: WorldEvolutionPlanner | undefined
 
@@ -369,6 +371,18 @@ export function createCommandExecutor(
         new DefaultGameWorldValidator(),
       )
       generationProvider = new FallbackGameWorldGenerationProvider(modelProvider, deterministicProvider)
+      gameplayProvider = new FallbackGameplayGenerationProvider(
+        new GameplayGenerationProviderAdapter(
+          new LLMGameplayGenerationCandidateProvider(new BrowserStructuredGenerationClient(gatewayURL, fetcher), undefined, {
+            maxOutputTokens: configuration.maxOutputTokens ?? 4000,
+            timeoutMs: configuration.timeoutMs ?? 30000,
+            maxAttempts: configuration.maxAttempts ?? 2,
+          }),
+          new DefaultGameplaySpecificationValidator(),
+          new DefaultGameplaySpecificationBuilder(),
+        ),
+        deterministicGameplayProvider,
+      )
       evolutionPlanner = new DefaultWorldEvolutionPlanner(
         new StructuredWorldEvolutionCandidateProvider(
           new BrowserStructuredGenerationClient(gatewayURL, fetcher),
@@ -391,6 +405,7 @@ export function createCommandExecutor(
     new DefaultSemanticGameDslBuilder(),
     new DefaultRuntimeProjection(),
     generationProvider,
+    gameplayProvider,
   )
   const createWorldExecutor = new DefaultCreateWorldRuntimeExecutor(pipeline, worldStore)
   return { executor: new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor), useAsync, evolutionPlanner }
@@ -407,6 +422,7 @@ export const useGameStore = defineStore('game', () => {
   const renderVersion = ref(0)
   const worldRevision = ref(0)
   const semanticState = ref<CurrentSemanticWorldState | null>(null)
+  const gameplaySpecificationState = ref<GameplaySpecification | null>(null)
   const currentWorldId = computed(() => semanticState.value?.worldId ?? '')
   const semanticWorld = computed(() => semanticState.value?.semanticWorld ?? null)
   const semanticProperties = computed<WorldSemanticProperties>(() => semanticState.value?.properties ?? EMPTY_SEMANTIC_PROPERTIES)
@@ -725,7 +741,7 @@ export const useGameStore = defineStore('game', () => {
         ? await commandExecutor.executeAsync(input)
         : commandExecutor.execute(input)
       lastCommand.value = result
-      useObservatoryDataStore().loadGenerationTrace(result.generationDiagnostics)
+      useObservatoryDataStore().loadGenerationTrace(result.generationDiagnostics, result.gameplaySpecification, result.gameplayDiagnostics)
       log.value.push(result.message)
       commandStatus.value = result.success ? 'success' : 'error'
 
@@ -753,6 +769,7 @@ export const useGameStore = defineStore('game', () => {
             : {},
           semanticRevision: 0,
         })
+        gameplaySpecificationState.value = result.gameplaySpecification ?? null
         runtimeSemanticRevision.value = 0
         runtimeSyncWorldId.value = nextWorldId
         lastRuntimeSyncOperationId.value = null
@@ -998,6 +1015,8 @@ export const useGameStore = defineStore('game', () => {
     semanticWorld,
     semanticProperties,
     semanticRevision,
+    gameplaySpecification: gameplaySpecificationState,
+    gameplayRevision: computed(() => gameplaySpecificationState.value?.gameplayRevision ?? 0),
     visualDesignSpecification,
     assetSpecification: assetSpecificationState,
     visualRevision,

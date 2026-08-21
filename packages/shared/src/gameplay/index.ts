@@ -1,0 +1,27 @@
+export type {
+  GameLoopSpecification,
+  GameplayCapabilityCatalog,
+  GameplayCapabilityDefinition,
+  GameplayCompletionMode,
+  GameplayFailureConditionKind,
+  GameplayFailureConditionSpecification,
+  GameplayGoalKind,
+  GameplayGoalSpecification,
+  GameplayInteractionSpecification,
+  GameplayMechanicDefinition,
+  GameplayMechanicKind,
+  GameplayMechanicParameters,
+  GameplayParticipantReference,
+  GameplayParticipantRole,
+  GameplayProgressionMode,
+  GameplayProgressionSpecification,
+  GameplaySpecification,
+  GameplaySpecificationMetadata,
+  GameplaySpawnRuleKind,
+  GameplaySpawnRuleSpecification,
+  GameplaySupportStatus,
+} from './GameplaySpecification'
+export {
+  DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
+  isGameplayMechanicSupported,
+} from './GameplaySpecification'

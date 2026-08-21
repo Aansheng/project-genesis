@@ -23,6 +23,8 @@ const candidateShape = (value: unknown): value is Record<string, unknown> => {
   return (
     Array.isArray(record.entities) && (typeof record.genre === 'string' || typeof record.worldType === 'string')
   ) || (
+    isGameplayCandidate(record)
+  ) || (
     (typeof record.kind === 'string' && [
       'add', 'add-entity', 'remove', 'remove-entity', 'replace', 'replace-archetype',
       'replace-entity', 'replace-entity-semantic', 'update-entity', 'update-entity-property',
@@ -31,6 +33,10 @@ const candidateShape = (value: unknown): value is Record<string, unknown> => {
     (operation !== undefined && ['add', 'add-entity', 'remove', 'remove-entity', 'replace', 'replace-entity', 'replace-archetype', 'replace-entity-semantic', 'update-world', 'update-world-property', 'update-entity', 'update-entity-property'].includes(operation)) ||
     (typeof record.action === 'string' && ['add', 'add-entity', 'remove', 'remove-entity', 'replace', 'replace-entity', 'replace-archetype', 'replace-entity-semantic', 'update-world', 'update-world-property', 'update-entity', 'update-entity-property'].includes(record.action))
   )
+}
+
+function isGameplayCandidate(record: Record<string, unknown>): boolean {
+  return Boolean(record.gameLoop && typeof record.gameLoop === 'object' && !Array.isArray(record.gameLoop) && Array.isArray(record.mechanics))
 }
 
 function parseJsonText(value: string): unknown {

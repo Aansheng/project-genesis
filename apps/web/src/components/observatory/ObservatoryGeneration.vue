@@ -76,6 +76,20 @@ const labels: Record<string, string> = {
         </template>
       </section>
 
+      <section v-if="data.generationTrace.gameplay" class="generation-card visual-generation-card" aria-labelledby="gameplay-generation-title">
+        <header class="card-heading">
+          <h3 id="gameplay-generation-title">Gameplay Specification</h3>
+          <span class="card-count">{{ data.generationTrace.gameplay.mechanicCount }} mechanics</span>
+        </header>
+        <dl class="detail-list">
+          <div><dt>Status</dt><dd>{{ data.generationTrace.gameplay.validationStatus }}</dd></div>
+          <div><dt>Source</dt><dd>{{ data.generationTrace.gameplay.source }}</dd></div>
+          <div><dt>Revision</dt><dd>{{ data.generationTrace.gameplay.revision }}</dd></div>
+          <div><dt>Supported / Deferred</dt><dd>{{ data.generationTrace.gameplay.supportedCount }} / {{ data.generationTrace.gameplay.deferredCount }}</dd></div>
+          <div v-if="data.generationTrace.gameplay.primaryGoal"><dt>Primary goal</dt><dd>{{ data.generationTrace.gameplay.primaryGoal }}</dd></div>
+        </dl>
+      </section>
+
       <div class="generation-layout">
         <aside class="generation-summary" aria-label="Generation summary">
           <dl class="summary-grid">

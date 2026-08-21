@@ -5,7 +5,7 @@
  * - contains "mario" → genre = platformer
  * - contains "farm"  → genre = farm
  * - contains "rpg"   → genre = rpg
- * - contains "survival" → genre = survival
+ * - contains "survival" or "survivor" → genre = survival
  * - otherwise        → genre = sandbox
  *
  * Title extraction:
@@ -33,6 +33,9 @@ const KEYWORD_RPG = 'rpg'
 
 /** Survival detection keyword. */
 const KEYWORD_SURVIVAL = 'survival'
+
+/** Common survivor-like game alias. */
+const KEYWORD_SURVIVOR = 'survivor'
 
 // ---------------------------------------------------------------------------
 // Fallback
@@ -110,7 +113,7 @@ export class DefaultGameIntentExtractor implements GameIntentExtractor {
       genre = 'farm'
     } else if (lowerTitle.includes(KEYWORD_RPG)) {
       genre = 'rpg'
-    } else if (lowerTitle.includes(KEYWORD_SURVIVAL)) {
+    } else if (lowerTitle.includes(KEYWORD_SURVIVAL) || lowerTitle.includes(KEYWORD_SURVIVOR)) {
       genre = 'survival'
     } else {
       genre = FALLBACK_GENRE

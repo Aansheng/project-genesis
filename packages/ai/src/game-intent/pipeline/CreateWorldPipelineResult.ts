@@ -16,6 +16,8 @@
 import type { World } from '@genesis/shared'
 import type { GameWorldModel } from '@genesis/shared'
 import type { GameWorldGenerationDiagnostics } from '../../game-world/generation'
+import type { GameplayGenerationDiagnostics } from '../../gameplay'
+import type { GameplaySpecification } from '@genesis/shared'
 
 export interface CreateWorldPipelineResult {
   /**
@@ -41,4 +43,6 @@ export interface CreateWorldPipelineResult {
    */
   readonly success: boolean
   readonly generationDiagnostics?: GameWorldGenerationDiagnostics
+  readonly gameplaySpecification?: GameplaySpecification
+  readonly gameplayDiagnostics?: GameplayGenerationDiagnostics
 }

@@ -2,6 +2,10 @@ import type { AssetKind, AssetRequirement, AssetSpecification, AssetTarget, Asse
 import type { EntityCategory, GameWorldModel, WorldType } from '../game-world'
 import type { GameDifficulty, GameObjectiveType } from '../game-design'
 import type {
+  GameplayCapabilityCatalog,
+  GameplaySpecification,
+} from '../gameplay'
+import type {
   ArtDirection,
   EnvironmentVisualDesign,
   VisualPaletteSemantics,
@@ -28,6 +32,7 @@ export interface GenerationContextMetadata {
   readonly semanticRevision?: number
   readonly runtimeSemanticRevision?: number
   readonly visualRevision?: number
+  readonly gameplayRevision?: number
   readonly architectureVersion?: string
 }
 
@@ -41,6 +46,7 @@ export interface GenerationContextTraceMetadata {
   readonly semanticRevision?: number
   readonly runtimeSemanticRevision?: number
   readonly visualRevision?: number
+  readonly gameplayRevision?: number
   readonly targetArchetype?: string
   readonly bindingCount?: number
   readonly referenceMetadataCount?: number
@@ -172,18 +178,30 @@ export interface GameDesignGenerationContextBuilder {
   build(input: GameDesignGenerationContextBuilderInput): GameDesignGenerationContext
 }
 
-/** Typed boundary for the future gameplay-mechanics generation work order. */
-export interface GameplayGenerationContext<TGameplaySpecification = unknown> extends GenerationContextMetadata {
+/** Minimum current semantic facts needed to design gameplay without Runtime data. */
+export interface GameplayGenerationContext<TGameplaySpecification = GameplaySpecification> extends GenerationContextMetadata {
   readonly scope: 'gameplay-generation'
-  readonly genre?: WorldType
-  readonly semanticWorldSummary?: string
-  readonly existingGameplaySpecification?: TGameplaySpecification
-  readonly supportedRuntimePrimitives?: readonly string[]
-  readonly userGameplayIntent?: string
+  readonly game: {
+    readonly worldType: WorldType
+  }
+  readonly semanticWorld: {
+    readonly entities: readonly WorldEvolutionEntityContext[]
+  }
+  readonly currentGameplaySpecification?: TGameplaySpecification
+  readonly capabilities: GameplayCapabilityCatalog
+  readonly instruction: string
+}
+
+export interface GameplayGenerationContextBuilderInput<TGameplaySpecification = GameplaySpecification> {
+  readonly metadata?: GenerationContextMetadataInput
+  readonly semanticWorld: GameWorldModel
+  readonly capabilities: GameplayCapabilityCatalog
+  readonly instruction: string
+  readonly currentGameplaySpecification?: TGameplaySpecification
 }
 
 export interface GameplayGenerationContextBuilder<TGameplaySpecification = unknown> {
-  build(input: GameplayGenerationContext<TGameplaySpecification>): GameplayGenerationContext<TGameplaySpecification>
+  build(input: GameplayGenerationContextBuilderInput<TGameplaySpecification>): GameplayGenerationContext<TGameplaySpecification>
 }
 
 function metadata<S extends GenerationContextScope>(
@@ -199,6 +217,7 @@ function metadata<S extends GenerationContextScope>(
     ...(input.semanticRevision !== undefined ? { semanticRevision: input.semanticRevision } : {}),
     ...(input.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: input.runtimeSemanticRevision } : {}),
     ...(input.visualRevision !== undefined ? { visualRevision: input.visualRevision } : {}),
+    ...(input.gameplayRevision !== undefined ? { gameplayRevision: input.gameplayRevision } : {}),
     ...(input.architectureVersion ? { architectureVersion: input.architectureVersion } : {}),
   })
 }
@@ -347,6 +366,35 @@ export class DefaultGameDesignGenerationContextBuilder implements GameDesignGene
   }
 }
 
+export class DefaultGameplayGenerationContextBuilder implements GameplayGenerationContextBuilder {
+  build(input: GameplayGenerationContextBuilderInput): GameplayGenerationContext {
+    const capabilities = Object.freeze({
+      version: input.capabilities.version,
+      capabilities: Object.freeze(input.capabilities.capabilities.map(capability => Object.freeze({
+        id: capability.id,
+        description: capability.description,
+        mechanicIds: Object.freeze([...capability.mechanicIds]),
+      }))),
+      supportedMechanicIds: Object.freeze([...input.capabilities.supportedMechanicIds]),
+    })
+    const entities = Object.freeze(input.semanticWorld.entities.map(entity => Object.freeze({
+      id: entity.id,
+      name: entity.name,
+      category: entity.category,
+    })))
+    return Object.freeze({
+      ...metadata('gameplay-generation', input.metadata),
+      game: Object.freeze({ worldType: input.semanticWorld.worldType }),
+      semanticWorld: Object.freeze({ entities }),
+      ...(input.currentGameplaySpecification !== undefined
+        ? { currentGameplaySpecification: input.currentGameplaySpecification }
+        : {}),
+      capabilities,
+      instruction: input.instruction,
+    })
+  }
+}
+
 export function summarizeGenerationContext(
   context: GenerationContextMetadata & {
     readonly visual?: { readonly targetArchetype?: string }
@@ -361,6 +409,7 @@ export function summarizeGenerationContext(
     ...(context.semanticRevision !== undefined ? { semanticRevision: context.semanticRevision } : {}),
     ...(context.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: context.runtimeSemanticRevision } : {}),
     ...(context.visualRevision !== undefined ? { visualRevision: context.visualRevision } : {}),
+    ...(context.gameplayRevision !== undefined ? { gameplayRevision: context.gameplayRevision } : {}),
     ...(context.visual?.targetArchetype ? { targetArchetype: context.visual.targetArchetype } : {}),
     ...(context.asset ? { bindingCount: context.asset.assetIds.length } : {}),
     ...(context.references ? { referenceMetadataCount: context.references.length } : {}),

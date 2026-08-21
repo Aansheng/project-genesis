@@ -16,6 +16,33 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Completed
 
+### WO-S15-001 — GameplaySpecification & Game Loop Domain Foundation
+
+- Audited the existing playable slice: production Runtime supports movement,
+  jump, gravity, vertical motion, ground collision, and basic entity mutation;
+  semantic world data models genre entities but does not execute gameplay
+  rules; Studio still hardcodes the platformer systems; collection, combat,
+  enemy AI, goals, failure, timers, spawns, progression, and win/lose are not
+  production Runtime capabilities.
+- Added immutable gameplay domain contracts, categories, player mechanic IDs,
+  interaction/goal/failure/progression/spawn sections, and a versioned truthful
+  capability catalog. Supported status is catalog-derived, never provider-
+  supplied.
+- Reused the existing structured generation client and gateway with a minimal
+  gameplay context. The candidate → validator → specification boundary rejects
+  malformed references and corrects unsupported claims. Deterministic defaults
+  cover platformer, survival, farm, and sandbox without cross-genre leakage.
+- Integrated create-world, web session ownership, world replacement, fallback
+  diagnostics, and small real Observatory summaries. No Runtime gameplay
+  executor, trigger/condition/action engine, generated code/eval, manager,
+  provider registry, or new orchestration layer was introduced.
+- Added ADR-0262, `GAMEPLAY_CAPABILITY_MATRIX.md`, integration/security/failure
+  tests, and browser verification for platformer, survival, farm, isolation,
+  Observatory truth, and empty console warnings/errors.
+- Architecture version: v1.147 → v1.148.
+- Code Complete: YES.
+- Product Verified: YES.
+
 ### WO-S15-000 — Capability-Specific Generation Context Foundation
 
 - Added shared immutable contracts and builders for world evolution, image
@@ -37,7 +64,9 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Deferred by design
 
-- Gameplay mechanics generation and `GameplaySpecification`.
+- Runtime gameplay execution: collect, damage, enemy AI, goals, failure,
+  timers, spawn execution, XP/levels/upgrades, and win/lose rules.
+- Durable gameplay revision/history and gameplay evolution.
 - Conversation memory/history, RAG, vector retrieval, and global context
   stores.
 - Reference-image transport and similarity search; current references are
@@ -47,7 +76,8 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Next work order boundary
 
-### S15-001 — Gameplay Mechanics Foundation
+### S15-002 — Measured Runtime Gameplay Slice
 
-Define the smallest gameplay contract only after the current playable pipeline
-and generated-world verification identify the actual mechanics bottleneck.
+Choose one smallest deferred mechanic based on a failing product scenario and
+extend Runtime only with the minimum executable contract required by that
+scenario. Keep the capability catalog, specification, and Observatory truthful.
