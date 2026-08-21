@@ -2,8 +2,17 @@ import type { AssetKind, AssetRequirement, AssetSpecification, AssetTarget, Asse
 import type { EntityCategory, GameWorldModel, WorldType } from '../game-world'
 import type { GameDifficulty, GameObjectiveType } from '../game-design'
 import type {
+  GameplayActionType,
   GameplayCapabilityCatalog,
+  GameplayConditionType,
+  GameplayEventType,
+  GameplayRulePrimitiveCapability,
   GameplaySpecification,
+} from '../gameplay'
+import {
+  GAMEPLAY_RULE_ACTION_TYPES,
+  GAMEPLAY_RULE_CONDITION_TYPES,
+  GAMEPLAY_RULE_EVENT_TYPES,
 } from '../gameplay'
 import type {
   ArtDirection,
@@ -189,7 +198,15 @@ export interface GameplayGenerationContext<TGameplaySpecification = GameplaySpec
   }
   readonly currentGameplaySpecification?: TGameplaySpecification
   readonly capabilities: GameplayCapabilityCatalog
+  readonly ruleVocabulary: GameplayRuleVocabulary
   readonly instruction: string
+}
+
+export interface GameplayRuleVocabulary {
+  readonly eventTypes: readonly GameplayEventType[]
+  readonly conditionTypes: readonly GameplayConditionType[]
+  readonly actionTypes: readonly GameplayActionType[]
+  readonly primitiveCapabilities: readonly GameplayRulePrimitiveCapability[]
 }
 
 export interface GameplayGenerationContextBuilderInput<TGameplaySpecification = GameplaySpecification> {
@@ -376,6 +393,9 @@ export class DefaultGameplayGenerationContextBuilder implements GameplayGenerati
         mechanicIds: Object.freeze([...capability.mechanicIds]),
       }))),
       supportedMechanicIds: Object.freeze([...input.capabilities.supportedMechanicIds]),
+      ...(input.capabilities.rulePrimitives
+        ? { rulePrimitives: Object.freeze(input.capabilities.rulePrimitives.map(capability => Object.freeze({ ...capability }))) }
+        : {}),
     })
     const entities = Object.freeze(input.semanticWorld.entities.map(entity => Object.freeze({
       id: entity.id,
@@ -390,6 +410,12 @@ export class DefaultGameplayGenerationContextBuilder implements GameplayGenerati
         ? { currentGameplaySpecification: input.currentGameplaySpecification }
         : {}),
       capabilities,
+      ruleVocabulary: Object.freeze({
+        eventTypes: Object.freeze([...GAMEPLAY_RULE_EVENT_TYPES]),
+        conditionTypes: Object.freeze([...GAMEPLAY_RULE_CONDITION_TYPES]),
+        actionTypes: Object.freeze([...GAMEPLAY_RULE_ACTION_TYPES]),
+        primitiveCapabilities: Object.freeze([...(input.capabilities.rulePrimitives ?? [])].map(capability => Object.freeze({ ...capability }))),
+      }),
       instruction: input.instruction,
     })
   }

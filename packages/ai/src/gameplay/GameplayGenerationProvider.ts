@@ -1,10 +1,14 @@
-import type { GameplaySpecification } from '@genesis/shared'
+import type { GameplayRuleSet, GameplaySpecification } from '@genesis/shared'
 import type { GameplayGenerationRequest } from './GameplayGenerationRequest'
 import type { GameplaySpecificationBuilder } from './GameplaySpecificationBuilder'
 import type { GameplaySpecificationValidator } from './GameplaySpecificationValidator'
+import type { GameplayRuleBuilder } from './GameplayRuleBuilder'
+import type { GameplayRuleValidator } from './GameplayRuleValidator'
 import type { StructuredGenerationAttempt, StructuredGenerationClient, StructuredGenerationFailureReason, StructuredGenerationRequestOptions } from '../game-world/generation'
 import { DefaultGameplayPromptBuilder, type GameplayPromptBuilder } from './GameplayPromptBuilder'
 import { StructuredGenerationError } from '../game-world/generation/StructuredGenerationReliability'
+import { DefaultGameplayRuleBuilder } from './GameplayRuleBuilder'
+import { DefaultGameplayRuleValidator } from './GameplayRuleValidator'
 
 export interface GameplayGenerationDiagnostics {
   readonly source: 'ai' | 'deterministic'
@@ -21,6 +25,7 @@ export interface GameplayGenerationDiagnostics {
 
 export interface GameplayGenerationResult {
   readonly specification: GameplaySpecification
+  readonly ruleSet?: GameplayRuleSet
   readonly diagnostics: GameplayGenerationDiagnostics
 }
 
@@ -83,6 +88,8 @@ export class GameplayGenerationProviderAdapter implements GameplayGenerationProv
     private readonly candidateProvider: GameplayGenerationCandidateProvider,
     private readonly validator: GameplaySpecificationValidator,
     private readonly builder: GameplaySpecificationBuilder,
+    private readonly ruleValidator: GameplayRuleValidator = new DefaultGameplayRuleValidator(),
+    private readonly ruleBuilder: GameplayRuleBuilder = new DefaultGameplayRuleBuilder(),
   ) {}
 
   async generate(request: GameplayGenerationRequest): Promise<GameplaySpecification> {
@@ -101,6 +108,21 @@ export class GameplayGenerationProviderAdapter implements GameplayGenerationProv
     if (!result.valid || !result.candidate) {
       throw new InvalidGameplaySpecificationCandidateError(candidate, result.errors)
     }
+    const rawRules = isRecord(candidate) && candidate.rules !== undefined ? candidate.rules : undefined
+    const ruleResult = this.ruleValidator.validate(rawRules, {
+      semanticWorld: {
+        worldType: request.context.game.worldType,
+        entities: request.context.semanticWorld.entities,
+      },
+      capabilities: request.context.capabilities,
+      gameplaySpecification: {
+        mechanics: result.candidate.mechanics,
+        ...(result.candidate.goals ? { goals: result.candidate.goals.map(goal => ({ id: goal.id })) } : {}),
+      },
+    })
+    if (!ruleResult.valid || !ruleResult.candidate) {
+      throw new InvalidGameplaySpecificationCandidateError(candidate, [...result.errors, ...ruleResult.errors])
+    }
     const specification = this.builder.build({
       semanticWorld: {
         worldType: request.context.game.worldType,
@@ -115,14 +137,29 @@ export class GameplayGenerationProviderAdapter implements GameplayGenerationProv
         ...(request.context.architectureVersion ? { architectureVersion: request.context.architectureVersion } : {}),
       }),
     })
+    const ruleSet = this.ruleBuilder.build({
+      semanticWorld: {
+        worldType: request.context.game.worldType,
+        entities: request.context.semanticWorld.entities,
+      },
+      gameplaySpecification: specification,
+      capabilities: request.context.capabilities,
+      ...(rawRules !== undefined ? { candidate: ruleResult.candidate } : {}),
+      metadata: Object.freeze({
+        source: 'ai' as const,
+        warnings: Object.freeze([...result.warnings, ...ruleResult.warnings]),
+        ...(request.context.architectureVersion ? { architectureVersion: request.context.architectureVersion } : {}),
+      }),
+    })
     return Object.freeze({
       specification,
+      ruleSet,
       diagnostics: Object.freeze({
         source: 'ai' as const,
         candidate,
         validationStatus: 'valid' as const,
         validationErrors: Object.freeze([]),
-        validationWarnings: result.warnings,
+        validationWarnings: Object.freeze([...result.warnings, ...ruleResult.warnings]),
         specification,
         ...(this.candidateProvider.getProviderMetadata?.() ?? {}),
       }),
@@ -140,7 +177,10 @@ export class InvalidGameplaySpecificationCandidateError extends Error {
 }
 
 export class DeterministicGameplayGenerationProvider implements GameplayGenerationProvider {
-  constructor(private readonly builder: GameplaySpecificationBuilder) {}
+  constructor(
+    private readonly builder: GameplaySpecificationBuilder,
+    private readonly ruleBuilder: GameplayRuleBuilder = new DefaultGameplayRuleBuilder(),
+  ) {}
 
   async generate(request: GameplayGenerationRequest): Promise<GameplaySpecification> {
     return this.build(request)
@@ -148,8 +188,21 @@ export class DeterministicGameplayGenerationProvider implements GameplayGenerati
 
   async generateWithDiagnostics(request: GameplayGenerationRequest): Promise<GameplayGenerationResult> {
     const specification = this.build(request)
+    const ruleSet = this.ruleBuilder.build({
+      semanticWorld: {
+        worldType: request.context.game.worldType,
+        entities: request.context.semanticWorld.entities,
+      },
+      gameplaySpecification: specification,
+      capabilities: request.context.capabilities,
+      metadata: Object.freeze({
+        source: 'deterministic' as const,
+        ...(request.context.architectureVersion ? { architectureVersion: request.context.architectureVersion } : {}),
+      }),
+    })
     return Object.freeze({
       specification,
+      ruleSet,
       diagnostics: Object.freeze({
         source: 'deterministic',
         validationStatus: 'valid',
@@ -197,6 +250,7 @@ export class FallbackGameplayGenerationProvider implements GameplayGenerationPro
       const message = error instanceof Error ? error.message : 'Gameplay generation failed'
       return Object.freeze({
         specification: result.specification,
+        ...('ruleSet' in result && result.ruleSet ? { ruleSet: result.ruleSet } : {}),
         diagnostics: Object.freeze({
           ...(result.diagnostics ?? { source: 'deterministic' as const, validationStatus: 'valid' as const, validationErrors: [] }),
           source: 'deterministic' as const,
@@ -220,6 +274,10 @@ function parseResponse(response: unknown): unknown {
   } catch {
     throw new StructuredGenerationError('malformed_response', 'Gameplay candidate parse failed: invalid structured JSON')
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function toStructuredGenerationError(error: unknown): StructuredGenerationError {

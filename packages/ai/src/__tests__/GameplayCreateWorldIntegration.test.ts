@@ -45,6 +45,7 @@ describe('Gameplay create-world integration', () => {
     expect(result.success).toBe(true)
     expect(result.gameplaySpecification?.gameplayRevision).toBe(1)
     expect(result.gameplaySpecification?.mechanics.some(item => item.id === 'player-jump')).toBe(true)
+    expect(result.gameplayRuleSet?.execution.status).toBe('not-active')
     expect(Object.keys(result)).toEqual(['route', 'world', 'success'])
   })
 
@@ -91,6 +92,7 @@ describe('Gameplay create-world integration', () => {
     expect(requestWorld?.entities.length).toBeGreaterThan(0)
     expect(result.gameplaySpecification?.gameplayRevision).toBe(2)
     expect(result.gameplayDiagnostics?.source).toBe('ai')
+    expect(result.gameplayRuleSet?.metadata.source).toBe('ai')
   })
 
   it('falls back to deterministic gameplay data when the provider fails', async () => {
@@ -110,5 +112,7 @@ describe('Gameplay create-world integration', () => {
     expect(result.gameplayDiagnostics?.source).toBe('deterministic')
     expect(result.gameplayDiagnostics?.validationStatus).toBe('invalid')
     expect(result.gameplayDiagnostics?.fallbackReason).toContain('gameplay provider unavailable')
+    expect(result.gameplayRuleSet?.metadata.source).toBe('deterministic')
+    expect(result.gameplayRuleSet?.execution.status).toBe('not-active')
   })
 })

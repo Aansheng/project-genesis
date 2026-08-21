@@ -7,6 +7,19 @@ export type {
   GameplaySpecificationCandidate,
   GameplaySpawnRuleCandidate,
 } from './GameplaySpecificationCandidate'
+export type { GameplayRuleCandidate } from './GameplayRuleCandidate'
+export type {
+  GameplayRuleBuilder,
+  GameplayRuleBuilderInput,
+  GameplayRuleBuilderMetadata,
+} from './GameplayRuleBuilder'
+export { DefaultGameplayRuleBuilder } from './GameplayRuleBuilder'
+export type {
+  GameplayRuleValidationOptions,
+  GameplayRuleValidationResult,
+  GameplayRuleValidator,
+} from './GameplayRuleValidator'
+export { DefaultGameplayRuleValidator } from './GameplayRuleValidator'
 export type {
   GameplayGenerationDiagnostics,
   GameplayGenerationProvider,

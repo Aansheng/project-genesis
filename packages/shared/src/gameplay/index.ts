@@ -20,11 +20,45 @@ export type {
   GameplaySpawnRuleKind,
   GameplaySpawnRuleSpecification,
   GameplaySupportStatus,
+  GameplayRulePrimitiveCapability,
+  GameplayRulePrimitiveKind,
 } from './GameplaySpecification'
 export {
   DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
+  DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES,
   isGameplayMechanicSupported,
 } from './GameplaySpecification'
+export type {
+  GameplayAction,
+  GameplayActionType,
+  GameplayActionValue,
+  GameplayBooleanReference,
+  GameplayCondition,
+  GameplayRuleConditionMode,
+  GameplayConditionType,
+  GameplayContactDirection,
+  GameplayEntitySelector,
+  GameplayNumericOperator,
+  GameplayNumericReference,
+  GameplayRuleMetadata,
+  GameplayRuleSet,
+  GameplayRuleSetBindingInput,
+  GameplayRuleSetBindingStatus,
+  GameplayRuleExecutionInfo,
+  GameplayRuleSpecification,
+  GameplaySpawnDescriptor,
+  GameplaySelectorKind,
+  GameplayTrigger,
+} from './GameplayRule'
+export {
+  GAMEPLAY_RULE_ACTION_TYPES,
+  GAMEPLAY_RULE_CONDITION_TYPES,
+  GAMEPLAY_RULE_EVENT_TYPES,
+  bindGameplayRuleSet,
+  gameplayRulePrimitiveId,
+  getGameplayRulePrimitiveCapability,
+  markGameplayRuleSetStale,
+} from './GameplayRule'
 export type {
   GameplayEvent,
   GameplayEventDraft,

@@ -10,6 +10,7 @@ export type {
   GameplayGenerationContext,
   GameplayGenerationContextBuilder,
   GameplayGenerationContextBuilderInput,
+  GameplayRuleVocabulary,
   ImageGenerationAssetContext,
   ImageGenerationContext,
   ImageGenerationContextBuilder,

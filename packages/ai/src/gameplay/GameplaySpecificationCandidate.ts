@@ -9,6 +9,7 @@ import type {
   GameplaySpawnRuleKind,
   GameplaySupportStatus,
 } from '@genesis/shared'
+import type { GameplayRuleCandidate } from './GameplayRuleCandidate'
 
 export interface GameplayMechanicCandidate {
   readonly id: string
@@ -72,4 +73,5 @@ export interface GameplaySpecificationCandidate {
   readonly goals?: readonly GameplayGoalCandidate[]
   readonly failureConditions?: readonly GameplayFailureConditionCandidate[]
   readonly spawnRules?: readonly GameplaySpawnRuleCandidate[]
+  readonly rules?: readonly GameplayRuleCandidate[]
 }

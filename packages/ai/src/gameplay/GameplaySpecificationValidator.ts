@@ -49,7 +49,7 @@ const PROGRESSION_MODES: readonly GameplayProgressionMode[] = ['none', 'score', 
 const SPAWN_KINDS: readonly GameplaySpawnRuleKind[] = ['periodic', 'on-interaction', 'at-milestone', 'manual']
 const ENTITY_CATEGORIES: readonly EntityCategory[] = ['player', 'npc', 'enemy', 'terrain', 'building', 'item', 'quest']
 const PARTICIPANT_ROLES: readonly GameplayParticipantReference['role'][] = ['subject', 'target', 'participant']
-const SUPPORT_STATUSES: readonly GameplaySupportStatus[] = ['supported', 'deferred', 'unsupported']
+const SUPPORT_STATUSES: readonly GameplaySupportStatus[] = ['supported', 'partially_supported', 'deferred', 'unsupported']
 const PARAMETER_KEYS = ['amount', 'damage', 'durationSeconds', 'jumpImpulse', 'speed', 'spawnCount', 'targetId', 'targetRole'] as const
 const NO_SUPPORTED_CAPABILITIES: GameplayCapabilityCatalog = Object.freeze({
   version: 'v1',
@@ -400,6 +400,7 @@ export class DefaultGameplaySpecificationValidator implements GameplaySpecificat
       ...(goals ? { goals: Object.freeze(goals) } : {}),
       ...(failures ? { failureConditions: Object.freeze(failures) } : {}),
       ...(spawnRules ? { spawnRules: Object.freeze(spawnRules) } : {}),
+      ...(candidate.rules !== undefined && Array.isArray(candidate.rules) ? { rules: Object.freeze(candidate.rules) } : {}),
     }) as GameplaySpecificationCandidate
     return { valid: true, errors: Object.freeze([]), warnings: Object.freeze(warnings), candidate: normalized }
   }

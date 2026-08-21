@@ -1,6 +1,6 @@
 import type { EntityCategory } from '../game-world'
 
-export type GameplaySupportStatus = 'supported' | 'deferred' | 'unsupported'
+export type GameplaySupportStatus = 'supported' | 'partially_supported' | 'deferred' | 'unsupported'
 
 export type GameplayMechanicKind =
   | 'movement'
@@ -156,11 +156,46 @@ export interface GameplayCapabilityDefinition {
   readonly mechanicIds: readonly string[]
 }
 
+export type GameplayRulePrimitiveKind = 'event' | 'condition' | 'action'
+
+/** Genesis-owned truth for one rule vocabulary primitive. */
+export interface GameplayRulePrimitiveCapability {
+  readonly id: string
+  readonly kind: GameplayRulePrimitiveKind
+  readonly description: string
+  readonly status: GameplaySupportStatus
+}
+
 export interface GameplayCapabilityCatalog {
   readonly version: 'v1'
   readonly capabilities: readonly GameplayCapabilityDefinition[]
   readonly supportedMechanicIds: readonly string[]
+  /** Rule vocabulary truth; absent on older custom catalogs for compatibility. */
+  readonly rulePrimitives?: readonly GameplayRulePrimitiveCapability[]
 }
+
+export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRulePrimitiveCapability[] = Object.freeze([
+  ...(['ENTITY_CONTACT_STARTED', 'ENTITY_JUMPED', 'ENTITY_LANDED', 'ENTITY_ADDED', 'ENTITY_REMOVED'] as const).map(type => Object.freeze({
+    id: `event-${type.toLowerCase().replace(/_/gu, '-')}`,
+    kind: 'event' as const,
+    description: `${type} is emitted as a truthful Runtime gameplay fact.`,
+    status: 'supported' as const,
+  })),
+  Object.freeze({ id: 'condition-entity-category-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity category.', status: 'supported' as const }),
+  Object.freeze({ id: 'condition-entity-archetype-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity name/archetype.', status: 'supported' as const }),
+  Object.freeze({ id: 'condition-entity-id-equals', kind: 'condition' as const, description: 'Compare an event participant with an existing stable semantic entity ID.', status: 'supported' as const }),
+  Object.freeze({ id: 'condition-contact-direction-equals', kind: 'condition' as const, description: 'Contact direction is a reserved rule shape; S15-002 does not emit direction yet.', status: 'deferred' as const }),
+  Object.freeze({ id: 'condition-number-compare', kind: 'condition' as const, description: 'Numeric Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
+  Object.freeze({ id: 'condition-boolean-equals', kind: 'condition' as const, description: 'Boolean Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
+  Object.freeze({ id: 'condition-component-exists', kind: 'condition' as const, description: 'Check a whitelisted Runtime component type on an entity.', status: 'supported' as const }),
+  Object.freeze({ id: 'action-remove-entity', kind: 'action' as const, description: 'Remove an entity through the existing immutable World mutation primitive.', status: 'supported' as const }),
+  Object.freeze({ id: 'action-spawn-entity', kind: 'action' as const, description: 'Describe an entity addition through the existing typed entity mutation primitive.', status: 'supported' as const }),
+  Object.freeze({ id: 'action-change-numeric-state', kind: 'action' as const, description: 'Change score/XP-like state; no generic gameplay state store exists yet.', status: 'deferred' as const }),
+  Object.freeze({ id: 'action-set-entity-property', kind: 'action' as const, description: 'Set a whitelisted entity property; rule execution is not active.', status: 'deferred' as const }),
+  Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Describe a typed velocity component update for a future executor.', status: 'supported' as const }),
+  Object.freeze({ id: 'action-complete-goal', kind: 'action' as const, description: 'Complete a goal; no goal state or completion executor exists yet.', status: 'deferred' as const }),
+  Object.freeze({ id: 'action-damage-entity', kind: 'action' as const, description: 'Apply damage; no health/damage resolver exists yet.', status: 'deferred' as const }),
+])
 
 /**
  * Current Runtime truth, intentionally limited to primitives already wired in
@@ -234,6 +269,7 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'event-entity-added',
     'event-entity-removed',
   ]),
+  rulePrimitives: DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES,
 })
 
 export function isGameplayMechanicSupported(

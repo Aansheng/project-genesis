@@ -16,8 +16,8 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer, DefaultRuntimeGameplayEventCollector } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
-import { DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
+import type { AssetManifest, GameplayRuleSet, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
+import { bindGameplayRuleSet, DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier, markGameplayRuleSetStale } from '@genesis/shared'
 import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider, DefaultGameplaySpecificationBuilder, DefaultGameplaySpecificationValidator, DeterministicGameplayGenerationProvider, GameplayGenerationProviderAdapter, FallbackGameplayGenerationProvider, LLMGameplayGenerationCandidateProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider, GameplayGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
@@ -424,6 +424,7 @@ export const useGameStore = defineStore('game', () => {
   const worldRevision = ref(0)
   const semanticState = ref<CurrentSemanticWorldState | null>(null)
   const gameplaySpecificationState = ref<GameplaySpecification | null>(null)
+  const gameplayRuleSetState = ref<GameplayRuleSet | null>(null)
   const currentWorldId = computed(() => semanticState.value?.worldId ?? '')
   const semanticWorld = computed(() => semanticState.value?.semanticWorld ?? null)
   const semanticProperties = computed<WorldSemanticProperties>(() => semanticState.value?.properties ?? EMPTY_SEMANTIC_PROPERTIES)
@@ -742,7 +743,7 @@ export const useGameStore = defineStore('game', () => {
         ? await commandExecutor.executeAsync(input)
         : commandExecutor.execute(input)
       lastCommand.value = result
-      useObservatoryDataStore().loadGenerationTrace(result.generationDiagnostics, result.gameplaySpecification, result.gameplayDiagnostics)
+      useObservatoryDataStore().loadGenerationTrace(result.generationDiagnostics, result.gameplaySpecification, result.gameplayDiagnostics, result.gameplayRuleSet)
       log.value.push(result.message)
       commandStatus.value = result.success ? 'success' : 'error'
 
@@ -771,6 +772,9 @@ export const useGameStore = defineStore('game', () => {
           semanticRevision: 0,
         })
         gameplaySpecificationState.value = result.gameplaySpecification ?? null
+        gameplayRuleSetState.value = result.gameplayRuleSet
+          ? bindGameplayRuleSet(result.gameplayRuleSet, { worldId: nextWorldId, semanticRevision: 0 })
+          : null
         runtimeSemanticRevision.value = 0
         runtimeSyncWorldId.value = nextWorldId
         lastRuntimeSyncOperationId.value = null
@@ -881,6 +885,9 @@ export const useGameStore = defineStore('game', () => {
         properties: mutation.updatedProperties,
         semanticRevision: mutation.updatedRevision,
       })
+      if (gameplayRuleSetState.value) {
+        gameplayRuleSetState.value = markGameplayRuleSetStale(gameplayRuleSetState.value, mutation.updatedRevision)
+      }
     }
     if (mutation.status === 'applied') {
       const runtimeSync = runtimeWorldEvolutionSynchronizer.synchronize(worldStore.getWorld(), mutation, {
@@ -1019,6 +1026,7 @@ export const useGameStore = defineStore('game', () => {
     semanticRevision,
     gameplaySpecification: gameplaySpecificationState,
     gameplayRevision: computed(() => gameplaySpecificationState.value?.gameplayRevision ?? 0),
+    gameplayRuleSet: gameplayRuleSetState,
     visualDesignSpecification,
     assetSpecification: assetSpecificationState,
     visualRevision,

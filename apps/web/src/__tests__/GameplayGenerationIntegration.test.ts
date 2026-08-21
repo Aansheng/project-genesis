@@ -65,6 +65,8 @@ describe('Gameplay generation web integration', () => {
     expect(result.gameplaySpecification?.metadata.source).toBe('ai')
     expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'collect-coin')?.supportStatus).toBe('deferred')
     expect(result.gameplayDiagnostics?.validationStatus).toBe('valid')
+    expect(result.gameplayRuleSet?.bindingStatus).toBe('current')
+    expect(result.gameplayRuleSet?.execution.status).toBe('not-active')
   })
 
   it('keeps world creation successful when gameplay generation is unavailable', async () => {
@@ -83,6 +85,7 @@ describe('Gameplay generation web integration', () => {
     expect(result.gameplaySpecification?.gameLoop.completionMode).toBe('open-ended')
     expect(result.gameplayDiagnostics?.source).toBe('deterministic')
     expect(result.gameplayDiagnostics?.validationStatus).toBe('invalid')
+    expect(result.gameplayRuleSet?.metadata.source).toBe('deterministic')
   })
 
   it('replaces the gameplay authority together with the active world', async () => {
@@ -91,11 +94,14 @@ describe('Gameplay generation web integration', () => {
     await store.send('create mario')
     const firstWorldId = store.currentWorldId
     const firstSpecification = store.gameplaySpecification
+    const firstRuleSet = store.gameplayRuleSet
 
     await store.send('create farm')
 
     expect(store.currentWorldId).not.toBe(firstWorldId)
     expect(store.gameplaySpecification).not.toBe(firstSpecification)
+    expect(store.gameplayRuleSet).not.toBe(firstRuleSet)
+    expect(store.gameplayRuleSet?.rules.some(rule => rule.ruleId === 'enemy-stomp')).toBe(false)
     expect(store.gameplaySpecification?.gameLoop.completionMode).toBe('open-ended')
     expect(store.gameplaySpecification?.mechanics.some(item => item.id === 'enemy-stomp')).toBe(false)
     expect(store.worldStore.getWorld().entities.some(entity => entity.id.includes('farm'))).toBe(true)

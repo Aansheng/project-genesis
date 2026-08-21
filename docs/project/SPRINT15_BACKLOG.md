@@ -16,6 +16,35 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Completed
 
+### WO-S15-003 — Trigger / Condition / Action Rule Model Foundation
+
+- Added immutable provider-neutral `GameplayRuleSpecification` and
+  `GameplayRuleSet` contracts with typed triggers, event-participant/entity
+  selectors, a small condition vocabulary, typed actions, deterministic rule
+  IDs, and explicit `Planning only` execution state.
+- Added Genesis-owned rule primitive capability truth. The real v1 event set is
+  limited to contact-start, jump, landing, add, and remove; contact direction,
+  numeric state, entity property, damage, and goal completion remain deferred.
+- Added provider-facing rule candidates and validation for IDs, current entity
+  references, semantic categories/archetypes, whitelisted operators/actions,
+  duplicate IDs, and executable-code/script/eval rejection. Provider support
+  claims never become authoritative.
+- Added deterministic GameplaySpecification → RuleSet mappings for generic
+  platformer, farm, and survival interactions, including coin, stomp, side
+  damage, goal, and question-block-compatible representations without Runtime
+  execution.
+- Extended GameplayGenerationContext and prompt vocabulary with allowed event,
+  condition, action, and capability facts. Create World now stores a
+  world-bound RuleSet beside GameplaySpecification; world replacement replaces
+  both, while semantic evolution marks the old RuleSet stale pending mechanics
+  synchronization.
+- Added truthful Overview rule counts/detail and retained the real Event Stream
+  as facts only. Added ADR-0264, capability truth updates, focused AI/Web tests,
+  and architecture version v1.149 → v1.150.
+- Code Complete: YES. Product Verified: YES — browser-verified Platformer/Farm/Survivor
+  RuleSet isolation, real contact facts, planning-only execution, no
+  `TIMER_ELAPSED`, and empty error/warning logs.
+
 ### WO-S15-002 — Gameplay Event Model & Runtime Event Observation Foundation
 
 - Audited the existing Runtime event sources: execution order and movement
@@ -92,6 +121,8 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 - Runtime gameplay execution: collect, damage, enemy AI, goals, failure,
   timers, spawn execution, XP/levels/upgrades, and win/lose rules.
+- Trigger matching, condition evaluation, and GameplayAction execution remain
+  deferred to S15-004; S15-003 stores descriptions only.
 - Durable gameplay revision/history and gameplay evolution.
 - Conversation memory/history, RAG, vector retrieval, and global context
   stores.
@@ -102,8 +133,8 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Next work order boundary
 
-### S15-003 — Event-Driven Gameplay Rule Boundary
+### S15-004 — Event-Driven Gameplay Rule Execution Boundary
 
 Choose one concrete event-driven gameplay scenario and add only the smallest
-Trigger/Condition/Action-compatible interpretation. Keep facts, rule
-interpretation, and mutation/result execution as separate boundaries.
+Trigger Matcher → Condition Evaluator → GameplayAction Executor path. Keep
+Runtime facts, rule interpretation, and mutation/result execution separate.

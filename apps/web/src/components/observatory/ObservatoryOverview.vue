@@ -14,12 +14,23 @@ const manifestEntries = computed(() => gameStore.assetManifest.entries)
 const currentTitle = computed(() => generation.value?.specification?.title ?? generation.value?.candidate?.title)
 const currentGenre = computed(() => generation.value?.specification?.genre ?? generation.value?.candidate?.genre)
 const gameplay = computed(() => gameStore.gameplaySpecification)
+const gameplayRules = computed(() => gameStore.gameplayRuleSet)
+const primaryGameplayRule = computed(() => gameplayRules.value?.rules[0] ?? null)
 const gameplayCounts = computed(() => {
   const mechanics = gameplay.value?.mechanics ?? []
   return {
     mechanics: mechanics.length,
     supported: mechanics.filter(item => item.supportStatus === 'supported').length,
     deferred: mechanics.filter(item => item.supportStatus === 'deferred').length,
+  }
+})
+const gameplayRuleCounts = computed(() => {
+  const rules = gameplayRules.value?.rules ?? []
+  return {
+    total: rules.length,
+    supported: rules.filter(rule => rule.supportStatus === 'supported').length,
+    partial: rules.filter(rule => rule.supportStatus === 'partially_supported').length,
+    deferred: rules.filter(rule => rule.supportStatus === 'deferred').length,
   }
 })
 const visualCounts = computed(() => ({
@@ -79,6 +90,26 @@ const assetCounts = computed(() => ({
       <p v-else class="empty-state">No gameplay specification is available for this session.</p>
     </section>
 
+    <section class="overview-section" aria-labelledby="gameplay-rules-title">
+      <h2 id="gameplay-rules-title" class="overview-section-title">Gameplay Rules</h2>
+      <div v-if="gameplayRules" class="fact-grid">
+        <article class="fact-card"><span class="fact-label">Rules</span><strong>{{ gameplayRuleCounts.total }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Supported</span><strong>{{ gameplayRuleCounts.supported }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Partial / Deferred</span><strong>{{ gameplayRuleCounts.partial }} / {{ gameplayRuleCounts.deferred }}</strong></article>
+        <article class="fact-card"><span class="fact-label">Execution</span><strong>Planning only</strong></article>
+      </div>
+      <p v-else class="empty-state">No gameplay rule set is available for this session.</p>
+      <article v-if="primaryGameplayRule" class="rule-detail">
+        <strong>{{ primaryGameplayRule.ruleId }}</strong>
+        <span v-if="primaryGameplayRule.sourceMechanicId">Source mechanic · {{ primaryGameplayRule.sourceMechanicId }}</span>
+        <span>Trigger · {{ primaryGameplayRule.trigger.eventType }}</span>
+        <span>Conditions · {{ primaryGameplayRule.conditions.length }} · {{ primaryGameplayRule.conditions.map(condition => condition.type).join(', ') || 'none' }}</span>
+        <span>Actions · {{ primaryGameplayRule.actions.length }} · {{ primaryGameplayRule.actions.map(action => action.type).join(', ') || 'none' }}</span>
+        <span>Support · {{ primaryGameplayRule.supportStatus }}</span>
+      </article>
+      <p v-if="gameplayRules" class="rule-execution-note">Rule execution is not active; Runtime Event Stream remains facts only.</p>
+    </section>
+
     <section class="overview-section" aria-labelledby="visual-title">
       <h2 id="visual-title" class="overview-section-title">Visual Generation &amp; Assets</h2>
       <div class="fact-grid">
@@ -108,4 +139,7 @@ const assetCounts = computed(() => ({
 .fact-label, .fact-list dt { color: var(--obs-text-dim); font-size: 11px; }
 .fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--obs-space-3); margin: 0; }
 .empty-state { margin: 0; padding: var(--obs-space-4); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-m); background: var(--obs-surface); color: var(--obs-text-dim); font-size: 13px; }
+.rule-detail { display: flex; flex-direction: column; gap: var(--obs-space-1); margin-top: var(--obs-space-3); padding: var(--obs-space-3); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-m); background: var(--obs-surface); color: var(--obs-text-dim); font-family: var(--obs-font-mono); font-size: 11px; }
+.rule-detail strong { color: var(--obs-text); font-size: 12px; }
+.rule-execution-note { margin: var(--obs-space-3) 0 0; color: var(--obs-text-dim); font-size: 12px; }
 </style>

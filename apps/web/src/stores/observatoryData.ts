@@ -51,6 +51,12 @@ export interface ObservatoryGenerationTrace {
     readonly mechanicCount: number
     readonly supportedCount: number
     readonly deferredCount: number
+    readonly ruleCount?: number
+    readonly ruleSupportedCount?: number
+    readonly rulePartialCount?: number
+    readonly ruleDeferredCount?: number
+    readonly ruleExecutionStatus?: 'not-active'
+    readonly ruleBindingStatus?: 'current' | 'stale'
     readonly primaryGoal?: string
   }
 }
@@ -154,7 +160,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     bridgeData.value = EMPTY_BRIDGE_DATA
   }
 
-  function loadGenerationTrace(raw: unknown, gameplaySpecification?: unknown, gameplayDiagnostics?: unknown): void {
+  function loadGenerationTrace(raw: unknown, gameplaySpecification?: unknown, gameplayDiagnostics?: unknown, gameplayRuleSet?: unknown): void {
     if (!isRecord(raw) || !isRecord(raw.trace)) {
       generationTrace.value = null
       return
@@ -162,7 +168,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     const trace = raw.trace
     const candidate = semanticDesign(raw.candidate)
     const specification = semanticDesign(raw.specification)
-    const gameplay = gameplaySummary(gameplaySpecification, gameplayDiagnostics)
+    const gameplay = gameplaySummary(gameplaySpecification, gameplayDiagnostics, gameplayRuleSet)
     generationTrace.value = Object.freeze({
       id: stringValue(trace.id, 'generation'),
       source: trace.source === 'ai' ? 'ai' : 'deterministic',
@@ -599,6 +605,7 @@ function semanticDesign(value: unknown): ObservatoryGenerationTrace['candidate']
 function gameplaySummary(
   specification: unknown,
   diagnostics: unknown,
+  ruleSet: unknown,
 ): ObservatoryGenerationTrace['gameplay'] | undefined {
   if (!isRecord(specification)) return undefined
   const mechanics = Array.isArray(specification.mechanics) ? specification.mechanics.filter(isRecord) : []
@@ -609,6 +616,7 @@ function gameplaySummary(
   const validationStatus = isRecord(diagnostics) && typeof diagnostics.validationStatus === 'string'
     ? diagnostics.validationStatus
     : 'valid'
+  const rules = isRecord(ruleSet) && Array.isArray(ruleSet.rules) ? ruleSet.rules.filter(isRecord) : []
   return Object.freeze({
     available: true,
     source,
@@ -617,6 +625,14 @@ function gameplaySummary(
     mechanicCount: mechanics.length,
     supportedCount,
     deferredCount,
+    ...(isRecord(ruleSet) ? {
+      ruleCount: rules.length,
+      ruleSupportedCount: rules.filter(rule => rule.supportStatus === 'supported').length,
+      rulePartialCount: rules.filter(rule => rule.supportStatus === 'partially_supported').length,
+      ruleDeferredCount: rules.filter(rule => rule.supportStatus === 'deferred').length,
+      ...(isRecord(ruleSet.execution) && ruleSet.execution.status === 'not-active' ? { ruleExecutionStatus: 'not-active' as const } : {}),
+      ...(ruleSet.bindingStatus === 'current' || ruleSet.bindingStatus === 'stale' ? { ruleBindingStatus: ruleSet.bindingStatus } : {}),
+    } : {}),
     ...(isRecord(goal) && typeof goal.description === 'string' ? { primaryGoal: goal.description } : {}),
   })
 }

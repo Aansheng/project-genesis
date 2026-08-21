@@ -46,7 +46,7 @@ import type { CreateWorldPipeline } from './CreateWorldPipeline'
 import type { GameWorldGenerationProvider } from '../../game-world/generation'
 import { DeterministicGameWorldGenerationProvider } from '../../game-world/generation'
 import type { GameplayGenerationProvider, GameplayGenerationResult, GameplayGenerationRequest } from '../../gameplay'
-import { DeterministicGameplayGenerationProvider, DefaultGameplaySpecificationBuilder } from '../../gameplay'
+import { DeterministicGameplayGenerationProvider, DefaultGameplayRuleBuilder, DefaultGameplaySpecificationBuilder } from '../../gameplay'
 
 // ---------------------------------------------------------------------------
 // Local projection interface
@@ -120,6 +120,14 @@ function createSuccessfulResult(
       value: gameplayResult.diagnostics,
       writable: false,
     })
+    if (gameplayResult.ruleSet) {
+      Object.defineProperty(result, 'gameplayRuleSet', {
+        configurable: false,
+        enumerable: false,
+        value: gameplayResult.ruleSet,
+        writable: false,
+      })
+    }
   }
   return Object.freeze(result) as CreateWorldPipelineResult
 }
@@ -270,6 +278,7 @@ export class DefaultCreateWorldPipeline implements CreateWorldPipeline {
     } catch (error) {
       gameplayResult = deterministicGameplayResult(semanticWorld, error)
     }
+    gameplayResult = ensureGameplayRuleSet(gameplayResult, semanticWorld)
 
     const diagnostics = generated.diagnostics
       ? Object.freeze({
@@ -329,8 +338,17 @@ function deterministicGameplayResult(semanticWorld: GameWorldModel, error?: unkn
       ...(error ? { warnings: Object.freeze([error instanceof Error ? error.message : 'Gameplay generation failed']) } : {}),
     }),
   })
+  const ruleSet = new DefaultGameplayRuleBuilder().build({
+    semanticWorld,
+    gameplaySpecification: specification,
+    metadata: Object.freeze({
+      source: 'deterministic' as const,
+      ...(error ? { warnings: Object.freeze([error instanceof Error ? error.message : 'Gameplay generation failed']) } : {}),
+    }),
+  })
   return Object.freeze({
     specification,
+    ruleSet,
     diagnostics: Object.freeze({
       source: 'deterministic',
       validationStatus: error ? 'invalid' as const : 'valid' as const,
@@ -339,4 +357,21 @@ function deterministicGameplayResult(semanticWorld: GameWorldModel, error?: unkn
       ...(error ? { fallbackReason: error instanceof Error ? error.message : 'Gameplay generation failed' } : {}),
     }),
   })
+}
+
+function ensureGameplayRuleSet(
+  result: GameplayGenerationResult,
+  semanticWorld: GameWorldModel,
+): GameplayGenerationResult {
+  if (result.ruleSet) return result
+  const ruleSet = new DefaultGameplayRuleBuilder().build({
+    semanticWorld,
+    gameplaySpecification: result.specification,
+    metadata: Object.freeze({
+      source: result.diagnostics.source,
+      ...(result.diagnostics.validationWarnings ? { warnings: result.diagnostics.validationWarnings } : {}),
+      ...(result.specification.metadata.architectureVersion ? { architectureVersion: result.specification.metadata.architectureVersion } : {}),
+    }),
+  })
+  return Object.freeze({ ...result, ruleSet })
 }

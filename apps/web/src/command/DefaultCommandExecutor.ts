@@ -68,6 +68,7 @@ export class DefaultCommandExecutor implements CommandExecutor {
           semanticWorld: pipelineResult.semanticWorld,
           generationDiagnostics: pipelineResult.generationDiagnostics,
           gameplaySpecification: pipelineResult.gameplaySpecification,
+          gameplayRuleSet: pipelineResult.gameplayRuleSet,
           gameplayDiagnostics: pipelineResult.gameplayDiagnostics,
         }
       }
@@ -101,6 +102,7 @@ export class DefaultCommandExecutor implements CommandExecutor {
           semanticWorld: pipelineResult.semanticWorld,
           generationDiagnostics: pipelineResult.generationDiagnostics,
           gameplaySpecification: pipelineResult.gameplaySpecification,
+          gameplayRuleSet: pipelineResult.gameplayRuleSet,
           gameplayDiagnostics: pipelineResult.gameplayDiagnostics,
         }
       }

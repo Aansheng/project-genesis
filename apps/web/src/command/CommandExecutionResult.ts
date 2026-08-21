@@ -21,6 +21,7 @@ export interface CommandExecutionResult {
   readonly generationDiagnostics?: import('@genesis/ai').GameWorldGenerationDiagnostics
   readonly gameplayDiagnostics?: import('@genesis/ai').GameplayGenerationDiagnostics
   readonly gameplaySpecification?: import('@genesis/shared').GameplaySpecification
+  readonly gameplayRuleSet?: import('@genesis/shared').GameplayRuleSet
   readonly semanticWorld?: import('@genesis/shared').GameWorldModel
   readonly evolutionPlan?: import('@genesis/ai').WorldEvolutionPlanResult
 }

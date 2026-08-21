@@ -1,5 +1,33 @@
 # Changelog
 
+### WO-S15-003 — Trigger / Condition / Action Rule Model Foundation
+
+- Added immutable shared `GameplayRuleSpecification` and `GameplayRuleSet`
+  contracts with typed triggers, selectors, conditions, actions, deterministic
+  rule identity, revision/world binding, and explicit `Planning only` execution
+  state.
+- Added provider-facing rule candidates and Genesis validation. Only the five
+  truthful S15-002 event types and whitelisted typed actions are accepted;
+  current entity IDs/categories/names are validated; duplicate IDs and
+  executable code, scripts, eval, and provider payloads are rejected.
+- Added capability-derived rule primitive truth. Remove/spawn/velocity shapes
+  map to existing typed primitives; numeric state, entity properties, damage,
+  goal completion, and contact direction remain deferred. Provider claims cannot
+  promote a primitive or rule to supported.
+- Added deterministic GameplaySpecification → RuleSet mapping for generic
+  platformer, farm, and survival designs, including collectible, stomp, side
+  damage, goal, and question-block-compatible rule shapes.
+- Extended GameplayGenerationContext and gameplay prompts with the bounded rule
+  vocabulary/capability snapshot. Create World now stores a world-bound RuleSet
+  beside GameplaySpecification; world replacement replaces both, while semantic
+  evolution marks existing rules stale pending future mechanics synchronization.
+- Added truthful Overview rule counts/detail; Runtime and Event Stream remain
+  unchanged and rule creation has no mutation side effects. Added ADR-0264,
+  focused AI/Web coverage, and architecture version v1.149 → v1.150. Code
+  Complete = YES; Product Verified = YES — browser-verified Platformer/Farm/Survivor
+  RuleSet isolation, real contact facts, planning-only execution, no
+  `TIMER_ELAPSED`, and empty error/warning logs.
+
 ### WO-S15-002 — Gameplay Event Model & Runtime Event Observation Foundation
 
 - Added the shared immutable `GameplayEvent` contract with a deliberately
