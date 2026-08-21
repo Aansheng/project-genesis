@@ -16,7 +16,8 @@
  * Design principles:
  * - Pure: no side effects, no I/O, no external calls
  * - Deterministic: same input always produces same output
- * - Stateless: no internal state between ticks
+ * - Bounded observation state: landing transitions are tracked only for the
+ *   current Runtime world/session
  * - Immutable: all outputs are deeply frozen; inputs never mutated
  * - Foundation only: no physics engine, no velocity, no rigid bodies
  * - Framework-independent: no Vue, Pinia, or web framework imports

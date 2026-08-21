@@ -5,8 +5,9 @@
  * The store can be read by the visualization loop and written by the
  * AI generation pipeline when a new world is created.
  *
- * This is NOT an event system. This is a pure data store.
- * No subscriptions, no observers, no reactive bindings.
+ * This remains a minimal data store rather than a subscription/event bus.
+ * Its production implementation may report committed entity ID-set deltas to
+ * an explicitly injected Runtime gameplay-fact collector.
  *
  * Design principles:
  * - Minimal: single get/set contract

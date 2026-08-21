@@ -287,8 +287,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       expect(Array.isArray(entity.components)).toBe(true)
     })
 
-    it('should have semantic and position components', () => {
-      expect(entity.components).toHaveLength(2)
+    it('should have semantic, position, and collision bounds components', () => {
+      expect(entity.components).toHaveLength(3)
     })
 
     it('component type should be "semantic"', () => {
@@ -322,6 +322,15 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
             properties: {
               x: 80,
               y: 300,
+            },
+          },
+          {
+            type: 'collision-bounds',
+            properties: {
+              width: 32,
+              height: 48,
+              offsetX: 0,
+              offsetY: 0,
             },
           },
         ],

@@ -380,10 +380,10 @@ describe('entity mapping', () => {
 // ---------------------------------------------------------------------------
 
 describe('component mapping', () => {
-  it('each entity has semantic and position components', () => {
+  it('adds contact bounds to non-terrain entities', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
-      expect(entity.components).toHaveLength(2)
+      expect(entity.components).toHaveLength(entity.type === 'terrain' ? 2 : 3)
     }
   })
 
@@ -775,10 +775,10 @@ describe('edge cases', () => {
     }
   })
 
-  it('all entities have semantic and position components', () => {
+  it('adds contact bounds only where Runtime contact can use them', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
-      expect(entity.components).toHaveLength(2)
+      expect(entity.components).toHaveLength(entity.type === 'terrain' ? 2 : 3)
     }
   })
 })

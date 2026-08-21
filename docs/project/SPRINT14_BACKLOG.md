@@ -128,7 +128,7 @@ affected manifest/store/renderer bindings.
 
 ### Sprint 15 — Capability-Specific Generation Context Foundation
 
-WO-S15-001 now provides the gameplay intent/specification boundary while keeping
+WO-S15-002 now provides the gameplay event-observation boundary while keeping
 the Sprint 14 semantic/Runtime/visual pipeline authoritative. See
 `SPRINT15_BACKLOG.md`. Measured Runtime gameplay execution is the next boundary;
 durable generated-asset lifecycle, gameplay persistence, and richer

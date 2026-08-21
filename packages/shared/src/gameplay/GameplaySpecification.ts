@@ -194,6 +194,31 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
       description: 'The existing semantic-to-Runtime synchronization path can add and remove entities.',
       mechanicIds: Object.freeze(['entity-add', 'entity-remove']),
     }),
+    Object.freeze({
+      id: 'gameplay-event-observation',
+      description: 'Runtime emits bounded normalized gameplay facts without executing gameplay rules.',
+      mechanicIds: Object.freeze(['runtime-gameplay-events']),
+    }),
+    Object.freeze({
+      id: 'jump-event-observation',
+      description: 'Accepted jumps emit one normalized ENTITY_JUMPED fact.',
+      mechanicIds: Object.freeze(['event-player-jump']),
+    }),
+    Object.freeze({
+      id: 'landing-event-observation',
+      description: 'Airborne-to-ground transitions emit one normalized ENTITY_LANDED fact.',
+      mechanicIds: Object.freeze(['event-entity-landed']),
+    }),
+    Object.freeze({
+      id: 'contact-event-observation',
+      description: 'Explicit Runtime collision bounds produce deduplicated ENTITY_CONTACT_STARTED facts.',
+      mechanicIds: Object.freeze(['event-entity-contact-started']),
+    }),
+    Object.freeze({
+      id: 'mutation-event-observation',
+      description: 'Committed Runtime World ID-set changes emit ENTITY_ADDED or ENTITY_REMOVED facts.',
+      mechanicIds: Object.freeze(['event-entity-added', 'event-entity-removed']),
+    }),
   ]),
   supportedMechanicIds: Object.freeze([
     'player-move',
@@ -202,6 +227,12 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'basic-collision',
     'entity-add',
     'entity-remove',
+    'runtime-gameplay-events',
+    'event-player-jump',
+    'event-entity-landed',
+    'event-entity-contact-started',
+    'event-entity-added',
+    'event-entity-removed',
   ]),
 })
 

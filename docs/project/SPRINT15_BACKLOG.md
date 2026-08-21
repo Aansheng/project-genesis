@@ -16,6 +16,32 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Completed
 
+### WO-S15-002 — Gameplay Event Model & Runtime Event Observation Foundation
+
+- Audited the existing Runtime event sources: execution order and movement
+  are real, accepted jump and ground transitions are derivable, WorldStore
+  commit deltas are real, and entity contact required explicit Runtime-owned
+  collision bounds. No timer, damage, death, completion, or gameplay result
+  source existed and none was invented.
+- Added immutable shared `GameplayEvent` contracts and a small fact vocabulary:
+  `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_CONTACT_STARTED`,
+  `ENTITY_ADDED`, and `ENTITY_REMOVED`.
+- Added the Runtime collector and `ExecutionTickResult.gameplayEvents` with
+  deterministic tick/sequence ordering, bounded ephemeral batches, mutation
+  observation, contact-start de-duplication, and world/session reset behavior.
+- Added Runtime-owned `collision-bounds` components and a narrow AABB contact
+  observer. It emits facts only; it never removes, damages, collects, or
+  mutates entities.
+- Added Renderer observer forwarding and a real 100-entry Observatory
+  Gameplay Event Stream projection. World Evolution events remain separate
+  domain events and remain bounded with the same UI projection.
+- Added ADR-0263, capability truth updates, regression tests, and browser
+  verification for jump, landing, contact, mutation, world evolution, visual
+  continuity, and console cleanliness.
+- Architecture version: v1.148 → v1.149.
+- Code Complete: YES.
+- Product Verified: YES.
+
 ### WO-S15-001 — GameplaySpecification & Game Loop Domain Foundation
 
 - Audited the existing playable slice: production Runtime supports movement,
@@ -76,8 +102,8 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Next work order boundary
 
-### S15-002 — Measured Runtime Gameplay Slice
+### S15-003 — Event-Driven Gameplay Rule Boundary
 
-Choose one smallest deferred mechanic based on a failing product scenario and
-extend Runtime only with the minimum executable contract required by that
-scenario. Keep the capability catalog, specification, and Observatory truthful.
+Choose one concrete event-driven gameplay scenario and add only the smallest
+Trigger/Condition/Action-compatible interpretation. Keep facts, rule
+interpretation, and mutation/result execution as separate boundaries.

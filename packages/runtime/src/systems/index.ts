@@ -37,3 +37,6 @@ export { DefaultVerticalMotionSystem } from './DefaultVerticalMotionSystem'
 export type { JumpSystem } from './JumpSystem'
 export type { JumpSystemResult } from './JumpSystemResult'
 export { DefaultJumpSystem } from './DefaultJumpSystem'
+
+// Runtime Gameplay Event Observation (WO-S15-002)
+export { DefaultEntityContactSystem } from './EntityContactSystem'

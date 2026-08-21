@@ -14,8 +14,8 @@
  * - updateWithResult(world): returns both the output World and GroundCollisionSystemResult
  *
  * Behaviors:
- * - Pure: no side effects, no I/O, no external calls
- * - Stateless: no internal state between ticks
+ * - World transformation is pure; optional event sinks receive observations
+ * - Bounded landing state is held only for the current Runtime world/session
  * - Deterministic: same (world, groundY) always produces same output
  * - Immutable: output World is deeply frozen; input is never mutated
  * - Entity without PositionComponent: ignored (passed through unchanged)
@@ -29,7 +29,7 @@
  * - Framework-independent: no Vue, Pinia, or web framework imports
  * - UI-independent: no ViewModel or UI type imports
  */
-import type { World, Entity } from '@genesis/shared'
+import type { GameplayEventSink, World, Entity } from '@genesis/shared'
 import {
   isPositionComponent,
   createPositionComponent,
@@ -47,6 +47,8 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
   readonly name = 'GroundCollisionSystem'
 
   private readonly groundY: number
+  private eventSink: GameplayEventSink | undefined
+  private readonly groundedByEntityId = new Map<string, boolean>()
 
   /**
    * @param groundY — the Y threshold at which entities are grounded (default: 400)
@@ -63,9 +65,19 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
    */
   update(world: World): World {
     const { groundedEntities } = this.checkGrounding(world)
-    return groundedEntities === 0
+    const outputWorld = groundedEntities === 0
       ? this.freezeCopy(world)
       : this.buildUpdatedWorld(world)
+    this.observeLanding(outputWorld)
+    return outputWorld
+  }
+
+  setGameplayEventSink(sink: GameplayEventSink): void {
+    this.eventSink = sink
+  }
+
+  reset(): void {
+    this.groundedByEntityId.clear()
   }
 
   /**
@@ -82,6 +94,8 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
     const outputWorld = groundedEntities === 0
       ? this.freezeCopy(world)
       : this.buildUpdatedWorld(world)
+
+    this.observeLanding(outputWorld)
 
     return Object.freeze({
       world: outputWorld,
@@ -193,5 +207,27 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
       }
     }
     return undefined
+  }
+
+  private observeLanding(outputWorld: World): void {
+    const presentIds = new Set<string>()
+    for (const entity of outputWorld.entities) {
+      const position = this.findPositionComponent(entity)
+      if (!position) continue
+      presentIds.add(entity.id)
+      const grounded = position.properties.y >= this.groundY
+      const previous = this.groundedByEntityId.get(entity.id)
+      if (previous === false && grounded) {
+        this.eventSink?.emit({
+          type: 'ENTITY_LANDED',
+          actorEntityId: entity.id,
+          position: position.properties,
+        })
+      }
+      this.groundedByEntityId.set(entity.id, grounded)
+    }
+    for (const entityId of this.groundedByEntityId.keys()) {
+      if (!presentIds.has(entityId)) this.groundedByEntityId.delete(entityId)
+    }
   }
 }

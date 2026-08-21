@@ -1,4 +1,5 @@
 import {
+  createDefaultCollisionBoundsForType,
   createPositionComponent,
   type Entity,
   type EntityCategory,
@@ -111,6 +112,7 @@ function entityWithSemantic(
   name: string,
   position: Readonly<{ x: number; y: number }>,
 ): Entity {
+  const collisionBounds = createDefaultCollisionBoundsForType(category)
   return Object.freeze({
     id,
     type: category,
@@ -121,6 +123,7 @@ function entityWithSemantic(
     components: Object.freeze([
       semanticComponent(name, category),
       createPositionComponent(position.x, position.y),
+      ...(collisionBounds ? [collisionBounds] : []),
     ]),
   }) as unknown as Entity
 }

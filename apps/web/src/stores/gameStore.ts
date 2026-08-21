@@ -13,7 +13,7 @@
  */
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer } from '@genesis/runtime'
+import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer, DefaultRuntimeGameplayEventCollector } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
 import type { AssetManifest, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
@@ -413,7 +413,8 @@ export function createCommandExecutor(
 
 export const useGameStore = defineStore('game', () => {
   const runtime = new Runtime()
-  const worldStore: RuntimeWorldStore = new DefaultRuntimeWorldStore(runtime.world)
+  const gameplayEventCollector = new DefaultRuntimeGameplayEventCollector()
+  const worldStore: RuntimeWorldStore = new DefaultRuntimeWorldStore(runtime.world, gameplayEventCollector)
   const assetStore = new DefaultAssetStore(new DefaultAssetResolver())
   const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
   const assetManifestRevision = ref(0)
@@ -1006,6 +1007,7 @@ export const useGameStore = defineStore('game', () => {
   return {
     runtime,
     worldStore,
+    gameplayEventCollector,
     assetStore,
     assetManifest,
     assetManifestRevision,

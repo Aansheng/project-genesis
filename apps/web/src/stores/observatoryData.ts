@@ -8,7 +8,7 @@ import type { ObservatoryBridgeData } from '../adapters/observatory/bridge'
 import { DefaultObservatoryMapper } from '../adapters/observatory/mapping'
 import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
-import type { WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan, VisualAssetExecutionResult } from '@genesis/shared'
+import type { GameplayEvent, WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan, VisualAssetExecutionResult } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
 
 export interface ObservatoryGenerationStage {
@@ -61,6 +61,7 @@ const adapter = new DefaultObservatoryAdapter()
 const bridge = new DefaultObservatoryMetadataBridge()
 const mapper: ObservatoryMapper = new DefaultObservatoryMapper()
 const EMPTY_VIEW_MODEL = adapter.adapt(undefined)
+const EVENT_STREAM_HISTORY_LIMIT = 100
 
 // ---------------------------------------------------------------------------
 // Store
@@ -104,7 +105,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
         message: event.message,
       })),
       ...current.eventStreamView.events.filter(event => !operationEventIds.has(event.id)),
-    ])
+    ].slice(0, EVENT_STREAM_HISTORY_LIMIT))
     viewModel.value = Object.freeze({
       ...current,
       overview: Object.freeze({
@@ -117,6 +118,29 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       historyView,
       diffView,
       eventStreamView: Object.freeze({ events }),
+    })
+  }
+
+  /** Project the latest Runtime gameplay batch into the bounded Event Stream. */
+  function recordRuntimeGameplayEvents(events: readonly GameplayEvent[]): void {
+    if (events.length === 0) return
+    const current = viewModel.value
+    const projected = events.map((event) => Object.freeze({
+      id: event.eventId,
+      timestamp: `tick ${event.tick}`,
+      level: 'info' as const,
+      source: 'Gameplay',
+      type: event.type,
+      message: gameplayEventMessage(event),
+    })).reverse()
+    const eventIds = new Set(projected.map((event) => event.id))
+    const nextEvents = Object.freeze([
+      ...projected,
+      ...current.eventStreamView.events.filter((event) => !eventIds.has(event.id)),
+    ].slice(0, EVENT_STREAM_HISTORY_LIMIT))
+    viewModel.value = Object.freeze({
+      ...current,
+      eventStreamView: Object.freeze({ events: nextEvents }),
     })
   }
 
@@ -240,10 +264,24 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     loadMockObservatory,
     loadRealObservatory,
     loadRuntimeWorld,
+    recordRuntimeGameplayEvents,
     recordWorldEvolution,
     resetEvolution,
   }
 })
+
+function gameplayEventMessage(event: GameplayEvent): string {
+  switch (event.type) {
+    case 'ENTITY_CONTACT_STARTED':
+      return `${event.type} · ${event.actorEntityId} → ${event.targetEntityId}`
+    case 'ENTITY_LANDED':
+    case 'ENTITY_JUMPED':
+      return `${event.type} · ${event.actorEntityId}`
+    case 'ENTITY_ADDED':
+    case 'ENTITY_REMOVED':
+      return `${event.type} · ${event.targetEntityId}`
+  }
+}
 
 function upsertById<T extends { readonly id: string }>(items: readonly T[], next: T): readonly T[] {
   const index = items.findIndex(item => item.id === next.id)

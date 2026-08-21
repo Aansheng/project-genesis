@@ -125,7 +125,7 @@ describe('DefaultRuntimeWorldEvolutionSynchronizer', () => {
     expect(result.status).toBe('synchronized')
     expect(result.addedEntityIds).toEqual(['merchant-1'])
     expect(added.type).toBe('npc')
-    expect(added.components?.map(component => component.type)).toEqual(['semantic', 'position'])
+    expect(added.components?.map(component => component.type)).toEqual(['semantic', 'position', 'collision-bounds'])
     expect(added.components?.find(component => component.type === 'position')?.properties).toEqual({ x: 460, y: 400 })
     expect(result.updatedWorld.entities.slice(0, 4)).toEqual(runtimeWorld.entities)
   })

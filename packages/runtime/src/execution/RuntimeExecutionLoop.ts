@@ -10,7 +10,8 @@
  * - tickWithResult(): returns ExecutionTickResult with execution metadata
  *
  * Design principles:
- * - Pure: no side effects, no I/O, no external calls
+ * - World transformation is pure; optional event sinks receive observations
+ * - No I/O or external calls
  * - Deterministic: same systems + same world = same output
  * - Immutable: all outputs are frozen
  * - No scheduling: executes all systems in registration order
@@ -21,6 +22,7 @@
  */
 import type { World } from '@genesis/shared'
 import type { ExecutionTickResult } from './ExecutionTickResult'
+import type { RuntimeGameplayEventCollector } from '../events'
 
 export interface RuntimeExecutionLoop {
   /**
@@ -39,4 +41,7 @@ export interface RuntimeExecutionLoop {
    * @returns Frozen ExecutionTickResult with output World and metadata
    */
   tickWithResult(world: World): ExecutionTickResult
+
+  /** The collector used by this loop; useful for Runtime mutation producers. */
+  readonly gameplayEventCollector?: RuntimeGameplayEventCollector
 }

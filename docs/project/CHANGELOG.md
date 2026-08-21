@@ -1,5 +1,28 @@
 # Changelog
 
+### WO-S15-002 — Gameplay Event Model & Runtime Event Observation Foundation
+
+- Added the shared immutable `GameplayEvent` contract with a deliberately
+  small fact vocabulary: jump, landing, contact-start, entity-added, and
+  entity-removed. Gameplay results such as collection, damage, death, score,
+  completion, and win/lose remain absent.
+- Added the Runtime-owned ephemeral event collector with deterministic
+  `worldId/tick/sequence` IDs, registration-order emission, immutable batches,
+  bounded pending/current storage, and no persistent event log.
+- Instrumented accepted jumps, airborne-to-ground transitions, explicit
+  Runtime collision-bound AABB contact starts, and committed WorldStore ID-set
+  mutations. Contact state is local to the Runtime session and resets on a
+  world replacement.
+- Added the smallest Runtime `collision-bounds` component for entity contact;
+  it is independent of renderer envelopes, Pixi objects, image dimensions,
+  and pixel data. `ENTITY_CONTACT_STARTED` is de-duplicated until separation.
+- Added the Renderer observer bridge and a real bounded Observatory Gameplay
+  Event Stream projection. Existing World Evolution events remain intact and
+  Runtime does not depend on Web, Pinia, Vue, or Observatory code.
+- Added ADR-0263, capability-matrix truth updates, Runtime/AI/Web/Renderer
+  regression coverage, and browser verification. Architecture version
+  v1.148 → v1.149. Code Complete = YES; Product Verified = YES.
+
 ### WO-S15-001 — GameplaySpecification & Game Loop Domain Foundation
 
 - Added immutable provider-neutral `GameplaySpecification` and compact

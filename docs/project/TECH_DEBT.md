@@ -24,8 +24,11 @@
 | Conversation continuity / global history | Deferred. Context is rebuilt from current authoritative state for each capability; no global memory or Context Store was added. |
 | Reference-guided image generation | Deferred. Image context carries at most three deterministic metadata-only neighboring requirements; reference bytes, URIs, and similarity search are not transported. |
 | Context caching and reuse | Deferred. Builders create immutable per-request snapshots; cache invalidation and persistence are not needed for the current playable pipeline. |
-| Gameplay execution | Deferred beyond S15-001. GameplaySpecification records desired mechanics and truthful support status; Runtime does not execute collect, damage, XP, goals, timers, spawns, or win/lose rules yet. |
+| Gameplay execution | Deferred beyond S15-002. GameplaySpecification records desired mechanics and truthful support status; Runtime observes a bounded fact vocabulary but does not execute collect, damage, XP, goals, timers, spawns, or win/lose rules yet. |
 | Gameplay revision persistence | Current gameplayRevision is session-scoped and replaced with the current world; durable gameplay history and evolution remain deferred. |
+| Gameplay event persistence/replay | Runtime events are ephemeral and Observatory history is session-scoped/bounded at 100 entries. Add persistence or replay only when a measured debugging or gameplay requirement exists. |
+| Rich collision geometry | S15-002 uses explicit small AABB `collision-bounds` components for contact observation. Directional collision resolution, terrain colliders, and physics remain deferred until a concrete scenario needs them. |
+| Gameplay rule execution | S15-002 emits facts only. Trigger matching, conditions, actions, collection, damage, score, progression, completion, and generated execution remain deferred to S15-003 or a measured later slice. |
 
 ## Sprint 12 Baseline Freeze Audit
 

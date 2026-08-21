@@ -20,15 +20,19 @@ import type {
 import {
   DefaultGravitySystem,
   DefaultGroundCollisionSystem,
+  DefaultEntityContactSystem,
   DefaultJumpSystem,
   DefaultPlayerControllerSystem,
   DefaultVerticalMotionSystem,
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeSystemRegistry,
 } from '@genesis/runtime'
+import type { GameplayEventObserver } from '@genesis/shared'
 import { useGameStore } from '../../stores/gameStore'
+import { useObservatoryDataStore } from '../../stores/observatoryData'
 
 const store = useGameStore()
+const observatoryDataStore = useObservatoryDataStore()
 const gameContainer = ref<HTMLDivElement | null>(null)
 const runtimeMounted = ref(false)
 const entityCount = computed(() => {
@@ -49,6 +53,11 @@ let inputProvider: KeyboardInputProvider | null = null
 let resizeObserver: ResizeObserver | null = null
 const cameraAnchor = { x: 400, y: 300 }
 const visualCatalog = new DefaultEntityVisualCatalog()
+const gameplayEventObserver: GameplayEventObserver = {
+  observe(events) {
+    observatoryDataStore.recordRuntimeGameplayEvents(events)
+  },
+}
 
 function resizeViewport(): void {
   const container = gameContainer.value
@@ -102,11 +111,15 @@ onMounted(() => {
   systemRegistry.register(new DefaultGravitySystem(0.5))
   systemRegistry.register(new DefaultVerticalMotionSystem())
   systemRegistry.register(new DefaultGroundCollisionSystem(400))
+  systemRegistry.register(new DefaultEntityContactSystem())
 
-  const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry)
+  const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry, store.gameplayEventCollector)
   const adapter = new DefaultRuntimeRendererAdapter()
   const cameraController = new DefaultCameraController()
   watch(() => store.worldRevision, () => cameraController.reset?.(), { flush: 'sync' })
+  watch(() => store.currentWorldId, (worldId) => {
+    store.gameplayEventCollector.setWorldId(worldId || undefined)
+  }, { flush: 'sync', immediate: true })
   try {
     if (typeof PixiEnvironmentRenderer === 'function') {
       environmentRenderer = new PixiEnvironmentRenderer(environmentContainer, {
@@ -154,6 +167,7 @@ onMounted(() => {
     worldProvider,
     worldSink,
     environmentRenderer ?? undefined,
+    gameplayEventObserver,
   )
   runner = new DefaultVisualizationRunner(
     new DefaultAnimationFrameScheduler(),

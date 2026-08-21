@@ -26,7 +26,7 @@
  * - Framework-independent: no Vue, Pinia, or web framework imports
  * - UI-independent: no ViewModel or UI type imports
  */
-import type { World, Entity } from '@genesis/shared'
+import type { GameplayEventSink, World, Entity } from '@genesis/shared'
 import { createVelocityComponent, isPositionComponent, isVelocityComponent } from '@genesis/shared'
 import type { InputProvider } from '../input'
 import type { JumpSystem } from './JumpSystem'
@@ -39,6 +39,7 @@ export class DefaultJumpSystem implements JumpSystem {
   private readonly inputProvider: InputProvider
   private readonly jumpVelocity: number
   private previousSpacePressed = false
+  private eventSink: GameplayEventSink | undefined
 
   /**
    * @param inputProvider  — source of keyboard state for each tick
@@ -60,6 +61,14 @@ export class DefaultJumpSystem implements JumpSystem {
     return jumpedPlayers === 0
       ? this.freezeCopy(world)
       : this.buildUpdatedWorld(world)
+  }
+
+  setGameplayEventSink(sink: GameplayEventSink): void {
+    this.eventSink = sink
+  }
+
+  reset(): void {
+    this.previousSpacePressed = false
   }
 
   /**
@@ -145,6 +154,12 @@ export class DefaultJumpSystem implements JumpSystem {
             components: updatedComponents,
           }) as unknown as Entity,
         )
+        const position = this.findPositionComponent(entity)
+        this.eventSink?.emit({
+          type: 'ENTITY_JUMPED',
+          actorEntityId: entity.id,
+          ...(position ? { position: position.properties } : {}),
+        })
       } else {
         updatedEntities.push(entity)
       }

@@ -1,6 +1,6 @@
-# Observatory Truth Audit — WO-OBS-001 / WO-S15-001
+# Observatory Truth Audit — WO-OBS-001 / WO-S15-002
 
-Architecture is v1.148. This audit records production behavior; test fixtures are excluded.
+Architecture is v1.149. This audit records production behavior; test fixtures are excluded.
 The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
 recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
 generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
@@ -14,7 +14,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 | Timeline | `ObservatoryTimelineViewer` | `ObservatoryViewModel.timelineView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation.stages` with planning, semantic, Runtime synchronization, generation, manifest, resolution, renderer, and sync timestamps | `operationId + worldId` | Yes for current operation | Only emitted stages; no synthetic Runtime ticks |
 | History | `ObservatoryHistoryViewer` | `ObservatoryViewModel.historyView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation` instruction, status, revisions, asset counts, manifest revision, and renderer counts | `operationId + worldId + visualRevision + manifestRevision` | Reports asset execution completed/failed, visual synchronized, or previous visual retained | Never claims success before the renderer callback |
 | Diff | `ObservatoryDiffViewer` | `ObservatoryViewModel.diffView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | Actual `WorldSemanticDelta`, `SemanticWorldMutationResult`, `RuntimeEvolutionResult`, `VisualEvolutionPlan`, and `VisualAssetExecutionResult` | `operationId + worldId + targetIds + visualRevision + manifestRevision` | Layered semantic, Runtime IDs, visual archetypes, targeted rebound/removed IDs, renderer counts, and fallback facts | Does not claim unrelated assets changed |
-| Event Stream | `ObservatoryEventStream` | `ObservatoryViewModel.eventStreamView` | REAL / DOMAIN + ASSET EVENTS | World evolution request/planning/semantic/Runtime plus asset execution/generation/manifest/renderer/sync events | `operationId + worldId` | Yes for current operation; raw provider payloads excluded | Provider transport duplicates and Runtime ticks excluded |
+| Event Stream | `ObservatoryEventStream` | `ObservatoryViewModel.eventStreamView` | REAL / GAMEPLAY + DOMAIN + ASSET EVENTS | Runtime gameplay facts through `RuntimeGameplayEventCollector → Renderer observer → observatoryData.recordRuntimeGameplayEvents`, plus world evolution request/planning/semantic/Runtime and asset execution/generation/manifest/renderer/sync events | `eventId` for gameplay facts; `operationId + worldId` for evolution facts | Yes for the current Runtime world/session; raw provider payloads excluded | Gameplay facts are bounded to the latest 100 UI entries; provider transport duplicates, synthetic ticks, and gameplay results are excluded |
 | Execution Graph | `ObservatoryTraceGraph` | None | EMPTY-BY-DESIGN | No live graph producer | None | N/A | Old hardcoded CreateWorld/CreateFarm topology removed |
 | World Graph | `ObservatoryWorldGraph` | Runtime view projection | REAL / PARTIAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes; current entities/types only | Old Farm/Barn/HarvestQuest fixture removed |
 | Runtime | `ObservatoryRuntimeViewer` | `ObservatoryViewModel.runtimeView` | REAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes | Uninstrumented system/event/FPS values display unavailable |
@@ -25,7 +25,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 - The production store no longer contains the Sprint 6 farm/history/diff/event demo builder.
 - `ObservatoryOverview` no longer auto-hydrates mock data in test mode.
 - The legacy fixture lives only under `src/__tests__/fixtures` and is installed by Vitest setup for historical tests.
-- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.148.
+- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.149.
 
 ## Sprint 14 producers
 
@@ -73,3 +73,18 @@ mechanic count, supported/deferred counts, and primary goal. Deferred mechanics
 are not represented as executed systems, timeline stages, event-stream facts,
 or fake Runtime state. A missing specification remains an explicit unavailable
 state.
+
+## Sprint 15 gameplay event producer
+
+WO-S15-002 adds the first Runtime gameplay-fact producer. The execution loop
+observes accepted jumps, airborne-to-ground landing transitions, explicit AABB
+contact starts, and committed entity ID-set additions/removals. Events carry
+deterministic `eventId`, tick, and sequence metadata and are forwarded by the
+Renderer only when the production Studio observer is attached. The Observatory
+projects safe type, message, source, and tick metadata into a bounded 100-entry
+current-session Event Stream.
+
+These are observations, not rules or results: no contact automatically collects,
+damages, removes, rewards, completes, or fails anything. World Evolution
+request/planning/synchronization events remain separate domain facts, and the
+Runtime gameplay stream is ephemeral with no persistence or replay claim.

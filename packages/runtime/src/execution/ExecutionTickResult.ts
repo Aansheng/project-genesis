@@ -12,6 +12,7 @@
  * - UI-independent: no ViewModel or UI type imports
  */
 import type { World } from '@genesis/shared'
+import type { GameplayEvent } from '@genesis/shared'
 
 export interface ExecutionTickResult {
   /**
@@ -29,4 +30,7 @@ export interface ExecutionTickResult {
    * The total number of systems executed during this tick.
    */
   readonly systemCount: number
+
+  /** Ephemeral, immutable gameplay facts emitted during this tick. */
+  readonly gameplayEvents?: readonly GameplayEvent[]
 }

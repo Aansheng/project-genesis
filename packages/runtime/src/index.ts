@@ -14,6 +14,8 @@ export { DefaultRuntimeSystemRegistry, NoOpRuntimeSystem } from './system'
 // Runtime Execution Loop Foundation
 export type { RuntimeExecutionLoop, ExecutionTickResult } from './execution'
 export { DefaultRuntimeExecutionLoop } from './execution'
+export type { RuntimeGameplayEventCollector } from './events'
+export { DefaultRuntimeGameplayEventCollector } from './events'
 
 // Runtime World Mutation Foundation
 export type { WorldMutator, WorldMutationResult } from './mutation'
@@ -32,6 +34,7 @@ export type { VerticalMotionSystem } from './systems'
 export { DefaultVerticalMotionSystem } from './systems'
 export type { JumpSystem, JumpSystemResult } from './systems'
 export { DefaultJumpSystem } from './systems'
+export { DefaultEntityContactSystem } from './systems'
 
 // Input Foundation (WO-S9-008)
 export type { InputKey } from './input'

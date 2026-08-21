@@ -25,3 +25,14 @@ export {
   DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
   isGameplayMechanicSupported,
 } from './GameplaySpecification'
+export type {
+  GameplayEvent,
+  GameplayEventDraft,
+  GameplayEventMetadata,
+  GameplayEventObserver,
+  GameplayEventPayload,
+  GameplayEventPayloadValue,
+  GameplayEventPosition,
+  GameplayEventSink,
+  GameplayEventType,
+} from './GameplayEvent'

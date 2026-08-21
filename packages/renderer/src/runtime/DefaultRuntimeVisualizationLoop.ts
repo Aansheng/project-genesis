@@ -19,6 +19,7 @@
  *   - No scheduling: does not manage RAF or setInterval
  */
 import type { World } from '@genesis/shared'
+import type { GameplayEventObserver } from '@genesis/shared'
 import type { RuntimeExecutionLoop } from '@genesis/runtime'
 import type { RuntimeRendererAdapter } from '../adapter'
 import type { PixiEntityRenderer } from '../view'
@@ -37,6 +38,7 @@ export class DefaultRuntimeVisualizationLoop
   private readonly worldProvider: VisualizationWorldProvider | undefined
   private readonly worldSink: RuntimeWorldSink | undefined
   private readonly environmentRenderer: PixiEnvironmentRenderer | undefined
+  private readonly gameplayEventObserver: GameplayEventObserver | undefined
   private _currentWorld: World
   private _running: boolean
 
@@ -57,6 +59,7 @@ export class DefaultRuntimeVisualizationLoop
     worldProvider?: VisualizationWorldProvider,
     worldSink?: RuntimeWorldSink,
     environmentRenderer?: PixiEnvironmentRenderer,
+    gameplayEventObserver?: GameplayEventObserver,
   ) {
     this.executionLoop = executionLoop
     this.rendererAdapter = rendererAdapter
@@ -64,6 +67,7 @@ export class DefaultRuntimeVisualizationLoop
     this.worldProvider = worldProvider
     this.worldSink = worldSink
     this.environmentRenderer = environmentRenderer
+    this.gameplayEventObserver = gameplayEventObserver
     this._currentWorld = worldProvider?.getWorld() ?? initialWorld
     this._running = false
   }
@@ -152,7 +156,10 @@ export class DefaultRuntimeVisualizationLoop
     }
 
     // Step 1: Execute runtime systems
-    const newWorld = this.executionLoop.tick(this._currentWorld)
+    const executionResult = this.gameplayEventObserver
+      ? this.executionLoop.tickWithResult(this._currentWorld)
+      : { world: this.executionLoop.tick(this._currentWorld), gameplayEvents: [] }
+    const newWorld = executionResult.world
 
     // Step 2: Adapt to RenderWorld
     const renderWorld = this.rendererAdapter.adapt(newWorld)
@@ -161,6 +168,8 @@ export class DefaultRuntimeVisualizationLoop
 
     // Step 3: Render entities on top and capture rendered entity count
     const renderView = this.entityRenderer.render(renderWorld)
+
+    this.gameplayEventObserver?.observe(executionResult.gameplayEvents ?? [])
 
     // Step 4: Store new world for next tick
     this._currentWorld = newWorld

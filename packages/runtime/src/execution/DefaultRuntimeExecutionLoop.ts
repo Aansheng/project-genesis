@@ -9,16 +9,18 @@
  *   world → system[0].update() → system[1].update() → ... → final World
  *
  * Behaviors:
- * - Pure: no side effects, no I/O, no external calls
+ * - World transformation is pure; optional event sinks receive observations
+ * - No I/O or external calls
  * - Deterministic: same systems + same world order = same output
  * - Immutable: all outputs are deeply frozen
  * - Empty registry: tick returns world unchanged; tickWithResult returns
  *   empty executedSystems with systemCount 0
- * - No state mutation: the execution loop itself is stateless
+ * - Tick metadata is local to this loop; system observation state resets when
+ *   the input World reference changes
  *
  * Design principles:
  * - Simple: no ECS scheduler, no prioritized execution, no conditional logic
- * - Stateless: no internal state between ticks
+ * - Minimal state: tick/event sequencing is local to one Runtime session
  * - Framework-independent: no Vue, Pinia, or web framework imports
  * - UI-independent: no ViewModel or UI type imports
  */
@@ -26,15 +28,26 @@ import type { World } from '@genesis/shared'
 import type { RuntimeSystemRegistry } from '../system'
 import type { RuntimeExecutionLoop } from './RuntimeExecutionLoop'
 import type { ExecutionTickResult } from './ExecutionTickResult'
+import {
+  DefaultRuntimeGameplayEventCollector,
+  type RuntimeGameplayEventCollector,
+} from '../events'
 
 export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
   private readonly registry: RuntimeSystemRegistry
+  readonly gameplayEventCollector: RuntimeGameplayEventCollector
+  private tickNumber = 0
+  private lastOutputWorld: World | undefined
 
   /**
    * @param registry — the RuntimeSystemRegistry providing systems to execute
    */
-  constructor(registry: RuntimeSystemRegistry) {
+  constructor(
+    registry: RuntimeSystemRegistry,
+    gameplayEventCollector: RuntimeGameplayEventCollector = new DefaultRuntimeGameplayEventCollector(),
+  ) {
     this.registry = registry
+    this.gameplayEventCollector = gameplayEventCollector
   }
 
   /**
@@ -45,21 +58,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
    * @returns Frozen output World after all systems have executed
    */
   tick(world: World): World {
-    const systems = this.registry.getSystems()
-
-    if (systems.length === 0) {
-      return Object.freeze({
-        entities: Object.freeze([...world.entities]),
-      }) as unknown as World
-    }
-
-    let current = world
-
-    for (const system of systems) {
-      current = system.update(current)
-    }
-
-    return current
+    return this.tickWithResult(world).world
   }
 
   /**
@@ -72,14 +71,28 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
     const systems = this.registry.getSystems()
     const executedSystems = systems.map((s) => s.name)
 
+    if (this.lastOutputWorld !== undefined && world !== this.lastOutputWorld) {
+      for (const system of systems) system.reset?.()
+    }
+
+    for (const system of systems) {
+      system.setGameplayEventSink?.(this.gameplayEventCollector)
+    }
+
+    this.tickNumber += 1
+    this.gameplayEventCollector.beginTick(this.tickNumber)
+
     if (systems.length === 0) {
-      return Object.freeze({
+      const outputWorld = Object.freeze({
         world: Object.freeze({
           entities: Object.freeze([...world.entities]),
         }) as unknown as World,
         executedSystems: Object.freeze([]),
         systemCount: 0,
+        gameplayEvents: this.gameplayEventCollector.endTick(),
       })
+      this.lastOutputWorld = outputWorld.world
+      return outputWorld
     }
 
     let current = world
@@ -88,10 +101,13 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
       current = system.update(current)
     }
 
-    return Object.freeze({
+    const result = Object.freeze({
       world: current,
       executedSystems: Object.freeze(executedSystems),
       systemCount: systems.length,
+      gameplayEvents: this.gameplayEventCollector.endTick(),
     })
+    this.lastOutputWorld = current
+    return result
   }
 }
