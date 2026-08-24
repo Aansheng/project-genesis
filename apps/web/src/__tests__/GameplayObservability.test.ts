@@ -105,11 +105,11 @@ describe('Gameplay Observatory projection', () => {
   it('projects committed Runtime numeric progression without owning the state', () => {
     const store = useObservatoryDataStore()
     const progression: RuntimeGameplayProgressionState = Object.freeze({
-      values: Object.freeze({ experience: 6 }),
+      values: Object.freeze({ experience: 6, level: 2 }),
     })
 
     store.recordRuntimeGameplayProgressionState(progression)
 
-    expect(store.viewModel.runtimeView.gameplayProgression).toEqual({ values: { experience: 6 } })
+    expect(store.viewModel.runtimeView.gameplayProgression).toEqual({ values: { experience: 6, level: 2 } })
   })
 })

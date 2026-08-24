@@ -35,6 +35,10 @@ const experience = computed<number | undefined>(
   () => runtimeView.value.gameplayProgression?.values.experience,
 )
 
+const level = computed<number | undefined>(
+  () => runtimeView.value.gameplayProgression?.values.level,
+)
+
 function selectEntity(id: string): void {
   selectedId.value = id
 }
@@ -75,6 +79,9 @@ function instrumentedValue(value: number): string {
           </span>
           <span class="runtime-gameplay-progression">
             {{ i18n.t('observatory.runtime.experience') }}: {{ experience ?? (testMode ? '0' : 'Unavailable') }}
+          </span>
+          <span class="runtime-gameplay-level">
+            {{ i18n.t('observatory.runtime.level') }}: {{ level ?? (testMode ? '1' : 'Unavailable') }}
           </span>
         </header>
         <dl class="runtime-stats-grid">
@@ -158,7 +165,8 @@ function instrumentedValue(value: number): string {
   color: var(--obs-text-dim, #63636d);
 }
 
-.runtime-gameplay-progression {
+.runtime-gameplay-progression,
+.runtime-gameplay-level {
   font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
   font-size: 11px;
   color: var(--obs-text-dim, #63636d);

@@ -156,6 +156,47 @@ function progressionRule(amount = 1): GameplayRuleSpecification {
   })
 }
 
+function levelUpRule(): GameplayRuleSpecification {
+  return Object.freeze({
+    schemaVersion: 1,
+    ruleId: 'level-up-at-experience-threshold',
+    name: 'Level up at experience threshold',
+    enabled: true,
+    trigger: Object.freeze({ eventType: 'ENTITY_JUMPED' as const }),
+    conditionMode: 'all' as const,
+    conditions: Object.freeze([
+      Object.freeze({
+        type: 'NUMBER_COMPARE' as const,
+        value: Object.freeze({ kind: 'gameState' as const, key: 'experience' }),
+        operator: 'gte' as const,
+        expected: 1,
+      }),
+      Object.freeze({
+        type: 'NUMBER_COMPARE' as const,
+        value: Object.freeze({ kind: 'gameState' as const, key: 'level' }),
+        operator: 'lt' as const,
+        expected: 2,
+      }),
+    ]),
+    actions: Object.freeze([
+      Object.freeze({ type: 'CHANGE_NUMERIC_STATE' as const, state: 'level', amount: 1 }),
+    ]),
+    priority: 0,
+    supportStatus: 'supported' as const,
+  })
+}
+
+function jumpEvent(eventId: string, tick: number, worldId = 'world-1'): GameplayEvent {
+  return Object.freeze({
+    eventId,
+    worldId,
+    tick,
+    sequence: 0,
+    type: 'ENTITY_JUMPED' as const,
+    actorEntityId: 'player',
+  })
+}
+
 class GameplayJumpEventSystem {
   readonly name = 'GameplayJumpEventSystem'
   private eventSink: GameplayEventSink | undefined
@@ -287,20 +328,95 @@ describe('Gameplay rule execution vertical slice', () => {
         },
       }],
     }])
-    expect(first.gameplayProgressionState).toEqual({ values: { experience: 1 } })
+    expect(first.gameplayProgressionState).toEqual({ values: { experience: 1, level: 1 } })
 
     const second = loop.tickWithResult(first.world)
-    expect(second.gameplayProgressionState).toEqual({ values: { experience: 2 } })
+    expect(second.gameplayProgressionState).toEqual({ values: { experience: 2, level: 1 } })
 
     revision = 1
     rules = ruleSet([progressionRule()], { semanticRevision: revision, sessionId })
     const evolved = loop.tickWithResult(second.world)
-    expect(evolved.gameplayProgressionState).toEqual({ values: { experience: 3 } })
+    expect(evolved.gameplayProgressionState).toEqual({ values: { experience: 3, level: 1 } })
 
     sessionId = 'session-2'
     rules = ruleSet([progressionRule()], { semanticRevision: revision, sessionId })
     const newSession = loop.tickWithResult(evolved.world)
-    expect(newSession.gameplayProgressionState).toEqual({ values: { experience: 1 } })
+    expect(newSession.gameplayProgressionState).toEqual({ values: { experience: 1, level: 1 } })
+  })
+
+  it('commits one deterministic XP threshold transition and blocks repeated level-up evaluation', () => {
+    const executor = new DefaultGameplayRuleExecutor()
+    const initialRules = ruleSet([progressionRule(), levelUpRule()], { semanticRevision: 0, sessionId: 'session-1' })
+
+    const first = executor.executeEvent(
+      jumpEvent('world-1:1:0', 1),
+      initialRules,
+      context(runtimeWorld()),
+    )
+    expect(first.progressionState).toEqual({ values: { experience: 1, level: 2 } })
+    expect(first.results).toMatchObject([
+      { ruleId: 'gain-experience', status: 'executed', committed: true },
+      {
+        ruleId: 'level-up-at-experience-threshold',
+        status: 'executed',
+        committed: true,
+        conditionResult: { status: 'passed' },
+        actionResults: [{
+          actionType: 'CHANGE_NUMERIC_STATE',
+          status: 'executed',
+          mutation: { state: 'level', previousValue: 1, value: 2, amount: 1 },
+        }],
+      },
+    ])
+
+    const repeated = executor.executeEvent(
+      jumpEvent('world-1:2:0', 2),
+      initialRules,
+      context(first.world),
+    )
+    expect(repeated.progressionState).toEqual({ values: { experience: 2, level: 2 } })
+    expect(repeated.results).toMatchObject([
+      { ruleId: 'gain-experience', status: 'executed' },
+      {
+        ruleId: 'level-up-at-experience-threshold',
+        status: 'conditions_failed',
+        committed: false,
+        conditionResult: { status: 'failed', reason: 'numeric_comparison_mismatch' },
+        actionResults: [],
+      },
+    ])
+
+    const evolvedRules = ruleSet([progressionRule(), levelUpRule()], { semanticRevision: 1, sessionId: 'session-1' })
+    const evolved = executor.executeEvent(
+      jumpEvent('world-1:3:0', 3),
+      evolvedRules,
+      context(repeated.world, 1),
+    )
+    expect(evolved.progressionState).toEqual({ values: { experience: 3, level: 2 } })
+
+    const worldB = runtimeWorld()
+    const worldBRules = ruleSet([progressionRule(), levelUpRule()], {
+      worldId: 'world-2',
+      sessionId: 'session-2',
+    })
+    const reset = executor.execute([], worldBRules, context(worldB, 0, 'session-2', 'world-2'))
+    expect(reset.progressionState).toEqual({ values: { experience: 0, level: 1 } })
+
+    const worldBResult = executor.executeEvent(
+      jumpEvent('world-2:1:0', 1, 'world-2'),
+      worldBRules,
+      context(worldB, 0, 'session-2', 'world-2'),
+    )
+    expect(worldBResult.progressionState).toEqual({ values: { experience: 1, level: 2 } })
+
+    const stale = executor.executeEvent(
+      jumpEvent('world-1:4:0', 4),
+      initialRules,
+      context(worldB, 0, 'session-2', 'world-2'),
+    )
+    expect(stale.results).toHaveLength(2)
+    expect(stale.results.every(result => result.status === 'stale' && result.reason === 'stale_rule_binding')).toBe(true)
+    expect(stale.progressionState).toEqual({ values: { experience: 1, level: 2 } })
   })
 
   it('commits Runtime session completion, remains idempotent, preserves it across evolution, and rebinds on a new world', () => {
@@ -664,7 +780,7 @@ describe('Gameplay rule execution vertical slice', () => {
       context(runtimeWorld()),
     )
 
-    expect(result.progressionState).toEqual({ values: {} })
+    expect(result.progressionState).toEqual({ values: { experience: 0, level: 1 } })
     expect(result.results).toMatchObject([{
       status: 'execution_failed',
       committed: false,
@@ -692,7 +808,7 @@ describe('Gameplay rule execution vertical slice', () => {
       context(runtimeWorld()),
     )
     expect(emptyKey.results).toMatchObject([{ status: 'execution_failed', reason: 'numeric_state_key_must_be_non_empty' }])
-    expect(emptyKey.progressionState).toEqual({ values: {} })
+    expect(emptyKey.progressionState).toEqual({ values: { experience: 0, level: 1 } })
 
     const nonFinite = new DefaultGameplayRuleExecutor().executeEvent(
       Object.freeze({ ...event, eventId: 'world-1:15:0', tick: 15 }),
@@ -700,7 +816,7 @@ describe('Gameplay rule execution vertical slice', () => {
       context(runtimeWorld()),
     )
     expect(nonFinite.results).toMatchObject([{ status: 'execution_failed', reason: 'numeric_state_change_must_remain_finite' }])
-    expect(nonFinite.progressionState).toEqual({ values: {} })
+    expect(nonFinite.progressionState).toEqual({ values: { experience: 0, level: 1 } })
   })
 
   it('supports set, add, component creation, and non-player entity selectors generically', () => {
@@ -801,7 +917,7 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(result.world).toBe(worldB)
     expect(result.world.entities.map(item => item.id)).toEqual(['player', 'coin-1', 'ground'])
     expect(result.results).toMatchObject([{ status: 'stale', committed: false, reason: 'stale_rule_binding' }])
-    expect(result.progressionState).toEqual({ values: {} })
+    expect(result.progressionState).toEqual({ values: { experience: 0, level: 1 } })
   })
 
   it('does not let a session-bound RuleSet execute in another Runtime session', () => {

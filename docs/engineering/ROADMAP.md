@@ -27,6 +27,11 @@ architecture.
   GameplayEvent → GameplayRule path now commits finite additive deltas to a
   generic Runtime-owned numeric progression state, with `experience` as the
   first use case. Renderer and Observatory projections are wired separately.
+- Human/CTO chose CONTINUE because numeric storage alone did not prove a
+  progression transition. WO-S16-003 is complete at v1.157: typed
+  `NUMBER_COMPARE` evaluates `experience >= 1 AND level < 2`, and the existing
+  numeric action commits Level 1 → Level 2 exactly once. Runtime, Renderer,
+  Web, and Observatory evidence is Product Verified.
 
 ## Current direction
 
@@ -47,19 +52,20 @@ thesis as satisfied. Sprint 16's bounded reconciliation WO is complete at
 v1.155 and preserves the same authority boundaries. Human/CTO continued Sprint
 16 because its corrected goal also requires the first generic progression
 loop. WO-S16-002 closed the measured Runtime-owned numeric-state gap at v1.156;
-Sprint 16 is now ready for Human/CTO Freeze Review and remains not frozen.
+WO-S16-003 closed the smallest remaining transition gap at v1.157. Sprint 16
+remains open and not frozen pending the fresh Freeze Review Human/CTO decision.
 
 ## Deferred direction
 
-Level thresholds, level-up, skills, modifiers, score policy, death/respawn/
+Skills, modifiers, score policy, death/respawn/
 game-over, enemy behavior, timers, spawning, waves, richer rule actions,
 durable history, and broader context systems stay deferred until a concrete
 product need and acceptance path justify them. Goal completion beyond the
 current session-completed truth, including victory UI, next level, restart,
 failure, and progression beyond the bounded numeric primitive, remains
 deferred. Offline World Evolution fallback is recorded as resilience debt, not
-the current Sprint bottleneck. The post-WO-S16-002 Freeze Review is the only
-active next item; no Sprint 17 work is authorized.
+the current Sprint bottleneck. The post-WO-S16-003 Freeze Review is READY FOR
+FREEZE and blocks only on Human/CTO direction; no Sprint 17 work is authorized.
 
 ## Supervisor rollout
 

@@ -364,6 +364,13 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(panel.text()).toContain('No trace data available')
     expect(panel.find('a[href="/observatory"]').exists()).toBe(true)
 
+    useObservatoryDataStore(pinia).recordRuntimeGameplayProgressionState({
+      values: { experience: 1, level: 2 },
+    })
+    await nextTick()
+    expect(panel.get('[data-testid="studio-gameplay-experience"]').text()).toBe('1')
+    expect(panel.get('[data-testid="studio-gameplay-level"]').text()).toBe('2')
+
     await wrapper.get('[role="tab"]:first-child').trigger('click')
     expect(wrapper.find('.entity-inspector').exists()).toBe(false)
     expect(wrapper.find('.runtime-summary').exists()).toBe(true)

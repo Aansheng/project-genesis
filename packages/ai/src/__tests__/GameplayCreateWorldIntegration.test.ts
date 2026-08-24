@@ -59,6 +59,10 @@ describe('Gameplay create-world integration', () => {
         { type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 },
       ],
     })
+    expect(result.gameplayRuleSet?.rules.find(rule => rule.ruleId === 'level-up-at-experience-threshold')).toMatchObject({
+      supportStatus: 'supported',
+      actions: [{ type: 'CHANGE_NUMERIC_STATE', state: 'level', amount: 1 }],
+    })
   })
 
   it('passes the semantic world and capability catalog to an injected gameplay provider', async () => {

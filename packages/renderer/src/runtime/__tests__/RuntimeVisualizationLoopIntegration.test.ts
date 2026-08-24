@@ -406,7 +406,7 @@ describe('RuntimeVisualizationLoop Integration', () => {
     it('publishes committed Runtime numeric progression to the projection observer', () => {
       const world = createWorldWithMovingEntity()
       const progressionState: RuntimeGameplayProgressionState = Object.freeze({
-        values: Object.freeze({ experience: 4 }),
+        values: Object.freeze({ experience: 4, level: 2 }),
       })
       const executionLoop: RuntimeExecutionLoop = {
         tick(input): World {
@@ -447,7 +447,7 @@ describe('RuntimeVisualizationLoop Integration', () => {
       loop.start()
       loop.tick()
 
-      expect(observedState).toEqual({ values: { experience: 4 } })
+      expect(observedState).toEqual({ values: { experience: 4, level: 2 } })
     })
 
     it('clear between ticks re-renders correctly', () => {

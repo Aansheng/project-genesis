@@ -1,5 +1,36 @@
 # Changelog
 
+### Sprint 16 Freeze Review — Post-WO-S16-003
+
+- Fresh evaluation after WO-S16-003 passes all eight corrected Sprint 16
+  criteria: Runtime-authoritative experience and level, deterministic threshold,
+  exactly-once Level 1 → Level 2 transition, same-session retention, lifecycle
+  reset, stale World A/B isolation, and truthful projections.
+- Result: **READY FOR FREEZE**. Control-plane status is **BLOCKED pending the
+  Human/CTO FREEZE or CONTINUE decision**. Sprint 16 remains open; no next
+  product WO or Sprint 17 work is generated or crossed automatically.
+
+### WO-S16-003 — Deterministic XP Threshold Level Transition
+
+- Added ADR-0271 and the smallest generic threshold transition on top of the
+  v1.156 Runtime-owned numeric state: new bindings start at
+  `experience=0, level=1`.
+- Promoted typed `NUMBER_COMPARE` evaluation for finite event-payload,
+  entity-property, and Runtime `gameState` references. The deterministic
+  platformer collect-reward rule now precedes one `level-up` rule requiring
+  `experience >= 1` and `level < 2`, then reuses `CHANGE_NUMERIC_STATE` for
+  Level 1 → Level 2.
+- Added exactly-once, same-session revision-retention, new-binding reset, and
+  stale World A/B isolation regressions, plus separate level projection in
+  Renderer/Web/Observatory. Runtime tests prove the typed `level < 2` guard
+  prevents repeated transitions.
+- Real Studio verification observed `world-5` at `经验值: 1`, `等级: 2`, retained
+  both through same-session theme evolution, and observed new `world-6` reset to
+  `经验值: 0`, `等级: 1`; browser diagnostics were clean.
+- Architecture v1.156 → v1.157. Code Complete = YES and Product Verified = YES
+  on 2026-08-24. Sprint 16 remains NOT FROZEN pending Human/CTO decision; no
+  Sprint 17 work is generated or crossed.
+
 ### WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
 
 - Added ADR-0270 and the smallest generic Runtime-owned progression primitive:

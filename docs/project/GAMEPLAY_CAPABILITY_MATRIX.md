@@ -1,6 +1,6 @@
-# Gameplay Capability Matrix — WO-S16-002
+# Gameplay Capability Matrix — WO-S16-003 Complete
 
-Architecture version: v1.156 (WO-S16-002 complete)
+Architecture version: v1.157 (WO-S16-003 Product Verified)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -32,11 +32,12 @@ slice is not promoted to a general Runtime capability.
 | `REMOVE_ENTITY` rule primitive | Gameplay action schema | `supported` | The bounded executor resolves a current target, protects Player, and calls the immutable `WorldMutator`. |
 | `SPAWN_ENTITY` rule primitive | Gameplay action schema | `deferred` | Entity addition exists as a mutation primitive, but rule-driven spawn execution is not active. |
 | `APPLY_VELOCITY` rule primitive | Gameplay action schema | `supported` | Generic trusted action reuses `VelocityComponent` and immutable `WorldMutator.replaceEntity`; set/add modes are bounded and deterministic. |
-| `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; `experience` is the first use case. Thresholds and level transitions remain deferred. |
+| `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
 | `SET_ENTITY_PROPERTY` | Gameplay action schema | `deferred` | No generic gameplay property executor exists. |
 | `DAMAGE_ENTITY` | Gameplay action schema | `supported` | Trusted generic action validates positive finite damage, resolves current Health, and uses immutable `WorldMutator.replaceEntity`; zero is state only. |
 | `COMPLETE_GOAL` | Gameplay action schema | `supported` | Trusted goal-contact rules commit `RuntimeGameplaySessionState` from `active` to `completed`; repeated completion is an idempotent no-op. |
 | Contact direction condition | Gameplay condition schema | `supported` | `ENTITY_CONTACT_STARTED.direction` is required and derived from Runtime-owned AABB crossing/overlap geometry; evaluator supports top/non-top and narrow negation. |
+| `NUMBER_COMPARE` condition | Gameplay condition schema | `supported` | Runtime evaluates finite typed event-payload, entity-property, and Runtime `gameState` references with `eq/neq/gt/gte/lt/lte`; no expression language or arbitrary evaluation is introduced. |
 | Trigger matching / condition evaluation / action execution | Gameplay rule execution | `partially supported` | `DefaultGameplayRuleMatcher`, `DefaultGameplayConditionEvaluator`, and trusted generic actions run after the event batch; the two-action stomp uses staged all-or-nothing commit; no eval, scripts, generated code, or generic workflow engine exists. |
 | Platformer loop | `GameLoopSpecification` + defaults | `partially supported` | Move/jump/physics, contact facts, collectible removal, collect-reward `experience +1`, enemy stomp, non-top Health damage, and current-session goal completion execute; score and death remain deferred. |
 | Farm interaction | Mechanics and interaction intent | `deferred` | Farm entities are semantically modeled; no production interaction executor exists. |
@@ -48,7 +49,7 @@ slice is not promoted to a general Runtime capability.
 | Goals / checkpoints / win | Goal intent and semantic entities | `partially supported` | Player contact with the validated goal can commit the Runtime session to `completed`; no victory UI, next level, restart, deletion, or progression flow exists. |
 | Player death / failure | Failure-condition intent | `deferred` | Failure conditions are recorded; no death/reset rule engine exists. |
 | Timer / survive duration | Loop and goal intent | `deferred` | Duration is descriptive; no gameplay timer or expiry system exists. |
-| Experience / levels | Progression intent | `partially supported` | Generic `experience` acquisition through a supported finite numeric state action is executable; thresholds, level-up, and upgrade state remain deferred. |
+| Experience / levels | Progression intent | `partially supported` | Supported collect-reward adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. Skill/upgrade state and later thresholds remain deferred. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
 | Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, and finite CHANGE_NUMERIC_STATE are bounded slices, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
 
@@ -74,7 +75,7 @@ slice is not promoted to a general Runtime capability.
 - **HARDCODED SLICE:** the production Studio viewport still registers the
   platformer movement/jump/physics systems directly; this is represented as a
   catalog fact, not generalized into unsupported mechanics.
-- **NOT EXECUTED:** level thresholds/level-up, skill/modifier state, score policy, death/respawn/game-over, enemy AI,
+- **NOT EXECUTED:** skill/modifier state, score policy, death/respawn/game-over, enemy AI,
   timers, spawn execution, progression beyond the bounded numeric primitive,
   failure flow, property actions,
   unrelated rich multi-action transactions, victory UI, next-level/restart

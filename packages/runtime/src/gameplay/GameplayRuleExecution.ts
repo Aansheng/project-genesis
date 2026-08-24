@@ -7,6 +7,8 @@ import type {
   GameplayCondition,
   GameplayEvent,
   GameplayEntitySelector,
+  GameplayNumericReference,
+  GameplayNumericOperator,
   GameplayRuleConditionMode,
   GameplayRuleSet,
   GameplayRuleSpecification,
@@ -66,6 +68,8 @@ export interface GameplayRuleExecutionContext {
   readonly semanticRevision?: number
   /** Current semantic authority; Runtime components remain the fallback for standalone callers. */
   readonly semanticWorld?: GameWorldModel
+  /** Current Runtime-owned numeric state visible to typed rule conditions. */
+  readonly progressionState?: RuntimeGameplayProgressionState
 }
 
 export interface GameplayRuleMatcher {
@@ -274,6 +278,42 @@ function resolveSelector(
   return context.world.entities.find(entity => selectorMatchesEntity(selector, entity, event, context.semanticWorld))
 }
 
+function finiteNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+function resolveNumericReference(
+  reference: GameplayNumericReference,
+  event: GameplayEvent,
+  context: GameplayRuleExecutionContext,
+): number | undefined {
+  if (reference.kind === 'eventPayload') return finiteNumber(event.payload?.[reference.key])
+  if (reference.kind === 'gameState') return finiteNumber(context.progressionState?.values[reference.key])
+
+  const entity = resolveSelector(reference.entity, event, context)
+  if (!entity) return undefined
+  if (reference.property === 'x') return finiteNumber(entity.x)
+  if (reference.property === 'y') return finiteNumber(entity.y)
+  if (reference.property === 'velocityX') return finiteNumber(entity.components?.find(isVelocityComponent)?.properties.x)
+  if (reference.property === 'velocityY') return finiteNumber(entity.components?.find(isVelocityComponent)?.properties.y)
+  return finiteNumber(entity.components?.find(isHealthComponent)?.properties.current)
+}
+
+function numericComparisonMatches(
+  value: number,
+  operator: GameplayNumericOperator,
+  expected: number,
+): boolean {
+  switch (operator) {
+    case 'eq': return value === expected
+    case 'neq': return value !== expected
+    case 'gt': return value > expected
+    case 'gte': return value >= expected
+    case 'lt': return value < expected
+    case 'lte': return value <= expected
+  }
+}
+
 function sameBinding(
   event: GameplayEvent,
   ruleSet: GameplayRuleSet,
@@ -393,7 +433,19 @@ export class DefaultGameplayConditionEvaluator implements GameplayConditionEvalu
       return conditionResult(condition.type, passed ? 'passed' : 'failed', 'contact_direction_mismatch')
     }
 
-    if (condition.type === 'NUMBER_COMPARE' || condition.type === 'BOOLEAN_EQUALS') {
+    if (condition.type === 'NUMBER_COMPARE') {
+      const expected = finiteNumber(condition.expected)
+      if (expected === undefined) return conditionResult(condition.type, 'unsupported', 'numeric_expected_must_be_finite')
+      const value = resolveNumericReference(condition.value, event, context)
+      if (value === undefined) return conditionResult(condition.type, 'failed', 'numeric_value_unavailable')
+      return conditionResult(
+        condition.type,
+        numericComparisonMatches(value, condition.operator, expected) ? 'passed' : 'failed',
+        'numeric_comparison_mismatch',
+      )
+    }
+
+    if (condition.type === 'BOOLEAN_EQUALS') {
       return conditionResult(condition.type, 'unsupported', 'condition_not_executable')
     }
 
@@ -804,7 +856,8 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
           continue
         }
 
-        const conditionResult = this.conditionEvaluator.evaluateRule(rule, event, eventContext)
+        const conditionContext = Object.freeze({ ...context, world, progressionState })
+        const conditionResult = this.conditionEvaluator.evaluateRule(rule, event, conditionContext)
         if (conditionResult.status !== 'passed') {
           results.push(executionResult(
             event,
@@ -837,7 +890,7 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
             ruleId: rule.ruleId,
             event,
             action,
-            context: Object.freeze({ ...context, world: stagedWorld }),
+            context: Object.freeze({ ...context, world: stagedWorld, progressionState: stagedProgressionState }),
             sessionState: stagedSessionState,
             progressionState: stagedProgressionState,
           })

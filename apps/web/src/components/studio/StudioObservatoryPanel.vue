@@ -67,6 +67,16 @@ const imageGenerations = computed(() => Object.values(gameStore.visualGeneration
             <dt>Gameplay</dt>
             <dd data-testid="studio-gameplay-status">{{ runtime.gameplaySession?.status ?? 'active' }}</dd>
           </div>
+          <template v-if="runtime.gameplayProgression">
+            <div>
+              <dt>Experience</dt>
+              <dd data-testid="studio-gameplay-experience">{{ runtime.gameplayProgression.values.experience ?? 0 }}</dd>
+            </div>
+            <div>
+              <dt>Level</dt>
+              <dd data-testid="studio-gameplay-level">{{ runtime.gameplayProgression.values.level ?? 1 }}</dd>
+            </div>
+          </template>
         </dl>
         <ul class="runtime-entities">
           <li

@@ -24,7 +24,12 @@ export interface RuntimeGameplayNumericChangeResult {
 }
 
 export function createRuntimeGameplayProgressionState(): RuntimeGameplayProgressionState {
-  return Object.freeze({ values: Object.freeze({}) })
+  return Object.freeze({
+    values: Object.freeze({
+      experience: 0,
+      level: 1,
+    }),
+  })
 }
 
 export function applyRuntimeGameplayNumericChange(

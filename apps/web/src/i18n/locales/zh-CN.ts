@@ -64,6 +64,7 @@ export const zhCN: MessageCatalog = {
       state: '状态',
       health: '生命值',
       experience: '经验值',
+      level: '等级',
       inspector: '实体检查器',
       components: '组件',
       componentCount: '组件数量',

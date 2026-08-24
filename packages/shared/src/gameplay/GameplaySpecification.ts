@@ -185,7 +185,7 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   Object.freeze({ id: 'condition-entity-archetype-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity name/archetype.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-entity-id-equals', kind: 'condition' as const, description: 'Compare an event participant with an existing stable semantic entity ID.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-contact-direction-equals', kind: 'condition' as const, description: 'Compare the typed Runtime AABB contact direction, including a narrow negated form.', status: 'supported' as const }),
-  Object.freeze({ id: 'condition-number-compare', kind: 'condition' as const, description: 'Numeric Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
+  Object.freeze({ id: 'condition-number-compare', kind: 'condition' as const, description: 'Compare finite numeric Runtime, event, or entity values with a typed operator.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-boolean-equals', kind: 'condition' as const, description: 'Boolean Runtime/game-state comparisons await a trusted evaluator.', status: 'deferred' as const }),
   Object.freeze({ id: 'condition-component-exists', kind: 'condition' as const, description: 'Check a whitelisted Runtime component type on an entity.', status: 'supported' as const }),
   Object.freeze({ id: 'action-remove-entity', kind: 'action' as const, description: 'Remove an entity through the existing immutable World mutation primitive.', status: 'supported' as const }),
@@ -265,6 +265,11 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
       mechanicIds: Object.freeze(['reach-goal']),
     }),
     Object.freeze({
+      id: 'numeric-progression',
+      description: 'Gameplay rules can mutate Runtime-owned numeric progression values and evaluate typed thresholds.',
+      mechanicIds: Object.freeze(['collect-reward', 'gain-experience', 'level-up']),
+    }),
+    Object.freeze({
       id: 'mutation-event-observation',
       description: 'Committed Runtime World ID-set changes emit ENTITY_ADDED or ENTITY_REMOVED facts.',
       mechanicIds: Object.freeze(['event-entity-added', 'event-entity-removed']),
@@ -286,6 +291,9 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'enemy-stomp',
     'enemy-side-damage',
     'reach-goal',
+    'collect-reward',
+    'gain-experience',
+    'level-up',
   ]),
   rulePrimitives: DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES,
 })

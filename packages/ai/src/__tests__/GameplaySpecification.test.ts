@@ -39,6 +39,10 @@ describe('GameplaySpecification foundation', () => {
     expect(specification.gameLoop.completionMode).toBe('goal')
     expect(specification.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
     expect(specification.mechanics.find(item => item.id === 'enemy-stomp')?.supportStatus).toBe('supported')
+    expect(specification.mechanics.find(item => item.id === 'gain-experience')?.supportStatus).toBe('supported')
+    expect(specification.mechanics.find(item => item.id === 'level-up')?.supportStatus).toBe('supported')
+    expect(specification.gameLoop.progressionModes).toEqual(['experience', 'levels'])
+    expect(specification.progression).toMatchObject({ modes: ['experience', 'levels'], supportStatus: 'supported' })
     expect(specification.mechanics.find(item => item.id === 'reach-goal')?.supportStatus).toBe('supported')
     expect(specification.interactions?.find(item => item.id === 'player-enemy-contact')).toMatchObject({
       supportStatus: 'supported',

@@ -121,7 +121,9 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanic('basic-collision', 'state-change', 'Ground collision keeps entities on the playable plane.', 'supported'),
       mechanic('enemy-stomp', 'combat', 'Player can defeat an enemy by a downward contact and bounce upward.', 'supported', playerId, enemyId ? 'enemy' : undefined),
       mechanic('enemy-side-damage', 'combat', 'Player loses generic Health on non-top contact with an enemy.', 'supported', playerId, enemyId ? 'enemy' : undefined),
-      mechanic('collect-reward', 'collection', 'Player collects a reward during traversal.', 'deferred', playerId, itemId ? 'item' : undefined),
+      mechanic('collect-reward', 'collection', 'Player collects a reward during traversal.', 'supported', playerId, itemId ? 'item' : undefined),
+      mechanic('gain-experience', 'progression', 'A collected reward increases Runtime experience.', 'supported', playerId),
+      mechanic('level-up', 'progression', 'Reaching the first experience threshold increases Runtime level once.', 'supported', playerId),
       mechanic('reach-goal', 'goal', 'Player reaches the level goal.', 'supported', playerId, goalId ? 'goal' : undefined),
       mechanic('player-death', 'failure', 'Player death ends or resets the attempt.', 'deferred', playerId),
     ]
@@ -160,13 +162,18 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
         repeatableActions: Object.freeze(['move', 'jump', 'avoid or defeat enemies', 'collect rewards']),
         challengeSources: Object.freeze(['terrain', 'enemies', 'hazards']),
         rewardSources: Object.freeze(['collectibles', 'powerups', 'level progress']),
-        progressionModes: Object.freeze(['none' as const]),
+        progressionModes: Object.freeze(['experience', 'levels'] as const),
         completionMode: 'goal' as const,
         success: 'Reach the level goal.',
         failure: 'Player death.',
       }),
       playerMechanics: Object.freeze(['player-move', 'player-jump']),
       mechanics: Object.freeze(mechanics),
+      progression: Object.freeze({
+        modes: Object.freeze(['experience', 'levels'] as const),
+        description: 'Collected rewards increase Runtime experience; the first threshold commits one level transition.',
+        supportStatus: 'supported' as const,
+      }),
       interactions: Object.freeze(interactions),
       goals: Object.freeze(goals),
       failureConditions: Object.freeze(failures),
@@ -314,7 +321,11 @@ export class DefaultGameplaySpecificationBuilder implements GameplaySpecificatio
       ? Object.freeze({
           modes: Object.freeze([...candidate.progression.modes]),
           description: candidate.progression.description,
-          supportStatus: 'deferred' as const,
+          supportStatus: mechanics.some(mechanic => mechanic.kind === 'progression')
+            && mechanics.filter(mechanic => mechanic.kind === 'progression')
+              .every(mechanic => mechanic.supportStatus === 'supported')
+            ? 'supported' as const
+            : 'deferred' as const,
         })
       : undefined
     const goals: readonly GameplayGoalSpecification[] | undefined = candidate.goals?.map(item => Object.freeze({

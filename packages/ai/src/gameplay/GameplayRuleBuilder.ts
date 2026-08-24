@@ -9,6 +9,7 @@ import type {
   GameplayRuleConditionMode,
   GameplaySpecification,
   GameplaySupportStatus,
+  GameplayTrigger,
 } from '@genesis/shared'
 import {
   DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
@@ -81,6 +82,19 @@ function contact(direction: 'top' | 'bottom' | 'left' | 'right', negated = false
   return Object.freeze({ type: 'CONTACT_DIRECTION_EQUALS', direction, ...(negated ? { negated: true } : {}) })
 }
 
+function numericStateCondition(
+  key: string,
+  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte',
+  expected: number,
+): GameplayCondition {
+  return Object.freeze({
+    type: 'NUMBER_COMPARE',
+    value: Object.freeze({ kind: 'gameState' as const, key }),
+    operator,
+    expected,
+  })
+}
+
 function rule(
   ruleId: string,
   name: string,
@@ -88,13 +102,14 @@ function rule(
   conditions: readonly GameplayCondition[],
   actions: readonly GameplayAction[],
   conditionMode: GameplayRuleConditionMode = 'all',
+  trigger?: GameplayTrigger,
 ): GameplayRuleCandidate {
   return Object.freeze({
     ruleId,
     name,
     enabled: true,
     ...(sourceMechanicId ? { sourceMechanicId } : {}),
-    trigger: Object.freeze({ eventType: 'ENTITY_CONTACT_STARTED' as const }),
+    trigger: Object.freeze(trigger ?? { eventType: 'ENTITY_CONTACT_STARTED' as const }),
     conditionMode,
     conditions: Object.freeze([...conditions]),
     actions: Object.freeze([...actions]),
@@ -141,6 +156,25 @@ function deterministicRules(
         Object.freeze({ type: 'REMOVE_ENTITY', target }),
         Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 }),
       ],
+    ))
+  }
+
+  if (item && hasMechanic(specification, 'level-up')) {
+    rules.push(rule(
+      'level-up-at-experience-threshold',
+      'Level up at experience threshold',
+      'level-up',
+      [
+        numericStateCondition('experience', 'gte', 1),
+        numericStateCondition('level', 'lt', 2),
+      ],
+      [Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'level', amount: 1 })],
+      'all',
+      Object.freeze({
+        eventType: 'ENTITY_CONTACT_STARTED' as const,
+        actor: player,
+        target,
+      }),
     ))
   }
 

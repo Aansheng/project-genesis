@@ -117,6 +117,14 @@ describe('GameplayRule foundation', () => {
         { type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 },
       ],
     })
+    expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'level-up-at-experience-threshold')).toMatchObject({
+      supportStatus: 'supported',
+      conditions: [
+        { type: 'NUMBER_COMPARE', value: { kind: 'gameState', key: 'experience' }, operator: 'gte', expected: 1 },
+        { type: 'NUMBER_COMPARE', value: { kind: 'gameState', key: 'level' }, operator: 'lt', expected: 2 },
+      ],
+      actions: [{ type: 'CHANGE_NUMERIC_STATE', state: 'level', amount: 1 }],
+    })
     expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'enemy-contact-damage')).toMatchObject({
       supportStatus: 'supported',
       actions: [{ type: 'DAMAGE_ENTITY', target: { kind: 'eventActor' }, amount: 1 }],
@@ -153,7 +161,9 @@ describe('GameplayRule foundation', () => {
     expect(context.ruleVocabulary.conditionTypes).toContain('CONTACT_DIRECTION_EQUALS')
     expect(context.ruleVocabulary.actionTypes).toContain('DAMAGE_ENTITY')
     expect(DEFAULT_GAMEPLAY_CAPABILITY_CATALOG.supportedMechanicIds).toContain('enemy-stomp')
+    expect(DEFAULT_GAMEPLAY_CAPABILITY_CATALOG.supportedMechanicIds).toContain('level-up')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'condition-contact-direction-equals')?.status).toBe('supported')
+    expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'condition-number-compare')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-apply-velocity')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-damage-entity')?.status).toBe('supported')
     expect(context).not.toHaveProperty('runtimeHistory')

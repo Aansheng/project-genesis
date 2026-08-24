@@ -206,11 +206,12 @@ describe('runtime viewer — rendering', () => {
     const store = useObservatoryDataStore()
     store.loadMockObservatory()
     store.recordRuntimeGameplayProgressionState(Object.freeze({
-      values: Object.freeze({ experience: 12 }),
+      values: Object.freeze({ experience: 12, level: 2 }),
     }))
     const wrapper = mount(ObservatoryRuntimeViewer)
 
     expect(wrapper.find('.runtime-gameplay-progression').text()).toBe('经验值: 12')
+    expect(wrapper.find('.runtime-gameplay-level').text()).toBe('等级: 2')
   })
 
   it('renders the stats section before the details in the right panel', () => {

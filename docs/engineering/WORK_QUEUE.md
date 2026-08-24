@@ -645,30 +645,147 @@ human_decision_required: NO — CONTINUE direction and this bounded generic
 
 ## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-002)
 
-status: BLOCKED
-state_transition: GENERATED_AFTER_WO-S16-002 → BLOCKED
+status: DONE
+state_transition: GENERATED_AFTER_WO-S16-002 → BLOCKED → IN_PROGRESS → DONE
 priority: P0
 dependencies: WO-S16-001 DONE; WO-S16-002 DONE; Sprint 16 acceptance evidence complete
-mission: Human/CTO review of the corrected Sprint 16 goal after both Gameplay-
-  Preserving World Evolution and the first generic progression loop are
-  complete and Product Verified.
-measured_bottleneck: There is no remaining Sprint 16 implementation blocker.
-  Part 1 reconciliation and Part 2 finite Runtime-owned numeric progression are
-  verified. Offline World Evolution fallback remains resilience debt and is
-  explicitly non-blocking.
-decision_gate: BLOCKED — Sprint 16 is NOT FROZEN until Human/CTO decides
-  whether the corrected goal is satisfied at v1.156.
-allowed_scope: Read-only review of WO-S16-001/002 evidence, ADR-0269/0270,
-  capability matrix, Sprint review, automated gates, and manual Studio results;
-  then record FREEZE or CONTINUE.
-forbidden_scope: New feature implementation, level thresholds, level-up,
-  skills, modifiers, Survivor-specific Runtime, spawn/wave behavior, offline
-  World Evolution fallback, Sprint 17 work, or generating a second next WO.
-acceptance: READY FOR HUMAN/CTO DECISION — current state is NOT FROZEN; exactly
-  one bounded control-plane review is active and no Sprint 17 item is generated.
-product_verification: ALREADY PASS — WO-S16-001 and WO-S16-002 are Code
-  Complete and Product Verified; this item is a governance gate.
-human_decision_required: YES — pending Human/CTO Sprint 16 Freeze Review.
+mission: Human/CTO review of the corrected Sprint 16 goal after WO-S16-002
+  established Runtime-authoritative numeric progression, and decide whether a
+  minimal threshold-to-level transition is still required before freeze.
+measured_bottleneck: Human/CTO confirmed CONTINUE: numeric storage and XP gain
+  are verified, but Sprint acceptance still requires Runtime-authoritative
+  level state plus one deterministic XP threshold transition. This is the
+  smallest remaining gameplay blocker; offline World Evolution fallback is
+  resilience debt and remains non-blocking.
+decision_gate: RESOLVED — Human/CTO chose CONTINUE. Sprint 16 is NOT READY FOR
+  FREEZE; exactly one bounded product WO is authorized to prove XP threshold →
+  Level 1 → Level 2.
+allowed_scope: Review WO-S16-002/ADR-0270 evidence, update the Sprint freeze
+  criteria, record the CONTINUE decision, run one fresh Next-Work Discovery,
+  and generate exactly one bounded generic threshold/level WO.
+forbidden_scope: Automatic freeze, skills, modifiers, Survivor-specific
+  Runtime, spawn/wave behavior, offline World Evolution fallback, Sprint 17
+  work, or generating more than one next product WO.
+acceptance: PASS — Human/CTO CONTINUE is recorded; Sprint 16 freeze criteria
+  now include Runtime-authoritative level and one deterministic threshold
+  transition; exactly one bounded READY product WO was generated.
+product_verification: ALREADY PASS — WO-S16-001 and WO-S16-002 remain Product
+  Verified; this item is a Sprint governance and discovery decision.
+human_decision_required: NO — CONTINUE decision recorded by Human/CTO on
+  2026-08-24; routine implementation remains Supervisor-owned.
+
+## WO-S16-003 — Deterministic XP Threshold Level Transition
+
+status: DONE
+state_transition: GENERATED_AFTER_SPRINT_FREEZE_REVIEW → READY → IN_PROGRESS → VERIFYING → DONE
+priority: P1
+dependencies: SPRINT_FREEZE_REVIEW DONE; WO-S16-002 DONE; Human/CTO CONTINUE
+  decision recorded; no unresolved architecture/product-direction gate
+architecture_before: v1.156
+architecture_expected_after: v1.157
+architecture_after: v1.157 — ADR-0271 accepted; Runtime-authoritative level
+  state and the bounded typed threshold transition are wired end to end.
+mission: Prove the smallest remaining Sprint 16 progression transition:
+  Runtime-authoritative `experience` and `level` state, a typed numeric
+  threshold condition, and one deterministic Level 1 → Level 2 transition
+  through the existing GameplayEvent → GameplayRule path.
+measured_bottleneck: Verified capabilities are (A) Runtime-owned finite
+  `experience` accumulation, (B) same-session retention/reset/isolation, and
+  (C) Renderer/Web/Observatory projection. Sprint acceptance still requires
+  (D) Runtime-authoritative level plus XP threshold transition; (D) is the
+  smallest blocker because `NUMBER_COMPARE` is already typed but the Runtime
+  evaluator treats it as unsupported and the deterministic RuleSet has no
+  level transition.
+gap_classification: PRODUCT_GAP + EXECUTION_GAP
+allowed_scope: Initialize the current progression lifecycle at
+  `experience=0`, `level=1`; execute finite `NUMBER_COMPARE` references
+  against Runtime state and existing event/entity numeric facts; add one
+  deterministic platformer `level-up` rule requiring `experience >= 1` and
+  `level < 2`, using the existing `CHANGE_NUMERIC_STATE level +1` action;
+  expose level through the existing progression projection; add focused
+  Shared/AI/Runtime/Renderer/Web regressions and real Studio verification.
+forbidden_scope: ProgressionManager, XPManager, SurvivorRuntime, new action
+  transaction systems, skill selection/UI, modifiers, upgrade catalog, waves,
+  spawners, difficulty scaling, death/respawn, arbitrary code/eval, generated
+  code, offline World Evolution fallback, or a complete progression framework.
+implementation_boundaries: Runtime remains the sole progression authority;
+  GameplaySpecification/GameplayRuleSet remain structured intent/plan;
+  `NUMBER_COMPARE` reads only finite typed references; Web/Pinia/Renderer/
+  Observatory project committed Runtime state. Repeated evaluation must be
+  blocked by the typed `level < 2` condition, not a manager or hidden flag.
+acceptance: PASS — all eight are proven: (1) Runtime-authoritative experience
+  exists; (2) Runtime-authoritative level exists; (3) a typed deterministic
+  threshold transition exists; (4) supported XP commits exactly one Level 1 →
+  Level 2 transition; (5) repeated evaluation cannot commit another level;
+  (6) same-session semantic World Evolution retains both values; (7) a new
+  world/session resets to the lifecycle baseline; and (8) stale World A
+  events/rules cannot mutate World B, with Renderer/Observatory projecting the
+  committed values separately from raw facts and Rule results.
+automated_tests: PASS — Shared 9 files/207 tests; AI 156 files/9,402 tests;
+  Runtime 23 files/690 tests; Renderer 25 files/485 tests; Web 47 files/3,528
+  tests. Focused and affected-package regressions cover numeric comparison,
+  lifecycle, deterministic ordering, exactly-once transition, same-session
+  retention, reset, stale isolation, Renderer observation, and Observatory
+  projection. Direct TypeScript and package ESLint pass; the Web build passes.
+  The managed root Turbo TLS/keychain limitation and existing lint warnings
+  remain documented.
+product_verification: YES — real Studio shows `经验值: 1` and
+  `等级: 2` after one supported collect/XP event, retain both across a
+  non-replacing World Evolution in the same Runtime/session, and resets to
+  `经验值: 0`, `等级: 1` on a new world/session. Final browser diagnostics
+  contain no warning/error entries.
+observability_expectations: Keep numeric comparison facts, GameplayRule
+  results, numeric state mutations, Runtime World/session, and Renderer/Web
+  projections distinct. A level transition is a committed numeric state
+  mutation, not a new raw GameplayEvent.
+completion_report_requirements: Report architecture before/after, files,
+  actual event → XP action → threshold condition → level action flow, focused/
+  affected tests, TypeScript, ESLint, Web build, manual Studio evidence,
+  stale/lifecycle isolation, deferred boundaries, Code Complete, and Product
+  Verified.
+explicit_non_goals: No skills, modifiers, upgrade catalog, waves, spawning,
+  scaling, death/respawn, Survivor behavior, offline gateway fallback, or
+  automatic Sprint 17 execution.
+code_complete: YES
+product_verified: YES
+human_decision_required: NO — the Human/CTO CONTINUE boundary was accepted;
+  this single bounded product WO completed under SPRINT_CONTINUOUS.
+
+## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-003)
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_WO-S16-003 → IN_PROGRESS → VERIFYING → BLOCKED
+priority: P0
+dependencies: WO-S16-001 DONE; WO-S16-002 DONE; WO-S16-003 DONE; Sprint 16
+  acceptance evidence complete
+mission: Evaluate the corrected Sprint 16 goal after the completed deterministic
+  XP threshold transition and hold the Sprint at the boundary for the required
+  Human/CTO freeze decision.
+measured_bottleneck: NONE within the accepted Sprint 16 product scope. All
+  eight corrected freeze criteria pass. The remaining gate is governance:
+  Human/CTO must choose whether to freeze Sprint 16.
+decision_gate: OPEN — result is READY FOR FREEZE, but Sprint 16 remains OPEN
+  and NOT FROZEN until Human/CTO records FREEZE or CONTINUE.
+allowed_scope: Review WO-S16-003/ADR-0271 evidence, record the fresh Sprint
+  Freeze Review, and wait at the Sprint boundary for Human/CTO direction.
+forbidden_scope: Automatic freeze without the Human/CTO decision, automatic
+  cross-Sprint execution, Sprint 17 work, or generating another product WO
+  before the freeze decision.
+acceptance: PASS — Runtime-authoritative experience and level, the deterministic
+  threshold, exactly-once Level 1 → Level 2 behavior, same-session retention,
+  lifecycle reset, stale World A/B isolation, and truthful projections all pass.
+automated_tests: PASS — affected-package regressions, direct TypeScript,
+  package ESLint, Web build, and `git diff --check` pass; root Turbo typecheck
+  remains blocked only by the managed TLS/keychain environment limitation.
+product_verification: YES — real Studio evidence covers `world-5` at
+  `经验值: 1`, `等级: 2`, same-session theme evolution retaining both values,
+  and new `world-6` resetting to `经验值: 0`, `等级: 1`; browser diagnostics
+  contain no warning/error entries.
+next_work_discovery: NOT GENERATED — the Sprint checkpoint is satisfied and
+  the queue stops at this freeze gate. No Sprint 17 item is generated or
+  crossed automatically.
+human_decision_required: YES — Human/CTO must decide FREEZE or CONTINUE;
+  `SPRINT_CONTINUOUS` stops here at the Sprint boundary.
 
 
 ## Queue transition vocabulary

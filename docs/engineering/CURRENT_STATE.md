@@ -3,19 +3,27 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.156
-current_sprint: Sprint 16 (OPEN — Part 1 and Part 2 verified; freeze review pending)
-current_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-002)
+architecture_version: v1.157
+current_sprint: Sprint 16 (OPEN — product checkpoint passes; fresh freeze review
+  awaits Human/CTO decision)
+current_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution &
+  Progression Foundation (Post-WO-S16-003)
 current_work_order_status: blocked
-current_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-002)
+current_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay
+  Evolution & Progression Foundation (Post-WO-S16-003)
 current_control_plane_work_order_status: blocked
-last_completed_work_order: WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
-last_completed_product_work_order: WO-S16-002
-last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — CONTINUE / NOT READY FOR FREEZE
-next_ready_work_order: NONE — pending Human/CTO Sprint 16 Freeze Review
-product_architecture_changed: yes — v1.155 → v1.156; generic numeric progression is wired and verified
-sprint_status: Sprint 16 remains OPEN; Part 1 and Part 2 are DONE; READY FOR FREEZE REVIEW, NOT FROZEN
-product_verified: YES — WO-S16-001 and WO-S16-002 are Code Complete and Product Verified; Sprint 16 freeze is pending Human/CTO review
+last_completed_work_order: WO-S16-003 — Deterministic XP Threshold Level Transition
+last_completed_product_work_order: WO-S16-003
+last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — READY FOR
+  FREEZE / Human/CTO decision required
+next_ready_work_order: NONE — Sprint 16 stops at the Human/CTO freeze gate;
+  no Sprint 17 item is generated
+product_architecture_changed: yes — v1.156 → v1.157; deterministic threshold
+  evaluation and level state are complete
+sprint_status: Sprint 16 remains OPEN and NOT FROZEN; all corrected product
+  criteria pass and the fresh Freeze Review is READY FOR FREEZE
+product_verified: YES — WO-S16-001, WO-S16-002, and WO-S16-003 are Product
+  Verified; only the Human/CTO freeze decision remains
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -29,10 +37,11 @@ Sprint 16 — Gameplay Evolution & Progression Foundation:
    executable gameplay rules and reconcile only affected rules against current
    semantic truth, GameplaySpecification, and the capability catalog. This is
    the verified Part 1 bridge in the same Runtime/session.
-2. Establish the first generic progression loop: a trusted Gameplay Rule can
-   commit an authoritative Runtime-owned numeric progression state. XP
-   acquisition is the first state key/use case; thresholds, level-up, skills,
-   modifiers, spawning, and waves remain later measured decisions.
+2. Establish the first generic progression loop: Runtime-owned `experience` and
+   `level`, plus one deterministic typed threshold transition from Level 1 to
+   Level 2. The transition must be exactly once, retain across same-session
+   World Evolution, reset on a new world/session, and reject stale World A
+   events/rules. Skills, modifiers, spawning, and waves remain deferred.
 
 The Sprint is not complete when Part 1 alone passes. Sprint 15's Gameplay
 Mechanics Foundation remains frozen and is the verified baseline.
@@ -88,8 +97,17 @@ Mechanics Foundation remains frozen and is the verified baseline.
   `experience +1`, semantic revision changes retain the state, and a new
   world/session resets it.
 - The post-WO-S16-002 Next-Work Discovery generated exactly one bounded item:
-  a blocked Sprint 16 Freeze Review requiring Human/CTO decision. No Sprint 17
-  work was generated or crossed.
+  `WO-S16-003 — Deterministic XP Threshold Level Transition`; Human/CTO chose
+  CONTINUE and SPRINT_CONTINUOUS auto-started that single READY item. No Sprint
+  17 work was generated or crossed.
+- WO-S16-003 is complete at v1.157 and Product Verified: one supported contact
+  event commits `experience +1`, the typed `experience >= 1 AND level < 2`
+  threshold commits Level 1 → Level 2 exactly once, same-session semantic
+  evolution retains both values, a new world/session resets to `0/1`, and
+  stale World A bindings cannot mutate World B.
+- The fresh post-WO-S16-003 Sprint Freeze Review passes all eight corrected
+  criteria and is BLOCKED only for the required Human/CTO FREEZE or CONTINUE
+  decision. No next product WO or Sprint 17 work is generated.
 
 ## Active capabilities
 
@@ -118,23 +136,24 @@ Mechanics Foundation remains frozen and is the verified baseline.
   world/session. The existing `CHANGE_NUMERIC_STATE` action commits finite
   additive deltas through the GameplayEvent → GameplayRule path.
 - The deterministic platformer collect-reward rule removes the collected item
-  and commits `experience +1`; the committed value is forwarded through the
-  existing Renderer loop and shown separately in the Observatory Runtime view.
+  and commits `experience +1`; the following typed `NUMBER_COMPARE` threshold
+  rule commits `level +1` from the Runtime baseline `level=1` to `level=2`.
+  Both committed values are forwarded through the existing Renderer loop and
+  shown separately in the Observatory Runtime view.
 - Numeric progression state survives non-replacing semantic revision changes
-  in the same Runtime/session and is unavailable after a new world/session
-  binding. Stale World A/B bindings and failed multi-action rules cannot commit.
+  in the same Runtime/session, starts at `experience=0, level=1` for a new
+  binding, and rejects stale World A/B bindings and failed multi-action rules.
 - Sprint-level generic gameplay thesis is verified: structured intent/rules,
   Runtime facts, generic matching, trusted actions, three interaction slices,
   continuity, isolation, and truthful projections are all present.
 
 ## Deferred capabilities
 
-- Level thresholds, level-up transitions, upgrade/skill selection, and
-  progression-driven modifiers.
+- Upgrade/skill selection and progression-driven modifiers.
 - Score or other numeric gameplay state beyond the bounded `experience`
   progression use case.
 - Death, respawn, game-over, enemy AI, victory UI, next level, restart, score,
-  level-up, skills, modifiers, timers, spawns, goal deletion, rich actions,
+  later level curves, skills, modifiers, timers, spawns, goal deletion, rich actions,
   unrelated rich multi-action transactions, generic gameplay state, and broad
   gameplay-rule evolution beyond the bounded reconciliation WO.
 - Durable gameplay/context/evolution history, replay, persistence, and reload
@@ -145,7 +164,7 @@ Mechanics Foundation remains frozen and is the verified baseline.
 ## Known environment issues
 
 - Existing AI/Renderer/Web package lint warnings/debt are recorded in
-  docs/project/TECH_DEBT.md and are unrelated to WO-S16-002.
+  docs/project/TECH_DEBT.md and are unrelated to WO-S16-003.
 - In this managed environment, the root `pnpm typecheck` Turbo wrapper cannot
   initialize its API client because TLS/keychain access is unavailable; direct
   TypeScript checks for all affected packages pass. A parallel Renderer Vitest
@@ -173,20 +192,19 @@ own capability-focused work item rather than broadening WO-META-003.
 
 The current product is a playable bounded slice, not a complete general
 gameplay engine. Sprint 15 has no implementation blocker and is frozen. Sprint
-16 Part 1 and Part 2 are accepted; `WO-S16-001` and `WO-S16-002` are Code
-Complete and Product Verified. The Sprint remains open only for the configured
-Human/CTO Freeze Review. The first generic progression primitive is limited to
-finite additive numeric state and the `experience` use case. Level thresholds,
-level-up, skills, modifiers, timers, spawning, waves, goal deletion,
-persistence, and broader gameplay-rule evolution remain deferred. Offline World
-Evolution fallback is a real resilience gap but is explicitly non-blocking for
-this Sprint goal.
+16 Part 1 and the first generic progression transition are Product Verified;
+the remaining gate is the Human/CTO Freeze Review. The progression slice is
+intentionally limited to finite additive state, one typed threshold, and one
+level transition. Upgrade/skill selection, modifiers, timers, spawning, waves,
+goal deletion, persistence, and broader gameplay-rule evolution remain
+deferred. Offline World Evolution fallback is a real resilience gap but is
+explicitly non-blocking for this Sprint goal.
 
 ## Next Recommended Verification
 
-Human/CTO review of the post-WO-S16-002 Sprint 16 Freeze Review. If accepted,
-freeze Sprint 16 at v1.156; otherwise select one new measured same-Sprint WO.
-Do not auto-cross into Sprint 17.
+Await the Human/CTO decision on the fresh Sprint 16 Freeze Review at v1.157.
+If CONTINUE is chosen, perform a new measured discovery; if FREEZE is chosen,
+freeze Sprint 16. No Sprint 17 work may be generated or crossed automatically.
 
 ## Authority
 

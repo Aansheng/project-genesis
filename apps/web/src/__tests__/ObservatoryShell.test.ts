@@ -78,11 +78,11 @@ describe('observatory store', () => {
     setActivePinia(createPinia())
   })
 
-  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.156', () => {
+  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.157', () => {
     const store = useObservatoryStore()
     expect(store.selectedPanel).toBe('Overview')
     expect(store.status).toBe('Ready')
-    expect(store.version).toBe('v1.156')
+    expect(store.version).toBe('v1.157')
   })
 
   it('defaults selectedPanel to Overview', () => {
@@ -95,9 +95,9 @@ describe('observatory store', () => {
     expect(store.status).toBe('Ready')
   })
 
-  it('defaults version to v1.156', () => {
+  it('defaults version to v1.157', () => {
     const store = useObservatoryStore()
-    expect(store.version).toBe('v1.156')
+    expect(store.version).toBe('v1.157')
   })
 
   it('selectPanel updates selectedPanel', () => {
@@ -168,7 +168,7 @@ describe('observatory header', () => {
 
   it('renders the current architecture version', () => {
     const wrapper = mountHeader()
-    expect(wrapper.find('.header-version').text()).toBe('v1.156')
+    expect(wrapper.find('.header-version').text()).toBe('v1.157')
   })
 
   it('renders the current phase on the right side', () => {
@@ -903,7 +903,7 @@ describe('observatory shell', () => {
     const wrapper = mountShell()
     expect(wrapper.text()).toContain('Observatory')
     expect(wrapper.text()).toContain('Ready')
-    expect(wrapper.text()).toContain('v1.156')
+    expect(wrapper.text()).toContain('v1.157')
     expect(wrapper.text()).toContain('Sprint 16')
   })
 
