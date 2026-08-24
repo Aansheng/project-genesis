@@ -753,8 +753,8 @@ human_decision_required: NO — the Human/CTO CONTINUE boundary was accepted;
 
 ## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-003)
 
-status: BLOCKED
-state_transition: GENERATED_AFTER_WO-S16-003 → IN_PROGRESS → VERIFYING → BLOCKED
+status: DONE
+state_transition: GENERATED_AFTER_WO-S16-003 → IN_PROGRESS → VERIFYING → BLOCKED → DONE
 priority: P0
 dependencies: WO-S16-001 DONE; WO-S16-002 DONE; WO-S16-003 DONE; Sprint 16
   acceptance evidence complete
@@ -762,18 +762,20 @@ mission: Evaluate the corrected Sprint 16 goal after the completed deterministic
   XP threshold transition and hold the Sprint at the boundary for the required
   Human/CTO freeze decision.
 measured_bottleneck: NONE within the accepted Sprint 16 product scope. All
-  eight corrected freeze criteria pass. The remaining gate is governance:
-  Human/CTO must choose whether to freeze Sprint 16.
-decision_gate: OPEN — result is READY FOR FREEZE, but Sprint 16 remains OPEN
-  and NOT FROZEN until Human/CTO records FREEZE or CONTINUE.
-allowed_scope: Review WO-S16-003/ADR-0271 evidence, record the fresh Sprint
-  Freeze Review, and wait at the Sprint boundary for Human/CTO direction.
-forbidden_scope: Automatic freeze without the Human/CTO decision, automatic
-  cross-Sprint execution, Sprint 17 work, or generating another product WO
-  before the freeze decision.
+  eight corrected freeze criteria pass and the Human/CTO governance gate is
+  resolved.
+decision_gate: RESOLVED — Human/CTO chose FREEZE on 2026-08-24. Sprint 16 is
+  frozen at v1.157 with Code Complete = YES and Product Verified = YES.
+allowed_scope: Review WO-S16-003/ADR-0271 evidence, record the final Sprint
+  Freeze Review, freeze Sprint 16, and perform only a high-level Sprint 17
+  discovery at the boundary.
+forbidden_scope: Automatic Sprint 17 execution, detailed Sprint 17 WO
+  generation, implementation, or treating candidate gaps as mandatory freeze
+  criteria.
 acceptance: PASS — Runtime-authoritative experience and level, the deterministic
   threshold, exactly-once Level 1 → Level 2 behavior, same-session retention,
-  lifecycle reset, stale World A/B isolation, and truthful projections all pass.
+  lifecycle reset, stale World A/B isolation, and truthful projections all pass;
+  Human/CTO FREEZE is recorded.
 automated_tests: PASS — affected-package regressions, direct TypeScript,
   package ESLint, Web build, and `git diff --check` pass; root Turbo typecheck
   remains blocked only by the managed TLS/keychain environment limitation.
@@ -781,11 +783,38 @@ product_verification: YES — real Studio evidence covers `world-5` at
   `经验值: 1`, `等级: 2`, same-session theme evolution retaining both values,
   and new `world-6` resetting to `经验值: 0`, `等级: 1`; browser diagnostics
   contain no warning/error entries.
-next_work_discovery: NOT GENERATED — the Sprint checkpoint is satisfied and
-  the queue stops at this freeze gate. No Sprint 17 item is generated or
-  crossed automatically.
-human_decision_required: YES — Human/CTO must decide FREEZE or CONTINUE;
-  `SPRINT_CONTINUOUS` stops here at the Sprint boundary.
+next_work_discovery: HIGH-LEVEL ONLY — candidate Sprint 17 objective is
+  `Mechanically Complete Platformer Generation`. Candidate gaps to measure are
+  death/failure, restart/respawn, enemy autonomous behavior, score/reward only
+  if required, level composition/pacing, and full natural-language platformer
+  E2E. No detailed product WO is generated.
+human_decision_required: NO for the completed Sprint 16 Freeze Review; Sprint
+  17 goal approval is a separate OPEN Human/CTO gate. `SPRINT_CONTINUOUS` stops
+  at the Sprint boundary.
+
+## SPRINT17_DISCOVERY — Mechanically Complete Platformer Generation (High-Level Only)
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_SPRINT_FREEZE_REVIEW → BLOCKED
+priority: P0
+dependencies: Sprint 16 Freeze Review DONE; Sprint 16 FROZEN at v1.157
+mission: Identify the next product-level objective without selecting a detailed
+  implementation WO: prove a full generated platformer game loop from start to
+  finish, shifting emphasis from infrastructure foundations to gameplay
+  completeness.
+measured_gaps_to_assess: death/failure state; restart/respawn; enemy autonomous
+  behavior; score/reward feedback if the product loop requires it; level
+  composition/pacing; and full natural-language platformer E2E.
+boundary: These are candidate measured gaps, not mandatory Sprint 17 scope.
+  Repository truth and a Human/CTO-approved Sprint 17 goal must select exactly
+  one smallest bottleneck later.
+forbidden_scope: Detailed backlog, product WO generation, implementation,
+  architecture changes, automatic Sprint 17 entry, or assuming all candidate
+  gaps are required.
+result: HIGH-LEVEL DISCOVERY RECORDED — `Mechanically Complete Platformer
+  Generation` is the strategic recommendation; no product WO is generated.
+human_decision_required: YES — Human/CTO must approve the Sprint 17 goal before
+  detailed Next-Work Discovery or any Sprint 17 product WO.
 
 
 ## Queue transition vocabulary

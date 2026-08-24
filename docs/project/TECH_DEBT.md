@@ -17,7 +17,7 @@
 | Durable generated-asset lifecycle | Generated gateway URIs remain session-owned. Current-SPA multi-turn reuse is verified; reuse after reload, server restart, or project reopen is not guaranteed. Add durable publication, recovery, and cleanup only when persistence is the active product bottleneck. |
 | Persistent evolution history / undo | Observatory and evolution state are session-scoped. Persistence and inverse operations remain deferred; neither is required for targeted live-world evolution. |
 
-## Post-Sprint-15 Gameplay Foundation
+## Post-Sprint-16 Gameplay Foundation
 
 | Item | Status / Evidence |
 | --- | --- |
@@ -31,6 +31,11 @@
 | Gameplay rule execution | S15-004 through S16-003 add bounded matching, trusted mutations, completion, targeted reconciliation, finite numeric state deltas, and one exactly-once threshold transition. Skills, modifiers, spawns, and generated execution remain deferred. |
 | Gameplay rule evolution | WO-S16-001 closes the bounded deterministic reconciliation gap: unaffected rules remain current and affected rules are revalidated/rebuilt or removed/deferred after semantic mutation. Broader ambiguous gameplay-rule evolution, provider fallback, persistence, and richer mechanics remain deferred. |
 | Offline World Evolution fallback | Deferred / non-blocking for Sprint 16. Without the AI gateway, World Evolution still fails during structured candidate planning; creation has a deterministic fallback. Revisit only when resilience, rather than gameplay progression, is the measured bottleneck. |
+
+Sprint 16 is frozen at v1.157. The deferred items above do not block the
+accepted Sprint 16 thesis. Sprint 17 candidate work must first be measured
+against the high-level objective `Mechanically Complete Platformer Generation`;
+no detailed WO is pre-generated.
 
 ## Sprint 12 Baseline Freeze Audit
 

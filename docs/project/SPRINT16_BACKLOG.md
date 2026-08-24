@@ -1,10 +1,10 @@
 # Sprint 16 Backlog — Gameplay Evolution & Progression Foundation
 
-Sprint 16 remains open after the Human/CTO CONTINUE decision on 2026-08-24.
+Sprint 16 is FROZEN after the Human/CTO FREEZE decision on 2026-08-24.
 WO-S16-001 verified Part 1, WO-S16-002 verified Runtime-authoritative numeric
 progression storage, and WO-S16-003 verified the deterministic XP threshold →
-Level 1 → Level 2 transition. The fresh Freeze Review is READY FOR FREEZE but
-awaits Human/CTO; Sprint 17 is not entered or auto-generated.
+Level 1 → Level 2 transition. Code Complete = YES and Product Verified = YES;
+Sprint 17 is not entered or auto-generated.
 
 ## WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
 
@@ -90,9 +90,9 @@ modifiers, spawning, and waves are not pre-planned.
 
 Code Complete: YES
 Product Verified: YES
-Sprint Freeze Review: CONTINUE / NOT READY FOR FREEZE at v1.156. WO-S16-002
-and WO-S16-003 are DONE; the post-WO-S16-003 Freeze Review is READY FOR FREEZE
-and pending Human/CTO decision.
+Historical Sprint Freeze Review at v1.155: CONTINUE / NOT READY FOR FREEZE;
+this decision generated WO-S16-002. Subsequent WO-S16-002 and WO-S16-003 are
+complete, and the final post-WO-S16-003 Freeze Review froze Sprint 16 at v1.157.
 
 ## WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
 
@@ -155,8 +155,9 @@ Final browser diagnostics contained no warning or error entries.
 
 Code Complete: YES
 Product Verified: YES
-Sprint Freeze Review: CONTINUE / NOT READY FOR FREEZE at v1.156; WO-S16-003 is
-the single authorized next product WO.
+Historical post-WO-S16-002 Freeze Review at v1.156: CONTINUE / NOT READY FOR
+FREEZE; this decision authorized the single bounded WO-S16-003. The later final
+Freeze Review froze Sprint 16 at v1.157.
 
 Skill selection, modifiers, score policy,
 spawn/wave pressure, Survivor-specific behavior, and offline World Evolution
@@ -219,5 +220,15 @@ new world/session, and produce no browser warnings/errors.
 
 Code Complete: YES
 Product Verified: YES
-Sprint Freeze Review: READY FOR FREEZE / BLOCKED pending Human/CTO decision.
-No next product WO or Sprint 17 item is generated automatically.
+Sprint Freeze Review: FROZEN / DONE. Human/CTO FREEZE accepted; no next
+product WO or Sprint 17 item is generated automatically.
+
+## Sprint 17 High-Level Discovery — Not Approved
+
+Strategic recommendation: **Mechanically Complete Platformer Generation**.
+The next product-level objective should prove a full generated platformer loop
+from start to finish. Candidate gaps to measure later are death/failure,
+restart/respawn, enemy autonomous behavior, score/reward if required, level
+composition/pacing, and full natural-language platformer E2E. These are not
+mandatory scope, and no detailed Sprint 17 WO is generated before Human/CTO
+approves the Sprint 17 goal.

@@ -4,28 +4,26 @@ This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
 architecture_version: v1.157
-current_sprint: Sprint 16 (OPEN — product checkpoint passes; fresh freeze review
-  awaits Human/CTO decision)
-current_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution &
-  Progression Foundation (Post-WO-S16-003)
+current_sprint: Sprint 16 (FROZEN — v1.157; Sprint 17 goal approval pending)
+current_work_order: SPRINT17_DISCOVERY — Mechanically Complete Platformer
+  Generation (High-Level Only)
 current_work_order_status: blocked
-current_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay
-  Evolution & Progression Foundation (Post-WO-S16-003)
+current_control_plane_work_order: SPRINT17_DISCOVERY — Mechanically Complete
+  Platformer Generation (High-Level Only)
 current_control_plane_work_order_status: blocked
 last_completed_work_order: WO-S16-003 — Deterministic XP Threshold Level Transition
 last_completed_product_work_order: WO-S16-003
-last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — READY FOR
-  FREEZE / Human/CTO decision required
-next_ready_work_order: NONE — Sprint 16 stops at the Human/CTO freeze gate;
-  no Sprint 17 item is generated
-product_architecture_changed: yes — v1.156 → v1.157; deterministic threshold
-  evaluation and level state are complete
-sprint_status: Sprint 16 remains OPEN and NOT FROZEN; all corrected product
-  criteria pass and the fresh Freeze Review is READY FOR FREEZE
+last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16
+  FROZEN at v1.157
+next_ready_work_order: NONE — Sprint 16 boundary stop; Sprint 17 goal approval
+  is pending and no detailed product WO is generated
+product_architecture_changed: no — architecture remains v1.157 after freeze
+sprint_status: Sprint 16 is FROZEN; Code Complete = YES; Product Verified = YES
 product_verified: YES — WO-S16-001, WO-S16-002, and WO-S16-003 are Product
-  Verified; only the Human/CTO freeze decision remains
+  Verified and Sprint 16 is frozen; Sprint 17 is not entered
 continuation_mode: SPRINT_CONTINUOUS
-control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
+control_plane_status: SPRINT_BOUNDARY_STOP; sequential same-Sprint execution
+  only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
   automatic cross-Sprint execution disabled
 
@@ -105,9 +103,13 @@ Mechanics Foundation remains frozen and is the verified baseline.
   threshold commits Level 1 → Level 2 exactly once, same-session semantic
   evolution retains both values, a new world/session resets to `0/1`, and
   stale World A bindings cannot mutate World B.
-- The fresh post-WO-S16-003 Sprint Freeze Review passes all eight corrected
-  criteria and is BLOCKED only for the required Human/CTO FREEZE or CONTINUE
-  decision. No next product WO or Sprint 17 work is generated.
+- The fresh post-WO-S16-003 Sprint Freeze Review passed all eight corrected
+  criteria. Human/CTO chose FREEZE; Sprint 16 is FROZEN at v1.157 with Code
+  Complete = YES and Product Verified = YES.
+- High-level Sprint 17 Discovery records `Mechanically Complete Platformer
+  Generation` as the strategic recommendation. Candidate gaps are only to be
+  measured later; no detailed product WO is generated or executed before
+  Human/CTO approves the Sprint 17 goal.
 
 ## Active capabilities
 
@@ -191,20 +193,19 @@ own capability-focused work item rather than broadening WO-META-003.
 ## Current product gaps
 
 The current product is a playable bounded slice, not a complete general
-gameplay engine. Sprint 15 has no implementation blocker and is frozen. Sprint
-16 Part 1 and the first generic progression transition are Product Verified;
-the remaining gate is the Human/CTO Freeze Review. The progression slice is
-intentionally limited to finite additive state, one typed threshold, and one
-level transition. Upgrade/skill selection, modifiers, timers, spawning, waves,
-goal deletion, persistence, and broader gameplay-rule evolution remain
-deferred. Offline World Evolution fallback is a real resilience gap but is
-explicitly non-blocking for this Sprint goal.
+gameplay engine. Sprint 15 and Sprint 16 are frozen with their accepted
+boundaries. Sprint 16 is intentionally limited to finite additive state, one
+typed threshold, and one level transition. Upgrade/skill selection, modifiers,
+timers, spawning, waves, goal deletion, persistence, and broader gameplay-rule
+evolution remain deferred. Offline World Evolution fallback is a real
+resilience gap but was explicitly non-blocking for Sprint 16.
 
 ## Next Recommended Verification
 
-Await the Human/CTO decision on the fresh Sprint 16 Freeze Review at v1.157.
-If CONTINUE is chosen, perform a new measured discovery; if FREEZE is chosen,
-freeze Sprint 16. No Sprint 17 work may be generated or crossed automatically.
+Await Human/CTO approval of the high-level Sprint 17 objective
+`Mechanically Complete Platformer Generation`. After approval, perform a fresh
+high-level-to-bounded discovery; until then, generate no detailed WO and do not
+enter Sprint 17.
 
 ## Authority
 

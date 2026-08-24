@@ -32,6 +32,9 @@ architecture.
   `NUMBER_COMPARE` evaluates `experience >= 1 AND level < 2`, and the existing
   numeric action commits Level 1 → Level 2 exactly once. Runtime, Renderer,
   Web, and Observatory evidence is Product Verified.
+- Sprint 16 Freeze Review: Human/CTO chose FREEZE. Sprint 16 is frozen at
+  v1.157 with Code Complete = YES and Product Verified = YES. The Freeze Review
+  introduced no architecture change.
 
 ## Current direction
 
@@ -53,7 +56,7 @@ v1.155 and preserves the same authority boundaries. Human/CTO continued Sprint
 16 because its corrected goal also requires the first generic progression
 loop. WO-S16-002 closed the measured Runtime-owned numeric-state gap at v1.156;
 WO-S16-003 closed the smallest remaining transition gap at v1.157. Sprint 16
-remains open and not frozen pending the fresh Freeze Review Human/CTO decision.
+is frozen at v1.157 with its accepted product thesis complete.
 
 ## Deferred direction
 
@@ -64,8 +67,10 @@ product need and acceptance path justify them. Goal completion beyond the
 current session-completed truth, including victory UI, next level, restart,
 failure, and progression beyond the bounded numeric primitive, remains
 deferred. Offline World Evolution fallback is recorded as resilience debt, not
-the current Sprint bottleneck. The post-WO-S16-003 Freeze Review is READY FOR
-FREEZE and blocks only on Human/CTO direction; no Sprint 17 work is authorized.
+the current Sprint bottleneck. Sprint 17 is not authorized yet. Its high-level
+candidate objective is `Mechanically Complete Platformer Generation`; candidate
+gaps must be measured after Human/CTO approves the Sprint 17 goal, and no
+detailed product WO is pre-generated.
 
 ## Supervisor rollout
 
@@ -75,6 +80,6 @@ next READY/BLOCKED work item. With `continuation_mode = SPRINT_CONTINUOUS`, it
 may continue sequentially through that next item and later same-Sprint items
 after all gates pass. `max_concurrent_subagents = 2`, repair budget `= 3`,
 Human/CTO escalation, one-next-WO generation, and the Sprint-boundary stop
-remain active. With Sprint 16 implementation gates complete, continuous mode
-stops at the pending Freeze Review; it never authorizes automatic cross-Sprint
-execution.
+remain active. With Sprint 16 frozen, continuous mode stops at the Sprint
+boundary; it never authorizes automatic cross-Sprint execution or detailed
+Sprint 17 work before goal approval.

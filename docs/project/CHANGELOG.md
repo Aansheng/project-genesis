@@ -6,9 +6,12 @@
   criteria: Runtime-authoritative experience and level, deterministic threshold,
   exactly-once Level 1 → Level 2 transition, same-session retention, lifecycle
   reset, stale World A/B isolation, and truthful projections.
-- Result: **READY FOR FREEZE**. Control-plane status is **BLOCKED pending the
-  Human/CTO FREEZE or CONTINUE decision**. Sprint 16 remains open; no next
-  product WO or Sprint 17 work is generated or crossed automatically.
+- Result: **FROZEN**. Human/CTO accepted FREEZE on 2026-08-24. Sprint 16 is
+  Code Complete = YES, Product Verified = YES, and FROZEN = YES at v1.157;
+  the Freeze Review introduced no architecture change.
+- High-level Sprint 17 Discovery records `Mechanically Complete Platformer
+  Generation` as a candidate objective only. No detailed product WO or Sprint
+  17 execution is generated before Human/CTO approves the goal.
 
 ### WO-S16-003 — Deterministic XP Threshold Level Transition
 
@@ -28,8 +31,8 @@
   both through same-session theme evolution, and observed new `world-6` reset to
   `经验值: 0`, `等级: 1`; browser diagnostics were clean.
 - Architecture v1.156 → v1.157. Code Complete = YES and Product Verified = YES
-  on 2026-08-24. Sprint 16 remains NOT FROZEN pending Human/CTO decision; no
-  Sprint 17 work is generated or crossed.
+  on 2026-08-24. The subsequent Human/CTO Freeze Review froze Sprint 16 at
+  v1.157; no Sprint 17 work is generated or crossed.
 
 ### WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
 

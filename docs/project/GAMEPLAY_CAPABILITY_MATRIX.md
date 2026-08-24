@@ -1,6 +1,6 @@
-# Gameplay Capability Matrix — WO-S16-003 Complete
+# Gameplay Capability Matrix — Sprint 16 Frozen
 
-Architecture version: v1.157 (WO-S16-003 Product Verified)
+Architecture version: v1.157 (WO-S16-003 Product Verified; Sprint 16 FROZEN)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

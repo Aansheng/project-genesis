@@ -2,10 +2,9 @@
 
 ## Freeze Status
 
-Sprint 16 remains **not frozen** pending the Human/CTO decision on the fresh
-post-WO-S16-003 Freeze Review. Architecture v1.157 and the product checkpoint
-are complete. The prior Human/CTO decision was **CONTINUE**; the new review is
-**READY FOR FREEZE** and therefore waits at the Sprint boundary:
+Sprint 16 is **FROZEN** at architecture v1.157. The Human/CTO decision on the
+post-WO-S16-003 Freeze Review is **FREEZE**. The product checkpoint and all
+accepted evidence are complete:
 
 1. Gameplay-Preserving World Evolution — `WO-S16-001`.
 2. Runtime-authoritative numeric progression storage — `WO-S16-002`.
@@ -13,10 +12,21 @@ are complete. The prior Human/CTO decision was **CONTINUE**; the new review is
 
 - Code Complete: WO-S16-001/002/003 YES
 - Product Verified: WO-S16-001/002/003 YES
-- FROZEN: NO — READY FOR FREEZE; Human/CTO decision required
-- Current control-plane item: post-WO-S16-003 `SPRINT_FREEZE_REVIEW`
-- Human decision required: YES — choose FREEZE or CONTINUE
+- FROZEN: YES — Human/CTO FREEZE accepted on 2026-08-24
+- Current control-plane item: high-level `SPRINT17_DISCOVERY` only
+- Human decision required: YES for Sprint 17 goal approval; no Sprint 17 WO
 - Sprint 17: not entered or auto-generated
+
+## Freeze Decision
+
+- Code Complete: YES
+- Product Verified: YES
+- FROZEN: YES
+- Architecture: v1.157 unchanged by the Freeze Review
+- Deferred capabilities do not block the freeze: skills, upgrades, modifiers,
+  spawn/waves, difficulty scaling, Survivor-specific Runtime, death/respawn,
+  and offline World Evolution fallback.
+- Supervisor action: stop at the Sprint boundary; do not begin Sprint 17.
 
 ## Sprint Goal
 
@@ -129,15 +139,26 @@ death/respawn/game-over,
 timers, spawn/wave pressure, persistence, richer rule actions, broader
 gameplay-rule evolution, and the full Survivor loop remain deferred. The
 missing offline World Evolution fallback is a real resilience gap but is
-explicitly non-blocking for Sprint 16. WO-S16-003 is complete; the fresh
-Freeze Review is READY FOR FREEZE and awaits Human/CTO direction. Do not
-auto-cross into Sprint 17.
+explicitly non-blocking for Sprint 16. WO-S16-003 is complete and Sprint 16 is
+FROZEN. Do not auto-cross into Sprint 17.
 
 ## Post-WO-S16-003 Freeze Evaluation
 
-- Result: **READY FOR FREEZE**
-- Control-plane status: **BLOCKED — Human/CTO decision required**
+- Result: **FROZEN**
+- Control-plane status: **DONE — Human/CTO FREEZE accepted**
 - Product bottleneck: none within the corrected Sprint 16 scope
 - All eight corrected freeze criteria: PASS
-- Next-Work Discovery: not generated; queue stopped at the Sprint boundary
+- Architecture: v1.157 unchanged
+- Next-Sprint Discovery: high-level only; detailed WO not generated
 - Sprint 17: not entered or auto-generated
+
+## Sprint 17 High-Level Discovery — Not Approved
+
+- Strategic recommendation: **Mechanically Complete Platformer Generation**.
+- Product emphasis: prove a full generated platformer loop from start to finish,
+  rather than adding another isolated infrastructure foundation.
+- Candidate gaps to measure later: death/failure, restart/respawn, enemy
+  autonomous behavior, score/reward only if required, level composition/pacing,
+  and full natural-language platformer E2E.
+- These are candidates, not mandatory Sprint 17 scope. No detailed product WO
+  is generated until Human/CTO approves the Sprint 17 goal.
