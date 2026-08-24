@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.154
-current_sprint: Sprint 16 (OPEN — opening WO READY)
+architecture_version: v1.155
+current_sprint: Sprint 16 (OPEN — WO-S16-001 complete; freeze review pending)
 current_work_order: WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
-current_work_order_status: ready
-current_control_plane_work_order: WO-S16-001
-current_control_plane_work_order_status: ready
-last_completed_work_order: SPRINT16_DISCOVERY
-last_completed_product_work_order: WO-S15-007
+current_work_order_status: done
+current_control_plane_work_order: SPRINT_FREEZE_REVIEW
+current_control_plane_work_order_status: blocked_pending_human_cto_review
+last_completed_work_order: WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
+last_completed_product_work_order: WO-S16-001
 last_completed_control_plane_work_order: SPRINT16_DISCOVERY
-next_ready_work_order: WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
-product_architecture_changed: no — decision resolution preserved v1.154; WO-S16-001 has not executed
-sprint_status: Sprint 15 Gameplay Mechanics Foundation is FROZEN; Sprint 16 opening WO is READY; no Sprint 16 product work executed
-product_verified: YES — Sprint 15 Freeze Review accepted the accumulated WO-S15-004 through WO-S15-007 evidence on 2026-08-24
+next_ready_work_order: none — SPRINT_FREEZE_REVIEW is blocked pending Human/CTO decision
+product_architecture_changed: yes — v1.154 → v1.155; targeted reconciliation is wired and verified
+sprint_status: Sprint 16 WO-S16-001 is DONE; Sprint 16 is READY FOR FREEZE REVIEW and stopped at the Human/CTO gate
+product_verified: YES — WO-S16-001 manual Studio verification completed on 2026-08-24
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -65,8 +65,14 @@ Foundation remains frozen and is the verified baseline for this bridge.
   criteria pass against source wiring, automated regressions, accumulated
   Studio evidence, and Observatory truth. Sprint 15 is frozen at v1.154.
 - `SPRINT16_DISCOVERY` is complete: Human/CTO accepted targeted Gameplay Rule
-  Reconciliation, and the first bounded Sprint 16 product WO is READY. No
-  Sprint 16 product implementation has executed.
+  Reconciliation, and the first bounded Sprint 16 product WO is complete.
+- `WO-S16-001` is complete at v1.155: applied semantic evolution now performs
+  deterministic targeted Gameplay Rule reconciliation before semantic commit;
+  unaffected rules remain executable, affected rules are rebuilt/revalidated
+  or removed/deferred, the same Runtime/session continues, and Observatory
+  exposes separate reconciliation facts.
+- Sprint 16 freeze review is the single next control-plane item and is blocked
+  pending Human/CTO acceptance. No next feature WO is generated or executed.
 
 ## Active capabilities
 
@@ -88,9 +94,9 @@ Foundation remains frozen and is the verified baseline for this bridge.
 - Pixi Renderer synchronization and truthful Observatory projections.
 - Targeted semantic, Runtime, visual, and asset evolution in the current
   session, with stale/revision guards.
-- Targeted Gameplay Rule Reconciliation is authorized but not yet implemented;
-  the current runtime behavior still exposes semantic-evolution stale RuleSet
-  truth until `WO-S16-001` executes.
+- Targeted Gameplay Rule Reconciliation is implemented and current: the Web
+  semantic-evolution commit boundary consumes the deterministic reconciler and
+  commits the updated semantic world and RuleSet together.
 - Sprint-level generic gameplay thesis is verified: structured intent/rules,
   Runtime facts, generic matching, trusted actions, three interaction slices,
   continuity, isolation, and truthful projections are all present.
@@ -110,11 +116,17 @@ Foundation remains frozen and is the verified baseline for this bridge.
 ## Known environment issues
 
 - Existing AI package lint warnings/debt are recorded in
-  docs/project/TECH_DEBT.md and are unrelated to WO-S15-006.
+  docs/project/TECH_DEBT.md and are unrelated to WO-S16-001.
 - In this managed environment, the root `pnpm typecheck` Turbo wrapper cannot
   initialize its API client because TLS/keychain access is unavailable; direct
   TypeScript checks for all affected packages pass. A parallel Renderer Vitest
   run can also expose jsdom canvas noise; the standalone Renderer suite passes.
+- When the local AI gateway at `127.0.0.1:8787` is unavailable, Studio World
+  Creation uses its deterministic fallback but World Evolution currently fails
+  before reconciliation because its structured candidate provider is gateway-
+  dependent. WO-S16-001 was verified with a localhost-only structured candidate
+  gateway; offline evolution fallback is an adjacent follow-up, not part of
+  the accepted reconciliation bridge.
 - Compatibility exports, test-only mock Observatory loading, inert streaming
   state, and legacy Canvas2D renderWorld() remain in the repository; current
   production Studio wiring does not use them.
@@ -132,10 +144,10 @@ own capability-focused work item rather than broadening WO-META-003.
 
 The current product is a playable bounded slice, not a complete general
 gameplay engine. Sprint 15 has no implementation blocker and is frozen. Sprint
-16 direction is accepted and `WO-S16-001` is READY, but no product work has
-executed in this decision-resolution continuation. The measured gap is that
-semantic World Evolution currently marks the world-bound `GameplayRuleSet`
-stale because targeted gameplay-mechanics reconciliation is not implemented.
+16 direction is accepted and `WO-S16-001` is Code Complete and Product
+Verified. The remaining gate is Human/CTO Sprint Freeze Review. The measured
+implementation gap—semantic World Evolution marking the world-bound
+`GameplayRuleSet` stale—has been closed by the bounded reconciliation bridge.
 Victory UI, next level, restart, death/respawn/game-over, score/numeric state,
 XP, progression, timers, spawning, goal deletion, persistence, and gameplay
 rule evolution beyond this bounded bridge remain deferred.

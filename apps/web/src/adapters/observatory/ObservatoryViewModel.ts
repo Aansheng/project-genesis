@@ -156,6 +156,13 @@ export interface HistoryViewModel {
   readonly semanticRevision?: number
   readonly runtimeSemanticRevision?: number
   readonly runtimeSynchronization?: 'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'
+  readonly gameplayReconciliation?: 'pending' | 'reconciled' | 'failed'
+  readonly gameplayRuleSetRevision?: number
+  readonly gameplayRulesPreserved?: number
+  readonly gameplayRulesRevalidated?: number
+  readonly gameplayRulesRebuilt?: number
+  readonly gameplayRulesRemoved?: number
+  readonly gameplayRulesDeferred?: number
   readonly visualRevision?: number
   readonly visualPlanning?: 'pending' | 'planned' | 'no_visual_impact' | 'failed'
   readonly visualGenerationRequired?: number
@@ -198,6 +205,13 @@ export interface DiffViewModel {
   readonly semanticRevision?: number
   readonly runtimeSemanticRevision?: number
   readonly runtimeSynchronization?: 'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'
+  readonly gameplayReconciliation?: 'pending' | 'reconciled' | 'failed'
+  readonly gameplayRuleSetRevision?: number
+  readonly gameplayRulesPreserved?: number
+  readonly gameplayRulesRevalidated?: number
+  readonly gameplayRulesRebuilt?: number
+  readonly gameplayRulesRemoved?: number
+  readonly gameplayRulesDeferred?: number
   readonly runtimeAffectedEntityIds?: readonly string[]
   readonly runtimeAddedEntityIds?: readonly string[]
   readonly runtimeRemovedEntityIds?: readonly string[]

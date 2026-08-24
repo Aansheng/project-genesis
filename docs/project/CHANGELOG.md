@@ -1,5 +1,21 @@
 # Changelog
 
+### WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
+
+- Added the provider-independent `GameplayRuleReconciler` contract in Shared
+  and the deterministic AI implementation using the existing
+  `GameplayRuleBuilder` and `GameplayRuleValidator` paths.
+- Applied semantic World Evolution now preserves unaffected rules, revalidates
+  or rebuilds affected known rules, removes dangling/invalid rules, and records
+  visible deferred facts without globally disabling the RuleSet.
+- Connected reconciliation to the Web semantic commit boundary, preserving the
+  same Runtime/session and Renderer path while advancing the current RuleSet
+  semantic revision. Observatory now exposes reconciliation stages, events,
+  counts, and status separately from Runtime execution facts.
+- Added ADR-0269 and focused Shared/AI/Runtime/Web coverage. Architecture is
+  v1.154 → v1.155; Code Complete = YES and Product Verified = YES on
+  2026-08-24. Sprint 16 is stopped at the pending Human/CTO Freeze Review.
+
 ### Sprint 16 Direction Decision — Gameplay-Preserving World Evolution
 
 - Human/CTO selected targeted Gameplay Rule Reconciliation: preserve

@@ -1,6 +1,6 @@
-# Observatory Truth Audit — WO-OBS-001 / WO-S15-002 / WO-S15-004 / WO-S15-005
+# Observatory Truth Audit — WO-OBS-001 / WO-S15-002 / WO-S15-004 / WO-S15-005 / WO-S16-001
 
-Architecture is v1.154. This audit records production behavior; test fixtures are excluded.
+Architecture is v1.155. This audit records production behavior; test fixtures are excluded.
 The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
 recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
 generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
@@ -10,10 +10,10 @@ create-world visual operations now terminate as cancelled rather than remaining 
 | Surface | Component | Store / view model | Classification | Current producer | Session correlation | Current-world truth | Misleading risk / treatment |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Overview | `ObservatoryOverview` | `observatoryData` + `gameStore` | REAL / PARTIAL | Runtime binding, latest `GameGenerationTrace`, GameplaySpecification, world-bound GameplayRuleSet, bounded rule results, visual operations, AssetManifest | Current SPA stores + worldId/revision binding | Yes; supported slice is labelled active and deferred/stale rules remain gated | Legacy v1.29 mock retired; rule plans and rule results remain distinct from raw facts |
-| Trace | `ObservatoryTraceViewer` | `ObservatoryViewModel.traceView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `recordWorldEvolution` projects planning, semantic, Runtime sync, asset, manifest, renderer, and failure stages with safe metadata, including bounded generation-context summaries | `operationId + worldId + semanticRevision + runtimeSemanticRevision + visualRevision + manifestRevision + contextScope` | Yes for current operation; stale results remain failed facts and never rebind | No hidden reasoning or synthetic Runtime ticks |
+| Trace | `ObservatoryTraceViewer` | `ObservatoryViewModel.traceView` | REAL / SEMANTIC + GAMEPLAY RECONCILIATION + RUNTIME + VISUAL EXECUTION | `recordWorldEvolution` projects planning, semantic, Gameplay Rule reconciliation, Runtime sync, asset, manifest, renderer, and failure stages with safe metadata, including bounded generation-context summaries | `operationId + worldId + semanticRevision + gameplayRuleSetRevision + runtimeSemanticRevision + visualRevision + manifestRevision + contextScope` | Yes for current operation; stale results remain failed facts and never rebind | Reconciliation facts are not presented as gameplay execution; no hidden reasoning or synthetic Runtime ticks |
 | Timeline | `ObservatoryTimelineViewer` | `ObservatoryViewModel.timelineView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation.stages` with planning, semantic, Runtime synchronization, generation, manifest, resolution, renderer, and sync timestamps | `operationId + worldId` | Yes for current operation | Only emitted stages; no synthetic Runtime ticks |
-| History | `ObservatoryHistoryViewer` | `ObservatoryViewModel.historyView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation` instruction, status, revisions, asset counts, manifest revision, and renderer counts | `operationId + worldId + visualRevision + manifestRevision` | Reports asset execution completed/failed, visual synchronized, or previous visual retained | Never claims success before the renderer callback |
-| Diff | `ObservatoryDiffViewer` | `ObservatoryViewModel.diffView` | REAL / SEMANTIC + RUNTIME + VISUAL EXECUTION | Actual `WorldSemanticDelta`, `SemanticWorldMutationResult`, `RuntimeEvolutionResult`, `VisualEvolutionPlan`, and `VisualAssetExecutionResult` | `operationId + worldId + targetIds + visualRevision + manifestRevision` | Layered semantic, Runtime IDs, visual archetypes, targeted rebound/removed IDs, renderer counts, and fallback facts | Does not claim unrelated assets changed |
+| History | `ObservatoryHistoryViewer` | `ObservatoryViewModel.historyView` | REAL / SEMANTIC + GAMEPLAY RECONCILIATION + RUNTIME + VISUAL EXECUTION | `WorldEvolutionOperation` instruction, status, reconciliation status/revision/counts, asset counts, manifest revision, and renderer counts | `operationId + worldId + gameplayRuleSetRevision + visualRevision + manifestRevision` | Reports reconciliation outcome separately from asset execution and Runtime synchronization | Never claims success before the relevant commit/callback |
+| Diff | `ObservatoryDiffViewer` | `ObservatoryViewModel.diffView` | REAL / SEMANTIC + GAMEPLAY RECONCILIATION + RUNTIME + VISUAL EXECUTION | Actual `WorldSemanticDelta`, reconciliation facts, `SemanticWorldMutationResult`, `RuntimeEvolutionResult`, `VisualEvolutionPlan`, and `VisualAssetExecutionResult` | `operationId + worldId + targetIds + gameplayRuleSetRevision + visualRevision + manifestRevision` | Layered semantic, rule reconciliation counts, Runtime IDs, visual archetypes, targeted rebound/removed IDs, renderer counts, and fallback facts | Does not claim unrelated rules or assets changed |
 | Event Stream | `ObservatoryEventStream` | `ObservatoryViewModel.eventStreamView` | REAL / GAMEPLAY + GAMEPLAY RULE + DOMAIN + ASSET EVENTS | Runtime gameplay facts through `RuntimeGameplayEventCollector → Renderer observer → observatoryData.recordRuntimeGameplayEvents`, separate rule results through `DefaultGameplayRuleExecutor → Renderer observer → observatoryData.recordRuntimeGameplayRuleResults`, plus world evolution request/planning/semantic/Runtime and asset execution/generation/manifest/renderer/sync events | `eventId` for gameplay facts; `eventId + ruleId` for rule results; `operationId + worldId` for evolution facts | Yes for the current Runtime world/session; raw provider payloads excluded | Facts and rule results are bounded to the latest 100 UI entries; rule plans, provider transport duplicates, and synthetic ticks are excluded |
 | Execution Graph | `ObservatoryTraceGraph` | None | EMPTY-BY-DESIGN | No live graph producer | None | N/A | Old hardcoded CreateWorld/CreateFarm topology removed |
 | World Graph | `ObservatoryWorldGraph` | Runtime view projection | REAL / PARTIAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes; current entities/types only | Old Farm/Barn/HarvestQuest fixture removed |
@@ -25,7 +25,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 - The production store no longer contains the Sprint 6 farm/history/diff/event demo builder.
 - `ObservatoryOverview` no longer auto-hydrates mock data in test mode.
 - The legacy fixture lives only under `src/__tests__/fixtures` and is installed by Vitest setup for historical tests.
-- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.154.
+- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.155.
 
 ## Sprint 14 producers
 
@@ -102,8 +102,12 @@ trusted condition evaluator, and staged multi-action executor into the
 immutable Runtime World mutation path. Rule IDs, selectors, support status,
 action status, and commit/rollback truth remain Genesis-normalized/derived;
 raw provider rule payloads and code are excluded. The RuleSet is bound to the
-current world ID and semantic/gameplay revisions; semantic evolution marks it
-stale because automatic mechanics synchronization is not implemented.
+current world ID and semantic/gameplay revisions. WO-S16-001 adds a
+provider-independent reconciliation stage after applied semantic mutation:
+unaffected rules remain current, affected rules are revalidated/rebuilt or
+removed/deferred, and the resulting RuleSet advances its semantic revision
+before Web commits the semantic world. Reconciliation stages and counts remain
+separate from Runtime execution facts.
 
 `GameplaySpecification` means desired mechanics; `GameplayRuleSet` means
 validated structured rule intent; `GameplayEvent` means Runtime facts; rule
@@ -133,3 +137,21 @@ WO-S15-005 MANUAL browser evidence on 2026-08-21 recorded a real
 with no enemy, while later `ENTITY_LANDED` and `ENTITY_JUMPED` facts confirmed
 continuity. The Renderer now publishes the committed world before observers
 read it, so Runtime and diagnostics remain current at the same boundary.
+
+## Sprint 16 reconciliation producer
+
+WO-S16-001 adds `GAMEPLAY_RECONCILIATION_STARTED` and
+`GAMEPLAY_RECONCILIATION_COMPLETED` stages plus separate domain events for the
+applied semantic-evolution operation. Trace Snapshot/Metadata, History, and
+Diff expose the current RuleSet revision and preserved/revalidated/rebuilt/
+removed/deferred counts. A reconciliation result is never projected as a raw
+GameplayEvent or committed Runtime rule result.
+
+Manual Studio evidence on 2026-08-24 recorded an unrelated `world-2` night
+evolution with RuleSet revision 1 and `preserved=4`, followed in the same
+Runtime/session by a Boss add/remove sequence whose final Diff reported
+`preserved=2` and `removed=2`. Runtime remained `active`, entity removal was
+visible in the current world, and final page diagnostics contained no browser
+errors or warnings. The evolution request used a localhost-only structured
+candidate verification gateway; no Provider payload is copied into the
+Observatory.

@@ -122,7 +122,13 @@ describe('World Evolution Studio integration', () => {
 
     expect(result.success).toBe(true)
     expect(result.evolutionPlan?.status).toBe('validated')
+    if (result.evolutionPlan?.status !== 'validated') throw new Error('expected a validated world evolution plan')
     expect(result.evolutionPlan?.operation.status).toBe('asset_execution_started')
+    expect(result.evolutionPlan?.gameplayReconciliation?.status).toBe('reconciled')
+    expect(result.evolutionPlan?.operation.gameplayReconciliation).toBe('reconciled')
+    expect(result.evolutionPlan?.operation.gameplayRuleSetRevision).toBe(1)
+    expect(game.gameplayRuleSet?.bindingStatus).toBe('current')
+    expect(game.gameplayRuleSet?.semanticRevision).toBe(1)
     expect(game.semanticRevision).toBe(1)
     expect(game.semanticWorld?.entities.filter(entity => entity.id.startsWith('cow-')).map(entity => entity.name)).toEqual(['Sheep', 'Sheep', 'Sheep'])
     expect(JSON.stringify(game.worldStore.getWorld())).not.toBe(beforeRuntime)
@@ -157,6 +163,8 @@ describe('World Evolution Studio integration', () => {
       'DELTA_VALIDATION · success',
       'SEMANTIC_APPLICATION_STARTED · success',
       'SEMANTIC_APPLICATION_COMPLETED · success',
+      'GAMEPLAY_RECONCILIATION_STARTED · success',
+      'GAMEPLAY_RECONCILIATION_COMPLETED · success',
       'RUNTIME_SYNC_STARTED · success',
       'RUNTIME_SYNC_COMPLETED · success',
       'VISUAL_IMPACT_STARTED · success',
@@ -173,6 +181,29 @@ describe('World Evolution Studio integration', () => {
     expect(next.success).toBe(true)
     expect(game.semanticWorld?.entities.some(entity => entity.name === 'Sheep')).toBe(false)
     expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(['player-1', 'crop-1', 'barn-1'])
+  })
+
+  it('reconciles known semantic evolution without requesting gameplay regeneration', async () => {
+    const requests: string[] = []
+    const backend = gateway()
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string }
+      requests.push(body.kind ?? 'image-generation')
+      return backend(input, init)
+    })
+    vi.stubGlobal('fetch', fetcher)
+    const game = useGameStore()
+
+    await game.send('创建一个农场游戏，3头牛')
+    const gameplayGenerationRequests = requests.filter(kind => kind === 'gameplay-generation').length
+
+    const result = await game.send('把所有牛改成羊')
+
+    expect(result.success).toBe(true)
+    if (result.evolutionPlan?.status !== 'validated') throw new Error('expected a validated world evolution plan')
+    expect(requests.filter(kind => kind === 'world-evolution')).toHaveLength(1)
+    expect(requests.filter(kind => kind === 'gameplay-generation')).toHaveLength(gameplayGenerationRequests)
+    expect(result.evolutionPlan?.gameplayReconciliation?.status).toBe('reconciled')
   })
 
   it('isolates World A evolution history when World B becomes current', async () => {

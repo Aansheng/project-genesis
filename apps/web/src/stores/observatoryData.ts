@@ -102,7 +102,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       ...operation.events.map(event => Object.freeze({
         id: event.id,
         timestamp: event.timestamp,
-        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed' || event.type === 'world.evolution.visual_delta_failed' || event.type === 'world.evolution.visual_sync_failed'
+        level: event.type === 'world.evolution.semantic_application_failed' || event.type === 'world.evolution.runtime_sync_failed' || event.type === 'world.evolution.gameplay_reconciliation_failed' || event.type === 'world.evolution.visual_delta_failed' || event.type === 'world.evolution.visual_sync_failed'
           ? 'error' as const
           : event.type === 'world.evolution.validation_failed' || event.type === 'world.evolution.needs_clarification'
             ? 'warning' as const
@@ -374,6 +374,13 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.semanticRevision !== undefined ? [{ key: 'semanticRevision', value: String(operation.semanticRevision) }] : []),
       ...(operation.runtimeSemanticRevision !== undefined ? [{ key: 'runtimeSemanticRevision', value: String(operation.runtimeSemanticRevision) }] : []),
       ...(operation.runtimeSynchronization ? [{ key: 'runtimeSynchronization', value: operation.runtimeSynchronization }] : []),
+      ...(operation.gameplayReconciliation ? [{ key: 'gameplayReconciliation', value: operation.gameplayReconciliation }] : []),
+      ...(operation.gameplayRuleSetRevision !== undefined ? [{ key: 'gameplayRuleSetRevision', value: String(operation.gameplayRuleSetRevision) }] : []),
+      ...(operation.gameplayRulesPreserved !== undefined ? [{ key: 'gameplayRulesPreserved', value: String(operation.gameplayRulesPreserved) }] : []),
+      ...(operation.gameplayRulesRevalidated !== undefined ? [{ key: 'gameplayRulesRevalidated', value: String(operation.gameplayRulesRevalidated) }] : []),
+      ...(operation.gameplayRulesRebuilt !== undefined ? [{ key: 'gameplayRulesRebuilt', value: String(operation.gameplayRulesRebuilt) }] : []),
+      ...(operation.gameplayRulesRemoved !== undefined ? [{ key: 'gameplayRulesRemoved', value: String(operation.gameplayRulesRemoved) }] : []),
+      ...(operation.gameplayRulesDeferred !== undefined ? [{ key: 'gameplayRulesDeferred', value: String(operation.gameplayRulesDeferred) }] : []),
       ...(operation.visualRevision !== undefined ? [{ key: 'visualRevision', value: String(operation.visualRevision) }] : []),
       ...(operation.visualPlanning ? [{ key: 'visualPlanning', value: operation.visualPlanning }] : []),
       ...(operation.visualGenerationRequired !== undefined ? [{ key: 'visualGenerationRequired', value: String(operation.visualGenerationRequired) }] : []),
@@ -401,6 +408,13 @@ function buildEvolutionTrace(operation: WorldEvolutionOperation): ObservatoryVie
       ...(operation.semanticRevision !== undefined ? { semanticRevision: operation.semanticRevision } : {}),
       ...(operation.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: operation.runtimeSemanticRevision } : {}),
       ...(operation.runtimeSynchronization ? { runtimeSynchronization: operation.runtimeSynchronization } : {}),
+      ...(operation.gameplayReconciliation ? { gameplayReconciliation: operation.gameplayReconciliation } : {}),
+      ...(operation.gameplayRuleSetRevision !== undefined ? { gameplayRuleSetRevision: operation.gameplayRuleSetRevision } : {}),
+      ...(operation.gameplayRulesPreserved !== undefined ? { gameplayRulesPreserved: operation.gameplayRulesPreserved } : {}),
+      ...(operation.gameplayRulesRevalidated !== undefined ? { gameplayRulesRevalidated: operation.gameplayRulesRevalidated } : {}),
+      ...(operation.gameplayRulesRebuilt !== undefined ? { gameplayRulesRebuilt: operation.gameplayRulesRebuilt } : {}),
+      ...(operation.gameplayRulesRemoved !== undefined ? { gameplayRulesRemoved: operation.gameplayRulesRemoved } : {}),
+      ...(operation.gameplayRulesDeferred !== undefined ? { gameplayRulesDeferred: operation.gameplayRulesDeferred } : {}),
       ...(operation.visualRevision !== undefined ? { visualRevision: operation.visualRevision } : {}),
       ...(operation.visualPlanning ? { visualPlanning: operation.visualPlanning } : {}),
       ...(operation.visualGenerationRequired !== undefined ? { visualGenerationRequired: operation.visualGenerationRequired } : {}),
@@ -520,6 +534,13 @@ function buildEvolutionHistory(operation: WorldEvolutionOperation): ObservatoryV
       ? { runtimeSynchronization: operation.runtimeSynchronization }
       : semanticApplied ? { runtimeSynchronization: 'pending' as const } : {}),
     ...(operation.runtimeSemanticRevision !== undefined ? { runtimeSemanticRevision: operation.runtimeSemanticRevision } : {}),
+    ...(operation.gameplayReconciliation ? { gameplayReconciliation: operation.gameplayReconciliation } : {}),
+    ...(operation.gameplayRuleSetRevision !== undefined ? { gameplayRuleSetRevision: operation.gameplayRuleSetRevision } : {}),
+    ...(operation.gameplayRulesPreserved !== undefined ? { gameplayRulesPreserved: operation.gameplayRulesPreserved } : {}),
+    ...(operation.gameplayRulesRevalidated !== undefined ? { gameplayRulesRevalidated: operation.gameplayRulesRevalidated } : {}),
+    ...(operation.gameplayRulesRebuilt !== undefined ? { gameplayRulesRebuilt: operation.gameplayRulesRebuilt } : {}),
+    ...(operation.gameplayRulesRemoved !== undefined ? { gameplayRulesRemoved: operation.gameplayRulesRemoved } : {}),
+    ...(operation.gameplayRulesDeferred !== undefined ? { gameplayRulesDeferred: operation.gameplayRulesDeferred } : {}),
     ...(operation.visualRevision !== undefined ? { visualRevision: operation.visualRevision } : {}),
     ...(operation.visualPlanning ? { visualPlanning: operation.visualPlanning } : {}),
     ...(operation.visualGenerationRequired !== undefined ? { visualGenerationRequired: operation.visualGenerationRequired } : {}),
@@ -589,6 +610,11 @@ function buildEvolutionDiff(
     if (visualExecution.status === 'failed' || visualExecution.status === 'stale') changed.push({ name: `Asset execution failed; previous visual retained` })
     if (visualExecution.status === 'completed') changed.push({ name: `Renderer applied: ${visualExecution.rendererAppliedEntityIds.length} entity binding(s)` })
   }
+  if (operation.gameplayReconciliation) {
+    changed.push({
+      name: `Gameplay Rules: ${operation.gameplayReconciliation} · preserved ${operation.gameplayRulesPreserved ?? 0}, revalidated ${operation.gameplayRulesRevalidated ?? 0}, rebuilt ${operation.gameplayRulesRebuilt ?? 0}, removed ${operation.gameplayRulesRemoved ?? 0}, deferred ${operation.gameplayRulesDeferred ?? 0}`,
+    })
+  }
   return Object.freeze({
     id: `diff-${operation.operationId}`,
     timestamp: operation.createdAt,
@@ -605,6 +631,13 @@ function buildEvolutionDiff(
     ...(operation.runtimeSynchronization
       ? { runtimeSynchronization: operation.runtimeSynchronization }
       : operation.status === 'semantic_applied' ? { runtimeSynchronization: 'pending' as const } : {}),
+    ...(operation.gameplayReconciliation ? { gameplayReconciliation: operation.gameplayReconciliation } : {}),
+    ...(operation.gameplayRuleSetRevision !== undefined ? { gameplayRuleSetRevision: operation.gameplayRuleSetRevision } : {}),
+    ...(operation.gameplayRulesPreserved !== undefined ? { gameplayRulesPreserved: operation.gameplayRulesPreserved } : {}),
+    ...(operation.gameplayRulesRevalidated !== undefined ? { gameplayRulesRevalidated: operation.gameplayRulesRevalidated } : {}),
+    ...(operation.gameplayRulesRebuilt !== undefined ? { gameplayRulesRebuilt: operation.gameplayRulesRebuilt } : {}),
+    ...(operation.gameplayRulesRemoved !== undefined ? { gameplayRulesRemoved: operation.gameplayRulesRemoved } : {}),
+    ...(operation.gameplayRulesDeferred !== undefined ? { gameplayRulesDeferred: operation.gameplayRulesDeferred } : {}),
     ...(runtimeSync ? {
       runtimeAffectedEntityIds: Object.freeze([...runtimeSync.affectedEntityIds]),
       runtimeAddedEntityIds: Object.freeze([...runtimeSync.addedEntityIds]),

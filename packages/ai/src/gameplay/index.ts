@@ -14,6 +14,8 @@ export type {
   GameplayRuleBuilderMetadata,
 } from './GameplayRuleBuilder'
 export { DefaultGameplayRuleBuilder } from './GameplayRuleBuilder'
+export type { GameplayRuleReconciler } from '@genesis/shared'
+export { DefaultGameplayRuleReconciler } from './GameplayRuleReconciler'
 export type {
   GameplayRuleValidationOptions,
   GameplayRuleValidationResult,

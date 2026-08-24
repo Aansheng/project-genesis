@@ -21,8 +21,8 @@ architecture.
   YES.
 - Sprint 16 direction decision: Human/CTO selected targeted Gameplay Rule
   Reconciliation for Gameplay-Preserving World Evolution. `SPRINT16_DISCOVERY`
-  is complete and generated exactly one READY product WO,
-  `WO-S16-001`; no Sprint 16 implementation has executed.
+  is complete and generated exactly one product WO,
+  `WO-S16-001`; the WO is complete at v1.155 and Product Verified.
 
 ## Current direction
 
@@ -39,9 +39,11 @@ trusted Runtime primitive needed for damage/Health and preserved current
 authority boundaries. The subsequent discovery identified goal/session
 completion as the smallest Sprint blocker; WO-S15-007 now commits
 `RuntimeGameplaySessionState`, and the Freeze Review records the complete
-Sprint thesis as satisfied. Sprint 16 now opens with one READY bounded
-reconciliation WO; it preserves the same authority boundaries and is not
-executed in this decision-resolution step.
+Sprint thesis as satisfied. Sprint 16's bounded reconciliation WO is complete
+at v1.155; it preserves the same authority boundaries, keeps the current
+Runtime/session active, and the Supervisor has stopped at the required
+Human/CTO Sprint Freeze Review before generating or executing another feature
+WO.
 
 ## Deferred direction
 
@@ -50,10 +52,9 @@ progression, richer rule actions, durable history, and broader context systems
 stay deferred until a concrete product need and acceptance path justify them.
 Goal completion beyond the current session-completed truth, including victory
 UI, next level, restart, failure, and progression, remains deferred. The
-current Sprint 16 opening gap is targeted mechanics synchronization across
-natural-language world evolution: semantic evolution currently marks the
-world-bound `GameplayRuleSet` stale rather than preserving and reconciling
-validated gameplay intent. After this bounded bridge, Next-Work Discovery must
+current Sprint 16 opening gap was targeted mechanics synchronization across
+natural-language world evolution; WO-S16-001 now preserves and reconciles
+validated gameplay intent. After the freeze decision, Next-Work Discovery must
 reassess whether progression (XP / Level / Skills / Spawn/Waves) is the next
 measured bottleneck.
 

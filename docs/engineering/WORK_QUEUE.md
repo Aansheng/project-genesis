@@ -434,14 +434,15 @@ human_decision_required: NO — accepted decision recorded in
 
 ## WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
 
-status: READY
+status: DONE
+state_transition: READY → IN_PROGRESS → VERIFYING → DONE
 priority: P1
 dependencies: SPRINT16_DISCOVERY DONE; Human/CTO targeted reconciliation
   decision accepted 2026-08-24
 architecture_before: v1.154
-architecture_expected_after: v1.155 if the bounded reconciliation seam is a
-  real product architecture delta; otherwise preserve v1.154 and document the
-  source-backed reason
+architecture_expected_after: v1.155
+architecture_after: v1.155 — ADR-0269 accepted; targeted reconciliation is a
+  real product architecture delta at the semantic-evolution commit boundary
 mission: After an applied semantic World Evolution delta, produce a new current
   world-bound GameplayRuleSet by preserving unaffected rules, revalidating
   affected rules, removing invalid rules, and deterministically rebuilding
@@ -519,6 +520,47 @@ explicit_non_goals: No broad World Evolution Sprint, no AI-generated gameplay
   automatic execution of a subsequent WO.
 human_decision_required: NO — the reconciliation strategy and boundaries are
   accepted; routine implementation details remain Supervisor-owned.
+
+completion_evidence: PASS — deterministic Shared/AI reconciliation preserves
+  unaffected rules, rebuilds/removes targeted rules, binds the updated semantic
+  revision, keeps the same Runtime/session loop active, and exposes separate
+  Observatory reconciliation stages/events. Provider/AI is not used by this
+  known-change path and World A/World B binding guards remain intact.
+focused_tests: PASS — Shared contract through Web integration; AI 3/3;
+  Runtime gameplay execution 15/15; Web World Evolution 6/6; Web Gameplay
+  Generation 3/3; AI GameplayRule 3/3.
+affected_package_gates: PASS — direct TypeScript, package ESLint, affected
+  package regressions, and Web build; root Turbo typecheck wrapper remains a
+  managed-environment TLS/keychain limitation documented in CURRENT_STATE.
+product_verification: PASS — manual Studio session on 2026-08-24 covered
+  unrelated preservation, targeted reconciliation/removal, the same-session
+  Running movement/jump control surface, unaffected gameplay, current
+  RuleSet/Runtime/Observatory truth, and clean browser logs; Runtime/Renderer
+  regression suites provide the authoritative movement/jump continuity proof.
+code_complete: YES
+product_verified: YES
+
+## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay-Preserving World Evolution
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_WO-S16-001
+priority: P0
+dependencies: WO-S16-001 DONE; Sprint 16 acceptance evidence complete
+mission: Review the Sprint 16 goal against the completed targeted Gameplay
+  Rule reconciliation bridge and decide whether to freeze Sprint 16 at v1.155.
+decision_gate: REQUIRED — Human/CTO must accept the Sprint-level evidence and
+  choose FREEZE at v1.155 or explicitly continue Sprint 16 with a newly bounded
+  work item and updated acceptance target.
+allowed_scope: Review the Sprint 16 goal, ADR-0269, capability matrix,
+  SPRINT16_REVIEW.md, automated evidence, and manual Studio evidence; record
+  the decision and freeze/continue consequences.
+forbidden_scope: Automatic freeze, automatic cross-Sprint execution, or
+  generating/executing another feature WO before the decision.
+acceptance: BLOCKED pending Human/CTO decision; no product implementation is
+  authorized while this freeze gate is open.
+product_verification: ALREADY PASS — WO-S16-001 Product Verified YES; this
+  item is a Sprint governance decision rather than a new product slice.
+human_decision_required: YES — Human/CTO freeze or continue decision.
 
 
 ## Queue transition vocabulary

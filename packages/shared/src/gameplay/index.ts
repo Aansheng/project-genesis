@@ -59,6 +59,13 @@ export {
   markGameplayRuleSetStale,
 } from './GameplayRule'
 export type {
+  GameplayRuleReconciliationAction,
+  GameplayRuleReconciliationFact,
+  GameplayRuleReconciliationInput,
+  GameplayRuleReconciliationResult,
+  GameplayRuleReconciler,
+} from './GameplayRuleReconciliation'
+export type {
   GameplayEvent,
   GameplayContactDirection,
   GameplayEventDraft,

@@ -299,6 +299,17 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
         ? { runtimeSynchronization: safeGet<'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'>(item, 'runtimeSynchronization') }
         : {}),
+      ...(safeGet(item, 'gameplayReconciliation') === 'pending'
+        || safeGet(item, 'gameplayReconciliation') === 'reconciled'
+        || safeGet(item, 'gameplayReconciliation') === 'failed'
+        ? { gameplayReconciliation: safeGet<'pending' | 'reconciled' | 'failed'>(item, 'gameplayReconciliation') }
+        : {}),
+      ...(typeof safeGet(item, 'gameplayRuleSetRevision') === 'number' ? { gameplayRuleSetRevision: safeGet<number>(item, 'gameplayRuleSetRevision') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesPreserved') === 'number' ? { gameplayRulesPreserved: safeGet<number>(item, 'gameplayRulesPreserved') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesRevalidated') === 'number' ? { gameplayRulesRevalidated: safeGet<number>(item, 'gameplayRulesRevalidated') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesRebuilt') === 'number' ? { gameplayRulesRebuilt: safeGet<number>(item, 'gameplayRulesRebuilt') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesRemoved') === 'number' ? { gameplayRulesRemoved: safeGet<number>(item, 'gameplayRulesRemoved') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesDeferred') === 'number' ? { gameplayRulesDeferred: safeGet<number>(item, 'gameplayRulesDeferred') } : {}),
       ...(typeof safeGet(item, 'visualRevision') === 'number' ? { visualRevision: safeGet<number>(item, 'visualRevision') } : {}),
       ...(safeGet(item, 'visualPlanning') === 'pending'
         || safeGet(item, 'visualPlanning') === 'planned'
@@ -489,6 +500,17 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         || safeGet(item, 'runtimeSynchronization') === 'not-applicable'
         ? { runtimeSynchronization: safeGet<'pending' | 'synchronized' | 'no_runtime_impact' | 'failed' | 'not-applicable'>(item, 'runtimeSynchronization') }
         : {}),
+      ...(safeGet(item, 'gameplayReconciliation') === 'pending'
+        || safeGet(item, 'gameplayReconciliation') === 'reconciled'
+        || safeGet(item, 'gameplayReconciliation') === 'failed'
+        ? { gameplayReconciliation: safeGet<'pending' | 'reconciled' | 'failed'>(item, 'gameplayReconciliation') }
+        : {}),
+      ...(typeof safeGet(item, 'gameplayRuleSetRevision') === 'number' ? { gameplayRuleSetRevision: safeGet<number>(item, 'gameplayRuleSetRevision') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesPreserved') === 'number' ? { gameplayRulesPreserved: safeGet<number>(item, 'gameplayRulesPreserved') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesRevalidated') === 'number' ? { gameplayRulesRevalidated: safeGet<number>(item, 'gameplayRulesRevalidated') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesRebuilt') === 'number' ? { gameplayRulesRebuilt: safeGet<number>(item, 'gameplayRulesRebuilt') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesRemoved') === 'number' ? { gameplayRulesRemoved: safeGet<number>(item, 'gameplayRulesRemoved') } : {}),
+      ...(typeof safeGet(item, 'gameplayRulesDeferred') === 'number' ? { gameplayRulesDeferred: safeGet<number>(item, 'gameplayRulesDeferred') } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeAffectedEntityIds')) ? { runtimeAffectedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeAffectedEntityIds'))) } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeAddedEntityIds')) ? { runtimeAddedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeAddedEntityIds'))) } : {}),
       ...(Array.isArray(safeGet<unknown[]>(item, 'runtimeRemovedEntityIds')) ? { runtimeRemovedEntityIds: Object.freeze(stringList(safeGet<unknown[]>(item, 'runtimeRemovedEntityIds'))) } : {}),

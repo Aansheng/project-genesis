@@ -14,6 +14,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-24 | Proceed with the Sprint 15 Freeze Review against the Sprint-level Gameplay Mechanics Foundation thesis. | ACCEPTED | Human / CTO | Evaluate the Sprint thesis and bounded acceptance criteria; do not require deferred future mechanics; if satisfied, freeze Sprint 15 and stop before Sprint 16. |
 | 2026-08-24 | Choose targeted Gameplay Rule Reconciliation for Sprint 16 Gameplay-Preserving World Evolution. | ACCEPTED | Human / CTO | Unblock `SPRINT16_DISCOVERY`, generate `WO-S16-001` as the first bounded Sprint 16 product WO, and do not execute it during this decision-resolution step. |
 | 2026-08-24 | Promote the engineering continuation mode to `SPRINT_CONTINUOUS`. | ACCEPTED | Human / CTO | Permit sequential execution of accepted WOs within the current Sprint while retaining max concurrency 2, repair budget 3, human escalation, one-next-WO generation, Sprint-boundary stop, and no automatic cross-Sprint execution. |
+| 2026-08-24 | Decide whether Sprint 16 is satisfied by WO-S16-001 and should freeze at v1.155. | PENDING | Human / CTO | **FREEZE:** close Sprint 16 at v1.155 and defer progression/ambiguous rule evolution to later discovery. **CONTINUE:** keep Sprint 16 open and authorize exactly one newly bounded product WO with updated acceptance evidence; no feature work is started until this choice is recorded. |
 
 ## WO-S15-005 product decision
 

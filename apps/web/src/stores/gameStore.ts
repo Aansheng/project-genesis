@@ -16,9 +16,9 @@ import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer, DefaultRuntimeGameplayEventCollector } from '@genesis/runtime'
 import type { RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
-import type { AssetManifest, GameplayRuleSet, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
-import { bindGameplayRuleSet, DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier, markGameplayRuleSetStale } from '@genesis/shared'
-import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider, DefaultGameplaySpecificationBuilder, DefaultGameplaySpecificationValidator, DeterministicGameplayGenerationProvider, GameplayGenerationProviderAdapter, FallbackGameplayGenerationProvider, LLMGameplayGenerationCandidateProvider } from '@genesis/ai'
+import type { AssetManifest, GameplayRuleReconciliationResult, GameplayRuleSet, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
+import { bindGameplayRuleSet, DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
+import { DefaultIntentRouter, DefaultGameIntentExtractor, DefaultCreateWorldPipeline, DefaultCreateWorldRuntimeExecutor, DefaultSemanticWorldGenerator, DefaultSemanticGameDslBuilder, DefaultVisualDesignSpecificationBuilder, DefaultAssetSpecificationBuilder, createAIConfiguration, DeterministicGameWorldGenerationProvider, DefaultGameWorldValidator, GameWorldGenerationProviderAdapter, LLMGameWorldGenerationCandidateProvider, FallbackGameWorldGenerationProvider, DefaultWorldEvolutionPlanner, StructuredWorldEvolutionCandidateProvider, DefaultGameplaySpecificationBuilder, DefaultGameplaySpecificationValidator, DeterministicGameplayGenerationProvider, DefaultGameplayRuleReconciler, GameplayGenerationProviderAdapter, FallbackGameplayGenerationProvider, LLMGameplayGenerationCandidateProvider } from '@genesis/ai'
 import type { GameWorldGenerationProvider, GameplayGenerationProvider, WorldEvolutionPlanResult, WorldEvolutionPlanner } from '@genesis/ai'
 import { DefaultRuntimeProjection } from '@genesis/runtime'
 import { DefaultAssetManifestBuilder } from '@genesis/shared'
@@ -130,6 +130,62 @@ function withSemanticApplication(
     events,
   })
   return Object.freeze({ ...plan, operation, mutation })
+}
+
+function withGameplayReconciliation(
+  plan: Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }>,
+  reconciliation: GameplayRuleReconciliationResult,
+): Extract<WorldEvolutionPlanResult, { readonly status: 'validated' }> {
+  const startedAt = new Date().toISOString()
+  const completedAt = new Date().toISOString()
+  const failed = reconciliation.status === 'failed'
+  const stages: readonly WorldEvolutionStage[] = Object.freeze([
+    ...plan.operation.stages,
+    Object.freeze({ name: 'GAMEPLAY_RECONCILIATION_STARTED' as const, status: 'success' as const, timestamp: startedAt }),
+    Object.freeze({
+      name: failed ? 'GAMEPLAY_RECONCILIATION_FAILED' : 'GAMEPLAY_RECONCILIATION_COMPLETED',
+      status: failed ? 'failed' : 'success',
+      timestamp: completedAt,
+      ...(reconciliation.failureReason ? { error: reconciliation.failureReason } : {}),
+    }),
+  ])
+  const events: readonly WorldEvolutionEvent[] = Object.freeze([
+    ...plan.operation.events,
+    Object.freeze({
+      id: `${plan.operation.operationId}:gameplay_reconciliation_started`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: 'world.evolution.gameplay_reconciliation_started' as const,
+      timestamp: startedAt,
+      message: 'Gameplay Rule reconciliation started',
+    }),
+    Object.freeze({
+      id: `${plan.operation.operationId}:${failed ? 'gameplay_reconciliation_failed' : 'gameplay_reconciliation_completed'}`,
+      operationId: plan.operation.operationId,
+      worldId: plan.operation.worldId,
+      type: failed ? 'world.evolution.gameplay_reconciliation_failed' as const : 'world.evolution.gameplay_reconciliation_completed' as const,
+      timestamp: completedAt,
+      message: failed
+        ? `Gameplay Rule reconciliation failed: ${reconciliation.failureReason ?? 'unknown error'}`
+        : `Gameplay Rule reconciliation completed: ${reconciliation.rebuiltRuleIds.length} rebuilt, ${reconciliation.revalidatedRuleIds.length} revalidated, ${reconciliation.preservedRuleIds.length} preserved, ${reconciliation.removedRuleIds.length} removed`,
+    }),
+  ])
+  const operation = Object.freeze({
+    ...plan.operation,
+    ...(failed ? { status: 'gameplay_reconciliation_failed' as const } : {}),
+    gameplayReconciliation: failed ? 'failed' as const : 'reconciled' as const,
+    gameplayRuleSetRevision: reconciliation.semanticRevision,
+    gameplayRulesPreserved: reconciliation.preservedRuleIds.length,
+    gameplayRulesRevalidated: reconciliation.revalidatedRuleIds.length,
+    gameplayRulesRebuilt: reconciliation.rebuiltRuleIds.length,
+    gameplayRulesRemoved: reconciliation.removedRuleIds.length,
+    gameplayRulesDeferred: reconciliation.deferredRuleIds.length,
+    ...(failed ? { failureReason: reconciliation.failureReason ?? 'gameplay_rule_reconciliation_failed' } : {}),
+    completedAt,
+    stages,
+    events,
+  })
+  return Object.freeze({ ...plan, operation, gameplayReconciliation: reconciliation })
 }
 
 function withRuntimeSynchronization(
@@ -430,6 +486,7 @@ export const useGameStore = defineStore('game', () => {
   const semanticProperties = computed<WorldSemanticProperties>(() => semanticState.value?.properties ?? EMPTY_SEMANTIC_PROPERTIES)
   const semanticRevision = computed(() => semanticState.value?.semanticRevision ?? 0)
   const semanticWorldDeltaApplier = new DefaultSemanticWorldDeltaApplier()
+  const gameplayRuleReconciler = new DefaultGameplayRuleReconciler()
   const runtimeWorldEvolutionSynchronizer = new DefaultRuntimeWorldEvolutionSynchronizer()
   const visualEvolutionPlanner = new DefaultVisualEvolutionPlanner()
   const runtimeSemanticRevision = ref(0)
@@ -877,17 +934,38 @@ export const useGameStore = defineStore('game', () => {
       return { success: false, message: 'World evolution visual planning failed: current visual specifications are unavailable' }
     }
 
-    const appliedPlan = withSemanticApplication(plan, mutation)
-    if (mutation.status === 'applied') {
+    let appliedPlan = withSemanticApplication(plan, mutation)
+    if (mutation.status === 'applied' && gameplayRuleSetState.value && gameplaySpecificationState.value) {
+      const reconciliation = gameplayRuleReconciler.reconcile({
+        semanticWorld: mutation.updatedWorld,
+        gameplaySpecification: gameplaySpecificationState.value,
+        currentRuleSet: gameplayRuleSetState.value,
+        semanticMutation: mutation,
+      })
+      if (reconciliation.status === 'failed' || !reconciliation.ruleSet) {
+        const failedPlan = withGameplayReconciliation(plan, reconciliation)
+        if (failedPlan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(failedPlan)
+        return {
+          success: false,
+          message: `World evolution gameplay rule reconciliation failed: ${reconciliation.failureReason ?? 'unknown error'}`,
+          evolutionPlan: failedPlan,
+        }
+      }
+      appliedPlan = withGameplayReconciliation(appliedPlan, reconciliation)
       semanticState.value = freezeSemanticState({
         worldId: currentState!.worldId,
         semanticWorld: mutation.updatedWorld,
         properties: mutation.updatedProperties,
         semanticRevision: mutation.updatedRevision,
       })
-      if (gameplayRuleSetState.value) {
-        gameplayRuleSetState.value = markGameplayRuleSetStale(gameplayRuleSetState.value, mutation.updatedRevision)
-      }
+      gameplayRuleSetState.value = reconciliation.ruleSet
+    } else if (mutation.status === 'applied') {
+      semanticState.value = freezeSemanticState({
+        worldId: currentState!.worldId,
+        semanticWorld: mutation.updatedWorld,
+        properties: mutation.updatedProperties,
+        semanticRevision: mutation.updatedRevision,
+      })
     }
     if (mutation.status === 'applied') {
       const runtimeSync = runtimeWorldEvolutionSynchronizer.synchronize(worldStore.getWorld(), mutation, {

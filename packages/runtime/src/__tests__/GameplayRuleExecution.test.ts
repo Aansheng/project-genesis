@@ -191,6 +191,38 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(second.gameplayRuleResults).toHaveLength(0)
   })
 
+  it('keeps the same Runtime execution loop active when the current RuleSet advances its semantic revision', () => {
+    const collector = new DefaultRuntimeGameplayEventCollector('world-1')
+    const registry = new DefaultRuntimeSystemRegistry()
+    registry.register(new DefaultEntityContactSystem())
+    let revision = 0
+    let rules = ruleSet([], { semanticRevision: 0 })
+    const loop = new DefaultRuntimeExecutionLoop(registry, collector, {
+      getRuleSet: () => rules,
+      getWorldId: () => 'world-1',
+      getSemanticRevision: () => revision,
+      getSemanticWorld: () => semanticWorld,
+    })
+
+    const initial = loop.tickWithResult(runtimeWorld())
+    expect(initial.gameplayRuleResults).toHaveLength(0)
+
+    rules = ruleSet([rule()], { semanticRevision: 1 })
+    revision = 1
+    const evolvedWorld = Object.freeze({
+      entities: Object.freeze([
+        entity('player', 'player', 'Player', 0, 0, true),
+        entity('coin-2', 'item', 'Coin', 8, 0, true),
+        entity('ground', 'terrain', 'Ground', 0, 100),
+      ]),
+    }) as unknown as World
+    const evolved = loop.tickWithResult(evolvedWorld)
+
+    expect(evolved.gameplayEvents).toMatchObject([{ targetEntityId: 'coin-2' }])
+    expect(evolved.gameplayRuleResults).toMatchObject([{ ruleId: 'collect-reward', status: 'executed', committed: true }])
+    expect(evolved.world.entities.map(item => item.id)).toEqual(['player', 'ground'])
+  })
+
   it('commits Runtime session completion, remains idempotent, preserves it across evolution, and rebinds on a new world', () => {
     const goalWorld = Object.freeze({
       entities: Object.freeze([

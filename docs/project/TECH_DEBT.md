@@ -29,7 +29,7 @@
 | Gameplay event persistence/replay | Runtime events are ephemeral and Observatory history is session-scoped/bounded at 100 entries. Add persistence or replay only when a measured debugging or gameplay requirement exists. |
 | Rich collision geometry | S15-002 uses explicit small AABB `collision-bounds` components for contact observation. Directional collision resolution, terrain colliders, and physics remain deferred until a concrete scenario needs them. |
 | Gameplay rule execution | S15-004 adds bounded matching, category/archetype/ID/component conditions, and single `REMOVE_ENTITY` mutation. Multi-action transactions, numeric state, damage, score, progression, completion, spawns, and generated execution remain deferred to a measured later slice. |
-| Gameplay rule evolution | Current behavior still marks the world-bound RuleSet stale after semantic mutation. Human/CTO accepted targeted reconciliation and `WO-S16-001` is READY; implementation remains pending. Broad gameplay-rule evolution beyond this bounded bridge stays deferred. |
+| Gameplay rule evolution | WO-S16-001 closes the bounded deterministic reconciliation gap: unaffected rules remain current and affected rules are revalidated/rebuilt or removed/deferred after semantic mutation. Broader ambiguous gameplay-rule evolution, provider fallback, persistence, and richer mechanics remain deferred. |
 
 ## Sprint 12 Baseline Freeze Audit
 
