@@ -100,3 +100,8 @@ natural-language world evolution.
 
 This is recorded as one blocked high-level Sprint 16 discovery item. No Sprint
 16 implementation is authorized or executed by this review.
+
+Post-freeze control-plane update: on 2026-08-24 Human/CTO accepted targeted
+Gameplay Rule Reconciliation, completed `SPRINT16_DISCOVERY`, and generated
+`WO-S16-001` as the single READY Sprint 16 product WO. That later decision does
+not alter the Sprint 15 freeze result or claim Sprint 16 product completion.

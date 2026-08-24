@@ -19,6 +19,10 @@ architecture.
 - Sprint 15 Freeze Review: the Gameplay Mechanics Foundation thesis passed;
   Sprint 15 is frozen at v1.154 with Code Complete and Product Verified both
   YES.
+- Sprint 16 direction decision: Human/CTO selected targeted Gameplay Rule
+  Reconciliation for Gameplay-Preserving World Evolution. `SPRINT16_DISCOVERY`
+  is complete and generated exactly one READY product WO,
+  `WO-S16-001`; no Sprint 16 implementation has executed.
 
 ## Current direction
 
@@ -35,9 +39,9 @@ trusted Runtime primitive needed for damage/Health and preserved current
 authority boundaries. The subsequent discovery identified goal/session
 completion as the smallest Sprint blocker; WO-S15-007 now commits
 `RuntimeGameplaySessionState`, and the Freeze Review records the complete
-Sprint thesis as satisfied. The next horizon is one blocked high-level Sprint
-16 discovery item for gameplay-aware natural-language world evolution; no
-Sprint 16 work is executed.
+Sprint thesis as satisfied. Sprint 16 now opens with one READY bounded
+reconciliation WO; it preserves the same authority boundaries and is not
+executed in this decision-resolution step.
 
 ## Deferred direction
 
@@ -46,15 +50,20 @@ progression, richer rule actions, durable history, and broader context systems
 stay deferred until a concrete product need and acceptance path justify them.
 Goal completion beyond the current session-completed truth, including victory
 UI, next level, restart, failure, and progression, remains deferred. The
-current measured Sprint 16-level gap is mechanics synchronization across
+current Sprint 16 opening gap is targeted mechanics synchronization across
 natural-language world evolution: semantic evolution currently marks the
-world-bound `GameplayRuleSet` stale rather than rebuilding or preserving
-validated gameplay intent.
+world-bound `GameplayRuleSet` stale rather than preserving and reconciling
+validated gameplay intent. After this bounded bridge, Next-Work Discovery must
+reassess whether progression (XP / Level / Skills / Spawn/Waves) is the next
+measured bottleneck.
 
 ## Supervisor rollout
 
-The Supervisor executes one selected work item, verifies it, updates
-projections, performs one bounded discovery pass, generates exactly one next
-READY/BLOCKED work item, and stops. WO-META-005 establishes
-`continuation_mode = ONE_WORK_ITEM_WITH_DISCOVERY`; continuous Sprint-wide
-autonomous execution remains intentionally disabled.
+The Supervisor executes one selected work item at a time, verifies it, updates
+projections, performs one bounded discovery pass, and generates exactly one
+next READY/BLOCKED work item. With `continuation_mode = SPRINT_CONTINUOUS`, it
+may continue sequentially through that next item and later same-Sprint items
+after all gates pass. `max_concurrent_subagents = 2`, repair budget `= 3`,
+Human/CTO escalation, one-next-WO generation, and the Sprint-boundary stop
+remain active. Continuous mode never authorizes automatic cross-Sprint
+execution.

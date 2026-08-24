@@ -257,8 +257,11 @@ playable verified platformer slice.
 The next Sprint-level measured bottleneck is gameplay-aware natural-language
 world evolution: semantic evolution currently marks the world-bound
 `GameplayRuleSet` stale because mechanics synchronization is not implemented.
-This is recorded as one blocked high-level Sprint 16 discovery item; no Sprint
-16 implementation is executed automatically.
+Human/CTO has now selected targeted Gameplay Rule Reconciliation. The completed
+`SPRINT16_DISCOVERY` generated `WO-S16-001 — Targeted Gameplay Rule
+Reconciliation Across World Evolution` as the single READY Sprint 16 opening
+WO. No Sprint 16 implementation is executed in the decision-resolution
+continuation. See `docs/project/SPRINT16_BACKLOG.md`.
 
 ## Deferred by design
 

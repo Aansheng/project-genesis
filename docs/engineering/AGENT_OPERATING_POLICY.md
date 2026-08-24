@@ -4,8 +4,10 @@
 
 The Supervisor is the main engineering agent. It coordinates one bounded work
 item at a time, may delegate independent work when it adds value, integrates
-results, verifies the repository, and reports. It is not an uncontrolled
-autonomous development system.
+results, verifies the repository, and reports. Under `SPRINT_CONTINUOUS`, it
+may continue sequentially through multiple accepted work items inside the
+current Sprint, subject to the Sprint-boundary stop and human-escalation rules.
+It is not an uncontrolled autonomous development system.
 
 The Supervisor must preserve human control over major architecture decisions,
 destructive changes, product-direction forks, security boundaries, and repeated
@@ -50,13 +52,15 @@ update the projection within the work item's scope.
 17. Produce the standardized completion report.
 18. Mark the item DONE only if every required gate passes.
 19. Update project projections and the work queue.
-20. Under `ONE_WORK_ITEM_WITH_DISCOVERY`, run the bounded next-work discovery
-    phase after a DONE product WO; a control-plane META WO may perform the same
-    dry run when its scope explicitly requires it.
-21. Generate exactly one next `READY` or `BLOCKED` item, never execute the newly
-    generated item in the same continuation.
-22. Stop unless a later, explicitly approved continuation policy allows another
-    item.
+20. Under `SPRINT_CONTINUOUS`, run one bounded next-work discovery phase after
+    a DONE product WO; a control-plane META WO may perform the same dry run when
+    its scope explicitly requires it.
+21. Generate exactly one next `READY` or `BLOCKED` item. Within the current
+    Sprint, the Supervisor may execute that one item only after dependency,
+    authority, verification, and Product Verification gates are satisfied.
+22. Stop at the Sprint boundary or any human-escalation gate. Never execute
+    across a Sprint boundary automatically; a later Sprint requires explicit
+    Human/CTO direction/continuation.
 
 ## Next-work discovery and gap analysis
 
@@ -502,21 +506,27 @@ The classification is separate from Code Complete.
 
 Previous initial mode: `ONE_WORK_ITEM`.
 
-Current mode after WO-META-005:
+Historical mode after WO-META-005: `ONE_WORK_ITEM_WITH_DISCOVERY`.
+
+Current mode after explicit Human/CTO control-plane direction:
 
 ```text
-continuation_mode: ONE_WORK_ITEM_WITH_DISCOVERY
+continuation_mode: SPRINT_CONTINUOUS
 ```
 
-The Supervisor may select, execute, repair, verify, and report one work item.
-After a DONE product WO it performs one bounded gap analysis, creates exactly
-one next READY or BLOCKED WO, and stops. It must not execute that newly
-generated WO in the same continuation. `SPRINT_CONTINUOUS` remains disabled.
+`SPRINT_CONTINUOUS` means the Supervisor may select, execute, repair, verify,
+and report multiple work items sequentially within the current Sprint. After a
+DONE product WO it performs one bounded gap analysis and creates exactly one
+next READY or BLOCKED WO. It may execute that one next WO in the same Sprint
+only after all dependency, authority, verification, and Product Verification
+gates pass. It never pre-generates a future Sprint backlog.
 
-Promotion to `SPRINT_CONTINUOUS` requires a later explicit human decision after
-at least one proven execute → verify → discover → generate → stop cycle, with
-scope discipline, truthful evidence, repair convergence, and correct
-escalation. This META WO does not enable it.
+The mode remains bounded by `max_concurrent_subagents = 2`, a repair budget of
+3 rounds, the Human/CTO escalation policy, and one primary WO at a time. At a
+Sprint boundary, after freeze/review evidence is complete, the Supervisor
+stops. `SPRINT_CONTINUOUS` does not authorize automatic cross-Sprint execution;
+the next Sprint requires explicit Human/CTO direction/continuation. A human
+escalation, unresolved gate, or failed repair budget also stops the loop.
 
 ## Completion report extension: multi-agent execution
 

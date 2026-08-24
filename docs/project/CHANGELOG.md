@@ -1,5 +1,20 @@
 # Changelog
 
+### Sprint 16 Direction Decision — Gameplay-Preserving World Evolution
+
+- Human/CTO selected targeted Gameplay Rule Reconciliation: preserve
+  unaffected rules, revalidate affected rules, remove invalid rules, and
+  deterministically rebuild affected known rules from the current
+  `GameplaySpecification`, applied semantic delta, and capability catalog.
+- Blind stale RuleSet preservation, full AI regeneration after every evolution,
+  full Runtime/Renderer/world rebuilds, a second gameplay authority, and broad
+  progression work remain out of scope.
+- `SPRINT16_DISCOVERY` is unblocked and complete. It generated exactly one
+  READY product WO, `WO-S16-001 — Targeted Gameplay Rule Reconciliation Across
+  World Evolution`; the product WO was not executed in this continuation.
+- Decision resolution changed no product code and preserved architecture
+  version v1.154.
+
 ### Sprint 15 Freeze Review — Gameplay Mechanics Foundation
 
 - Evaluated the Sprint-level thesis and all sixteen acceptance criteria against

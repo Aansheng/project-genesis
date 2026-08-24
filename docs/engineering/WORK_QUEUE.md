@@ -5,7 +5,7 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-24
-continuation_mode: ONE_WORK_ITEM_WITH_DISCOVERY
+continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
 ## Queue rules
@@ -19,19 +19,26 @@ primary_architecture_changing_work_items_in_progress: 0
 - WO-META-003 must not execute product work as a side effect.
 - Control-plane work orders must not execute product work or satisfy a product
   Product Verification gate as a side effect.
-- Under `ONE_WORK_ITEM_WITH_DISCOVERY`, a completed product WO triggers one
-  bounded gap analysis and exactly one generated next READY/BLOCKED WO; the
-  generated WO is never executed in the same continuation.
+- Under `SPRINT_CONTINUOUS`, a completed product WO triggers one bounded gap
+  analysis and exactly one generated next READY/BLOCKED WO. The Supervisor may
+  execute that one next WO in the same Sprint only after its dependencies,
+  decision gates, and verification scope are satisfied.
 - The queue horizon is completed history plus one current READY/BLOCKED item;
   do not pre-generate a future Sprint backlog.
+- `SPRINT_CONTINUOUS` is sequential, not parallel: only one primary WO is
+  selected/executed at a time, and each discovery pass may generate exactly one
+  next WO.
 - A generated WO is READY only after the evidence, scope, dependency,
   architecture, verification, and human-decision quality gates pass. An open
   high-impact authority or product-direction choice makes it BLOCKED.
 - If the current Sprint checkpoint is already satisfied, generate
   `SPRINT_FREEZE_REVIEW` instead of another feature WO and stop for review.
+- At the Sprint boundary, after freeze/review evidence is complete, stop and
+  require explicit Human/CTO direction before entering another Sprint.
+  `SPRINT_CONTINUOUS` never executes across Sprint boundaries automatically.
 - A completed Sprint Freeze Review may generate at most one high-level next
   Sprint discovery or BLOCKED human-decision item; it must not pre-generate a
-  future Sprint feature backlog or execute that item in the same continuation.
+  future Sprint feature backlog or cross the Sprint boundary automatically.
 
 ## WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
 
@@ -236,6 +243,10 @@ historical_generated_next_work_order: WO-S15-007 BLOCKED → unblocked by the
   accepted Human/CTO decision recorded in HUMAN_DECISION_LOG.md
 optional_architecture_review: PASS — Supervisor read-only self-review against
   the invariants; no subagent was needed for this docs-only generated-WO audit.
+historical_note: The continuation assertions above describe the control-plane
+  state when WO-META-005 completed. The current queue mode is the later
+  explicitly accepted `SPRINT_CONTINUOUS` policy declared at the top of this
+  file.
 
 ## WO-S15-007 — Goal Completion Gameplay Rule Vertical Slice
 
@@ -371,45 +382,143 @@ optional_architecture_review: PASS — Supervisor reviewed the current source
 
 ## SPRINT16_DISCOVERY — Gameplay-Preserving World Evolution
 
-status: BLOCKED
+status: DONE
 priority: P1
-dependencies: Sprint 15 FROZEN; Human/CTO Sprint 16 product-direction review
+state_transition: BLOCKED → READY (Human/CTO decision accepted 2026-08-24) →
+  IN_PROGRESS → VERIFYING → DONE
+dependencies: Sprint 15 FROZEN; Human/CTO targeted Gameplay Rule Reconciliation
+  decision recorded
 architecture_before: v1.154
-architecture_after: v1.154 (direction pending)
-architecture_expected_after: v1.154 until a bounded Sprint 16 contract is
-  accepted
+architecture_after: v1.154 (decision-resolution only; no product architecture
+  changed)
+architecture_expected_after: v1.154 before product implementation; the
+  generated product WO owns any justified architecture-version change
 mission: Measure and define the next Sprint-level thesis for preserving
-  truthful generic gameplay intent across natural-language World Evolution.
+  truthful generic gameplay intent across natural-language World Evolution and
+  generate the first bounded implementation WO after the direction is accepted.
 measured_bottleneck: Semantic World Evolution currently updates the semantic
   and Runtime worlds but marks the world-bound GameplayRuleSet stale because
   automatic gameplay-mechanics synchronization is not implemented. The initial
-  gameplay slice is coherent; the cross-Sprint gap is evolution continuity.
-gap_classification: PRODUCT_GAP + ARCHITECTURE_GAP + HUMAN_DECISION_GAP
-decision_gate: BLOCKED — Human/CTO must choose whether the next Sprint should
-  preserve unaffected rules, rebuild a validated RuleSet from changed gameplay
-  intent, or explicitly defer gameplay-aware evolution. The Supervisor must not
-  infer this product direction.
-allowed_scope: Read-only product thesis and authority review; define the
-  bounded synchronization contract, affected-world/session semantics, stale
-  handling, and acceptance evidence for one future Sprint item.
+  gameplay slice is coherent; the cross-Sprint gap is targeted evolution
+  continuity rather than a Runtime execution rewrite.
+gap_classification: PRODUCT_GAP + ARCHITECTURE_GAP
+decision_gate: RESOLVED — Human/CTO selected targeted Gameplay Rule
+  Reconciliation and explicitly rejected blind stale preservation and full AI
+  regeneration as the default.
+allowed_scope: Read-only source and product review; define the reconciliation
+  inputs, affected-rule boundaries, deterministic fallback, authority/lifecycle
+  contract, acceptance evidence, and one generated product WO.
 forbidden_scope: Sprint 16 implementation, automatic RuleSet synchronization,
   failure/progression features, future Sprint backlog generation, generic
   gameplay managers, or autonomous continuation.
-acceptance: Human/CTO records one bounded Sprint 16 direction and acceptance
-  boundary; no implementation is executed by this discovery item.
-automated_tests: None required; source-backed gap evidence and current
-  World-Evolution/GameplayRuleSet regressions are sufficient for discovery.
-product_verification: REVIEW_REQUIRED — future product verification scope is
-  intentionally undefined until the Sprint 16 direction is accepted.
-observability_expectations: Preserve separate semantic delta, Runtime World,
-  stale RuleSet, session authority, and Renderer/Observatory truth; do not
-  infer executable mechanics from stale or planned rules.
+acceptance: PASS — Human/CTO decision is recorded; the bounded reconciliation
+  contract is explicit; exactly one READY product WO was generated and is not
+  executed in this continuation.
+automated_tests: None required for this control-plane discovery; source-backed
+  evidence covers `gameStore.planEvolution`, `SemanticWorldMutationResult`,
+  `markGameplayRuleSetStale`, and the existing deterministic
+  `DefaultGameplayRuleBuilder`.
+product_verification: NOT_APPLICABLE — discovery only; product verification is
+  owned by WO-S16-001.
+observability_expectations: Keep semantic delta, Runtime World, current
+  GameplaySpecification, current/reconciled RuleSet, session authority, and
+  Renderer/Observatory projections distinct; no planned or stale rule may be
+  presented as committed execution.
 completion_report_requirements: Record the Human/CTO direction, the selected
-  authority and lifecycle, one bounded acceptance path, and the resulting queue
-  transition.
+  authority and lifecycle, the measured bottleneck, one bounded product WO,
+  and the resulting queue transition.
 explicit_non_goals: No Sprint 16 code, no automatic continuation, and no
-  feature work outside an accepted Sprint-level contract.
-human_decision_required: YES — BLOCKED pending Human/CTO Sprint 16 direction.
+  feature work outside the accepted reconciliation contract.
+human_decision_required: NO — accepted decision recorded in
+  HUMAN_DECISION_LOG.md.
+
+## WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
+
+status: READY
+priority: P1
+dependencies: SPRINT16_DISCOVERY DONE; Human/CTO targeted reconciliation
+  decision accepted 2026-08-24
+architecture_before: v1.154
+architecture_expected_after: v1.155 if the bounded reconciliation seam is a
+  real product architecture delta; otherwise preserve v1.154 and document the
+  source-backed reason
+mission: After an applied semantic World Evolution delta, produce a new current
+  world-bound GameplayRuleSet by preserving unaffected rules, revalidating
+  affected rules, removing invalid rules, and deterministically rebuilding
+  affected known rules through the existing GameplaySpecification and
+  GameplayRuleBuilder path.
+measured_bottleneck: Verified generic gameplay execution and targeted semantic,
+  Runtime, visual, and session continuity already exist, but
+  `gameStore.planEvolution` currently calls `markGameplayRuleSetStale` for any
+  applied semantic revision. That globally disables the current RuleSet and
+  leaves the same-session gameplay slice inactive after unrelated evolution.
+gap_classification: PRODUCT_GAP + EXECUTION_GAP + ARCHITECTURE_GAP
+decision_gate: RESOLVED — targeted reconciliation is the accepted strategy;
+  provider/AI regeneration is a fallback only for genuinely new or ambiguous
+  gameplay intent that cannot be derived from current deterministic inputs.
+allowed_scope: Add the smallest provider-independent reconciliation contract
+  and implementation in existing Shared/AI/Web ownership boundaries; consume
+  `GameWorldModel`, `GameplaySpecification`, current `GameplayRuleSet`,
+  applied `SemanticWorldMutationResult`/delta, and the capability catalog;
+  integrate the result at the current semantic-evolution commit boundary;
+  expose truthful reconciliation facts through the existing Observatory path;
+  add focused Runtime/AI/Shared/Web regressions and manual Studio verification.
+  If an evolution introduces genuinely new or ambiguous gameplay intent that
+  cannot be derived from these deterministic inputs, record it as an explicit
+  deferred/AI-fallback case rather than silently regenerating the whole RuleSet.
+forbidden_scope: Blindly preserve a stale RuleSet; full AI/provider RuleSet
+  regeneration after every evolution; full Runtime, Renderer, or current-world
+  rebuild; GameplayRuleManager; generic workflow engine; event sourcing; a
+  second gameplay authority; entity-ID-prefix archetype inference; arbitrary
+  code/eval/scripts; death/game-over, respawn, score, XP, progression, timers,
+  spawning, waves, or broad World Evolution infrastructure.
+implementation_boundaries: `GameplaySpecification` remains design-intent
+  authority; the reconciled `GameplayRuleSet` is the executable plan; Runtime
+  remains execution/state authority; Web/Pinia/Observatory remain projections.
+  Reconciliation must be immutable and deterministic for known changes. Exact
+  entity selectors are checked against current semantic entities; archetype,
+  category, and role selectors use current semantic truth. A semantic revision
+  change alone does not invalidate all rules. Unaffected execution continues in
+  the same Runtime/session, and World A rules/results are rejected for World B.
+acceptance: PASS only when all of the following are proven: (1) an unrelated
+  semantic evolution preserves current executable rules and binds the new
+  semantic revision; (2) a targeted entity/category/archetype change affects
+  only the rules whose selectors, references, mechanics, or dependencies are
+  actually impacted; (3) removed exact targets cannot leave dangling executable
+  rules; (4) affected known rules are revalidated or deterministically rebuilt
+  from the current GameplaySpecification/RuleBuilder, while unresolvable rules
+  are removed or visibly deferred rather than falsely executed; (5) a semantic
+  revision-only change never globally disables the RuleSet; (6) provider/AI is
+  not called for deterministically reconcilable changes; (7) current Runtime
+  gameplay continues in the same session without full-world rebuild; (8) stale
+  World A rules/results cannot affect World B; and (9) Observatory separates
+  preserved, revalidated, rebuilt, removed/deferred reconciliation facts from
+  Runtime execution facts.
+automated_tests: Focused Shared/AI/Runtime/Web tests must cover unrelated world
+  property/addition preservation, targeted replace/remove invalidation,
+  dangling exact-reference rejection, current semantic category/archetype
+  resolution, deterministic output and ordering, provider non-invocation on
+  known changes, semantic revision binding, same-session execution continuity,
+  and World A/World B isolation; then run affected-package regressions,
+  TypeScript, ESLint, and Web build when integration changes.
+product_verification: REQUIRED — Studio must evolve the current playable world
+  in one session, observe an unrelated change preserving an executable rule,
+  observe a targeted change removing/rebuilding only affected rules, continue
+  movement/jump and an unaffected mechanic, and show truthful current RuleSet,
+  Runtime, and Observatory state with no browser errors.
+observability_expectations: Preserve separate semantic mutation, reconciliation
+  result, current RuleSet binding/revision, raw GameplayEvents, committed rule
+  results, Runtime World/session state, and Renderer projection. Reconciliation
+  must not be reported as gameplay execution.
+completion_report_requirements: Report architecture before/after, files,
+  actual reconciliation call chain, focused and affected-package tests,
+  TypeScript, ESLint, build, manual Studio steps/results, authority and stale
+  isolation review, deferred boundaries, Code Complete, and Product Verified.
+explicit_non_goals: No broad World Evolution Sprint, no AI-generated gameplay
+  redesign, no progression/failure systems, no Runtime/Renderer rebuild, and no
+  automatic execution of a subsequent WO.
+human_decision_required: NO — the reconciliation strategy and boundaries are
+  accepted; routine implementation details remain Supervisor-owned.
 
 
 ## Queue transition vocabulary

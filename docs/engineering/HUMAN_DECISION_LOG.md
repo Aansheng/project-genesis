@@ -12,6 +12,8 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-24 | Select the WO-S15-006 gameplay scenario and acceptance boundary for the next product trial. | ACCEPTED | Human / CTO | DAMAGE / HEALTH is the primary scenario; WO-S15-006 is prepared READY but is not executed by WO-META-004. |
 | 2026-08-24 | Choose the authoritative owner and lifecycle contract for Sprint 15 goal/session completion before executing WO-S15-007. | ACCEPTED | Human / CTO | RuntimeGameplaySessionState is the sole current-session completion authority; WO-S15-007 is unblocked and may execute within the accepted minimum slice. |
 | 2026-08-24 | Proceed with the Sprint 15 Freeze Review against the Sprint-level Gameplay Mechanics Foundation thesis. | ACCEPTED | Human / CTO | Evaluate the Sprint thesis and bounded acceptance criteria; do not require deferred future mechanics; if satisfied, freeze Sprint 15 and stop before Sprint 16. |
+| 2026-08-24 | Choose targeted Gameplay Rule Reconciliation for Sprint 16 Gameplay-Preserving World Evolution. | ACCEPTED | Human / CTO | Unblock `SPRINT16_DISCOVERY`, generate `WO-S16-001` as the first bounded Sprint 16 product WO, and do not execute it during this decision-resolution step. |
+| 2026-08-24 | Promote the engineering continuation mode to `SPRINT_CONTINUOUS`. | ACCEPTED | Human / CTO | Permit sequential execution of accepted WOs within the current Sprint while retaining max concurrency 2, repair budget 3, human escalation, one-next-WO generation, Sprint-boundary stop, and no automatic cross-Sprint execution. |
 
 ## WO-S15-005 product decision
 
@@ -324,3 +326,59 @@ Game Over, respawn, lives, score, question-block rewards, timers, spawners,
 XP, level-up, skill selection, waves, and the full Survivor loop are deferred
 unless an existing Sprint 15 contract explicitly requires them. Sprint 16
 implementation is not authorized by this decision.
+
+## Sprint 16 Gameplay-Preserving World Evolution decision
+
+Date: 2026-08-24
+Result: ACCEPTED — use targeted Gameplay Rule Reconciliation.
+
+Authoritative reconciliation input:
+
+`Current Semantic World + Current GameplaySpecification + Current
+GameplayRuleSet + Applied Semantic Delta + Genesis Gameplay Capability Catalog`
+
+The reconciler must preserve unaffected rules, revalidate affected rules,
+remove invalid or dangling exact references, and deterministically rebuild
+affected known rules where the existing `GameplaySpecification` and
+`GameplayRuleBuilder` can resolve them. A semantic revision change alone must
+not disable the entire RuleSet. Provider/AI regeneration is not the default;
+it is reserved for genuinely new or ambiguous gameplay intent that cannot be
+derived deterministically.
+
+The current GameplaySpecification remains design-intent authority, the
+reconciled GameplayRuleSet remains executable rule-plan authority, Runtime
+remains execution/state authority, and Web/Observatory remain projections.
+World A rules/results must not affect World B. Runtime, Renderer, and the
+current world must not be fully rebuilt. No GameplayRuleManager, generic
+workflow engine, event sourcing, or second gameplay authority is authorized.
+
+Decision-resolution outcome: `SPRINT16_DISCOVERY` transitioned from `BLOCKED`
+to `READY`, completed its bounded discovery pass, and generated exactly one
+product item: `WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World
+Evolution`. The product WO is `READY` but is not executed in this continuation;
+the then-current `ONE_WORK_ITEM_WITH_DISCOVERY` policy required stopping after
+generation. The later continuation-mode promotion is recorded below and does
+not retroactively execute this product WO.
+
+## Continuation mode promotion
+
+Date: 2026-08-24
+Result: ACCEPTED — current continuation mode is `SPRINT_CONTINUOUS`.
+
+This is an engineering control-plane change only. It permits sequential
+Supervisor execution of accepted work items within the current Sprint. It does
+not authorize uncontrolled autonomy, parallel primary work, automatic future
+Sprint entry, or execution of product WO-S16-001 in the mode-change request
+itself.
+
+The following controls remain unchanged:
+
+- `max_concurrent_subagents = 2`
+- repair budget = 3 rounds
+- Human/CTO escalation for authority, architecture, product direction,
+  destructive changes, security/dependency changes, unresolved gates, and
+  repeated verification failure
+- one primary WO at a time
+- exactly one next WO generated per discovery pass
+- Sprint boundary freeze/review stop
+- no automatic cross-Sprint execution
