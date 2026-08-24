@@ -1,5 +1,19 @@
 # Changelog
 
+### Sprint 15 Freeze Review — Gameplay Mechanics Foundation
+
+- Evaluated the Sprint-level thesis and all sixteen acceptance criteria against
+  source wiring, automated regressions, accumulated Studio evidence, and the
+  Observatory truth audit.
+- Marked Sprint 15 `Code Complete = YES`, `Product Verified = YES`, and
+  `FROZEN = YES`. Architecture remains v1.154; the review adds no product
+  architecture change.
+- Kept death/Game Over, respawn, lives, score, question-block rewards, timers,
+  spawners, XP, level-up, skill selection, waves, and the full Survivor loop
+  explicitly deferred.
+- Recorded `docs/project/SPRINT15_REVIEW.md` and generated one blocked
+  high-level Sprint 16 discovery item. Sprint 16 implementation was not run.
+
 ### WO-S15-007 — Goal Completion Gameplay Rule Vertical Slice
 
 - Added the narrow Runtime-owned `RuntimeGameplaySessionState` with

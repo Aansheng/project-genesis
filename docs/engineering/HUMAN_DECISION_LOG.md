@@ -11,6 +11,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-21 | Keep initial Supervisor continuation at ONE_WORK_ITEM. | ACCEPTED | Human / CTO | Supervisor stops after one verified work item. |
 | 2026-08-24 | Select the WO-S15-006 gameplay scenario and acceptance boundary for the next product trial. | ACCEPTED | Human / CTO | DAMAGE / HEALTH is the primary scenario; WO-S15-006 is prepared READY but is not executed by WO-META-004. |
 | 2026-08-24 | Choose the authoritative owner and lifecycle contract for Sprint 15 goal/session completion before executing WO-S15-007. | ACCEPTED | Human / CTO | RuntimeGameplaySessionState is the sole current-session completion authority; WO-S15-007 is unblocked and may execute within the accepted minimum slice. |
+| 2026-08-24 | Proceed with the Sprint 15 Freeze Review against the Sprint-level Gameplay Mechanics Foundation thesis. | ACCEPTED | Human / CTO | Evaluate the Sprint thesis and bounded acceptance criteria; do not require deferred future mechanics; if satisfied, freeze Sprint 15 and stop before Sprint 16. |
 
 ## WO-S15-005 product decision
 
@@ -310,3 +311,16 @@ Discovery result: the Sprint 15 minimum checkpoint is satisfied. Exactly one
 next horizon item was generated: `SPRINT_FREEZE_REVIEW — Sprint 15 Gameplay
 Mechanics Foundation`, currently `BLOCKED` pending Human/CTO review. No next
 implementation was executed.
+
+## Sprint 15 Freeze Review decision
+
+Date: 2026-08-24
+Result: ACCEPTED — proceed with `SPRINT_FREEZE_REVIEW` for Sprint 15.
+
+The review authority is the Sprint-level product thesis: Genesis must be able
+to describe and execute a mechanically coherent platformer slice through
+generic structured Gameplay Rules and trusted Runtime primitives. Death,
+Game Over, respawn, lives, score, question-block rewards, timers, spawners,
+XP, level-up, skill selection, waves, and the full Survivor loop are deferred
+unless an existing Sprint 15 contract explicitly requires them. Sprint 16
+implementation is not authorized by this decision.

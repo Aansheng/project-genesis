@@ -234,6 +234,32 @@ ADR-0268 and `GAMEPLAY_CAPABILITY_MATRIX.md`.
 Architecture version: v1.153 → v1.154. Code Complete: YES. Product Verified:
 YES — MANUAL Studio verification recorded after automated gates.
 
+### Sprint 15 Freeze Review — Gameplay Mechanics Foundation
+
+Status: FROZEN. Human/CTO authorized the Sprint-level review on 2026-08-24.
+The review passed all sixteen acceptance criteria: authoritative
+`GameplaySpecification`, structured `GameplayRuleSet`, truthful Runtime facts,
+generic matching/conditions, trusted Runtime actions, collectible interaction,
+enemy stomp, Health damage, goal completion, continuity, stale/world
+isolation, committed Runtime projection, truthful Observatory separation,
+structured-rule/no-eval boundaries, no new genre-specific Runtime, and a
+playable verified platformer slice.
+
+- Code Complete: YES.
+- Product Verified: YES.
+- FROZEN: YES.
+- Architecture remains v1.154.
+- Death/Game Over, respawn, lives, score, question-block rewards, timers,
+  spawners, XP, level-up, skill selection, waves, and the full Survivor loop
+  remain deferred and do not block this freeze.
+- Review record: `docs/project/SPRINT15_REVIEW.md`.
+
+The next Sprint-level measured bottleneck is gameplay-aware natural-language
+world evolution: semantic evolution currently marks the world-bound
+`GameplayRuleSet` stale because mechanics synchronization is not implemented.
+This is recorded as one blocked high-level Sprint 16 discovery item; no Sprint
+16 implementation is executed automatically.
+
 ## Deferred by design
 
 - Runtime gameplay execution: death/failure flow, enemy AI, goal progression,

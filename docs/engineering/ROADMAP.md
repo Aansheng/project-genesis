@@ -16,6 +16,9 @@ architecture.
   current-session goal completion.
 - WO-META-005: just-in-time next-work discovery and gap-analysis foundation;
   WO-S15-007 advances product architecture to v1.154.
+- Sprint 15 Freeze Review: the Gameplay Mechanics Foundation thesis passed;
+  Sprint 15 is frozen at v1.154 with Code Complete and Product Verified both
+  YES.
 
 ## Current direction
 
@@ -31,9 +34,10 @@ end-to-end behavior. The completed S15-006 boundary extended the smallest
 trusted Runtime primitive needed for damage/Health and preserved current
 authority boundaries. The subsequent discovery identified goal/session
 completion as the smallest Sprint blocker; WO-S15-007 now commits
-`RuntimeGameplaySessionState`, and its product verification is recorded in the
-current state and backlog. The only next horizon is the blocked Sprint Freeze
-Review.
+`RuntimeGameplaySessionState`, and the Freeze Review records the complete
+Sprint thesis as satisfied. The next horizon is one blocked high-level Sprint
+16 discovery item for gameplay-aware natural-language world evolution; no
+Sprint 16 work is executed.
 
 ## Deferred direction
 
@@ -41,7 +45,11 @@ Score/state, death/respawn/game-over, enemy behavior, timers, spawning,
 progression, richer rule actions, durable history, and broader context systems
 stay deferred until a concrete product need and acceptance path justify them.
 Goal completion beyond the current session-completed truth, including victory
-UI, next level, restart, failure, and progression, remains deferred.
+UI, next level, restart, failure, and progression, remains deferred. The
+current measured Sprint 16-level gap is mechanics synchronization across
+natural-language world evolution: semantic evolution currently marks the
+world-bound `GameplayRuleSet` stale rather than rebuilding or preserving
+validated gameplay intent.
 
 ## Supervisor rollout
 

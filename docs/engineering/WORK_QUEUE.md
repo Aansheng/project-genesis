@@ -29,6 +29,9 @@ primary_architecture_changing_work_items_in_progress: 0
   high-impact authority or product-direction choice makes it BLOCKED.
 - If the current Sprint checkpoint is already satisfied, generate
   `SPRINT_FREEZE_REVIEW` instead of another feature WO and stop for review.
+- A completed Sprint Freeze Review may generate at most one high-level next
+  Sprint discovery or BLOCKED human-decision item; it must not pre-generate a
+  future Sprint feature backlog or execute that item in the same continuation.
 
 ## WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
 
@@ -320,8 +323,10 @@ optional_architecture_review: PASS — Supervisor reviewed the committed source
 
 ## SPRINT_FREEZE_REVIEW — Sprint 15 Gameplay Mechanics Foundation
 
-status: BLOCKED
+status: DONE
 priority: P0
+state_transition: BLOCKED → READY (Human/CTO decision accepted 2026-08-24) →
+  IN_PROGRESS → VERIFYING → DONE
 dependencies: WO-S15-007 DONE; Sprint 15 minimum checkpoint evidence available
 architecture_before: v1.154
 architecture_after: v1.154
@@ -334,24 +339,77 @@ measured_bottleneck: The Sprint 15 minimum checkpoint is satisfied through
   failure/progression/product-direction work, not an unverified implementation
   blocker.
 gap_classification: QUALITY_GAP + DEFERRED_OUT_OF_SPRINT
-decision_gate: BLOCKED — Human/CTO must confirm Sprint freeze or authorize a
-  new product work item; the Supervisor must not infer that direction.
+decision_gate: RESOLVED — Human/CTO authorized this Freeze Review and limited it
+  to the Sprint-level product thesis; deferred future mechanics are not required.
 allowed_scope: Read-only review of WO-S15-007 evidence, ADR-0268, current state,
   capability matrix, and deferred boundaries; record the human decision.
 forbidden_scope: Product code changes, automatic next-feature execution,
   victory/death/progression implementation, and future backlog pre-generation.
-acceptance: Human/CTO freeze decision is recorded, or a separately approved
-  next product WO is created; no implementation is executed by this item.
-automated_tests: None required; this is a human review gate over existing
-  source-backed evidence and control-plane projections.
-product_verification: REVIEW_REQUIRED — relies on the completed WO-S15-007
-  Studio evidence and automated product regressions.
+acceptance: PASS — all sixteen Sprint-level criteria in SPRINT15_REVIEW.md are
+  satisfied; Sprint 15 is Code Complete = YES, Product Verified = YES, and
+  FROZEN = YES. Architecture remains v1.154 and no Sprint 16 implementation
+  was executed.
+verification: PASS — source/runtime audit, accumulated Studio evidence review,
+  affected-package regression evidence, TypeScript, ESLint, Web build, queue
+  consistency, and git diff check.
+product_verification: YES — accumulated manual Studio evidence covers the
+  required collectible, stomp, damage/Health, goal completion, continuity,
+  isolation, and clean-console paths.
 observability_expectations: Preserve the completed WO-S15-007 evidence and
   keep deferred capabilities visibly deferred in all projections.
-completion_report_requirements: Record the human decision, resulting queue
-  transition, and whether Sprint 15 is frozen or a new WO is authorized.
-explicit_non_goals: No implementation and no automatic continuation.
-human_decision_required: YES — BLOCKED pending Human/CTO Sprint Freeze Review.
+completion_report_requirements: Record the sixteen-criterion evidence matrix,
+  freeze decision, resulting queue transition, and one measured next Sprint
+  horizon without executing it.
+explicit_non_goals: No product implementation, no Sprint 16 execution, and no
+  automatic continuation.
+human_decision_required: NO — Freeze Review decision and Sprint acceptance are
+  recorded in HUMAN_DECISION_LOG.md and SPRINT15_REVIEW.md.
+
+optional_architecture_review: PASS — Supervisor reviewed the current source
+  wiring against the Sprint thesis and ENGINEERING_INVARIANTS.md; no product
+  architecture changed during the freeze review.
+
+## SPRINT16_DISCOVERY — Gameplay-Preserving World Evolution
+
+status: BLOCKED
+priority: P1
+dependencies: Sprint 15 FROZEN; Human/CTO Sprint 16 product-direction review
+architecture_before: v1.154
+architecture_after: v1.154 (direction pending)
+architecture_expected_after: v1.154 until a bounded Sprint 16 contract is
+  accepted
+mission: Measure and define the next Sprint-level thesis for preserving
+  truthful generic gameplay intent across natural-language World Evolution.
+measured_bottleneck: Semantic World Evolution currently updates the semantic
+  and Runtime worlds but marks the world-bound GameplayRuleSet stale because
+  automatic gameplay-mechanics synchronization is not implemented. The initial
+  gameplay slice is coherent; the cross-Sprint gap is evolution continuity.
+gap_classification: PRODUCT_GAP + ARCHITECTURE_GAP + HUMAN_DECISION_GAP
+decision_gate: BLOCKED — Human/CTO must choose whether the next Sprint should
+  preserve unaffected rules, rebuild a validated RuleSet from changed gameplay
+  intent, or explicitly defer gameplay-aware evolution. The Supervisor must not
+  infer this product direction.
+allowed_scope: Read-only product thesis and authority review; define the
+  bounded synchronization contract, affected-world/session semantics, stale
+  handling, and acceptance evidence for one future Sprint item.
+forbidden_scope: Sprint 16 implementation, automatic RuleSet synchronization,
+  failure/progression features, future Sprint backlog generation, generic
+  gameplay managers, or autonomous continuation.
+acceptance: Human/CTO records one bounded Sprint 16 direction and acceptance
+  boundary; no implementation is executed by this discovery item.
+automated_tests: None required; source-backed gap evidence and current
+  World-Evolution/GameplayRuleSet regressions are sufficient for discovery.
+product_verification: REVIEW_REQUIRED — future product verification scope is
+  intentionally undefined until the Sprint 16 direction is accepted.
+observability_expectations: Preserve separate semantic delta, Runtime World,
+  stale RuleSet, session authority, and Renderer/Observatory truth; do not
+  infer executable mechanics from stale or planned rules.
+completion_report_requirements: Record the Human/CTO direction, the selected
+  authority and lifecycle, one bounded acceptance path, and the resulting queue
+  transition.
+explicit_non_goals: No Sprint 16 code, no automatic continuation, and no
+  feature work outside an accepted Sprint-level contract.
+human_decision_required: YES — BLOCKED pending Human/CTO Sprint 16 direction.
 
 
 ## Queue transition vocabulary

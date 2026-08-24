@@ -4,18 +4,18 @@ This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
 architecture_version: v1.154
-current_sprint: Sprint 15
-current_work_order: SPRINT_FREEZE_REVIEW
+current_sprint: Sprint 15 (FROZEN)
+current_work_order: SPRINT16_DISCOVERY — Gameplay-Preserving World Evolution
 current_work_order_status: blocked
-current_control_plane_work_order: SPRINT_FREEZE_REVIEW
+current_control_plane_work_order: SPRINT16_DISCOVERY
 current_control_plane_work_order_status: blocked
-last_completed_work_order: WO-S15-007
+last_completed_work_order: SPRINT_FREEZE_REVIEW
 last_completed_product_work_order: WO-S15-007
-last_completed_control_plane_work_order: WO-META-005
-next_ready_work_order: none — SPRINT_FREEZE_REVIEW is the only horizon item and is BLOCKED pending Human/CTO review
-product_architecture_changed: yes — WO-S15-007 advanced v1.153 → v1.154
-sprint_status: S15 minimum gameplay checkpoint satisfied through WO-S15-007; Sprint Freeze Review is BLOCKED pending Human/CTO direction; no next product WO executed
-product_verified: YES — WO-S15-007 MANUAL Studio verification completed on 2026-08-24
+last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW
+next_ready_work_order: none — SPRINT16_DISCOVERY is the only horizon item and is BLOCKED pending Human/CTO Sprint 16 direction
+product_architecture_changed: no — Freeze Review preserved v1.154
+sprint_status: Sprint 15 Gameplay Mechanics Foundation is FROZEN; Code Complete and Product Verified are YES; no Sprint 16 work executed
+product_verified: YES — Sprint 15 Freeze Review accepted the accumulated WO-S15-004 through WO-S15-007 evidence on 2026-08-24
 control_plane_status: discovery-enabled; ONE_WORK_ITEM_WITH_DISCOVERY; SPRINT_CONTINUOUS disabled
 
 ## Current Sprint goal
@@ -56,6 +56,9 @@ systems are outside this Sprint.
   commits `active → completed`, repeated completion is a no-op, semantic
   evolution retains completion, and world/session replacement resets the new
   session to `active`.
+- Sprint 15 Freeze Review is complete: all sixteen Sprint-level acceptance
+  criteria pass against source wiring, automated regressions, accumulated
+  Studio evidence, and Observatory truth. Sprint 15 is frozen at v1.154.
 
 ## Active capabilities
 
@@ -77,6 +80,9 @@ systems are outside this Sprint.
 - Pixi Renderer synchronization and truthful Observatory projections.
 - Targeted semantic, Runtime, visual, and asset evolution in the current
   session, with stale/revision guards.
+- Sprint-level generic gameplay thesis is verified: structured intent/rules,
+  Runtime facts, generic matching, trusted actions, three interaction slices,
+  continuity, isolation, and truthful projections are all present.
 
 ## Deferred capabilities
 
@@ -114,13 +120,14 @@ own capability-focused work item rather than broadening WO-META-003.
 ## Current product gaps
 
 The current product is a playable bounded slice, not a complete general
-gameplay engine. WO-S15-007's minimum success path is complete and has no
-implementation blocker. The next horizon is the BLOCKED `SPRINT_FREEZE_REVIEW`
-human gate; no product work is authorized automatically. Victory UI, next
-level, restart, death/respawn/game-over, score/numeric state, XP, progression,
-timers, spawning, goal deletion, persistence, and gameplay-rule evolution
-remain deferred. Runtime facts, rule interpretation, mutation, session-state
-commitment, and result observation remain separate.
+gameplay engine. Sprint 15 has no implementation blocker and is frozen. The
+next horizon is the BLOCKED `SPRINT16_DISCOVERY` human/product-direction gate;
+no product work is authorized automatically. The measured gap is that
+semantic World Evolution currently marks the world-bound `GameplayRuleSet`
+stale because gameplay-mechanics synchronization is not implemented. Victory
+UI, next level, restart, death/respawn/game-over, score/numeric state, XP,
+progression, timers, spawning, goal deletion, persistence, and gameplay-rule
+evolution beyond this synchronization question remain deferred.
 
 ## Authority
 
