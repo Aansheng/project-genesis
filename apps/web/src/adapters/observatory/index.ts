@@ -13,6 +13,8 @@ export type {
   DiffViewModel,
   DiffChangeViewModel,
   RuntimeViewModel,
+  RuntimeGameplaySessionViewModel,
+  RuntimeGameplaySessionStatus,
   RuntimeEntityViewModel,
   RuntimeComponentViewModel,
   EventStreamViewModel,

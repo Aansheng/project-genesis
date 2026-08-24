@@ -55,6 +55,7 @@ export { projectRenderBounds, getRenderAnchor } from './view'
 
 // Runtime Visualization Loop types
 export type { RuntimeVisualizationLoop } from './runtime'
+export type { RuntimeGameplaySessionStateObserver } from './runtime'
 export { DefaultRuntimeVisualizationLoop } from './runtime'
 export type { VisualizationTickResult } from './runtime'
 

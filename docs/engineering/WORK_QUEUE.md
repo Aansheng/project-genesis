@@ -229,21 +229,24 @@ product_verification: NOT_APPLICABLE — control-plane-only change; last product
   verification remains the MANUAL WO-S15-006 Studio evidence.
 human_decision_required: NO — this META WO records the decision gate but does
   not choose the goal-completion authority.
-generated_next_work_order: WO-S15-007 BLOCKED
+historical_generated_next_work_order: WO-S15-007 BLOCKED → unblocked by the
+  accepted Human/CTO decision recorded in HUMAN_DECISION_LOG.md
 optional_architecture_review: PASS — Supervisor read-only self-review against
   the invariants; no subagent was needed for this docs-only generated-WO audit.
 
 ## WO-S15-007 — Goal Completion Gameplay Rule Vertical Slice
 
-status: BLOCKED
+status: DONE
 priority: P1
-dependencies: WO-S15-006 DONE; Human/CTO decision on authoritative completion
-  owner and lifecycle required before READY
+state_transition: BLOCKED → READY (Human decision accepted 2026-08-24) →
+  IN_PROGRESS → VERIFYING → DONE
+dependencies: WO-S15-006 DONE; Human/CTO completion-authority decision ACCEPTED
+  on 2026-08-24
 architecture_before: v1.153
-architecture_after: TBD — no product architecture change is authorized while
-  the decision gate is open
-architecture_expected_after: TBD after the selected authority contract; must
-  preserve Runtime authority boundaries
+architecture_after: v1.154
+architecture_expected_after: v1.154 — RuntimeGameplaySessionState owns the
+  current world/session completion truth while preserving Runtime authority
+  boundaries
 mission: Add the smallest generic goal-contact success path so a platformer
   with `completionMode=goal` can produce one truthful authoritative completion
   result through the existing GameplayEvent → GameplayRule → trusted Runtime
@@ -255,12 +258,9 @@ measured_bottleneck: Verified S15 capabilities include movement/jump continuity,
   the action remains deferred and no Runtime or session completion state exists.
 gap_classification: PRODUCT_GAP + ARCHITECTURE_GAP + EXECUTION_GAP;
   VERIFICATION_GAP follows from the missing executable capability.
-decision_gate: Choose the authoritative completion owner and lifecycle before
-  implementation. Options recorded in HUMAN_DECISION_LOG.md are (1) narrow
-  Runtime-owned world/session GameplayCompletionState, (2) goal entity/component
-  state through immutable World mutation, or (3) Web/application session state
-  with an explicit invariant exception. Also decide terminal vs idempotent
-  completion and reset/rebind behavior on world/session replacement.
+decision_gate: RESOLVED — Human/CTO accepted RuntimeGameplaySessionState as the
+  sole current world/session completion authority, with terminal idempotent
+  completion and reset only on world/session replacement.
 allowed_scope: The selected narrow completion-state contract; promote only the
   validated `COMPLETE_GOAL` primitive; generic player/goal contact matching;
   current world/session/semantic binding and exactly-once behavior; immutable
@@ -289,12 +289,12 @@ automated_tests: Shared immutable completion contract and serialization;
   goal contact, selected state mutation, exactly-once, stale/world isolation,
   reset/rebind, and unsupported/missing-target safety; Web/Renderer truthful
   Observatory and Runtime projection regressions.
-product_verification: MANUAL VERIFIED required after unblocking — create a
-  normal platformer in Studio, move the player into the goal, observe raw
-  `ENTITY_CONTACT_STARTED`, committed `reach-goal`/`COMPLETE_GOAL`, and the
-  selected completion state in the appropriate truthful product surface; verify
-  no camera/world rebuild, no duplicate completion, clean console, and current
-  control remains intact.
+product_verification: YES — MANUAL Studio verification completed on 2026-08-24.
+  A normal platformer reached Runtime session `completed` through real movement
+  and jump input; Observatory showed the committed status while Runtime stayed
+  Live, and replacing the world produced `world-2` with `active` status. Focused
+  automated evidence covers the raw contact/rule boundary, idempotent no-op,
+  stale isolation, semantic-revision retention, and clean browser logs.
 observability_expectations: Keep the raw contact fact, rule match/conditions,
   action result, committed completion state, and Runtime World projection as
   separate entries/surfaces. Deferred or stale completion must remain visibly
@@ -311,8 +311,47 @@ quality_gate: PASS — evidence is source-backed; the goal path directly blocks
   infrastructure is required; and the human-decision gate is recorded.
 explicit_non_goals: No death/failure flow, progression, score, persistence,
   generic state architecture, or future Sprint planning.
-human_decision_required: YES — BLOCKED until Human/CTO records the selected
-  completion authority and lifecycle.
+human_decision_required: NO — accepted decision is recorded in
+  HUMAN_DECISION_LOG.md; all implementation and verification gates passed.
+
+optional_architecture_review: PASS — Supervisor reviewed the committed source
+  path against ADR-0268 and ENGINEERING_INVARIANTS.md; no bounded subagent was
+  needed because the change set and evidence were directly auditable.
+
+## SPRINT_FREEZE_REVIEW — Sprint 15 Gameplay Mechanics Foundation
+
+status: BLOCKED
+priority: P0
+dependencies: WO-S15-007 DONE; Sprint 15 minimum checkpoint evidence available
+architecture_before: v1.154
+architecture_after: v1.154
+architecture_expected_after: v1.154
+mission: Human/CTO review of the completed Sprint 15 bounded gameplay slice;
+  decide whether to freeze the Sprint or authorize a separately scoped next
+  direction.
+measured_bottleneck: The Sprint 15 minimum checkpoint is satisfied through
+  current-session goal completion. Remaining gaps are explicitly deferred
+  failure/progression/product-direction work, not an unverified implementation
+  blocker.
+gap_classification: QUALITY_GAP + DEFERRED_OUT_OF_SPRINT
+decision_gate: BLOCKED — Human/CTO must confirm Sprint freeze or authorize a
+  new product work item; the Supervisor must not infer that direction.
+allowed_scope: Read-only review of WO-S15-007 evidence, ADR-0268, current state,
+  capability matrix, and deferred boundaries; record the human decision.
+forbidden_scope: Product code changes, automatic next-feature execution,
+  victory/death/progression implementation, and future backlog pre-generation.
+acceptance: Human/CTO freeze decision is recorded, or a separately approved
+  next product WO is created; no implementation is executed by this item.
+automated_tests: None required; this is a human review gate over existing
+  source-backed evidence and control-plane projections.
+product_verification: REVIEW_REQUIRED — relies on the completed WO-S15-007
+  Studio evidence and automated product regressions.
+observability_expectations: Preserve the completed WO-S15-007 evidence and
+  keep deferred capabilities visibly deferred in all projections.
+completion_report_requirements: Record the human decision, resulting queue
+  transition, and whether Sprint 15 is frozen or a new WO is authorized.
+explicit_non_goals: No implementation and no automatic continuation.
+human_decision_required: YES — BLOCKED pending Human/CTO Sprint Freeze Review.
 
 
 ## Queue transition vocabulary

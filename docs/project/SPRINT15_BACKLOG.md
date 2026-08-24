@@ -49,8 +49,8 @@ bindings and current semantic names remain the source of visual archetype truth.
   or timed-out work, a two-agent concurrency cap, no nested spawning, shared
   contract ownership, standard prompt shapes, re-delegation limits, and a trial
   scorecard.
-- Architecture version remains v1.153 after the completed WO-S15-006 product
-  slice.
+- Architecture version was v1.153 after the completed WO-S15-006 product
+  slice; WO-S15-007 advances the product to v1.154.
 
 ### WO-META-005 — Next-Work Discovery & Gap Analysis Foundation
 
@@ -61,10 +61,10 @@ bindings and current semantic names remain the source of visual archetype truth.
   `ONE_WORK_ITEM_WITH_DISCOVERY`: one item is executed and verified, exactly
   one next READY/BLOCKED item is generated, and the Supervisor stops without
   executing it. `SPRINT_CONTINUOUS` remains disabled.
-- Ran the current S15 dry run. The verified interaction/damage slice still
-  lacks an authoritative goal/session completion state; the generated
-  `WO-S15-007` goal-completion slice is BLOCKED pending a Human/CTO authority
-  decision. No product code was changed or executed by this META WO.
+- Ran the current S15 dry run. The verified interaction/damage slice lacked an
+  authoritative goal/session completion state; the Human/CTO decision recorded
+  in `HUMAN_DECISION_LOG.md` selected RuntimeGameplaySessionState, unblocking
+  `WO-S15-007`.
 
 ## Completed
 
@@ -119,9 +119,10 @@ bindings and current semantic names remain the source of visual archetype truth.
   `GameplayRuleSet` contracts with typed triggers, event-participant/entity
   selectors, a small condition vocabulary, typed actions, deterministic rule
   IDs, and explicit execution state.
-- Added Genesis-owned rule primitive capability truth. The real v1 event set is
-  limited to contact-start, jump, landing, add, and remove; contact direction,
-  numeric state, entity property, damage, and goal completion remain deferred.
+- Added Genesis-owned rule primitive capability truth. At this historical
+  boundary, the real v1 event set was limited to contact-start, jump, landing,
+  add, and remove; contact direction, numeric state, entity property, damage,
+  and goal completion remained deferred until their later bounded work orders.
 - Added provider-facing rule candidates and validation for IDs, current entity
   references, semantic categories/archetypes, whitelisted operators/actions,
   duplicate IDs, and executable-code/script/eval rejection. Provider support
@@ -214,12 +215,32 @@ bindings and current semantic names remain the source of visual archetype truth.
 - Code Complete: YES.
 - Product Verified: YES — local Studio browser session created `world-1` with three cows, evolved all cows to Sheep, inspected Generation Trace context (`Sheep`, `cow-1..3`, revisions `1/1/1`), followed up with Merchant at `2/2/2`, created `world-2`, and confirmed current-world isolation with no browser warnings/errors. The existing deterministic fallback handled an invalid local structured candidate during creation.
 
+### WO-S15-007 — Goal Completion Gameplay Rule Vertical Slice
+
+Status: DONE. Human/CTO accepted RuntimeGameplaySessionState as the sole
+current world/session completion authority. A player goal contact now emits the
+existing `ENTITY_CONTACT_STARTED` fact, matches the generic `reach-goal` rule,
+executes trusted `COMPLETE_GOAL`, commits `active → completed`, and projects
+the committed status through Renderer to Studio/Observatory. Repeated
+completion is a deterministic no-op; world/session replacement resets the new
+session, while non-replacing semantic evolution preserves completion and stale
+bindings cannot cross worlds.
+
+The Runtime loop continues ticking. Victory UI, control freezing, next level,
+restart, death/game-over, score, XP, progression, timers, goal deletion,
+generic gameplay state, and unrelated actions remain out of scope. See
+ADR-0268 and `GAMEPLAY_CAPABILITY_MATRIX.md`.
+
+Architecture version: v1.153 → v1.154. Code Complete: YES. Product Verified:
+YES — MANUAL Studio verification recorded after automated gates.
+
 ## Deferred by design
 
-- Runtime gameplay execution: death/failure flow, enemy AI, goals, timers,
+- Runtime gameplay execution: death/failure flow, enemy AI, goal progression,
+  timers,
   spawn execution, XP/levels/upgrades, and win/lose rules.
-- Beyond the S15-006 slice: score/numeric state, death/respawn/game-over,
-  enemy AI, goals/win/lose, timers, spawn execution, property actions,
+- Beyond the S15-007 slice: score/numeric state, death/respawn/game-over,
+  enemy AI, victory/next-level/restart, timers, spawn execution, property actions,
   unrelated rich multi-action transactions, and gameplay-rule evolution.
 - Durable gameplay revision/history and gameplay evolution.
 - Conversation memory/history, RAG, vector retrieval, and global context
@@ -254,8 +275,18 @@ progression, arbitrary code, or a genre-specific Runtime.
 
 ### WO-META-005 discovery result
 
-The Sprint checkpoint still lacks a truthful success/goal path. The generated
-`WO-S15-007` Goal Completion Gameplay Rule Vertical Slice is the only next
-candidate and is `BLOCKED` until Human/CTO chooses the authoritative owner and
-lifecycle for session/game completion. No product implementation is part of
-this control-plane work order.
+At discovery time, the Sprint checkpoint lacked a truthful success/goal path.
+The generated `WO-S15-007` Goal Completion Gameplay Rule Vertical Slice was the
+only next candidate and was `BLOCKED` until Human/CTO chose the authoritative
+owner and lifecycle for session/game completion. The decision was subsequently
+accepted and WO-S15-007 was executed and completed; no product implementation
+was part of WO-META-005 itself.
+
+### Next-Work Discovery after WO-S15-007
+
+Date: 2026-08-24. Result: PASS — the completed S15 minimum checkpoint is
+verified, so the discovery phase generated exactly one horizon item:
+`SPRINT_FREEZE_REVIEW — Sprint 15 Gameplay Mechanics Foundation`, status
+`BLOCKED` pending Human/CTO review. Remaining failure/progression/product
+direction is explicitly deferred; no next product work was executed in this
+continuation.

@@ -115,7 +115,7 @@ function rule(
 
 function ruleSet(
   rules: readonly GameplayRuleSpecification[] = [rule()],
-  options: { readonly bindingStatus?: 'current' | 'stale'; readonly semanticRevision?: number; readonly sessionId?: string } = {},
+  options: { readonly bindingStatus?: 'current' | 'stale'; readonly semanticRevision?: number; readonly sessionId?: string; readonly worldId?: string } = {},
 ): GameplayRuleSet {
   const semanticRevision = options.semanticRevision ?? 0
   return Object.freeze({
@@ -124,7 +124,7 @@ function ruleSet(
     sourceGameplayRevision: 1,
     semanticRevision,
     sourceSemanticRevision: semanticRevision,
-    worldId: 'world-1',
+    worldId: options.worldId ?? 'world-1',
     ...(options.sessionId ? { sessionId: options.sessionId } : {}),
     bindingStatus: options.bindingStatus ?? 'current',
     capabilityCatalogVersion: 'v1' as const,
@@ -138,10 +138,10 @@ function ruleSet(
   })
 }
 
-function context(world: World, semanticRevision = 0, sessionId = 'session-1') {
+function context(world: World, semanticRevision = 0, sessionId = 'session-1', worldId = 'world-1') {
   return Object.freeze({
     world,
-    worldId: 'world-1',
+    worldId,
     sessionId,
     semanticRevision,
     semanticWorld,
@@ -189,6 +189,91 @@ describe('Gameplay rule execution vertical slice', () => {
       targetEntityId: 'coin-1',
     }])
     expect(second.gameplayRuleResults).toHaveLength(0)
+  })
+
+  it('commits Runtime session completion, remains idempotent, preserves it across evolution, and rebinds on a new world', () => {
+    const goalWorld = Object.freeze({
+      entities: Object.freeze([
+        entity('player', 'player', 'Player', 0, 0, true),
+        entity('goal', 'item', 'Goal', 8, 0, true),
+      ]),
+    }) as unknown as World
+    const goalRule = rule({
+      ruleId: 'reach-goal',
+      actions: [Object.freeze({ type: 'COMPLETE_GOAL' as const, goalId: 'goal' })],
+    })
+    const executor = new DefaultGameplayRuleExecutor()
+    const first = executor.executeEvent(
+      Object.freeze({ ...contactEvent('world-1:1:0'), targetEntityId: 'goal' }),
+      ruleSet([goalRule]),
+      context(goalWorld),
+    )
+
+    expect(first.sessionState).toEqual({
+      status: 'completed',
+      completedByGoalId: 'goal',
+      completedAtTick: 1,
+    })
+    expect(first.results).toMatchObject([{
+      status: 'executed',
+      committed: true,
+      actionResults: [{
+        actionType: 'COMPLETE_GOAL',
+        status: 'executed',
+        mutation: { type: 'GOAL_COMPLETED', goalId: 'goal' },
+      }],
+    }])
+
+    const evolved = executor.executeEvent(
+      Object.freeze({ ...contactEvent('world-1:2:0'), targetEntityId: 'goal', tick: 2 }),
+      ruleSet([goalRule], { semanticRevision: 1 }),
+      context(goalWorld, 1),
+    )
+    expect(evolved.sessionState?.status).toBe('completed')
+    expect(evolved.results).toMatchObject([{
+      status: 'executed',
+      committed: false,
+      reason: 'goal_already_completed',
+      actionResults: [{ actionType: 'COMPLETE_GOAL', status: 'no_op' }],
+    }])
+
+    const worldB = Object.freeze({
+      entities: Object.freeze([
+        entity('player-b', 'player', 'Player', 0, 0, true),
+        entity('goal-b', 'item', 'Goal B', 8, 0, true),
+      ]),
+    }) as unknown as World
+    const goalRuleB = rule({
+      ruleId: 'reach-goal-b',
+      actions: [Object.freeze({ type: 'COMPLETE_GOAL' as const, goalId: 'goal-b' })],
+    })
+    const worldBResult = executor.executeEvent(
+      Object.freeze({
+        ...contactEvent('world-2:1:0'),
+        worldId: 'world-2',
+        actorEntityId: 'player-b',
+        targetEntityId: 'goal-b',
+      }),
+      ruleSet([goalRuleB], { worldId: 'world-2', sessionId: 'session-2' }),
+      context(worldB, 0, 'session-2', 'world-2'),
+    )
+    expect(worldBResult.sessionState).toEqual({
+      status: 'completed',
+      completedByGoalId: 'goal-b',
+      completedAtTick: 1,
+    })
+
+    const stale = executor.executeEvent(
+      Object.freeze({ ...contactEvent('world-1:3:0'), targetEntityId: 'goal' }),
+      ruleSet([goalRule]),
+      context(worldB, 0, 'session-2', 'world-2'),
+    )
+    expect(stale.results).toMatchObject([{ status: 'stale', reason: 'stale_rule_binding' }])
+    expect(stale.sessionState).toEqual({
+      status: 'completed',
+      completedByGoalId: 'goal-b',
+      completedAtTick: 1,
+    })
   })
 
   it('orders matching rules by priority, then stable rule-set order', () => {

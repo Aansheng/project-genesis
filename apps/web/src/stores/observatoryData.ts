@@ -10,7 +10,7 @@ import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
 import type { GameplayEvent, WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan, VisualAssetExecutionResult } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
-import type { GameplayRuleExecutionResult } from '@genesis/runtime'
+import type { GameplayRuleExecutionResult, RuntimeGameplaySessionState } from '@genesis/runtime'
 
 export interface ObservatoryGenerationStage {
   readonly name: string
@@ -158,7 +158,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     const projected = results.map(result => Object.freeze({
       id: `${result.eventId}:${result.ruleId}`,
       timestamp: ruleTickLabel(result.eventId),
-      level: result.status === 'executed' ? 'info' as const : result.status === 'conditions_failed' ? 'info' as const : 'warning' as const,
+      level: result.status === 'executed' || result.reason === 'goal_already_completed' ? 'info' as const : result.status === 'conditions_failed' ? 'info' as const : 'warning' as const,
       source: 'Gameplay Rule',
       type: 'RULE_EXECUTION',
       message: gameplayRuleMessage(result),
@@ -171,6 +171,22 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     viewModel.value = Object.freeze({
       ...current,
       eventStreamView: Object.freeze({ events }),
+    })
+  }
+
+  /** Project committed Runtime session truth without creating a Web authority. */
+  function recordRuntimeGameplaySessionState(state: RuntimeGameplaySessionState): void {
+    const current = viewModel.value
+    viewModel.value = Object.freeze({
+      ...current,
+      runtimeView: Object.freeze({
+        ...current.runtimeView,
+        gameplaySession: Object.freeze({
+          status: state.status,
+          ...(state.completedByGoalId ? { completedByGoalId: state.completedByGoalId } : {}),
+          ...(state.completedAtTick !== undefined ? { completedAtTick: state.completedAtTick } : {}),
+        }),
+      }),
     })
   }
 
@@ -261,6 +277,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       systemCount: 0,
       eventCount: 0,
       fps: 0,
+      gameplaySession: viewModel.value.runtimeView.gameplaySession,
       entities: world.entities.map((entity) => ({
         id: entity.id,
         type: entity.type,
@@ -300,6 +317,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     loadRuntimeWorld,
     recordRuntimeGameplayEvents,
     recordRuntimeGameplayRuleResults,
+    recordRuntimeGameplaySessionState,
     recordWorldEvolution,
     resetEvolution,
   }

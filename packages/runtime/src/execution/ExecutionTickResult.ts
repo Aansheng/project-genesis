@@ -13,7 +13,7 @@
  */
 import type { World } from '@genesis/shared'
 import type { GameplayEvent } from '@genesis/shared'
-import type { GameplayRuleExecutionResult } from '../gameplay'
+import type { GameplayRuleExecutionResult, RuntimeGameplaySessionState } from '../gameplay'
 
 export interface ExecutionTickResult {
   /**
@@ -37,4 +37,7 @@ export interface ExecutionTickResult {
 
   /** Rule results produced after the Runtime systems finalized their facts. */
   readonly gameplayRuleResults?: readonly GameplayRuleExecutionResult[]
+
+  /** Committed Runtime truth for the current world/session gameplay state. */
+  readonly gameplaySessionState?: RuntimeGameplaySessionState
 }

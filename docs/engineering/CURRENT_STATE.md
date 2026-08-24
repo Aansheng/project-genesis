@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.153
+architecture_version: v1.154
 current_sprint: Sprint 15
-current_work_order: WO-META-005
-current_work_order_status: completed
-current_control_plane_work_order: WO-META-005
-current_control_plane_work_order_status: completed
-last_completed_work_order: WO-META-005
-last_completed_product_work_order: WO-S15-006
+current_work_order: SPRINT_FREEZE_REVIEW
+current_work_order_status: blocked
+current_control_plane_work_order: SPRINT_FREEZE_REVIEW
+current_control_plane_work_order_status: blocked
+last_completed_work_order: WO-S15-007
+last_completed_product_work_order: WO-S15-007
 last_completed_control_plane_work_order: WO-META-005
-next_ready_work_order: none — WO-S15-007 is the only next candidate and is BLOCKED by an open human decision; discovery stop reached
-product_architecture_changed: false
-sprint_status: S15 product slice complete through WO-S15-006; WO-META-005 discovery complete; WO-S15-007 is blocked pending goal-completion authority
-product_verified: YES — WO-S15-006 MANUAL Studio verification completed on 2026-08-24
+next_ready_work_order: none — SPRINT_FREEZE_REVIEW is the only horizon item and is BLOCKED pending Human/CTO review
+product_architecture_changed: yes — WO-S15-007 advanced v1.153 → v1.154
+sprint_status: S15 minimum gameplay checkpoint satisfied through WO-S15-007; Sprint Freeze Review is BLOCKED pending Human/CTO direction; no next product WO executed
+product_verified: YES — WO-S15-007 MANUAL Studio verification completed on 2026-08-24
 control_plane_status: discovery-enabled; ONE_WORK_ITEM_WITH_DISCOVERY; SPRINT_CONTINUOUS disabled
 
 ## Current Sprint goal
@@ -50,8 +50,12 @@ systems are outside this Sprint.
   changing product architecture.
 - WO-META-005 adds just-in-time gap analysis, measured-bottleneck selection,
   human-decision detection, generated-WO quality gates, Sprint-freeze detection,
-  and `ONE_WORK_ITEM_WITH_DISCOVERY`; it does not change product architecture
-  or execute the generated product WO.
+  and `ONE_WORK_ITEM_WITH_DISCOVERY`.
+- WO-S15-007 is complete and browser-verified: RuntimeGameplaySessionState is
+  the current world/session completion authority; trusted `COMPLETE_GOAL`
+  commits `active → completed`, repeated completion is a no-op, semantic
+  evolution retains completion, and world/session replacement resets the new
+  session to `active`.
 
 ## Active capabilities
 
@@ -65,6 +69,9 @@ systems are outside this Sprint.
   Runtime events; the approved enemy-stomp rule is the bounded two-action slice.
 - Generic Health components for player/enemy/npc and trusted DAMAGE_ENTITY
   mutation after finalized non-top contact events; zero Health is state only.
+- Generic `COMPLETE_GOAL` execution after finalized player→goal contact, with
+  immutable RuntimeGameplaySessionState as the sole completion authority and
+  committed Renderer/Observatory projection.
 - Typed Runtime-owned contact direction and deterministic rule-level staged
   all-or-nothing execution for the two trusted stomp actions.
 - Pixi Renderer synchronization and truthful Observatory projections.
@@ -74,8 +81,9 @@ systems are outside this Sprint.
 ## Deferred capabilities
 
 - Score or other numeric gameplay state.
-- Death, respawn, game-over, enemy AI, goals, win/lose, timers, spawns,
-  progression, rich actions, unrelated rich multi-action transactions, and
+- Death, respawn, game-over, enemy AI, victory UI, next level, restart, score,
+  numeric state, XP, progression, timers, spawns, goal deletion, rich actions,
+  unrelated rich multi-action transactions, generic gameplay state, and
   gameplay-rule evolution.
 - Durable gameplay/context/evolution history, replay, persistence, and reload
   recovery.
@@ -106,16 +114,13 @@ own capability-focused work item rather than broadening WO-META-003.
 ## Current product gaps
 
 The current product is a playable bounded slice, not a complete general
-gameplay engine. The verified S15-006 slice has no implementation blocker, but
-the Sprint checkpoint still lacks a truthful success/goal path. Platformer
-`completionMode=goal`, the `reach-goal` mechanic, and the `COMPLETE_GOAL` action
-are modeled; no authoritative goal/session completion state or Runtime
-completion executor exists. `WO-S15-007` is therefore the single measured next
-candidate and is BLOCKED until Human/CTO chooses the completion authority and
-lifecycle. Score/numeric state, death/respawn/game-over, enemy AI, timers,
-spawning, progression, persistence, and gameplay-rule evolution remain
-deferred. Runtime facts, rule interpretation, mutation, and result observation
-remain separate.
+gameplay engine. WO-S15-007's minimum success path is complete and has no
+implementation blocker. The next horizon is the BLOCKED `SPRINT_FREEZE_REVIEW`
+human gate; no product work is authorized automatically. Victory UI, next
+level, restart, death/respawn/game-over, score/numeric state, XP, progression,
+timers, spawning, goal deletion, persistence, and gameplay-rule evolution
+remain deferred. Runtime facts, rule interpretation, mutation, session-state
+commitment, and result observation remain separate.
 
 ## Authority
 

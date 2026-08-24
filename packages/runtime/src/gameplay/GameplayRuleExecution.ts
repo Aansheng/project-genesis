@@ -20,6 +20,14 @@ import {
 } from '@genesis/shared'
 import { DefaultWorldMutator } from '../mutation'
 import type { WorldMutator } from '../mutation'
+import {
+  completeRuntimeGameplaySession,
+  DefaultRuntimeGameplaySessionStateStore,
+} from './RuntimeGameplaySessionState'
+import type {
+  RuntimeGameplaySessionState,
+  RuntimeGameplaySessionBinding,
+} from './RuntimeGameplaySessionState'
 
 const SEMANTIC_COMPONENT_TYPE = 'semantic'
 const MAX_CONSUMED_EVENT_RULES = 512
@@ -77,13 +85,14 @@ export interface GameplayConditionEvaluator {
   ): GameplayConditionEvaluation
 }
 
-export type GameplayActionExecutionStatus = 'executed' | 'failed' | 'unsupported' | 'rolled_back'
+export type GameplayActionExecutionStatus = 'executed' | 'failed' | 'unsupported' | 'rolled_back' | 'no_op'
 
 export interface GameplayActionExecutionRequest {
   readonly ruleId: string
   readonly event: GameplayEvent
   readonly action: GameplayAction
   readonly context: GameplayRuleExecutionContext
+  readonly sessionState?: RuntimeGameplaySessionState
 }
 
 export interface GameplayActionExecutionResult {
@@ -95,6 +104,8 @@ export interface GameplayActionExecutionResult {
   readonly worldBefore: World
   readonly worldAfter: World
   readonly failureReason?: string
+  readonly reason?: string
+  readonly sessionStateAfter?: RuntimeGameplaySessionState
   readonly mutation?:
     | {
         readonly type: 'ENTITY_REMOVED'
@@ -110,6 +121,14 @@ export interface GameplayActionExecutionResult {
         readonly targetEntityId: string
         readonly health: { readonly current: number; readonly max: number }
         readonly damageAmount: number
+      }
+    | {
+        readonly type: 'GOAL_COMPLETED'
+        readonly goalId?: string
+      }
+    | {
+        readonly type: 'GOAL_COMPLETION_NOOP'
+        readonly goalId?: string
       }
 }
 
@@ -140,6 +159,7 @@ export interface GameplayRuleExecutionResult {
 export interface GameplayRuleExecutionBatch {
   readonly world: World
   readonly results: readonly GameplayRuleExecutionResult[]
+  readonly sessionState?: RuntimeGameplaySessionState
 }
 
 export interface GameplayRuleExecutor {
@@ -400,6 +420,40 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       worldAfter: context.world,
     }
 
+    if (action.type === 'COMPLETE_GOAL') {
+      if (event.worldId !== undefined && context.worldId !== undefined && event.worldId !== context.worldId) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'stale_event_binding',
+        })
+      }
+      if (request.sessionState === undefined) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'session_state_unavailable',
+        })
+      }
+
+      const goalId = action.goalId ?? ('targetEntityId' in event ? event.targetEntityId : undefined)
+      const completion = completeRuntimeGameplaySession(request.sessionState, {
+        ...(goalId ? { goalId } : {}),
+        tick: event.tick,
+      })
+      const completed = completion.outcome === 'completed'
+      return Object.freeze({
+        ...base,
+        status: completed ? 'executed' as const : 'no_op' as const,
+        reason: completed ? undefined : 'goal_already_completed',
+        sessionStateAfter: completion.state,
+        mutation: Object.freeze({
+          type: completed ? 'GOAL_COMPLETED' as const : 'GOAL_COMPLETION_NOOP' as const,
+          ...(goalId ? { goalId } : {}),
+        }),
+      })
+    }
+
     if (action.type !== 'REMOVE_ENTITY' && action.type !== 'APPLY_VELOCITY' && action.type !== 'DAMAGE_ENTITY') {
       return Object.freeze({
         ...base,
@@ -613,8 +667,9 @@ function rolledBackActionResult(
   result: GameplayActionExecutionResult,
   rollbackWorld: World,
 ): GameplayActionExecutionResult {
-  const { mutation: _mutation, ...withoutMutation } = result
+  const { mutation: _mutation, sessionStateAfter: _sessionStateAfter, ...withoutMutation } = result
   void _mutation
+  void _sessionStateAfter
   return Object.freeze({
     ...withoutMutation,
     status: 'rolled_back' as const,
@@ -627,7 +682,7 @@ function affectedEntityIds(actionResults: readonly GameplayActionExecutionResult
 }
 
 function sessionKey(ruleSet: GameplayRuleSet, context: GameplayRuleExecutionContext): string {
-  return `${ruleSet.worldId ?? context.worldId ?? 'runtime'}:${ruleSet.sessionId ?? context.sessionId ?? 'session'}:${ruleSet.semanticRevision}`
+  return `${context.worldId ?? ruleSet.worldId ?? 'runtime'}:${context.sessionId ?? ruleSet.sessionId ?? 'session'}:${context.semanticRevision ?? ruleSet.semanticRevision}`
 }
 
 export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
@@ -638,6 +693,7 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
     private readonly matcher: GameplayRuleMatcher = new DefaultGameplayRuleMatcher(),
     private readonly conditionEvaluator: GameplayConditionEvaluator = new DefaultGameplayConditionEvaluator(),
     private readonly actionExecutor: GameplayActionExecutor = new DefaultGameplayActionExecutor(),
+    private readonly sessionStateStore = new DefaultRuntimeGameplaySessionStateStore(),
   ) {}
 
   execute(
@@ -645,7 +701,14 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
     ruleSet: GameplayRuleSet,
     context: GameplayRuleExecutionContext,
   ): GameplayRuleExecutionBatch {
-    if (events.length === 0) return Object.freeze({ world: context.world, results: Object.freeze([]) })
+    const binding: RuntimeGameplaySessionBinding = {
+      ...(context.worldId ?? ruleSet.worldId ? { worldId: context.worldId ?? ruleSet.worldId } : {}),
+      ...(context.sessionId ?? ruleSet.sessionId ? { sessionId: context.sessionId ?? ruleSet.sessionId } : {}),
+    }
+    let sessionState = this.sessionStateStore.bind(binding)
+    if (events.length === 0) {
+      return Object.freeze({ world: context.world, results: Object.freeze([]), sessionState })
+    }
 
     const key = sessionKey(ruleSet, context)
     if (key !== this.activeSessionKey) {
@@ -702,7 +765,9 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
         }
 
         const ruleStartWorld = world
+        const ruleStartSessionState = sessionState
         let stagedWorld = ruleStartWorld
+        let stagedSessionState = sessionState
         const actionResults: GameplayActionExecutionResult[] = []
         let failedAction: GameplayActionExecutionResult | undefined
 
@@ -712,13 +777,15 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
             event,
             action,
             context: Object.freeze({ ...context, world: stagedWorld }),
+            sessionState: stagedSessionState,
           })
           actionResults.push(actionResult)
-          if (actionResult.status !== 'executed') {
+          if (actionResult.status !== 'executed' && actionResult.status !== 'no_op') {
             failedAction = actionResult
             break
           }
           stagedWorld = actionResult.worldAfter
+          if (actionResult.sessionStateAfter !== undefined) stagedSessionState = actionResult.sessionStateAfter
         }
 
         if (failedAction) {
@@ -734,20 +801,26 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
             reason: failedAction.failureReason,
           }))
           world = ruleStartWorld
+          sessionState = ruleStartSessionState
           continue
         }
 
         world = stagedWorld
+        sessionState = stagedSessionState
+        this.sessionStateStore.commit(sessionState)
         results.push(executionResult(event, rule, 'executed', {
-          committed: true,
+          committed: actionResults.some(actionResult => actionResult.status === 'executed'),
           conditionResult,
           actionResults,
           affectedEntityIds: affectedEntityIds(actionResults),
+          ...(actionResults.find(actionResult => actionResult.reason)?.reason
+            ? { reason: actionResults.find(actionResult => actionResult.reason)?.reason }
+            : {}),
         }))
       }
     }
 
-    return Object.freeze({ world, results: Object.freeze(results) })
+    return Object.freeze({ world, results: Object.freeze(results), sessionState })
   }
 
   executeEvent(

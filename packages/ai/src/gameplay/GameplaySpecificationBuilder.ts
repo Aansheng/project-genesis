@@ -94,6 +94,19 @@ function isSupportedEnemyStompInteraction(
     && interaction.outcome.toLowerCase().includes('upward player velocity')
 }
 
+function isSupportedReachGoalInteraction(
+  interaction: GameplayInteractionCandidate,
+  semanticWorld: GameWorldModel,
+  reachGoalSupported: boolean,
+): boolean {
+  if (!reachGoalSupported || interaction.concept !== 'reach-goal') return false
+  const playerId = entityId(semanticWorld, entity => entity.category === 'player')
+  const goalId = entityId(semanticWorld, entity => entity.id === 'goal' || entity.name.toLowerCase().includes('goal'))
+  if (!playerId || !goalId) return false
+  return interaction.participants.some(item => item.role === 'subject' && item.entityId === playerId)
+    && interaction.participants.some(item => item.role === 'target' && item.entityId === goalId)
+}
+
 function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
   const playerId = entityId(world, entity => entity.category === 'player') ?? 'player'
   const enemyId = entityId(world, entity => entity.category === 'enemy')
@@ -109,7 +122,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanic('enemy-stomp', 'combat', 'Player can defeat an enemy by a downward contact and bounce upward.', 'supported', playerId, enemyId ? 'enemy' : undefined),
       mechanic('enemy-side-damage', 'combat', 'Player loses generic Health on non-top contact with an enemy.', 'supported', playerId, enemyId ? 'enemy' : undefined),
       mechanic('collect-reward', 'collection', 'Player collects a reward during traversal.', 'deferred', playerId, itemId ? 'item' : undefined),
-      mechanic('reach-goal', 'goal', 'Player reaches the level goal.', 'deferred', playerId, goalId ? 'goal' : undefined),
+      mechanic('reach-goal', 'goal', 'Player reaches the level goal.', 'supported', playerId, goalId ? 'goal' : undefined),
       mechanic('player-death', 'failure', 'Player death ends or resets the attempt.', 'deferred', playerId),
     ]
     const interactions: GameplayInteractionSpecification[] = []
@@ -124,8 +137,8 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       id: 'player-goal-reach',
       participants: Object.freeze([participant('subject', playerId), participant('target', goalId)]),
       concept: 'reach-goal',
-      outcome: 'Level completion is represented but not executed by Runtime yet.',
-      supportStatus: 'deferred',
+      outcome: 'A trusted goal contact commits the current Runtime session as completed.',
+      supportStatus: 'supported',
     }))
     const goals: GameplayGoalSpecification[] = goalId ? [Object.freeze({
       id: 'reach-level-goal',
@@ -133,7 +146,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       description: 'Reach the level goal.',
       targetEntityId: goalId,
       optional: false,
-      supportStatus: 'deferred',
+      supportStatus: 'supported',
     })] : []
     const failures: GameplayFailureConditionSpecification[] = [Object.freeze({
       id: 'player-death',
@@ -284,12 +297,16 @@ export class DefaultGameplaySpecificationBuilder implements GameplaySpecificatio
     const enemyStompSupported = mechanics.some(mechanic =>
       mechanic.id === 'enemy-stomp' && mechanic.supportStatus === 'supported',
     )
+    const reachGoalSupported = mechanics.some(mechanic =>
+      mechanic.id === 'reach-goal' && mechanic.supportStatus === 'supported',
+    )
     const interactions = candidate.interactions?.map(item => Object.freeze({
       id: item.id,
       participants: Object.freeze(item.participants.map(participant => Object.freeze({ ...participant }))),
       concept: item.concept,
       outcome: item.outcome,
       supportStatus: isSupportedEnemyStompInteraction(item, input.semanticWorld, enemyStompSupported)
+        || isSupportedReachGoalInteraction(item, input.semanticWorld, reachGoalSupported)
         ? 'supported' as const
         : 'deferred' as const,
     }))
@@ -307,7 +324,9 @@ export class DefaultGameplaySpecificationBuilder implements GameplaySpecificatio
       ...(item.targetEntityId ? { targetEntityId: item.targetEntityId } : {}),
       ...(item.targetCount !== undefined ? { targetCount: item.targetCount } : {}),
       optional: item.optional ?? false,
-      supportStatus: 'deferred' as const,
+      supportStatus: item.kind === 'reach-goal' && reachGoalSupported
+        ? 'supported' as const
+        : 'deferred' as const,
     }))
     const failureConditions: readonly GameplayFailureConditionSpecification[] | undefined = candidate.failureConditions?.map(item => Object.freeze({
       id: item.id,

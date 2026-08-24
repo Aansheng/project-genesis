@@ -66,6 +66,9 @@ function instrumentedValue(value: number): string {
           <span class="runtime-world-id">
             {{ runtimeView.worldId || (testMode ? '' : 'Unavailable') }}
           </span>
+          <span class="runtime-gameplay-status">
+            Gameplay: {{ runtimeView.gameplaySession?.status ?? 'active' }}
+          </span>
         </header>
         <dl class="runtime-stats-grid">
           <RuntimeStatCard
@@ -139,6 +142,11 @@ function instrumentedValue(value: number): string {
 
 .runtime-world-id {
   font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
+  font-size: 11px;
+  color: var(--obs-text-dim, #63636d);
+}
+
+.runtime-gameplay-status {
   font-size: 11px;
   color: var(--obs-text-dim, #63636d);
 }

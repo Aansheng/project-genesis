@@ -193,7 +193,7 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   Object.freeze({ id: 'action-change-numeric-state', kind: 'action' as const, description: 'Change score/XP-like state; no generic gameplay state store exists yet.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-set-entity-property', kind: 'action' as const, description: 'Set a whitelisted entity property; rule execution is not active.', status: 'deferred' as const }),
   Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Set or add a Runtime VelocityComponent through immutable World mutation.', status: 'supported' as const }),
-  Object.freeze({ id: 'action-complete-goal', kind: 'action' as const, description: 'Complete a goal; no goal state or completion executor exists yet.', status: 'deferred' as const }),
+  Object.freeze({ id: 'action-complete-goal', kind: 'action' as const, description: 'Commit the current Runtime session from active to completed for a trusted goal contact; repeated completion is a no-op.', status: 'supported' as const }),
   Object.freeze({ id: 'action-damage-entity', kind: 'action' as const, description: 'Decrease a target Health component through immutable Runtime mutation; zero is state only.', status: 'supported' as const }),
 ])
 
@@ -260,6 +260,11 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
       mechanicIds: Object.freeze(['enemy-side-damage']),
     }),
     Object.freeze({
+      id: 'goal-completion',
+      description: 'A trusted generic COMPLETE_GOAL rule commits the current Runtime session completion state.',
+      mechanicIds: Object.freeze(['reach-goal']),
+    }),
+    Object.freeze({
       id: 'mutation-event-observation',
       description: 'Committed Runtime World ID-set changes emit ENTITY_ADDED or ENTITY_REMOVED facts.',
       mechanicIds: Object.freeze(['event-entity-added', 'event-entity-removed']),
@@ -280,6 +285,7 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'event-entity-removed',
     'enemy-stomp',
     'enemy-side-damage',
+    'reach-goal',
   ]),
   rulePrimitives: DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES,
 })

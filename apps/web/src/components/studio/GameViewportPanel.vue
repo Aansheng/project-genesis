@@ -15,6 +15,7 @@ import {
 } from '@genesis/renderer'
 import type {
   RuntimeVisualizationLoop,
+  RuntimeGameplaySessionStateObserver,
   VisualizationRunner,
 } from '@genesis/renderer'
 import {
@@ -68,6 +69,11 @@ const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {
     if (results.some(result => result.committed)) {
       observatoryDataStore.loadRuntimeWorld(store.worldStore.getWorld(), store.currentWorldId)
     }
+  },
+}
+const gameplaySessionStateObserver: RuntimeGameplaySessionStateObserver = {
+  observe(state) {
+    observatoryDataStore.recordRuntimeGameplaySessionState(state)
   },
 }
 
@@ -128,6 +134,7 @@ onMounted(() => {
   const ruleExecutionConfig: RuntimeGameplayRuleExecutionConfig = {
     getRuleSet: () => store.gameplayRuleSet,
     getWorldId: () => store.currentWorldId || undefined,
+    getSessionId: () => store.currentWorldId || undefined,
     getSemanticRevision: () => store.semanticRevision,
     getSemanticWorld: () => store.semanticWorld ?? undefined,
   }
@@ -187,6 +194,7 @@ onMounted(() => {
     environmentRenderer ?? undefined,
     gameplayEventObserver,
     gameplayRuleExecutionObserver,
+    gameplaySessionStateObserver,
   )
   runner = new DefaultVisualizationRunner(
     new DefaultAnimationFrameScheduler(),

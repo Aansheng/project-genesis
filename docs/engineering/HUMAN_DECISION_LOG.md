@@ -10,7 +10,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-21 | Select the concrete S15-005 gameplay scenario from a measured Studio bottleneck and approve its acceptance boundary. | ACCEPTED | Human / CTO | ENEMY STOMP is the primary scenario; WO-S15-005 may enter IN_PROGRESS with its bounded generic Runtime contract. |
 | 2026-08-21 | Keep initial Supervisor continuation at ONE_WORK_ITEM. | ACCEPTED | Human / CTO | Supervisor stops after one verified work item. |
 | 2026-08-24 | Select the WO-S15-006 gameplay scenario and acceptance boundary for the next product trial. | ACCEPTED | Human / CTO | DAMAGE / HEALTH is the primary scenario; WO-S15-006 is prepared READY but is not executed by WO-META-004. |
-| 2026-08-24 | Choose the authoritative owner and lifecycle contract for Sprint 15 goal/session completion before executing WO-S15-007. | OPEN | Human / CTO | WO-S15-007 remains BLOCKED; the Supervisor must not promote `COMPLETE_GOAL` or invent a second completion authority. |
+| 2026-08-24 | Choose the authoritative owner and lifecycle contract for Sprint 15 goal/session completion before executing WO-S15-007. | ACCEPTED | Human / CTO | RuntimeGameplaySessionState is the sole current-session completion authority; WO-S15-007 is unblocked and may execute within the accepted minimum slice. |
 
 ## WO-S15-005 product decision
 
@@ -31,6 +31,50 @@ The slice must keep direction out of Pixi/visual geometry, avoid genre-specific
 Runtime systems, keep deferred damage visibly non-executed, and use deterministic
 rule-level all-or-nothing semantics for multi-action failure without creating a
 general transaction framework.
+
+## WO-S15-007 — Human Architecture Decision
+
+Date: 2026-08-24
+Result: ACCEPTED — goal completion authority belongs to the Runtime session
+gameplay state.
+
+Authoritative model:
+
+- `RuntimeGameplaySessionState` is the minimal current-session state with
+  `status: active | completed`.
+- Optional completion metadata is limited to reliable facts already available,
+  such as `completedByGoalId` and `completedAtTick`.
+- The Goal entity/component is the world object that may trigger completion; it
+  is not the authoritative session-completion state.
+- Web/application state and Pinia are projections of committed Runtime truth.
+- No generic `GameStateManager` is introduced.
+
+Lifecycle and isolation:
+
+1. A new Runtime world/session starts as `active`.
+2. A trusted `COMPLETE_GOAL` action transitions `active` to `completed`.
+3. Completion is terminal for the current world/session.
+4. Repeated `COMPLETE_GOAL` execution is idempotent and returns a deterministic
+   already-completed/no-op result without duplicate completion side effects.
+5. Replacing the world/session resets the new session to `active`.
+6. World Evolution that does not replace the Runtime world/session does not
+   reset completion.
+7. A stale World A event/rule/action cannot complete World B.
+
+Execution boundary:
+
+`GameplayEvent → GameplayRule → COMPLETE_GOAL → trusted Runtime session-state
+mutation → Renderer/Web/Observatory projection`.
+
+WO-S15-007 is unblocked. Its implementation is limited to the player-contact →
+generic goal rule → `COMPLETE_GOAL` → Runtime completion-state → truthful
+Observatory/UI slice. Runtime ticking may continue after completion. Stopping the
+loop, freezing controls, victory UI, next level, restart, failure/game-over,
+score, XP, progression, timers, goal deletion, and generic game-state
+infrastructure remain out of scope.
+
+The queue transition is explicitly `BLOCKED → READY → IN_PROGRESS`; the READY
+gate was satisfied by this accepted decision and WO-S15-007 could proceed.
 
 ## WO-META-003 dry run
 
@@ -248,3 +292,21 @@ multi-agent delegation is optional.
 
 Overall Trial #2: PASS. The new discovery phase now records the next goal
 bottleneck and its human decision gate without executing it.
+
+## WO-S15-007 completion and Next-Work Discovery
+
+Date: 2026-08-24
+
+Result: PASS — the accepted Runtime session-state decision was implemented and
+verified within the minimum goal-completion slice. RuntimeGameplaySessionState
+owns committed current-session completion; the Goal remains a trigger, and
+Web/Pinia/Observatory remain projections. Automated evidence covers terminal
+idempotence, semantic-revision retention, world/session reset, stale-world
+isolation, and Renderer/Web projection. Studio evidence confirmed a real goal
+completion status and that replacement of the completed world starts the new
+world as `active` while Runtime remains Live.
+
+Discovery result: the Sprint 15 minimum checkpoint is satisfied. Exactly one
+next horizon item was generated: `SPRINT_FREEZE_REVIEW — Sprint 15 Gameplay
+Mechanics Foundation`, currently `BLOCKED` pending Human/CTO review. No next
+implementation was executed.

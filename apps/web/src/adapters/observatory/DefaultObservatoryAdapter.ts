@@ -13,6 +13,7 @@ import type {
   DiffViewModel,
   DiffChangeViewModel,
   RuntimeViewModel,
+  RuntimeGameplaySessionViewModel,
   RuntimeEntityViewModel,
   RuntimeComponentViewModel,
   EventStreamViewModel,
@@ -40,6 +41,7 @@ const DEFAULT_RUNTIME_VIEW: RuntimeViewModel = Object.freeze({
   systemCount: 0,
   eventCount: 0,
   fps: 0,
+  gameplaySession: Object.freeze({ status: 'active' as const }),
   entities: Object.freeze([]),
 })
 
@@ -381,7 +383,21 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       systemCount: safeCount(safeGet(raw, 'systemCount')),
       eventCount: safeCount(safeGet(raw, 'eventCount')),
       fps: safeCount(safeGet(raw, 'fps')),
+      gameplaySession: this.adaptRuntimeGameplaySession(raw),
       entities,
+    })
+  }
+
+  private adaptRuntimeGameplaySession(raw: Record<string, unknown>): RuntimeGameplaySessionViewModel {
+    const value = safeGet<Record<string, unknown>>(raw, 'gameplaySession')
+    if (!isObject(value)) return Object.freeze({ status: 'active' as const })
+    const status = safeGet(value, 'status') === 'completed' ? 'completed' as const : 'active' as const
+    return Object.freeze({
+      status,
+      ...(typeof safeGet(value, 'completedByGoalId') === 'string' ? { completedByGoalId: safeGet<string>(value, 'completedByGoalId') } : {}),
+      ...(typeof safeGet(value, 'completedAtTick') === 'number' && Number.isFinite(safeGet(value, 'completedAtTick'))
+        ? { completedAtTick: safeGet<number>(value, 'completedAtTick') }
+        : {}),
     })
   }
 

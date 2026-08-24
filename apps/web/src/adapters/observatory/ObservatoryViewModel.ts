@@ -238,6 +238,14 @@ export interface RuntimeEntityViewModel {
   readonly components: readonly RuntimeComponentViewModel[]
 }
 
+export type RuntimeGameplaySessionStatus = 'active' | 'completed'
+
+export interface RuntimeGameplaySessionViewModel {
+  readonly status: RuntimeGameplaySessionStatus
+  readonly completedByGoalId?: string
+  readonly completedAtTick?: number
+}
+
 /**
  * RuntimeViewModel — UI-safe DTO for the Runtime Viewer panel.
  *
@@ -251,6 +259,7 @@ export interface RuntimeViewModel {
   readonly systemCount: number
   readonly eventCount: number
   readonly fps: number
+  readonly gameplaySession?: RuntimeGameplaySessionViewModel
   readonly entities: readonly RuntimeEntityViewModel[]
 }
 

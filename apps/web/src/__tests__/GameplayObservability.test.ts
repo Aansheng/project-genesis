@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import type { GameplayEvent, World } from '@genesis/shared'
-import type { GameplayActionExecutionResult, GameplayRuleExecutionResult } from '@genesis/runtime'
+import type { GameplayActionExecutionResult, GameplayRuleExecutionResult, RuntimeGameplaySessionState } from '@genesis/runtime'
 import ObservatoryEventStream from '../components/observatory/events/ObservatoryEventStream.vue'
 import { useObservatoryDataStore } from '../stores/observatoryData'
 
@@ -87,5 +87,18 @@ describe('Gameplay Observatory projection', () => {
     expect(text).toContain('score-reward')
     expect(text).toContain('unsupported')
     expect(text).not.toContain('CHANGE_NUMERIC_STATE:executed')
+  })
+
+  it('projects committed Runtime session completion without owning the state', () => {
+    const store = useObservatoryDataStore()
+    const completed: RuntimeGameplaySessionState = Object.freeze({
+      status: 'completed',
+      completedByGoalId: 'goal',
+      completedAtTick: 7,
+    })
+
+    store.recordRuntimeGameplaySessionState(completed)
+
+    expect(store.viewModel.runtimeView.gameplaySession).toEqual(completed)
   })
 })

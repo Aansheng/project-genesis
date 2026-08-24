@@ -293,6 +293,22 @@ describe('runtime data — adapter runtimeView mapping', () => {
     expect(vm.runtimeView.entities).toHaveLength(1)
   })
 
+  it('adapter maps Runtime session completion truth', () => {
+    const adapter = new DefaultObservatoryAdapter()
+    const vm = adapter.adapt({
+      runtimeView: {
+        worldId: 'w-001',
+        gameplaySession: { status: 'completed', completedByGoalId: 'goal', completedAtTick: 12 },
+      },
+    })
+
+    expect(vm.runtimeView.gameplaySession).toEqual({
+      status: 'completed',
+      completedByGoalId: 'goal',
+      completedAtTick: 12,
+    })
+  })
+
   it('adapter handles missing runtimeView gracefully', () => {
     const adapter = new DefaultObservatoryAdapter()
     const vm = adapter.adapt({})

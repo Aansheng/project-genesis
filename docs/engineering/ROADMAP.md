@@ -11,10 +11,11 @@ architecture.
 - Sprint 12: AI world generation and Runtime activation.
 - Sprint 13: visual and asset generation; frozen after correctness audit.
 - Sprint 14: targeted world evolution; frozen after multi-turn verification.
-- Sprint 15 through WO-S15-006: capability-specific context and the bounded
-  gameplay rule execution slices for enemy stomp and generic Health damage.
+- Sprint 15 through WO-S15-007: capability-specific context and the bounded
+  gameplay rule execution slices for enemy stomp, generic Health damage, and
+  current-session goal completion.
 - WO-META-005: just-in-time next-work discovery and gap-analysis foundation;
-  product architecture remains v1.153.
+  WO-S15-007 advances product architecture to v1.154.
 
 ## Current direction
 
@@ -28,17 +29,19 @@ movement/jump continuity, event-driven gameplay, collectible interaction,
 enemy stomp, enemy damage/Health, a truthful success/goal path, and coherent
 end-to-end behavior. The completed S15-006 boundary extended the smallest
 trusted Runtime primitive needed for damage/Health and preserved current
-authority boundaries. Discovery evidence now identifies goal/session completion
-as the smallest remaining Sprint blocker; the only generated next product WO
-is blocked pending a human authority decision.
+authority boundaries. The subsequent discovery identified goal/session
+completion as the smallest Sprint blocker; WO-S15-007 now commits
+`RuntimeGameplaySessionState`, and its product verification is recorded in the
+current state and backlog. The only next horizon is the blocked Sprint Freeze
+Review.
 
 ## Deferred direction
 
 Score/state, death/respawn/game-over, enemy behavior, timers, spawning,
 progression, richer rule actions, durable history, and broader context systems
 stay deferred until a concrete product need and acceptance path justify them.
-Goal completion is the current Sprint candidate, but no goal implementation is
-authorized until its authoritative owner/lifecycle is selected.
+Goal completion beyond the current session-completed truth, including victory
+UI, next level, restart, failure, and progression, remains deferred.
 
 ## Supervisor rollout
 

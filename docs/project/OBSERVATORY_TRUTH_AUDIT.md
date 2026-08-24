@@ -1,6 +1,6 @@
 # Observatory Truth Audit — WO-OBS-001 / WO-S15-002 / WO-S15-004 / WO-S15-005
 
-Architecture is v1.152. This audit records production behavior; test fixtures are excluded.
+Architecture is v1.154. This audit records production behavior; test fixtures are excluded.
 The final S14-006 browser session passed on 2026-08-21: one continuous `world-1`
 recorded Cow→Sheep, explicit single removal, Merchant add, and Night with canonical
 generation counts 1/0/1/1, revision progression 1→4, continued gameplay, four truthful
@@ -17,7 +17,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 | Event Stream | `ObservatoryEventStream` | `ObservatoryViewModel.eventStreamView` | REAL / GAMEPLAY + GAMEPLAY RULE + DOMAIN + ASSET EVENTS | Runtime gameplay facts through `RuntimeGameplayEventCollector → Renderer observer → observatoryData.recordRuntimeGameplayEvents`, separate rule results through `DefaultGameplayRuleExecutor → Renderer observer → observatoryData.recordRuntimeGameplayRuleResults`, plus world evolution request/planning/semantic/Runtime and asset execution/generation/manifest/renderer/sync events | `eventId` for gameplay facts; `eventId + ruleId` for rule results; `operationId + worldId` for evolution facts | Yes for the current Runtime world/session; raw provider payloads excluded | Facts and rule results are bounded to the latest 100 UI entries; rule plans, provider transport duplicates, and synthetic ticks are excluded |
 | Execution Graph | `ObservatoryTraceGraph` | None | EMPTY-BY-DESIGN | No live graph producer | None | N/A | Old hardcoded CreateWorld/CreateFarm topology removed |
 | World Graph | `ObservatoryWorldGraph` | Runtime view projection | REAL / PARTIAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes; current entities/types only | Old Farm/Barn/HarvestQuest fixture removed |
-| Runtime | `ObservatoryRuntimeViewer` | `ObservatoryViewModel.runtimeView` | REAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` | Current SPA Runtime store | Yes | Uninstrumented system/event/FPS values display unavailable |
+| Runtime | `ObservatoryRuntimeViewer` | `ObservatoryViewModel.runtimeView` | REAL | `RuntimeWorldStore → ObservatoryRuntimeBinding` plus committed `RuntimeGameplaySessionState` | Current SPA Runtime world/session binding | Yes; world/session completion is read from committed Runtime truth | Uninstrumented system/event/FPS values display unavailable; Web does not own completion |
 | Generation Trace | `ObservatoryGeneration` | `observatoryData.generationTrace` + `gameStore.visualGenerationOperations` | REAL | Latest generation diagnostics, GameplaySpecification/RuleSet summary, and image operations, including safe context scope/world/revision/binding/reference counts | Latest current-session generation | Yes | Safe provider/model/stages/context/rule counts only; transport secrets, raw payloads, URIs, and image bytes excluded |
 
 ## Retired mock paths
@@ -25,7 +25,7 @@ create-world visual operations now terminate as cancelled rather than remaining 
 - The production store no longer contains the Sprint 6 farm/history/diff/event demo builder.
 - `ObservatoryOverview` no longer auto-hydrates mock data in test mode.
 - The legacy fixture lives only under `src/__tests__/fixtures` and is installed by Vitest setup for historical tests.
-- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.152.
+- The shell version now comes from the centralized `PROJECT_METADATA` constant and reports v1.154.
 
 ## Sprint 14 producers
 
@@ -109,9 +109,21 @@ stale because automatic mechanics synchronization is not implemented.
 validated structured rule intent; `GameplayEvent` means Runtime facts; rule
 results are separate bounded Observatory entries. The contact event includes
 Runtime-owned `direction`, and rule entries show per-action status and whether
-the staged rule committed. Deferred/partial/unsupported rules do not execute;
-damage, health, goal, spawn, property, score, and arbitrary-code paths remain
-inactive.
+the staged rule committed. Deferred/partial/unsupported rules do not execute.
+At the S15-005 historical boundary, damage/health and goal completion were
+inactive. WO-S15-006 later added the bounded non-top contact `DAMAGE_ENTITY`
+producer and separate committed Health projection; WO-S15-007 is documented
+below.
+
+WO-S15-007 adds the bounded goal-completion producer. A Runtime-owned
+`ENTITY_CONTACT_STARTED` fact for a player→goal contact is matched by the
+generic `reach-goal` rule and its trusted `COMPLETE_GOAL` action. The committed
+`RuntimeGameplaySessionState` is projected separately from the raw fact and
+rule result: it reports `active` or terminal `completed`, with only reliable
+goal/tick metadata. Repeated completion is a deterministic no-op; semantic
+evolution keeps the state for the same Runtime world/session, while world
+replacement starts the new session as `active`. The Runtime loop continues to
+tick, and victory/progression/failure UI remains deferred.
 
 WO-S15-005 MANUAL browser evidence on 2026-08-21 recorded a real
 `direction=bottom` contact with `conditions_failed`, then a real

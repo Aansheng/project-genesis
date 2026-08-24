@@ -82,10 +82,18 @@ export type {
   GameplayRuleExecutionStatus,
   GameplayRuleExecutor,
   GameplayRuleMatcher,
+  RuntimeGameplaySessionBinding,
+  RuntimeGameplaySessionCompletionOutcome,
+  RuntimeGameplaySessionCompletionResult,
+  RuntimeGameplaySessionState,
+  RuntimeGameplaySessionStatus,
 } from './gameplay'
 export {
   DefaultGameplayActionExecutor,
   DefaultGameplayConditionEvaluator,
   DefaultGameplayRuleExecutor,
   DefaultGameplayRuleMatcher,
+  completeRuntimeGameplaySession,
+  createRuntimeGameplaySessionState,
+  DefaultRuntimeGameplaySessionStateStore,
 } from './gameplay'

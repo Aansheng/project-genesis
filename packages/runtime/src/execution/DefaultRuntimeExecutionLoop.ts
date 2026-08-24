@@ -35,6 +35,7 @@ import {
 } from '../events'
 import {
   DefaultGameplayRuleExecutor,
+  DefaultRuntimeGameplaySessionStateStore,
   type GameplayRuleExecutionBatch,
   type GameplayRuleExecutor,
 } from '../gameplay'
@@ -46,6 +47,7 @@ export interface RuntimeGameplayRuleExecutionConfig {
   readonly getSemanticRevision?: () => number | undefined
   readonly getSemanticWorld?: () => GameWorldModel | null | undefined
   readonly executor?: GameplayRuleExecutor
+  readonly sessionStateStore?: DefaultRuntimeGameplaySessionStateStore
 }
 
 export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
@@ -55,6 +57,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
   private lastOutputWorld: World | undefined
   private readonly gameplayRuleExecution?: RuntimeGameplayRuleExecutionConfig
   private readonly gameplayRuleExecutor: GameplayRuleExecutor
+  private readonly gameplaySessionStateStore?: DefaultRuntimeGameplaySessionStateStore
 
   /**
    * @param registry — the RuntimeSystemRegistry providing systems to execute
@@ -67,7 +70,18 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
     this.registry = registry
     this.gameplayEventCollector = gameplayEventCollector
     this.gameplayRuleExecution = gameplayRuleExecution
-    this.gameplayRuleExecutor = gameplayRuleExecution?.executor ?? new DefaultGameplayRuleExecutor()
+    this.gameplaySessionStateStore = gameplayRuleExecution?.executor
+      ? gameplayRuleExecution.sessionStateStore
+      : gameplayRuleExecution
+        ? gameplayRuleExecution.sessionStateStore ?? new DefaultRuntimeGameplaySessionStateStore()
+        : undefined
+    this.gameplayRuleExecutor = gameplayRuleExecution?.executor
+      ?? new DefaultGameplayRuleExecutor(
+        undefined,
+        undefined,
+        undefined,
+        this.gameplaySessionStateStore,
+      )
   }
 
   /**
@@ -115,6 +129,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
         systemCount: 0,
         gameplayEvents,
         gameplayRuleResults: gameplayRules.results,
+        ...(gameplayRules.sessionState ? { gameplaySessionState: gameplayRules.sessionState } : {}),
       })
       this.lastOutputWorld = outputWorld.world
       return outputWorld
@@ -134,6 +149,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
       systemCount: systems.length,
       gameplayEvents,
       gameplayRuleResults: gameplayRules.results,
+      ...(gameplayRules.sessionState ? { gameplaySessionState: gameplayRules.sessionState } : {}),
     })
     this.lastOutputWorld = gameplayRules.world
     return result
@@ -145,11 +161,21 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
   ): GameplayRuleExecutionBatch {
     const execution = this.gameplayRuleExecution
     if (!execution) return Object.freeze({ world, results: Object.freeze([]) })
-    const ruleSet = execution.getRuleSet()
-    if (!ruleSet) return Object.freeze({ world, results: Object.freeze([]) })
-
     const worldId = execution.getWorldId?.()
     const sessionId = execution.getSessionId?.()
+    const ruleSet = execution.getRuleSet()
+    if (!ruleSet) {
+      const sessionState = this.gameplaySessionStateStore?.bind({
+        ...(worldId !== undefined ? { worldId } : {}),
+        ...(sessionId !== undefined ? { sessionId } : {}),
+      })
+      return Object.freeze({
+        world,
+        results: Object.freeze([]),
+        ...(sessionState ? { sessionState } : {}),
+      })
+    }
+
     const semanticRevision = execution.getSemanticRevision?.()
     const semanticWorld = execution.getSemanticWorld?.()
     return this.gameplayRuleExecutor.execute(events, ruleSet, Object.freeze({

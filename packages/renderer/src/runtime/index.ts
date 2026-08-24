@@ -17,6 +17,7 @@ export type { VisualizationRunner } from './VisualizationRunner'
 export { DefaultVisualizationRunner } from './DefaultVisualizationRunner'
 export type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 export type { RuntimeWorldSink } from './RuntimeVisualizationLoop'
+export type { RuntimeGameplaySessionStateObserver } from './RuntimeVisualizationLoop'
 export { DefaultRuntimeVisualizationLoop } from './DefaultRuntimeVisualizationLoop'
 export type { VisualizationTickResult } from './VisualizationTickResult'
 

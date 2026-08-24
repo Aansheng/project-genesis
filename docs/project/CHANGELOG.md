@@ -1,5 +1,22 @@
 # Changelog
 
+### WO-S15-007 — Goal Completion Gameplay Rule Vertical Slice
+
+- Added the narrow Runtime-owned `RuntimeGameplaySessionState` with
+  `active`/`completed` status, reliable goal/tick metadata, world/session
+  rebinding, terminal idempotent completion, and stale binding isolation.
+- Promoted `COMPLETE_GOAL` and the validated platformer `reach-goal` RuleSet
+  entry. A real `ENTITY_CONTACT_STARTED` goal contact now follows the existing
+  GameplayEvent → GameplayRule → trusted action path and commits session truth;
+  Runtime ticking continues and no goal entity is deleted.
+- Forwarded committed session state through Renderer to the Web Observatory and
+  Studio Runtime surface. Raw contact, rule result, Runtime world, and session
+  status remain separate projections; Web/Pinia is not authoritative.
+- Added ADR-0268, focused Shared/AI/Runtime/Renderer/Web coverage, affected
+  package regression coverage, and architecture version v1.153 → v1.154.
+  Death/game-over, victory UI, next level, restart, score/XP, progression,
+  timers, goal deletion, and generic game-state infrastructure remain deferred.
+
 ### WO-S15-006 — Damage / Health Gameplay Rule Vertical Slice
 
 - Added the frozen shared `health` component with default `100/100` state for

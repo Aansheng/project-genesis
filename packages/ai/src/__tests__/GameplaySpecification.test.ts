@@ -39,11 +39,16 @@ describe('GameplaySpecification foundation', () => {
     expect(specification.gameLoop.completionMode).toBe('goal')
     expect(specification.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
     expect(specification.mechanics.find(item => item.id === 'enemy-stomp')?.supportStatus).toBe('supported')
+    expect(specification.mechanics.find(item => item.id === 'reach-goal')?.supportStatus).toBe('supported')
     expect(specification.interactions?.find(item => item.id === 'player-enemy-contact')).toMatchObject({
       supportStatus: 'supported',
       outcome: expect.stringContaining('removes the enemy'),
     })
     expect(specification.goals?.[0]?.targetEntityId).toBe('goal')
+    expect(specification.goals?.[0]?.supportStatus).toBe('supported')
+    expect(specification.interactions?.find(item => item.id === 'player-goal-reach')).toMatchObject({
+      supportStatus: 'supported',
+    })
   })
 
   it('uses the same schema for survivor and does not inject platformer mechanics into farm', () => {

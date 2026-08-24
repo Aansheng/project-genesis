@@ -63,6 +63,10 @@ const imageGenerations = computed(() => Object.values(gameStore.visualGeneration
             <dt>Entities</dt>
             <dd>{{ runtime.entityCount }}</dd>
           </div>
+          <div>
+            <dt>Gameplay</dt>
+            <dd data-testid="studio-gameplay-status">{{ runtime.gameplaySession?.status ?? 'active' }}</dd>
+          </div>
         </dl>
         <ul class="runtime-entities">
           <li
