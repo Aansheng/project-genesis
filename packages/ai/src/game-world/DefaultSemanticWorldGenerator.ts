@@ -33,7 +33,7 @@
  * Entity generation via WorldTemplateCatalog:
  * - farm:       8 entities (player, merchant, farmer, barn, wheat-field, corn-field, storage, harvest-quest)
  * - rpg:        9 entities (player, villager, merchant, quest-giver, enemy, boss, town, forest, main-quest)
- * - platformer: 6 entities (player, terrain, platform, enemy, goal, checkpoint)
+ * - platformer: 7 entities (player, terrain, platform, enemy, collectible, goal, checkpoint)
  * - survival:   6 entities (player, resource, tree, stone, enemy, campfire)
  * - sandbox:    1 entity (player)
  *

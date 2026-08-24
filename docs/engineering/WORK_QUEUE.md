@@ -5,6 +5,7 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-24
+current_sprint: Sprint 17
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -792,30 +793,137 @@ human_decision_required: NO for the completed Sprint 16 Freeze Review; Sprint
   17 goal approval is a separate OPEN Human/CTO gate. `SPRINT_CONTINUOUS` stops
   at the Sprint boundary.
 
-## SPRINT17_DISCOVERY — Mechanically Complete Platformer Generation (High-Level Only)
+## SPRINT17_DISCOVERY — Mechanically Complete Platformer Generation
 
-status: BLOCKED
-state_transition: GENERATED_AFTER_SPRINT_FREEZE_REVIEW → BLOCKED
+status: DONE
+state_transition: GENERATED_AFTER_SPRINT_FREEZE_REVIEW → BLOCKED → READY → DONE
 priority: P0
 dependencies: Sprint 16 Freeze Review DONE; Sprint 16 FROZEN at v1.157
-mission: Identify the next product-level objective without selecting a detailed
-  implementation WO: prove a full generated platformer game loop from start to
-  finish, shifting emphasis from infrastructure foundations to gameplay
-  completeness.
+mission: Enter the Human/CTO-approved Sprint 17 objective, perform fresh
+  product-level Next-Work Discovery, and generate exactly one bounded product
+  WO from the measured platformer loop.
 measured_gaps_to_assess: death/failure state; restart/respawn; enemy autonomous
   behavior; score/reward feedback if the product loop requires it; level
   composition/pacing; and full natural-language platformer E2E.
-boundary: These are candidate measured gaps, not mandatory Sprint 17 scope.
-  Repository truth and a Human/CTO-approved Sprint 17 goal must select exactly
-  one smallest bottleneck later.
-forbidden_scope: Detailed backlog, product WO generation, implementation,
-  architecture changes, automatic Sprint 17 entry, or assuming all candidate
-  gaps are required.
-result: HIGH-LEVEL DISCOVERY RECORDED — `Mechanically Complete Platformer
-  Generation` is the strategic recommendation; no product WO is generated.
-human_decision_required: YES — Human/CTO must approve the Sprint 17 goal before
-  detailed Next-Work Discovery or any Sprint 17 product WO.
+boundary: Candidate gaps were measured against actual source and tests; only
+  the smallest direct blocker was selected. Sprint 17 remains sequential and
+  the queue horizon is one item.
+forbidden_scope: Pre-planning the whole Sprint, treating candidate gaps as
+  mandatory, automatic Sprint 18 entry, or architecture work unrelated to the
+  selected blocker.
+result: PASS — Human/CTO approved the goal. The deterministic platformer path
+  lacks a collectible because the six-entity template has only goal/checkpoint
+  items and the rule builder excludes both; generic collect→XP→level execution
+  is already verified when an item exists. Exactly one READY WO was generated:
+  `WO-S17-001`.
+human_decision_required: NO for the selected generation-composition slice.
 
+## WO-S17-001 — Platformer Baseline Collectible Composition
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_SPRINT17_DISCOVERY → READY → IN_PROGRESS → VERIFYING → BLOCKED
+priority: P0
+dependencies: SPRINT17_DISCOVERY DONE; Sprint 16 FROZEN at v1.157
+architecture_before: v1.157
+architecture_expected_after: v1.158
+architecture_actual_after: v1.158 — ADR-0272 accepted
+mission: Make a normal natural-language platformer request generate one
+  deterministic collectible that can enter the already verified generic
+  contact → REMOVE_ENTITY + CHANGE_NUMERIC_STATE path before the goal.
+measured_bottleneck: Verified generic movement/jump/contact, collectible
+  removal, XP/level transition, enemy interaction, damage/Health, and goal
+  completion exist. The default platformer template has no collectible selected
+  by `GameplayRuleBuilder.collectible()`: `goal`, `flag`, and `checkpoint` are
+  excluded, so the generated default RuleSet has no `collect-reward` or
+  `level-up` rule. The missing generation composition is the smallest direct
+  blocker to the primary Sprint 17 scenario.
+allowed_scope: Add one stable semantic `item` collectible to the default
+  platformer template; add one deterministic, non-overlapping platformer layout
+  anchor; update focused generation/integration tests; verify the existing
+  Runtime rule path and Studio projections with a normal natural-language
+  creation request; add/update the scoped ADR and project/control-plane docs.
+forbidden_scope: Runtime systems, new GameplayEvent/Condition/Action types,
+  new managers/factories/workflow frameworks, genre-specific Runtime classes,
+  arbitrary generated code/eval, provider authority, death/respawn/game-over,
+  hazards, enemy AI, score policy, spawning/waves, visual redesign, and
+  unrelated World Evolution or Observatory work.
+implementation_boundaries: Package ownership is `@genesis/ai` for semantic
+  template/layout composition and focused tests. Reuse the existing
+  `GameplayRuleBuilder`, `DefaultSemanticGameDslBuilder`, Runtime loop,
+  WorldStore, Renderer, and Observatory seams without modifying their
+  authority contracts.
+acceptance: A deterministic/fallback request such as `create a simple 2D
+  platformer` resolves
+  to a platformer world containing player, enemy, collectible, and goal; the
+  deterministic RuleSet contains current supported `collect-reward` and
+  `level-up` rules; a real collectible contact removes only the collectible and
+  commits Runtime progression `experience: 1, level: 2`; enemy stomp/damage and
+  goal-completion rules remain present and executable; no stale-world or
+  capability-truth regressions occur.
+automated_tests: Focused AI template/layout/create-world tests plus affected
+  Runtime/Web gameplay regressions; direct TypeScript, package ESLint, relevant
+  regression suites, Web build when integration changes, and `git diff --check`.
+product_verification: BLOCKED — deterministic fallback Studio evidence generated
+  seven entities and observed collectible removal with `experience: 1` and
+  `level: 2` with clean browser diagnostics. The configured AI gateway path
+  returned `ai · success`, `Validation: passed`, but only `player` and
+  `platform`; it applied a structurally valid incomplete world and could not
+  reach the primary loop. This is a real acceptance failure, not a test-only
+  discrepancy.
+observability_expectations: Raw contact, Gameplay Rule results, Runtime World,
+  progression, and session projections remain separate; no synthetic
+  collectible/result is added to Observatory.
+completion_report_requirements: Report v1.157 → v1.158, files, real
+  generation → DSL → Runtime → RuleSet → Renderer/Observatory flow, tests,
+  TypeScript, ESLint, build, architecture constraints, manual Studio steps,
+  known remaining gaps, Code Complete, and Product Verified.
+explicit_non_goals: Failure/death, recovery/restart/respawn, hazards, enemy
+  autonomous behavior, score beyond current XP/level, pacing overhaul,
+  persistence, and automatic Sprint 18.
+code_complete: YES
+product_verified: NO — blocked at the configured provider-path acceptance gate.
+human_decision_required: YES for the newly discovered provider-candidate
+  completeness boundary; the deterministic composition slice itself required
+  no decision.
+
+## WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_WO_S17_001_PRODUCT_GATE → BLOCKED
+priority: P0
+dependencies: WO-S17-001 code complete at v1.158; Product Verification is
+  blocked by a configured AI candidate that passes structural validation while
+  omitting the baseline gameplay entities
+architecture_before: v1.158
+architecture_expected_after: v1.159 if implemented
+mission: Resolve the smallest generation trust-boundary gap exposed by real
+  Studio evidence: a structurally valid platformer provider candidate must not
+  bypass the deterministic baseline required for the approved mechanics.
+measured_bottleneck: The configured AI path reported `ai · success` and
+  `Validation: passed` for a two-entity platformer (`player`, `platform`). Web
+  applied it as the current semantic world, leaving Runtime active with no
+  collectible, enemy, goal, or progression transition. The deterministic
+  fallback path already produces seven entities and reaches `experience: 1`,
+  `level: 2`, so the failure is at candidate completeness/trust, not Runtime
+  execution.
+allowed_scope_after_gate: Extend the existing `@genesis/ai` candidate
+  validation/normalization boundary, or fail closed through the existing
+  deterministic provider, with focused provider/fallback tests. Preserve
+  candidate-as-untrusted-input semantics and reuse the current deterministic
+  platformer template and GameplayRuleBuilder.
+forbidden_scope: New Runtime authority, genre-specific Runtime, managers,
+  arbitrary code/eval, provider capability claims, death/respawn, hazards,
+  enemy AI, score, spawning, pacing overhaul, broad quality infrastructure,
+  visual polish, or automatic Sprint 18.
+acceptance_gate: Human/CTO must decide whether the deterministic platformer
+  baseline is the minimum acceptance floor for an accepted provider candidate
+  and whether an under-complete candidate must fail closed into the existing
+  deterministic fallback. Until resolved, this WO remains BLOCKED and no
+  implementation starts.
+product_verification: NOT STARTED — unresolved acceptance gate
+code_complete: NOT STARTED
+product_verified: NOT STARTED
+human_decision_required: YES
 
 ## Queue transition vocabulary
 

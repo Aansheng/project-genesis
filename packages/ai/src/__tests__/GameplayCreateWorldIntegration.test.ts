@@ -65,6 +65,20 @@ describe('Gameplay create-world integration', () => {
     })
   })
 
+  it('composes the collectible rule for a normal platformer request', () => {
+    const result = createPipeline().execute({ input: 'create a simple 2D platformer' })
+
+    expect(result.success).toBe(true)
+    expect(result.world.entities).toContainEqual(expect.objectContaining({ id: 'collectible' }))
+    expect(result.gameplayRuleSet?.rules.map(rule => rule.ruleId)).toEqual(expect.arrayContaining([
+      'collect-reward',
+      'level-up-at-experience-threshold',
+      'enemy-stomp',
+      'enemy-contact-damage',
+      'reach-goal',
+    ]))
+  })
+
   it('passes the semantic world and capability catalog to an injected gameplay provider', async () => {
     let requestWorld: GameWorldModel | undefined
     const builder = new DefaultGameplaySpecificationBuilder()

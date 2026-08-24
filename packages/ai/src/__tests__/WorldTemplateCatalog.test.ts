@@ -89,9 +89,9 @@ describe('WorldTemplateCatalog — Entity Counts', () => {
     expect(template.entities).toHaveLength(9)
   })
 
-  it('platformer template has 6 entities', () => {
+  it('platformer template has 7 entities including a collectible', () => {
     const template = createCatalog().getTemplate('platformer')
-    expect(template.entities).toHaveLength(6)
+    expect(template.entities).toHaveLength(7)
   })
 
   it('survival template has 6 entities', () => {
@@ -251,6 +251,7 @@ describe('WorldTemplateCatalog — Platformer Template', () => {
       'terrain',
       'platform',
       'enemy',
+      'collectible',
       'goal',
       'checkpoint',
     ])
@@ -266,6 +267,7 @@ describe('WorldTemplateCatalog — Platformer Template', () => {
       'enemy',
       'item',
       'item',
+      'item',
     ])
   })
 
@@ -277,14 +279,19 @@ describe('WorldTemplateCatalog — Platformer Template', () => {
       'Terrain',
       'Platform',
       'Enemy',
+      'Coin',
       'Goal',
       'Checkpoint',
     ])
   })
 
-  it('contains platform and goal entities', () => {
+  it('contains platform, collectible, and goal entities', () => {
     const template = createCatalog().getTemplate('platformer')
     expect(template.entities.find((e) => e.id === 'platform')).toBeDefined()
+    expect(template.entities.find((e) => e.id === 'collectible')).toMatchObject({
+      category: 'item',
+      name: 'Coin',
+    })
     expect(template.entities.find((e) => e.id === 'goal')).toBeDefined()
     expect(template.entities.find((e) => e.id === 'checkpoint')).toBeDefined()
   })

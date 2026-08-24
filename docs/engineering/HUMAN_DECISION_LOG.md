@@ -17,7 +17,51 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-24 | Decide whether Sprint 16 is satisfied by WO-S16-001 and should freeze at v1.155. | ACCEPTED — CONTINUE | Human / CTO | WO-S16-001 closes Part 1 only. Sprint 16 remains open and NOT READY FOR FREEZE; Part 2 requires the first generic progression loop. Exactly one next bounded WO is authorized: `WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State`. |
 | 2026-08-24 | Decide whether Sprint 16's corrected Gameplay Evolution & Progression Foundation goal is satisfied and should freeze at v1.156. | ACCEPTED — CONTINUE | Human / CTO | WO-S16-002 proves numeric progression storage but not a progression transition. Sprint 16 remains NOT READY FOR FREEZE; exactly one bounded `WO-S16-003 — Deterministic XP Threshold Level Transition` is authorized and auto-executing under `SPRINT_CONTINUOUS`. No Sprint 17 auto-crossing. |
 | 2026-08-24 | Decide whether Sprint 16 is satisfied and should freeze at v1.157 after WO-S16-003. | ACCEPTED — FREEZE | Human / CTO | All eight corrected Sprint 16 criteria pass. Sprint 16 is Code Complete = YES, Product Verified = YES, and FROZEN = YES at v1.157; no Sprint 17 auto-crossing. |
-| 2026-08-24 | Approve the Sprint 17 high-level product objective before detailed discovery. | OPEN — NOT APPROVED | Human / CTO | Candidate objective is `Mechanically Complete Platformer Generation`; no detailed product WO or Sprint 17 execution is authorized until the goal is approved. |
+| 2026-08-24 | Approve the Sprint 17 high-level product objective before detailed discovery. | ACCEPTED — ENTER SPRINT 17 | Human / CTO | `Mechanically Complete Platformer Generation` is approved. Run fresh product-level Next-Work Discovery, generate exactly one bounded READY/BLOCKED WO, execute only the smallest measured bottleneck under `SPRINT_CONTINUOUS`, and stop at human/escalation/freeze gates; do not auto-enter Sprint 18. |
+| 2026-08-24 | Decide whether a structurally valid provider platformer candidate must meet the deterministic mechanically complete baseline floor, with under-complete candidates failing closed into the existing fallback. | OPEN — PRODUCT ACCEPTANCE GATE | Human / CTO | Real configured Studio generation returned `ai · success`, `Validation: passed`, but only `player` and `platform`; the product cannot reach collectible, enemy, damage, or goal mechanics. `WO-S17-002` is generated BLOCKED until this boundary is resolved. |
+
+## Sprint 17 Goal Authorization
+
+Date: 2026-08-24
+
+Result: **ACCEPTED — ENTER SPRINT 17**
+
+Approved product goal:
+
+> A user can request a simple 2D platformer through natural language and
+> Genesis can generate a mechanically coherent game that can be played from
+> start to a truthful success or failure lifecycle, using generic structured
+> gameplay capabilities rather than genre-specific Runtime implementations.
+
+Primary acceptance scenario:
+
+`natural-language request → world/game generation → move → jump → collectible
+interaction → enemy interaction → damage/health → truthful failure when
+applicable → recovery/restart/respawn as required → continue → reach goal →
+Runtime session completed`.
+
+The candidate gaps (death/failure, restart/respawn, autonomous enemy behavior,
+hazards, reward feedback, composition/pacing, and full generated-loop quality)
+remain measurement inputs, not pre-approved implementation scope. Exactly one
+smallest measured bottleneck is selected per discovery pass. Existing generic
+GameplaySpecification, GameplayRuleSet, GameplayEvent, Trigger/Condition/
+Action, trusted Runtime execution, World Evolution continuity, and progression
+foundations remain the authority boundaries.
+
+## Sprint 17 Product Acceptance Gate
+
+Date: 2026-08-24
+
+Status: **OPEN — BLOCKS WO-S17-002**
+
+The deterministic/fallback platformer baseline now generates seven entities and
+the existing generic collect → XP → level path was verified in Studio. The real
+configured AI path, however, returned a structurally valid two-entity candidate
+(`player`, `platform`) and the current validator accepted it. Human/CTO must
+decide whether the deterministic platformer baseline is the minimum semantic
+floor for an accepted provider candidate and whether the existing fallback must
+be used when that floor is not met. This decision does not authorize death,
+respawn, hazards, enemy AI, score, or pacing work.
 
 ## WO-S15-005 product decision
 

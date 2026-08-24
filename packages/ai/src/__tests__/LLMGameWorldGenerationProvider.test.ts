@@ -135,7 +135,7 @@ describe('LLM candidate validation and deterministic fallback', () => {
 
     const result = await provider.generateWithDiagnostics(request)
     expect(result.world.worldType).toBe('platformer')
-    expect(result.world.entities).toHaveLength(6)
+    expect(result.world.entities).toHaveLength(7)
     expect(result.diagnostics.source).toBe('deterministic')
     expect(result.diagnostics.validationStatus).toBe('invalid')
     expect(result.diagnostics.fallbackReason).toContain('entities must not be empty')

@@ -11,6 +11,7 @@ const PLATFORMER_POSITIONS: Readonly<Record<string, SpatialPosition>> = Object.f
   terrain: Object.freeze({ x: 160, y: GROUND_Y }),
   platform: Object.freeze({ x: 300, y: 320 }),
   enemy: Object.freeze({ x: 380, y: 360 }),
+  collectible: Object.freeze({ x: 220, y: 320 }),
   checkpoint: Object.freeze({ x: 500, y: 320 }),
   goal: Object.freeze({ x: 650, y: 300 }),
 })

@@ -11,8 +11,8 @@
  *                 corn-field, storage, harvest-quest)
  *   - rpg:        9 entities (player, villager, merchant, quest-giver,
  *                 enemy, boss, town, forest, main-quest)
- *   - platformer: 6 entities (player, terrain, platform, enemy, goal,
- *                 checkpoint)
+ *   - platformer: 7 entities (player, terrain, platform, enemy, collectible,
+ *                 goal, checkpoint)
  *   - survival:   5 entities (player, resource, tree, stone, enemy,
  *                 campfire)
  *   - sandbox:    1 entity (player)
@@ -76,6 +76,7 @@ export class DefaultWorldTemplateCatalog implements WorldTemplateCatalog {
     createEntity('terrain', 'terrain', 'Terrain'),
     createEntity('platform', 'terrain', 'Platform'),
     createEntity('enemy', 'enemy', 'Enemy'),
+    createEntity('collectible', 'item', 'Coin'),
     createEntity('goal', 'item', 'Goal'),
     createEntity('checkpoint', 'item', 'Checkpoint'),
   ])

@@ -3,46 +3,42 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.157
-current_sprint: Sprint 16 (FROZEN — v1.157; Sprint 17 goal approval pending)
-current_work_order: SPRINT17_DISCOVERY — Mechanically Complete Platformer
-  Generation (High-Level Only)
+architecture_version: v1.158
+current_sprint: Sprint 17 (ACTIVE — product gate blocked after one bounded WO)
+current_work_order: WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
 current_work_order_status: blocked
-current_control_plane_work_order: SPRINT17_DISCOVERY — Mechanically Complete
-  Platformer Generation (High-Level Only)
+current_control_plane_work_order: WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
 current_control_plane_work_order_status: blocked
 last_completed_work_order: WO-S16-003 — Deterministic XP Threshold Level Transition
 last_completed_product_work_order: WO-S16-003
 last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16
   FROZEN at v1.157
-next_ready_work_order: NONE — Sprint 16 boundary stop; Sprint 17 goal approval
-  is pending and no detailed product WO is generated
-product_architecture_changed: no — architecture remains v1.157 after freeze
-sprint_status: Sprint 16 is FROZEN; Code Complete = YES; Product Verified = YES
-product_verified: YES — WO-S16-001, WO-S16-002, and WO-S16-003 are Product
-  Verified and Sprint 16 is frozen; Sprint 17 is not entered
+next_ready_work_order: NONE — WO-S17-002 is the single generated horizon item
+  and is BLOCKED at the Human/CTO product acceptance gate
+product_architecture_changed: yes — WO-S17-001 implemented v1.157 → v1.158
+sprint_status: Sprint 17 is ACTIVE; Sprint 16 remains FROZEN at v1.157
+product_verified: NO — deterministic fallback verification passed for the
+  bounded slice, but the configured AI generation path remains product-blocked
+  by an under-complete valid candidate
 continuation_mode: SPRINT_CONTINUOUS
-control_plane_status: SPRINT_BOUNDARY_STOP; sequential same-Sprint execution
-  only;
+control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
   automatic cross-Sprint execution disabled
 
 ## Current Sprint goal
 
-Sprint 16 — Gameplay Evolution & Progression Foundation:
+Sprint 17 — Mechanically Complete Platformer Generation:
 
-1. After an applied semantic World Evolution delta, preserve unaffected
-   executable gameplay rules and reconcile only affected rules against current
-   semantic truth, GameplaySpecification, and the capability catalog. This is
-   the verified Part 1 bridge in the same Runtime/session.
-2. Establish the first generic progression loop: Runtime-owned `experience` and
-   `level`, plus one deterministic typed threshold transition from Level 1 to
-   Level 2. The transition must be exactly once, retain across same-session
-   World Evolution, reset on a new world/session, and reject stale World A
-   events/rules. Skills, modifiers, spawning, and waves remain deferred.
+1. Generate a simple platformer from one natural-language creation request.
+2. Prove the existing generic movement, jump, collectible, enemy, damage/
+   health, progression, goal, and Runtime session-completion path as one
+   mechanically coherent loop.
+3. Add failure/recovery only when a fresh product-level measurement shows it is
+   required by the generated loop; do not pre-build candidate capabilities.
 
-The Sprint is not complete when Part 1 alone passes. Sprint 15's Gameplay
-Mechanics Foundation remains frozen and is the verified baseline.
+Sprint 16 remains frozen at v1.157. Sprint 17 is continuous and sequential:
+each completed product WO triggers one fresh Gap Analysis and exactly one next
+READY/BLOCKED WO; Sprint 18 is never entered automatically.
 
 ## Completed
 
@@ -106,10 +102,19 @@ Mechanics Foundation remains frozen and is the verified baseline.
 - The fresh post-WO-S16-003 Sprint Freeze Review passed all eight corrected
   criteria. Human/CTO chose FREEZE; Sprint 16 is FROZEN at v1.157 with Code
   Complete = YES and Product Verified = YES.
-- High-level Sprint 17 Discovery records `Mechanically Complete Platformer
-  Generation` as the strategic recommendation. Candidate gaps are only to be
-  measured later; no detailed product WO is generated or executed before
-  Human/CTO approves the Sprint 17 goal.
+- Human/CTO approved the Sprint 17 goal on 2026-08-24. Fresh discovery measured
+  the missing default collectible composition as the smallest blocker and
+  generated exactly one bounded READY item: `WO-S17-001`.
+- `WO-S17-001` is Code Complete at v1.158: the default deterministic platformer
+  now contains a stable collectible and the existing collect → XP → level path
+  remains generic and unchanged. Deterministic fallback Studio verification
+  observed seven generated entities, collectible removal, `Experience: 1`,
+  `Level: 2`, and clean browser logs.
+- The configured AI gateway produced a structurally valid but mechanically
+  incomplete platformer candidate containing only `player` and `platform`.
+  Observatory truthfully reported `ai · success`, `Validation: passed`, and
+  `Entities: 2`; this failed the primary product gate. Fresh discovery
+  generated exactly one blocked next item: `WO-S17-002`.
 
 ## Active capabilities
 
@@ -192,20 +197,50 @@ own capability-focused work item rather than broadening WO-META-003.
 
 ## Current product gaps
 
-The current product is a playable bounded slice, not a complete general
-gameplay engine. Sprint 15 and Sprint 16 are frozen with their accepted
-boundaries. Sprint 16 is intentionally limited to finite additive state, one
-typed threshold, and one level transition. Upgrade/skill selection, modifiers,
-timers, spawning, waves, goal deletion, persistence, and broader gameplay-rule
-evolution remain deferred. Offline World Evolution fallback is a real
-resilience gap but was explicitly non-blocking for Sprint 16.
+Fresh Sprint 17 Gap Analysis (2026-08-24):
+
+- **Resolved PRODUCT_GAP / EXECUTION_GAP:** the deterministic platformer
+  template now contains `player`, `terrain`, `platform`, `enemy`,
+  `collectible`, `goal`, and `checkpoint`; deterministic fallback generation
+  produces the supported collect-reward and level-up rules. This bounded gap is
+  Code Complete and its fallback Studio behavior is verified.
+- **Selected PRODUCT_GAP / EXECUTION_GAP:** the configured AI gateway can return
+  a structurally valid `platformer` candidate with only `player` and `platform`.
+  The current validator marks it valid and Web applies it, so the provider path
+  bypasses the deterministic seven-entity baseline and cannot reach collectible,
+  enemy, damage, or goal mechanics. This is now the smallest direct blocker to
+  the primary acceptance scenario.
+- **Already verified:** natural-language create routing, semantic world → DSL →
+  Runtime projection, movement, jump/gravity/grounding, Runtime contact facts,
+  deterministic fallback collectible removal, enemy stomp, non-top damage/
+  Health mutation, Runtime numeric XP/level transition, goal completion,
+  same-session evolution continuity, stale-world isolation, and truthful
+  projections. The real configured AI path is structurally valid but not
+  mechanically complete.
+- **Candidate PRODUCT/ARCHITECTURE gap, not selected:** zero Health is state
+  only; there is no Runtime failure state, death semantics, or restart/respawn
+  lifecycle. The generated default platformer currently has no hazard and its
+  failure specification is explicitly deferred, so this requires a later
+  measured loop decision after the baseline traversal is complete.
+- **Deferred candidates:** autonomous enemy behavior, hazard generation, score
+  beyond the verified XP/level feedback, richer pacing, waves/spawn,
+  persistence, and broad gameplay-state infrastructure. None is needed to
+  unblock the selected provider-candidate completeness path.
+
+`WO-S17-001` remains intentionally limited to generation composition and its
+existing deterministic layout anchor. `WO-S17-002` is blocked pending the
+Human/CTO decision on the minimum completeness floor for an accepted provider
+candidate. No Runtime authority or genre-specific Runtime is added.
 
 ## Next Recommended Verification
 
-Await Human/CTO approval of the high-level Sprint 17 objective
-`Mechanically Complete Platformer Generation`. After approval, perform a fresh
-high-level-to-bounded discovery; until then, generate no detailed WO and do not
-enter Sprint 17.
+Resolve the Human/CTO acceptance gate for `WO-S17-002`: decide whether a
+platformer provider candidate must meet the deterministic baseline floor and
+whether under-complete candidates fail closed into the existing fallback.
+After that decision, execute only `WO-S17-002`, verify the configured
+natural-language path, and rerun full Sprint 17 Gap Analysis. Do not select
+death/respawn or other later candidates until the generated baseline reaches
+the current mechanics.
 
 ## Authority
 

@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 17 — WO-S17-001 Product Gate and Next-Work Discovery
+
+- Human/CTO approved `Mechanically Complete Platformer Generation` and the
+  first bounded measured WO. WO-S17-001 adds one stable `collectible`/`Coin`
+  item and a deterministic layout anchor to the default platformer template,
+  reusing the existing GameplayRuleBuilder and Runtime progression path.
+- Architecture v1.157 → v1.158. Focused AI tests (178), Runtime regressions
+  (79), Web regressions (9), TypeScript, ESLint (no errors), and Web build pass.
+- Deterministic fallback Studio verification generated seven entities and
+  observed collectible removal with `Experience: 1` and `Level: 2`; browser
+  warning/error logs were clean.
+- Product verification is blocked on the real configured AI path: a
+  structurally valid `platformer` candidate with only `player` and `platform`
+  is accepted and applied, so it bypasses the deterministic baseline. No full
+  WO Product Verified claim is made.
+- Fresh post-attempt Gap Analysis selects exactly one next candidate:
+  `WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline`,
+  currently BLOCKED on the Human/CTO acceptance decision. Death, respawn,
+  hazards, enemy AI, score, and pacing remain unselected.
+
 ### Sprint 16 Freeze Review — Post-WO-S16-003
 
 - Fresh evaluation after WO-S16-003 passes all eight corrected Sprint 16

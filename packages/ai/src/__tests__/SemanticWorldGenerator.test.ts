@@ -10,7 +10,7 @@
  * Richness verification:
  *   - farm:       8 entities (was 4)
  *   - rpg:        9 entities (was 4)
- *   - platformer: 6 entities (was 3)
+ *   - platformer: 7 entities (was 3)
  *   - survival:   6 entities (was 3)
  *   - sandbox:    1 entity (unchanged)
  *
@@ -340,9 +340,9 @@ describe('rpg entity generation', () => {
 // ---------------------------------------------------------------------------
 
 describe('platformer entity generation', () => {
-  it('platformer world generates 6 entities (was 3)', () => {
+  it('platformer world generates 7 entities including a collectible', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Platform'))
-    expect(result.entities).toHaveLength(6)
+    expect(result.entities).toHaveLength(7)
   })
 
   it('platformer entities have correct ids', () => {
@@ -351,14 +351,16 @@ describe('platformer entity generation', () => {
     expect(result.entities[1].id).toBe('terrain')
     expect(result.entities[2].id).toBe('platform')
     expect(result.entities[3].id).toBe('enemy')
-    expect(result.entities[4].id).toBe('goal')
-    expect(result.entities[5].id).toBe('checkpoint')
+    expect(result.entities[4].id).toBe('collectible')
+    expect(result.entities[5].id).toBe('goal')
+    expect(result.entities[6].id).toBe('checkpoint')
   })
 
-  it('platformer world includes platform, goal, checkpoint', () => {
+  it('platformer world includes platform, collectible, goal, checkpoint', () => {
     const result = createGenerator().generate(createModelWithTitleRecord('Platform'))
     const ids = result.entities.map((e) => e.id)
     expect(ids).toContain('platform')
+    expect(ids).toContain('collectible')
     expect(ids).toContain('goal')
     expect(ids).toContain('checkpoint')
   })
@@ -825,7 +827,7 @@ describe('entity extraction — template only', () => {
     // "Platform" is both a world type keyword and an extraction keyword
     // Platformer template already has "Platform" entity → deduplicated
     const result = createGenerator().generate(createModelWithTitleRecord('Platform Game'))
-    expect(result.entities).toHaveLength(6)
+    expect(result.entities).toHaveLength(7)
   })
 })
 
@@ -911,9 +913,9 @@ describe('entity extraction — deduplication', () => {
     // Platformer template has "Platform" entity
     // Extracted "platform" matches by name → deduplicated
     const result = createGenerator().generate(createModelWithTitleRecord('Platform Campfire'))
-    // Template: 6 + new: campfire = 7
-    expect(result.entities).toHaveLength(7)
-    expect(result.entities[6].id).toBe('campfire')
+    // Template: 7 + new: campfire = 8
+    expect(result.entities).toHaveLength(8)
+    expect(result.entities[7].id).toBe('campfire')
   })
 })
 

@@ -9,6 +9,7 @@ const platformer: GameWorldModel = {
     { id: 'terrain', category: 'terrain', name: 'Terrain' },
     { id: 'platform', category: 'terrain', name: 'Platform' },
     { id: 'enemy', category: 'enemy', name: 'Enemy' },
+    { id: 'collectible', category: 'item', name: 'Coin' },
     { id: 'goal', category: 'item', name: 'Goal' },
     { id: 'checkpoint', category: 'item', name: 'Checkpoint' },
   ],
@@ -28,10 +29,11 @@ describe('DefaultWorldLayoutGenerator', () => {
       terrain: { x: 160, y: 400 },
       platform: { x: 300, y: 320 },
       enemy: { x: 380, y: 360 },
+      collectible: { x: 220, y: 320 },
       goal: { x: 650, y: 300 },
       checkpoint: { x: 500, y: 320 },
     })
-    expect(new Set(Object.values(first.positions).map(({ x, y }) => `${x}:${y}`)).size).toBe(6)
+    expect(new Set(Object.values(first.positions).map(({ x, y }) => `${x}:${y}`)).size).toBe(7)
   })
 
   it('uses a grounded deterministic layout for non-platformer worlds and unknown ids', () => {
