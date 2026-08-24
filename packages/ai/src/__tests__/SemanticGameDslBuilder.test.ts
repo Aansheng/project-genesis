@@ -383,7 +383,20 @@ describe('component mapping', () => {
   it('adds contact bounds to non-terrain entities', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
-      expect(entity.components).toHaveLength(entity.type === 'terrain' ? 2 : 3)
+      const hasHealth = entity.type === 'player' || entity.type === 'enemy' || entity.type === 'npc'
+      expect(entity.components).toHaveLength((entity.type === 'terrain' ? 2 : 3) + (hasHealth ? 1 : 0))
+    }
+  })
+
+  it('adds a generic 100/100 Health component to combat-capable entities', () => {
+    const result = createBuilder().build(createRpgWorld())
+    for (const entity of result.world.entities) {
+      const health = entity.components.find(component => component.type === 'health')
+      if (entity.type === 'player' || entity.type === 'enemy' || entity.type === 'npc') {
+        expect(health).toEqual({ type: 'health', properties: { current: 100, max: 100 } })
+      } else {
+        expect(health).toBeUndefined()
+      }
     }
   })
 
@@ -778,7 +791,8 @@ describe('edge cases', () => {
   it('adds contact bounds only where Runtime contact can use them', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {
-      expect(entity.components).toHaveLength(entity.type === 'terrain' ? 2 : 3)
+      const hasHealth = entity.type === 'player' || entity.type === 'enemy' || entity.type === 'npc'
+      expect(entity.components).toHaveLength((entity.type === 'terrain' ? 2 : 3) + (hasHealth ? 1 : 0))
     }
   })
 })

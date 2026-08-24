@@ -2,7 +2,7 @@
 
 These invariants are the durable boundary for supervised work. They were
 checked against the current source wiring, PROJECT_STATE.md, Sprint 15
-backlog, capability matrices, and ADR-0261 through ADR-0265 on 2026-08-21.
+backlog, capability matrices, and ADR-0261 through ADR-0267 on 2026-08-24.
 The source code and accepted ADRs remain authoritative if this projection
 becomes stale.
 
@@ -66,4 +66,4 @@ becomes stale.
 - Capability-specific context: docs/adr/ADR-0261-capability-specific-generation-context-foundation.md
 - Gameplay specification/events/rules/execution:
   docs/adr/ADR-0262-gameplay-specification-game-loop-foundation.md through
-  docs/adr/ADR-0265-gameplay-rule-execution-vertical-slice.md
+  docs/adr/ADR-0267-damage-health-gameplay-rule-vertical-slice.md

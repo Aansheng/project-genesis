@@ -125,8 +125,8 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
       expect(world.entities[0].y).toBe(0)
     })
 
-    it('entity should have semantic, position, and collision bounds components', () => {
-      expect(world.entities[0].components).toHaveLength(3)
+    it('entity should have semantic, position, health, and collision bounds components', () => {
+      expect(world.entities[0].components).toHaveLength(4)
     })
 
     it('components should include semantic and position data', () => {

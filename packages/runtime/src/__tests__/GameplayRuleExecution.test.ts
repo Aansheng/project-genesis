@@ -11,7 +11,9 @@ import type {
 } from '@genesis/shared'
 import {
   createCollisionBoundsComponent,
+  createHealthComponent,
   createPositionComponent,
+  isHealthComponent,
   isVelocityComponent,
 } from '@genesis/shared'
 import {
@@ -54,6 +56,7 @@ function entity(
         properties: Object.freeze({ category: type, name }),
       }),
       createPositionComponent(x, y),
+      ...(['player', 'enemy', 'npc'].includes(type) ? [createHealthComponent()] : []),
       ...(withBounds ? [createCollisionBoundsComponent(type === 'player' ? 32 : 24, type === 'player' ? 48 : 24)] : []),
     ]),
   }) as unknown as Entity
@@ -306,6 +309,92 @@ describe('Gameplay rule execution vertical slice', () => {
     }])
     expect(result.world.entities.map(item => item.id)).toEqual(['player'])
     expect(result.world.entities[0]?.components?.find(isVelocityComponent)?.properties).toEqual({ x: 0, y: -12 })
+  })
+
+  it('executes generic side-contact damage and decreases only current Health', () => {
+    const damageWorld = Object.freeze({
+      entities: Object.freeze([
+        entity('player', 'player', 'Player', 0, 0, true),
+        entity('enemy-1', 'enemy', 'Enemy', 24, 0, true),
+      ]),
+    }) as unknown as World
+    const damageSemanticWorld = Object.freeze({
+      worldType: 'platformer' as const,
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player' as const, name: 'Player' }),
+        Object.freeze({ id: 'enemy-1', category: 'enemy' as const, name: 'Enemy' }),
+      ]),
+    })
+    const actor = Object.freeze({ kind: 'eventActor' as const })
+    const target = Object.freeze({ kind: 'eventTarget' as const })
+    const damageRule = rule({
+      ruleId: 'enemy-contact-damage',
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: actor, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: target, category: 'enemy' },
+        { type: 'COMPONENT_EXISTS', entity: actor, componentType: 'health' },
+        { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top', negated: true },
+      ],
+      actions: [{ type: 'DAMAGE_ENTITY', target: actor, amount: 3 }],
+    })
+
+    const result = new DefaultGameplayRuleExecutor().executeEvent(
+      Object.freeze({ ...contactEvent('world-1:11:0'), targetEntityId: 'enemy-1', direction: 'left' }),
+      ruleSet([damageRule]),
+      Object.freeze({
+        ...context(damageWorld),
+        semanticWorld: damageSemanticWorld,
+      }),
+    )
+    const player = result.world.entities.find(item => item.id === 'player')
+    const health = player?.components?.find(isHealthComponent)
+
+    expect(result.results).toMatchObject([{
+      ruleId: 'enemy-contact-damage',
+      status: 'executed',
+      committed: true,
+      affectedEntityIds: ['player'],
+      actionResults: [{
+        actionType: 'DAMAGE_ENTITY',
+        status: 'executed',
+        mutation: {
+          type: 'HEALTH_UPDATED',
+          targetEntityId: 'player',
+          health: { current: 97, max: 100 },
+          damageAmount: 3,
+        },
+      }],
+    }])
+    expect(health?.properties).toEqual({ current: 97, max: 100 })
+    expect(damageWorld.entities.find(item => item.id === 'player')?.components?.find(isHealthComponent)?.properties)
+      .toEqual({ current: 100, max: 100 })
+  })
+
+  it('fails damage safely when the target has no valid Health component', () => {
+    const world = Object.freeze({
+      entities: Object.freeze([Object.freeze({
+        id: 'player',
+        type: 'player',
+        x: 0,
+        y: 0,
+        components: Object.freeze([
+          Object.freeze({ type: 'semantic', properties: Object.freeze({ category: 'player', name: 'Player' }) }),
+          createPositionComponent(0, 0),
+        ]),
+      })]),
+    }) as unknown as World
+    const result = new DefaultGameplayActionExecutor().execute({
+      ruleId: 'damage-without-health',
+      event: Object.freeze({ ...contactEvent('world-1:12:0'), targetEntityId: 'player' }),
+      action: { type: 'DAMAGE_ENTITY', target: { kind: 'eventActor' }, amount: 1 },
+      context: Object.freeze({ ...context(world), semanticWorld: Object.freeze({
+        worldType: 'platformer' as const,
+        entities: Object.freeze([{ id: 'player', category: 'player' as const, name: 'Player' }]),
+      }) }),
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.failureReason).toBe('health_component_missing')
   })
 
   it('rolls back earlier staged actions when a later action fails', () => {

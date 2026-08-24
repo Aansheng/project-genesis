@@ -3,18 +3,18 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.152
+architecture_version: v1.153
 current_sprint: Sprint 15
-current_work_order: WO-META-004
+current_work_order: WO-S15-006
 current_work_order_status: completed
 current_control_plane_work_order: WO-META-004
 current_control_plane_work_order_status: completed
-last_completed_work_order: WO-META-004
-last_completed_product_work_order: WO-S15-005
-next_ready_work_order: WO-S15-006 — READY, prepared only; do not execute in this turn
-product_architecture_changed: false
-sprint_status: S15 product slice complete through WO-S15-005; WO-META-004 hardening complete; Supervisor stopped at the continuation boundary
-product_verified: N/A for WO-META-004; WO-S15-005 remains YES (MANUAL Studio verification)
+last_completed_work_order: WO-S15-006
+last_completed_product_work_order: WO-S15-006
+next_ready_work_order: none — ONE_WORK_ITEM continuation boundary reached; Supervisor stopped
+product_architecture_changed: true
+sprint_status: S15 product slice complete through WO-S15-006; WO-META-004 hardening complete; Supervisor stopped at the continuation boundary
+product_verified: YES — WO-S15-006 MANUAL Studio verification completed on 2026-08-24
 control_plane_status: hardened; one-work-item continuation
 
 ## Completed
@@ -28,6 +28,10 @@ control_plane_status: hardened; one-work-item continuation
   generic enemy-stomp matching, staged REMOVE_ENTITY + APPLY_VELOCITY,
   enemy Runtime/Renderer removal, bounce/re-land, continued control, and
   truthful Observatory evidence are connected.
+- WO-S15-006 is complete and browser-verified: generic Health defaults,
+  supported DAMAGE_ENTITY execution, non-top contact damage, committed
+  Health mutation, Inspector projection, and truthful Observatory evidence are
+  connected without death/game-over behavior.
 - WO-META-003 repository-native engineering control plane is complete.
 - WO-META-004 hardens subagent task granularity, lifecycle/wait semantics,
   cancellation and zero-evidence rules, Supervisor gate ownership, current
@@ -44,6 +48,8 @@ control_plane_status: hardened; one-work-item continuation
 - Genesis-validated gameplay rules with only current supported rules executable.
 - Generic REMOVE_ENTITY and APPLY_VELOCITY rule execution after finalized
   Runtime events; the approved enemy-stomp rule is the bounded two-action slice.
+- Generic Health components for player/enemy/npc and trusted DAMAGE_ENTITY
+  mutation after finalized non-top contact events; zero Health is state only.
 - Typed Runtime-owned contact direction and deterministic rule-level staged
   all-or-nothing execution for the two trusted stomp actions.
 - Pixi Renderer synchronization and truthful Observatory projections.
@@ -53,7 +59,7 @@ control_plane_status: hardened; one-work-item continuation
 ## Deferred capabilities
 
 - Score or other numeric gameplay state.
-- Damage, health resolution, enemy AI, goals, win/lose, timers, spawns,
+- Death, respawn, game-over, enemy AI, goals, win/lose, timers, spawns,
   progression, rich actions, unrelated rich multi-action transactions, and
   gameplay-rule evolution.
 - Durable gameplay/context/evolution history, replay, persistence, and reload
@@ -63,8 +69,8 @@ control_plane_status: hardened; one-work-item continuation
 
 ## Known environment issues
 
-- Existing AI package lint debt is recorded in docs/project/TECH_DEBT.md and is
-  unrelated to WO-S15-005.
+- Existing AI package lint warnings/debt are recorded in
+  docs/project/TECH_DEBT.md and are unrelated to WO-S15-006.
 - In this managed environment, the root `pnpm typecheck` Turbo wrapper cannot
   initialize its API client because TLS/keychain access is unavailable; direct
   TypeScript checks for all affected packages pass. A parallel Renderer Vitest
@@ -85,10 +91,9 @@ own capability-focused work item rather than broadening WO-META-003.
 ## Current product gaps
 
 The current product is a playable bounded slice, not a complete general
-gameplay engine. WO-S15-005 has no remaining blocker; the next product work
-is WO-S15-006 READY for the approved DAMAGE/HEALTH scenario, but it must not
-execute until a new Supervisor turn fixes its shared contract. Runtime facts,
-rule interpretation, mutation, and result observation must remain separate.
+gameplay engine. WO-S15-006 has no remaining blocker; death/respawn/game-over
+and the other deferred capabilities remain outside this slice. Runtime facts,
+rule interpretation, mutation, and result observation remain separate.
 
 ## Authority
 

@@ -13,7 +13,9 @@ import type {
   World,
 } from '@genesis/shared'
 import {
+  createHealthComponent,
   createVelocityComponent,
+  isHealthComponent,
   isVelocityComponent,
 } from '@genesis/shared'
 import { DefaultWorldMutator } from '../mutation'
@@ -102,6 +104,12 @@ export interface GameplayActionExecutionResult {
         readonly type: 'VELOCITY_UPDATED'
         readonly targetEntityId: string
         readonly velocity: { readonly x: number; readonly y: number }
+      }
+    | {
+        readonly type: 'HEALTH_UPDATED'
+        readonly targetEntityId: string
+        readonly health: { readonly current: number; readonly max: number }
+        readonly damageAmount: number
       }
 }
 
@@ -392,7 +400,7 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       worldAfter: context.world,
     }
 
-    if (action.type !== 'REMOVE_ENTITY' && action.type !== 'APPLY_VELOCITY') {
+    if (action.type !== 'REMOVE_ENTITY' && action.type !== 'APPLY_VELOCITY' && action.type !== 'DAMAGE_ENTITY') {
       return Object.freeze({
         ...base,
         status: 'unsupported' as const,
@@ -434,6 +442,76 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
         targetEntityIds: Object.freeze([target.id]),
         worldAfter,
         mutation: Object.freeze({ type: 'ENTITY_REMOVED' as const, targetEntityId: target.id }),
+      })
+    }
+
+    if (action.type === 'DAMAGE_ENTITY') {
+      if (!Number.isFinite(action.amount) || action.amount <= 0) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'damage_amount_must_be_positive_finite',
+        })
+      }
+
+      const health = target.components?.find(isHealthComponent)
+      if (!health) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'health_component_missing',
+        })
+      }
+
+      const current = health.properties.current
+      const max = health.properties.max
+      if (!Number.isFinite(current) || !Number.isFinite(max) || max <= 0 || current < 0 || current > max) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'health_component_invalid',
+        })
+      }
+      if (current <= 0) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'health_already_zero',
+        })
+      }
+
+      const nextCurrent = Math.max(0, current - action.amount)
+      const nextHealth = createHealthComponent(nextCurrent, max)
+      const components = [...(target.components ?? [])]
+      const healthIndex = components.findIndex(isHealthComponent)
+      components[healthIndex] = nextHealth
+      const worldAfter = this.worldMutator.replaceEntity(context.world, Object.freeze({
+        ...target,
+        components: Object.freeze(components),
+      }) as unknown as Entity)
+      const updated = worldAfter.entities.find(entity => entity.id === target.id)
+      const updatedHealth = updated?.components?.find(isHealthComponent)
+      if (!updatedHealth
+        || updatedHealth.properties.current !== nextCurrent
+        || updatedHealth.properties.max !== max) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'runtime_mutation_failed',
+        })
+      }
+
+      return Object.freeze({
+        ...base,
+        status: 'executed' as const,
+        targetEntityIds: Object.freeze([target.id]),
+        worldAfter,
+        mutation: Object.freeze({
+          type: 'HEALTH_UPDATED' as const,
+          targetEntityId: target.id,
+          health: Object.freeze({ current: nextCurrent, max }),
+          damageAmount: action.amount,
+        }),
       })
     }
 

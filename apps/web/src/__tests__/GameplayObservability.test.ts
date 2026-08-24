@@ -41,7 +41,7 @@ describe('Gameplay Observatory projection', () => {
     setActivePinia(createPinia())
   })
 
-  it('shows Runtime contact direction and both trusted action outcomes without executing deferred damage', () => {
+  it('shows Runtime contact direction and trusted damage execution separately from deferred state', () => {
     const store = useObservatoryDataStore()
     store.recordRuntimeGameplayEvents([contactEvent()])
     const stompResult: GameplayRuleExecutionResult = Object.freeze({
@@ -56,9 +56,18 @@ describe('Gameplay Observatory projection', () => {
       ]),
       affectedEntityIds: Object.freeze(['enemy', 'player']),
     })
-    const deferredDamage: GameplayRuleExecutionResult = Object.freeze({
+    const damageResult: GameplayRuleExecutionResult = Object.freeze({
       eventId: 'world-1:13:0',
       ruleId: 'enemy-contact-damage',
+      matchedTrigger: 'ENTITY_CONTACT_STARTED',
+      status: 'executed',
+      committed: true,
+      actionResults: Object.freeze([actionResult('DAMAGE_ENTITY', 'player')]),
+      affectedEntityIds: Object.freeze(['player']),
+    })
+    const deferredScore: GameplayRuleExecutionResult = Object.freeze({
+      eventId: 'world-1:14:0',
+      ruleId: 'score-reward',
       matchedTrigger: 'ENTITY_CONTACT_STARTED',
       status: 'unsupported',
       committed: false,
@@ -66,7 +75,7 @@ describe('Gameplay Observatory projection', () => {
       affectedEntityIds: Object.freeze([]),
       reason: 'rule_deferred',
     })
-    store.recordRuntimeGameplayRuleResults([stompResult, deferredDamage])
+    store.recordRuntimeGameplayRuleResults([stompResult, damageResult, deferredScore])
 
     const text = mount(ObservatoryEventStream).text()
     expect(text).toContain('direction=top')
@@ -74,7 +83,9 @@ describe('Gameplay Observatory projection', () => {
     expect(text).toContain('REMOVE_ENTITY:executed')
     expect(text).toContain('APPLY_VELOCITY:executed')
     expect(text).toContain('enemy-contact-damage')
+    expect(text).toContain('DAMAGE_ENTITY:executed')
+    expect(text).toContain('score-reward')
     expect(text).toContain('unsupported')
-    expect(text).not.toContain('DAMAGE_ENTITY:executed')
+    expect(text).not.toContain('CHANGE_NUMERIC_STATE:executed')
   })
 })

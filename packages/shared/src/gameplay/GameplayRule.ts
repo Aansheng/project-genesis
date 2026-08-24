@@ -74,7 +74,7 @@ export type GameplayCondition =
   | {
       readonly type: 'COMPONENT_EXISTS'
       readonly entity: GameplayEntitySelector
-      readonly componentType: 'position' | 'velocity' | 'collision-bounds' | 'semantic'
+      readonly componentType: 'position' | 'velocity' | 'collision-bounds' | 'semantic' | 'health'
     }
 
 export type GameplayActionValue = string | number | boolean

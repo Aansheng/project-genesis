@@ -11,8 +11,8 @@ architecture.
 - Sprint 12: AI world generation and Runtime activation.
 - Sprint 13: visual and asset generation; frozen after correctness audit.
 - Sprint 14: targeted world evolution; frozen after multi-turn verification.
-- Sprint 15 through WO-S15-004: capability-specific context and the bounded
-  gameplay rule execution slice.
+- Sprint 15 through WO-S15-006: capability-specific context and the bounded
+  gameplay rule execution slices for enemy stomp and generic Health damage.
 
 ## Current direction
 
@@ -21,18 +21,18 @@ Keep the end-to-end pipeline playable and truthful:
 Natural language → Intent → Semantic World → Game DSL → Runtime → Renderer
 → playable game → targeted natural-language evolution.
 
-The next boundary is one concrete event-driven gameplay scenario chosen from a
-measured product bottleneck. It must extend the smallest trusted Runtime
-primitive needed for that scenario and preserve current authority boundaries.
-WO-S15-006 is prepared READY for the approved DAMAGE/HEALTH scenario, but its
-shared Health/DAMAGE_ENTITY contract is intentionally deferred to its own
-Supervisor turn.
+The completed boundary extended the smallest trusted Runtime primitive needed
+for the measured DAMAGE/HEALTH scenario and preserved current authority
+boundaries. The Supervisor stops after WO-S15-006 under
+`continuation_mode = ONE_WORK_ITEM`; no next product work order is selected in
+this turn.
 
 ## Deferred direction
 
-Score/state, damage, goals, enemy behavior, timers, spawning, progression,
-win/lose, richer rule actions, durable history, and broader context systems stay
-deferred until a concrete product need and acceptance path justify them.
+Score/state, death/respawn/game-over, goals, enemy behavior, timers, spawning,
+progression, win/lose, richer rule actions, durable history, and broader
+context systems stay deferred until a concrete product need and acceptance path
+justify them.
 
 ## Supervisor rollout
 

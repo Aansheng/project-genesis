@@ -70,6 +70,13 @@ function idCondition(
   return Object.freeze({ type: 'ENTITY_ID_EQUALS', entity, entityId })
 }
 
+function componentCondition(
+  entity: ReturnType<typeof playerSelector> | ReturnType<typeof targetSelector>,
+  componentType: 'health',
+): GameplayCondition {
+  return Object.freeze({ type: 'COMPONENT_EXISTS', entity, componentType })
+}
+
 function contact(direction: 'top' | 'bottom' | 'left' | 'right', negated = false): GameplayCondition {
   return Object.freeze({ type: 'CONTACT_DIRECTION_EQUALS', direction, ...(negated ? { negated: true } : {}) })
 }
@@ -145,11 +152,19 @@ function deterministicRules(
         Object.freeze({ type: 'APPLY_VELOCITY', target: player, velocity: Object.freeze({ y: -12, mode: 'set' as const }) }),
       ],
     ))
+  }
+
+  if (enemy && hasMechanic(specification, 'enemy-side-damage')) {
     rules.push(rule(
       'enemy-contact-damage',
       'Enemy side contact damage',
-      undefined,
-      [categoryCondition(player, 'player'), categoryCondition(target, 'enemy'), contact('top', true)],
+      'enemy-side-damage',
+      [
+        categoryCondition(player, 'player'),
+        categoryCondition(target, 'enemy'),
+        componentCondition(player, 'health'),
+        contact('top', true),
+      ],
       [Object.freeze({ type: 'DAMAGE_ENTITY', target: player, amount: 1 })],
     ))
   }

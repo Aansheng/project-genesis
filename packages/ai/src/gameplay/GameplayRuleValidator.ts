@@ -42,7 +42,7 @@ export interface GameplayRuleValidator {
 const ENTITY_CATEGORIES: readonly EntityCategory[] = ['player', 'npc', 'enemy', 'terrain', 'building', 'item', 'quest']
 const DIRECTIONS: readonly GameplayContactDirection[] = ['top', 'bottom', 'left', 'right']
 const OPERATORS = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte'] as const
-const COMPONENTS = ['position', 'velocity', 'collision-bounds', 'semantic'] as const
+const COMPONENTS = ['position', 'velocity', 'collision-bounds', 'semantic', 'health'] as const
 const PROPERTY_NAMES = ['activated', 'enabled', 'visible'] as const
 const NUMERIC_PAYLOAD_KEYS = ['x', 'y', 'velocityX', 'velocityY', 'amount'] as const
 const BOOLEAN_PAYLOAD_KEYS = ['isGrounded', 'isActive'] as const

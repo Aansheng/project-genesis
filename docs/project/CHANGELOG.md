@@ -1,5 +1,22 @@
 # Changelog
 
+### WO-S15-006 — Damage / Health Gameplay Rule Vertical Slice
+
+- Added the frozen shared `health` component with default `100/100` state for
+  player/enemy/npc entities and Health-aware semantic DSL projection.
+- Promoted typed `DAMAGE_ENTITY` to a trusted generic Runtime action. Positive
+  finite damage decreases only `current`, clamps at zero, preserves `max`,
+  returns `HEALTH_UPDATED`, and never implies death or game-over.
+- Connected the generic non-top enemy-contact rule through the existing
+  Runtime event → rule → `WorldMutator.replaceEntity` path. Raw contact facts,
+  rule results, Runtime World state, Renderer sync, and Observatory projections
+  remain separate and truthful.
+- Added ADR-0267, focused Shared/AI/Runtime/Web coverage, affected-package
+  regression coverage, architecture review, and architecture version
+  v1.152 → v1.153. Code Complete = YES; Product Verified = YES — Chrome
+  Studio evidence showed committed `DAMAGE_ENTITY` execution and Health
+  changing from `100/100` to `93/100`; death/respawn/game-over remain deferred.
+
 ### WO-S15-005 — Enemy Stomp Gameplay Rule Vertical Slice
 
 - Extended `ENTITY_CONTACT_STARTED` with a required typed direction derived

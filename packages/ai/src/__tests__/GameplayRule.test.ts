@@ -92,7 +92,7 @@ describe('GameplayRule foundation', () => {
     ])
     expect(ruleSet.rules.find(rule => rule.ruleId === 'collect-coin')?.supportStatus).toBe('partially_supported')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'enemy-stomp')?.supportStatus).toBe('supported')
-    expect(ruleSet.rules.find(rule => rule.ruleId === 'enemy-side-damage')?.supportStatus).toBe('deferred')
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'enemy-side-damage')?.supportStatus).toBe('supported')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'reach-goal')?.supportStatus).toBe('deferred')
     expect(ruleSet.execution.status).toBe('active')
     expect(Object.isFrozen(ruleSet)).toBe(true)
@@ -109,6 +109,10 @@ describe('GameplayRule foundation', () => {
         { type: 'REMOVE_ENTITY' },
         { type: 'APPLY_VELOCITY', velocity: { y: -12, mode: 'set' } },
       ],
+    })
+    expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'enemy-contact-damage')).toMatchObject({
+      supportStatus: 'supported',
+      actions: [{ type: 'DAMAGE_ENTITY', target: { kind: 'eventActor' }, amount: 1 }],
     })
   })
 
@@ -144,7 +148,7 @@ describe('GameplayRule foundation', () => {
     expect(DEFAULT_GAMEPLAY_CAPABILITY_CATALOG.supportedMechanicIds).toContain('enemy-stomp')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'condition-contact-direction-equals')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-apply-velocity')?.status).toBe('supported')
-    expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-damage-entity')?.status).toBe('deferred')
+    expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-damage-entity')?.status).toBe('supported')
     expect(context).not.toHaveProperty('runtimeHistory')
     expect(context).not.toHaveProperty('pixi')
   })

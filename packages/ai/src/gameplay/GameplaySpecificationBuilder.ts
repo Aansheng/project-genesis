@@ -107,6 +107,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanic('gravity', 'state-change', 'Gravity affects vertical player motion.', 'supported', playerId),
       mechanic('basic-collision', 'state-change', 'Ground collision keeps entities on the playable plane.', 'supported'),
       mechanic('enemy-stomp', 'combat', 'Player can defeat an enemy by a downward contact and bounce upward.', 'supported', playerId, enemyId ? 'enemy' : undefined),
+      mechanic('enemy-side-damage', 'combat', 'Player loses generic Health on non-top contact with an enemy.', 'supported', playerId, enemyId ? 'enemy' : undefined),
       mechanic('collect-reward', 'collection', 'Player collects a reward during traversal.', 'deferred', playerId, itemId ? 'item' : undefined),
       mechanic('reach-goal', 'goal', 'Player reaches the level goal.', 'deferred', playerId, goalId ? 'goal' : undefined),
       mechanic('player-death', 'failure', 'Player death ends or resets the attempt.', 'deferred', playerId),

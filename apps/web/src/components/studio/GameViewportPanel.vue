@@ -65,6 +65,9 @@ const gameplayEventObserver: GameplayEventObserver = {
 const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {
   observe(results) {
     observatoryDataStore.recordRuntimeGameplayRuleResults(results)
+    if (results.some(result => result.committed)) {
+      observatoryDataStore.loadRuntimeWorld(store.worldStore.getWorld(), store.currentWorldId)
+    }
   },
 }
 

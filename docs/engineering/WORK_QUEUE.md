@@ -146,12 +146,13 @@ human_decision_required: NO — Trial #1 tuning and the S15-006 scenario were
 
 ## WO-S15-006 — Damage / Health Gameplay Rule Vertical Slice
 
-status: READY
+status: DONE
 priority: P1
 dependencies: WO-S15-005 DONE; measured gameplay goal recorded; DAMAGE/HEALTH
   scenario accepted on 2026-08-24
 architecture_before: v1.152
-architecture_expected_after: TBD after Supervisor contract review
+architecture_after: v1.153
+architecture_expected_after: v1.153
 mission: Prove the smallest generic side-contact damage path: player side
   contact with an enemy produces a truthful Runtime contact fact, matches a
   generic rule, executes trusted `DAMAGE_ENTITY(eventActor)`, and decreases an
@@ -167,17 +168,20 @@ forbidden_scope: EnemyDamageSystem or Mario-specific Runtime; generated code;
   frames unless measured behavior proves required; knockback; XP; score; goal
   completion; enemy AI; timers; spawners; progression; unrelated rich actions;
   arbitrary code/eval; autonomous WO continuation.
-acceptance: READY boundary only — the detailed shared Health/DAMAGE_ENTITY
-  contract must be decided by the Supervisor before implementation. The future
-  WO must prove generic rule-driven damage, authoritative Health mutation,
-  stale/world isolation, truthful non-execution of deferred capabilities, and
-  no genre-specific Runtime system.
-verification: REQUIRED when executed — targeted and affected-package checks,
-  TypeScript, ESLint, relevant regression suites, architecture review, and
-  real browser Product Verification.
-product_verification: REQUIRED when executed; not performed by WO-META-004.
-human_decision_required: NO for scenario selection; implementation contract
-  remains a Supervisor gate at WO-S15-006 start.
+acceptance: PASS — Supervisor fixed the shared Health/DAMAGE_ENTITY contract;
+  generic rule-driven non-top contact damage decreases authoritative current
+  Health, preserves max, fails safely without Health, keeps zero as state only,
+  and introduces no death/game-over system. Existing binding, stale/world,
+  exactly-once, and truthful deferred-rule gates remain active.
+verification: PASS — Shared/Runtime/AI/Renderer/Web affected-package tests,
+  direct TypeScript checks, direct ESLint checks, Web build, git diff check,
+  ADR/architecture review, and real Chrome Studio Product Verification pass.
+product_verification: YES — MANUAL Studio verification completed on
+  2026-08-24; full Observatory showed ENTITY_CONTACT_STARTED followed by
+  committed enemy-contact-damage / DAMAGE_ENTITY execution, and Inspector
+  Health changed from 100/100 to 93/100.
+human_decision_required: NO — scenario selection was accepted previously and
+  the detailed implementation contract was fixed by the Supervisor at start.
 
 ## Queue transition vocabulary
 

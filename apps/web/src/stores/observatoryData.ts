@@ -268,7 +268,11 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
           const component = entity.components?.find((item) => item.type === 'position')
           return component ? JSON.stringify({ x: component.properties.x, y: component.properties.y }) : ''
         })(),
-        health: '',
+        health: (() => {
+          const component = entity.components?.find((item) => item.type === 'health')
+          const current = component?.properties.current
+          return typeof current === 'number' && Number.isFinite(current) ? String(current) : ''
+        })(),
         state: '',
         components: (entity.components ?? []).map((component) => ({
           name: component.type,

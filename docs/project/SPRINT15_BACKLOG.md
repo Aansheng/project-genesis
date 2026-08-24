@@ -28,7 +28,8 @@ bindings and current semantic names remain the source of visual archetype truth.
   or timed-out work, a two-agent concurrency cap, no nested spawning, shared
   contract ownership, standard prompt shapes, re-delegation limits, and a trial
   scorecard.
-- Architecture version remains v1.152; no product source changed.
+- Architecture version remains v1.153 after the completed WO-S15-006 product
+  slice.
 
 ## Completed
 
@@ -180,11 +181,11 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Deferred by design
 
-- Runtime gameplay execution: damage, enemy AI, goals, failure, timers, spawn
-  execution, XP/levels/upgrades, and win/lose rules.
-- Beyond the S15-005 slice: score/numeric state, damage/health, enemy AI,
-  goals/win/lose, timers, spawn execution, property actions, unrelated rich
-  multi-action transactions, and gameplay-rule evolution.
+- Runtime gameplay execution: death/failure flow, enemy AI, goals, timers,
+  spawn execution, XP/levels/upgrades, and win/lose rules.
+- Beyond the S15-006 slice: score/numeric state, death/respawn/game-over,
+  enemy AI, goals/win/lose, timers, spawn execution, property actions,
+  unrelated rich multi-action transactions, and gameplay-rule evolution.
 - Durable gameplay revision/history and gameplay evolution.
 - Conversation memory/history, RAG, vector retrieval, and global context
   stores.
@@ -193,22 +194,24 @@ bindings and current semantic names remain the source of visual archetype truth.
 - Context caching, durable generated-asset persistence, and reload recovery.
 - Provider-specific prompt contracts and capability-specific orchestration.
 
-## Next work order boundary
+## Completed work order boundary
 
 ### WO-S15-006 — Damage / Health Gameplay Rule Vertical Slice
 
-Status: READY. The measured capability goal is recorded: damage/health remains
-deferred after the completed ENEMY STOMP slice, and the approved next scenario
-is a generic side-contact damage path. This is prepared for a later Supervisor
-turn and was not executed by WO-META-004.
+Status: DONE. The measured capability goal was recorded: damage/health remained
+deferred after the completed ENEMY STOMP slice, and the approved scenario was a
+generic non-top contact damage path. The Supervisor fixed the shared contract,
+implemented the slice, completed all automated gates, and performed Chrome
+Studio verification on 2026-08-24. Continuation stops here under
+`ONE_WORK_ITEM`.
 
 Target conceptual behavior:
 
 `player side-contact enemy → ENTITY_CONTACT_STARTED → generic gameplay rule → DAMAGE_ENTITY(eventActor) → authoritative Health decreases`
 
 Keep Runtime facts, rule interpretation, mutation/result execution, and
-Observatory truth separate. Allow only generic Health state, typed
-`DAMAGE_ENTITY`, the side-contact rule, stale/world isolation, and the required
-verification path. Do not add death/game-over systems, respawn, lives,
+Observatory truth separate. The completed slice allows only generic Health
+state, typed `DAMAGE_ENTITY`, the non-top contact rule, stale/world isolation,
+and the verified path. Do not add death/game-over systems, respawn, lives,
 invincibility frames, knockback, XP, score, goals, enemy AI, timers, spawners,
 progression, arbitrary code, or a genre-specific Runtime.

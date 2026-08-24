@@ -5,8 +5,9 @@
  * semantic mapping. Each GameWorldEntity produces one EntityDsl with:
  * - id: preserved from GameWorldEntity.id
  * - type: derived from GameWorldEntity.category
- * - components: semantic metadata, deterministic layout position, and an
- *   explicit Runtime contact envelope where the entity category supports it
+ * - components: semantic metadata, deterministic layout position, a generic
+ *   Health component for combat-capable entities, and an explicit Runtime
+ *   contact envelope where the entity category supports it
  *
  * World name is derived from the WorldType value:
  * - 'farm'       → 'Farm World'
@@ -27,6 +28,7 @@
  *   - properties.category: the entity's category
  *   - properties.name: the entity's human-readable name
  * - Each entity gets a standard "position" component from WorldLayoutGenerator
+ * - Player, enemy, and NPC entities get a generic 100/100 Health component
  * - Contact-capable entity categories get a small Runtime-owned
  *   "collision-bounds" component; renderer dimensions are not reused
  * - Empty world produces a world with zero entities
@@ -48,6 +50,7 @@ import type {
 } from '@genesis/shared'
 import {
   createDefaultCollisionBoundsForType,
+  createDefaultHealthComponentForType,
   createPositionComponent,
 } from '@genesis/shared'
 import type { SemanticGameDslBuilder } from './SemanticGameDslBuilder'
@@ -197,6 +200,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
     entity: GameWorldEntity,
     position: { readonly x: number; readonly y: number } | undefined,
   ): EntityDsl {
+    const health = createDefaultHealthComponentForType(entity.category)
     const collisionBounds = createDefaultCollisionBoundsForType(entity.category)
     return Object.freeze({
       id: String(entity.id ?? ''),
@@ -204,6 +208,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
       components: Object.freeze([
         this.createSemanticComponent(entity),
         createPositionComponent(position?.x ?? 0, position?.y ?? 0),
+        ...(health ? [health] : []),
         ...(collisionBounds ? [collisionBounds] : []),
       ]),
     })

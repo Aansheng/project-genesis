@@ -18,3 +18,11 @@ export {
   isVelocityComponent,
 } from './VelocityComponent'
 export type { VelocityComponent } from './VelocityComponent'
+
+export {
+  HEALTH_COMPONENT_TYPE,
+  createHealthComponent,
+  createDefaultHealthComponentForType,
+  isHealthComponent,
+} from './HealthComponent'
+export type { HealthComponent } from './HealthComponent'
