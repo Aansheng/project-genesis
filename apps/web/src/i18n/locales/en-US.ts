@@ -62,6 +62,7 @@ export const enUS: MessageCatalog = {
       position: 'Position',
       state: 'State',
       health: 'Health',
+      experience: 'Experience',
       inspector: 'Entity Inspector',
       components: 'Components',
       componentCount: 'Component Count',

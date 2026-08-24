@@ -21,9 +21,14 @@ import {
 import { DefaultWorldMutator } from '../mutation'
 import type { WorldMutator } from '../mutation'
 import {
+  applyRuntimeGameplayNumericChange,
+  DefaultRuntimeGameplayProgressionStateStore,
+} from './RuntimeGameplayProgressionState'
+import {
   completeRuntimeGameplaySession,
   DefaultRuntimeGameplaySessionStateStore,
 } from './RuntimeGameplaySessionState'
+import type { RuntimeGameplayProgressionState } from './RuntimeGameplayProgressionState'
 import type {
   RuntimeGameplaySessionState,
   RuntimeGameplaySessionBinding,
@@ -93,6 +98,7 @@ export interface GameplayActionExecutionRequest {
   readonly action: GameplayAction
   readonly context: GameplayRuleExecutionContext
   readonly sessionState?: RuntimeGameplaySessionState
+  readonly progressionState?: RuntimeGameplayProgressionState
 }
 
 export interface GameplayActionExecutionResult {
@@ -106,6 +112,7 @@ export interface GameplayActionExecutionResult {
   readonly failureReason?: string
   readonly reason?: string
   readonly sessionStateAfter?: RuntimeGameplaySessionState
+  readonly progressionStateAfter?: RuntimeGameplayProgressionState
   readonly mutation?:
     | {
         readonly type: 'ENTITY_REMOVED'
@@ -129,6 +136,13 @@ export interface GameplayActionExecutionResult {
     | {
         readonly type: 'GOAL_COMPLETION_NOOP'
         readonly goalId?: string
+      }
+    | {
+        readonly type: 'NUMERIC_STATE_UPDATED'
+        readonly state: string
+        readonly previousValue: number
+        readonly value: number
+        readonly amount: number
       }
 }
 
@@ -160,6 +174,7 @@ export interface GameplayRuleExecutionBatch {
   readonly world: World
   readonly results: readonly GameplayRuleExecutionResult[]
   readonly sessionState?: RuntimeGameplaySessionState
+  readonly progressionState?: RuntimeGameplayProgressionState
 }
 
 export interface GameplayRuleExecutor {
@@ -454,6 +469,42 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       })
     }
 
+    if (action.type === 'CHANGE_NUMERIC_STATE') {
+      if (request.progressionState === undefined) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'progression_state_unavailable',
+        })
+      }
+      const change = applyRuntimeGameplayNumericChange(
+        request.progressionState,
+        action.state,
+        action.amount,
+      )
+      if (change === undefined) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: action.state.trim()
+            ? 'numeric_state_change_must_remain_finite'
+            : 'numeric_state_key_must_be_non_empty',
+        })
+      }
+      return Object.freeze({
+        ...base,
+        status: 'executed' as const,
+        progressionStateAfter: change.state,
+        mutation: Object.freeze({
+          type: 'NUMERIC_STATE_UPDATED' as const,
+          state: change.key,
+          previousValue: change.previousValue,
+          value: change.value,
+          amount: change.amount,
+        }),
+      })
+    }
+
     if (action.type !== 'REMOVE_ENTITY' && action.type !== 'APPLY_VELOCITY' && action.type !== 'DAMAGE_ENTITY') {
       return Object.freeze({
         ...base,
@@ -667,9 +718,15 @@ function rolledBackActionResult(
   result: GameplayActionExecutionResult,
   rollbackWorld: World,
 ): GameplayActionExecutionResult {
-  const { mutation: _mutation, sessionStateAfter: _sessionStateAfter, ...withoutMutation } = result
+  const {
+    mutation: _mutation,
+    sessionStateAfter: _sessionStateAfter,
+    progressionStateAfter: _progressionStateAfter,
+    ...withoutMutation
+  } = result
   void _mutation
   void _sessionStateAfter
+  void _progressionStateAfter
   return Object.freeze({
     ...withoutMutation,
     status: 'rolled_back' as const,
@@ -694,6 +751,7 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
     private readonly conditionEvaluator: GameplayConditionEvaluator = new DefaultGameplayConditionEvaluator(),
     private readonly actionExecutor: GameplayActionExecutor = new DefaultGameplayActionExecutor(),
     private readonly sessionStateStore = new DefaultRuntimeGameplaySessionStateStore(),
+    private readonly progressionStateStore = new DefaultRuntimeGameplayProgressionStateStore(),
   ) {}
 
   execute(
@@ -706,8 +764,9 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
       ...(context.sessionId ?? ruleSet.sessionId ? { sessionId: context.sessionId ?? ruleSet.sessionId } : {}),
     }
     let sessionState = this.sessionStateStore.bind(binding)
+    let progressionState = this.progressionStateStore.bind(binding)
     if (events.length === 0) {
-      return Object.freeze({ world: context.world, results: Object.freeze([]), sessionState })
+      return Object.freeze({ world: context.world, results: Object.freeze([]), sessionState, progressionState })
     }
 
     const key = sessionKey(ruleSet, context)
@@ -766,8 +825,10 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
 
         const ruleStartWorld = world
         const ruleStartSessionState = sessionState
+        const ruleStartProgressionState = progressionState
         let stagedWorld = ruleStartWorld
         let stagedSessionState = sessionState
+        let stagedProgressionState = progressionState
         const actionResults: GameplayActionExecutionResult[] = []
         let failedAction: GameplayActionExecutionResult | undefined
 
@@ -778,6 +839,7 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
             action,
             context: Object.freeze({ ...context, world: stagedWorld }),
             sessionState: stagedSessionState,
+            progressionState: stagedProgressionState,
           })
           actionResults.push(actionResult)
           if (actionResult.status !== 'executed' && actionResult.status !== 'no_op') {
@@ -786,6 +848,7 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
           }
           stagedWorld = actionResult.worldAfter
           if (actionResult.sessionStateAfter !== undefined) stagedSessionState = actionResult.sessionStateAfter
+          if (actionResult.progressionStateAfter !== undefined) stagedProgressionState = actionResult.progressionStateAfter
         }
 
         if (failedAction) {
@@ -802,12 +865,15 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
           }))
           world = ruleStartWorld
           sessionState = ruleStartSessionState
+          progressionState = ruleStartProgressionState
           continue
         }
 
         world = stagedWorld
         sessionState = stagedSessionState
+        progressionState = stagedProgressionState
         this.sessionStateStore.commit(sessionState)
+        this.progressionStateStore.commit(progressionState)
         results.push(executionResult(event, rule, 'executed', {
           committed: actionResults.some(actionResult => actionResult.status === 'executed'),
           conditionResult,
@@ -820,7 +886,7 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
       }
     }
 
-    return Object.freeze({ world, results: Object.freeze(results), sessionState })
+    return Object.freeze({ world, results: Object.freeze(results), sessionState, progressionState })
   }
 
   executeEvent(

@@ -90,7 +90,7 @@ describe('GameplayRule foundation', () => {
     expect(ruleSet.rules.map(rule => rule.ruleId)).toEqual([
       'collect-coin', 'enemy-stomp', 'enemy-side-damage', 'reach-goal', 'question-block-reward',
     ])
-    expect(ruleSet.rules.find(rule => rule.ruleId === 'collect-coin')?.supportStatus).toBe('partially_supported')
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'collect-coin')?.supportStatus).toBe('supported')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'enemy-stomp')?.supportStatus).toBe('supported')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'enemy-side-damage')?.supportStatus).toBe('supported')
     expect(ruleSet.rules.find(rule => rule.ruleId === 'reach-goal')?.supportStatus).toBe('supported')
@@ -108,6 +108,13 @@ describe('GameplayRule foundation', () => {
       actions: [
         { type: 'REMOVE_ENTITY' },
         { type: 'APPLY_VELOCITY', velocity: { y: -12, mode: 'set' } },
+      ],
+    })
+    expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'collect-reward')).toMatchObject({
+      supportStatus: 'supported',
+      actions: [
+        { type: 'REMOVE_ENTITY' },
+        { type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 },
       ],
     })
     expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'enemy-contact-damage')).toMatchObject({

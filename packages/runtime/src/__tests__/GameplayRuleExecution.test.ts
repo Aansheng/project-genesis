@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type {
   Entity,
   GameWorldModel,
+  GameplayEventSink,
   GameplayAction,
   GameplayEvent,
   GameplayRuleSet,
@@ -138,6 +139,37 @@ function ruleSet(
   })
 }
 
+function progressionRule(amount = 1): GameplayRuleSpecification {
+  return Object.freeze({
+    schemaVersion: 1,
+    ruleId: 'gain-experience',
+    name: 'Gain experience',
+    enabled: true,
+    trigger: Object.freeze({ eventType: 'ENTITY_JUMPED' as const }),
+    conditionMode: 'all' as const,
+    conditions: Object.freeze([]),
+    actions: Object.freeze([
+      Object.freeze({ type: 'CHANGE_NUMERIC_STATE' as const, state: 'experience', amount }),
+    ]),
+    priority: 0,
+    supportStatus: 'supported' as const,
+  })
+}
+
+class GameplayJumpEventSystem {
+  readonly name = 'GameplayJumpEventSystem'
+  private eventSink: GameplayEventSink | undefined
+
+  setGameplayEventSink(sink: GameplayEventSink): void {
+    this.eventSink = sink
+  }
+
+  update(world: World): World {
+    this.eventSink?.emit({ type: 'ENTITY_JUMPED', actorEntityId: 'player' })
+    return world
+  }
+}
+
 function context(world: World, semanticRevision = 0, sessionId = 'session-1', worldId = 'world-1') {
   return Object.freeze({
     world,
@@ -221,6 +253,54 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(evolved.gameplayEvents).toMatchObject([{ targetEntityId: 'coin-2' }])
     expect(evolved.gameplayRuleResults).toMatchObject([{ ruleId: 'collect-reward', status: 'executed', committed: true }])
     expect(evolved.world.entities.map(item => item.id)).toEqual(['player', 'ground'])
+  })
+
+  it('executes authoritative numeric progression, retains it across semantic revision, and resets on a new session', () => {
+    const registry = new DefaultRuntimeSystemRegistry()
+    registry.register(new GameplayJumpEventSystem())
+    let revision = 0
+    let sessionId = 'session-1'
+    let rules = ruleSet([progressionRule()], { semanticRevision: revision, sessionId })
+    const loop = new DefaultRuntimeExecutionLoop(registry, new DefaultRuntimeGameplayEventCollector('world-1'), {
+      getRuleSet: () => rules,
+      getWorldId: () => 'world-1',
+      getSessionId: () => sessionId,
+      getSemanticRevision: () => revision,
+      getSemanticWorld: () => semanticWorld,
+    })
+    const initialWorld = runtimeWorld()
+
+    const first = loop.tickWithResult(initialWorld)
+    expect(first.gameplayRuleResults).toMatchObject([{
+      ruleId: 'gain-experience',
+      status: 'executed',
+      committed: true,
+      actionResults: [{
+        actionType: 'CHANGE_NUMERIC_STATE',
+        status: 'executed',
+        mutation: {
+          type: 'NUMERIC_STATE_UPDATED',
+          state: 'experience',
+          previousValue: 0,
+          value: 1,
+          amount: 1,
+        },
+      }],
+    }])
+    expect(first.gameplayProgressionState).toEqual({ values: { experience: 1 } })
+
+    const second = loop.tickWithResult(first.world)
+    expect(second.gameplayProgressionState).toEqual({ values: { experience: 2 } })
+
+    revision = 1
+    rules = ruleSet([progressionRule()], { semanticRevision: revision, sessionId })
+    const evolved = loop.tickWithResult(second.world)
+    expect(evolved.gameplayProgressionState).toEqual({ values: { experience: 3 } })
+
+    sessionId = 'session-2'
+    rules = ruleSet([progressionRule()], { semanticRevision: revision, sessionId })
+    const newSession = loop.tickWithResult(evolved.world)
+    expect(newSession.gameplayProgressionState).toEqual({ values: { experience: 1 } })
   })
 
   it('commits Runtime session completion, remains idempotent, preserves it across evolution, and rebinds on a new world', () => {
@@ -562,6 +642,67 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(result.results[0]?.actionResults[0]).not.toHaveProperty('mutation')
   })
 
+  it('rolls back a staged numeric change when a later action fails', () => {
+    const event = Object.freeze({
+      eventId: 'world-1:13:0',
+      worldId: 'world-1',
+      tick: 13,
+      sequence: 0,
+      type: 'ENTITY_JUMPED' as const,
+      actorEntityId: 'player',
+    })
+    const result = new DefaultGameplayRuleExecutor().executeEvent(
+      event,
+      ruleSet([Object.freeze({
+        ...progressionRule(),
+        ruleId: 'atomic-progression',
+        actions: Object.freeze([
+          Object.freeze({ type: 'CHANGE_NUMERIC_STATE' as const, state: 'experience', amount: 1 }),
+          Object.freeze({ type: 'APPLY_VELOCITY' as const, target: { kind: 'eventActor' as const }, velocity: { x: Number.NaN } }),
+        ]),
+      })]),
+      context(runtimeWorld()),
+    )
+
+    expect(result.progressionState).toEqual({ values: {} })
+    expect(result.results).toMatchObject([{
+      status: 'execution_failed',
+      committed: false,
+      actionResults: [
+        { actionType: 'CHANGE_NUMERIC_STATE', status: 'rolled_back' },
+        { actionType: 'APPLY_VELOCITY', status: 'failed', failureReason: 'velocity_axes_must_be_finite' },
+      ],
+    }])
+    expect(result.results[0]?.actionResults[0]).not.toHaveProperty('mutation')
+  })
+
+  it('rejects empty or non-finite numeric changes without committing state', () => {
+    const executor = new DefaultGameplayRuleExecutor()
+    const event = Object.freeze({
+      eventId: 'world-1:14:0',
+      worldId: 'world-1',
+      tick: 14,
+      sequence: 0,
+      type: 'ENTITY_JUMPED' as const,
+      actorEntityId: 'player',
+    })
+    const emptyKey = executor.executeEvent(
+      event,
+      ruleSet([Object.freeze({ ...progressionRule(), ruleId: 'empty-key', actions: Object.freeze([{ type: 'CHANGE_NUMERIC_STATE' as const, state: '  ', amount: 1 }]) })]),
+      context(runtimeWorld()),
+    )
+    expect(emptyKey.results).toMatchObject([{ status: 'execution_failed', reason: 'numeric_state_key_must_be_non_empty' }])
+    expect(emptyKey.progressionState).toEqual({ values: {} })
+
+    const nonFinite = new DefaultGameplayRuleExecutor().executeEvent(
+      Object.freeze({ ...event, eventId: 'world-1:15:0', tick: 15 }),
+      ruleSet([Object.freeze({ ...progressionRule(), ruleId: 'non-finite', actions: Object.freeze([{ type: 'CHANGE_NUMERIC_STATE' as const, state: 'experience', amount: Number.POSITIVE_INFINITY }]) })]),
+      context(runtimeWorld()),
+    )
+    expect(nonFinite.results).toMatchObject([{ status: 'execution_failed', reason: 'numeric_state_change_must_remain_finite' }])
+    expect(nonFinite.progressionState).toEqual({ values: {} })
+  })
+
   it('supports set, add, component creation, and non-player entity selectors generically', () => {
     const genericWorld = Object.freeze({
       entities: Object.freeze([entity('npc-1', 'npc', 'Merchant', 0, 0)]),
@@ -660,6 +801,7 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(result.world).toBe(worldB)
     expect(result.world.entities.map(item => item.id)).toEqual(['player', 'coin-1', 'ground'])
     expect(result.results).toMatchObject([{ status: 'stale', committed: false, reason: 'stale_rule_binding' }])
+    expect(result.progressionState).toEqual({ values: {} })
   })
 
   it('does not let a session-bound RuleSet execute in another Runtime session', () => {

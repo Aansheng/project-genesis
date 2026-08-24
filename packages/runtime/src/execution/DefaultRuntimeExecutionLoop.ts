@@ -35,6 +35,7 @@ import {
 } from '../events'
 import {
   DefaultGameplayRuleExecutor,
+  DefaultRuntimeGameplayProgressionStateStore,
   DefaultRuntimeGameplaySessionStateStore,
   type GameplayRuleExecutionBatch,
   type GameplayRuleExecutor,
@@ -48,6 +49,7 @@ export interface RuntimeGameplayRuleExecutionConfig {
   readonly getSemanticWorld?: () => GameWorldModel | null | undefined
   readonly executor?: GameplayRuleExecutor
   readonly sessionStateStore?: DefaultRuntimeGameplaySessionStateStore
+  readonly progressionStateStore?: DefaultRuntimeGameplayProgressionStateStore
 }
 
 export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
@@ -58,6 +60,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
   private readonly gameplayRuleExecution?: RuntimeGameplayRuleExecutionConfig
   private readonly gameplayRuleExecutor: GameplayRuleExecutor
   private readonly gameplaySessionStateStore?: DefaultRuntimeGameplaySessionStateStore
+  private readonly gameplayProgressionStateStore?: DefaultRuntimeGameplayProgressionStateStore
 
   /**
    * @param registry — the RuntimeSystemRegistry providing systems to execute
@@ -75,12 +78,18 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
       : gameplayRuleExecution
         ? gameplayRuleExecution.sessionStateStore ?? new DefaultRuntimeGameplaySessionStateStore()
         : undefined
+    this.gameplayProgressionStateStore = gameplayRuleExecution?.executor
+      ? gameplayRuleExecution.progressionStateStore
+      : gameplayRuleExecution
+        ? gameplayRuleExecution.progressionStateStore ?? new DefaultRuntimeGameplayProgressionStateStore()
+        : undefined
     this.gameplayRuleExecutor = gameplayRuleExecution?.executor
       ?? new DefaultGameplayRuleExecutor(
         undefined,
         undefined,
         undefined,
         this.gameplaySessionStateStore,
+        this.gameplayProgressionStateStore,
       )
   }
 
@@ -130,6 +139,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
         gameplayEvents,
         gameplayRuleResults: gameplayRules.results,
         ...(gameplayRules.sessionState ? { gameplaySessionState: gameplayRules.sessionState } : {}),
+        ...(gameplayRules.progressionState ? { gameplayProgressionState: gameplayRules.progressionState } : {}),
       })
       this.lastOutputWorld = outputWorld.world
       return outputWorld
@@ -150,6 +160,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
       gameplayEvents,
       gameplayRuleResults: gameplayRules.results,
       ...(gameplayRules.sessionState ? { gameplaySessionState: gameplayRules.sessionState } : {}),
+      ...(gameplayRules.progressionState ? { gameplayProgressionState: gameplayRules.progressionState } : {}),
     })
     this.lastOutputWorld = gameplayRules.world
     return result
@@ -163,16 +174,19 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
     if (!execution) return Object.freeze({ world, results: Object.freeze([]) })
     const worldId = execution.getWorldId?.()
     const sessionId = execution.getSessionId?.()
+    const binding = Object.freeze({
+      ...(worldId !== undefined ? { worldId } : {}),
+      ...(sessionId !== undefined ? { sessionId } : {}),
+    })
     const ruleSet = execution.getRuleSet()
     if (!ruleSet) {
-      const sessionState = this.gameplaySessionStateStore?.bind({
-        ...(worldId !== undefined ? { worldId } : {}),
-        ...(sessionId !== undefined ? { sessionId } : {}),
-      })
+      const sessionState = this.gameplaySessionStateStore?.bind(binding)
+      const progressionState = this.gameplayProgressionStateStore?.bind(binding)
       return Object.freeze({
         world,
         results: Object.freeze([]),
         ...(sessionState ? { sessionState } : {}),
+        ...(progressionState ? { progressionState } : {}),
       })
     }
 

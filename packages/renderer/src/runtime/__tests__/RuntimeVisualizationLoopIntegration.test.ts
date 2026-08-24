@@ -23,7 +23,7 @@ import { describe, it, expect } from 'vitest'
 import type { Graphics, Container } from 'pixi.js'
 import type { World, Entity } from '@genesis/shared'
 import { createPositionComponent } from '@genesis/shared'
-import type { RuntimeExecutionLoop, RuntimeGameplaySessionState } from '@genesis/runtime'
+import type { RuntimeExecutionLoop, RuntimeGameplayProgressionState, RuntimeGameplaySessionState } from '@genesis/runtime'
 import { DefaultRuntimeExecutionLoop, DefaultRuntimeSystemRegistry, DefaultMovementSystem } from '@genesis/runtime'
 import type { RuntimeRendererAdapter } from '../../adapter'
 import type { RenderWorld } from '../../model'
@@ -401,6 +401,53 @@ describe('RuntimeVisualizationLoop Integration', () => {
         completedByGoalId: 'goal',
         completedAtTick: 3,
       })
+    })
+
+    it('publishes committed Runtime numeric progression to the projection observer', () => {
+      const world = createWorldWithMovingEntity()
+      const progressionState: RuntimeGameplayProgressionState = Object.freeze({
+        values: Object.freeze({ experience: 4 }),
+      })
+      const executionLoop: RuntimeExecutionLoop = {
+        tick(input): World {
+          return input
+        },
+        tickWithResult(input) {
+          return Object.freeze({
+            world: input,
+            executedSystems: Object.freeze([]),
+            systemCount: 0,
+            gameplayProgressionState: progressionState,
+          })
+        },
+      }
+      const adapter = new IntegrationRendererAdapter()
+      const container = createMockContainer()
+      let observedState: RuntimeGameplayProgressionState | undefined
+      const loop = new DefaultRuntimeVisualizationLoop(
+        executionLoop,
+        adapter,
+        new DefaultPixiEntityRenderer(container, {
+          createGraphics: () => createMockGraphics() as unknown as Graphics,
+        }),
+        world,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          observe(state): void {
+            observedState = state
+          },
+        },
+      )
+
+      loop.start()
+      loop.tick()
+
+      expect(observedState).toEqual({ values: { experience: 4 } })
     })
 
     it('clear between ticks re-renders correctly', () => {

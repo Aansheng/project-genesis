@@ -1,8 +1,8 @@
 # Project Genesis — Engineering Invariants
 
 These invariants are the durable boundary for supervised work. They were
-checked against the current source wiring, PROJECT_STATE.md, Sprint 15
-backlog, capability matrices, and ADR-0261 through ADR-0268 on 2026-08-24.
+checked against the current source wiring, PROJECT_STATE.md, Sprint 16
+backlog, capability matrices, and ADR-0261 through ADR-0270 on 2026-08-24.
 The source code and accepted ADRs remain authoritative if this projection
 becomes stale.
 
@@ -58,6 +58,11 @@ becomes stale.
     Web/Pinia/Observatory are projections and must not author or reset
     completion. World/session replacement rebinds the state; non-replacing
     semantic evolution does not.
+20. Numeric progression is Runtime-owned immutable keyed finite state. A
+    supported `CHANGE_NUMERIC_STATE` rule may commit only finite additive
+    deltas through the existing execution seam; semantic revision changes in
+    the same Runtime/session retain it, while world/session replacement resets
+    it. Web/Pinia/Renderer/Observatory may project it but cannot author it.
 
 ## Evidence anchors
 
@@ -71,4 +76,4 @@ becomes stale.
 - Capability-specific context: docs/adr/ADR-0261-capability-specific-generation-context-foundation.md
 - Gameplay specification/events/rules/execution:
   docs/adr/ADR-0262-gameplay-specification-game-loop-foundation.md through
-  docs/adr/ADR-0268-goal-completion-gameplay-rule-vertical-slice.md
+  docs/adr/ADR-0270-runtime-authoritative-numeric-progression-state.md

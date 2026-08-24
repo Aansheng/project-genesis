@@ -27,7 +27,11 @@ import type { PixiEnvironmentRenderer } from '../view'
 import type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 import type { VisualizationTickResult } from './VisualizationTickResult'
 import type { VisualizationWorldProvider } from './VisualizationWorldProvider'
-import type { RuntimeGameplaySessionStateObserver, RuntimeWorldSink } from './RuntimeVisualizationLoop'
+import type {
+  RuntimeGameplayProgressionStateObserver,
+  RuntimeGameplaySessionStateObserver,
+  RuntimeWorldSink,
+} from './RuntimeVisualizationLoop'
 
 export class DefaultRuntimeVisualizationLoop
   implements RuntimeVisualizationLoop
@@ -41,6 +45,7 @@ export class DefaultRuntimeVisualizationLoop
   private readonly gameplayEventObserver: GameplayEventObserver | undefined
   private readonly gameplayRuleExecutionObserver: GameplayRuleExecutionObserver | undefined
   private readonly gameplaySessionStateObserver: RuntimeGameplaySessionStateObserver | undefined
+  private readonly gameplayProgressionStateObserver: RuntimeGameplayProgressionStateObserver | undefined
   private _currentWorld: World
   private _running: boolean
 
@@ -64,6 +69,7 @@ export class DefaultRuntimeVisualizationLoop
     gameplayEventObserver?: GameplayEventObserver,
     gameplayRuleExecutionObserver?: GameplayRuleExecutionObserver,
     gameplaySessionStateObserver?: RuntimeGameplaySessionStateObserver,
+    gameplayProgressionStateObserver?: RuntimeGameplayProgressionStateObserver,
   ) {
     this.executionLoop = executionLoop
     this.rendererAdapter = rendererAdapter
@@ -74,6 +80,7 @@ export class DefaultRuntimeVisualizationLoop
     this.gameplayEventObserver = gameplayEventObserver
     this.gameplayRuleExecutionObserver = gameplayRuleExecutionObserver
     this.gameplaySessionStateObserver = gameplaySessionStateObserver
+    this.gameplayProgressionStateObserver = gameplayProgressionStateObserver
     this._currentWorld = worldProvider?.getWorld() ?? initialWorld
     this._running = false
   }
@@ -162,9 +169,9 @@ export class DefaultRuntimeVisualizationLoop
     }
 
     // Step 1: Execute runtime systems
-    const executionResult = this.gameplayEventObserver || this.gameplayRuleExecutionObserver || this.gameplaySessionStateObserver
+    const executionResult = this.gameplayEventObserver || this.gameplayRuleExecutionObserver || this.gameplaySessionStateObserver || this.gameplayProgressionStateObserver
       ? this.executionLoop.tickWithResult(this._currentWorld)
-      : { world: this.executionLoop.tick(this._currentWorld), gameplayEvents: [], gameplayRuleResults: [], gameplaySessionState: undefined }
+      : { world: this.executionLoop.tick(this._currentWorld), gameplayEvents: [], gameplayRuleResults: [], gameplaySessionState: undefined, gameplayProgressionState: undefined }
     const newWorld = executionResult.world
 
     // Step 2: Adapt to RenderWorld
@@ -186,6 +193,9 @@ export class DefaultRuntimeVisualizationLoop
     this.gameplayRuleExecutionObserver?.observe(executionResult.gameplayRuleResults ?? [])
     if (executionResult.gameplaySessionState) {
       this.gameplaySessionStateObserver?.observe(executionResult.gameplaySessionState)
+    }
+    if (executionResult.gameplayProgressionState) {
+      this.gameplayProgressionStateObserver?.observe(executionResult.gameplayProgressionState)
     }
 
     return renderView.entities.length

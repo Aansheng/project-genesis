@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import type { GameplayEvent, World } from '@genesis/shared'
-import type { GameplayActionExecutionResult, GameplayRuleExecutionResult, RuntimeGameplaySessionState } from '@genesis/runtime'
+import type { GameplayActionExecutionResult, GameplayRuleExecutionResult, RuntimeGameplayProgressionState, RuntimeGameplaySessionState } from '@genesis/runtime'
 import ObservatoryEventStream from '../components/observatory/events/ObservatoryEventStream.vue'
 import { useObservatoryDataStore } from '../stores/observatoryData'
 
@@ -100,5 +100,16 @@ describe('Gameplay Observatory projection', () => {
     store.recordRuntimeGameplaySessionState(completed)
 
     expect(store.viewModel.runtimeView.gameplaySession).toEqual(completed)
+  })
+
+  it('projects committed Runtime numeric progression without owning the state', () => {
+    const store = useObservatoryDataStore()
+    const progression: RuntimeGameplayProgressionState = Object.freeze({
+      values: Object.freeze({ experience: 6 }),
+    })
+
+    store.recordRuntimeGameplayProgressionState(progression)
+
+    expect(store.viewModel.runtimeView.gameplayProgression).toEqual({ values: { experience: 6 } })
   })
 })

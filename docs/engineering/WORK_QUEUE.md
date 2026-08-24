@@ -540,27 +540,135 @@ product_verification: PASS — manual Studio session on 2026-08-24 covered
 code_complete: YES
 product_verified: YES
 
-## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay-Preserving World Evolution
+## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation
 
-status: BLOCKED
-state_transition: GENERATED_AFTER_WO-S16-001
+status: DONE
+state_transition: GENERATED_AFTER_WO-S16-001 → IN_PROGRESS → VERIFYING → DONE
 priority: P0
 dependencies: WO-S16-001 DONE; Sprint 16 acceptance evidence complete
-mission: Review the Sprint 16 goal against the completed targeted Gameplay
-  Rule reconciliation bridge and decide whether to freeze Sprint 16 at v1.155.
-decision_gate: REQUIRED — Human/CTO must accept the Sprint-level evidence and
-  choose FREEZE at v1.155 or explicitly continue Sprint 16 with a newly bounded
-  work item and updated acceptance target.
+mission: Re-evaluate the corrected Sprint 16 goal after the completed targeted
+  Gameplay Rule reconciliation bridge; record whether Part 2 progression work
+  is required before freeze.
+measured_bottleneck: WO-S16-001 closes Gameplay-Preserving World Evolution,
+  but no authoritative Runtime numeric progression state exists. The Shared/AI
+  schema already describes `CHANGE_NUMERIC_STATE` and `gameState`, while the
+  Runtime executor still treats the action as unsupported.
+decision_gate: RESOLVED — Human/CTO chose CONTINUE. Sprint 16 is NOT READY FOR
+  FREEZE; Part 1 remains Product Verified and Part 2 must be advanced before a
+  new freeze review.
 allowed_scope: Review the Sprint 16 goal, ADR-0269, capability matrix,
   SPRINT16_REVIEW.md, automated evidence, and manual Studio evidence; record
-  the decision and freeze/continue consequences.
+  the decision, corrected goal, measured bottleneck, and one next bounded WO.
 forbidden_scope: Automatic freeze, automatic cross-Sprint execution, or
-  generating/executing another feature WO before the decision.
-acceptance: BLOCKED pending Human/CTO decision; no product implementation is
-  authorized while this freeze gate is open.
+  generating more than one next product WO.
+acceptance: PASS — Human/CTO recorded CONTINUE; Sprint 16 remains open and
+  exactly one next bounded READY product WO was generated.
 product_verification: ALREADY PASS — WO-S16-001 Product Verified YES; this
   item is a Sprint governance decision rather than a new product slice.
-human_decision_required: YES — Human/CTO freeze or continue decision.
+human_decision_required: NO — CONTINUE decision recorded by Human/CTO on
+  2026-08-24; routine implementation remains Supervisor-owned.
+
+## WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
+
+status: DONE
+state_transition: READY → IN_PROGRESS → VERIFYING → DONE
+priority: P1
+dependencies: SPRINT_FREEZE_REVIEW DONE; WO-S16-001 DONE; Human/CTO CONTINUE
+  decision recorded; no unresolved architecture/product-direction gate
+architecture_before: v1.155
+architecture_expected_after: v1.156
+architecture_after: v1.156 — ADR-0270 accepted; Runtime-owned numeric
+  progression state and the supported additive action are wired end to end.
+mission: Close the smallest measured Part 2 bottleneck by carrying one
+  validated `CHANGE_NUMERIC_STATE` Gameplay Rule action from a real Runtime
+  gameplay event to an authoritative, immutable, Runtime-owned numeric
+  progression state. `experience` is the first state key/use case; the
+  primitive remains generic and is not a Survivor-specific system.
+measured_bottleneck: `GameplayNumericReference.gameState` and
+  `CHANGE_NUMERIC_STATE` existed in Shared/AI schema and validation, but the
+  capability catalog marked the action deferred, Runtime had no numeric state
+  store, and `DefaultGameplayActionExecutor` rejected the action. WO-S16-002
+  closed this measured XP-acquisition gap without pre-planning thresholds or
+  level-up behavior.
+gap_classification: PRODUCT_GAP + EXECUTION_GAP + ARCHITECTURE_GAP
+allowed_scope: Add the smallest Runtime-owned immutable numeric progression
+  state bound to the current world/session; execute finite numeric deltas through
+  the existing GameplayRuleExecutor and World/Renderer loop; preserve state
+  across non-replacing semantic revision changes and reset it on world/session
+  replacement; expose committed progression facts through ExecutionTickResult,
+  Renderer, and the existing Observatory Runtime projection; promote only the
+  `CHANGE_NUMERIC_STATE` primitive to Genesis-supported and add focused
+  Shared/AI/Runtime/Renderer/Web regressions.
+forbidden_scope: SurvivorRuntime, XPManager, ProgressionManager, level
+  thresholds, level-up transitions, upgrade/skill selection, modifiers, score
+  policy, timers, spawners, waves, death/respawn, generic workflow engines,
+  arbitrary generated code/eval/scripts, a second gameplay authority, provider
+  regeneration, or offline World Evolution fallback.
+implementation_boundaries: Runtime owns the committed progression state;
+  GameplayRuleSet remains the executable plan; GameplaySpecification remains
+  design intent; Web/Pinia/Observatory only project Runtime facts. The state
+  is a small keyed finite-number map with deterministic additive deltas. No
+  threshold evaluator or progression manager is introduced.
+acceptance: PASS — (1) a supported `CHANGE_NUMERIC_STATE` rule executes from a
+  real GameplayEvent and commits an immutable numeric value; (2) non-finite
+  amounts, empty keys, missing state, stale World A bindings, and failed later
+  actions do not commit; (3) multiple deltas are deterministic and rule-level
+  atomic; (4) the same Runtime/session retains state across semantic revision
+  changes while a new world/session resets it; (5) `NUMBER_COMPARE`, thresholds,
+  levels, skills, modifiers, spawn/wave behavior remain explicitly deferred;
+  and (6) Observatory shows committed state separately from raw events and
+  rule results.
+automated_tests: PASS — Shared 9 files/207 tests; AI 156 files/9,402 tests;
+  Runtime 23 files/689 tests; Renderer 25 files/485 tests; Web 47 files/3,528
+  tests. Focused numeric execution, AI deterministic collect-reward generation,
+  Renderer observation, and Web projection regressions pass. Direct TypeScript,
+  package ESLint, and Web build pass; existing lint warnings and the managed
+  root Turbo TLS/keychain limitation remain documented.
+product_verification: YES — real Studio verification on 2026-08-24 created
+  gateway-backed `world-3`, collected the item to show `experience: 1`, applied
+  a non-replacing theme evolution in the same Game/Runtime session, and saw
+  `experience: 1` remain in Observatory Runtime. New `world-4` showed
+  `experience: Unavailable`; final browser diagnostics had no warn/error entries.
+observability_expectations: Keep raw GameplayEvent, GameplayRule result,
+  numeric state mutation, Runtime World/session, and Renderer output separate.
+  A numeric state change is not itself a GameplayEvent or an entity mutation.
+completion_report_requirements: Report architecture before/after, files,
+  actual event → rule → progression-state flow, focused/affected tests,
+  TypeScript, ESLint, Web build, manual Studio steps/results, authority and
+  stale isolation, explicit deferred progression boundaries, Code Complete, and
+  Product Verified.
+explicit_non_goals: No level-up, upgrade choice, modifier application,
+  Survivor-specific behavior, spawn/wave pressure, offline gateway fallback, or
+  automatic Sprint 17 execution.
+human_decision_required: NO — CONTINUE direction and this bounded generic
+  primitive were accepted; implementation and product verification are complete.
+
+## SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-002)
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_WO-S16-002 → BLOCKED
+priority: P0
+dependencies: WO-S16-001 DONE; WO-S16-002 DONE; Sprint 16 acceptance evidence complete
+mission: Human/CTO review of the corrected Sprint 16 goal after both Gameplay-
+  Preserving World Evolution and the first generic progression loop are
+  complete and Product Verified.
+measured_bottleneck: There is no remaining Sprint 16 implementation blocker.
+  Part 1 reconciliation and Part 2 finite Runtime-owned numeric progression are
+  verified. Offline World Evolution fallback remains resilience debt and is
+  explicitly non-blocking.
+decision_gate: BLOCKED — Sprint 16 is NOT FROZEN until Human/CTO decides
+  whether the corrected goal is satisfied at v1.156.
+allowed_scope: Read-only review of WO-S16-001/002 evidence, ADR-0269/0270,
+  capability matrix, Sprint review, automated gates, and manual Studio results;
+  then record FREEZE or CONTINUE.
+forbidden_scope: New feature implementation, level thresholds, level-up,
+  skills, modifiers, Survivor-specific Runtime, spawn/wave behavior, offline
+  World Evolution fallback, Sprint 17 work, or generating a second next WO.
+acceptance: READY FOR HUMAN/CTO DECISION — current state is NOT FROZEN; exactly
+  one bounded control-plane review is active and no Sprint 17 item is generated.
+product_verification: ALREADY PASS — WO-S16-001 and WO-S16-002 are Code
+  Complete and Product Verified; this item is a governance gate.
+human_decision_required: YES — pending Human/CTO Sprint 16 Freeze Review.
 
 
 ## Queue transition vocabulary

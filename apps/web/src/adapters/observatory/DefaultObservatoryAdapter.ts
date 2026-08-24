@@ -14,6 +14,7 @@ import type {
   DiffChangeViewModel,
   RuntimeViewModel,
   RuntimeGameplaySessionViewModel,
+  RuntimeGameplayProgressionStateViewModel,
   RuntimeEntityViewModel,
   RuntimeComponentViewModel,
   EventStreamViewModel,
@@ -388,6 +389,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
     if (!isObject(raw)) return DEFAULT_RUNTIME_VIEW
 
     const entities = this.adaptRuntimeEntities(raw)
+    const gameplayProgression = this.adaptRuntimeGameplayProgression(raw)
     return Object.freeze({
       worldId: String(safeGet(raw, 'worldId') ?? ''),
       entityCount: safeCount(safeGet(raw, 'entityCount')),
@@ -395,6 +397,7 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
       eventCount: safeCount(safeGet(raw, 'eventCount')),
       fps: safeCount(safeGet(raw, 'fps')),
       gameplaySession: this.adaptRuntimeGameplaySession(raw),
+      ...(gameplayProgression ? { gameplayProgression } : {}),
       entities,
     })
   }
@@ -410,6 +413,16 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
         ? { completedAtTick: safeGet<number>(value, 'completedAtTick') }
         : {}),
     })
+  }
+
+  private adaptRuntimeGameplayProgression(raw: Record<string, unknown>): RuntimeGameplayProgressionStateViewModel | undefined {
+    const value = safeGet<Record<string, unknown>>(raw, 'gameplayProgression')
+    const values = value ? safeGet<Record<string, unknown>>(value, 'values') : undefined
+    if (!isObject(values)) return undefined
+    const numericValues = Object.fromEntries(
+      Object.entries(values).filter(([, item]) => typeof item === 'number' && Number.isFinite(item)),
+    ) as Record<string, number>
+    return Object.freeze({ values: Object.freeze(numericValues) })
   }
 
   private adaptRuntimeEntities(raw: Record<string, unknown>): readonly RuntimeEntityViewModel[] {
@@ -762,6 +775,7 @@ export type {
   DiffViewModel,
   DiffChangeViewModel,
   RuntimeViewModel,
+  RuntimeGameplayProgressionStateViewModel,
   RuntimeEntityViewModel,
   RuntimeComponentViewModel,
   EventStreamViewModel,

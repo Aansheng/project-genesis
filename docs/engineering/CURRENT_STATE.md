@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.155
-current_sprint: Sprint 16 (OPEN — WO-S16-001 complete; freeze review pending)
-current_work_order: WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
-current_work_order_status: done
-current_control_plane_work_order: SPRINT_FREEZE_REVIEW
-current_control_plane_work_order_status: blocked_pending_human_cto_review
-last_completed_work_order: WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
-last_completed_product_work_order: WO-S16-001
-last_completed_control_plane_work_order: SPRINT16_DISCOVERY
-next_ready_work_order: none — SPRINT_FREEZE_REVIEW is blocked pending Human/CTO decision
-product_architecture_changed: yes — v1.154 → v1.155; targeted reconciliation is wired and verified
-sprint_status: Sprint 16 WO-S16-001 is DONE; Sprint 16 is READY FOR FREEZE REVIEW and stopped at the Human/CTO gate
-product_verified: YES — WO-S16-001 manual Studio verification completed on 2026-08-24
+architecture_version: v1.156
+current_sprint: Sprint 16 (OPEN — Part 1 and Part 2 verified; freeze review pending)
+current_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-002)
+current_work_order_status: blocked
+current_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16 Gameplay Evolution & Progression Foundation (Post-WO-S16-002)
+current_control_plane_work_order_status: blocked
+last_completed_work_order: WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
+last_completed_product_work_order: WO-S16-002
+last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — CONTINUE / NOT READY FOR FREEZE
+next_ready_work_order: NONE — pending Human/CTO Sprint 16 Freeze Review
+product_architecture_changed: yes — v1.155 → v1.156; generic numeric progression is wired and verified
+sprint_status: Sprint 16 remains OPEN; Part 1 and Part 2 are DONE; READY FOR FREEZE REVIEW, NOT FROZEN
+product_verified: YES — WO-S16-001 and WO-S16-002 are Code Complete and Product Verified; Sprint 16 freeze is pending Human/CTO review
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -23,14 +23,19 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 16 — Gameplay-Preserving World Evolution: after an applied semantic
-World Evolution delta, Genesis must preserve unaffected executable gameplay
-rules and reconcile only affected rules against the current semantic truth,
-GameplaySpecification, and capability catalog. The opening checkpoint is
-targeted deterministic reconciliation in the same Runtime/session, with no
-global stale disable, dangling exact references, AI regeneration by default,
-or full Runtime/Renderer/world rebuild. Sprint 15's Gameplay Mechanics
-Foundation remains frozen and is the verified baseline for this bridge.
+Sprint 16 — Gameplay Evolution & Progression Foundation:
+
+1. After an applied semantic World Evolution delta, preserve unaffected
+   executable gameplay rules and reconcile only affected rules against current
+   semantic truth, GameplaySpecification, and the capability catalog. This is
+   the verified Part 1 bridge in the same Runtime/session.
+2. Establish the first generic progression loop: a trusted Gameplay Rule can
+   commit an authoritative Runtime-owned numeric progression state. XP
+   acquisition is the first state key/use case; thresholds, level-up, skills,
+   modifiers, spawning, and waves remain later measured decisions.
+
+The Sprint is not complete when Part 1 alone passes. Sprint 15's Gameplay
+Mechanics Foundation remains frozen and is the verified baseline.
 
 ## Completed
 
@@ -71,8 +76,20 @@ Foundation remains frozen and is the verified baseline for this bridge.
   unaffected rules remain executable, affected rules are rebuilt/revalidated
   or removed/deferred, the same Runtime/session continues, and Observatory
   exposes separate reconciliation facts.
-- Sprint 16 freeze review is the single next control-plane item and is blocked
-  pending Human/CTO acceptance. No next feature WO is generated or executed.
+- Human/CTO CONTINUE decision is recorded: WO-S16-001 closes Part 1 but does
+  not satisfy the corrected Sprint 16 goal; Sprint 16 is NOT READY FOR FREEZE.
+- Next-Work Discovery identified the smallest measured Part 2 bottleneck:
+  `CHANGE_NUMERIC_STATE` and `gameState` references exist in the Shared/AI
+  schema, but Runtime had no authoritative numeric state or executable action
+  path. WO-S16-002 closed that gap at v1.156.
+- WO-S16-002 is complete and Product Verified: the existing GameplayEvent →
+  GameplayRule path can commit finite additive deltas to an immutable
+  Runtime-owned keyed numeric state; the default collect-reward rule adds
+  `experience +1`, semantic revision changes retain the state, and a new
+  world/session resets it.
+- The post-WO-S16-002 Next-Work Discovery generated exactly one bounded item:
+  a blocked Sprint 16 Freeze Review requiring Human/CTO decision. No Sprint 17
+  work was generated or crossed.
 
 ## Active capabilities
 
@@ -97,15 +114,27 @@ Foundation remains frozen and is the verified baseline for this bridge.
 - Targeted Gameplay Rule Reconciliation is implemented and current: the Web
   semantic-evolution commit boundary consumes the deterministic reconciler and
   commits the updated semantic world and RuleSet together.
+- Runtime owns an immutable keyed finite numeric state bound to the current
+  world/session. The existing `CHANGE_NUMERIC_STATE` action commits finite
+  additive deltas through the GameplayEvent → GameplayRule path.
+- The deterministic platformer collect-reward rule removes the collected item
+  and commits `experience +1`; the committed value is forwarded through the
+  existing Renderer loop and shown separately in the Observatory Runtime view.
+- Numeric progression state survives non-replacing semantic revision changes
+  in the same Runtime/session and is unavailable after a new world/session
+  binding. Stale World A/B bindings and failed multi-action rules cannot commit.
 - Sprint-level generic gameplay thesis is verified: structured intent/rules,
   Runtime facts, generic matching, trusted actions, three interaction slices,
   continuity, isolation, and truthful projections are all present.
 
 ## Deferred capabilities
 
-- Score or other numeric gameplay state.
+- Level thresholds, level-up transitions, upgrade/skill selection, and
+  progression-driven modifiers.
+- Score or other numeric gameplay state beyond the bounded `experience`
+  progression use case.
 - Death, respawn, game-over, enemy AI, victory UI, next level, restart, score,
-  numeric state, XP, progression, timers, spawns, goal deletion, rich actions,
+  level-up, skills, modifiers, timers, spawns, goal deletion, rich actions,
   unrelated rich multi-action transactions, generic gameplay state, and broad
   gameplay-rule evolution beyond the bounded reconciliation WO.
 - Durable gameplay/context/evolution history, replay, persistence, and reload
@@ -115,8 +144,8 @@ Foundation remains frozen and is the verified baseline for this bridge.
 
 ## Known environment issues
 
-- Existing AI package lint warnings/debt are recorded in
-  docs/project/TECH_DEBT.md and are unrelated to WO-S16-001.
+- Existing AI/Renderer/Web package lint warnings/debt are recorded in
+  docs/project/TECH_DEBT.md and are unrelated to WO-S16-002.
 - In this managed environment, the root `pnpm typecheck` Turbo wrapper cannot
   initialize its API client because TLS/keychain access is unavailable; direct
   TypeScript checks for all affected packages pass. A parallel Renderer Vitest
@@ -125,8 +154,8 @@ Foundation remains frozen and is the verified baseline for this bridge.
   Creation uses its deterministic fallback but World Evolution currently fails
   before reconciliation because its structured candidate provider is gateway-
   dependent. WO-S16-001 was verified with a localhost-only structured candidate
-  gateway; offline evolution fallback is an adjacent follow-up, not part of
-  the accepted reconciliation bridge.
+  gateway; offline evolution fallback is deferred/non-blocking and is not the
+  current Sprint 16 gameplay bottleneck.
 - Compatibility exports, test-only mock Observatory loading, inert streaming
   state, and legacy Canvas2D renderWorld() remain in the repository; current
   production Studio wiring does not use them.
@@ -144,13 +173,20 @@ own capability-focused work item rather than broadening WO-META-003.
 
 The current product is a playable bounded slice, not a complete general
 gameplay engine. Sprint 15 has no implementation blocker and is frozen. Sprint
-16 direction is accepted and `WO-S16-001` is Code Complete and Product
-Verified. The remaining gate is Human/CTO Sprint Freeze Review. The measured
-implementation gap—semantic World Evolution marking the world-bound
-`GameplayRuleSet` stale—has been closed by the bounded reconciliation bridge.
-Victory UI, next level, restart, death/respawn/game-over, score/numeric state,
-XP, progression, timers, spawning, goal deletion, persistence, and gameplay
-rule evolution beyond this bounded bridge remain deferred.
+16 Part 1 and Part 2 are accepted; `WO-S16-001` and `WO-S16-002` are Code
+Complete and Product Verified. The Sprint remains open only for the configured
+Human/CTO Freeze Review. The first generic progression primitive is limited to
+finite additive numeric state and the `experience` use case. Level thresholds,
+level-up, skills, modifiers, timers, spawning, waves, goal deletion,
+persistence, and broader gameplay-rule evolution remain deferred. Offline World
+Evolution fallback is a real resilience gap but is explicitly non-blocking for
+this Sprint goal.
+
+## Next Recommended Verification
+
+Human/CTO review of the post-WO-S16-002 Sprint 16 Freeze Review. If accepted,
+freeze Sprint 16 at v1.156; otherwise select one new measured same-Sprint WO.
+Do not auto-cross into Sprint 17.
 
 ## Authority
 

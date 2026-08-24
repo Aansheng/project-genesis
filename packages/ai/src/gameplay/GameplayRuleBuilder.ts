@@ -137,7 +137,10 @@ function deterministicRules(
       'Collectible contact',
       'collect-reward',
       [categoryCondition(player, 'player'), categoryCondition(target, 'item')],
-      [Object.freeze({ type: 'REMOVE_ENTITY', target })],
+      [
+        Object.freeze({ type: 'REMOVE_ENTITY', target }),
+        Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 }),
+      ],
     ))
   }
 

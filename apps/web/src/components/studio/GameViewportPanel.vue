@@ -15,6 +15,7 @@ import {
 } from '@genesis/renderer'
 import type {
   RuntimeVisualizationLoop,
+  RuntimeGameplayProgressionStateObserver,
   RuntimeGameplaySessionStateObserver,
   VisualizationRunner,
 } from '@genesis/renderer'
@@ -74,6 +75,11 @@ const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {
 const gameplaySessionStateObserver: RuntimeGameplaySessionStateObserver = {
   observe(state) {
     observatoryDataStore.recordRuntimeGameplaySessionState(state)
+  },
+}
+const gameplayProgressionStateObserver: RuntimeGameplayProgressionStateObserver = {
+  observe(state) {
+    observatoryDataStore.recordRuntimeGameplayProgressionState(state)
   },
 }
 
@@ -195,6 +201,7 @@ onMounted(() => {
     gameplayEventObserver,
     gameplayRuleExecutionObserver,
     gameplaySessionStateObserver,
+    gameplayProgressionStateObserver,
   )
   runner = new DefaultVisualizationRunner(
     new DefaultAnimationFrameScheduler(),

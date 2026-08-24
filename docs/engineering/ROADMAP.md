@@ -23,6 +23,10 @@ architecture.
   Reconciliation for Gameplay-Preserving World Evolution. `SPRINT16_DISCOVERY`
   is complete and generated exactly one product WO,
   `WO-S16-001`; the WO is complete at v1.155 and Product Verified.
+- WO-S16-002 is complete at v1.156 and Product Verified: the existing
+  GameplayEvent → GameplayRule path now commits finite additive deltas to a
+  generic Runtime-owned numeric progression state, with `experience` as the
+  first use case. Renderer and Observatory projections are wired separately.
 
 ## Current direction
 
@@ -38,25 +42,24 @@ end-to-end behavior. The completed S15-006 boundary extended the smallest
 trusted Runtime primitive needed for damage/Health and preserved current
 authority boundaries. The subsequent discovery identified goal/session
 completion as the smallest Sprint blocker; WO-S15-007 now commits
-`RuntimeGameplaySessionState`, and the Freeze Review records the complete
-Sprint thesis as satisfied. Sprint 16's bounded reconciliation WO is complete
-at v1.155; it preserves the same authority boundaries, keeps the current
-Runtime/session active, and the Supervisor has stopped at the required
-Human/CTO Sprint Freeze Review before generating or executing another feature
-WO.
+`RuntimeGameplaySessionState`, and the Sprint 15 Freeze Review records that
+thesis as satisfied. Sprint 16's bounded reconciliation WO is complete at
+v1.155 and preserves the same authority boundaries. Human/CTO continued Sprint
+16 because its corrected goal also requires the first generic progression
+loop. WO-S16-002 closed the measured Runtime-owned numeric-state gap at v1.156;
+Sprint 16 is now ready for Human/CTO Freeze Review and remains not frozen.
 
 ## Deferred direction
 
-Score/state, death/respawn/game-over, enemy behavior, timers, spawning,
-progression, richer rule actions, durable history, and broader context systems
-stay deferred until a concrete product need and acceptance path justify them.
-Goal completion beyond the current session-completed truth, including victory
-UI, next level, restart, failure, and progression, remains deferred. The
-current Sprint 16 opening gap was targeted mechanics synchronization across
-natural-language world evolution; WO-S16-001 now preserves and reconciles
-validated gameplay intent. After the freeze decision, Next-Work Discovery must
-reassess whether progression (XP / Level / Skills / Spawn/Waves) is the next
-measured bottleneck.
+Level thresholds, level-up, skills, modifiers, score policy, death/respawn/
+game-over, enemy behavior, timers, spawning, waves, richer rule actions,
+durable history, and broader context systems stay deferred until a concrete
+product need and acceptance path justify them. Goal completion beyond the
+current session-completed truth, including victory UI, next level, restart,
+failure, and progression beyond the bounded numeric primitive, remains
+deferred. Offline World Evolution fallback is recorded as resilience debt, not
+the current Sprint bottleneck. The post-WO-S16-002 Freeze Review is the only
+active next item; no Sprint 17 work is authorized.
 
 ## Supervisor rollout
 
@@ -66,5 +69,6 @@ next READY/BLOCKED work item. With `continuation_mode = SPRINT_CONTINUOUS`, it
 may continue sequentially through that next item and later same-Sprint items
 after all gates pass. `max_concurrent_subagents = 2`, repair budget `= 3`,
 Human/CTO escalation, one-next-WO generation, and the Sprint-boundary stop
-remain active. Continuous mode never authorizes automatic cross-Sprint
+remain active. With Sprint 16 implementation gates complete, continuous mode
+stops at the pending Freeze Review; it never authorizes automatic cross-Sprint
 execution.

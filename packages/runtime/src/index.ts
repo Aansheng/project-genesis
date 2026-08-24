@@ -87,6 +87,9 @@ export type {
   RuntimeGameplaySessionCompletionResult,
   RuntimeGameplaySessionState,
   RuntimeGameplaySessionStatus,
+  RuntimeGameplayNumericChangeResult,
+  RuntimeGameplayProgressionBinding,
+  RuntimeGameplayProgressionState,
 } from './gameplay'
 export {
   DefaultGameplayActionExecutor,
@@ -96,4 +99,7 @@ export {
   completeRuntimeGameplaySession,
   createRuntimeGameplaySessionState,
   DefaultRuntimeGameplaySessionStateStore,
+  applyRuntimeGameplayNumericChange,
+  createRuntimeGameplayProgressionState,
+  DefaultRuntimeGameplayProgressionStateStore,
 } from './gameplay'

@@ -1,5 +1,26 @@
 # Changelog
 
+### WO-S16-002 — First Generic Progression Loop: Authoritative Numeric State
+
+- Added ADR-0270 and the smallest generic Runtime-owned progression primitive:
+  an immutable keyed finite-number state bound to the current world/session.
+- Promoted `CHANGE_NUMERIC_STATE` to a supported finite additive action through
+  the existing GameplayEvent → GameplayRule → Runtime execution path. The
+  deterministic platformer collect-reward rule now removes the item and adds
+  `experience +1` without introducing a Survivor or progression manager.
+- Added deterministic accumulation, finite-input validation, atomic rollback,
+  stale World A/B isolation, semantic-revision retention, and world/session
+  reset behavior. Renderer and Observatory expose committed progression state
+  separately from raw events, Rule results, and World mutations.
+- Added Shared/AI/Runtime/Renderer/Web regressions and completed real Studio
+  verification: `world-3` retained `experience: 1` across same-session theme
+  evolution; new `world-4` reset to unavailable; browser diagnostics had no
+  warning/error entries.
+- Architecture v1.155 → v1.156; Code Complete = YES and Product Verified =
+  YES on 2026-08-24. Sprint 16 remains NOT FROZEN pending Human/CTO Freeze
+  Review. Thresholds, level-up, skills, modifiers, spawn/wave behavior,
+  Survivor behavior, and offline World Evolution fallback remain deferred.
+
 ### WO-S16-001 — Targeted Gameplay Rule Reconciliation Across World Evolution
 
 - Added the provider-independent `GameplayRuleReconciler` contract in Shared

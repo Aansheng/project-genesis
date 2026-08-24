@@ -10,7 +10,11 @@ import type { ObservatoryMapper } from '../adapters/observatory/mapping'
 import type { World } from '@genesis/shared'
 import type { GameplayEvent, WorldSemanticDelta, WorldEvolutionOperation, RuntimeEvolutionResult, VisualEvolutionPlan, VisualAssetExecutionResult } from '@genesis/shared'
 import type { WorldEvolutionPlanResult } from '@genesis/ai'
-import type { GameplayRuleExecutionResult, RuntimeGameplaySessionState } from '@genesis/runtime'
+import type {
+  GameplayRuleExecutionResult,
+  RuntimeGameplayProgressionState,
+  RuntimeGameplaySessionState,
+} from '@genesis/runtime'
 
 export interface ObservatoryGenerationStage {
   readonly name: string
@@ -190,6 +194,20 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     })
   }
 
+  /** Project committed Runtime numeric progression truth without creating a Web authority. */
+  function recordRuntimeGameplayProgressionState(state: RuntimeGameplayProgressionState): void {
+    const current = viewModel.value
+    viewModel.value = Object.freeze({
+      ...current,
+      runtimeView: Object.freeze({
+        ...current.runtimeView,
+        gameplayProgression: Object.freeze({
+          values: Object.freeze({ ...state.values }),
+        }),
+      }),
+    })
+  }
+
   /** Keep only the active world's evolution projections in the current SPA session. */
   function resetEvolution(_worldId: string): void {
     const runtimeView = viewModel.value.runtimeView
@@ -278,6 +296,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       eventCount: 0,
       fps: 0,
       gameplaySession: viewModel.value.runtimeView.gameplaySession,
+      gameplayProgression: viewModel.value.runtimeView.gameplayProgression,
       entities: world.entities.map((entity) => ({
         id: entity.id,
         type: entity.type,
@@ -318,6 +337,7 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
     recordRuntimeGameplayEvents,
     recordRuntimeGameplayRuleResults,
     recordRuntimeGameplaySessionState,
+    recordRuntimeGameplayProgressionState,
     recordWorldEvolution,
     resetEvolution,
   }

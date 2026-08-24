@@ -24,12 +24,13 @@
 | Conversation continuity / global history | Deferred. Context is rebuilt from current authoritative state for each capability; no global memory or Context Store was added. |
 | Reference-guided image generation | Deferred. Image context carries at most three deterministic metadata-only neighboring requirements; reference bytes, URIs, and similarity search are not transported. |
 | Context caching and reuse | Deferred. Builders create immutable per-request snapshots; cache invalidation and persistence are not needed for the current playable pipeline. |
-| Gameplay execution | Deferred beyond S15-004's bounded remove-only slice. GameplaySpecification records desired mechanics, GameplayRuleSet records validated Trigger/Condition/Action intent, and Runtime executes only supported single `REMOVE_ENTITY` rules after finalized contact facts; damage, score/XP, goals, timers, spawns, rich actions, and win/lose remain deferred. |
+| Gameplay execution | WO-S16-001 and Sprint 15 add bounded remove, velocity, damage, goal, and reconciliation slices. WO-S16-002 now provides the finite Runtime-owned numeric progression primitive behind `CHANGE_NUMERIC_STATE`, with `experience` acquisition verified. Thresholds, level-up, skills, modifiers, timers, spawns, and waves remain deferred. |
 | Gameplay revision persistence | Current gameplayRevision is session-scoped and replaced with the current world; durable gameplay history and evolution remain deferred. |
 | Gameplay event persistence/replay | Runtime events are ephemeral and Observatory history is session-scoped/bounded at 100 entries. Add persistence or replay only when a measured debugging or gameplay requirement exists. |
 | Rich collision geometry | S15-002 uses explicit small AABB `collision-bounds` components for contact observation. Directional collision resolution, terrain colliders, and physics remain deferred until a concrete scenario needs them. |
-| Gameplay rule execution | S15-004 adds bounded matching, category/archetype/ID/component conditions, and single `REMOVE_ENTITY` mutation. Multi-action transactions, numeric state, damage, score, progression, completion, spawns, and generated execution remain deferred to a measured later slice. |
+| Gameplay rule execution | S15-004 through S16-002 add bounded matching, trusted mutations, completion, targeted reconciliation, and finite numeric state deltas. Thresholds, level-up, skills, modifiers, spawns, and generated execution remain deferred. |
 | Gameplay rule evolution | WO-S16-001 closes the bounded deterministic reconciliation gap: unaffected rules remain current and affected rules are revalidated/rebuilt or removed/deferred after semantic mutation. Broader ambiguous gameplay-rule evolution, provider fallback, persistence, and richer mechanics remain deferred. |
+| Offline World Evolution fallback | Deferred / non-blocking for Sprint 16. Without the AI gateway, World Evolution still fails during structured candidate planning; creation has a deterministic fallback. Revisit only when resilience, rather than gameplay progression, is the measured bottleneck. |
 
 ## Sprint 12 Baseline Freeze Audit
 

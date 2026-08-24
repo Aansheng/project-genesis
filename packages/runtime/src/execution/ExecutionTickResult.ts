@@ -13,7 +13,11 @@
  */
 import type { World } from '@genesis/shared'
 import type { GameplayEvent } from '@genesis/shared'
-import type { GameplayRuleExecutionResult, RuntimeGameplaySessionState } from '../gameplay'
+import type {
+  GameplayRuleExecutionResult,
+  RuntimeGameplayProgressionState,
+  RuntimeGameplaySessionState,
+} from '../gameplay'
 
 export interface ExecutionTickResult {
   /**
@@ -40,4 +44,7 @@ export interface ExecutionTickResult {
 
   /** Committed Runtime truth for the current world/session gameplay state. */
   readonly gameplaySessionState?: RuntimeGameplaySessionState
+
+  /** Committed Runtime truth for the current world/session numeric progression. */
+  readonly gameplayProgressionState?: RuntimeGameplayProgressionState
 }

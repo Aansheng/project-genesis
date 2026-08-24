@@ -202,6 +202,17 @@ describe('runtime viewer — rendering', () => {
     expect(wrapper.find('.runtime-world-id').text()).toBe('world-001')
   })
 
+  it('renders the committed experience value in the Runtime header', () => {
+    const store = useObservatoryDataStore()
+    store.loadMockObservatory()
+    store.recordRuntimeGameplayProgressionState(Object.freeze({
+      values: Object.freeze({ experience: 12 }),
+    }))
+    const wrapper = mount(ObservatoryRuntimeViewer)
+
+    expect(wrapper.find('.runtime-gameplay-progression').text()).toBe('经验值: 12')
+  })
+
   it('renders the stats section before the details in the right panel', () => {
     const wrapper = mountViewer()
     const main = wrapper.find('.runtime-main')

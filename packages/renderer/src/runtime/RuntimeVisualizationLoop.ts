@@ -24,7 +24,11 @@
  */
 import type { VisualizationTickResult } from './VisualizationTickResult'
 import type { World } from '@genesis/shared'
-import type { GameplayRuleExecutionObserver, RuntimeGameplaySessionState } from '@genesis/runtime'
+import type {
+  GameplayRuleExecutionObserver,
+  RuntimeGameplayProgressionState,
+  RuntimeGameplaySessionState,
+} from '@genesis/runtime'
 
 export interface RuntimeWorldSink {
   setWorld(world: World): void
@@ -34,6 +38,10 @@ export type { GameplayRuleExecutionObserver }
 
 export interface RuntimeGameplaySessionStateObserver {
   observe(state: RuntimeGameplaySessionState): void
+}
+
+export interface RuntimeGameplayProgressionStateObserver {
+  observe(state: RuntimeGameplayProgressionState): void
 }
 
 export interface RuntimeVisualizationLoop {

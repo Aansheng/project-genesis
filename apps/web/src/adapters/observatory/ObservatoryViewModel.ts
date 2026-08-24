@@ -260,6 +260,10 @@ export interface RuntimeGameplaySessionViewModel {
   readonly completedAtTick?: number
 }
 
+export interface RuntimeGameplayProgressionStateViewModel {
+  readonly values: Readonly<Record<string, number>>
+}
+
 /**
  * RuntimeViewModel — UI-safe DTO for the Runtime Viewer panel.
  *
@@ -274,6 +278,7 @@ export interface RuntimeViewModel {
   readonly eventCount: number
   readonly fps: number
   readonly gameplaySession?: RuntimeGameplaySessionViewModel
+  readonly gameplayProgression?: RuntimeGameplayProgressionStateViewModel
   readonly entities: readonly RuntimeEntityViewModel[]
 }
 

@@ -31,6 +31,10 @@ const selectedEntity = computed<RuntimeEntityViewModel | null>(
   () => entities.value.find((e) => e.id === selectedId.value) ?? null,
 )
 
+const experience = computed<number | undefined>(
+  () => runtimeView.value.gameplayProgression?.values.experience,
+)
+
 function selectEntity(id: string): void {
   selectedId.value = id
 }
@@ -68,6 +72,9 @@ function instrumentedValue(value: number): string {
           </span>
           <span class="runtime-gameplay-status">
             Gameplay: {{ runtimeView.gameplaySession?.status ?? 'active' }}
+          </span>
+          <span class="runtime-gameplay-progression">
+            {{ i18n.t('observatory.runtime.experience') }}: {{ experience ?? (testMode ? '0' : 'Unavailable') }}
           </span>
         </header>
         <dl class="runtime-stats-grid">
@@ -147,6 +154,12 @@ function instrumentedValue(value: number): string {
 }
 
 .runtime-gameplay-status {
+  font-size: 11px;
+  color: var(--obs-text-dim, #63636d);
+}
+
+.runtime-gameplay-progression {
+  font-family: var(--obs-font-mono, 'SF Mono', 'Fira Code', Consolas, monospace);
   font-size: 11px;
   color: var(--obs-text-dim, #63636d);
 }

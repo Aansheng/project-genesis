@@ -49,6 +49,18 @@ describe('Gameplay create-world integration', () => {
     expect(Object.keys(result)).toEqual(['route', 'world', 'success'])
   })
 
+  it('wires the deterministic collectible rule to the generic experience state action', () => {
+    const result = createPipeline().execute({ input: 'create a platformer with a coin' })
+
+    expect(result.gameplayRuleSet?.rules.find(rule => rule.ruleId === 'collect-reward')).toMatchObject({
+      supportStatus: 'supported',
+      actions: [
+        { type: 'REMOVE_ENTITY' },
+        { type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 },
+      ],
+    })
+  })
+
   it('passes the semantic world and capability catalog to an injected gameplay provider', async () => {
     let requestWorld: GameWorldModel | undefined
     const builder = new DefaultGameplaySpecificationBuilder()
