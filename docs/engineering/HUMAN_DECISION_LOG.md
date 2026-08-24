@@ -10,6 +10,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-21 | Select the concrete S15-005 gameplay scenario from a measured Studio bottleneck and approve its acceptance boundary. | ACCEPTED | Human / CTO | ENEMY STOMP is the primary scenario; WO-S15-005 may enter IN_PROGRESS with its bounded generic Runtime contract. |
 | 2026-08-21 | Keep initial Supervisor continuation at ONE_WORK_ITEM. | ACCEPTED | Human / CTO | Supervisor stops after one verified work item. |
 | 2026-08-24 | Select the WO-S15-006 gameplay scenario and acceptance boundary for the next product trial. | ACCEPTED | Human / CTO | DAMAGE / HEALTH is the primary scenario; WO-S15-006 is prepared READY but is not executed by WO-META-004. |
+| 2026-08-24 | Choose the authoritative owner and lifecycle contract for Sprint 15 goal/session completion before executing WO-S15-007. | OPEN | Human / CTO | WO-S15-007 remains BLOCKED; the Supervisor must not promote `COMPLETE_GOAL` or invent a second completion authority. |
 
 ## WO-S15-005 product decision
 
@@ -150,3 +151,100 @@ explicitly delegated. A future Verification Agent may check only side/top
 contact gating, exactly-once, Health mutation, and stale-world isolation. The
 maximum concurrency is two, nested spawning is disabled, and Product
 Verification remains Supervisor-owned. Dry-run result: PASS.
+
+## WO-META-005 — Next-work discovery dry run
+
+Date: 2026-08-24
+Result: PASS — control-plane-only discovery; no Genesis product code or
+architecture was changed. The current Sprint goal is explicit in
+`SPRINT15_BACKLOG.md`; the queue horizon contains exactly one generated next
+product WO.
+
+### Measured decision
+
+Verified capabilities are movement/jump continuity, Runtime-owned contact and
+landing facts, collectible removal, generic enemy stomp with bounce, generic
+Health plus non-top `DAMAGE_ENTITY`, and separate Runtime/Rule/Renderer/
+Observatory truth. Sprint 15 still requires a truthful success/goal path for
+the platformer checkpoint. Goal intent is modeled, but `reach-goal` and
+`COMPLETE_GOAL` remain deferred: there is no goal/session completion state or
+completion executor, and `RuntimeWorldStore` owns only the current World. This
+is the smallest current blocker because the already verified interaction and
+damage loop has no authoritative success outcome.
+
+### Candidate gap classification
+
+- `PRODUCT_GAP` + `EXECUTION_GAP`: goal contact cannot produce a committed
+  success result; the shared action is deferred and the Runtime executor
+  rejects it.
+- `ARCHITECTURE_GAP`: ownership and lifecycle of authoritative completion state
+  are not decided. This is a high-impact choice because it determines whether
+  completion belongs to a Runtime session state, a World entity/component, or
+  an application-owned projection.
+- `VERIFICATION_GAP`: no Studio path can truthfully show goal completion while
+  the capability is deferred.
+- `DEFERRED_OUT_OF_SPRINT`: score/XP, death/respawn/game-over, enemy AI,
+  timers, spawning, progression, persistence, and gameplay-rule evolution do
+  not win the current Sprint selection.
+
+### Rejected alternative candidates
+
+- **Death/respawn/game-over** did not win: the completed Health contract
+  deliberately defines zero as state only, and failure/restart ownership is a
+  larger follow-on boundary than the missing success path.
+- **Score/numeric state** did not win: collectible contact/removal is already
+  the verified interaction slice, while no Sprint acceptance criterion
+  requires a score store; adding one would be speculative infrastructure.
+- **Timers, spawning, enemy AI, progression, XP, and waves** did not win:
+  they are explicitly outside the Sprint checkpoint and have no measured
+  blocker relationship to the current playable slice.
+- **Verification/quality polish** did not win: the existing S15-006 path has
+  automated gates and real Studio evidence; the remaining issue is executable
+  product capability, not an unverified implemented path.
+
+### Human decision gate for WO-S15-007
+
+The next product WO is `BLOCKED`, not `READY`, until Human/CTO chooses the
+completion authority. Concrete options:
+
+1. **Runtime session completion state** — add a narrow, world/session-bound
+   `GameplayCompletionState` owned by Runtime and mutated by a supported
+   `COMPLETE_GOAL`; it is generic and aligns with Runtime authority, but adds a
+   session-state lifecycle and a new observable result contract.
+2. **Goal entity/component state** — represent completion on the goal entity
+   through the existing immutable World mutation boundary; it reuses World
+   persistence, but makes session-level completion and multi-goal semantics
+   depend on entity state and world evolution.
+3. **Web/application session state** — let the Web/game store derive and own
+   completion from rule results; it is the smallest local code change, but
+   duplicates gameplay authority outside Runtime and conflicts with the
+   current authority invariants unless explicitly approved.
+
+No option is selected by the Supervisor. The decision must also define whether
+completion is terminal for the current session, whether repeated completion is
+idempotent, and how world/session replacement clears or rebinds it. This is a
+narrow decision gate; it does not authorize death, respawn, progression, or a
+generic game-state store.
+
+## WO-META-005 — Supervisor Trial #2 record
+
+Date: 2026-08-24
+Architecture: v1.153 → v1.153
+Product architecture changed: NO
+Result: PASS — WO-S15-006 completed with zero subagents, truthful product
+verification, and correct stop discipline. This trial is valid evidence that
+multi-agent delegation is optional.
+
+| Dimension | Result | Note |
+| --- | --- | --- |
+| Scope Discipline | PASS | Health/DAMAGE_ENTITY stayed within the approved generic slice. |
+| Delegation Quality | PASS | No delegation was needed; zero subagents was the correct bounded choice. |
+| Evidence Integrity | PASS | Automated evidence and manual Chrome evidence were kept distinct. |
+| Architecture Review Independence | PASS | The Supervisor performed the invariant review directly; no unresolved gate was hidden behind a subagent. |
+| Repair Convergence | PASS | No repeated repair loop; required checks converged within budget. |
+| Product Verification Truthfulness | PASS | Observatory and Inspector evidence showed committed damage and Health 100→93. |
+| Stop Discipline | PASS | The Supervisor stopped after WO-S15-006 and did not execute the discovered WO. |
+| Human Escalation Correctness | PASS | No high-impact choice was invented during the product slice. |
+
+Overall Trial #2: PASS. The new discovery phase now records the next goal
+bottleneck and its human decision gate without executing it.

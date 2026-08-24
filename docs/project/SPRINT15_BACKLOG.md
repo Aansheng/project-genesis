@@ -6,6 +6,27 @@ pipeline remains:
 
 `Natural Language → Intent → Semantic World → capability context → Game DSL → Runtime → Renderer → playable game`
 
+## Sprint 15 measurable goal
+
+**Sprint 15 — Gameplay Mechanics Foundation**
+
+Product checkpoint: Genesis can generate and execute a mechanically coherent
+platformer gameplay slice through generic structured Gameplay Rules and trusted
+Runtime primitives.
+
+The checkpoint requires enough verified behavior to demonstrate:
+
+- movement and jump continuity;
+- event-driven gameplay;
+- collectible interaction;
+- enemy stomp;
+- enemy damage / Health;
+- a truthful success/goal path; and
+- coherent end-to-end gameplay behavior.
+
+Full progression, XP, skill choices, waves, and Survivor systems are outside
+this Sprint goal.
+
 ## Architectural boundary
 
 `current authoritative state → context builder → immutable minimum context → prompt/provider`
@@ -30,6 +51,20 @@ bindings and current semantic names remain the source of visual archetype truth.
   scorecard.
 - Architecture version remains v1.153 after the completed WO-S15-006 product
   slice.
+
+### WO-META-005 — Next-Work Discovery & Gap Analysis Foundation
+
+- Added repository-native gap classification, measured-bottleneck selection,
+  human-decision detection, generated-WO quality gates, short-horizon queue
+  rules, Sprint-freeze detection, and just-in-time next-work generation.
+- Promoted the continuation mode to
+  `ONE_WORK_ITEM_WITH_DISCOVERY`: one item is executed and verified, exactly
+  one next READY/BLOCKED item is generated, and the Supervisor stops without
+  executing it. `SPRINT_CONTINUOUS` remains disabled.
+- Ran the current S15 dry run. The verified interaction/damage slice still
+  lacks an authoritative goal/session completion state; the generated
+  `WO-S15-007` goal-completion slice is BLOCKED pending a Human/CTO authority
+  decision. No product code was changed or executed by this META WO.
 
 ## Completed
 
@@ -203,7 +238,8 @@ deferred after the completed ENEMY STOMP slice, and the approved scenario was a
 generic non-top contact damage path. The Supervisor fixed the shared contract,
 implemented the slice, completed all automated gates, and performed Chrome
 Studio verification on 2026-08-24. Continuation stops here under
-`ONE_WORK_ITEM`.
+`ONE_WORK_ITEM_WITH_DISCOVERY`; the discovery phase generated exactly one
+next product WO and did not execute it.
 
 Target conceptual behavior:
 
@@ -215,3 +251,11 @@ state, typed `DAMAGE_ENTITY`, the non-top contact rule, stale/world isolation,
 and the verified path. Do not add death/game-over systems, respawn, lives,
 invincibility frames, knockback, XP, score, goals, enemy AI, timers, spawners,
 progression, arbitrary code, or a genre-specific Runtime.
+
+### WO-META-005 discovery result
+
+The Sprint checkpoint still lacks a truthful success/goal path. The generated
+`WO-S15-007` Goal Completion Gameplay Rule Vertical Slice is the only next
+candidate and is `BLOCKED` until Human/CTO chooses the authoritative owner and
+lifecycle for session/game completion. No product implementation is part of
+this control-plane work order.

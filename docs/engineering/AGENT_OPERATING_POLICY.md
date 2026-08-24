@@ -48,9 +48,78 @@ update the projection within the work item's scope.
 15. Perform Product Verification when the work item requires it.
 16. Repair local failures within the repair budget.
 17. Produce the standardized completion report.
-18. Update project projections and the work queue.
-19. Mark the item DONE only if every required gate passes.
-20. Stop unless continuation policy explicitly allows another item.
+18. Mark the item DONE only if every required gate passes.
+19. Update project projections and the work queue.
+20. Under `ONE_WORK_ITEM_WITH_DISCOVERY`, run the bounded next-work discovery
+    phase after a DONE product WO; a control-plane META WO may perform the same
+    dry run when its scope explicitly requires it.
+21. Generate exactly one next `READY` or `BLOCKED` item, never execute the newly
+    generated item in the same continuation.
+22. Stop unless a later, explicitly approved continuation policy allows another
+    item.
+
+## Next-work discovery and gap analysis
+
+The Supervisor uses just-in-time discovery rather than pre-planning a future
+Sprint backlog. The repository truth is the authority: roadmap direction says
+where the product is going, Current State says where it is, the capability
+matrix says what executes, and Product Verification says what has been proven.
+
+After a DONE product WO:
+
+1. Read the current Sprint goal and measurable checkpoint.
+2. Read the capability matrix, Product Verified capabilities, deferred gaps,
+   relevant tests, contracts, and source wiring.
+3. Classify candidate gaps as one of:
+   `PRODUCT_GAP`, `ARCHITECTURE_GAP`, `EXECUTION_GAP`, `VERIFICATION_GAP`,
+   `QUALITY_GAP`, or `DEFERRED_OUT_OF_SPRINT`.
+4. Record evidence, relation to the Sprint goal, blocking status, smallest
+   likely slice, dependencies, and risk for each candidate.
+5. Rank candidates by direct Sprint blocking value, boundedness, testability,
+   product measurability, generic reuse, and evidence. Do not use a numeric
+   scoring system.
+6. Select exactly one smallest measured bottleneck. It must be stated as
+   `verified capabilities A/B/C exist; Sprint acceptance still requires D;
+   D is the smallest blocker because E`.
+7. Check whether the slice needs a high-impact product or architecture choice.
+   Routine implementation choices remain Supervisor-owned; unresolved
+   authority, lifecycle, ADR, dependency, provider, or Sprint-direction forks
+   require human escalation.
+8. Generate exactly one detailed next WO. Mark it `READY` only when its
+   dependencies and decision gates are satisfied. If a human decision is
+   required, mark it `BLOCKED`, record two or three concrete options and their
+   consequences in `HUMAN_DECISION_LOG.md`, and stop.
+
+Selection rules:
+
+- Prefer a gap directly blocking the current Sprint checkpoint.
+- Prefer a bounded, testable, product-measurable, generic slice.
+- Prefer existing abstractions and current evidence over speculative
+  infrastructure.
+- Do not select visual polish while the gameplay checkpoint is incomplete,
+  future-Sprint features, broad rewrites, or nice-to-have abstractions.
+
+Every generated WO must contain an ID/title, measured bottleneck, architecture
+before/expected-after, dependencies, allowed and forbidden scope, implementation
+boundaries, acceptance criteria, automated tests, Product Verification,
+observability expectations, completion-report requirements, and explicit
+non-goals. Before marking it READY, self-review these ten gates: evidence,
+Sprint relevance, bounded scope, explicit non-goals, genericity, invariant
+preservation, Product Verification feasibility, no speculative infrastructure,
+valid dependencies, and human-decision status.
+
+The queue horizon is short: completed history plus one current READY/BLOCKED WO,
+with at most a high-level future milestone. If all Sprint acceptance criteria
+are already satisfied, generate `SPRINT_FREEZE_REVIEW` (or record Sprint Ready
+for Freeze Review) instead of another feature WO; the Supervisor may not
+silently freeze the Sprint. Gaps belonging to later Sprints are recorded as
+deferred and cannot win merely because they are interesting.
+
+Discovery is primarily the Supervisor's responsibility. Narrow read-only
+subagents may audit one factual repository question or review only the proposed
+WO, but they may not decide the roadmap. Subagents remain optional; zero
+subagents is valid when the Supervisor has auditable evidence and can perform
+the gates directly.
 
 ## Repair budget
 
@@ -429,17 +498,25 @@ Use one of:
 
 The classification is separate from Code Complete.
 
-## Initial continuation policy
+## Continuation policy
 
-continuation_mode: ONE_WORK_ITEM
+Previous initial mode: `ONE_WORK_ITEM`.
 
-The Supervisor may select, execute, repair, verify, report, and update one work
-item, then stops. Do not enable SPRINT_CONTINUOUS in the initial rollout.
-Do not change this mode automatically after WO-META-004. Consider
-`SPRINT_CONTINUOUS` only after at least two or three successful real product WO
-trials show scope discipline, truthful verification, independent review value,
-repair convergence, and correct stop/escalation behavior, followed by an
-explicit human decision.
+Current mode after WO-META-005:
+
+```text
+continuation_mode: ONE_WORK_ITEM_WITH_DISCOVERY
+```
+
+The Supervisor may select, execute, repair, verify, and report one work item.
+After a DONE product WO it performs one bounded gap analysis, creates exactly
+one next READY or BLOCKED WO, and stops. It must not execute that newly
+generated WO in the same continuation. `SPRINT_CONTINUOUS` remains disabled.
+
+Promotion to `SPRINT_CONTINUOUS` requires a later explicit human decision after
+at least one proven execute → verify → discover → generate → stop cycle, with
+scope discipline, truthful evidence, repair convergence, and correct
+escalation. This META WO does not enable it.
 
 ## Completion report extension: multi-agent execution
 
@@ -471,6 +548,16 @@ Record a simple PASS/FAIL scorecard for each real Supervisor trial:
 - Human Escalation Correctness
 
 The scorecard is an audit aid, not numeric KPI infrastructure.
+
+## Supervisor Trial history
+
+- Trial #1: WO-S15-005 — PASS. Bounded subagents were used; the independent
+  review found real issues, the Supervisor repaired them within budget, and the
+  Supervisor stopped without executing WO-S15-006.
+- Trial #2: WO-S15-006 — PASS. No subagent was required; the Supervisor owned
+  the shared contract and final gates, completed truthful Chrome verification,
+  and stopped at the one-work-item boundary. Zero-subagent execution is valid
+  and is not a delegation failure.
 
 ## Safety and external changes
 

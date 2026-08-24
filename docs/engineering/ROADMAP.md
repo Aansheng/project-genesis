@@ -13,6 +13,8 @@ architecture.
 - Sprint 14: targeted world evolution; frozen after multi-turn verification.
 - Sprint 15 through WO-S15-006: capability-specific context and the bounded
   gameplay rule execution slices for enemy stomp and generic Health damage.
+- WO-META-005: just-in-time next-work discovery and gap-analysis foundation;
+  product architecture remains v1.153.
 
 ## Current direction
 
@@ -21,22 +23,27 @@ Keep the end-to-end pipeline playable and truthful:
 Natural language → Intent → Semantic World → Game DSL → Runtime → Renderer
 → playable game → targeted natural-language evolution.
 
-The completed boundary extended the smallest trusted Runtime primitive needed
-for the measured DAMAGE/HEALTH scenario and preserved current authority
-boundaries. The Supervisor stops after WO-S15-006 under
-`continuation_mode = ONE_WORK_ITEM`; no next product work order is selected in
-this turn.
+Sprint 15's measurable checkpoint is a coherent platformer slice with
+movement/jump continuity, event-driven gameplay, collectible interaction,
+enemy stomp, enemy damage/Health, a truthful success/goal path, and coherent
+end-to-end behavior. The completed S15-006 boundary extended the smallest
+trusted Runtime primitive needed for damage/Health and preserved current
+authority boundaries. Discovery evidence now identifies goal/session completion
+as the smallest remaining Sprint blocker; the only generated next product WO
+is blocked pending a human authority decision.
 
 ## Deferred direction
 
-Score/state, death/respawn/game-over, goals, enemy behavior, timers, spawning,
-progression, win/lose, richer rule actions, durable history, and broader
-context systems stay deferred until a concrete product need and acceptance path
-justify them.
+Score/state, death/respawn/game-over, enemy behavior, timers, spawning,
+progression, richer rule actions, durable history, and broader context systems
+stay deferred until a concrete product need and acceptance path justify them.
+Goal completion is the current Sprint candidate, but no goal implementation is
+authorized until its authoritative owner/lifecycle is selected.
 
 ## Supervisor rollout
 
-The initial engineering rollout executes one selected work item, verifies it,
-updates projections, reports, and stops. WO-META-004 hardens that rollout
-without changing `continuation_mode = ONE_WORK_ITEM`; continuous Sprint-wide
-autonomous execution is intentionally not enabled.
+The Supervisor executes one selected work item, verifies it, updates
+projections, performs one bounded discovery pass, generates exactly one next
+READY/BLOCKED work item, and stops. WO-META-005 establishes
+`continuation_mode = ONE_WORK_ITEM_WITH_DISCOVERY`; continuous Sprint-wide
+autonomous execution remains intentionally disabled.

@@ -5,17 +5,28 @@ code remain the product authority.
 
 architecture_version: v1.153
 current_sprint: Sprint 15
-current_work_order: WO-S15-006
+current_work_order: WO-META-005
 current_work_order_status: completed
-current_control_plane_work_order: WO-META-004
+current_control_plane_work_order: WO-META-005
 current_control_plane_work_order_status: completed
-last_completed_work_order: WO-S15-006
+last_completed_work_order: WO-META-005
 last_completed_product_work_order: WO-S15-006
-next_ready_work_order: none — ONE_WORK_ITEM continuation boundary reached; Supervisor stopped
-product_architecture_changed: true
-sprint_status: S15 product slice complete through WO-S15-006; WO-META-004 hardening complete; Supervisor stopped at the continuation boundary
+last_completed_control_plane_work_order: WO-META-005
+next_ready_work_order: none — WO-S15-007 is the only next candidate and is BLOCKED by an open human decision; discovery stop reached
+product_architecture_changed: false
+sprint_status: S15 product slice complete through WO-S15-006; WO-META-005 discovery complete; WO-S15-007 is blocked pending goal-completion authority
 product_verified: YES — WO-S15-006 MANUAL Studio verification completed on 2026-08-24
-control_plane_status: hardened; one-work-item continuation
+control_plane_status: discovery-enabled; ONE_WORK_ITEM_WITH_DISCOVERY; SPRINT_CONTINUOUS disabled
+
+## Current Sprint goal
+
+Sprint 15 — Gameplay Mechanics Foundation: Genesis can generate and execute a
+mechanically coherent platformer gameplay slice through generic structured
+Gameplay Rules and trusted Runtime primitives. The measurable checkpoint is
+movement/jump continuity, event-driven gameplay, collectible interaction,
+enemy stomp, enemy damage/Health, a truthful success/goal path, and coherent
+end-to-end behavior. Full progression, XP, skill choices, waves, and Survivor
+systems are outside this Sprint.
 
 ## Completed
 
@@ -37,6 +48,10 @@ control_plane_status: hardened; one-work-item continuation
   cancellation and zero-evidence rules, Supervisor gate ownership, current
   rollout concurrency, Trial #1 records, and S15-006 preparation without
   changing product architecture.
+- WO-META-005 adds just-in-time gap analysis, measured-bottleneck selection,
+  human-decision detection, generated-WO quality gates, Sprint-freeze detection,
+  and `ONE_WORK_ITEM_WITH_DISCOVERY`; it does not change product architecture
+  or execute the generated product WO.
 
 ## Active capabilities
 
@@ -91,9 +106,16 @@ own capability-focused work item rather than broadening WO-META-003.
 ## Current product gaps
 
 The current product is a playable bounded slice, not a complete general
-gameplay engine. WO-S15-006 has no remaining blocker; death/respawn/game-over
-and the other deferred capabilities remain outside this slice. Runtime facts,
-rule interpretation, mutation, and result observation remain separate.
+gameplay engine. The verified S15-006 slice has no implementation blocker, but
+the Sprint checkpoint still lacks a truthful success/goal path. Platformer
+`completionMode=goal`, the `reach-goal` mechanic, and the `COMPLETE_GOAL` action
+are modeled; no authoritative goal/session completion state or Runtime
+completion executor exists. `WO-S15-007` is therefore the single measured next
+candidate and is BLOCKED until Human/CTO chooses the completion authority and
+lifecycle. Score/numeric state, death/respawn/game-over, enemy AI, timers,
+spawning, progression, persistence, and gameplay-rule evolution remain
+deferred. Runtime facts, rule interpretation, mutation, and result observation
+remain separate.
 
 ## Authority
 
