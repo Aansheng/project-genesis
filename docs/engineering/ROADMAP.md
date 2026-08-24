@@ -24,6 +24,9 @@ Natural language → Intent → Semantic World → Game DSL → Runtime → Rend
 The next boundary is one concrete event-driven gameplay scenario chosen from a
 measured product bottleneck. It must extend the smallest trusted Runtime
 primitive needed for that scenario and preserve current authority boundaries.
+WO-S15-006 is prepared READY for the approved DAMAGE/HEALTH scenario, but its
+shared Health/DAMAGE_ENTITY contract is intentionally deferred to its own
+Supervisor turn.
 
 ## Deferred direction
 
@@ -34,5 +37,6 @@ deferred until a concrete product need and acceptance path justify them.
 ## Supervisor rollout
 
 The initial engineering rollout executes one selected work item, verifies it,
-updates projections, reports, and stops. Continuous Sprint-wide autonomous
-execution is intentionally not enabled.
+updates projections, reports, and stops. WO-META-004 hardens that rollout
+without changing `continuation_mode = ONE_WORK_ITEM`; continuous Sprint-wide
+autonomous execution is intentionally not enabled.

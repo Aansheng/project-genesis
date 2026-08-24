@@ -14,6 +14,22 @@ No global memory/history/RAG/vector store, generic context manager, second
 orchestration layer, or context store is introduced. Stable entity IDs remain
 bindings and current semantic names remain the source of visual archetype truth.
 
+## Supervisor control-plane update
+
+### WO-META-004 — Subagent Delegation & Lifecycle Hardening
+
+- Recorded Supervisor Trial #1 as overall PASS: bounded delegation, independent
+  architecture review, truthful evidence handling, repair convergence, human
+  escalation, and one-work-item stop discipline all worked.
+- Tightened the policy so each subagent answers one bounded question or owns one
+  bounded code slice; subagents run targeted checks only and the Supervisor
+  owns final acceptance.
+- Added explicit wait/cancellation semantics, zero-evidence rules for cancelled
+  or timed-out work, a two-agent concurrency cap, no nested spawning, shared
+  contract ownership, standard prompt shapes, re-delegation limits, and a trial
+  scorecard.
+- Architecture version remains v1.152; no product source changed.
+
 ## Completed
 
 ### WO-S15-005 — Enemy Stomp Gameplay Rule Vertical Slice
@@ -179,13 +195,20 @@ bindings and current semantic names remain the source of visual archetype truth.
 
 ## Next work order boundary
 
-### S15-006 — Next Gameplay Capability Boundary
+### WO-S15-006 — Damage / Health Gameplay Rule Vertical Slice
 
-Selection is intentionally not automatic. The Supervisor stopped after
-WO-S15-005 under `continuation_mode = ONE_WORK_ITEM`; the next READY work order
-requires a new measured bottleneck and review.
+Status: READY. The measured capability goal is recorded: damage/health remains
+deferred after the completed ENEMY STOMP slice, and the approved next scenario
+is a generic side-contact damage path. This is prepared for a later Supervisor
+turn and was not executed by WO-META-004.
 
-Choose the next concrete event-driven gameplay scenario only after the S15-005
-browser verification exposes a measured product bottleneck. Keep Runtime facts,
-rule interpretation, and mutation/result execution separate; do not execute
-WO-S15-006 automatically.
+Target conceptual behavior:
+
+`player side-contact enemy → ENTITY_CONTACT_STARTED → generic gameplay rule → DAMAGE_ENTITY(eventActor) → authoritative Health decreases`
+
+Keep Runtime facts, rule interpretation, mutation/result execution, and
+Observatory truth separate. Allow only generic Health state, typed
+`DAMAGE_ENTITY`, the side-contact rule, stale/world isolation, and the required
+verification path. Do not add death/game-over systems, respawn, lives,
+invincibility frames, knockback, XP, score, goals, enemy AI, timers, spawners,
+progression, arbitrary code, or a genre-specific Runtime.

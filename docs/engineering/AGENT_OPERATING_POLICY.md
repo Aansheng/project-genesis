@@ -133,6 +133,68 @@ Bad pattern:
 
 - Multiple agents independently design the same shared gameplay contract.
 
+## Subagent task granularity
+
+Strong rule:
+
+> SUBAGENT TASKS SHOULD ANSWER ONE BOUNDED QUESTION OR OWN ONE BOUNDED CODE
+> SLICE.
+
+Read-only audits must not silently become architecture design or whole-system
+reviews. A task that names several packages or concerns must still identify one
+question and one expected decision.
+
+Good read-only audit:
+
+Question: Does `ENTITY_CONTACT_STARTED` currently expose trustworthy contact
+direction?
+
+Return exactly:
+
+1. YES / NO
+2. relevant files and types
+3. current available data
+4. smallest missing contract
+5. risk notes
+
+Restrictions: no edits, no full-suite run, and no architecture redesign.
+
+Bad read-only audit: “Audit contact events, velocity, Runtime execution, rule
+engine, rendering, and propose the full stomp architecture.” Split that request
+into bounded questions or keep the integrated decision with the Supervisor.
+
+## Standard subagent task contract
+
+Every delegated task must use this Markdown contract, in the prompt or in the
+delegation record:
+
+```text
+ROLE:
+SINGLE OBJECTIVE:
+INPUT / AUTHORITATIVE FILES:
+ALLOWED SCOPE:
+FORBIDDEN SCOPE:
+EXPECTED OUTPUT:
+TEST LIMIT:
+WRITE PERMISSION:
+COMPLETION EVIDENCE:
+```
+
+The completion evidence is evidence for the Supervisor to accept or reject. It
+is not permission for a subagent to mark a gate, work order, or product result
+complete.
+
+## Subagent testing boundary
+
+Subagents use targeted tests only, and may run focused package/type checks only
+when directly necessary for their bounded question or code slice. They do not
+run the default full monorepo acceptance suite.
+
+The Supervisor owns the final relevant full tests, TypeScript, ESLint, build,
+`git diff --check`, architecture acceptance, and Product Verification gates.
+This keeps subagent lifecycle time focused on auditable evidence and avoids
+duplicating repository-wide validation.
+
 The Supervisor integrates all results and reviews changed files. Do not spawn
 agents merely to maximize parallelism.
 
@@ -143,11 +205,182 @@ worktree/branch if the Codex surface supports it. The Supervisor owns
 integration. Never let multiple write agents mutate the same checkout
 concurrently. If isolation is unavailable, run write tasks sequentially.
 
+Two write-capable agents may run concurrently only after the Supervisor has
+fixed the shared contract, assigned disjoint file ownership, and confirmed
+isolated worktrees. Otherwise write work is sequential. Read-only review may
+run alongside bounded implementation when it does not inspect or modify the
+same unresolved contract.
+
 Read-only review may inspect the current checkout, but it must not edit it.
 
 Subagents must not force-push, delete branches, delete arbitrary files, expose
 secrets, change credentials, install broad dependencies, or modify
 machine-global configuration.
+
+## Lifecycle and wait policy
+
+Multiple short waits elapsing does not by itself mean that a subagent failed.
+Do not use a rule such as `wait count >= N → cancel` as the only failure
+criterion. A running agent may still be reading source, editing its bounded
+slice, running targeted tests, or resolving a local failure.
+
+Use observable platform state, returned output, explicit errors, configured
+hard timeouts, and auditable progress when available. Do not invent exact minute
+values when the Codex surface does not expose reliable timing control. A wait
+timeout is a wait result, not automatic failure or cancellation.
+
+If checkpoint messages are supported, agents should emit concise checkpoints:
+
+```text
+CHECKPOINT:
+- inspected X/Y
+- found Z
+- remaining question Q
+```
+
+Checkpoint support is opportunistic, not required. If the surface cannot stream
+checkpoints, do not fabricate them; prefer a smaller task and a concrete final
+output.
+
+## Cancellation conditions
+
+A subagent may be cancelled only when one or more of these conditions is true:
+
+1. the platform reports an explicit failure or error;
+2. a reliable configured hard lifecycle timeout is reached;
+3. the task became obsolete because the Supervisor changed the decision;
+4. the delegation was malformed or too broad and the Supervisor explicitly
+   re-scoped it;
+5. the agent is blocked on an unavailable dependency;
+6. the agent repeatedly produces no usable/auditable progress beyond the
+   configured lifecycle threshold; or
+7. continuing would consume the delegation/repair budget without useful
+   evidence.
+
+If none applies, keep the task running or re-check it. Cancellation is not a
+substitute for a missing wait policy.
+
+## Evidence ownership and failed-agent gates
+
+The following result classes contribute zero acceptance evidence:
+
+`CANCELLED`, `TIMED_OUT`, `FAILED`, and `NO_AUDITABLE_RESULT`.
+
+They cannot satisfy Architecture Review, Verification, Product Verification,
+implementation completion, or audit completion. The Supervisor must redo the
+work, re-delegate a smaller task, or leave the gate unresolved and escalate.
+
+Specific reviewer gates are explicit:
+
+- a timed-out Architecture Reviewer means Architecture Review = NOT COMPLETE;
+- a timed-out Verification Agent means Verification = NOT COMPLETE;
+- a timed-out Product Verification Agent means Product Verification = NOT
+  COMPLETE.
+
+Spawning an agent never satisfies a gate. Only auditable evidence accepted by
+the Supervisor does.
+
+## Concurrency and delegation budget
+
+For the current rollout:
+
+```text
+max_concurrent_subagents = 2
+nested_subagent_spawning = DISALLOWED
+```
+
+Using fewer agents, or no agents, is valid. The intended topology is one level:
+
+```text
+Supervisor
+├── Agent A
+└── Agent B
+```
+
+For one work order, start with at most two concurrent subagents. A failed or
+unusable task may be re-delegated at most once before the Supervisor takes it
+over, unless a clearly new reason justifies another bounded delegation. Do not
+create a second independent infinite retry budget. The repair budget remains
+three rounds; delegation retries do not reset it.
+
+## Supervisor ownership of shared contracts
+
+For cross-package changes involving Shared, Runtime, AI, or Web, the Supervisor
+first decides the shared contract and authority boundary. Subagents may then
+implement disjoint slices against that contract. Competing contract designs
+must not be delegated to multiple agents.
+
+## Recommended bounded prompt shapes
+
+### Audit Agent
+
+```text
+ROLE: Read-only [package] Audit
+SINGLE OBJECTIVE: answer one repository question
+INPUT / AUTHORITATIVE FILES: exact files or symbols
+ALLOWED SCOPE: inspect source and return evidence
+FORBIDDEN SCOPE: edits, architecture redesign, full-suite validation
+EXPECTED OUTPUT: QUESTION / EVIDENCE / ANSWER / SMALLEST GAP / RISKS
+TEST LIMIT: targeted test only if necessary
+WRITE PERMISSION: NO
+COMPLETION EVIDENCE: exact file/type references
+```
+
+### Implementation Agent
+
+```text
+ROLE: Bounded Implementation Agent
+SINGLE OBJECTIVE: implement the already-approved code slice
+INPUT / AUTHORITATIVE FILES: approved contract and exact files
+ALLOWED SCOPE: listed files, existing abstractions, targeted regressions
+FORBIDDEN SCOPE: contract redesign, unrelated refactor, new framework
+EXPECTED OUTPUT: changed files, behavior, targeted test result, open risks
+TEST LIMIT: targeted tests and focused typecheck only
+WRITE PERMISSION: YES, only in assigned isolated worktree/files
+COMPLETION EVIDENCE: diff plus focused test output
+```
+
+An implementation agent may report that the approved contract is impossible,
+but must return control to the Supervisor rather than silently redesigning it.
+
+### Verification Agent
+
+```text
+ROLE: Bounded Verification Agent
+SINGLE OBJECTIVE: attempt to disprove one assigned acceptance slice
+INPUT / AUTHORITATIVE FILES: current diff and named acceptance criteria
+ALLOWED SCOPE: focused tests and concrete evidence collection
+FORBIDDEN SCOPE: architecture design or silent fixes
+EXPECTED OUTPUT: criterion-by-criterion evidence and unresolved failures
+TEST LIMIT: focused acceptance tests only
+WRITE PERMISSION: NO unless explicitly granted
+COMPLETION EVIDENCE: reproducible commands/results
+```
+
+### Architecture Reviewer
+
+```text
+ROLE: Read-only Architecture Reviewer
+SINGLE OBJECTIVE: review only the current diff against named invariants
+INPUT / AUTHORITATIVE FILES: current git diff and relevant ADRs
+ALLOWED SCOPE: inspect for boundary and authority violations
+FORBIDDEN SCOPE: unrelated redesign or full repository suites
+EXPECTED OUTPUT: PASS / FAIL; each FAIL has file/location, invariant, smallest fix
+TEST LIMIT: targeted validation only when needed for one finding
+WRITE PERMISSION: NO
+COMPLETION EVIDENCE: exact findings or explicit PASS rationale
+```
+
+The recommended reviewer checklist is: genre-specific Runtime logic, duplicate
+authority, Runtime/Web/Pixi/provider coupling, generated code/eval, full rebuild
+instead of targeted mutation, capability overclaim, stale/world isolation, and
+partial multi-action semantics.
+
+## Acceptance ownership
+
+Subagent output is evidence or a proposal. The Supervisor accepts, rejects,
+integrates, or re-scopes it. Only the Supervisor may mark `Code Complete`,
+`Product Verified`, or a `WORK_QUEUE` item `DONE`.
 
 ## Completion gate
 
@@ -202,8 +435,42 @@ continuation_mode: ONE_WORK_ITEM
 
 The Supervisor may select, execute, repair, verify, report, and update one work
 item, then stops. Do not enable SPRINT_CONTINUOUS in the initial rollout.
-Consider changing it only after two or three successfully supervised work items
-and an explicit human decision.
+Do not change this mode automatically after WO-META-004. Consider
+`SPRINT_CONTINUOUS` only after at least two or three successful real product WO
+trials show scope discipline, truthful verification, independent review value,
+repair convergence, and correct stop/escalation behavior, followed by an
+explicit human decision.
+
+## Completion report extension: multi-agent execution
+
+Every work order that uses or evaluates delegation must report:
+
+- subagents spawned;
+- role and single objective;
+- read-only or write permission;
+- result: accepted, rejected, cancelled, timeout, failed, or no auditable result;
+- evidence used;
+- re-delegation count;
+- Supervisor takeover work;
+- maximum observed concurrency;
+- repair rounds;
+- reviewer findings;
+- unresolved gates.
+
+## Supervisor Trial scorecard
+
+Record a simple PASS/FAIL scorecard for each real Supervisor trial:
+
+- Scope Discipline
+- Delegation Quality
+- Evidence Integrity
+- Architecture Review Independence
+- Repair Convergence
+- Product Verification Truthfulness
+- Stop Discipline
+- Human Escalation Correctness
+
+The scorecard is an audit aid, not numeric KPI infrastructure.
 
 ## Safety and external changes
 

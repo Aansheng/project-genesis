@@ -5,17 +5,17 @@ code remain the product authority.
 
 architecture_version: v1.152
 current_sprint: Sprint 15
-current_work_order: WO-S15-005
+current_work_order: WO-META-004
 current_work_order_status: completed
-current_control_plane_work_order: WO-META-003
+current_control_plane_work_order: WO-META-004
 current_control_plane_work_order_status: completed
-last_completed_work_order: WO-S15-005
+last_completed_work_order: WO-META-004
 last_completed_product_work_order: WO-S15-005
-next_ready_work_order: NONE — stop per ONE_WORK_ITEM; do not auto-execute WO-S15-006
-product_architecture_changed: true
-sprint_status: S15 product slice complete through WO-S15-005; Supervisor stopped at the continuation boundary
-product_verified: yes, for WO-S15-005 (MANUAL Studio verification)
-control_plane_status: initialized; one-work-item continuation
+next_ready_work_order: WO-S15-006 — READY, prepared only; do not execute in this turn
+product_architecture_changed: false
+sprint_status: S15 product slice complete through WO-S15-005; WO-META-004 hardening complete; Supervisor stopped at the continuation boundary
+product_verified: N/A for WO-META-004; WO-S15-005 remains YES (MANUAL Studio verification)
+control_plane_status: hardened; one-work-item continuation
 
 ## Completed
 
@@ -29,6 +29,10 @@ control_plane_status: initialized; one-work-item continuation
   enemy Runtime/Renderer removal, bounce/re-land, continued control, and
   truthful Observatory evidence are connected.
 - WO-META-003 repository-native engineering control plane is complete.
+- WO-META-004 hardens subagent task granularity, lifecycle/wait semantics,
+  cancellation and zero-evidence rules, Supervisor gate ownership, current
+  rollout concurrency, Trial #1 records, and S15-006 preparation without
+  changing product architecture.
 
 ## Active capabilities
 
@@ -82,8 +86,9 @@ own capability-focused work item rather than broadening WO-META-003.
 
 The current product is a playable bounded slice, not a complete general
 gameplay engine. WO-S15-005 has no remaining blocker; the next product work
-must be selected from a measured user-visible bottleneck and must keep Runtime
-facts, rule interpretation, mutation, and result observation separate.
+is WO-S15-006 READY for the approved DAMAGE/HEALTH scenario, but it must not
+execute until a new Supervisor turn fixes its shared contract. Runtime facts,
+rule interpretation, mutation, and result observation must remain separate.
 
 ## Authority
 

@@ -4,7 +4,7 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-21
+updated: 2026-08-24
 continuation_mode: ONE_WORK_ITEM
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -17,6 +17,8 @@ primary_architecture_changing_work_items_in_progress: 0
 - A work item is DONE only after implementation, verification, architecture
   review, and Product Verification gates required by that item pass.
 - WO-META-003 must not execute product work as a side effect.
+- Control-plane work orders must not execute product work or satisfy a product
+  Product Verification gate as a side effect.
 
 ## WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
 
@@ -104,6 +106,78 @@ product_verification: YES — MANUAL Studio verification completed on 2026-08-21
   truth, while the real browser path covers the visible gameplay sequence.
 human_decision_required: NO — ENEMY STOMP and its acceptance boundary were
   explicitly approved in the Supervisor request on 2026-08-21.
+
+## WO-META-004 — Subagent Delegation & Lifecycle Hardening
+
+status: DONE
+priority: P0
+dependencies: WO-S15-005 DONE; Supervisor Trial #1 evidence available
+architecture_before: v1.152
+architecture_after: v1.152
+mission: Harden delegation granularity, lifecycle/wait semantics, evidence
+  ownership, and current Supervisor rollout policy without changing product
+  architecture or executing the next product work order.
+allowed_scope: Engineering Markdown policy and projections; Trial #1 lessons
+  and PASS/FAIL scorecard; bounded subagent task contracts; targeted-test
+  boundary; lifecycle/cancellation/checkpoint rules; evidence ownership;
+  concurrency and worktree rules; Completion Report extension; S15-006 READY
+  preparation; one optional narrow read-only delegation test; dry-run records.
+forbidden_scope: Genesis product code; Runtime, Gameplay, Renderer, AI
+  provider, or Web changes; new dependencies; orchestration server, database,
+  queue service, custom RPC, recursive agent tree, SPRINT_CONTINUOUS, or
+  execution of WO-S15-006.
+acceptance: PASS — Trial #1 lessons are recorded; delegated tasks are one
+  bounded question or code slice; subagent tests are targeted by default;
+  Supervisor owns all final gates; waits alone do not imply failure;
+  cancellation and zero-evidence rules are explicit; timed-out reviewers do
+  not satisfy gates; max concurrent subagents is 2; nested spawning is
+  disabled; shared contracts remain Supervisor-owned; prompt templates,
+  re-delegation budget, report extension, and trial scorecard are documented;
+  WO-S15-006 is prepared READY with the approved DAMAGE/HEALTH boundary; dry
+  run and optional narrow delegation test are truthful; no product source
+  changed.
+verification: PASS — Markdown inspection, work queue/current state review,
+  policy dry run, one bounded read-only Health audit, agent lifecycle close,
+  no product-source diff, and `git diff --check`.
+product_verification: NOT_APPLICABLE — control-plane-only change; WO-S15-005
+  remains the last Product Verified product work order.
+human_decision_required: NO — Trial #1 tuning and the S15-006 scenario were
+  explicitly provided/accepted in the Supervisor request on 2026-08-24.
+
+## WO-S15-006 — Damage / Health Gameplay Rule Vertical Slice
+
+status: READY
+priority: P1
+dependencies: WO-S15-005 DONE; measured gameplay goal recorded; DAMAGE/HEALTH
+  scenario accepted on 2026-08-24
+architecture_before: v1.152
+architecture_expected_after: TBD after Supervisor contract review
+mission: Prove the smallest generic side-contact damage path: player side
+  contact with an enemy produces a truthful Runtime contact fact, matches a
+  generic rule, executes trusted `DAMAGE_ENTITY(eventActor)`, and decreases an
+  authoritative generic Health value without introducing death/game-over
+  systems.
+allowed_scope: Generic Health component/state; typed `DAMAGE_ENTITY` action;
+  generic side-contact rule; existing Runtime event/rule/mutation boundaries;
+  stale/world isolation; truthful Observatory execution state; targeted tests
+  and required browser Product Verification.
+forbidden_scope: EnemyDamageSystem or Mario-specific Runtime; generated code;
+  full rebuild; respawn; lives; game-over UI; death flow unless a minimum
+  truthful zero-health representation is strictly unavoidable; invincibility
+  frames unless measured behavior proves required; knockback; XP; score; goal
+  completion; enemy AI; timers; spawners; progression; unrelated rich actions;
+  arbitrary code/eval; autonomous WO continuation.
+acceptance: READY boundary only — the detailed shared Health/DAMAGE_ENTITY
+  contract must be decided by the Supervisor before implementation. The future
+  WO must prove generic rule-driven damage, authoritative Health mutation,
+  stale/world isolation, truthful non-execution of deferred capabilities, and
+  no genre-specific Runtime system.
+verification: REQUIRED when executed — targeted and affected-package checks,
+  TypeScript, ESLint, relevant regression suites, architecture review, and
+  real browser Product Verification.
+product_verification: REQUIRED when executed; not performed by WO-META-004.
+human_decision_required: NO for scenario selection; implementation contract
+  remains a Supervisor gate at WO-S15-006 start.
 
 ## Queue transition vocabulary
 
