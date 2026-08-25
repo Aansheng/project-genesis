@@ -71,6 +71,23 @@ describe('Position — Single Entity', () => {
     expect(result.entities[0].type).toBe('enemy')
     expect(result.entities[0].position).toBeDefined()
   })
+
+  it('projects the semantic name without exposing Runtime components', () => {
+    const adapter = new DefaultRuntimeRendererAdapter()
+    const entity = createEntity({
+      id: 'platform',
+      type: 'terrain',
+      components: Object.freeze([
+        { type: 'semantic', properties: { category: 'terrain', name: 'Platform' } },
+        createPositionComponent(300, 320),
+      ] as unknown as Entity['components']),
+    })
+
+    const result = adapter.adapt(makeWorld([entity]))
+
+    expect(result.entities[0]).toMatchObject({ id: 'platform', type: 'terrain', semanticName: 'Platform' })
+    expect(result.entities[0]).not.toHaveProperty('components')
+  })
 })
 
 describe('Position — Multiple Entities', () => {

@@ -102,4 +102,5 @@ becomes stale.
   docs/adr/ADR-0273-platformer-provider-candidate-completeness-gate.md, and
   docs/adr/ADR-0274-runtime-gameplay-failure-and-respawn.md,
   docs/adr/ADR-0275-bounded-platformer-asset-render-usage.md, and
-  docs/adr/ADR-0276-consume-bounded-platform-usage.md
+  docs/adr/ADR-0276-consume-bounded-platform-usage.md,
+  docs/adr/ADR-0277-semantic-platform-render-projection.md

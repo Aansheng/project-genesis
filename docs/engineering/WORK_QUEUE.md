@@ -11,7 +11,7 @@ current_work_order_status: BLOCKED
 current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
 current_control_plane_work_order_status: DONE
 last_completed_work_order: WO-S18-002
-next_work_order: WO-S18-003 — BLOCKED pending image-backed product measurement
+next_work_order: WO-S18-003 — BLOCKED pending provider-backed platform application
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -1217,14 +1217,19 @@ state_transition: GENERATED_AFTER_WO_S18_002_GAP_ANALYSIS → READY → DONE
 dependencies: WO-S18-002 DONE; real fallback scene measured
 mission: Re-measure the next smallest visual composition blocker and generate
   exactly one bounded READY/BLOCKED WO under SPRINT_CONTINUOUS.
-measured_result: Platform selection is now role-aware. Ground-repeat
-  composition across wider authoritative geometry is the next candidate, but
-  the available browser fallback scene has no resolved image resources because
-  its image provider is unavailable; visual composition cannot be truthfully
-  measured yet.
+measured_result: Real image-backed Studio measurement resolved and applied
+Background/Terrain/Player/Enemy (4/9 ready, codex-cli, clean browser
+diagnostics). The Runtime snapshot showed Terrain and Platform both as
+type=terrain; the adapter dropped semantic.name, so the existing platform
+selection/bounds path was not reachable. A bounded semantic projection repair
+was implemented and tested. The provider timed out for entity-platform-primary,
+so exact real platform application remains unverified; ground-repeat is not a
+measured blocker.
 selected_work_order: WO-S18-003
-acceptance: PASS — exactly one bounded blocked item generated; no speculative
-  tiling, Runtime geometry, or image-quality framework was introduced.
+acceptance: PASS for bounded measurement/repair scope; exact provider-backed
+  platform application remains an unresolved acceptance gate. No speculative
+  tiling, Runtime geometry, provider regeneration loop, or image-quality
+  framework was introduced.
 product_verification: NOT_APPLICABLE — discovery/control-plane selection only.
 human_decision_required: NO; blocked on an unresolved image-backed product
   measurement gate.
@@ -1233,24 +1238,25 @@ human_decision_required: NO; blocked on an unresolved image-backed product
 
 status: BLOCKED
 priority: P0
-state_transition: GENERATED_AFTER_SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_002 → BLOCKED_PENDING_IMAGE_BACKED_MEASUREMENT
+state_transition: GENERATED_AFTER_SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_002 → MEASURED_WITH_BOUNDED_REPAIR → BLOCKED_PENDING_PROVIDER_PLATFORM_APPLICATION
 dependencies: WO-S18-002 DONE; one real generated scene with resolved
   background, ground, and platform resources is required
 architecture_before: v1.162
-architecture_expected_after: UNDECIDED pending measurement
-mission: Determine whether the bounded ground-repeat-x visual composes
-  coherently across Runtime-authoritative bounds, then select the smallest
-  implementation only if the evidence establishes one.
-allowed_scope: Product measurement and source-grounded gap confirmation only.
+architecture_expected_after: v1.163 for the bounded semantic projection repair; Product Verification pending
+mission: Measure the real image-backed platformer composition across background,
+  ground, platform, and entity resources; apply only the smallest existing
+  Renderer/adapter repair if the source path proves a role projection gap.
+allowed_scope: Real product measurement and one bounded semantic projection
+  repair using existing Renderer/adapter contracts; no new subsystem.
 forbidden_scope: Tiling/repeat implementation, Runtime geometry contract,
   image-pixel collision/inspection, broad Renderer rewrite, visual quality
   scoring, manager/framework creation, and Sprint 19 entry.
-blocking_gate: The available real-browser fallback run proved deterministic
-  platformer creation and role-aware platform selection, but its image
-  operations remained queued/active because no image provider was configured.
-  A resolved image-backed scene is required before choosing a composition
-  implementation.
-product_verification: PENDING
-code_complete: N/A
+blocking_gate: Background/Terrain/Player/Enemy resolved and applied through
+  codex-cli in the real Studio run. The required exact platform asset
+  entity-platform-primary timed out at the existing provider boundary, so
+  the platform selection/bounds repair has automated evidence but not real
+  provider-backed application evidence. Provider failure must retain fallback.
+product_verification: PENDING — real platform provider application unresolved
+code_complete: YES for the bounded semantic projection repair
 human_decision_required: NO — this is an unresolved acceptance/product
   measurement gate, not a direction change.

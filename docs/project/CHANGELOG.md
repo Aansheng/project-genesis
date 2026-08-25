@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 18 — WO-S18-003 Real Image-Backed Composition Measurement
+
+- The real 8787 Studio path was re-run with the natural-language platformer
+  request. The deterministic baseline remained selected because the provider
+  candidate was `product_incomplete`; this was not a provider outage.
+- Background, Terrain, Player, and Enemy completed through
+  `codex-cli → succeeded → resolved → applied` (4/9 ready), with generated
+  mountain background and independent entity/ground visuals visible in the
+  canvas. Browser warn/error diagnostics were empty.
+- Measurement found the actual baseline projection mismatch: Runtime keeps
+  both Terrain and Platform as `type: terrain`, while the adapter discarded
+  `semantic.name`. The bounded v1.163 repair preserves `semanticName`, selects
+  the matching platform entity-sprite when resolved, and uses existing
+  platform catalog bounds. See ADR-0277.
+- `entity-platform-primary` then timed out at the existing Codex CLI provider
+  boundary. Observatory recorded the failure and retained safe fallback, so
+  exact provider-backed platform application remains Product Verification
+  pending. No tiling, Runtime geometry, provider retry loop, or new manager was
+  introduced.
+
 ### Sprint 18 — WO-S18-002 Consume Bounded Platform Usage in Environment Composition
 
 - Post-WO-S18-001 product measurement found that the environment Renderer still

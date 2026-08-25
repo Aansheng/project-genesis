@@ -21,7 +21,13 @@ export interface PixiEnvironmentRendererOptions {
   readonly createGraphics?: () => Graphics
   readonly createContainer?: () => Container
   readonly createSprite?: (texture: Texture) => Sprite
-  readonly onAssetApplication?: (event: { readonly assetId: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }) => void
+  readonly onAssetApplication?: (event: { readonly assetId: string; readonly entityId?: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }) => void
+}
+
+interface EnvironmentRenderTarget {
+  readonly assetId: string
+  readonly resourceUri?: string
+  readonly bounds: RenderBounds
 }
 
 /** World-level visuals; no environment asset is a Runtime entity. */
@@ -40,6 +46,7 @@ export class PixiEnvironmentRenderer {
   private height: number
   private manifest: AssetManifest | null
   private readonly assetUris = new Map<string, string>()
+  private readonly environmentRenderTargets = new Map<string, EnvironmentRenderTarget>()
   private readonly pendingAssetReplacements = new Set<string>()
   private backgroundSprite: Sprite | null = null
   private generation = 0
@@ -72,13 +79,20 @@ export class PixiEnvironmentRenderer {
     const camera = this.cameraController?.update(world)
     if (camera) this.terrainLayer.position.set(this.cameraAnchor.x - camera.x, this.cameraAnchor.y - camera.y)
     this.terrainLayer.removeChildren().forEach(child => child.destroy())
+    this.environmentRenderTargets.clear()
     if (this.assetStore && this.assetAdapter) {
       for (const entity of world.entities) {
         if ((entity.type !== 'terrain' && entity.type !== 'platform') || !entity.position) continue
         const visual = this.environmentVisualEntry(entity)
         if (!visual) continue
-        const bounds = projectRenderBounds(entity.position, this.visualCatalog.getVisual(entity.type))
-        this.upgradeTerrain(visual.assetId, bounds, generation)
+        const visualType = this.isPlatformSurface(entity) ? 'platform' : entity.type
+        const bounds = projectRenderBounds(entity.position, this.visualCatalog.getVisual(visualType))
+        this.environmentRenderTargets.set(entity.id, {
+          assetId: visual.assetId,
+          resourceUri: visual.resource?.uri,
+          bounds,
+        })
+        this.upgradeTerrain(visual.assetId, entity.id)
       }
     }
     const background = this.manifest?.entries.find(entry => entry.renderUsage === 'background-cover' && entry.status === 'resolved')
@@ -118,6 +132,7 @@ export class PixiEnvironmentRenderer {
     this.root.removeChild(this.backgroundLayer, this.terrainLayer)
     this.backgroundLayer.destroy({ children: true })
     this.terrainLayer.destroy({ children: true })
+    this.environmentRenderTargets.clear()
     this.assetAdapter?.clear()
   }
 
@@ -137,7 +152,7 @@ export class PixiEnvironmentRenderer {
    */
   private environmentVisualEntry(entity: RenderEntity): AssetManifest['entries'][number] | undefined {
     const entries = this.manifest?.entries ?? []
-    if (entity.type === 'platform') {
+    if (this.isPlatformSurface(entity)) {
       const platform = entries.find(entry =>
         entry.status === 'resolved'
         && entry.target === 'entity'
@@ -153,6 +168,16 @@ export class PixiEnvironmentRenderer {
     )
   }
 
+  /**
+   * The current platformer baseline models Platform as a terrain-category
+   * Runtime entity. Keep that semantic distinction in the render projection
+   * without changing Runtime type or collision authority.
+   */
+  private isPlatformSurface(entity: RenderEntity): boolean {
+    const semanticName = entity.semanticName?.trim().toLocaleLowerCase()
+    return entity.type === 'platform' || semanticName?.includes('platform') === true
+  }
+
   private resolveTexture(assetId: string): Promise<Texture> {
     const entry = this.manifest?.entries.find(item => item.assetId === assetId)
     if (!entry || !this.assetStore || !this.assetAdapter) return Promise.reject(new Error('environment asset unavailable'))
@@ -161,18 +186,27 @@ export class PixiEnvironmentRenderer {
     return resolved.then(result => result.status === 'resolved' ? this.assetAdapter!.load(result.resource) : Promise.reject(new Error('environment asset unavailable')))
   }
 
-  private upgradeTerrain(assetId: string, bounds: RenderBounds, generation: number): void {
+  private upgradeTerrain(assetId: string, entityId: string): void {
     void this.resolveTexture(assetId).then(texture => {
-      if (generation !== this.generation) return
+      const target = this.environmentRenderTargets.get(entityId)
+      const manifestEntry = this.manifest?.entries.find(entry => entry.assetId === assetId)
+      if (
+        !target
+        || target.assetId !== assetId
+        || target.resourceUri !== manifestEntry?.resource?.uri
+      ) return
       const sprite = this.createSprite(texture)
-      sprite.x = bounds.x
-      sprite.y = bounds.y
+      sprite.x = target.bounds.x
+      sprite.y = target.bounds.y
       // The generated image is skin; the Runtime/render bounds remain authoritative.
-      sprite.width = bounds.width
-      sprite.height = bounds.height
+      sprite.width = target.bounds.width
+      sprite.height = target.bounds.height
       this.terrainLayer.addChild(sprite)
-      this.onAssetApplication?.({ assetId, status: 'applied' })
-    }).catch(() => this.onAssetApplication?.({ assetId, status: 'failed', reason: 'resolution' }))
+      this.onAssetApplication?.({ assetId, entityId, status: 'applied' })
+    }).catch(() => {
+      const target = this.environmentRenderTargets.get(entityId)
+      if (target?.assetId === assetId) this.onAssetApplication?.({ assetId, entityId, status: 'failed', reason: 'resolution' })
+    })
   }
 
   private upgradeBackground(assetId: string, generation: number): void {

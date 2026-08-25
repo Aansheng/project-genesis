@@ -149,7 +149,7 @@ describe('WO-OBS-001 Observatory truthfulness', () => {
 
   it('uses the centralized current architecture version', () => {
     const text = mount(ObservatoryOverview).text()
-    expect(text).toContain('v1.162')
+    expect(text).toContain('v1.163')
     expect(text).not.toContain('v1.29')
   })
 })

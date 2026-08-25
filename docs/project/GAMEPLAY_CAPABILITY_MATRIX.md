@@ -1,6 +1,6 @@
 # Gameplay Capability Matrix — Sprint 17 Frozen / Sprint 18 Active
 
-Architecture version: v1.162 (Sprint 17 FROZEN; WO-S18-001 and WO-S18-002 Code Complete = YES; Product Verified = YES)
+Architecture version: v1.163 (Sprint 17 FROZEN; WO-S18-001 and WO-S18-002 Code Complete = YES; WO-S18-003 bounded Renderer repair Product Verification pending)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

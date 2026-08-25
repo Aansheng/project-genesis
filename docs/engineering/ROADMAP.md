@@ -43,10 +43,13 @@ architecture.
   Platformer Generation. Fresh discovery selected exactly one current bounded
   WO: `WO-S18-001` for role-aware asset render usage; no full visual framework
   or future Sprint backlog is pre-generated.
-- WO-S18-002 is complete at v1.162 and Product Verified: the existing
-  environment Renderer consumes the bounded platform entity-sprite usage
-  instead of reusing the ground material for every platform. Runtime geometry,
-  tiling, and image-pixel inference remain deferred.
+- WO-S18-002 is complete at v1.162 and Product Verified for its bounded usage
+  contract. Real image-backed measurement then found that the baseline Runtime
+  models Platform as `type: terrain` and the adapter had dropped its semantic
+  name. The bounded v1.163 projection repair is automated-test complete, but
+  exact provider-backed platform application remains pending after the current
+  Codex CLI platform request timed out. Runtime geometry, tiling, and
+  image-pixel inference remain deferred.
 
 ## Current direction
 
@@ -61,11 +64,12 @@ their actual roles. Runtime geometry remains authoritative; generated assets
 are skins/materials only. WO-S18-001 establishes the bounded usage fact carried
 from asset requirement to generation request/context and manifest. WO-S18-002
 consumes that fact for platform selection in the existing environment
-projection. Ground-repeat composition across authoritative geometry remains a
-just-in-time discovery candidate, not a pre-planned Sprint.
-The generated next item, `WO-S18-003`, is BLOCKED until a real image-backed
-scene resolves the relevant visual resources; no tiling or geometry contract
-is pre-authorized.
+projection. WO-S18-003 re-ran the real production image path:
+Background/Terrain/Player/Enemy resolved and applied, while the exact Platform
+asset timed out at the provider boundary. The bounded repair remains under the
+same WO and the WO is BLOCKED until one provider-successful Platform asset is
+applied. No tiling or geometry contract is pre-authorized, and no WO-S18-004
+is generated while this gate remains unresolved.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

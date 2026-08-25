@@ -5,6 +5,7 @@
  * Mapping rules:
  *   - Entity.id              → RenderEntity.id         (preserved verbatim)
  *   - Entity.type            → RenderEntity.type       (preserved verbatim)
+ *   - semantic.name          → RenderEntity.semanticName (when present)
  *   - PositionComponent      → RenderEntity.position   (if present)
  *   - Entity.x / Entity.y    → IGNORED
  *   - Other components       → IGNORED
@@ -22,6 +23,8 @@ import type { RenderWorld, RenderEntity, RenderPosition } from '../model'
 import { EMPTY_RENDER_WORLD } from '../model'
 import type { RuntimeRendererAdapter } from './RuntimeRendererAdapter'
 
+const SEMANTIC_COMPONENT_TYPE = 'semantic'
+
 export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
   adapt(world: World): RenderWorld {
     if (!world || !Array.isArray(world.entities)) {
@@ -34,11 +37,13 @@ export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
       if (!entity) continue
 
       const position = this.extractPosition(entity)
+      const semanticName = this.extractSemanticName(entity)
 
       entities.push(
         Object.freeze({
           id: entity.id,
           type: entity.type,
+          ...(semanticName ? { semanticName } : {}),
           ...(position ? { position } : {}),
         })
       )
@@ -63,6 +68,19 @@ export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
           y: component.properties.y,
         })
       }
+    }
+
+    return undefined
+  }
+
+  private extractSemanticName(
+    entity: World['entities'][number]
+  ): string | undefined {
+    for (const component of entity.components ?? []) {
+      if (component.type !== SEMANTIC_COMPONENT_TYPE) continue
+      const name = component.properties.name
+      if (typeof name !== 'string' || !name.trim()) return undefined
+      return name.trim()
     }
 
     return undefined

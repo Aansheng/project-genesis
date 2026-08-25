@@ -90,6 +90,15 @@ function world(): RenderWorld {
   return {
     entities: [
       { id: 'ground', type: 'terrain', position: { x: 160, y: 400 } },
+      { id: 'platform', type: 'terrain', semanticName: 'Platform', position: { x: 300, y: 320 } },
+    ],
+  }
+}
+
+function legacyPlatformWorld(): RenderWorld {
+  return {
+    entities: [
+      { id: 'ground', type: 'terrain', position: { x: 160, y: 400 } },
       { id: 'platform', type: 'platform', position: { x: 300, y: 320 } },
     ],
   }
@@ -147,7 +156,7 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
 
   it('uses the platform entity visual instead of reusing the ground material', async () => {
     const root = rootContainer()
-    const applied: string[] = []
+    const applied: Array<{ assetId: string; entityId?: string }> = []
     const renderer = new PixiEnvironmentRenderer(root, {
       width: 800,
       height: 600,
@@ -157,13 +166,64 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
       createSprite: sprite,
       createGraphics: graphics,
       createContainer: environmentLayer,
-      onAssetApplication: event => applied.push(event.assetId),
+      onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
     })
 
     renderer.render(world())
     await flush()
 
-    expect(applied.filter(assetId => assetId !== 'background-main')).toEqual(['terrain-main', 'entity-platform-primary'])
+    expect(applied.filter(event => event.assetId !== 'background-main')).toEqual([
+      { assetId: 'terrain-main', entityId: 'ground' },
+      { assetId: 'entity-platform-primary', entityId: 'platform' },
+    ])
+  })
+
+  it('keeps legacy platform render types compatible with the role-aware selection', async () => {
+    const root = rootContainer()
+    const applied: Array<{ assetId: string; entityId?: string }> = []
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      assetManifest: roleAwareManifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: { load: async () => ({ width: 128, height: 32 } as Texture), clear() {} },
+      createSprite: sprite,
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+      onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
+    })
+
+    renderer.render(legacyPlatformWorld())
+    await flush()
+
+    expect(applied).toContainEqual({ assetId: 'entity-platform-primary', entityId: 'platform' })
+  })
+
+  it('keeps the current environment target when texture loading crosses a render tick', async () => {
+    const root = rootContainer()
+    const applied: Array<{ assetId: string; entityId?: string }> = []
+    const textureResolvers: Array<(texture: Texture) => void> = []
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      assetManifest: roleAwareManifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: { load: () => new Promise<Texture>(resolve => { textureResolvers.push(resolve) }), clear() {} },
+      createSprite: sprite,
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+      onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
+    })
+
+    renderer.render(world())
+    renderer.render(world())
+    await Promise.resolve()
+    await Promise.resolve()
+    for (const resolveTexture of textureResolvers) resolveTexture({ width: 128, height: 32 } as Texture)
+    await flush()
+
+    expect(applied).toContainEqual({ assetId: 'terrain-main', entityId: 'ground' })
+    expect(applied).toContainEqual({ assetId: 'entity-platform-primary', entityId: 'platform' })
   })
 
   it('invalidates only a changed environment resource when the manifest is rebound', () => {

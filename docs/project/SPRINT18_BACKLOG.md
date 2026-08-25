@@ -183,24 +183,44 @@ arbitrary code/eval, or Sprint 19 entry.
 Renderer focused/full tests, TypeScript, ESLint, Web regression/build, and a
 real Studio fallback creation with clean browser diagnostics.
 
-## Fresh Sprint 18 Gap Analysis — post-WO-S18-002 measurement
+## Fresh Sprint 18 Gap Analysis — real image-backed measurement
 
-WO-S18-002 closed the measured platform selection gap. The real Studio
-fallback scene now exercises the role-aware creation path and the Renderer
-regression proves that a matching platform entity-sprite is selected instead
-of the generic ground material.
+The real Studio path at the configured 8787 gateway was exercised again with
+the natural-language platformer request. The provider candidate was rejected
+as `product_incomplete`, so the deterministic seven-entity baseline remained
+the truthful Runtime world. The image path itself was not fallback-only:
 
-The next candidate is ground-repeat composition across the authoritative world
-geometry. It is not yet READY: the local image gateway used for the real
-browser fallback verification has no image provider, so the scene's visual
-operations remain queued/active and do not provide a truthful resolved-image
-measurement of wider ground composition. Existing code still uses catalog
-bounds for the projection, but selecting a repeat/tile or geometry contract
-without a resolved generated scene would be speculative.
+- Background, Terrain, Player, and Enemy reached `codex-cli → succeeded →
+  resolved → applied` (`4 / 9 ready`). The canvas showed generated mountain
+  background, local generated ground material, and independently applied
+  generated entity sprites. Browser warning/error logs were empty.
+- The real Runtime snapshot showed `terrain` and `platform` both with
+  `type: terrain`; Inspector/semantic data distinguished their names as
+  `Terrain` and `Platform`.
+- Before the bounded repair, the adapter dropped `semantic.name`, so the
+  environment Renderer selected `terrain-main` for the platform and used the
+  terrain catalog envelope. The smallest source gap was therefore semantic
+  platform identity projection, not tiling or a new geometry system.
+- The bounded repair is implemented and unit-tested in the working tree (see
+  ADR-0277). It preserves Runtime authority and selects the matching platform
+  entity-sprite plus existing platform catalog bounds when a resolved resource
+  exists.
+- The same run's `entity-platform-primary` provider operation timed out at the
+  configured Codex CLI boundary. Observatory truthfully recorded provider
+  failure and retained fallback. Consequently, real provider-backed platform
+  asset application is still an unresolved acceptance gate; it is not claimed
+  as Product Verified.
+
+Measurement A (background separation) and D (independent entity sprites) pass
+for the resolved resources. Measurement B has no evidence that a wider repeat
+or tile composition is required: the current scene exposes only local
+Runtime-authoritative terrain/platform bounds, and the generated ground is
+fitted to those bounds. Do not implement repeat/tiling speculatively.
 
 ## WO-S18-003 — Ground-Repeat Composition Measurement
 
-Status: **BLOCKED**. Code Complete: N/A. Product Verified: PENDING.
+Status: **BLOCKED**. Code Complete: YES for the bounded semantic projection
+repair; Product Verified: PENDING.
 
 ### Bounded Question
 
@@ -212,13 +232,26 @@ required?
 ### Blocking Acceptance Gate
 
 Needs one real generated scene with resolved background, ground, and platform
-visual resources plus observable Runtime positions/bounds. The current
-fallback-only run proves deterministic world creation and platform selection,
-but cannot measure generated-image composition because the image provider was
-unavailable.
+visual resources plus observable Runtime positions/bounds. A real image-backed
+scene was obtained and resolved Background/Terrain/Player/Enemy, but the
+provider timed out for `entity-platform-primary`. The platform selection and
+platform-bounds repair therefore has automated evidence only; the required
+real provider-backed platform application remains open.
 
 ### Forbidden Until Measurement
 
 No tiling/repeat implementation, Runtime geometry contract, image-pixel
-inspection, broad Renderer rewrite, visual quality framework, or new visual
-manager is authorized by this blocked item.
+inspection, broad Renderer rewrite, visual quality framework, new visual
+manager, provider regeneration loop, or Sprint 19 entry is authorized by this
+blocked item. Do not generate WO-S18-004 while this acceptance gate remains
+unresolved; the next-work discovery boundary is reached only after this item
+is Product Verified.
+
+### Current acceptance gate
+
+The remaining gate is narrow and external to the Renderer code: obtain one
+provider-successful `entity-platform-primary` result through the existing
+production image path, then verify that the real canvas applies that exact
+resource to the Runtime `Platform` bounds. A provider timeout is a provider
+failure and must retain deterministic/static fallback; it is not a platform
+composition pass.

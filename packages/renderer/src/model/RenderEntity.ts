@@ -5,6 +5,8 @@
  * Properties:
  *   - `id`: unique entity identifier (mirrors Runtime Entity.id)
  *   - `type`: entity type string (mirrors Runtime Entity.type)
+ *   - `semanticName`: optional semantic name projected from the Runtime
+ *     semantic component for role-aware visual selection
  *   - `position`: optional 2D spatial position (when PositionComponent exists)
  *
  * Constraints (WO-S9-002, WO-S9-003):
@@ -18,5 +20,6 @@ import type { RenderPosition } from './RenderPosition'
 export interface RenderEntity {
   readonly id: string
   readonly type: string
+  readonly semanticName?: string
   readonly position?: RenderPosition
 }
