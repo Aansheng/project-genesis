@@ -38,7 +38,7 @@ function store(result: AssetResolutionResult): AssetStore {
 }
 
 function sprite(): Sprite {
-  return { x: 0, y: 0, width: 0, height: 0, anchor: { set() {} }, destroy() {} } as unknown as Sprite
+  return { x: 0, y: 0, width: 0, height: 0, scale: { x: 1, y: 1 }, anchor: { set() {} }, destroy() {} } as unknown as Sprite
 }
 
 describe('Pixi sprite rendering foundation', () => {
@@ -102,11 +102,77 @@ describe('Pixi sprite rendering foundation', () => {
     expect(applications).toHaveLength(0)
     await Promise.resolve()
     resolveTexture({ width: 24, height: 24 } as Texture)
+    await new Promise(resolve => setTimeout(resolve, 0))
     await Promise.resolve()
     await Promise.resolve()
     await Promise.resolve()
     expect(view.sprite).toBeDefined()
     expect(applications).toEqual([{ assetId: 'player-asset', entityId: 'player', status: 'applied' }])
+  })
+
+  it('applies a generated presentation-state asset after a later render tick', async () => {
+    let resolveTexture!: (texture: Texture) => void
+    const runResource: ResolvedAssetResource = {
+      assetId: 'player-run', kind: 'character', target: 'entity', entityId: 'player', uri: '/player-run.png',
+    }
+    const runManifest: AssetManifest = {
+      entries: [{
+        assetId: runResource.assetId,
+        kind: runResource.kind,
+        target: runResource.target,
+        entityId: runResource.entityId,
+        presentationState: 'run',
+        status: 'resolved',
+        resource: { uri: runResource.uri },
+      }],
+    }
+    const applications: Array<{ assetId: string; entityId: string; status: string }> = []
+    const adapter: PixiAssetAdapter = {
+      load: () => new Promise(resolve => { resolveTexture = resolve }),
+      clear() {},
+    }
+    const renderer = new DefaultPixiEntityRenderer(container(), {
+      createGraphics: graphics,
+      assetManifest: runManifest,
+      assetStore: store({ status: 'resolved', resource: runResource }),
+      assetAdapter: adapter,
+      createSprite: sprite,
+      onAssetApplication: event => applications.push(event),
+    })
+    const runWorld: RenderWorld = {
+      entities: [{ id: 'player', type: 'player', position: { x: 10, y: 20 }, presentationState: 'run', velocity: { x: 3, y: 0 } }],
+    }
+
+    const first = renderer.render(runWorld).entities[0]
+    renderer.render(runWorld)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    resolveTexture({ width: 24, height: 24 } as Texture)
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(first.sprite).toBeUndefined()
+    expect(applications).toEqual([{ assetId: 'player-run', entityId: 'player', status: 'applied' }])
+  })
+
+  it('mirrors a generated Player sprite when Runtime velocity faces left', async () => {
+    const leftWorld: RenderWorld = {
+      entities: [{ id: 'player', type: 'player', position: { x: 10, y: 20 }, presentationState: 'run', velocity: { x: -3, y: 0 } }],
+    }
+    const renderer = new DefaultPixiEntityRenderer(container(), {
+      createGraphics: graphics,
+      assetManifest: manifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: { load: async () => ({ width: 24, height: 24 } as Texture), clear() {} },
+      createSprite: sprite,
+    })
+
+    const view = renderer.render(leftWorld).entities[0]
+    await new Promise(resolve => setTimeout(resolve, 0))
+    await Promise.resolve()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(view.sprite?.scale.x).toBe(-1)
   })
 
   it('retains the primitive when resolution fails', async () => {

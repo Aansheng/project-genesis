@@ -3,20 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.164 (camera-visible `ground-repeat-x` consumption; Product Verification complete)
+architecture_version: v1.165 (Runtime-derived Player presentation state asset wiring; Product Verification pending)
 current_sprint: Sprint 19 (ACTIVE)
 current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
-current_work_order_status: ready
+current_work_order_status: in_progress
 current_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
 current_control_plane_work_order_status: done
 last_completed_work_order: WO-S18-004 — Ground-Repeat Composition Across the Authoritative Ground Plane
 last_completed_product_work_order: WO-S18-004
-last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
-next_ready_work_order: WO-S19-001 — bounded Player presentation proof
-product_architecture_changed: yes — bounded WO-S18-004 Renderer consumption repair implemented v1.163 → v1.164 and is Product Verified
+last_completed_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
+next_ready_work_order: none — WO-S19-001 Product Verification pending; do not generate WO-S19-002
+product_architecture_changed: yes — WO-S18-004 Renderer consumption repair v1.163 → v1.164 is Product Verified; WO-S19-001 bounded Player state asset wiring is implemented v1.164 → v1.165 with Product Verification pending
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is ACTIVE under SPRINT_CONTINUOUS
-product_verified: YES for WO-S18-004 — real Codex CLI assets, exact semantic
-  Platform binding, camera-visible Ground tiling over Runtime authority, and
+product_verified: PENDING for WO-S19-001 — real Codex CLI idle/run/jump state requests observed; idle applied, run/jump renderer application still pending
+prior_product_verification: YES for WO-S18-004 — exact semantic Platform
+  binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
@@ -25,17 +26,17 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 18 — Visually Coherent Platformer Generation:
+Sprint 19 — Animated Entity Presentation:
 
-1. Preserve the Sprint 17 mechanically complete platformer lifecycle.
-2. Assign generated visual assets according to actual semantic/render usage.
-3. Compose visuals from Runtime-authoritative geometry; never infer gameplay
-   geometry from image pixels.
+1. Derive Player visual presentation from authoritative Runtime behavior.
+2. Prove idle, run, jump, and facing presentation without changing Runtime
+   gameplay or collision authority.
+3. Reuse equivalent semantic visual assets; Runtime entity identity is not
+   visual asset identity.
 
-Sprint 16 remains frozen at v1.157 and Sprint 17 remains frozen at v1.160.
-Sprint 18 is continuous and sequential: each completed product WO triggers one
-fresh Gap Analysis and exactly one next READY/BLOCKED WO; Sprint 19 is never
-entered automatically.
+Sprint 18 is frozen at v1.164. Sprint 19 is continuous and sequential: each
+completed product WO triggers one fresh Gap Analysis and exactly one next
+READY/BLOCKED WO; Sprint 20 is never entered automatically.
 
 ## Completed
 
@@ -343,14 +344,24 @@ existing `ground-repeat-x` material as a camera-visible tile across the
 Runtime-authoritative ground plane. No scene contamination, Ground coverage
 gap, Runtime-geometry change, or Platform material reuse remains measured.
 
+WO-S19-001 is Code Complete at v1.165: Player `idle`, `run`, and `jump`
+requirements are independent generated visuals; `presentationState` and
+`renderUsage` survive request/context/manifest evolution; Runtime velocity is
+projected to Renderer state selection; state-specific entries are selected with
+backward-compatible fallback; and left-facing sprites are mirrored. Targeted
+and affected package regressions, TypeScript, ESLint, and the web build pass.
+Real Studio observed separate Codex CLI Player state requests and an applied
+idle asset. Run/jump artifacts were published but final state application
+remains pending because the in-app browser keyboard bridge stopped delivering
+Runtime input. Product Verification is pending; no next WO is generated.
+
 ## Next Recommended Verification
 
-Sprint 17 success and failure/recovery are frozen and verified. WO-S18-001
-through WO-S18-004 are complete and Product Verified. The sole generated next
-item is SPRINT18_FREEZE_REVIEW, blocked for a Human/CTO freeze decision. Do
-not generate another Sprint 18 product WO or enter Sprint 19 automatically.
-The stale capability-matrix headers remain projection debt and are not the
-current product bottleneck.
+Resume WO-S19-001 Product Verification in the existing Game session: deliver
+Runtime ArrowRight/ArrowLeft/Space input, observe Player run/jump selection,
+landing/stopping transitions, and confirm the three state-specific assets reach
+`renderer applied` with clean browser diagnostics. Do not generate WO-S19-002
+until this WO is Product Verified and a fresh Sprint 19 gap analysis is run.
 
 ## Authority
 

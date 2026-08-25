@@ -18,7 +18,7 @@
  */
 
 import type { World } from '@genesis/shared'
-import { isPositionComponent } from '@genesis/shared'
+import { isPositionComponent, isVelocityComponent } from '@genesis/shared'
 import type { RenderWorld, RenderEntity, RenderPosition } from '../model'
 import { EMPTY_RENDER_WORLD } from '../model'
 import type { RuntimeRendererAdapter } from './RuntimeRendererAdapter'
@@ -38,6 +38,10 @@ export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
 
       const position = this.extractPosition(entity)
       const semanticName = this.extractSemanticName(entity)
+      const velocity = entity.components?.find(isVelocityComponent)?.properties
+      const presentationState = entity.type === 'player'
+        ? velocity && velocity.y !== 0 ? 'jump' : velocity && velocity.x !== 0 ? 'run' : 'idle'
+        : undefined
 
       entities.push(
         Object.freeze({
@@ -45,6 +49,8 @@ export class DefaultRuntimeRendererAdapter implements RuntimeRendererAdapter {
           type: entity.type,
           ...(semanticName ? { semanticName } : {}),
           ...(position ? { position } : {}),
+          ...(velocity ? { velocity: Object.freeze({ ...velocity }) } : {}),
+          ...(presentationState ? { presentationState } : {}),
         })
       )
     }

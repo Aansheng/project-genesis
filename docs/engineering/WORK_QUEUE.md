@@ -7,13 +7,13 @@ queue_version: 1
 updated: 2026-08-25
 current_sprint: Sprint 19
 current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
-current_work_order_status: READY
+current_work_order_status: IN_PROGRESS
 current_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
 current_control_plane_work_order_status: DONE
 last_completed_work_order: WO-S18-004
-next_work_order: WO-S19-001 — READY
+next_work_order: NONE — WO-S19-001 Product Verification pending; do not generate WO-S19-002
 continuation_mode: SPRINT_CONTINUOUS
-primary_architecture_changing_work_items_in_progress: 0
+primary_architecture_changing_work_items_in_progress: 1
 
 ## Queue rules
 
@@ -1399,10 +1399,11 @@ human_decision_required: NO
 
 ## WO-S19-001 — Runtime-Derived Player Presentation State Assets
 
-status: READY
+status: IN_PROGRESS
 priority: P0
 dependencies: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS DONE
 architecture_before: v1.164
+architecture_after: v1.165
 mission: Prove one Player's idle, run, jump, and facing presentation from
   Runtime behavior without changing Runtime gameplay/collision authority.
 allowed_scope: Separate Player state images through the existing request/
@@ -1419,3 +1420,9 @@ acceptance: Standing Player is idle; horizontal motion visibly presents run;
   remains functional and browser diagnostics stay clean.
 product_verification: PENDING
 human_decision_required: NO
+code_complete: YES
+verification_note: Real Studio issued separate Codex CLI idle/run/jump requests;
+  idle reached renderer applied and run/jump artifacts were published into the
+  manifest. Final run/jump renderer application is pending because the in-app
+  browser keyboard bridge stopped delivering Runtime input. No WO-S19-002 is
+  generated before this gate closes.

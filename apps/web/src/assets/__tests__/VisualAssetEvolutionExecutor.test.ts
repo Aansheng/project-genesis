@@ -158,6 +158,23 @@ describe('VisualAssetEvolutionExecutor', () => {
     expect(buildTargetedAssetManifest(updated, current).entries.find(entry => entry.entityId === 'cow-2')).toBe(remainingBefore)
   })
 
+  it('preserves presentation state and render usage in targeted manifest bindings', () => {
+    const playerSpecification = specification([{ id: 'player-1', category: 'player', name: 'Player' }])
+    const current = new DefaultAssetManifestBuilder().build(playerSpecification)
+    const run = playerSpecification.assets.find(asset => asset.presentationState === 'run')!
+
+    const next = buildTargetedAssetManifest(playerSpecification, current, new Map([
+      [run.id, { resource: { uri: '/generated/player-run.png' } }],
+    ]))
+
+    expect(next.entries.find(entry => entry.assetId === run.id)).toMatchObject({
+      presentationState: 'run',
+      renderUsage: 'entity-sprite',
+      status: 'resolved',
+      resource: { uri: '/generated/player-run.png' },
+    })
+  })
+
   it('rejects a late result after the execution token becomes stale and is idempotent', async () => {
     const updated = specification([{ id: 'cow-1', category: 'npc', name: 'Sheep' }])
     const canonical = groupAiGenerationRequirements(updated).find(([, requirements]) => requirements[0]?.visualArchetype === 'Sheep')![0]

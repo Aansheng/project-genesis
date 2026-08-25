@@ -16,10 +16,13 @@
  */
 
 import type { RenderPosition } from './RenderPosition'
+import type { AssetVisualState } from '@genesis/shared'
 
 export interface RenderEntity {
   readonly id: string
   readonly type: string
   readonly semanticName?: string
   readonly position?: RenderPosition
+  readonly velocity?: Readonly<{ x: number; y: number }>
+  readonly presentationState?: AssetVisualState
 }

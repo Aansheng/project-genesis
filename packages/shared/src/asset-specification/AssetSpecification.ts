@@ -37,6 +37,8 @@ export interface AssetRequirement {
   readonly entityId?: string
   readonly visualRole?: string
   readonly visualArchetype?: string
+  /** Optional bounded visual state; it is selected from Runtime truth only. */
+  readonly presentationState?: AssetVisualState
   /** How the current consumer should compose the generated visual. */
   readonly renderUsage?: AssetRenderUsage
   readonly requiredStates: readonly AssetVisualState[]

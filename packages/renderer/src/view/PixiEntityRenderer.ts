@@ -179,8 +179,6 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
     // Clear previous render
     this.clear()
-    const generation = this._renderGeneration
-
     const views: RenderEntityView[] = []
 
     for (const entity of world.entities) {
@@ -193,14 +191,14 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         preserved.sprite.y = entity.position.y
         this._container.addChild(preserved.sprite)
         views.push(preserved)
-        this.tryUpgradeToSprite(entity.id, preserved, this.resolveVisual(entity.type), entity.position, generation)
+        this.tryUpgradeToSprite(entity.id, preserved, this.resolveVisual(entity.type), entity.position, entity.presentationState, entity.velocity)
         continue
       }
 
       const gfx = this._createGraphics()
       const visual = this.resolveVisual(entity.type)
       const color = this.resolveColor(entity.type)
-      const assetEntry = this._assetManifest?.entries.find(entry => entry.entityId === entity.id)
+      const assetEntry = this.resolveAssetEntry(entity.id, entity.presentationState)
 
       gfx.beginFill(color)
 
@@ -227,7 +225,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         displayObject: gfx,
       }
       views.push(view)
-      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, generation)
+      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, entity.presentationState, entity.velocity)
     }
 
     this._entityViews = views
@@ -298,11 +296,12 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     view: RenderEntityView,
     visual: EntityVisualDefinition,
     position: NonNullable<RenderEntity['position']>,
-    generation: number,
+    presentationState?: import('@genesis/shared').AssetVisualState,
+    velocity?: Readonly<{ x: number; y: number }>,
   ): void {
     if (!this._assetManifest || !this._assetStore || !this._assetAdapter) return
 
-    const entry = this._assetManifest.entries.find(item => item.entityId === entityId)
+    const entry = this.resolveAssetEntry(entityId, presentationState)
     if (!entry) return
 
     const resource = this._assetStore.get(entry.assetId)
@@ -315,9 +314,9 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         ? this._assetAdapter!.load(result.resource)
         : Promise.reject(new Error('asset unavailable')))
       .then(texture => {
-        if (generation !== this._renderGeneration || !this._entityViews.includes(view)) return
+        if (!this._entityViews.includes(view)) return
         try {
-          this.upgrade(view, texture, visual, position)
+          this.upgrade(view, texture, visual, position, velocity)
           this._pendingAssetReplacements.delete(entry.assetId)
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'applied' })
         } catch {
@@ -330,11 +329,19 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       })
   }
 
+  private resolveAssetEntry(entityId: string, presentationState?: import('@genesis/shared').AssetVisualState) {
+    const entries = this._assetManifest?.entries.filter(item => item.entityId === entityId) ?? []
+    return entries.find(item => item.presentationState === presentationState)
+      ?? entries.find(item => !item.presentationState)
+      ?? entries[0]
+  }
+
   private upgrade(
     view: RenderEntityView,
     texture: Texture,
     visual: EntityVisualDefinition,
     position: NonNullable<RenderEntity['position']>,
+    velocity?: Readonly<{ x: number; y: number }>,
   ): void {
     const sprite = this._createSprite(texture)
     const anchor = getRenderAnchor(visual)
@@ -344,6 +351,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     const scale = Math.min(visual.width / nativeWidth, visual.height / nativeHeight)
     sprite.width = nativeWidth * scale
     sprite.height = nativeHeight * scale
+    if (velocity?.x && velocity.x < 0) sprite.scale.x *= -1
     sprite.x = position.x
     sprite.y = position.y
 

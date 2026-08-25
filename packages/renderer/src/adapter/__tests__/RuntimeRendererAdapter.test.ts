@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import type { World, Entity } from '@genesis/shared'
+import { createPositionComponent, createVelocityComponent, type World, type Entity } from '@genesis/shared'
 import { DefaultRuntimeRendererAdapter } from '../DefaultRuntimeRendererAdapter'
 import { EMPTY_RENDER_WORLD } from '../../model'
 
@@ -80,6 +80,17 @@ describe('Empty World', () => {
 })
 
 describe('Single Entity', () => {
+  it('derives Player presentation only from Runtime velocity', () => {
+    const adapter = new DefaultRuntimeRendererAdapter()
+    const player = (x: number, y: number): Entity => makeEntity({
+      id: 'player', type: 'player', components: [createPositionComponent(0, 400), createVelocityComponent(x, y)],
+    })
+
+    expect(adapter.adapt(makeWorld([player(0, 0)])).entities[0]).toMatchObject({ presentationState: 'idle', velocity: { x: 0, y: 0 } })
+    expect(adapter.adapt(makeWorld([player(2, 0)])).entities[0]).toMatchObject({ presentationState: 'run' })
+    expect(adapter.adapt(makeWorld([player(2, -4)])).entities[0]).toMatchObject({ presentationState: 'jump' })
+  })
+
   it('maps a single entity id and type', () => {
     const adapter = new DefaultRuntimeRendererAdapter()
     const entity = makeEntity({ id: 'hero-1', type: 'player' })

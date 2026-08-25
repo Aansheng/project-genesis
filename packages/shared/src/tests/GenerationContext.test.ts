@@ -137,6 +137,35 @@ describe('generation context builders', () => {
     expect(Object.isFrozen(context.references)).toBe(true)
   })
 
+  it('preserves the bounded presentation state in image context', () => {
+    const requirement = {
+      ...character('entity-player-run', 'Player', 'Player', 'player'),
+      presentationState: 'run' as const,
+      requiredStates: ['idle', 'run', 'jump'] as const,
+    }
+    const context = new DefaultImageGenerationContextBuilder().build({
+      metadata: { worldId: 'world-player', operationId: 'image-player-run', semanticRevision: 0, visualRevision: 0 },
+      semanticWorld: { worldType: 'platformer', entities: [{ id: 'player', category: 'player', name: 'Player' }] },
+      visualDesign: {
+        artDirection: visualDesign.artDirection,
+        theme: visualDesign.theme,
+        palette: visualDesign.palette,
+        environment: visualDesign.environment,
+      },
+      assetSpecification: {
+        visualContext: {
+          artDirection: visualDesign.artDirection,
+          theme: visualDesign.theme,
+          palette: visualDesign.palette,
+        },
+        assets: [requirement],
+      },
+      requirement,
+    })
+
+    expect(context.asset.presentationState).toBe('run')
+  })
+
   it('captures existing game-design request and capabilities without requiring a world', () => {
     const context = new DefaultGameDesignGenerationContextBuilder().build({
       metadata: { sessionId: 'session-a' },

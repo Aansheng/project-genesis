@@ -73,7 +73,12 @@ function createEntityRequirement(
 export class DefaultAssetSpecificationBuilder implements AssetSpecificationBuilder {
   build(specification: VisualDesignSpecification): AssetSpecification {
     const usedIds = new Set<string>()
-    const entityAssets = specification.entities.map(entity => createEntityRequirement(entity, usedIds))
+    const entityAssets = specification.entities.flatMap(entity => {
+      const primary = createEntityRequirement(entity, usedIds)
+      return entity.category === 'player'
+        ? primary.requiredStates.map(state => freeze({ ...primary, id: createUniqueId(`entity-${entity.entityId}-${state}`, usedIds), presentationState: state }))
+        : [primary]
+    })
     const terrain = freeze<AssetRequirement>({
       id: createUniqueId('terrain-main', usedIds),
       kind: 'terrain',

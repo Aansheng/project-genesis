@@ -35,7 +35,7 @@ the first proof must use separate state images rather than a spritesheet.
 
 ## WO-S19-001 — Runtime-Derived Player Presentation State Assets
 
-Status: **READY**
+Status: **IN_PROGRESS — Code Complete; Product Verification Pending**
 
 Scope: one Player only; separate idle/run/jump image assets; Runtime velocity
 and grounded truth projected to Renderer; state selection and horizontal mirror
@@ -44,3 +44,13 @@ where safe; real Studio product verification.
 Forbidden: AnimationManager/Engine, universal state-machine, BlendTree,
 spritesheet pipeline, skeletal/attack/death/hurt animation, all-entity rollout,
 or Runtime gameplay/collision behavior change.
+
+Implementation status: independent `idle`/`run`/`jump` generation identity and
+request prompts are wired; `presentationState` and `renderUsage` are preserved
+through context and manifest evolution; Runtime velocity derives the bounded
+state; Renderer selects state entries, preserves async upgrades after later
+render ticks, and mirrors left-facing sprites. Automated regression and web
+build gates pass. Real Studio has observed three separate Codex CLI Player
+requests and applied idle; run/jump artifacts are published but remain pending
+state-driven Renderer application because the in-app browser keyboard bridge
+did not deliver the final Runtime input. Do not generate WO-S19-002 yet.

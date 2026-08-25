@@ -1,5 +1,21 @@
 # Changelog
 
+### Sprint 19 — WO-S19-001 Implementation / Product Verification Pending
+
+- Player `idle`, `run`, and `jump` requirements now retain distinct visual
+  identities through image-generation requests, generation context, targeted
+  manifest bindings, and Renderer state selection. Runtime velocity remains the
+  sole presentation-state authority; negative horizontal velocity mirrors the
+  generated sprite.
+- The Renderer now allows a generated state asset to apply after a later render
+  tick while still rejecting stale views. Static pose switching is supported;
+  this is not true multi-frame animation.
+- Focused and full package regressions, TypeScript, ESLint, and the web build
+  pass. Real Studio observed independent Codex CLI Player state requests and an
+  applied idle asset. Run/jump artifacts were published but final state-driven
+  application remains pending because the in-app browser keyboard bridge did
+  not deliver Runtime input. No WO-S19-002 is generated before verification.
+
 ### Sprint 18 Freeze / Sprint 19 Authorization
 
 - Human/CTO froze Sprint 18 at v1.164: Code Complete = YES; Product Verified

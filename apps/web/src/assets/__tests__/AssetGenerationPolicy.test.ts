@@ -103,6 +103,24 @@ describe('AI asset generation policy', () => {
     expect(groupAiGenerationRequirements({ ...specification, assets })).toHaveLength(2)
   })
 
+  it('keeps Player presentation states as separate generated visuals', () => {
+    const playerStates = (['idle', 'run', 'jump'] as const).map(presentationState => ({
+      ...specification.assets[0],
+      id: `entity-player-${presentationState}`,
+      presentationState,
+      requiredStates: ['idle', 'run', 'jump'] as const,
+    }))
+    const next = { ...specification, assets: playerStates }
+
+    expect(groupAiGenerationRequirements(next).map(([canonical]) => canonical.id)).toEqual([
+      'entity-player-idle',
+      'entity-player-run',
+      'entity-player-jump',
+    ])
+    expect(buildImageGenerationRequest(next, playerStates[1]).prompt).toContain('run presentation pose')
+    expect(buildImageGenerationRequest(next, playerStates[2]).presentationState).toBe('jump')
+  })
+
   it('creates a new immutable manifest snapshot for a generated resource', () => {
     const current = { entries: specification.assets.map((asset) => ({ assetId: asset.id, kind: asset.kind, target: asset.target, entityId: asset.entityId, status: 'unresolved' as const })) }
     const result: Extract<ImageGenerationResult, { status: 'success' }> = {

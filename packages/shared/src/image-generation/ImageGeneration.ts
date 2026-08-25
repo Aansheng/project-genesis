@@ -3,6 +3,7 @@ import type {
   AssetRenderUsage,
   AssetView,
   AssetVisualContext,
+  AssetVisualState,
 } from '../asset-specification'
 import type {
   AssetResourceMetadata,
@@ -47,6 +48,7 @@ export interface ImageGenerationConstraints {
 export interface ImageGenerationRequest {
   readonly assetId: string
   readonly entityId?: string
+  readonly presentationState?: AssetVisualState
   readonly mode: ImageGenerationMode
   readonly prompt: string
   readonly subject?: string
