@@ -3,21 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.163 (bounded semantic platform projection repair; Product Verification pending)
+architecture_version: v1.163 (bounded semantic platform projection repair; Product Verification complete)
 current_sprint: Sprint 18 (ACTIVE)
-current_work_order: WO-S18-003 — Ground-Repeat Composition Measurement
-current_work_order_status: blocked
-current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
+current_work_order: SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
+current_work_order_status: blocked_pending_human_cto_freeze_decision
+current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003
 current_control_plane_work_order_status: done
-last_completed_work_order: WO-S18-002 — Consume Bounded Platform Usage in Environment Composition
-last_completed_product_work_order: WO-S18-002
-last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
-next_ready_work_order: WO-S18-003 — BLOCKED pending provider-backed platform application
-product_architecture_changed: yes — bounded WO-S18-003 repair implemented v1.162 → v1.163; Product Verification pending
+last_completed_work_order: WO-S18-003 — Ground-Repeat Composition Measurement
+last_completed_product_work_order: WO-S18-003
+last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003
+next_ready_work_order: none — SPRINT18_FREEZE_REVIEW is blocked on Human/CTO decision
+product_architecture_changed: yes — bounded WO-S18-003 repair implemented v1.162 → v1.163 and is Product Verified
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is ACTIVE under SPRINT_CONTINUOUS
-product_verified: PENDING for WO-S18-003 — Sprint 17 success/failure lifecycles
-  and WO-S18-001/WO-S18-002 remain Product Verified; the bounded semantic
-  platform repair awaits provider-backed platform application evidence
+product_verified: YES for WO-S18-003 — real Codex CLI Platform generation,
+  exact semantic binding, resolution, Renderer application, Runtime-authoritative
+  composition, and non-regressed gameplay/diagnostics are observed
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -162,6 +162,14 @@ entered automatically.
   entity-sprite was present. WO-S18-002 is complete at v1.162 and Product
   Verified: the Renderer now consumes the bounded platform usage while keeping
   Runtime-projected position/bounds authoritative.
+- WO-S18-003 is complete at v1.163 and Product Verified: a resumed real Studio
+  run requested `entity-elevated-platform-primary` through `codex-cli`; Full
+  Observatory recorded succeeded → published → manifest updated → resolved →
+  Renderer applied for `elevated-platform`. The visible grass-and-rock platform
+  has no unrelated scenery and fits the local 96×24 Platform projection; no
+  crop/stretch/tile defect, Runtime-geometry change, gameplay regression, or
+  browser warning/error was observed. Fresh Gap Analysis found no remaining
+  Sprint 18 product gap, so only the Human/CTO Freeze Review remains.
 - Historical pre-WO-S17-002 evidence: the configured AI gateway produced a structurally
   valid but mechanically
   incomplete platformer candidate containing only `player` and `platform`.
@@ -321,20 +329,19 @@ semantic name. The bounded v1.163 repair projects only `semantic.name` into
 the Renderer and maps the Platform surface to the existing platform catalog
 bounds. Runtime-projected position/collision geometry remains authoritative.
 
-The same real Studio run resolved and applied Background/Terrain/Player/Enemy
-through `codex-cli` (4/9 ready, clean browser diagnostics), but
-`entity-platform-primary` timed out at the provider boundary. Observatory
-truthfully retained fallback, so WO-S18-003 remains blocked on exact
-provider-backed platform application. Ground-repeat composition is not a
+The resumed real Studio run then resolved and applied the exact semantic
+Platform asset through `codex-cli`; Observatory records
+`entity-elevated-platform-primary` as succeeded/published/updated/resolved/
+applied and bound to `elevated-platform`. Visual inspection found no scene
+contamination or composition defect, so ground-repeat composition is not a
 measured blocker and no tiling/Runtime geometry work is authorized.
 
 ## Next Recommended Verification
 
-Sprint 17 success and failure/recovery are frozen and verified. WO-S18-001 and
-WO-S18-002 are complete and Product Verified. WO-S18-003 has completed the
-bounded measurement/repair portion but remains BLOCKED because the real
-provider-backed Platform asset timed out before exact application could be
-verified. Do not generate WO-S18-004, implement tiling/repeat or Runtime
+Sprint 17 success and failure/recovery are frozen and verified. WO-S18-001,
+WO-S18-002, and WO-S18-003 are complete and Product Verified. The sole
+generated next item is SPRINT18_FREEZE_REVIEW, blocked for a Human/CTO freeze
+decision. Do not generate WO-S18-004, implement tiling/repeat or Runtime
 geometry speculatively, or enter Sprint 19 automatically. The stale
 capability-matrix headers remain projection debt and are not the current
 product bottleneck.

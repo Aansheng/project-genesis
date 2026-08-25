@@ -6,12 +6,12 @@ not a database or task service.
 queue_version: 1
 updated: 2026-08-25
 current_sprint: Sprint 18
-current_work_order: WO-S18-003 — Ground-Repeat Composition Measurement
-current_work_order_status: BLOCKED
-current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
+current_work_order: SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
+current_work_order_status: BLOCKED_PENDING_HUMAN_CTO_FREEZE_DECISION
+current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003
 current_control_plane_work_order_status: DONE
-last_completed_work_order: WO-S18-002
-next_work_order: WO-S18-003 — BLOCKED pending provider-backed platform application
+last_completed_work_order: WO-S18-003
+next_work_order: SPRINT18_FREEZE_REVIEW — BLOCKED pending Human/CTO freeze decision
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -1236,13 +1236,14 @@ human_decision_required: NO; blocked on an unresolved image-backed product
 
 ## WO-S18-003 — Ground-Repeat Composition Measurement
 
-status: BLOCKED
+status: DONE
 priority: P0
-state_transition: GENERATED_AFTER_SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_002 → MEASURED_WITH_BOUNDED_REPAIR → BLOCKED_PENDING_PROVIDER_PLATFORM_APPLICATION
+state_transition: GENERATED_AFTER_SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_002 → MEASURED_WITH_BOUNDED_REPAIR → BLOCKED_PENDING_PROVIDER_PLATFORM_APPLICATION → VERIFYING → DONE
 dependencies: WO-S18-002 DONE; one real generated scene with resolved
   background, ground, and platform resources is required
 architecture_before: v1.162
-architecture_expected_after: v1.163 for the bounded semantic projection repair; Product Verification pending
+architecture_expected_after: v1.163 for the bounded semantic projection repair
+architecture_after: v1.163
 mission: Measure the real image-backed platformer composition across background,
   ground, platform, and entity resources; apply only the smallest existing
   Renderer/adapter repair if the source path proves a role projection gap.
@@ -1251,12 +1252,68 @@ allowed_scope: Real product measurement and one bounded semantic projection
 forbidden_scope: Tiling/repeat implementation, Runtime geometry contract,
   image-pixel collision/inspection, broad Renderer rewrite, visual quality
   scoring, manager/framework creation, and Sprint 19 entry.
-blocking_gate: Background/Terrain/Player/Enemy resolved and applied through
-  codex-cli in the real Studio run. The required exact platform asset
-  entity-platform-primary timed out at the existing provider boundary, so
-  the platform selection/bounds repair has automated evidence but not real
-  provider-backed application evidence. Provider failure must retain fallback.
-product_verification: PENDING — real platform provider application unresolved
-code_complete: YES for the bounded semantic projection repair
-human_decision_required: NO — this is an unresolved acceptance/product
-  measurement gate, not a direction change.
+blocking_gate: PASS — the resumed real Studio request emitted the existing
+  `entity-elevated-platform-primary` Codex CLI request for the semantic
+  `Elevated Platform` entity. Observatory recorded `codex-cli → succeeded →
+  published → manifest updated → resolved → Renderer applied`, bound to
+  `elevated-platform`. The existing semantic projection selected the exact
+  entity sprite and the existing `platform` catalog bounds (96×24); Runtime
+  geometry/collision remained unchanged.
+product_verification: YES — 2026-08-25 real Studio/Observatory evidence. The
+  generated platform was a local grass-and-rock surface with no unrelated sky
+  or scenery; no problematic crop/stretch/tile behavior was observed. Background,
+  terrain ground material, Player, Enemy, Coin, and Goal remained applied;
+  browser warning/error logs were empty and movement/jump input remained live.
+code_complete: YES
+human_decision_required: NO — the provider-backed acceptance gate closed without
+  a direction or architecture change.
+
+## SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003 — Fresh Product-Level Gap Analysis
+
+status: DONE
+priority: P0
+dependencies: WO-S18-003 DONE with real provider-backed Platform application
+mission: Re-evaluate the Sprint 18 checkpoint from the actual image-backed
+  rendered result and generate at most one next work item.
+measured_result: Verified capabilities are (A) real provider success and
+  truthful Observatory lifecycle, (B) exact semantic Platform-to-asset binding
+  and Renderer application, and (C) Runtime-authoritative geometry composition
+  with Background, ground material, and entity rendering intact. The generated
+  platform is role-correct and locally composed; it contains no unrelated
+  scene/background content and shows no measured crop, stretch, or tiling
+  defect. Ground-repeat-x does not leave the measured Runtime ground bound
+  uncovered. The mechanically complete gameplay flow and browser diagnostics
+  remain clean.
+selection: No Sprint 18 product architecture gap remains. The sole next item
+  is the required Sprint Freeze Review, not a visual implementation WO.
+selected_work_order: SPRINT18_FREEZE_REVIEW
+product_verification: NOT_APPLICABLE — discovery reconciles already captured
+  WO-S18-003 product evidence.
+human_decision_required: YES for the freeze decision only; no new product
+  direction or architecture choice is requested.
+
+## SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_WO_S18_003_GAP_ANALYSIS → BLOCKED_PENDING_HUMAN_CTO_FREEZE_DECISION
+priority: P0
+dependencies: WO-S18-001 DONE; WO-S18-002 DONE; WO-S18-003 DONE; Sprint 17
+  remains FROZEN at v1.160
+architecture_before: v1.163
+architecture_expected_after: v1.163
+mission: Evaluate whether Sprint 18's visual-coherence goal is satisfied by
+  the accumulated real provider-backed rendering evidence and make the
+  Human/CTO freeze decision explicit.
+allowed_scope: Sprint-level evidence reconciliation, deferred-gap accounting,
+  and a Human/CTO freeze decision.
+forbidden_scope: New visual architecture, tiling/repeat implementation, Runtime
+  geometry/collision changes, provider retry infrastructure, Sprint 19 entry,
+  or a pre-generated future-Sprint backlog.
+acceptance: The review may pass only if the natural-language Studio path proves
+  provider-successful, resolved, entity-bound, Renderer-applied Platform
+  artwork alongside non-regressed Background/ground/entity rendering; Runtime
+  geometry remains authoritative; and the measured image contains neither
+  unrelated scene content nor problematic composition behavior.
+product_verification: YES for the prerequisite WO-S18-003; the review itself
+  introduces no product change.
+human_decision_required: YES — choose FREEZE or CONTINUE within Sprint 18.

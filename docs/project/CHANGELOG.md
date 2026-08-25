@@ -1,5 +1,26 @@
 # Changelog
 
+### Sprint 18 — WO-S18-003 Provider-Backed Platform Product Verification
+
+- Resumed the existing production-intended Codex CLI path with a real Studio
+  platformer request. The semantic `Elevated Platform` requirement emitted and
+  completed as `entity-elevated-platform-primary` with the truthful lifecycle
+  `codex-cli → succeeded → published → manifest updated → resolved → Renderer
+  applied`; Full Observatory records the exact `elevated-platform` binding.
+- The Renderer used the Platform-specific visual instead of the ground material
+  and composed it against the existing 96×24 platform catalog bounds. Runtime
+  position/collision geometry was unchanged and remains authoritative.
+- Visual inspection found a local grass-and-rock platform with no unrelated
+  sky/background scenery and no measured crop, stretch, or tile defect.
+  Background, terrain ground material, Player, Enemy, Coin, and Goal remained
+  generated/applied; gameplay input remained live and browser warning/error
+  diagnostics were empty.
+- WO-S18-003 is DONE: Code Complete = YES; Product Verified = YES. Fresh Gap
+  Analysis found no remaining Sprint 18 visual architecture gap, so the only
+  generated next item is `SPRINT18_FREEZE_REVIEW`, blocked solely for the
+  Human/CTO freeze decision. No tiling, Runtime geometry, provider retry
+  infrastructure, or Sprint 19 work was introduced.
+
 ### Sprint 18 — WO-S18-003 Real Image-Backed Composition Measurement
 
 - The real 8787 Studio path was re-run with the natural-language platformer
