@@ -82,6 +82,21 @@ function sprite(): Sprite {
   return { x: 0, y: 0, width: 0, height: 0, destroy() {} } as unknown as Sprite
 }
 
+function tilingSprite(width = 0, height = 0): Sprite & { tileScale: { x: number; y: number; set(x: number, y?: number): void } } {
+  return {
+    x: 0,
+    y: 0,
+    width,
+    height,
+    tileScale: {
+      x: 1,
+      y: 1,
+      set(x: number, y = x) { this.x = x; this.y = y },
+    },
+    destroy() {},
+  } as unknown as Sprite & { tileScale: { x: number; y: number; set(x: number, y?: number): void } }
+}
+
 function graphics(): Graphics {
   return { beginFill() { return this }, drawRect() { return this }, endFill() { return this }, destroy() {} } as unknown as Graphics
 }
@@ -164,6 +179,7 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
       assetStore: store({ status: 'resolved', resource }),
       assetAdapter: { load: async () => ({ width: 128, height: 32 } as Texture), clear() {} },
       createSprite: sprite,
+      createTilingSprite: (_texture, width, height) => tilingSprite(width, height),
       createGraphics: graphics,
       createContainer: environmentLayer,
       onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
@@ -188,6 +204,7 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
       assetStore: store({ status: 'resolved', resource }),
       assetAdapter: { load: async () => ({ width: 128, height: 32 } as Texture), clear() {} },
       createSprite: sprite,
+      createTilingSprite: (_texture, width, height) => tilingSprite(width, height),
       createGraphics: graphics,
       createContainer: environmentLayer,
       onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
@@ -210,6 +227,7 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
       assetStore: store({ status: 'resolved', resource }),
       assetAdapter: { load: () => new Promise<Texture>(resolve => { textureResolvers.push(resolve) }), clear() {} },
       createSprite: sprite,
+      createTilingSprite: (_texture, width, height) => tilingSprite(width, height),
       createGraphics: graphics,
       createContainer: environmentLayer,
       onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
@@ -224,6 +242,39 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
 
     expect(applied).toContainEqual({ assetId: 'terrain-main', entityId: 'ground' })
     expect(applied).toContainEqual({ assetId: 'entity-platform-primary', entityId: 'platform' })
+  })
+
+  it('tiles ground-repeat-x across the current camera-visible ground plane without widening a platform', async () => {
+    const root = rootContainer()
+    const camera = { update: () => ({ x: 500, y: 0 }) } as unknown as CameraController
+    const tiles: Array<Sprite & { tileScale: { x: number; y: number } }> = []
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      cameraController: camera,
+      cameraAnchor: { x: 400, y: 300 },
+      assetManifest: roleAwareManifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: { load: async () => ({ width: 128, height: 32 } as Texture), clear() {} },
+      createSprite: sprite,
+      createTilingSprite: (_texture, width, height) => {
+        const tile = tilingSprite(width, height)
+        tiles.push(tile)
+        return tile
+      },
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+    })
+
+    renderer.render(world())
+    await flush()
+
+    expect(tiles).toHaveLength(1)
+    expect(tiles[0]).toMatchObject({ x: 100, y: 400, width: 800, height: 32 })
+    expect(tiles[0]!.tileScale).toMatchObject({ x: 1, y: 1 })
+    const sprites = (root.children[1] as unknown as Container & { children: Sprite[] }).children
+    expect(sprites).toHaveLength(2)
+    expect(sprites[1]).toMatchObject({ x: 300, y: 320, width: 96, height: 24 })
   })
 
   it('invalidates only a changed environment resource when the manifest is rebound', () => {

@@ -1,5 +1,30 @@
 # Changelog
 
+### Sprint 18 — WO-S18-004 Ground-Repeat Composition Across the Authoritative Ground Plane
+
+- A direct Human/CTO Studio observation superseded the earlier freeze
+  recommendation: the primary Ground was visually a small rectangle although
+  the player could keep walking across the Runtime ground plane.
+- Measurement established renderer consumption, not a Runtime-layout defect.
+  The `ground` entity is semantic `Ground`, `type: terrain`, position `(160,
+  400)`, with no finite bounds component; `DefaultGroundCollisionSystem` owns
+  a continuous horizontal `groundY=400` plane. The RenderEntity likewise has
+  no width/height. Before this WO Renderer displayed the terrain catalog's one
+  `64×32` sprite despite the resolved `terrain-main` material carrying
+  `ground-repeat-x`; the real generated terrain texture is `2172×724`.
+- `PixiEnvironmentRenderer` now uses Pixi `TilingSprite` only for non-Platform
+  `ground-repeat-x`, tiles it over the camera-visible authoritative interval,
+  and retains bounded sprites for Platform and legacy terrain. Runtime
+  geometry/collision, image-independent gameplay, and Platform composition are
+  unchanged. See ADR-0278.
+- Real Studio product verification showed Background cover, continuous Ground
+  coverage with no apparent walking in the sky, provider-resolved local
+  Platform lifecycle, independent sprites, working move/jump lifecycle, and
+  an empty browser warn/error log. WO-S18-004 is DONE: Code Complete = YES;
+  Product Verified = YES. Fresh Gap Analysis found no further measured Sprint
+  18 visual-composition gap; Sprint 18 Freeze Review is now pending Human/CTO
+  decision. Sprint 19 was not entered.
+
 ### Sprint 18 — WO-S18-003 Provider-Backed Platform Product Verification
 
 - Resumed the existing production-intended Codex CLI path with a real Studio

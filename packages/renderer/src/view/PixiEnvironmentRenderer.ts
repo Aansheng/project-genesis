@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
+import { Container, Graphics, Sprite, TilingSprite, type Texture } from 'pixi.js'
 import type { AssetManifest } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
 import type { RenderEntity, RenderWorld } from '../model'
@@ -21,6 +21,7 @@ export interface PixiEnvironmentRendererOptions {
   readonly createGraphics?: () => Graphics
   readonly createContainer?: () => Container
   readonly createSprite?: (texture: Texture) => Sprite
+  readonly createTilingSprite?: (texture: Texture, width: number, height: number) => Sprite
   readonly onAssetApplication?: (event: { readonly assetId: string; readonly entityId?: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }) => void
 }
 
@@ -28,6 +29,7 @@ interface EnvironmentRenderTarget {
   readonly assetId: string
   readonly resourceUri?: string
   readonly bounds: RenderBounds
+  readonly repeatX: boolean
 }
 
 /** World-level visuals; no environment asset is a Runtime entity. */
@@ -39,6 +41,7 @@ export class PixiEnvironmentRenderer {
   private readonly assetStore: AssetStore | null
   private readonly assetAdapter: PixiAssetAdapter | null
   private readonly createSprite: (texture: Texture) => Sprite
+  private readonly createTilingSprite: (texture: Texture, width: number, height: number) => Sprite
   private readonly onAssetApplication?: PixiEnvironmentRendererOptions['onAssetApplication']
   private readonly visualCatalog: EntityVisualCatalog
   private readonly createGraphics: () => Graphics
@@ -64,6 +67,7 @@ export class PixiEnvironmentRenderer {
     this.visualCatalog = options.visualCatalog ?? new DefaultEntityVisualCatalog()
     this.createGraphics = options.createGraphics ?? (() => new Graphics())
     this.createSprite = options.createSprite ?? ((texture) => new Sprite(texture))
+    this.createTilingSprite = options.createTilingSprite ?? ((texture, width, height) => new TilingSprite(texture, width, height))
     this.onAssetApplication = options.onAssetApplication
     this.manifest = options.assetManifest ?? null
     for (const entry of this.manifest?.entries ?? []) {
@@ -85,12 +89,16 @@ export class PixiEnvironmentRenderer {
         if ((entity.type !== 'terrain' && entity.type !== 'platform') || !entity.position) continue
         const visual = this.environmentVisualEntry(entity)
         if (!visual) continue
+        const repeatX = !this.isPlatformSurface(entity) && visual.renderUsage === 'ground-repeat-x'
         const visualType = this.isPlatformSurface(entity) ? 'platform' : entity.type
-        const bounds = projectRenderBounds(entity.position, this.visualCatalog.getVisual(visualType))
+        const bounds = repeatX
+          ? this.visibleGroundBounds(entity.position, camera)
+          : projectRenderBounds(entity.position, this.visualCatalog.getVisual(visualType))
         this.environmentRenderTargets.set(entity.id, {
           assetId: visual.assetId,
           resourceUri: visual.resource?.uri,
           bounds,
+          repeatX,
         })
         this.upgradeTerrain(visual.assetId, entity.id)
       }
@@ -178,6 +186,23 @@ export class PixiEnvironmentRenderer {
     return entity.type === 'platform' || semanticName?.includes('platform') === true
   }
 
+  /**
+   * Ground collision is an authoritative horizontal Runtime plane at the
+   * Ground entity's Y coordinate. Render only its current camera-visible
+   * interval, so the existing repeatable material covers the walkable surface
+   * without inventing a finite collision width from image pixels.
+   */
+  private visibleGroundBounds(position: NonNullable<RenderEntity['position']>, camera: Readonly<{ x: number; y: number }> | undefined): RenderBounds {
+    const visual = this.visualCatalog.getVisual('terrain')
+    const local = projectRenderBounds(position, visual)
+    return Object.freeze({
+      x: (camera?.x ?? 0) - this.cameraAnchor.x,
+      y: local.y,
+      width: this.width,
+      height: local.height,
+    })
+  }
+
   private resolveTexture(assetId: string): Promise<Texture> {
     const entry = this.manifest?.entries.find(item => item.assetId === assetId)
     if (!entry || !this.assetStore || !this.assetAdapter) return Promise.reject(new Error('environment asset unavailable'))
@@ -195,12 +220,20 @@ export class PixiEnvironmentRenderer {
         || target.assetId !== assetId
         || target.resourceUri !== manifestEntry?.resource?.uri
       ) return
-      const sprite = this.createSprite(texture)
+      const sprite = target.repeatX
+        ? this.createTilingSprite(texture, target.bounds.width, target.bounds.height)
+        : this.createSprite(texture)
       sprite.x = target.bounds.x
       sprite.y = target.bounds.y
-      // The generated image is skin; the Runtime/render bounds remain authoritative.
-      sprite.width = target.bounds.width
-      sprite.height = target.bounds.height
+      if (target.repeatX) {
+        const tileScale = (sprite as Sprite & { tileScale?: { set(x: number, y?: number): void } }).tileScale
+        const scale = target.bounds.height / (texture.height || target.bounds.height)
+        tileScale?.set(scale, scale)
+      } else {
+        // The generated image is skin; the Runtime/render bounds remain authoritative.
+        sprite.width = target.bounds.width
+        sprite.height = target.bounds.height
+      }
       this.terrainLayer.addChild(sprite)
       this.onAssetApplication?.({ assetId, entityId, status: 'applied' })
     }).catch(() => {

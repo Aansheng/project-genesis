@@ -8,9 +8,9 @@ updated: 2026-08-25
 current_sprint: Sprint 18
 current_work_order: SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
 current_work_order_status: BLOCKED_PENDING_HUMAN_CTO_FREEZE_DECISION
-current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003
+current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
 current_control_plane_work_order_status: DONE
-last_completed_work_order: WO-S18-003
+last_completed_work_order: WO-S18-004
 next_work_order: SPRINT18_FREEZE_REVIEW — BLOCKED pending Human/CTO freeze decision
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
@@ -1270,45 +1270,108 @@ human_decision_required: NO — the provider-backed acceptance gate closed witho
 
 ## SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003 — Fresh Product-Level Gap Analysis
 
-status: DONE
+status: SUPERSEDED_BY_HUMAN_CTO_PRODUCT_OBSERVATION
 priority: P0
 dependencies: WO-S18-003 DONE with real provider-backed Platform application
 mission: Re-evaluate the Sprint 18 checkpoint from the actual image-backed
   rendered result and generate at most one next work item.
-measured_result: Verified capabilities are (A) real provider success and
+measured_result: Initial verification correctly established (A) real provider success and
   truthful Observatory lifecycle, (B) exact semantic Platform-to-asset binding
   and Renderer application, and (C) Runtime-authoritative geometry composition
   with Background, ground material, and entity rendering intact. The generated
   platform is role-correct and locally composed; it contains no unrelated
   scene/background content and shows no measured crop, stretch, or tiling
-  defect. Ground-repeat-x does not leave the measured Runtime ground bound
-  uncovered. The mechanically complete gameplay flow and browser diagnostics
-  remain clean.
-selection: No Sprint 18 product architecture gap remains. The sole next item
-  is the required Sprint Freeze Review, not a visual implementation WO.
-selected_work_order: SPRINT18_FREEZE_REVIEW
+  defect. A subsequent direct Human/CTO Studio observation superseded the
+  initial no-gap conclusion: the continuous Runtime ground plane was visibly
+  covered by only one small terrain rectangle, so walking could appear to be
+  in the sky. That measurement is retained as the source for WO-S18-004.
+selection: Superseded. The initial freeze-review selection is invalidated by
+  the measured Ground composition defect; no Sprint 19 work is implied.
+selected_work_order: WO-S18-004
 product_verification: NOT_APPLICABLE — discovery reconciles already captured
   WO-S18-003 product evidence.
-human_decision_required: YES for the freeze decision only; no new product
-  direction or architecture choice is requested.
+human_decision_required: NO — the correction specifies the bounded measurement
+  and decision rule for the current Sprint work.
+
+## WO-S18-004 — Ground-Repeat Composition Across the Authoritative Ground Plane
+
+status: DONE
+priority: P0
+state_transition: GENERATED_FROM_DIRECT_HUMAN_CTO_PRODUCT_OBSERVATION → MEASURED_RUNTIME_VS_RENDERER → IMPLEMENTED → PRODUCT_VERIFIED → DONE
+dependencies: WO-S18-003 DONE; direct Studio observation of the primary Ground
+  visible-coverage mismatch
+architecture_before: v1.163
+architecture_after: v1.164
+mission: Make existing `ground-repeat-x` consumption cover the existing
+  Runtime-authoritative continuous Ground plane, without changing Runtime
+  geometry, collision, or Platform-local composition.
+allowed_scope: Renderer-only camera-visible horizontal tiling for the existing
+  `ground-repeat-x` material; focused regression, documentation, and real
+  Studio product verification.
+forbidden_scope: Runtime/layout/collision changes; image-pixel geometry;
+  stretching a world-width image; tilemap, tileset/terrain manager, map editor,
+  new visual ontology, provider retries, broad Renderer rewrite, or Sprint 19.
+measurement: Primary entity is `ground`, semantic role `Ground`, type `terrain`,
+  Runtime/Inspector position `(160, 400)`, two components (position and
+  semantic), and no finite width/height component. RenderEntity preserves
+  `{ id: ground, type: terrain, semanticName: Ground, position: (160, 400) }`.
+  Runtime ground authority is `DefaultGroundCollisionSystem`'s horizontally
+  continuous `groundY = 400` plane. Before this WO, Renderer projected the
+  terrain catalog's one `64 × 32` sprite, although the resolved
+  `terrain-main` asset carries `ground-repeat-x` and its real generated source
+  image measured `2172 × 724` pixels. Therefore the measured cause is B:
+  Renderer consumption, not narrow Runtime geometry.
+implementation: `PixiEnvironmentRenderer` consumes non-Platform
+  `ground-repeat-x` as a Pixi `TilingSprite` over the current camera-visible
+  Runtime-ground interval, uniformly scaled to the existing terrain height.
+  Platform and legacy terrain stay bounded sprites; no Runtime authority moved.
+acceptance: PASS — real Studio visual inspection shows Background cover and a
+  continuous Ground material across the full visible walkable surface; horizontal
+  walking no longer reads as walking in the sky. The resolved semantic Platform
+  lifecycle remains `codex-cli → succeeded → published → manifest updated →
+  resolved → Renderer applied`; entity sprites remain independent; movement and
+  jump work; browser warning/error diagnostics are empty.
+code_complete: YES
+product_verification: YES — real provider-backed Studio run on 2026-08-25;
+  source/canvas/Observatory evidence recorded above.
+human_decision_required: NO
+
+## SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004 — Fresh Product-Level Gap Analysis
+
+status: DONE
+priority: P0
+dependencies: WO-S18-004 DONE and Product Verified
+mission: Re-evaluate Sprint 18 from the corrected real rendered result and
+  select at most one next work item.
+measured_result: Background remains scene-covering; Ground now horizontally
+  repeats across the camera-visible authoritative walkable plane; Platform is
+  still a distinct locally bounded provider-resolved visual; player, enemy,
+  coin, and goal remain independent generated sprites; Runtime geometry,
+  collision, movement/jump, and browser diagnostics remain clean. No additional
+  measured visual-composition blocker remains.
+selection: The Sprint checkpoint is satisfied. Generate only the required
+  Sprint 18 Freeze Review; do not generate another product WO or enter Sprint 19.
+selected_work_order: SPRINT18_FREEZE_REVIEW
+product_verification: NOT_APPLICABLE — discovery reconciles WO-S18-004 evidence.
+human_decision_required: YES for the freeze decision.
 
 ## SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
 
 status: BLOCKED
-state_transition: GENERATED_AFTER_WO_S18_003_GAP_ANALYSIS → BLOCKED_PENDING_HUMAN_CTO_FREEZE_DECISION
+state_transition: GENERATED_AFTER_WO_S18_003_GAP_ANALYSIS → SUPERSEDED_BY_GROUND_MEASUREMENT → REACTIVATED_AFTER_WO_S18_004_GAP_ANALYSIS → BLOCKED_PENDING_HUMAN_CTO_FREEZE_DECISION
 priority: P0
 dependencies: WO-S18-001 DONE; WO-S18-002 DONE; WO-S18-003 DONE; Sprint 17
   remains FROZEN at v1.160
-architecture_before: v1.163
-architecture_expected_after: v1.163
+architecture_before: v1.164
+architecture_expected_after: v1.164
 mission: Evaluate whether Sprint 18's visual-coherence goal is satisfied by
   the accumulated real provider-backed rendering evidence and make the
   Human/CTO freeze decision explicit.
 allowed_scope: Sprint-level evidence reconciliation, deferred-gap accounting,
   and a Human/CTO freeze decision.
-forbidden_scope: New visual architecture, tiling/repeat implementation, Runtime
-  geometry/collision changes, provider retry infrastructure, Sprint 19 entry,
-  or a pre-generated future-Sprint backlog.
+forbidden_scope: New visual architecture, Runtime geometry/collision changes,
+  provider retry infrastructure, Sprint 19 entry, or a pre-generated future-
+  Sprint backlog.
 acceptance: The review may pass only if the natural-language Studio path proves
   provider-successful, resolved, entity-bound, Renderer-applied Platform
   artwork alongside non-regressed Background/ground/entity rendering; Runtime

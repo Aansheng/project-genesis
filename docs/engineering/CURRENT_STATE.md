@@ -3,21 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.163 (bounded semantic platform projection repair; Product Verification complete)
+architecture_version: v1.164 (camera-visible `ground-repeat-x` consumption; Product Verification complete)
 current_sprint: Sprint 18 (ACTIVE)
 current_work_order: SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
 current_work_order_status: blocked_pending_human_cto_freeze_decision
-current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003
+current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
 current_control_plane_work_order_status: done
-last_completed_work_order: WO-S18-003 — Ground-Repeat Composition Measurement
-last_completed_product_work_order: WO-S18-003
-last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_003
+last_completed_work_order: WO-S18-004 — Ground-Repeat Composition Across the Authoritative Ground Plane
+last_completed_product_work_order: WO-S18-004
+last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
 next_ready_work_order: none — SPRINT18_FREEZE_REVIEW is blocked on Human/CTO decision
-product_architecture_changed: yes — bounded WO-S18-003 repair implemented v1.162 → v1.163 and is Product Verified
+product_architecture_changed: yes — bounded WO-S18-004 Renderer consumption repair implemented v1.163 → v1.164 and is Product Verified
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is ACTIVE under SPRINT_CONTINUOUS
-product_verified: YES for WO-S18-003 — real Codex CLI Platform generation,
-  exact semantic binding, resolution, Renderer application, Runtime-authoritative
-  composition, and non-regressed gameplay/diagnostics are observed
+product_verified: YES for WO-S18-004 — real Codex CLI assets, exact semantic
+  Platform binding, camera-visible Ground tiling over Runtime authority, and
+  non-regressed gameplay/diagnostics are observed
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -168,8 +168,14 @@ entered automatically.
   Renderer applied for `elevated-platform`. The visible grass-and-rock platform
   has no unrelated scenery and fits the local 96×24 Platform projection; no
   crop/stretch/tile defect, Runtime-geometry change, gameplay regression, or
-  browser warning/error was observed. Fresh Gap Analysis found no remaining
-  Sprint 18 product gap, so only the Human/CTO Freeze Review remains.
+  browser warning/error was observed. A later direct Human/CTO observation
+  measured a distinct Ground coverage defect and superseded the initial
+  no-gap conclusion.
+- WO-S18-004 is complete at v1.164 and Product Verified: measurement proved
+  the continuous Runtime `groundY=400` plane was correct while Renderer drew
+  only one `64×32` terrain catalog sprite. The existing `ground-repeat-x`
+  material now tiles across the camera-visible authoritative interval; no
+  Runtime/collision change or Platform reuse was introduced.
 - Historical pre-WO-S17-002 evidence: the configured AI gateway produced a structurally
   valid but mechanically
   incomplete platformer candidate containing only `player` and `platform`.
@@ -257,8 +263,8 @@ entered automatically.
 
 - AI_GENERATION_CAPABILITY_MATRIX.md has an older v1.123 header.
 - VISUAL_CAPABILITY_MATRIX.md has an older v1.149 header.
-- `apps/web/src/projectMetadata.ts` was corrected to project `v1.163` /
-  `Sprint 18` after the bounded semantic platform projection repair. The older
+- `apps/web/src/projectMetadata.ts` projects `v1.164` / `Sprint 18` after the
+  bounded Ground repeat-consumption repair. The older
   AI/visual capability matrices remain projection debt.
   `AI_GENERATION_CAPABILITY_MATRIX.md` and `VISUAL_CAPABILITY_MATRIX.md`
   still carry older architecture headers; those remain projection debt and
@@ -329,22 +335,22 @@ semantic name. The bounded v1.163 repair projects only `semantic.name` into
 the Renderer and maps the Platform surface to the existing platform catalog
 bounds. Runtime-projected position/collision geometry remains authoritative.
 
-The resumed real Studio run then resolved and applied the exact semantic
-Platform asset through `codex-cli`; Observatory records
+The resumed real Studio run resolved and applied the exact semantic Platform
+asset through `codex-cli`; Observatory records
 `entity-elevated-platform-primary` as succeeded/published/updated/resolved/
-applied and bound to `elevated-platform`. Visual inspection found no scene
-contamination or composition defect, so ground-repeat composition is not a
-measured blocker and no tiling/Runtime geometry work is authorized.
+applied and bound to `elevated-platform`. Ground separately consumes its
+existing `ground-repeat-x` material as a camera-visible tile across the
+Runtime-authoritative ground plane. No scene contamination, Ground coverage
+gap, Runtime-geometry change, or Platform material reuse remains measured.
 
 ## Next Recommended Verification
 
-Sprint 17 success and failure/recovery are frozen and verified. WO-S18-001,
-WO-S18-002, and WO-S18-003 are complete and Product Verified. The sole
-generated next item is SPRINT18_FREEZE_REVIEW, blocked for a Human/CTO freeze
-decision. Do not generate WO-S18-004, implement tiling/repeat or Runtime
-geometry speculatively, or enter Sprint 19 automatically. The stale
-capability-matrix headers remain projection debt and are not the current
-product bottleneck.
+Sprint 17 success and failure/recovery are frozen and verified. WO-S18-001
+through WO-S18-004 are complete and Product Verified. The sole generated next
+item is SPRINT18_FREEZE_REVIEW, blocked for a Human/CTO freeze decision. Do
+not generate another Sprint 18 product WO or enter Sprint 19 automatically.
+The stale capability-matrix headers remain projection debt and are not the
+current product bottleneck.
 
 ## Authority
 
