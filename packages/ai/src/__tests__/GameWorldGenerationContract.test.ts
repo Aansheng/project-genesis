@@ -38,7 +38,11 @@ describe('structured game world generation contract', () => {
       objectives: [{ type: 'defeat-boss', target: 'final-boss' }],
       entities: [
         { id: 'player', category: 'player', name: 'Player' },
+        { id: 'terrain', category: 'terrain', name: 'Terrain' },
+        { id: 'platform', category: 'terrain', name: 'Platform' },
         { id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' },
+        { id: 'collectible', category: 'item', name: 'Coin' },
+        { id: 'goal', category: 'item', name: 'Goal' },
       ],
     })
 
@@ -47,12 +51,20 @@ describe('structured game world generation contract', () => {
       objectives: [{ type: 'defeat-boss', target: 'final-boss' }],
       entities: [
         { id: 'player', category: 'player', name: 'Player' },
+        { id: 'terrain', category: 'terrain', name: 'Terrain' },
+        { id: 'platform', category: 'terrain', name: 'Platform' },
         { id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' },
+        { id: 'collectible', category: 'item', name: 'Coin' },
+        { id: 'goal', category: 'item', name: 'Goal' },
       ],
     })
     expect(result.world).toEqual({ worldType: 'platformer', entities: [
       { id: 'player', category: 'player', name: 'Player' },
+      { id: 'terrain', category: 'terrain', name: 'Terrain' },
+      { id: 'platform', category: 'terrain', name: 'Platform' },
       { id: 'boss', category: 'enemy', name: 'Boss' },
+      { id: 'collectible', category: 'item', name: 'Coin' },
+      { id: 'goal', category: 'item', name: 'Goal' },
     ] })
     expect(Object.isFrozen(result.specification)).toBe(true)
   })

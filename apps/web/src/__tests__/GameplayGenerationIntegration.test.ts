@@ -9,6 +9,10 @@ const worldCandidate = {
   title: 'Gateway Platformer',
   entities: [
     { id: 'player', name: 'Player', category: 'player' },
+    { id: 'terrain', name: 'Terrain', category: 'terrain' },
+    { id: 'platform', name: 'Platform', category: 'terrain' },
+    { id: 'enemy', name: 'Enemy', category: 'enemy' },
+    { id: 'collectible', name: 'Coin', category: 'item' },
     { id: 'goal', name: 'Goal', category: 'item' },
   ],
 }
@@ -65,6 +69,8 @@ describe('Gameplay generation web integration', () => {
     expect(result.gameplaySpecification?.metadata.source).toBe('ai')
     expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'collect-coin')?.supportStatus).toBe('deferred')
     expect(result.gameplayDiagnostics?.validationStatus).toBe('valid')
+    expect(result.generationDiagnostics?.candidateDisposition).toBe('accepted')
+    expect(result.generationDiagnostics?.selectionOutcome).toBe('provider_accepted')
     expect(result.gameplayRuleSet?.bindingStatus).toBe('current')
     expect(result.gameplayRuleSet?.execution.status).toBe('active')
   })

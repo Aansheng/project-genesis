@@ -23,8 +23,8 @@ inputs, not pre-approved implementation scope.
 
 ## WO-S17-001 — Platformer Baseline Collectible Composition
 
-Status: **BLOCKED at Product Verification**. Code Complete: YES. Product
-Verified: NO.
+Status: **DONE**. Code Complete: YES. Product Verified: YES after
+WO-S17-002 closed the provider-path gate.
 
 Architecture before: v1.157.
 
@@ -54,12 +54,12 @@ reused unchanged.
 ### Product gate result
 
 The normal configured Studio path was also tested with `Create a simple 2D
-platformer`. Observatory reported `ai · success`, `Validation: passed`,
-`Design: platformer`, and `Entities: 2`; World Explorer contained only
-`player` and `platform`, Runtime stayed active at `Experience: 0`, `Level: 1`,
-and browser warning/error logs were empty. The structural validator accepts
-this candidate, so the new deterministic template is not reached on that
-path. This is a real product blocker, not a test-only discrepancy.
+platformer`. Before WO-S17-002, Observatory reported `ai · success`,
+`Validation: passed`, and applied an under-complete candidate. After the gate,
+the real Codex CLI candidate is structurally parsed, rejected as
+`product_incomplete`, and selects `deterministic_fallback`. Full Observatory
+shows the selection and the missing baseline requirements; browser
+warning/error logs are empty. Runtime receives the seven-entity baseline.
 
 ### Explicit boundary
 
@@ -74,18 +74,18 @@ remove → XP/level, and existing generic movement/jump, enemy, Health/damage,
 goal completion, Runtime session state, World Evolution continuity, stale
 isolation, and projections remain covered.
 
-Selected next blocker: **provider candidate completeness at the generation
-trust boundary**. A structurally valid AI candidate can still omit the enemy,
-collectible, goal, and terrain baseline needed by the approved loop. Failure,
-respawn, hazards, autonomous enemy behavior, score, and pacing remain
-unselected because the configured provider path does not yet reach the baseline
-loop.
+The selected provider candidate completeness blocker is resolved by
+WO-S17-002. A real Codex CLI candidate that omitted terrain/collectible was
+rejected rather than applied, and the deterministic baseline reached the
+already verified generic loop. Failure, respawn, hazards, autonomous enemy
+behavior, score, and pacing remain unselected because they are not measured
+blockers in the current baseline traversal.
 
 Exactly one next work item is generated:
 
 ## WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
 
-Status: **BLOCKED — Human/CTO product acceptance gate**.
+Status: **DONE**. Code Complete: YES. Product Verified: YES.
 
 Architecture before: v1.158.
 
@@ -111,9 +111,96 @@ New Runtime authority, genre-specific Runtime, managers, arbitrary code/eval,
 provider capability claims, death/respawn, hazards, enemy AI, score, spawning,
 pacing overhaul, broad quality infrastructure, visual polish, or Sprint 18.
 
-### Gate
+### Human/CTO decision and implementation
 
-Human/CTO must resolve whether the deterministic platformer baseline is the
-minimum acceptance floor for a valid provider candidate and whether an
-under-complete candidate must fail closed into the existing deterministic
-fallback. Until resolved, no second implementation WO is executed.
+Human/CTO approved the fail-closed product semantics: a complete provider
+candidate is accepted; a structurally valid but product-incomplete platformer
+candidate is rejected and selects the existing deterministic baseline; provider
+failure remains a distinct safe fallback. The existing validator now checks
+the bounded platformer floor after structural validation. No candidate merge,
+augmentation, regeneration loop, manager, or Runtime change was added.
+
+### Evidence
+
+- AI full suite: 156 files, 9406 tests passed; Web full suite: 47 files, 3529
+  tests passed.
+- AI/Web TypeScript and ESLint passed (pre-existing warnings only); Web build
+  passed; `git diff --check` passed.
+- Real Studio/Codex CLI request produced a provider candidate that failed the
+  bounded gate, reported `deterministic_fallback` + `product_incomplete`, and
+  generated seven entities. After a real jump/contact, Runtime showed six
+  entities, `Experience: 1`, and `Level: 2`; browser warning/error logs were
+  empty.
+- Provider contract tests cover complete acceptance, incomplete rejection,
+  provider failure, and deterministic baseline behavior.
+
+## Post-WO-S17-002 Gap Analysis — 2026-08-24
+
+The real fallback traversal exposed one smaller product blocker before Freeze
+Review: after collectible removal and XP/Level transition, contact with the
+goal item matched the broad category-only `collect-reward` rule. The goal was
+removed and the Runtime session remained `active`, so `reach-goal` could not
+commit. This is an existing deterministic RuleBuilder target-isolation defect,
+not a new Runtime or provider architecture gap.
+
+Exactly one next product work item was generated:
+`WO-S17-003 — Platformer Goal/Collectible Target Isolation`. Death/respawn,
+hazards, autonomous enemy behavior, score beyond XP/level, pacing, persistence,
+and broad gameplay state remain deferred candidates, not automatic work.
+
+## WO-S17-003 — Platformer Goal/Collectible Target Isolation
+
+Status: **DONE**. Code Complete: YES. Product Verified: YES.
+
+### Measured bottleneck
+
+The same real natural-language fallback session showed `goal` removed during
+goal contact, with `collect-reward` committed and Runtime still `active`. The
+existing rule selected the right collectible by excluding goal/checkpoint in
+its builder, but its emitted condition only required an `item` target, so the
+condition did not preserve that selection at Runtime execution time.
+
+### Bounded implementation
+
+The deterministic `collect-reward` and `level-up-at-experience-threshold`
+rules include an exact `ENTITY_ID_EQUALS` condition for the selected
+collectible. The existing Runtime evaluator reads `eventActor`/`eventTarget`
+identity directly from the immutable GameplayEvent, so level-up remains
+truthful after collection removes the target earlier in the same event. Existing
+`COMPLETE_GOAL` and Runtime session authority are reused; no new primitive,
+manager, merge, or regeneration is added.
+
+### Acceptance
+
+- Builder regression asserts the exact collectible target condition.
+- Real Studio verification must show collection rules only match
+  `collectible`, level-up remains committed after collectible removal,
+  `reach-goal` commits for `goal`, and Runtime session becomes `completed`.
+- Existing provider-gate, collectible/progression, enemy/damage, stale
+  isolation, TypeScript, ESLint, Web build, and `git diff --check` gates remain
+  required.
+
+### Evidence
+
+- AI/Runtime/Web focused tests passed; full AI and Web suites, Runtime affected
+  regressions, TypeScript, ESLint, Web build, and `git diff --check` passed.
+- Real Studio natural-language request reported `product_incomplete` and
+  selected `deterministic_fallback`. One session observed 7→6 entities after
+  collectible removal, `Experience: 1`, `Level: 2`, Health 100→99, enemy
+  stomp removal, goal preservation, and Runtime `completed`.
+- Full Observatory Event Stream showed committed collectible removal and
+  level-up, committed `DAMAGE_ENTITY`, committed enemy stomp, and committed
+  `reach-goal / COMPLETE_GOAL`; browser error/warning logs were empty.
+
+## Post-WO-S17-003 Gap Analysis — 2026-08-25
+
+The primary natural-language fallback lifecycle now passes through truthful
+success: generation selection, movement, jump, collectible/progression,
+enemy/damage, enemy stomp, goal contact, and Runtime session completion. No
+new measured blocker was found. Death/respawn, hazards, autonomous enemy
+behavior, score beyond XP/level, pacing, persistence, and broader game-quality
+evaluation remain candidates and are not pre-approved.
+
+Exactly one next control-plane item remains:
+`SPRINT17_FREEZE_REVIEW`, BLOCKED on Human/CTO FREEZE or CONTINUE. Sprint 18 is
+not entered automatically.

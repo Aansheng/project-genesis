@@ -3,6 +3,17 @@ import type { StructuredGenerationAttempt, StructuredGenerationFailureReason } f
 
 export type GameWorldGenerationSource = 'ai' | 'deterministic'
 
+export type GameWorldCandidateDisposition =
+  | 'accepted'
+  | 'structurally_invalid'
+  | 'product_incomplete'
+  | 'provider_failed'
+
+export type GameWorldGenerationSelectionOutcome =
+  | 'provider_accepted'
+  | 'deterministic_baseline'
+  | 'deterministic_fallback'
+
 export type GameGenerationStageName =
   | 'REQUEST'
   | 'PROMPT_ASSEMBLY'
@@ -40,6 +51,8 @@ export interface GameGenerationTrace {
 export interface GameWorldGenerationDiagnostics {
   readonly source: GameWorldGenerationSource
   readonly candidate?: unknown
+  readonly candidateDisposition?: GameWorldCandidateDisposition
+  readonly selectionOutcome?: GameWorldGenerationSelectionOutcome
   readonly validationStatus: 'valid' | 'invalid'
   readonly validationErrors: readonly string[]
   readonly specification?: GameDesignSpecification

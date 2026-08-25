@@ -16,12 +16,12 @@ describe('WO-S10-011: Observatory real runtime binding', () => {
     new ObservatoryRuntimeBinding(game.worldStore, observatory).sync()
 
     const runtime = observatory.viewModel.runtimeView
-    expect(runtime.entityCount).toBe(6)
+    expect(runtime.entityCount).toBe(7)
     expect(runtime.entities.map((entity) => entity.id)).toEqual([
-      'player', 'terrain', 'platform', 'enemy', 'goal', 'checkpoint',
+      'player', 'terrain', 'platform', 'enemy', 'collectible', 'goal', 'checkpoint',
     ])
     expect(runtime.entities.map((entity) => entity.type)).toEqual([
-      'player', 'terrain', 'terrain', 'enemy', 'item', 'item',
+      'player', 'terrain', 'terrain', 'enemy', 'item', 'item', 'item',
     ])
     expect(runtime.entities[0].position).toBe('{"x":80,"y":300}')
     expect(runtime.entities.some((entity) => entity.id === 'guard-001')).toBe(false)

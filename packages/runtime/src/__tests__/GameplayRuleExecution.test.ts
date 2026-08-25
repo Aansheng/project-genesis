@@ -222,6 +222,27 @@ function context(world: World, semanticRevision = 0, sessionId = 'session-1', wo
 }
 
 describe('Gameplay rule execution vertical slice', () => {
+  it('evaluates event participant IDs after an earlier same-event rule removes the target', () => {
+    const worldWithoutCoin = Object.freeze({
+      entities: Object.freeze([
+        entity('player', 'player', 'Player', 0, 0, true),
+        entity('ground', 'terrain', 'Ground', 0, 100),
+      ]),
+    }) as unknown as World
+    const result = new DefaultGameplayConditionEvaluator().evaluate([
+      Object.freeze({
+        type: 'ENTITY_ID_EQUALS' as const,
+        entity: Object.freeze({ kind: 'eventTarget' as const }),
+        entityId: 'coin-1',
+      }),
+    ], contactEvent(), context(worldWithoutCoin))
+
+    expect(result).toMatchObject({
+      status: 'passed',
+      conditions: [{ type: 'ENTITY_ID_EQUALS', status: 'passed' }],
+    })
+  })
+
   it('matches deterministically, removes one collectible, and emits removal at the next boundary', () => {
     const initialWorld = runtimeWorld()
     const collector = new DefaultRuntimeGameplayEventCollector('world-1')

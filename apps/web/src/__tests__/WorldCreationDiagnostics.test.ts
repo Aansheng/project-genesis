@@ -142,8 +142,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       expect(pipelineResult.success).toBe(true)
     })
 
-    it('should have 6 projected platformer entities', () => {
-      expect(pipelineResult.world.entities).toHaveLength(6)
+    it('should have 7 projected platformer entities', () => {
+      expect(pipelineResult.world.entities).toHaveLength(7)
     })
 
     it('entity type should be "player"', () => {
@@ -225,8 +225,8 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       world = result.world
     })
 
-    it('should have exactly 6 entities', () => {
-      expect(world.entities).toHaveLength(6)
+    it('should have exactly 7 entities', () => {
+      expect(world.entities).toHaveLength(7)
     })
   })
 
@@ -248,7 +248,7 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
 
     it('should contain the projected world', () => {
       const stored = worldStore.getWorld()
-      expect(stored.entities).toHaveLength(6)
+      expect(stored.entities).toHaveLength(7)
     })
   })
 
@@ -452,7 +452,7 @@ describe('WO-S10-005: World Creation Diagnostics', () => {
       //   case 'tree' — only match
       //
       // None of these entity types match 'tree'.
-      // So even with 6 entities, the canvas is still blank.
+      // So even with 7 entities, the canvas is still blank.
     })
   })
 

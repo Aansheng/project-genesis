@@ -35,9 +35,9 @@ describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
     expect(result.world.entities.length).toBeGreaterThan(0)
 
     if (expectedWorldType === 'platformer') {
-      expect(result.world.entities.length).toBe(6)
+      expect(result.world.entities.length).toBe(7)
       expect(result.world.entities.map((entity) => entity.type)).toEqual([
-        'player', 'terrain', 'terrain', 'enemy', 'item', 'item',
+        'player', 'terrain', 'terrain', 'enemy', 'item', 'item', 'item',
       ])
     }
   })
@@ -61,7 +61,7 @@ describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
   it('projects MarioWorld entities with renderable PositionComponents', () => {
     const result = createPipeline().execute({ input: '创建 MarioWorld' })
 
-    expect(result.world.entities).toHaveLength(6)
+    expect(result.world.entities).toHaveLength(7)
     for (const entity of result.world.entities) {
       expect(entity.components?.some((component) => component.type === 'position')).toBe(true)
     }
@@ -74,6 +74,7 @@ describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
       { x: 160, y: 400 },
       { x: 300, y: 320 },
       { x: 380, y: 360 },
+      { x: 220, y: 320 },
       { x: 650, y: 300 },
       { x: 500, y: 320 },
     ])

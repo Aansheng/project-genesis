@@ -19,7 +19,14 @@ const request = {
 
 const validCandidate = JSON.stringify({
   worldType: 'platformer',
-  entities: [{ id: 'player', category: 'player', name: 'Player' }],
+  entities: [
+    { id: 'player', category: 'player', name: 'Player' },
+    { id: 'terrain', category: 'terrain', name: 'Terrain' },
+    { id: 'platform', category: 'terrain', name: 'Platform' },
+    { id: 'enemy', category: 'enemy', name: 'Enemy' },
+    { id: 'collectible', category: 'item', name: 'Coin' },
+    { id: 'goal', category: 'item', name: 'Goal' },
+  ],
 })
 
 describe('LLMGameWorldGenerationCandidateProvider', () => {
@@ -84,8 +91,12 @@ describe('LLM candidate validation and deterministic fallback', () => {
           title: '冰雪平台游戏', genre: 'platformer', theme: { name: 'ice' }, difficulty: 'medium',
           entities: [
             { id: 'player', category: 'player', name: 'Player' },
+            { id: 'terrain', category: 'terrain', name: 'Terrain' },
+            { id: 'platform', category: 'terrain', name: 'Platform' },
             { id: 'enemy-1', category: 'enemy', name: 'Patrol Enemy 1', role: 'patrol' },
             { id: 'enemy-2', category: 'enemy', name: 'Patrol Enemy 2', role: 'patrol' },
+            { id: 'collectible', category: 'item', name: 'Coin' },
+            { id: 'goal', category: 'item', name: 'Goal' },
             { id: 'checkpoint', category: 'quest', name: 'Checkpoint' },
             { id: 'boss', category: 'enemy', name: 'Boss', role: 'boss' },
           ],
@@ -100,7 +111,69 @@ describe('LLM candidate validation and deterministic fallback', () => {
     expect(result.diagnostics.specification?.theme).toEqual({ name: 'ice' })
     expect(result.diagnostics.specification?.difficulty).toBe('medium')
     expect(result.diagnostics.specification?.entities.filter(entity => entity.role === 'patrol')).toHaveLength(2)
-    expect(result.world.entities.map(entity => entity.id)).toEqual(['player', 'enemy-1', 'enemy-2', 'checkpoint', 'boss'])
+    expect(result.world.entities.map(entity => entity.id)).toEqual(['player', 'terrain', 'platform', 'enemy-1', 'enemy-2', 'collectible', 'goal', 'checkpoint', 'boss'])
+  })
+
+  it('accepts a complete provider platformer without selecting deterministic fallback', async () => {
+    let fallbackUsed = false
+    const result = await new FallbackGameWorldGenerationProvider(
+      new GameWorldGenerationProviderAdapter(
+        new LLMGameWorldGenerationCandidateProvider({ generateStructured: async () => JSON.parse(validCandidate) }),
+        new DefaultGameWorldValidator(),
+      ),
+      {
+        generate: async () => {
+          fallbackUsed = true
+          return { worldType: 'platformer', entities: [] }
+        },
+      },
+    ).generateWithDiagnostics(request)
+
+    expect(fallbackUsed).toBe(false)
+    expect(result.diagnostics.source).toBe('ai')
+    expect(result.diagnostics.candidateDisposition).toBe('accepted')
+    expect(result.diagnostics.selectionOutcome).toBe('provider_accepted')
+    expect(result.diagnostics.fallbackReason).toBeUndefined()
+    expect(result.world.entities.map(entity => entity.id)).toEqual(['player', 'terrain', 'platform', 'enemy', 'collectible', 'goal'])
+  })
+
+  it('rejects a structurally valid but product-incomplete platformer into the baseline', async () => {
+    const incompleteCandidate = {
+      worldType: 'platformer',
+      entities: [
+        { id: 'player', category: 'player', name: 'Player' },
+        { id: 'platform', category: 'terrain', name: 'Platform' },
+      ],
+    }
+    const result = await new FallbackGameWorldGenerationProvider(
+      new GameWorldGenerationProviderAdapter(
+        new LLMGameWorldGenerationCandidateProvider({ generateStructured: async () => incompleteCandidate }),
+        new DefaultGameWorldValidator(),
+      ),
+      new DeterministicGameWorldGenerationProvider(),
+    ).generateWithDiagnostics(request)
+
+    expect(result.diagnostics.source).toBe('deterministic')
+    expect(result.diagnostics.candidateDisposition).toBe('product_incomplete')
+    expect(result.diagnostics.selectionOutcome).toBe('deterministic_fallback')
+    expect(result.diagnostics.fallbackReason).toContain('Product-incomplete')
+    expect(result.diagnostics.fallbackReason).not.toContain('gateway')
+    expect(result.diagnostics.candidate).toEqual(incompleteCandidate)
+    expect(result.world.entities.map(entity => entity.id)).toEqual(['player', 'terrain', 'platform', 'enemy', 'collectible', 'goal', 'checkpoint'])
+  })
+
+  it('preserves provider-failure fallback semantics separately from candidate rejection', async () => {
+    const result = await new FallbackGameWorldGenerationProvider(
+      { generate: async () => { throw new Error('gateway unavailable') } },
+      new DeterministicGameWorldGenerationProvider(),
+    ).generateWithDiagnostics(request)
+
+    expect(result.diagnostics.source).toBe('deterministic')
+    expect(result.diagnostics.candidateDisposition).toBe('provider_failed')
+    expect(result.diagnostics.selectionOutcome).toBe('deterministic_fallback')
+    expect(result.diagnostics.failureReason).toBe('provider_error')
+    expect(result.diagnostics.fallbackReason).toBe('gateway unavailable')
+    expect(result.world.entities.map(entity => entity.id)).toEqual(['player', 'terrain', 'platform', 'enemy', 'collectible', 'goal', 'checkpoint'])
   })
 
   it('rejects invalid semantic responses at the existing validator boundary', async () => {
@@ -138,6 +211,7 @@ describe('LLM candidate validation and deterministic fallback', () => {
     expect(result.world.entities).toHaveLength(7)
     expect(result.diagnostics.source).toBe('deterministic')
     expect(result.diagnostics.validationStatus).toBe('invalid')
+    expect(result.diagnostics.candidateDisposition).toBe('structurally_invalid')
     expect(result.diagnostics.fallbackReason).toContain('entities must not be empty')
   })
 
@@ -159,6 +233,13 @@ describe('LLM candidate validation and deterministic fallback', () => {
 
     const result = await pipeline.executeAsync(request)
     expect(result.success).toBe(true)
-    expect(result.world.entities).toEqual([{ id: 'player', type: 'player', x: 0, y: 0 }])
+    expect(result.world.entities).toEqual([
+      { id: 'player', type: 'player', x: 0, y: 0 },
+      { id: 'terrain', type: 'terrain', x: 0, y: 0 },
+      { id: 'platform', type: 'terrain', x: 0, y: 0 },
+      { id: 'enemy', type: 'enemy', x: 0, y: 0 },
+      { id: 'collectible', type: 'item', x: 0, y: 0 },
+      { id: 'goal', type: 'item', x: 0, y: 0 },
+    ])
   })
 })

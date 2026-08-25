@@ -13,6 +13,30 @@ const MAX_OBJECTIVES = 20
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
+interface PlatformerEntityLike {
+  readonly id: unknown
+  readonly category: unknown
+  readonly name: unknown
+}
+
+function platformerBaselineErrors(entities: readonly PlatformerEntityLike[]): readonly string[] {
+  const errors: string[] = []
+  const terrainCount = entities.filter(entity => entity.category === 'terrain').length
+  const enemyCount = entities.filter(entity => entity.category === 'enemy').length
+  const goal = entities.find(entity => entity.id === 'goal' || /goal|flag|checkpoint/iu.test(String(entity.name)))
+  const hasCollectible = entities.some(entity =>
+    entity.category === 'item'
+      && entity.id !== goal?.id
+      && !/goal|flag|checkpoint|campfire/iu.test(String(entity.name)),
+  )
+
+  if (terrainCount < 2) errors.push('platformer baseline requires at least two terrain entities')
+  if (enemyCount < 1) errors.push('platformer baseline requires at least one enemy entity')
+  if (!hasCollectible) errors.push('platformer baseline requires at least one collectible item')
+  if (goal === undefined) errors.push('platformer baseline requires a goal entity')
+  return Object.freeze(errors)
+}
+
 /** Strict, dependency-free validation and conversion for semantic candidates. */
 export class DefaultGameWorldValidator implements GameWorldValidator {
   validate(candidate: unknown): GameWorldValidationResult {
@@ -60,14 +84,21 @@ export class DefaultGameWorldValidator implements GameWorldValidator {
         if (typeof entity.category !== 'string' || !CATEGORIES.includes(entity.category as EntityCategory)) errors.push(`entities[${index}].category must be a supported semantic category`)
         if (entity.role !== undefined && (typeof entity.role !== 'string' || entity.role.trim() === '')) errors.push(`entities[${index}].role must be a non-empty string when provided`)
       })
-      const playerCount = entities.filter(entity => isRecord(entity) && entity.category === 'player').length
+      const entityRecords = entities.filter(isRecord)
+      const playerCount = entityRecords.filter(entity => entity.category === 'player').length
       if (playerCount !== 1) errors.push('entities must contain exactly one player')
     }
 
-    if (errors.length > 0) return { valid: false, errors: Object.freeze(errors) }
+    if (errors.length > 0) return { valid: false, errors: Object.freeze(errors), failureKind: 'structurally_invalid' }
 
     const validCandidate = candidate as unknown as GameWorldGenerationCandidate
     const genre = (validCandidate.genre ?? validCandidate.worldType) as WorldType
+    if (genre === 'platformer') {
+      const completenessErrors = platformerBaselineErrors(validCandidate.entities)
+      if (completenessErrors.length > 0) {
+        return { valid: false, errors: completenessErrors, failureKind: 'product_incomplete' }
+      }
+    }
     const specification: GameDesignSpecification = Object.freeze({
       title: validCandidate.title?.trim() || genre,
       genre,

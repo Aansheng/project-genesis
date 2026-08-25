@@ -18,7 +18,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-08-24 | Decide whether Sprint 16's corrected Gameplay Evolution & Progression Foundation goal is satisfied and should freeze at v1.156. | ACCEPTED — CONTINUE | Human / CTO | WO-S16-002 proves numeric progression storage but not a progression transition. Sprint 16 remains NOT READY FOR FREEZE; exactly one bounded `WO-S16-003 — Deterministic XP Threshold Level Transition` is authorized and auto-executing under `SPRINT_CONTINUOUS`. No Sprint 17 auto-crossing. |
 | 2026-08-24 | Decide whether Sprint 16 is satisfied and should freeze at v1.157 after WO-S16-003. | ACCEPTED — FREEZE | Human / CTO | All eight corrected Sprint 16 criteria pass. Sprint 16 is Code Complete = YES, Product Verified = YES, and FROZEN = YES at v1.157; no Sprint 17 auto-crossing. |
 | 2026-08-24 | Approve the Sprint 17 high-level product objective before detailed discovery. | ACCEPTED — ENTER SPRINT 17 | Human / CTO | `Mechanically Complete Platformer Generation` is approved. Run fresh product-level Next-Work Discovery, generate exactly one bounded READY/BLOCKED WO, execute only the smallest measured bottleneck under `SPRINT_CONTINUOUS`, and stop at human/escalation/freeze gates; do not auto-enter Sprint 18. |
-| 2026-08-24 | Decide whether a structurally valid provider platformer candidate must meet the deterministic mechanically complete baseline floor, with under-complete candidates failing closed into the existing fallback. | OPEN — PRODUCT ACCEPTANCE GATE | Human / CTO | Real configured Studio generation returned `ai · success`, `Validation: passed`, but only `player` and `platform`; the product cannot reach collectible, enemy, damage, or goal mechanics. `WO-S17-002` is generated BLOCKED until this boundary is resolved. |
+| 2026-08-24 | Decide whether a structurally valid provider platformer candidate must meet the deterministic mechanically complete baseline floor, with under-complete candidates failing closed into the existing fallback. | ACCEPTED — EXECUTE | Human / CTO | Approved WO-S17-002: structurally valid but baseline-incomplete platformer candidates are rejected as product-incomplete and use the existing deterministic baseline; complete candidates are accepted; provider failures retain safe fallback and distinct diagnostics. |
 
 ## Sprint 17 Goal Authorization
 
@@ -52,16 +52,19 @@ foundations remain the authority boundaries.
 
 Date: 2026-08-24
 
-Status: **OPEN — BLOCKS WO-S17-002**
+Status: **ACCEPTED — WO-S17-002 EXECUTED**
 
-The deterministic/fallback platformer baseline now generates seven entities and
-the existing generic collect → XP → level path was verified in Studio. The real
-configured AI path, however, returned a structurally valid two-entity candidate
-(`player`, `platform`) and the current validator accepted it. Human/CTO must
-decide whether the deterministic platformer baseline is the minimum semantic
-floor for an accepted provider candidate and whether the existing fallback must
-be used when that floor is not met. This decision does not authorize death,
-respawn, hazards, enemy AI, score, or pacing work.
+The deterministic/fallback platformer baseline generates seven entities and the
+existing generic collect → XP → level path remains verified in Studio. The
+approved boundary is:
+
+`provider candidate → structural validation → platformer baseline gate`
+
+Complete candidates are accepted without fallback. Structurally valid but
+product-incomplete candidates are rejected and use the deterministic baseline.
+Provider transport/execution failure remains a separate safe-fallback outcome.
+This decision does not authorize death, respawn, hazards, enemy AI, score, or
+pacing work.
 
 ## WO-S15-005 product decision
 

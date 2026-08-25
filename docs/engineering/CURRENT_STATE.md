@@ -3,23 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.158
-current_sprint: Sprint 17 (ACTIVE — product gate blocked after one bounded WO)
-current_work_order: WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
+architecture_version: v1.159
+current_sprint: Sprint 17 (ACTIVE — Freeze Review gate)
+current_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
 current_work_order_status: blocked
-current_control_plane_work_order: WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
+current_control_plane_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
 current_control_plane_work_order_status: blocked
-last_completed_work_order: WO-S16-003 — Deterministic XP Threshold Level Transition
-last_completed_product_work_order: WO-S16-003
-last_completed_control_plane_work_order: SPRINT_FREEZE_REVIEW — Sprint 16
-  FROZEN at v1.157
-next_ready_work_order: NONE — WO-S17-002 is the single generated horizon item
-  and is BLOCKED at the Human/CTO product acceptance gate
-product_architecture_changed: yes — WO-S17-001 implemented v1.157 → v1.158
+last_completed_work_order: WO-S17-003 — Platformer Goal/Collectible Target Isolation
+last_completed_product_work_order: WO-S17-003
+last_completed_control_plane_work_order: WO-S17-003 — Platformer Goal/Collectible Target Isolation
+next_ready_work_order: NONE — the post-WO-S17-003 Gap Analysis found no
+  measured product blocker; Freeze Review is the single blocked horizon item
+product_architecture_changed: yes — WO-S17-002 implemented v1.158 → v1.159
 sprint_status: Sprint 17 is ACTIVE; Sprint 16 remains FROZEN at v1.157
-product_verified: NO — deterministic fallback verification passed for the
-  bounded slice, but the configured AI generation path remains product-blocked
-  by an under-complete valid candidate
+product_verified: YES — WO-S17-003 passed real fallback traversal and the
+  primary success lifecycle; Sprint Freeze Review remains a Human/CTO gate
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -110,6 +108,36 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
   remains generic and unchanged. Deterministic fallback Studio verification
   observed seven generated entities, collectible removal, `Experience: 1`,
   `Level: 2`, and clean browser logs.
+
+- Human/CTO approved WO-S17-002: a structurally valid but incomplete platformer
+  candidate must not be accepted as the generation result; it must fail closed
+  into the deterministic baseline. A complete candidate remains acceptable.
+- `WO-S17-002` is complete at v1.159 and Product Verified: the existing
+  validator now runs the bounded platformer baseline gate after structural
+  validation; diagnostics distinguish accepted, structurally invalid,
+  product-incomplete, and provider-failed outcomes; Studio and full Observatory
+  show `deterministic_fallback` plus `product_incomplete` for the real Codex
+  CLI candidate; fallback traversal removed the collectible and committed
+  `experience: 1`, `level: 2` with clean browser logs.
+- Post-WO-S17-002 product-level Gap Analysis found one measured execution
+  blocker in the same real fallback session: the broad deterministic
+  `collect-reward` item-category condition matched the `goal` item first,
+  removed the goal, and left the Runtime session `active` instead of allowing
+  `reach-goal` to complete. Exactly one next product WO was generated:
+  `WO-S17-003`, READY with no Human/CTO decision required, and execution began
+  automatically. Sprint 18 is not entered automatically.
+- WO-S17-003 is complete at v1.159 with no new architecture layer: exact
+  collectible ID conditions isolate collection/progression from goal and
+  checkpoint items, while the existing Runtime evaluator preserves event
+  participant identity when an earlier rule in the same event removes the
+  target. Real Studio traversal reached `Experience: 1`, `Level: 2`, Health
+  100→99, enemy stomp removal, and committed `reach-goal` completion in one
+  fallback session; Full Observatory showed the ordered rule/event facts and
+  browser error/warning logs were empty.
+- Post-WO-S17-003 product-level Gap Analysis found no new measured blocker in
+  the primary success lifecycle. Exactly one next control-plane item remains:
+  `SPRINT17_FREEZE_REVIEW`, BLOCKED on Human/CTO FREEZE or CONTINUE. Sprint 18
+  is not entered automatically.
 - The configured AI gateway produced a structurally valid but mechanically
   incomplete platformer candidate containing only `player` and `platform`.
   Observatory truthfully reported `ai · success`, `Validation: passed`, and
@@ -190,6 +218,10 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
 
 - AI_GENERATION_CAPABILITY_MATRIX.md has an older v1.123 header.
 - VISUAL_CAPABILITY_MATRIX.md has an older v1.149 header.
+- `apps/web/src/projectMetadata.ts` still projects `v1.157` / `Sprint 16` in
+  the Full Observatory header. This pre-existing metadata projection mismatch
+  does not change the verified generation selection or Runtime truth and is
+  deferred to a separately scoped metadata/projection work item.
 
 For current work, use PROJECT_STATE.md, actual source wiring, accepted ADRs,
 and the current gameplay matrix. Update those older matrix headers in their
@@ -197,50 +229,47 @@ own capability-focused work item rather than broadening WO-META-003.
 
 ## Current product gaps
 
-Fresh Sprint 17 Gap Analysis (2026-08-24):
+Fresh post-WO-S17-002 Gap Analysis (2026-08-24):
 
 - **Resolved PRODUCT_GAP / EXECUTION_GAP:** the deterministic platformer
-  template now contains `player`, `terrain`, `platform`, `enemy`,
-  `collectible`, `goal`, and `checkpoint`; deterministic fallback generation
-  produces the supported collect-reward and level-up rules. This bounded gap is
-  Code Complete and its fallback Studio behavior is verified.
-- **Selected PRODUCT_GAP / EXECUTION_GAP:** the configured AI gateway can return
-  a structurally valid `platformer` candidate with only `player` and `platform`.
-  The current validator marks it valid and Web applies it, so the provider path
-  bypasses the deterministic seven-entity baseline and cannot reach collectible,
-  enemy, damage, or goal mechanics. This is now the smallest direct blocker to
-  the primary acceptance scenario.
-- **Already verified:** natural-language create routing, semantic world → DSL →
-  Runtime projection, movement, jump/gravity/grounding, Runtime contact facts,
-  deterministic fallback collectible removal, enemy stomp, non-top damage/
+  baseline contains `player`, `terrain`, `platform`, `enemy`, `collectible`,
+  `goal`, and `checkpoint`; its generic RuleSet includes collectible removal,
+  XP/level progression, enemy stomp, Health/damage, and goal completion.
+- **Resolved GENERATION_TRUST_GAP:** the real Codex CLI provider path now
+  passes structural validation only when appropriate, then fails closed when
+  the platformer baseline is incomplete. The observed candidate was reported
+  as `product_incomplete`, selected `deterministic_fallback`, and did not
+  masquerade as a provider outage. Complete candidates are covered by the
+  provider acceptance regression and do not select fallback.
+- **Resolved PRODUCT_GAP / EXECUTION_GAP:** after collectible removal, the
+  generic deterministic `collect-reward` rule no longer matches goal or
+  checkpoint items. Exact event-target identity remains evaluable after the
+  earlier same-event removal, so level-up and goal completion both commit.
+- **Already verified:** natural-language create routing, provider/fallback
+  selection, semantic world → DSL → Runtime projection, movement,
+  jump/gravity/grounding, collectible removal, enemy stomp, non-top damage/
   Health mutation, Runtime numeric XP/level transition, goal completion,
   same-session evolution continuity, stale-world isolation, and truthful
-  projections. The real configured AI path is structurally valid but not
-  mechanically complete.
-- **Candidate PRODUCT/ARCHITECTURE gap, not selected:** zero Health is state
-  only; there is no Runtime failure state, death semantics, or restart/respawn
-  lifecycle. The generated default platformer currently has no hazard and its
-  failure specification is explicitly deferred, so this requires a later
-  measured loop decision after the baseline traversal is complete.
-- **Deferred candidates:** autonomous enemy behavior, hazard generation, score
-  beyond the verified XP/level feedback, richer pacing, waves/spawn,
-  persistence, and broad gameplay-state infrastructure. None is needed to
-  unblock the selected provider-candidate completeness path.
+  projections. The fallback Studio path observed `Experience: 1`, `Level: 2`
+  after collectible contact.
+- **Not a current blocker:** zero Health remains state only; the default
+  baseline has no hazard, and its player-death failure condition is deferred.
+  Failure/death, restart/respawn, autonomous enemy behavior, hazards, score
+  beyond XP/level, richer pacing, persistence, and broad gameplay state remain
+  candidates rather than pre-approved work.
 
-`WO-S17-001` remains intentionally limited to generation composition and its
-existing deterministic layout anchor. `WO-S17-002` is blocked pending the
-Human/CTO decision on the minimum completeness floor for an accepted provider
-candidate. No Runtime authority or genre-specific Runtime is added.
+`WO-S17-003` is complete and the primary success lifecycle is Product
+Verified. No new measured blocker was found; the queue horizon is the single
+blocked `SPRINT17_FREEZE_REVIEW` Human/CTO gate. No Runtime authority or
+genre-specific Runtime was added.
 
 ## Next Recommended Verification
 
-Resolve the Human/CTO acceptance gate for `WO-S17-002`: decide whether a
-platformer provider candidate must meet the deterministic baseline floor and
-whether under-complete candidates fail closed into the existing fallback.
-After that decision, execute only `WO-S17-002`, verify the configured
-natural-language path, and rerun full Sprint 17 Gap Analysis. Do not select
-death/respawn or other later candidates until the generated baseline reaches
-the current mechanics.
+Sprint 17 product-level Gap Analysis is complete: the real fallback path
+reaches truthful Runtime completion, and no new success-path blocker is
+measured. Stop at `SPRINT17_FREEZE_REVIEW` for Human/CTO decision; do not enter
+Sprint 18 automatically or pre-select death/respawn or other deferred
+candidates.
 
 ## Authority
 

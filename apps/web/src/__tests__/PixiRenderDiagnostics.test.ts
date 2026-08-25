@@ -109,8 +109,8 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
       world = store.getWorld()
     })
 
-    it('should have 6 platformer entities', () => {
-      expect(world.entities.length).toBe(6)
+    it('should have 7 platformer entities', () => {
+      expect(world.entities.length).toBe(7)
     })
 
     it('entity type should be "player"', () => {
@@ -157,8 +157,8 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
       renderWorld = adapter.adapt(world)
     })
 
-    it('should produce 6 RenderEntities', () => {
-      expect(renderWorld.entities.length).toBe(6)
+    it('should produce 7 RenderEntities', () => {
+      expect(renderWorld.entities.length).toBe(7)
     })
 
     it('RenderEntity.id should be "player"', () => {
@@ -205,7 +205,7 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
     })
 
     it('should dump all entities with their properties', () => {
-      expect(renderEntities).toHaveLength(6)
+      expect(renderEntities).toHaveLength(7)
       expect(renderEntities[0]).toEqual({
         id: 'player',
         type: 'player',
@@ -236,8 +236,8 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
       entitiesWithoutPosition = renderWorld.entities.filter((e) => e.position === undefined).length
     })
 
-    it('entities WITH position: 6', () => {
-      expect(entitiesWithPosition).toBe(6)
+    it('entities WITH position: 7', () => {
+      expect(entitiesWithPosition).toBe(7)
     })
 
     it('entities WITHOUT position: 0', () => {
@@ -280,15 +280,15 @@ describe('WO-S10-007: Pixi Render Diagnostics', () => {
     })
 
     it('should render all positioned entities', () => {
-      expect(renderResult.entities.length).toBe(6)
+      expect(renderResult.entities.length).toBe(7)
     })
 
-    it('container should have 6 children after render', () => {
-      expect(containerChildCount).toBe(6)
+    it('container should have 7 children after render', () => {
+      expect(containerChildCount).toBe(7)
     })
 
-    it('Graphics objects created: 6', () => {
-      expect(graphicsCreateCount).toBe(6)
+    it('Graphics objects created: 7', () => {
+      expect(graphicsCreateCount).toBe(7)
     })
   })
 
@@ -326,12 +326,12 @@ const container = createMockContainer()
       expect(beforeCount).toBe(0)
     })
 
-    it('after render: 6 children', () => {
-      expect(afterCount).toBe(6)
+    it('after render: 7 children', () => {
+      expect(afterCount).toBe(7)
     })
 
-    it('delta: 6 rendered children', () => {
-      expect(afterCount - beforeCount).toBe(6)
+    it('delta: 7 rendered children', () => {
+      expect(afterCount - beforeCount).toBe(7)
     })
   })
 
@@ -484,7 +484,7 @@ const container = createMockContainer()
   // ══════════════════════════════════════════════════════════════════════
 
   describe('10. Full visualization loop tick trace', () => {
-    it('tick() for projected world: entityCount=6, renderedCount=6', () => {
+    it('tick() for projected world: entityCount=7, renderedCount=7', () => {
       const store: RuntimeWorldStore = new DefaultRuntimeWorldStore()
       const provider = new StoreBackedWorldProvider(store)
       const systemRegistry = new DefaultRuntimeSystemRegistry()
@@ -516,11 +516,11 @@ const container = createMockContainer()
       // The tick executes:
       //   1. provider.getWorld() → world with 1 entity (player)
       //   2. executionLoop.tick() → same world (no systems registered)
-      //   3. adapter.adapt() → RenderWorld with 6 positioned entities
-      //   4. renderer.render() → 6 rendered entities
-      expect(result.entityCount).toBe(6)
-      expect(result.renderedCount).toBe(6)
-      expect(container.children.length).toBe(6)
+      //   3. adapter.adapt() → RenderWorld with 7 positioned entities
+      //   4. renderer.render() → 7 rendered entities
+      expect(result.entityCount).toBe(7)
+      expect(result.renderedCount).toBe(7)
+      expect(container.children.length).toBe(7)
     })
 
     it('tick() with PositionComponent: entityCount=1, renderedCount=1', () => {

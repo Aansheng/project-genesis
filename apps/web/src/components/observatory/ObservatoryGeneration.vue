@@ -109,6 +109,14 @@ const labels: Record<string, string> = {
               <dt>Status</dt>
               <dd :class="`value-${data.generationTrace.status}`">{{ data.generationTrace.status }}</dd>
             </div>
+            <div v-if="data.generationTrace.selectionOutcome" class="summary-card">
+              <dt>Selection</dt>
+              <dd>{{ data.generationTrace.selectionOutcome }}</dd>
+            </div>
+            <div v-if="data.generationTrace.candidateDisposition" class="summary-card">
+              <dt>Candidate</dt>
+              <dd>{{ data.generationTrace.candidateDisposition }}</dd>
+            </div>
             <div v-if="data.generationTrace.world" class="summary-card">
               <dt>Runtime entities</dt>
               <dd>{{ data.generationTrace.world.entityCount }}</dd>

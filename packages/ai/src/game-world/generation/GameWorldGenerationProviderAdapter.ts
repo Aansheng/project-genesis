@@ -2,7 +2,7 @@ import type { GameWorldModel } from '@genesis/shared'
 import type { GameWorldGenerationCandidateProvider } from './GameWorldGenerationCandidateProvider'
 import type { GameWorldGenerationProvider } from './GameWorldGenerationProvider'
 import type { GameWorldGenerationRequest } from './GameWorldGenerationRequest'
-import type { GameWorldValidator } from './GameWorldValidator'
+import type { GameWorldCandidateFailureKind, GameWorldValidator } from './GameWorldValidator'
 import type { GameGenerationTrace } from './GameWorldGenerationDiagnostics'
 import type { GameWorldGenerationResult } from './GameWorldGenerationDiagnostics'
 import type { StructuredGenerationFailureReason } from './StructuredGenerationReliability'
@@ -14,8 +14,9 @@ export class InvalidGameWorldCandidateError extends Error {
   constructor(
     readonly candidate: unknown,
     readonly errors: readonly string[],
+    readonly failureKind: GameWorldCandidateFailureKind = 'structurally_invalid',
   ) {
-    super(`Invalid game world candidate: ${errors.join('; ')}`)
+    super(`${failureKind === 'product_incomplete' ? 'Product-incomplete game world candidate' : 'Invalid game world candidate'}: ${errors.join('; ')}`)
     this.name = 'InvalidGameWorldCandidateError'
   }
 
@@ -37,7 +38,7 @@ export class GameWorldGenerationProviderAdapter implements GameWorldGenerationPr
     const candidate = await this.candidateProvider.generate(request)
     const result = this.validator.validate(candidate)
     if (!result.valid || result.world === undefined || result.specification === undefined) {
-      throw new InvalidGameWorldCandidateError(candidate, result.errors)
+      throw new InvalidGameWorldCandidateError(candidate, result.errors, result.failureKind)
     }
     const trace: GameGenerationTrace = Object.freeze({
       id: nextTraceId(),
@@ -61,6 +62,8 @@ export class GameWorldGenerationProviderAdapter implements GameWorldGenerationPr
       diagnostics: Object.freeze({
         source: 'ai' as const,
         candidate,
+        candidateDisposition: 'accepted' as const,
+        selectionOutcome: 'provider_accepted' as const,
         validationStatus: 'valid' as const,
         validationErrors: Object.freeze([]),
         specification: result.specification,

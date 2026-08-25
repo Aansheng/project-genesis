@@ -101,7 +101,7 @@ describe('Observatory SPA runtime session integration', () => {
       (component) => component.type === 'position',
     )
 
-    expect(marioWorld.entities).toHaveLength(6)
+    expect(marioWorld.entities).toHaveLength(7)
     expect(player).toBeDefined()
     expect(playerPosition?.properties).toMatchObject({ x: 80, y: 300 })
     expect(wrapper.get('a[href="/observatory"]')).toBeTruthy()
@@ -112,7 +112,7 @@ describe('Observatory SPA runtime session integration', () => {
     const observatoryData = useObservatoryDataStore(pinia)
     expect(useGameStore(pinia).worldStore).toBe(worldStore)
     expect(worldStore.getWorld()).toBe(marioWorld)
-    expect(observatoryData.viewModel.runtimeView.entityCount).toBe(6)
+    expect(observatoryData.viewModel.runtimeView.entityCount).toBe(7)
     expect(observatoryData.viewModel.runtimeView.entities.map((entity) => entity.id)).toEqual(
       expectedIds,
     )

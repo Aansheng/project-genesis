@@ -2,7 +2,7 @@
 
 These invariants are the durable boundary for supervised work. They were
 checked against the current source wiring, PROJECT_STATE.md, Sprint 16/17
-backlogs, capability matrices, and ADR-0261 through ADR-0272 on 2026-08-24.
+backlogs, capability matrices, and ADR-0261 through ADR-0273 on 2026-08-24.
 The source code and accepted ADRs remain authoritative if this projection
 becomes stale.
 
@@ -66,6 +66,10 @@ becomes stale.
     changes in the same Runtime/session retain it, while world/session
     replacement resets it. Web/Pinia/Renderer/Observatory may project it but
     cannot author it.
+21. A structurally valid provider `platformer` candidate must pass the bounded
+    current mechanically-complete baseline before acceptance. An incomplete
+    candidate is rejected into the existing deterministic baseline; no
+    candidate merge or provider regeneration is authoritative.
 
 ## Evidence anchors
 
@@ -79,4 +83,5 @@ becomes stale.
 - Capability-specific context: docs/adr/ADR-0261-capability-specific-generation-context-foundation.md
 - Gameplay specification/events/rules/execution:
   docs/adr/ADR-0262-gameplay-specification-game-loop-foundation.md through
-  docs/adr/ADR-0272-default-platformer-collectible-composition.md
+  docs/adr/ADR-0272-default-platformer-collectible-composition.md and
+  docs/adr/ADR-0273-platformer-provider-candidate-completeness-gate.md

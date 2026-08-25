@@ -18,6 +18,8 @@ const imageGenerations = computed(() => Object.values(gameStore.visualGeneration
       <p v-if="generation === null">No generation trace available</p>
       <template v-else>
         <p>Validation: {{ generation.validation?.status ?? (generation.status === 'success' ? 'passed' : 'fallback') }}</p>
+        <p v-if="generation.selectionOutcome">Selection: {{ generation.selectionOutcome }}</p>
+        <p v-if="generation.candidateDisposition">Candidate: {{ generation.candidateDisposition }}</p>
         <p v-if="generation.specification">Design: {{ generation.specification.genre }} · {{ generation.specification.theme ?? '—' }} · {{ generation.specification.difficulty ?? '—' }}</p>
         <p v-if="generation.world">Entities: {{ generation.world.entityCount }}</p>
       </template>

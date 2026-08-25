@@ -151,7 +151,7 @@ function deterministicRules(
       'collect-reward',
       'Collectible contact',
       'collect-reward',
-      [categoryCondition(player, 'player'), categoryCondition(target, 'item')],
+      [categoryCondition(player, 'player'), idCondition(target, item.id)],
       [
         Object.freeze({ type: 'REMOVE_ENTITY', target }),
         Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 }),
@@ -165,6 +165,7 @@ function deterministicRules(
       'Level up at experience threshold',
       'level-up',
       [
+        idCondition(target, item.id),
         numericStateCondition('experience', 'gte', 1),
         numericStateCondition('level', 'lt', 2),
       ],

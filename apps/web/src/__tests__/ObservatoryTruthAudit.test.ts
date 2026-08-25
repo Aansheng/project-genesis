@@ -36,6 +36,8 @@ function generation(provider = 'codex-cli') {
       model: 'current-model',
       stages: [{ name: 'REQUEST', status: 'completed' }],
     },
+    candidateDisposition: 'accepted',
+    selectionOutcome: 'provider_accepted',
     specification: {
       title: 'Current Farm',
       genre: 'simulation',
@@ -93,6 +95,22 @@ describe('WO-OBS-001 Observatory truthfulness', () => {
     const text = mount(ObservatoryGeneration).text()
     expect(text).toContain('generation-current')
     expect(text).toContain('codex-cli')
+  })
+
+  it('exposes product-incomplete fallback without labeling it as provider failure', () => {
+    const trace = generation()
+    useObservatoryDataStore().loadGenerationTrace({
+      ...trace,
+      trace: { ...trace.trace, source: 'deterministic', status: 'fallback' },
+      candidateDisposition: 'product_incomplete',
+      selectionOutcome: 'deterministic_fallback',
+      validationStatus: 'invalid',
+      validationErrors: ['platformer baseline requires a goal entity'],
+    })
+    const text = mount(ObservatoryGeneration).text()
+    expect(text).toContain('deterministic_fallback')
+    expect(text).toContain('product_incomplete')
+    expect(text).not.toContain('provider_failed')
   })
 
   it.each([

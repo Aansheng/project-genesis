@@ -194,26 +194,27 @@ describe('Genesis Studio Shell Foundation', () => {
       'terrain',
       'platform',
       'enemy',
+      'collectible',
       'goal',
       'checkpoint',
     ]
 
-    await vi.waitFor(() => expect(worldStore.getWorld().entities).toHaveLength(6))
-    expect(wrapper.findAll('.world-explorer-panel .entity-row')).toHaveLength(6)
+    await vi.waitFor(() => expect(worldStore.getWorld().entities).toHaveLength(7))
+    expect(wrapper.findAll('.world-explorer-panel .entity-row')).toHaveLength(7)
     expectedIds.forEach((id) => {
       expect(wrapper.find('.world-explorer-panel').text()).toContain(id)
       expect(wrapper.find('.inspector-panel').text()).toContain(id)
     })
-    expect(wrapper.find('.entity-count').text()).toBe('6 entities')
+    expect(wrapper.find('.entity-count').text()).toBe('7 entities')
     expect(wrapper.find('.viewport-status').text()).toBe('Running')
-    expect(wrapper.find('.runtime-summary').text()).toContain('6')
+    expect(wrapper.find('.runtime-summary').text()).toContain('7')
     expect(wrapper.find('.command-activity').text()).toContain(
-      'Created world with 6 entities',
+      'Created world with 7 entities',
     )
     expect(store.commandStatus).toBe('success')
     expect(wrapper.find('.command-activity strong').text()).toBe('World created')
-    expect(wrapper.find('.activity-detail').text()).toBe('6 entities')
-    expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(6)
+    expect(wrapper.find('.activity-detail').text()).toBe('7 entities')
+    expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(7)
     expect(useGameStore(pinia).worldStore).toBe(worldStore)
 
     wrapper.unmount()
@@ -354,7 +355,7 @@ describe('Genesis Studio Shell Foundation', () => {
     await nextTick()
     const panel = wrapper.find('.studio-observatory-panel')
     expect(panel.text()).not.toContain('runtime-world')
-    expect(panel.text()).toContain('6')
+    expect(panel.text()).toContain('7')
     expect(panel.text()).toContain('player')
     expect(panel.text()).toContain('terrain')
     expect(panel.text()).toContain('platform')
@@ -426,7 +427,7 @@ describe('Genesis Studio Shell Foundation', () => {
     await router.push('/observatory')
     await nextTick()
     expect(wrapper.find('.observatory-shell').exists()).toBe(true)
-    expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(6)
+    expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(7)
     expect(lifecycle).toMatchObject({
       pixiDestroyed: 1,
       runnerStopped: 1,
@@ -439,7 +440,7 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(wrapper.find('.genesis-studio-shell').exists()).toBe(true)
     expect(wrapper.findAll('.game-container canvas')).toHaveLength(1)
     expect(useGameStore(pinia).worldStore).toBe(worldStore)
-    expect(worldStore.getWorld().entities).toHaveLength(6)
+    expect(worldStore.getWorld().entities).toHaveLength(7)
     expect(lifecycle).toMatchObject({
       pixiCreated: 2,
       runnerStarted: 2,

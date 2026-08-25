@@ -29,6 +29,7 @@ export class DeterministicGameWorldGenerationProvider implements GameWorldGenera
       diagnostics: Object.freeze({
         ...result.diagnostics,
         source: 'deterministic' as const,
+        selectionOutcome: 'deterministic_baseline' as const,
         trace: result.diagnostics.trace
           ? Object.freeze({ ...result.diagnostics.trace, source: 'deterministic' as const })
           : undefined,

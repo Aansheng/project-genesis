@@ -4,7 +4,7 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-24
+updated: 2026-08-25
 current_sprint: Sprint 17
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
@@ -820,8 +820,8 @@ human_decision_required: NO for the selected generation-composition slice.
 
 ## WO-S17-001 — Platformer Baseline Collectible Composition
 
-status: BLOCKED
-state_transition: GENERATED_AFTER_SPRINT17_DISCOVERY → READY → IN_PROGRESS → VERIFYING → BLOCKED
+status: DONE
+state_transition: GENERATED_AFTER_SPRINT17_DISCOVERY → READY → IN_PROGRESS → VERIFYING → BLOCKED → DONE
 priority: P0
 dependencies: SPRINT17_DISCOVERY DONE; Sprint 16 FROZEN at v1.157
 architecture_before: v1.157
@@ -863,13 +863,10 @@ acceptance: A deterministic/fallback request such as `create a simple 2D
 automated_tests: Focused AI template/layout/create-world tests plus affected
   Runtime/Web gameplay regressions; direct TypeScript, package ESLint, relevant
   regression suites, Web build when integration changes, and `git diff --check`.
-product_verification: BLOCKED — deterministic fallback Studio evidence generated
+product_verification: YES — deterministic fallback Studio evidence generated
   seven entities and observed collectible removal with `experience: 1` and
-  `level: 2` with clean browser diagnostics. The configured AI gateway path
-  returned `ai · success`, `Validation: passed`, but only `player` and
-  `platform`; it applied a structurally valid incomplete world and could not
-  reach the primary loop. This is a real acceptance failure, not a test-only
-  discrepancy.
+  `level: 2` with clean browser diagnostics. The configured provider-path
+  acceptance blocker was closed by WO-S17-002's completeness gate.
 observability_expectations: Raw contact, Gameplay Rule results, Runtime World,
   progression, and session projections remain separate; no synthetic
   collectible/result is added to Observatory.
@@ -881,19 +878,18 @@ explicit_non_goals: Failure/death, recovery/restart/respawn, hazards, enemy
   autonomous behavior, score beyond current XP/level, pacing overhaul,
   persistence, and automatic Sprint 18.
 code_complete: YES
-product_verified: NO — blocked at the configured provider-path acceptance gate.
-human_decision_required: YES for the newly discovered provider-candidate
-  completeness boundary; the deterministic composition slice itself required
-  no decision.
+product_verified: YES — verified through the bounded deterministic baseline
+  after the provider selection gate.
+human_decision_required: NO — the original composition slice required no
+  decision; its provider-path gate is recorded in WO-S17-002.
 
 ## WO-S17-002 — Provider Candidate Completeness Gate for Platformer Baseline
 
-status: BLOCKED
-state_transition: GENERATED_AFTER_WO_S17_001_PRODUCT_GATE → BLOCKED
+status: DONE
+state_transition: GENERATED_AFTER_WO_S17_001_PRODUCT_GATE → BLOCKED → READY → IN_PROGRESS → VERIFYING → DONE
 priority: P0
-dependencies: WO-S17-001 code complete at v1.158; Product Verification is
-  blocked by a configured AI candidate that passes structural validation while
-  omitting the baseline gameplay entities
+dependencies: WO-S17-001 code complete at v1.158; Human/CTO completeness
+  decision accepted 2026-08-24
 architecture_before: v1.158
 architecture_expected_after: v1.159 if implemented
 mission: Resolve the smallest generation trust-boundary gap exposed by real
@@ -907,23 +903,99 @@ measured_bottleneck: The configured AI path reported `ai · success` and
   `level: 2`, so the failure is at candidate completeness/trust, not Runtime
   execution.
 allowed_scope_after_gate: Extend the existing `@genesis/ai` candidate
-  validation/normalization boundary, or fail closed through the existing
-  deterministic provider, with focused provider/fallback tests. Preserve
-  candidate-as-untrusted-input semantics and reuse the current deterministic
-  platformer template and GameplayRuleBuilder.
+  validation boundary and fail closed through the existing deterministic
+  provider, with focused provider/fallback tests and truthful Observatory
+  selection diagnostics. Preserve candidate-as-untrusted-input semantics and
+  reuse the current deterministic platformer template and GameplayRuleBuilder.
 forbidden_scope: New Runtime authority, genre-specific Runtime, managers,
   arbitrary code/eval, provider capability claims, death/respawn, hazards,
   enemy AI, score, spawning, pacing overhaul, broad quality infrastructure,
   visual polish, or automatic Sprint 18.
-acceptance_gate: Human/CTO must decide whether the deterministic platformer
-  baseline is the minimum acceptance floor for an accepted provider candidate
-  and whether an under-complete candidate must fail closed into the existing
-  deterministic fallback. Until resolved, this WO remains BLOCKED and no
-  implementation starts.
-product_verification: NOT STARTED — unresolved acceptance gate
-code_complete: NOT STARTED
-product_verified: NOT STARTED
-human_decision_required: YES
+acceptance_gate: PASS — complete provider candidates are accepted; structurally
+  valid but product-incomplete platformer candidates are rejected into the
+  deterministic baseline; provider failures retain safe fallback; all four
+  outcomes are distinct in diagnostics.
+product_verification: PASS — real Codex CLI Studio generation selected
+  `deterministic_fallback` with `product_incomplete`, produced the seven-entity
+  baseline, and full Observatory exposed the failed baseline stage and exact
+  missing capabilities without provider-outage labeling. Collectible contact
+  produced 6 remaining entities, `Experience: 1`, and `Level: 2`; browser logs
+  were clean. A/B/C provider contract tests and the existing D gameplay
+  regressions pass.
+code_complete: YES
+product_verified: YES
+human_decision_required: NO
+
+## WO-S17-003 — Platformer Goal/Collectible Target Isolation
+
+status: DONE
+state_transition: GENERATED_AFTER_WO_S17_002_GAP_ANALYSIS → READY → IN_PROGRESS → VERIFYING → DONE
+priority: P0
+dependencies: WO-S17-002 DONE; fresh Sprint 17 product-level Gap Analysis
+architecture_before: v1.159
+architecture_expected_after: v1.159 — existing RuleBuilder boundary only
+mission: Preserve the complete platformer lifecycle after adding a
+collectible: contact with the selected collectible must not remove a goal or
+checkpoint, and goal contact must reach the existing Runtime session
+completion authority.
+measured_bottleneck: Real Studio fallback traversal reached the `goal` item
+  after collectible removal. The deterministic `collect-reward` rule matched
+  the goal by category-only `item` conditions, removed it, and left the session
+  `active`; `reach-goal` could not commit. This is a direct product execution
+  blocker, not a provider or Runtime-authority gap.
+allowed_scope: Add exact selected-collectible ID conditions to the existing
+  deterministic collect-reward and threshold level-up rules; preserve existing
+  event participant identity in the Runtime condition evaluator after an
+  earlier same-event rule removes the target; add focused builder/Runtime
+  regression coverage; verify the same natural-language fallback path through
+  goal contact and Runtime session completion.
+forbidden_scope: New Runtime authority, new gameplay primitives, managers,
+  genre-specific Runtime, arbitrary code/eval, candidate augmentation,
+  provider regeneration, death/respawn, hazards, enemy AI, score, pacing,
+  visual redesign, broad Observatory work, or Sprint 18.
+acceptance: PASS — the deterministic platformer RuleSet targets the selected
+  collectible ID for collection/progression; collectible contact removes only
+  the collectible and commits XP/Level even after the removal action; goal
+  contact no longer matches collection/progression, `reach-goal` executes
+  `COMPLETE_GOAL`, and the Runtime session becomes `completed`; existing
+  enemy/damage, stale isolation, provider gate, and failure fallback behavior
+  remain intact.
+verification: PASS — AI/Runtime/Web affected and full-package regressions,
+  TypeScript, ESLint, Web build, git diff check, and real Studio fallback
+  traversal passed. Full Observatory Event Stream showed collectible removal
+  and level-up, enemy damage and stomp, then committed goal completion.
+product_verification: YES — real natural-language Studio verification on
+  2026-08-25 showed `product_incomplete → deterministic_fallback`, movement,
+  jump, collectible removal, `Experience: 1`, `Level: 2`, Health 100→99,
+  enemy stomp removal, goal preservation, Runtime `completed`, and clean
+  browser error/warning logs.
+code_complete: YES
+human_decision_required: NO — the measured fix reuses the approved generic
+  RuleBuilder and existing Runtime completion authority.
+
+## SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
+
+status: BLOCKED
+state_transition: GENERATED_AFTER_WO_S17_003_GAP_ANALYSIS → BLOCKED
+priority: P0
+dependencies: WO-S17-001 DONE; WO-S17-002 DONE; WO-S17-003 DONE; Sprint 17
+  product-level Gap Analysis complete
+architecture_before: v1.159
+architecture_expected_after: v1.159
+mission: Evaluate whether Sprint 17's product goal is satisfied by the
+  provider-gated deterministic baseline and accumulated generic gameplay/
+  Runtime evidence.
+allowed_scope: Sprint-level acceptance review, evidence reconciliation,
+  explicit deferred-gap accounting, and Human/CTO freeze decision.
+forbidden_scope: Automatic Sprint 18 entry, pre-generated Sprint 18 backlog,
+  unmeasured death/respawn, hazards, enemy AI, score, pacing, or new Runtime
+  architecture.
+acceptance: PASS only when the complete natural-language platformer path,
+  truthful provider selection, deterministic fallback lifecycle, current
+  generic mechanics, progression, goal completion, continuity, and isolation
+  evidence are reconciled against the Sprint 17 goal. Deferred failure/recovery
+  capabilities remain explicitly classified rather than silently claimed.
+human_decision_required: YES — Human/CTO must accept FREEZE or CONTINUE.
 
 ## Queue transition vocabulary
 

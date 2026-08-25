@@ -23,7 +23,7 @@ export class FallbackGameWorldGenerationProvider implements GameWorldGenerationP
     try {
       if (this.primary.generateWithDiagnostics) return await this.primary.generateWithDiagnostics(request)
       const world = await this.primary.generate(request)
-      return { world, diagnostics: { source: 'ai', validationStatus: 'valid', validationErrors: [], worldEntityIds: world.entities.map(entity => entity.id) } }
+      return { world, diagnostics: { source: 'ai', candidateDisposition: 'accepted', selectionOutcome: 'provider_accepted', validationStatus: 'valid', validationErrors: [], worldEntityIds: world.entities.map(entity => entity.id) } }
     } catch (error) {
       const fallback = this.fallback.generateWithDiagnostics
         ? await this.fallback.generateWithDiagnostics(request)
@@ -39,6 +39,8 @@ export class FallbackGameWorldGenerationProvider implements GameWorldGenerationP
         diagnostics: Object.freeze({
           ...diagnostics,
           source: 'deterministic' as const,
+          candidateDisposition: candidateDisposition(error),
+          selectionOutcome: 'deterministic_fallback' as const,
           validationStatus: 'invalid' as const,
           validationErrors: Object.freeze([error instanceof Error ? error.message : 'AI generation failed']),
           fallbackReason: error instanceof Error ? error.message : 'AI generation failed',
@@ -63,6 +65,11 @@ function failureReason(error: unknown): StructuredGenerationFailureReason {
   if (error instanceof InvalidGameWorldCandidateError) return error.reason
   if (error instanceof StructuredGenerationError) return error.reason
   return 'provider_error'
+}
+
+function candidateDisposition(error: unknown): NonNullable<GameWorldGenerationResult['diagnostics']['candidateDisposition']> {
+  if (error instanceof InvalidGameWorldCandidateError) return error.failureKind
+  return 'provider_failed'
 }
 
 function fallbackStages(error: unknown, diagnostics: GameWorldGenerationResult['diagnostics'] | undefined): readonly GameGenerationTraceStage[] {

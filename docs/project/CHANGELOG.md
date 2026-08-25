@@ -1,5 +1,55 @@
 # Changelog
 
+### Sprint 17 — WO-S17-003 Platformer Goal/Collectible Target Isolation
+
+- Fresh product-level verification of the real fallback traversal found that
+  the category-only deterministic `collect-reward` rule matched `goal` after
+  the collectible had already been consumed. It removed the goal and left the
+  Runtime session `active`, blocking truthful completion.
+- Narrowed the existing deterministic RuleBuilder output so collection and
+  threshold level-up rules target the selected collectible ID. Goal/checkpoint
+  items remain isolated, and the existing generic `COMPLETE_GOAL` authority is
+  reused.
+- This is a bounded v1.159 correction with no new architectural layer, Runtime
+  manager, provider augmentation, regeneration loop, or executable generated
+  code. WO-S17-003 is the only selected next work item; Sprint 18 remains
+  disabled.
+- The existing Runtime `ENTITY_ID_EQUALS` evaluator now preserves immutable
+  `eventActor`/`eventTarget` identity after an earlier same-event rule removes
+  the target. This keeps the generic level-up transition truthful without
+  adding a gameplay primitive.
+- Real Studio verification completed the fallback lifecycle: collectible and
+  level-up committed, Health changed 100→99, enemy stomp committed, goal was
+  preserved, and `reach-goal / COMPLETE_GOAL` committed Runtime `completed`.
+  Full Observatory showed the ordered events and browser error/warning logs
+  were empty. WO-S17-003 is DONE, Product Verified = YES; the only next item
+  is the blocked Sprint 17 Freeze Review.
+
+### Sprint 17 — WO-S17-002 Provider Candidate Completeness Gate
+
+- Human/CTO approved fail-closed product semantics for the Sprint 17
+  platformer path: structural validity is followed by the bounded current
+  platformer baseline gate. Complete provider candidates are accepted;
+  product-incomplete candidates select the existing deterministic baseline;
+  provider failures retain safe fallback.
+- Added the gate inside the existing `@genesis/ai` validator boundary. The
+  floor requires two terrain entities, an enemy, a collectible item, and a goal
+  marker. No candidate augmentation, merge, regeneration loop, manager,
+  genre-specific Runtime, or executable generated code was introduced.
+- Added truthful diagnostics for `accepted`, `structurally_invalid`,
+  `product_incomplete`, and `provider_failed` candidate dispositions, plus
+  provider/deterministic selection outcomes. Studio and full Observatory now
+  expose these facts without labeling completeness rejection as provider
+  outage.
+- Architecture v1.158 → v1.159. AI full suite (156 files / 9406 tests) and Web
+  full suite (47 files / 3529 tests) pass; direct TypeScript, ESLint, Web build,
+  and `git diff --check` pass with only pre-existing lint warnings.
+- Real Codex CLI Studio verification selected `deterministic_fallback` with
+  `product_incomplete`, generated the seven-entity baseline, and observed
+  collectible removal with `Experience: 1`, `Level: 2`, and clean browser logs.
+- Post-WO Gap Analysis generated exactly one blocked next control-plane item:
+  `SPRINT17_FREEZE_REVIEW`. Sprint 18 is not entered automatically.
+
 ### Sprint 17 — WO-S17-001 Product Gate and Next-Work Discovery
 
 - Human/CTO approved `Mechanically Complete Platformer Generation` and the

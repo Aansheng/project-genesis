@@ -10,8 +10,12 @@ const candidate = {
   objectives: [{ type: 'reach-goal', target: 'boss' }],
   entities: [
     { id: 'player', name: 'Player', category: 'player' },
+    { id: 'terrain', name: 'Terrain', category: 'terrain' },
+    { id: 'platform', name: 'Platform', category: 'terrain' },
     { id: 'enemy-1', name: 'Patrol Enemy 1', category: 'enemy', role: 'patrol' },
     { id: 'boss', name: 'Boss', category: 'enemy', role: 'boss' },
+    { id: 'collectible', name: 'Coin', category: 'item' },
+    { id: 'goal', name: 'Goal', category: 'item' },
   ],
 }
 

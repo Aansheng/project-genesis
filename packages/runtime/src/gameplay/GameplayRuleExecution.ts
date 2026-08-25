@@ -449,6 +449,17 @@ export class DefaultGameplayConditionEvaluator implements GameplayConditionEvalu
       return conditionResult(condition.type, 'unsupported', 'condition_not_executable')
     }
 
+    if (condition.type === 'ENTITY_ID_EQUALS') {
+      const eventEntityId = condition.entity.kind === 'eventActor'
+        ? ('actorEntityId' in event ? event.actorEntityId : undefined)
+        : condition.entity.kind === 'eventTarget'
+          ? ('targetEntityId' in event ? event.targetEntityId : undefined)
+          : undefined
+      if (eventEntityId !== undefined) {
+        return conditionResult(condition.type, eventEntityId === condition.entityId ? 'passed' : 'failed', 'entity_id_mismatch')
+      }
+    }
+
     const entity = resolveSelector(condition.entity, event, context)
     if (!entity) return conditionResult(condition.type, 'failed', 'entity_not_found')
 

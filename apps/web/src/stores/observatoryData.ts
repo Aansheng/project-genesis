@@ -22,10 +22,23 @@ export interface ObservatoryGenerationStage {
   readonly error?: string
 }
 
+export type ObservatoryGenerationCandidateDisposition =
+  | 'accepted'
+  | 'structurally_invalid'
+  | 'product_incomplete'
+  | 'provider_failed'
+
+export type ObservatoryGenerationSelectionOutcome =
+  | 'provider_accepted'
+  | 'deterministic_baseline'
+  | 'deterministic_fallback'
+
 export interface ObservatoryGenerationTrace {
   readonly id: string
   readonly source: 'ai' | 'deterministic'
   readonly status: 'success' | 'fallback' | 'failed'
+  readonly candidateDisposition?: ObservatoryGenerationCandidateDisposition
+  readonly selectionOutcome?: ObservatoryGenerationSelectionOutcome
   readonly provider?: string
   readonly model?: string
   readonly stages: readonly ObservatoryGenerationStage[]
@@ -231,6 +244,12 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
       id: stringValue(trace.id, 'generation'),
       source: trace.source === 'ai' ? 'ai' : 'deterministic',
       status: trace.status === 'fallback' ? 'fallback' : trace.status === 'failed' ? 'failed' : 'success',
+      ...(raw.candidateDisposition === 'accepted' || raw.candidateDisposition === 'structurally_invalid' || raw.candidateDisposition === 'product_incomplete' || raw.candidateDisposition === 'provider_failed'
+        ? { candidateDisposition: raw.candidateDisposition }
+        : {}),
+      ...(raw.selectionOutcome === 'provider_accepted' || raw.selectionOutcome === 'deterministic_baseline' || raw.selectionOutcome === 'deterministic_fallback'
+        ? { selectionOutcome: raw.selectionOutcome }
+        : {}),
       ...(typeof trace.provider === 'string' ? { provider: trace.provider } : {}),
       ...(typeof trace.model === 'string' ? { model: trace.model } : {}),
       stages: Object.freeze(Array.isArray(trace.stages) ? trace.stages.filter(isRecord).map(stage => Object.freeze({

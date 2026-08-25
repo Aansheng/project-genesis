@@ -117,9 +117,15 @@ describe('GameplayRule foundation', () => {
         { type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 },
       ],
     })
+    expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'collect-reward')?.conditions).toContainEqual({
+      type: 'ENTITY_ID_EQUALS',
+      entity: { kind: 'eventTarget' },
+      entityId: 'coin-1',
+    })
     expect(deterministicRuleSet.rules.find(rule => rule.ruleId === 'level-up-at-experience-threshold')).toMatchObject({
       supportStatus: 'supported',
       conditions: [
+        { type: 'ENTITY_ID_EQUALS', entity: { kind: 'eventTarget' }, entityId: 'coin-1' },
         { type: 'NUMBER_COMPARE', value: { kind: 'gameState', key: 'experience' }, operator: 'gte', expected: 1 },
         { type: 'NUMBER_COMPARE', value: { kind: 'gameState', key: 'level' }, operator: 'lt', expected: 2 },
       ],
