@@ -59,6 +59,7 @@ describe('CodexCliStructuredGenerationClient', () => {
         game: { worldType: 'platformer' as const },
         semanticWorld: { entities: [] },
         capabilities: { version: 'v1' as const, capabilities: [], supportedMechanicIds: [] },
+        ruleVocabulary: { eventTypes: [], conditionTypes: [], actionTypes: [], primitiveCapabilities: [] },
         instruction: 'move',
       },
     } satisfies GameplayGenerationRequest

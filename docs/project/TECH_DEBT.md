@@ -7,8 +7,16 @@
 
 | Item | Status / Evidence |
 | --- | --- |
-| Terrain tiling/autotiling | Deferred visual-quality work. Generated terrain now fits each authoritative world bound by stretching the shared resource; add TilingSprite/tileset behavior only when texture distortion becomes a measured product issue. |
+| Terrain tiling/autotiling | **Sprint 18 blocked measurement candidate.** WO-S18-001 records `ground-repeat-x`, and WO-S18-002 consumes platform usage, but ground repetition/local geometry composition is not yet measured against a resolved image-backed scene. Add only the smallest geometry-backed slice after that evidence; do not jump to a tileset framework. |
 | Generated transparency and persistence | Still deferred. Geometry/scale correctness does not require alpha extraction or durable artifact storage. |
+
+## Sprint 18 Visual Composition
+
+| Item | Status / Evidence |
+| --- | --- |
+| Asset render usage contract | WO-S18-001 resolved the first measured metadata gap at v1.161. Current generated requirements carry bounded `entity-sprite`, `background-cover`, or `ground-repeat-x` usage through request/context/manifest. This is not a universal visual taxonomy. |
+| Local platform usage | WO-S18-002 resolved the measured consumer gap at v1.162: the environment Renderer prefers the exact matching platform entity-sprite over the generic ground material. |
+| Runtime-geometry-backed composition | **Blocked measurement candidate.** Runtime geometry remains authoritative; a resolved image-backed scene is required before selecting tiling/repeat or a geometry projection change. |
 
 ## Post-Sprint-14 World Evolution Freeze
 

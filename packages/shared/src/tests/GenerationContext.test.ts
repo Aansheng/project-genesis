@@ -42,6 +42,7 @@ function character(id: string, subject: string, visualArchetype: string, entityI
     subject,
     visualRole: 'livestock',
     visualArchetype,
+    renderUsage: 'entity-sprite',
     requiredStates: ['idle'],
     technicalProfile: { transparentBackground: true, view: 'side' },
   }
@@ -126,6 +127,7 @@ describe('generation context builders', () => {
       target: 'entity',
       subject: 'Sheep',
     })
+    expect(context.asset.renderUsage).toBe('entity-sprite')
     expect(context.references.length).toBeLessThanOrEqual(3)
     expect(context.references.map(reference => reference.visualArchetype)).toEqual(['Fox', 'Wolf', 'Goat'])
     expect(JSON.stringify(context)).not.toContain('resource')

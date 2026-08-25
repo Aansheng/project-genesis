@@ -78,11 +78,11 @@ describe('observatory store', () => {
     setActivePinia(createPinia())
   })
 
-  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.157', () => {
+  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.162', () => {
     const store = useObservatoryStore()
     expect(store.selectedPanel).toBe('Overview')
     expect(store.status).toBe('Ready')
-    expect(store.version).toBe('v1.157')
+    expect(store.version).toBe('v1.162')
   })
 
   it('defaults selectedPanel to Overview', () => {
@@ -95,9 +95,9 @@ describe('observatory store', () => {
     expect(store.status).toBe('Ready')
   })
 
-  it('defaults version to v1.157', () => {
+  it('defaults version to v1.162', () => {
     const store = useObservatoryStore()
-    expect(store.version).toBe('v1.157')
+    expect(store.version).toBe('v1.162')
   })
 
   it('selectPanel updates selectedPanel', () => {
@@ -168,12 +168,12 @@ describe('observatory header', () => {
 
   it('renders the current architecture version', () => {
     const wrapper = mountHeader()
-    expect(wrapper.find('.header-version').text()).toBe('v1.157')
+    expect(wrapper.find('.header-version').text()).toBe('v1.162')
   })
 
   it('renders the current phase on the right side', () => {
     const wrapper = mountHeader()
-    expect(wrapper.find('.header-sprint').text()).toBe('Sprint 16')
+    expect(wrapper.find('.header-sprint').text()).toBe('Sprint 18')
   })
 
   it('keeps the Game link in the header right layout flow', () => {
@@ -903,8 +903,8 @@ describe('observatory shell', () => {
     const wrapper = mountShell()
     expect(wrapper.text()).toContain('Observatory')
     expect(wrapper.text()).toContain('Ready')
-    expect(wrapper.text()).toContain('v1.157')
-    expect(wrapper.text()).toContain('Sprint 16')
+    expect(wrapper.text()).toContain('v1.162')
+    expect(wrapper.text()).toContain('Sprint 18')
   })
 
   it('renders the runtime viewer when Runtime is selected from the sidebar', async () => {

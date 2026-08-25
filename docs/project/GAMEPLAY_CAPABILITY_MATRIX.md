@@ -1,6 +1,6 @@
-# Gameplay Capability Matrix — Sprint 17 Active
+# Gameplay Capability Matrix — Sprint 17 Frozen / Sprint 18 Active
 
-Architecture version: v1.160 (WO-S17-004 Code Complete = YES; Product Verified = YES; Sprint 17 Freeze Review pending)
+Architecture version: v1.162 (Sprint 17 FROZEN; WO-S18-001 and WO-S18-002 Code Complete = YES; Product Verified = YES)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -85,3 +85,9 @@ slice is not promoted to a general Runtime capability.
 
 The catalog is deliberately small. It is a truthful capability boundary, not
 a plugin registry or a promise that a provider-generated mechanic is runnable.
+
+Sprint 17 is frozen at v1.160 with the complete mechanically coherent
+platformer lifecycle Product Verified. Sprint 18's first bounded visual slice
+is recorded separately in `SPRINT18_BACKLOG.md`: asset render usage now travels
+through the generation request/context and manifest, while Runtime geometry
+remains authoritative and local platform composition remains unexecuted.

@@ -1,5 +1,39 @@
 # Changelog
 
+### Sprint 18 — WO-S18-002 Consume Bounded Platform Usage in Environment Composition
+
+- Post-WO-S18-001 product measurement found that the environment Renderer still
+  reused the resolved ground terrain asset for both terrain and platform
+  entities, hiding the already-generated exact platform entity visual.
+- WO-S18-002 makes the existing Renderer consume the bounded usage contract:
+  terrain prefers `ground-repeat-x`, platforms prefer their matching resolved
+  `entity-sprite`, and background prefers `background-cover`, with legacy
+  kind-based fallbacks preserved.
+- Runtime position and existing visual-catalog bounds remain authoritative;
+  no Runtime geometry, tiling, image-pixel inference, manager, or broad
+  Renderer framework was added.
+- Architecture v1.161 → v1.162. Renderer regressions, type/lint checks, Web
+  regressions/build, and real fallback Studio creation passed with clean
+  browser/runtime diagnostics. See ADR-0276.
+
+### Sprint 18 — WO-S18-001 Bounded Platformer Asset Render-Usage Contract
+
+- Human/CTO froze Sprint 17 at v1.160 with Code Complete = YES and Product
+  Verified = YES, then authorized Sprint 18 — Visually Coherent Platformer
+  Generation.
+- Fresh repository-grounded Gap Analysis measured the smallest current visual
+  blocker: environment asset requests and manifests carried only generic kind
+  (`terrain`/`background`), so role-aware prompt constraints and later
+  Renderer selection could not be coordinated.
+- WO-S18-001 carries bounded `renderUsage` metadata for entity sprites,
+  background cover, and ground repeat-x through the existing Shared → AI/Web
+  request/context/manifest path. Prompt constraints are derived from that
+  metadata; no Runtime or image-based geometry authority was introduced.
+- Architecture v1.160 → v1.161. Product verification passed through the real
+  Studio creation/request path with clean browser/runtime diagnostics. Local
+  platform composition and Runtime-geometry-backed terrain rendering remain
+  candidates for the next measured WO.
+
 ### Sprint 17 — WO-S17-004 Failure/Recovery Completion and Freeze Review
 
 - Human/CTO chose CONTINUE after WO-S17-003: the successful platformer path is

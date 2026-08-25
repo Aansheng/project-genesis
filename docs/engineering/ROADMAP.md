@@ -35,13 +35,37 @@ architecture.
 - Sprint 16 Freeze Review: Human/CTO chose FREEZE. Sprint 16 is frozen at
   v1.157 with Code Complete = YES and Product Verified = YES. The Freeze Review
   introduced no architecture change.
+- Sprint 17 — Mechanically Complete Platformer Generation: Human/CTO chose
+  FREEZE on 2026-08-25. WO-S17-001 through WO-S17-004 are Code Complete = YES
+  and Product Verified = YES at v1.160; the complete success and bounded
+  failure/recovery lifecycles are verified. See `SPRINT17_REVIEW.md`.
+- Sprint 18 direction decision: Human/CTO authorized Visually Coherent
+  Platformer Generation. Fresh discovery selected exactly one current bounded
+  WO: `WO-S18-001` for role-aware asset render usage; no full visual framework
+  or future Sprint backlog is pre-generated.
+- WO-S18-002 is complete at v1.162 and Product Verified: the existing
+  environment Renderer consumes the bounded platform entity-sprite usage
+  instead of reusing the ground material for every platform. Runtime geometry,
+  tiling, and image-pixel inference remain deferred.
 
 ## Current direction
 
-Keep the end-to-end pipeline playable and truthful:
+Keep the end-to-end pipeline playable, truthful, and visually composable:
 
 Natural language → Intent → Semantic World → Game DSL → Runtime → Renderer
 → playable game → targeted natural-language evolution.
+
+Sprint 17 proved the mechanically complete platformer lifecycle. Sprint 18
+now measures the smallest gap preventing visual assets from being composed by
+their actual roles. Runtime geometry remains authoritative; generated assets
+are skins/materials only. WO-S18-001 establishes the bounded usage fact carried
+from asset requirement to generation request/context and manifest. WO-S18-002
+consumes that fact for platform selection in the existing environment
+projection. Ground-repeat composition across authoritative geometry remains a
+just-in-time discovery candidate, not a pre-planned Sprint.
+The generated next item, `WO-S18-003`, is BLOCKED until a real image-backed
+scene resolves the relevant visual resources; no tiling or geometry contract
+is pre-authorized.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,
@@ -60,17 +84,13 @@ is frozen at v1.157 with its accepted product thesis complete.
 
 ## Deferred direction
 
-Skills, modifiers, score policy, death/respawn/
-game-over, enemy behavior, timers, spawning, waves, richer rule actions,
-durable history, and broader context systems stay deferred until a concrete
-product need and acceptance path justify them. Goal completion beyond the
-current session-completed truth, including victory UI, next level, restart,
-failure, and progression beyond the bounded numeric primitive, remains
-deferred. Offline World Evolution fallback is recorded as resilience debt, not
-the current Sprint bottleneck. Sprint 17 is not authorized yet. Its high-level
-candidate objective is `Mechanically Complete Platformer Generation`; candidate
-gaps must be measured after Human/CTO approves the Sprint 17 goal, and no
-detailed product WO is pre-generated.
+Skills, modifiers, score policy, game-over/lives/checkpoints, enemy behavior,
+timers, spawning, waves, richer rule actions, durable history, and broader
+context systems stay deferred until a concrete product need and acceptance path
+justify them. Offline World Evolution fallback remains resilience debt. Sprint
+17 is frozen; Sprint 18 visual work is limited to measured role-aware asset
+composition gaps and must not become a graphics framework, image-based
+collision system, or speculative future-role taxonomy.
 
 ## Supervisor rollout
 
@@ -80,6 +100,7 @@ next READY/BLOCKED work item. With `continuation_mode = SPRINT_CONTINUOUS`, it
 may continue sequentially through that next item and later same-Sprint items
 after all gates pass. `max_concurrent_subagents = 2`, repair budget `= 3`,
 Human/CTO escalation, one-next-WO generation, and the Sprint-boundary stop
-remain active. With Sprint 16 frozen, continuous mode stops at the Sprint
-boundary; it never authorizes automatic cross-Sprint execution or detailed
-Sprint 17 work before goal approval.
+remain active. With Sprint 17 frozen and Sprint 18 explicitly authorized,
+continuous mode may execute one sequential Sprint 18 WO at a time. It still
+stops at Human/CTO gates and the Sprint Freeze Review, and it never enters
+Sprint 19 automatically.

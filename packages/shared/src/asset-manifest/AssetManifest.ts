@@ -1,4 +1,4 @@
-import type { AssetKind, AssetTarget, AssetSpecification } from '../asset-specification'
+import type { AssetKind, AssetRenderUsage, AssetTarget, AssetSpecification } from '../asset-specification'
 
 export type AssetResolutionStatus = 'unresolved' | 'resolved' | 'failed'
 export type AssetOrigin = 'static' | 'generated' | 'uploaded' | 'fallback'
@@ -20,6 +20,7 @@ export interface AssetManifestEntry {
   readonly kind: AssetKind
   readonly target: AssetTarget
   readonly entityId?: string
+  readonly renderUsage?: AssetRenderUsage
   readonly status: AssetResolutionStatus
   readonly origin?: AssetOrigin
   readonly resource?: AssetResourceReference

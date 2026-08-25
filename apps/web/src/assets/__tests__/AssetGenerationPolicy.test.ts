@@ -31,6 +31,28 @@ describe('AI asset generation policy', () => {
     })
   })
 
+  it('derives bounded entity render usage in the request and prompt', () => {
+    const requirement = { ...specification.assets[0], renderUsage: 'entity-sprite' as const }
+    const request = buildImageGenerationRequest({ ...specification, assets: [requirement] }, requirement)
+
+    expect(request).toMatchObject({
+      renderUsage: 'entity-sprite',
+      constraints: { renderUsage: 'entity-sprite' },
+    })
+    expect(request.prompt).toContain('isolated game entity sprite')
+    expect(request.prompt).toContain('no scenery')
+  })
+
+  it('keeps background and ground usage identities distinct', () => {
+    const background = { id: 'background', kind: 'background' as const, target: 'environment' as const, subject: 'forest', visualRole: 'scene background', renderUsage: 'background-cover' as const, requiredStates: [], technicalProfile: { transparentBackground: false, view: 'side' as const } }
+    const ground = { id: 'ground', kind: 'terrain' as const, target: 'environment' as const, subject: 'grass', visualRole: 'ground terrain', renderUsage: 'ground-repeat-x' as const, requiredStates: [], technicalProfile: { transparentBackground: false, view: 'side' as const } }
+    const next = { ...specification, assets: [background, ground] }
+
+    expect(groupAiGenerationRequirements(next)).toHaveLength(2)
+    expect(buildImageGenerationRequest(next, background).prompt).toContain('no playable ground')
+    expect(buildImageGenerationRequest(next, ground).prompt).toContain('repeatable side-view ground')
+  })
+
   it('assembles deterministic provider-neutral sections from a bounded context', () => {
     const requirement = specification.assets[0]
     const context = new DefaultImageGenerationContextBuilder().build({

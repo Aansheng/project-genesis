@@ -1,5 +1,6 @@
 import type {
   AssetRequirement,
+  AssetRenderUsage,
   AssetSpecification,
   ImageGenerationContext,
   ImageGenerationRequest,
@@ -45,6 +46,24 @@ export function groupAiGenerationRequirements(
   return [...groups.values()].map(group => [group[0], Object.freeze(group)] as const)
 }
 
+const RENDER_USAGE_PROMPTS: Readonly<Record<AssetRenderUsage, string>> = Object.freeze({
+  'entity-sprite': 'isolated game entity sprite; transparent background; no scenery; no ground; no text; no UI',
+  'background-cover': 'distant background scenery only; sky, clouds, mountains, or distant vegetation; no playable ground; no platform; no foreground character; no text; no UI',
+  'ground-repeat-x': 'seamless repeatable side-view ground surface material; horizontal repeat intent; no sky; no clouds; no distant scenery; no platform layout; no character; no text; no UI',
+})
+
+function renderUsagePrompt(requirement: AssetRequirement): string {
+  return requirement.renderUsage
+    ? RENDER_USAGE_PROMPTS[requirement.renderUsage]
+    : requirement.kind === 'background'
+      ? 'wide game environment background; no text; no UI; no foreground character'
+      : requirement.kind === 'terrain'
+        ? 'reusable platform terrain texture; no level layout; no text'
+        : requirement.kind === 'prop'
+          ? 'reusable game prop artwork'
+          : 'game character artwork'
+}
+
 export function buildImageGenerationRequest(
   specification: AssetSpecification,
   requirement: AssetRequirement,
@@ -53,7 +72,7 @@ export function buildImageGenerationRequest(
   const prompt = generationContext ? buildContextualImagePrompt(requirement, generationContext) : [
     requirement.subject,
     requirement.visualRole,
-    requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : requirement.kind === 'prop' ? 'reusable game prop artwork' : 'game character artwork',
+    renderUsagePrompt(requirement),
   ].filter(Boolean).join('; ')
   return Object.freeze({
     assetId: requirement.id,
@@ -62,10 +81,12 @@ export function buildImageGenerationRequest(
     prompt,
     subject: requirement.subject,
     ...(requirement.visualArchetype ? { visualArchetype: requirement.visualArchetype } : {}),
+    ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
     visualContext: specification.visualContext,
     ...(generationContext ? { generationContext } : {}),
     constraints: {
       assetKind: requirement.kind,
+      ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
       view: requirement.technicalProfile.view,
       transparentBackground: requirement.technicalProfile.transparentBackground,
       ...(requirement.kind === 'background' ? { preferredAspectRatio: 16 / 9 } : {}),
@@ -97,7 +118,7 @@ function buildContextualImagePrompt(
     'CONSTRAINTS',
     context.asset.technicalProfile.view ? `view: ${context.asset.technicalProfile.view}` : undefined,
     context.asset.technicalProfile.transparentBackground ? 'isolated subject, transparent background' : undefined,
-    requirement.kind === 'background' ? 'wide game environment background; no text; no UI; no foreground character' : requirement.kind === 'terrain' ? 'reusable platform terrain texture; no level layout; no text' : requirement.kind === 'prop' ? 'reusable game prop artwork' : 'game character artwork',
+    renderUsagePrompt(requirement),
     'no text, no logos',
   ].filter((value): value is string => Boolean(value)).join('\n')
 }

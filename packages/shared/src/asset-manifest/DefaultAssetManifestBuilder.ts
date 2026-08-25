@@ -30,6 +30,7 @@ function createEntry(
       kind: requirement.kind,
       target: requirement.target,
       ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
+      ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
       status: 'unresolved' as const,
     })
   }
@@ -41,6 +42,7 @@ function createEntry(
     kind: requirement.kind,
     target: requirement.target,
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
+    ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
     status,
     ...(input.origin ? { origin: input.origin } : {}),
     ...(input.resource ? { resource: freeze({ uri: input.resource.uri }) } : {}),

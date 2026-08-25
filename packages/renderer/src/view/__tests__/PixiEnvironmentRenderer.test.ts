@@ -23,6 +23,36 @@ const manifest: AssetManifest = {
   }],
 }
 
+const roleAwareManifest: AssetManifest = {
+  entries: [
+    {
+      assetId: 'background-main',
+      kind: 'background',
+      target: 'environment',
+      renderUsage: 'background-cover',
+      status: 'resolved',
+      resource: { uri: '/background.png' },
+    },
+    {
+      assetId: 'terrain-main',
+      kind: 'terrain',
+      target: 'environment',
+      renderUsage: 'ground-repeat-x',
+      status: 'resolved',
+      resource: { uri: '/ground.png' },
+    },
+    {
+      assetId: 'entity-platform-primary',
+      kind: 'prop',
+      target: 'entity',
+      entityId: 'platform',
+      renderUsage: 'entity-sprite',
+      status: 'resolved',
+      resource: { uri: '/platform.png' },
+    },
+  ],
+}
+
 function rootContainer(): Container & { children: Container[] } {
   const children: Container[] = []
   return {
@@ -113,6 +143,27 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
     const terrainLayer = root.children[1] as unknown as Container & { position: { x: number; y: number } }
     expect(terrainLayer.position.x).toBe(350)
     expect(terrainLayer.position.y).toBe(280)
+  })
+
+  it('uses the platform entity visual instead of reusing the ground material', async () => {
+    const root = rootContainer()
+    const applied: string[] = []
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      assetManifest: roleAwareManifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: { load: async () => ({ width: 128, height: 32 } as Texture), clear() {} },
+      createSprite: sprite,
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+      onAssetApplication: event => applied.push(event.assetId),
+    })
+
+    renderer.render(world())
+    await flush()
+
+    expect(applied.filter(assetId => assetId !== 'background-main')).toEqual(['terrain-main', 'entity-platform-primary'])
   })
 
   it('invalidates only a changed environment resource when the manifest is rebound', () => {

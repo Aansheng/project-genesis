@@ -1,5 +1,6 @@
 import type {
   AssetKind,
+  AssetRenderUsage,
   AssetView,
   AssetVisualContext,
 } from '../asset-specification'
@@ -38,6 +39,7 @@ export interface ImageGenerationConstraints {
   readonly transparentBackground?: boolean
   readonly view?: AssetView
   readonly assetKind?: AssetKind
+  readonly renderUsage?: AssetRenderUsage
   readonly preferredAspectRatio?: number
 }
 
@@ -49,6 +51,7 @@ export interface ImageGenerationRequest {
   readonly prompt: string
   readonly subject?: string
   readonly visualArchetype?: string
+  readonly renderUsage?: AssetRenderUsage
   readonly visualContext: AssetVisualContext
   /** Immutable current-state projection used to assemble this request. */
   readonly generationContext?: ImageGenerationContext
@@ -115,6 +118,7 @@ export interface ImageGenerationOperation {
   readonly model?: string
   readonly entityId?: string
   readonly visualArchetype?: string
+  readonly renderUsage?: AssetRenderUsage
   /** Asset IDs sharing this generated visual; the first remains canonical. */
   readonly bindingAssetIds?: readonly string[]
   readonly bindingEntityIds?: readonly string[]

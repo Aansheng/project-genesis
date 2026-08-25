@@ -9,6 +9,15 @@ export type AssetTarget = 'entity' | 'environment'
 export type AssetView = 'side' | 'front' | 'top'
 export type AssetVisualState = 'idle' | 'run' | 'jump'
 
+/**
+ * Bounded current platformer render usages. This is request/manifest metadata,
+ * not a universal visual taxonomy or a source of Runtime geometry.
+ */
+export type AssetRenderUsage =
+  | 'entity-sprite'
+  | 'background-cover'
+  | 'ground-repeat-x'
+
 export interface AssetTechnicalProfile {
   readonly transparentBackground: boolean
   readonly view: AssetView
@@ -28,6 +37,8 @@ export interface AssetRequirement {
   readonly entityId?: string
   readonly visualRole?: string
   readonly visualArchetype?: string
+  /** How the current consumer should compose the generated visual. */
+  readonly renderUsage?: AssetRenderUsage
   readonly requiredStates: readonly AssetVisualState[]
   readonly technicalProfile: AssetTechnicalProfile
 }

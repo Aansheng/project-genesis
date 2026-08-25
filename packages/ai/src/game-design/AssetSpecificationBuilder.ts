@@ -64,6 +64,7 @@ function createEntityRequirement(
     visualArchetype: entity.visualArchetype,
     subject: entitySubject(entity.visualRole, kind, entity.visualArchetype),
     visualRole: entity.visualRole,
+    renderUsage: 'entity-sprite',
     requiredStates: entityStates(kind, entity.category),
     technicalProfile: freeze({ transparentBackground: true, view: 'side' }),
   })
@@ -78,6 +79,8 @@ export class DefaultAssetSpecificationBuilder implements AssetSpecificationBuild
       kind: 'terrain',
       target: 'environment',
       subject: specification.environment.terrain,
+      visualRole: 'ground terrain',
+      renderUsage: 'ground-repeat-x',
       requiredStates: Object.freeze([]),
       technicalProfile: freeze({ transparentBackground: false, view: 'side' }),
     })
@@ -86,6 +89,8 @@ export class DefaultAssetSpecificationBuilder implements AssetSpecificationBuild
       kind: 'background',
       target: 'environment',
       subject: specification.environment.background,
+      visualRole: 'scene background',
+      renderUsage: 'background-cover',
       requiredStates: Object.freeze([]),
       technicalProfile: freeze({ transparentBackground: false, view: 'side' }),
     })

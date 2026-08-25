@@ -1,8 +1,9 @@
 # Sprint 17 Backlog — Mechanically Complete Platformer Generation
 
-Sprint 17 was approved by Human/CTO on 2026-08-24. Sprint 16 remains FROZEN at
-v1.157. The sprint is continuous and sequential: one measured WO is generated,
-executed, and re-evaluated at a time; Sprint 18 is never entered automatically.
+Sprint 17 was approved by Human/CTO on 2026-08-24 and FROZEN by Human/CTO on
+2026-08-25 at architecture v1.160. Sprint 16 remains FROZEN at v1.157. All
+Sprint 17 WOs are Code Complete = YES and Product Verified = YES. Sprint 18 is
+authorized separately; no additional Sprint 17 product work is permitted.
 
 ## Product goal
 
@@ -21,6 +22,26 @@ Autonomous enemy behavior, hazards,
 reward/score feedback, pacing, and complete generation quality are measurement
 inputs, not pre-approved implementation scope. Failure/recovery was selected
 only after the success-path measurement exposed it as the smallest blocker.
+
+## Sprint 17 Freeze Review — 2026-08-25
+
+Human/CTO decision: **FREEZE**.
+
+The primary natural-language platformer path is Product Verified through both
+success and bounded failure/recovery lifecycles: provider completeness
+protection/deterministic fallback, movement, jump, collectible consumption,
+XP/level, damage, enemy stomp, Runtime failure, same-world Respawn, continued
+play, goal contact, and `COMPLETE_GOAL` session completion.
+
+Code Complete: YES. Product Verified: YES. FROZEN: YES. Architecture remains
+v1.160. Enemy AI, hazards, lives, checkpoints, score, pacing, visual polish,
+offline World Evolution fallback, and stale Full Observatory metadata remain
+explicitly non-blocking deferred candidates.
+
+Sprint 18 is authorized as `Visually Coherent Platformer Generation`; its
+current discovery and single bounded WO are recorded in
+`docs/project/SPRINT18_BACKLOG.md`. Sprint 18 must not be treated as completed
+or pre-planned beyond its current discovered item.
 
 ## WO-S17-001 — Platformer Baseline Collectible Composition
 

@@ -1,7 +1,7 @@
 import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
 import type { AssetManifest } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
-import type { RenderWorld } from '../model'
+import type { RenderEntity, RenderWorld } from '../model'
 import type { CameraController } from '../camera'
 import type { PixiAssetAdapter } from './PixiAssetAdapter'
 import { DefaultPixiAssetAdapter } from './PixiAssetAdapter'
@@ -72,15 +72,17 @@ export class PixiEnvironmentRenderer {
     const camera = this.cameraController?.update(world)
     if (camera) this.terrainLayer.position.set(this.cameraAnchor.x - camera.x, this.cameraAnchor.y - camera.y)
     this.terrainLayer.removeChildren().forEach(child => child.destroy())
-    const terrain = this.manifest?.entries.find(entry => entry.kind === 'terrain' && entry.status === 'resolved')
-    if (terrain && this.assetStore && this.assetAdapter) {
+    if (this.assetStore && this.assetAdapter) {
       for (const entity of world.entities) {
         if ((entity.type !== 'terrain' && entity.type !== 'platform') || !entity.position) continue
+        const visual = this.environmentVisualEntry(entity)
+        if (!visual) continue
         const bounds = projectRenderBounds(entity.position, this.visualCatalog.getVisual(entity.type))
-        this.upgradeTerrain(terrain.assetId, bounds, generation)
+        this.upgradeTerrain(visual.assetId, bounds, generation)
       }
     }
-    const background = this.manifest?.entries.find(entry => entry.kind === 'background' && entry.status === 'resolved')
+    const background = this.manifest?.entries.find(entry => entry.renderUsage === 'background-cover' && entry.status === 'resolved')
+      ?? this.manifest?.entries.find(entry => entry.kind === 'background' && entry.status === 'resolved')
     const preservedBackground = background && this.pendingAssetReplacements.has(background.assetId) ? this.backgroundSprite : null
     this.backgroundLayer.removeChildren().forEach(child => {
       if (child !== preservedBackground) child.destroy()
@@ -124,6 +126,31 @@ export class PixiEnvironmentRenderer {
     fallback.beginFill(0x0c0d10).drawRect(0, 0, this.width, this.height).endFill()
     this.backgroundLayer.addChild(fallback)
     this.backgroundSprite = null
+  }
+
+  /**
+   * Select the smallest existing role-aware asset for one environment entity.
+   * Ground keeps the environment material; a platform prefers its exact
+   * entity-sprite requirement so the environment material is not reused for a
+   * semantically different surface. Legacy manifests without renderUsage keep
+   * the previous terrain fallback.
+   */
+  private environmentVisualEntry(entity: RenderEntity): AssetManifest['entries'][number] | undefined {
+    const entries = this.manifest?.entries ?? []
+    if (entity.type === 'platform') {
+      const platform = entries.find(entry =>
+        entry.status === 'resolved'
+        && entry.target === 'entity'
+        && entry.entityId === entity.id
+        && (entry.renderUsage === 'entity-sprite' || entry.renderUsage === undefined),
+      )
+      if (platform) return platform
+    }
+    return entries.find(entry =>
+      entry.status === 'resolved'
+      && entry.target === 'environment'
+      && (entry.renderUsage === 'ground-repeat-x' || (entry.renderUsage === undefined && entry.kind === 'terrain')),
+    )
   }
 
   private resolveTexture(assetId: string): Promise<Texture> {

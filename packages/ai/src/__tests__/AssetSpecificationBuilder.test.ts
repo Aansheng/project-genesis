@@ -59,23 +59,23 @@ describe('DefaultAssetSpecificationBuilder', () => {
   it('creates player, enemy, and boss character requirements', () => {
     const assets = new DefaultAssetSpecificationBuilder().build(visualDesign()).assets
 
-    expect(assets[0]).toMatchObject({ kind: 'character', subject: 'player character', requiredStates: ['idle', 'run', 'jump'] })
-    expect(assets[1]).toMatchObject({ kind: 'character', subject: 'enemy creature', requiredStates: ['idle'] })
-    expect(assets[3]).toMatchObject({ kind: 'character', subject: 'boss character', requiredStates: ['idle'] })
+    expect(assets[0]).toMatchObject({ kind: 'character', subject: 'player character', renderUsage: 'entity-sprite', requiredStates: ['idle', 'run', 'jump'] })
+    expect(assets[1]).toMatchObject({ kind: 'character', subject: 'enemy creature', renderUsage: 'entity-sprite', requiredStates: ['idle'] })
+    expect(assets[3]).toMatchObject({ kind: 'character', subject: 'boss character', renderUsage: 'entity-sprite', requiredStates: ['idle'] })
   })
 
   it('creates prop requirements for checkpoint and goal entities', () => {
     const assets = new DefaultAssetSpecificationBuilder().build(visualDesign()).assets
 
-    expect(assets[4]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'checkpoint marker' })
-    expect(assets[5]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'goal marker' })
+    expect(assets[4]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'checkpoint marker', renderUsage: 'entity-sprite' })
+    expect(assets[5]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'goal marker', renderUsage: 'entity-sprite' })
   })
 
   it('creates terrain and background environment requirements', () => {
     const assets = new DefaultAssetSpecificationBuilder().build(visualDesign()).assets
 
-    expect(assets[6]).toMatchObject({ id: 'terrain-main', kind: 'terrain', target: 'environment', subject: 'ice platforms' })
-    expect(assets[7]).toMatchObject({ id: 'background-main', kind: 'background', target: 'environment', subject: 'snow mountains' })
+    expect(assets[6]).toMatchObject({ id: 'terrain-main', kind: 'terrain', target: 'environment', subject: 'ice platforms', visualRole: 'ground terrain', renderUsage: 'ground-repeat-x' })
+    expect(assets[7]).toMatchObject({ id: 'background-main', kind: 'background', target: 'environment', subject: 'snow mountains', visualRole: 'scene background', renderUsage: 'background-cover' })
   })
 
   it('deeply freezes the semantic output', () => {

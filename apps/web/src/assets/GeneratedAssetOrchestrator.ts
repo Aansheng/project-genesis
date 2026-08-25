@@ -32,6 +32,7 @@ export function createPendingImageGenerationOperation(
     assetId: request.assetId,
     ...(request.entityId ? { entityId: request.entityId } : {}),
     ...(request.visualArchetype ? { visualArchetype: request.visualArchetype } : {}),
+    ...(request.renderUsage ? { renderUsage: request.renderUsage } : {}),
     mode: request.mode,
     status: 'running',
     stage: 'preparing',

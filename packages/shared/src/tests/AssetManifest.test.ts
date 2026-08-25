@@ -11,8 +11,8 @@ const specification: AssetSpecification = {
   assets: [
     { id: 'entity-player-primary', kind: 'character', target: 'entity', entityId: 'player', requiredStates: ['idle'], technicalProfile: { transparentBackground: true, view: 'side' }, subject: 'player' },
     { id: 'entity-enemy-primary', kind: 'character', target: 'entity', entityId: 'enemy-1', requiredStates: ['idle'], technicalProfile: { transparentBackground: true, view: 'side' }, subject: 'enemy' },
-    { id: 'terrain-main', kind: 'terrain', target: 'environment', requiredStates: [], technicalProfile: { transparentBackground: false, view: 'side' }, subject: 'ice platforms' },
-    { id: 'background-main', kind: 'background', target: 'environment', requiredStates: [], technicalProfile: { transparentBackground: false, view: 'side' }, subject: 'snow mountains' },
+    { id: 'terrain-main', kind: 'terrain', target: 'environment', visualRole: 'ground terrain', renderUsage: 'ground-repeat-x', requiredStates: [], technicalProfile: { transparentBackground: false, view: 'side' }, subject: 'ice platforms' },
+    { id: 'background-main', kind: 'background', target: 'environment', visualRole: 'scene background', renderUsage: 'background-cover', requiredStates: [], technicalProfile: { transparentBackground: false, view: 'side' }, subject: 'snow mountains' },
     { id: 'checkpoint-primary', kind: 'prop', target: 'entity', entityId: 'checkpoint-1', requiredStates: [], technicalProfile: { transparentBackground: true, view: 'side' }, subject: 'checkpoint' },
   ],
 }
@@ -32,6 +32,8 @@ describe('DefaultAssetManifestBuilder', () => {
     expect(entries.map(entry => entry.assetId)).toEqual(specification.assets.map(asset => asset.id))
     expect(entries.map(entry => entry.kind)).toEqual(['character', 'character', 'terrain', 'background', 'prop'])
     expect(entries[1].entityId).toBe('enemy-1')
+    expect(entries[2].renderUsage).toBe('ground-repeat-x')
+    expect(entries[3].renderUsage).toBe('background-cover')
   })
 
   it('supports partial static resolution with metadata and origin', () => {

@@ -1,4 +1,4 @@
-import type { AssetKind, AssetRequirement, AssetSpecification, AssetTarget, AssetTechnicalProfile, AssetVisualState } from '../asset-specification'
+import type { AssetKind, AssetRenderUsage, AssetRequirement, AssetSpecification, AssetTarget, AssetTechnicalProfile, AssetVisualState } from '../asset-specification'
 import type { EntityCategory, GameWorldModel, WorldType } from '../game-world'
 import type { GameDifficulty, GameObjectiveType } from '../game-design'
 import type {
@@ -102,6 +102,7 @@ export interface ImageGenerationAssetContext {
   readonly entityId?: string
   readonly visualRole?: string
   readonly visualArchetype?: string
+  readonly renderUsage?: AssetRenderUsage
   readonly requiredStates: readonly AssetVisualState[]
   readonly technicalProfile: AssetTechnicalProfile
 }
@@ -113,6 +114,7 @@ export interface ImageGenerationReferenceMetadata {
   readonly subject: string
   readonly visualRole?: string
   readonly visualArchetype?: string
+  readonly renderUsage?: AssetRenderUsage
 }
 
 /** Small visual/game snapshot for one text-to-image or future image capability. */
@@ -274,6 +276,7 @@ export class DefaultWorldEvolutionGenerationContextBuilder implements WorldEvolu
 function visualIdentity(specification: AssetSpecification, requirement: AssetRequirement): string {
   return JSON.stringify({
     kind: requirement.kind,
+    renderUsage: requirement.renderUsage,
     archetype: requirement.visualArchetype ?? requirement.subject ?? requirement.visualRole,
     subject: requirement.subject,
     context: specification.visualContext,
@@ -288,6 +291,7 @@ function referenceMetadata(requirement: AssetRequirement): ImageGenerationRefere
     subject: requirement.subject,
     ...(requirement.visualRole ? { visualRole: requirement.visualRole } : {}),
     ...(requirement.visualArchetype ? { visualArchetype: requirement.visualArchetype } : {}),
+    ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
   })
 }
 
@@ -306,7 +310,9 @@ function selectReferences(
     .sort((left, right) => {
       const leftRole = left.candidate.visualRole === requirement.visualRole ? 1 : 0
       const rightRole = right.candidate.visualRole === requirement.visualRole ? 1 : 0
-      return rightRole - leftRole || left.index - right.index
+      const leftUsage = left.candidate.renderUsage === requirement.renderUsage ? 1 : 0
+      const rightUsage = right.candidate.renderUsage === requirement.renderUsage ? 1 : 0
+      return rightRole - leftRole || rightUsage - leftUsage || left.index - right.index
     })
   const seen = new Set<string>()
   const selected: ImageGenerationReferenceMetadata[] = []
@@ -341,6 +347,7 @@ export class DefaultImageGenerationContextBuilder implements ImageGenerationCont
       ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
       ...(requirement.visualRole ? { visualRole: requirement.visualRole } : {}),
       ...(requirement.visualArchetype ? { visualArchetype: requirement.visualArchetype } : {}),
+      ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
       requiredStates: Object.freeze([...requirement.requiredStates]),
       technicalProfile: Object.freeze({ ...requirement.technicalProfile }),
     })

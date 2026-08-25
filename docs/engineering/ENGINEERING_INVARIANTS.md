@@ -1,8 +1,8 @@
 # Project Genesis — Engineering Invariants
 
 These invariants are the durable boundary for supervised work. They were
-checked against the current source wiring, PROJECT_STATE.md, Sprint 16/17
-backlogs, capability matrices, and ADR-0261 through ADR-0274 on 2026-08-25.
+checked against the current source wiring, PROJECT_STATE.md, Sprint 16/17/18
+backlogs, capability matrices, and ADR-0261 through ADR-0276 on 2026-08-25.
 The source code and accepted ADRs remain authoritative if this projection
 becomes stale.
 
@@ -76,6 +76,15 @@ becomes stale.
     rules until the explicit same-world Runtime respawn restores Health to its
     existing maximum and safe velocity. Respawn preserves the current entity
     set, progression, semantic revision, and World Evolution continuity.
+23. Asset render usage is provider-neutral structured metadata carried through
+    the existing requirement → generation request/context → manifest seams.
+    It may constrain prompt/composition intent, but it never authorizes Runtime
+    geometry, collision, or image-pixel inference. Bounded current usages must
+    not silently become a universal visual taxonomy.
+24. The Renderer may consume bounded asset usage to select a visual projection,
+    but Runtime-projected position and existing bounds remain authoritative.
+    Legacy manifests without usage retain deterministic kind/target fallbacks;
+    Renderer selection must not create gameplay geometry.
 
 ## Evidence anchors
 
@@ -91,4 +100,6 @@ becomes stale.
   docs/adr/ADR-0262-gameplay-specification-game-loop-foundation.md through
   docs/adr/ADR-0272-default-platformer-collectible-composition.md,
   docs/adr/ADR-0273-platformer-provider-candidate-completeness-gate.md, and
-  docs/adr/ADR-0274-runtime-gameplay-failure-and-respawn.md
+  docs/adr/ADR-0274-runtime-gameplay-failure-and-respawn.md,
+  docs/adr/ADR-0275-bounded-platformer-asset-render-usage.md, and
+  docs/adr/ADR-0276-consume-bounded-platform-usage.md

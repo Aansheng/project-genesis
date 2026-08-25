@@ -5,7 +5,13 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-25
-current_sprint: Sprint 17
+current_sprint: Sprint 18
+current_work_order: WO-S18-003 — Ground-Repeat Composition Measurement
+current_work_order_status: BLOCKED
+current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
+current_control_plane_work_order_status: DONE
+last_completed_work_order: WO-S18-002
+next_work_order: WO-S18-003 — BLOCKED pending image-backed product measurement
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -1062,4 +1068,189 @@ READY → IN_PROGRESS only after dependency and human-decision gates pass.
 IN_PROGRESS → VERIFYING after implementation is complete.
 VERIFYING → DONE only when all required gates pass.
 VERIFYING → FAILED or BLOCKED when the repair budget or an escalation rule is
-  reached.
+reached.
+
+## SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
+
+status: DONE
+priority: P0
+state_transition: GENERATED_AFTER_WO_S17_004_GAP_ANALYSIS → BLOCKED → DONE
+dependencies: WO-S17-001 DONE; WO-S17-002 DONE; WO-S17-003 DONE; WO-S17-004
+  DONE; Human/CTO FREEZE decision accepted 2026-08-25
+architecture_before: v1.160
+architecture_after: v1.160
+mission: Reconcile the complete Sprint 17 natural-language platformer
+  success and bounded failure/recovery lifecycles and finalize the Sprint.
+acceptance: PASS — provider completeness protection, deterministic fallback,
+  movement, jump, collectible/progression, damage, stomp, Runtime failure,
+  same-world respawn, continuation, goal completion, stale isolation, and
+  truthful projections are Product Verified.
+product_verification: YES — accumulated real Studio evidence plus final real
+  browser Health 0 → Respawn → unchanged position → active-play evidence.
+code_complete: YES
+human_decision_required: NO — Human/CTO FREEZE accepted.
+next_boundary: Sprint 18 explicitly authorized; no Sprint 17 product work is
+  executed after this review.
+
+## SPRINT18_DISCOVERY — Visually Coherent Platformer Generation
+
+status: DONE
+priority: P0
+state_transition: GENERATED_AFTER_SPRINT17_FREEZE_REVIEW → READY → DONE
+dependencies: Sprint 17 FROZEN at v1.160; Human/CTO Sprint 18 authorization
+  accepted 2026-08-25
+architecture_before: v1.160
+architecture_expected_after: v1.161 for the selected bounded contract
+mission: Perform fresh repository-grounded Gap Analysis against the measured
+  visual composition problems and generate exactly one bounded current WO.
+measured_selection: Asset requirements and generation policy expose generic
+  kind only; environment role/usage is lost before provider requests and
+  manifest consumers. This is the smallest blocker because prompt constraints
+  and later Renderer role selection cannot coordinate without the fact.
+selected_work_order: WO-S18-001
+forbidden_scope: Full graphics framework, platform/tileset editor, image-based
+  collision, geometry inference from pixels, broad Renderer rewrite, future
+  Sprint backlog, or automatic Sprint 19 entry.
+acceptance: PASS — one bounded WO generated with source evidence, explicit
+  non-goals, valid dependencies, no unresolved Human/CTO authority fork, and
+  SPRINT_CONTINUOUS execution eligibility.
+product_verification: NOT_APPLICABLE — discovery/control-plane selection only.
+human_decision_required: NO — Sprint 18 direction and bounded role contract
+  were explicitly authorized.
+
+## WO-S18-001 — Bounded Platformer Asset Render-Usage Contract
+
+status: DONE
+priority: P0
+state_transition: GENERATED_AFTER_SPRINT18_DISCOVERY → READY → IN_PROGRESS → VERIFYING → DONE
+dependencies: SPRINT18_DISCOVERY DONE; Sprint 17 FROZEN at v1.160
+architecture_before: v1.160
+architecture_expected_after: v1.161 — preserve bounded render usage through
+  the existing asset request/context/manifest contracts
+architecture_after: v1.161
+mission: Carry the smallest current platformer visual usage fact from semantic
+  asset requirement through image generation request/context and manifest, and
+  derive deterministic prompt constraints from that fact.
+measured_bottleneck: `AssetRequirement` and `AssetManifestEntry` carried only
+  generic environment kind; the request prompt policy was kind-based; and the
+  environment Renderer selected a terrain resource for both terrain and
+  platform. The selected first slice is the missing usage contract, not image
+  inspection or Runtime geometry inference.
+allowed_scope: Optional typed `renderUsage` metadata; current emitted
+  `entity-sprite`, `background-cover`, and `ground-repeat-x` values; usage-aware
+  deterministic prompt constraints; usage-preserving manifest/context and
+  visual grouping; focused Shared/AI/Assets/Web regressions.
+forbidden_scope: VisualAssetManager, TerrainManager, universal role engine,
+  platform-specific asset generation, local platform composition, geometry
+  inference from images, image-based collision, tilesets, animation,
+  spritesheets, parallax, arbitrary code/eval, Runtime changes, provider
+  regeneration loops, candidate merge, or broad Renderer rewrite.
+implementation_boundaries: Shared owns the provider-neutral usage metadata;
+  AI owns deterministic requirement emission; Web owns request/prompt policy;
+  manifest preserves the fact for the next Renderer slice. Runtime remains
+  gameplay/geometry authority; Renderer remains a projection and is not changed
+  by this WO.
+acceptance: Current generated entity/background/ground requirements carry
+  truthful usage; requests/context/prompts expose it; manifest preserves it;
+  usage participates in visual identity/grouping; Sprint 17 gameplay,
+  World Evolution continuity, and stale-world isolation do not regress.
+automated_tests: Shared manifest/context/image contracts; AI asset builder;
+  Web asset generation policy and grouping; affected package suites.
+verification: PASS — focused/affected suites, direct TypeScript, ESLint, Web
+  build where applicable, `git diff --check`, and real Studio creation/request
+  path with clean browser/runtime diagnostics.
+product_verification: YES — the real Studio platformer request exercised the
+  existing generation path while the captured request/context carried the
+  bounded usage facts; no browser/runtime warning or error was introduced.
+code_complete: YES
+human_decision_required: NO
+
+## SPRINT18_NEXT_WORK_DISCOVERY — Fresh Product-Level Gap Analysis
+
+status: DONE
+priority: P0
+dependencies: WO-S18-001 DONE; fresh real generated-scene measurement required
+mission: Re-measure local platform usage and Runtime-geometry-backed terrain
+  composition against the Sprint 18 freeze question and generate exactly one
+  next bounded WO if a product blocker remains.
+human_decision_required: NO for discovery; implementation selection follows
+  the measured result and must not pre-plan the Sprint.
+state: GENERATED_AFTER_WO_S18_001_GAP_ANALYSIS → BLOCKED_PENDING_PRODUCT_MEASUREMENT → DONE
+measurement_result: Real fallback scene measured the platform selection gap;
+  WO-S18-002 was generated and executed. This historical discovery record is
+  superseded by the post-WO-S18-002 discovery below.
+
+## WO-S18-002 — Consume Bounded Platform Usage in Environment Composition
+
+status: DONE
+priority: P0
+state_transition: GENERATED_AFTER_WO_S18_001_GAP_ANALYSIS → READY → IN_PROGRESS → VERIFYING → DONE
+dependencies: WO-S18-001 DONE; Sprint 17 FROZEN at v1.160
+architecture_before: v1.161
+architecture_after: v1.162
+mission: Consume the already-proven bounded render usage in the existing
+  environment Renderer so a matching platform entity-sprite is preferred over
+  the generic ground material.
+measured_bottleneck: With a resolved environment terrain asset, the previous
+  Renderer selected it for both terrain and platform entities; the exact
+  platform entity asset was generated but hidden by the environment projection.
+allowed_scope: Existing manifest usage-aware selection for ground, platform,
+  and background; legacy kind/target fallback; Renderer regressions.
+forbidden_scope: Runtime geometry changes, tiling/repeat, image-pixel
+  inference, visual managers, universal taxonomy, broad Renderer rewrite,
+  arbitrary code/eval, and Sprint 19 entry.
+acceptance: PASS — terrain prefers ground-repeat-x, an exact resolved platform
+  entity-sprite is selected for its matching platform, background prefers
+  background-cover, and legacy manifests remain renderable.
+verification: PASS — focused/full Renderer tests, TypeScript, ESLint, Web
+  regressions/build, diff check, and real fallback Studio creation with clean
+  browser/runtime diagnostics.
+product_verification: YES
+code_complete: YES
+human_decision_required: NO
+
+## SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_002 — Fresh Product-Level Gap Analysis
+
+status: DONE
+priority: P0
+state_transition: GENERATED_AFTER_WO_S18_002_GAP_ANALYSIS → READY → DONE
+dependencies: WO-S18-002 DONE; real fallback scene measured
+mission: Re-measure the next smallest visual composition blocker and generate
+  exactly one bounded READY/BLOCKED WO under SPRINT_CONTINUOUS.
+measured_result: Platform selection is now role-aware. Ground-repeat
+  composition across wider authoritative geometry is the next candidate, but
+  the available browser fallback scene has no resolved image resources because
+  its image provider is unavailable; visual composition cannot be truthfully
+  measured yet.
+selected_work_order: WO-S18-003
+acceptance: PASS — exactly one bounded blocked item generated; no speculative
+  tiling, Runtime geometry, or image-quality framework was introduced.
+product_verification: NOT_APPLICABLE — discovery/control-plane selection only.
+human_decision_required: NO; blocked on an unresolved image-backed product
+  measurement gate.
+
+## WO-S18-003 — Ground-Repeat Composition Measurement
+
+status: BLOCKED
+priority: P0
+state_transition: GENERATED_AFTER_SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_002 → BLOCKED_PENDING_IMAGE_BACKED_MEASUREMENT
+dependencies: WO-S18-002 DONE; one real generated scene with resolved
+  background, ground, and platform resources is required
+architecture_before: v1.162
+architecture_expected_after: UNDECIDED pending measurement
+mission: Determine whether the bounded ground-repeat-x visual composes
+  coherently across Runtime-authoritative bounds, then select the smallest
+  implementation only if the evidence establishes one.
+allowed_scope: Product measurement and source-grounded gap confirmation only.
+forbidden_scope: Tiling/repeat implementation, Runtime geometry contract,
+  image-pixel collision/inspection, broad Renderer rewrite, visual quality
+  scoring, manager/framework creation, and Sprint 19 entry.
+blocking_gate: The available real-browser fallback run proved deterministic
+  platformer creation and role-aware platform selection, but its image
+  operations remained queued/active because no image provider was configured.
+  A resolved image-backed scene is required before choosing a composition
+  implementation.
+product_verification: PENDING
+code_complete: N/A
+human_decision_required: NO — this is an unresolved acceptance/product
+  measurement gate, not a direction change.

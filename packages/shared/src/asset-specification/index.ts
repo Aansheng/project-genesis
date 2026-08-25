@@ -1,5 +1,6 @@
 export type {
   AssetKind,
+  AssetRenderUsage,
   AssetRequirement,
   AssetSpecification,
   AssetTarget,

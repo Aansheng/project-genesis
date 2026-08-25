@@ -3,40 +3,38 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.160
-current_sprint: Sprint 17 (ACTIVE — Freeze Review pending)
-current_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
+architecture_version: v1.162
+current_sprint: Sprint 18 (ACTIVE)
+current_work_order: WO-S18-003 — Ground-Repeat Composition Measurement
 current_work_order_status: blocked
-current_control_plane_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
-current_control_plane_work_order_status: blocked
-last_completed_work_order: WO-S17-004 — Runtime-Authoritative Lethal Failure and Same-Session Respawn
-last_completed_product_work_order: WO-S17-004
-last_completed_control_plane_work_order: WO-S17-004 — Runtime-Authoritative Lethal Failure and Same-Session Respawn
-next_ready_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation (BLOCKED; Human/CTO decision required)
-product_architecture_changed: yes — WO-S17-004 implemented v1.159 → v1.160
-sprint_status: Sprint 17 is ACTIVE at the Freeze Review gate; Sprint 16 remains FROZEN at v1.157
-product_verified: YES — WO-S17-003 success and WO-S17-004 failure/recovery
-  lifecycles are Product Verified; Sprint 17 Freeze Review is awaiting
-  Human/CTO decision
+current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
+current_control_plane_work_order_status: done
+last_completed_work_order: WO-S18-002 — Consume Bounded Platform Usage in Environment Composition
+last_completed_product_work_order: WO-S18-002
+last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY — post-WO-S18-002 Gap Analysis
+next_ready_work_order: WO-S18-003 — BLOCKED pending image-backed product measurement
+product_architecture_changed: yes — WO-S18-002 implemented v1.161 → v1.162
+sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is ACTIVE under SPRINT_CONTINUOUS
+product_verified: YES — Sprint 17 success/failure lifecycles and WO-S18-001/
+  WO-S18-002 role-aware request/composition verification are Product Verified
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
-  automatic cross-Sprint execution disabled
+  automatic cross-Sprint execution disabled; Sprint 19 boundary stop enabled
 
 ## Current Sprint goal
 
-Sprint 17 — Mechanically Complete Platformer Generation:
+Sprint 18 — Visually Coherent Platformer Generation:
 
-1. Generate a simple platformer from one natural-language creation request.
-2. Prove the existing generic movement, jump, collectible, enemy, damage/
-   health, progression, goal, and Runtime session-completion path as one
-   mechanically coherent loop.
-3. Add failure/recovery only when a fresh product-level measurement shows it is
-   required by the generated loop; do not pre-build candidate capabilities.
+1. Preserve the Sprint 17 mechanically complete platformer lifecycle.
+2. Assign generated visual assets according to actual semantic/render usage.
+3. Compose visuals from Runtime-authoritative geometry; never infer gameplay
+   geometry from image pixels.
 
-Sprint 16 remains frozen at v1.157. Sprint 17 is continuous and sequential:
-each completed product WO triggers one fresh Gap Analysis and exactly one next
-READY/BLOCKED WO; Sprint 18 is never entered automatically.
+Sprint 16 remains frozen at v1.157 and Sprint 17 remains frozen at v1.160.
+Sprint 18 is continuous and sequential: each completed product WO triggers one
+fresh Gap Analysis and exactly one next READY/BLOCKED WO; Sprint 19 is never
+entered automatically.
 
 ## Completed
 
@@ -147,7 +145,24 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
   confirmed the button and recovery; the existing contact rule can immediately
   reduce restored `100/100` to `99/100` when the preserved position overlaps
   the enemy.
-- The configured AI gateway produced a structurally valid but mechanically
+- Human/CTO froze Sprint 17 on 2026-08-25. `SPRINT17_REVIEW.md` reconciles the
+  complete success and bounded failure/recovery evidence; enemy AI, hazards,
+  lives, checkpoints, score, pacing, visual polish, offline evolution fallback,
+  and stale Full Observatory metadata remain explicitly non-blocking.
+- Human/CTO authorized Sprint 18 — Visually Coherent Platformer Generation.
+  Fresh Gap Analysis measured the missing asset render-usage contract as the
+  smallest blocker and generated exactly one bounded item: `WO-S18-001`.
+- WO-S18-001 is complete at v1.161 and Product Verified: bounded `renderUsage`
+  metadata travels from current asset requirements through image requests,
+  generation context, and manifest entries; prompt constraints derive from
+  that fact. No Runtime or image-based geometry authority changed.
+- Fresh post-WO-S18-001 measurement found the existing environment Renderer
+  reused the ground material for platform entities even when an exact platform
+  entity-sprite was present. WO-S18-002 is complete at v1.162 and Product
+  Verified: the Renderer now consumes the bounded platform usage while keeping
+  Runtime-projected position/bounds authoritative.
+- Historical pre-WO-S17-002 evidence: the configured AI gateway produced a structurally
+  valid but mechanically
   incomplete platformer candidate containing only `player` and `platform`.
   Observatory truthfully reported `ai · success`, `Validation: passed`, and
   `Entities: 2`; this failed the primary product gate. Fresh discovery
@@ -233,10 +248,11 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
 
 - AI_GENERATION_CAPABILITY_MATRIX.md has an older v1.123 header.
 - VISUAL_CAPABILITY_MATRIX.md has an older v1.149 header.
-- `apps/web/src/projectMetadata.ts` still projects `v1.157` / `Sprint 16` in
-  the Full Observatory header. This pre-existing metadata projection mismatch
-  does not change the verified generation selection or Runtime truth and is
-  deferred to a separately scoped metadata/projection work item.
+- `apps/web/src/projectMetadata.ts` was corrected to project `v1.162` /
+  `Sprint 18` as a bounded projection-truth repair during Sprint 18 entry.
+  `AI_GENERATION_CAPABILITY_MATRIX.md` and `VISUAL_CAPABILITY_MATRIX.md`
+  still carry older architecture headers; those remain projection debt and
+  are not the current visual product bottleneck.
 
 For current work, use PROJECT_STATE.md, actual source wiring, accepted ADRs,
 and the current gameplay matrix. Update those older matrix headers in their
@@ -284,12 +300,32 @@ the Sprint 17 platformer loop; only `SPRINT17_FREEZE_REVIEW` remains, blocked
 on the Human/CTO decision. No Runtime authority or genre-specific Runtime was
 added, and adjacent candidate gaps remain deferred.
 
+Fresh Sprint 18 Gap Analysis (2026-08-25): the initial asset path exposed only
+generic `kind` values to generation and manifest consumers. Environment
+requirements did not preserve a typed usage, the prompt policy was kind-based,
+and the environment Renderer selected one terrain resource for both terrain and
+platform entities. The smallest measured blocker was the missing usage fact at
+the existing asset boundary, so `WO-S18-001` added bounded `entity-sprite`,
+`background-cover`, and `ground-repeat-x` metadata through the request/context/
+manifest path.
+
+Post-WO-S18-001 measurement against the real fallback-created scene then
+confirmed the next smallest consumer gap: `PixiEnvironmentRenderer` still
+ignored the exact platform entity-sprite when a ground material was resolved.
+`WO-S18-002` closed that bounded selection gap at v1.162. Runtime-projected
+position/bounds remain authoritative; ground-repeat composition across wider
+authoritative geometry is the next discovery candidate. No universal visual
+taxonomy, image-pixel geometry, or Runtime geometry change was added.
+
 ## Next Recommended Verification
 
-The success and failure/recovery lifecycles are verified. Perform the Sprint 17
-Freeze Review and prefer FREEZE; this is a Human/CTO gate, so do not enter
-Sprint 18 automatically. The pre-existing Full Observatory v1.157/Sprint 16
-header mismatch remains recorded projection debt, not this gate's blocker.
+Sprint 17 success and failure/recovery are frozen and verified. WO-S18-001 and
+WO-S18-002 are complete and Product Verified. The fresh post-WO-S18-002
+measurement generated exactly one next item, `WO-S18-003`, BLOCKED pending a
+successful image-backed scene with resolved visual resources. Do not implement
+tiling/repeat or Runtime geometry speculatively, and do not enter Sprint 19
+automatically. The stale capability-matrix headers remain projection debt and
+are not the current visual bottleneck.
 
 ## Authority
 
