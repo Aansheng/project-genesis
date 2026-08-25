@@ -4,17 +4,17 @@ This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
 architecture_version: v1.164 (camera-visible `ground-repeat-x` consumption; Product Verification complete)
-current_sprint: Sprint 18 (ACTIVE)
-current_work_order: SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
-current_work_order_status: blocked_pending_human_cto_freeze_decision
-current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
+current_sprint: Sprint 19 (ACTIVE)
+current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
+current_work_order_status: ready
+current_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
 current_control_plane_work_order_status: done
 last_completed_work_order: WO-S18-004 — Ground-Repeat Composition Across the Authoritative Ground Plane
 last_completed_product_work_order: WO-S18-004
 last_completed_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
-next_ready_work_order: none — SPRINT18_FREEZE_REVIEW is blocked on Human/CTO decision
+next_ready_work_order: WO-S19-001 — bounded Player presentation proof
 product_architecture_changed: yes — bounded WO-S18-004 Renderer consumption repair implemented v1.163 → v1.164 and is Product Verified
-sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is ACTIVE under SPRINT_CONTINUOUS
+sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is ACTIVE under SPRINT_CONTINUOUS
 product_verified: YES for WO-S18-004 — real Codex CLI assets, exact semantic
   Platform binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed

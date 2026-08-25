@@ -7,7 +7,7 @@
 
 | Item | Status / Evidence |
 | --- | --- |
-| Terrain tiling/autotiling | **Deferred, not currently selected.** The real image-backed scene fitted generated ground to the existing local Runtime bounds and exposed no wider geometry requiring repeat/tiling. Add only the smallest geometry-backed slice if a later measured scene proves it necessary; do not jump to a tileset framework. |
+| Terrain tiling/autotiling | **Partially resolved at v1.164.** `ground-repeat-x` now tiles the generated material across the camera-visible Runtime-authoritative Ground interval. General tilemap/autotiling remains deferred; do not introduce a tileset framework without a measured need. |
 | Generated transparency and persistence | Still deferred. Geometry/scale correctness does not require alpha extraction or durable artifact storage. |
 
 ## Sprint 18 Visual Composition
@@ -15,8 +15,8 @@
 | Item | Status / Evidence |
 | --- | --- |
 | Asset render usage contract | WO-S18-001 resolved the first measured metadata gap at v1.161. Current generated requirements carry bounded `entity-sprite`, `background-cover`, or `ground-repeat-x` usage through request/context/manifest. This is not a universal visual taxonomy. |
-| Local platform usage | WO-S18-002 established the bounded usage contract at v1.162. Real measurement found the baseline's Platform is `type: terrain` and its semantic name had been dropped before Renderer selection; the v1.163 adapter/Renderer repair is automated-test complete but awaits one provider-successful platform application. |
-| Runtime-geometry-backed composition | **Deferred.** Runtime geometry remains authoritative; the current real scene did not prove a need for a new geometry projection or image-derived bounds. |
+| Local platform usage | Resolved through WO-S18-003 at v1.163 with real provider-backed semantic Platform binding and application. |
+| Runtime-geometry-backed composition | WO-S18-004 verified Runtime ground authority and consumes its existing repeat material at v1.164; image-derived bounds remain deferred. |
 
 ## Post-Sprint-14 World Evolution Freeze
 

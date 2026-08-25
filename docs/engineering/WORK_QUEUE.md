@@ -5,13 +5,13 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-25
-current_sprint: Sprint 18
-current_work_order: SPRINT18_FREEZE_REVIEW — Visually Coherent Platformer Generation
-current_work_order_status: BLOCKED_PENDING_HUMAN_CTO_FREEZE_DECISION
-current_control_plane_work_order: SPRINT18_NEXT_WORK_DISCOVERY_POST_WO_S18_004
+current_sprint: Sprint 19
+current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
+current_work_order_status: READY
+current_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
 current_control_plane_work_order_status: DONE
 last_completed_work_order: WO-S18-004
-next_work_order: SPRINT18_FREEZE_REVIEW — BLOCKED pending Human/CTO freeze decision
+next_work_order: WO-S19-001 — READY
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -1380,3 +1380,42 @@ acceptance: The review may pass only if the natural-language Studio path proves
 product_verification: YES for the prerequisite WO-S18-003; the review itself
   introduces no product change.
 human_decision_required: YES — choose FREEZE or CONTINUE within Sprint 18.
+
+## SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
+
+status: DONE
+priority: P0
+dependencies: Sprint 18 FROZEN by Human/CTO at v1.164
+measurement: PASS — `visualGenerationIdentity()` excludes Runtime entity ID;
+  equivalent archetype/context requirements group to one canonical request.
+  `VisualAssetEvolutionExecutor` generates once and rebinds that resolved URI
+  to every equivalent entity asset. Existing regression proves three equivalent
+  Sheep bind to one generation while distinct archetypes remain separate.
+selection: Asset reuse needs no new WO. Player requirements already state
+  `idle/run/jump`, but Runtime velocity/ground truth is not projected to
+  Renderer and all states currently use one static entity asset.
+selected_work_order: WO-S19-001
+human_decision_required: NO
+
+## WO-S19-001 — Runtime-Derived Player Presentation State Assets
+
+status: READY
+priority: P0
+dependencies: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS DONE
+architecture_before: v1.164
+mission: Prove one Player's idle, run, jump, and facing presentation from
+  Runtime behavior without changing Runtime gameplay/collision authority.
+allowed_scope: Separate Player state images through the existing request/
+  manifest path; minimal render projection of authoritative velocity and
+  grounded facts; Renderer state selection and safe horizontal mirroring;
+  focused tests and real Studio verification.
+forbidden_scope: AnimationManager/Engine, state-machine framework, BlendTree,
+  spritesheet pipeline, skeletal animation, attack/death/hurt states,
+  all-entity rollout, image-derived gameplay, Runtime gameplay/collision change,
+  AssetManager, universal cache, or Sprint 20 entry.
+acceptance: Standing Player is idle; horizontal motion visibly presents run;
+  left/right facing is correct; airborne presents jump; land-while-moving
+  returns run and stopping returns idle. The complete existing gameplay flow
+  remains functional and browser diagnostics stay clean.
+product_verification: PENDING
+human_decision_required: NO

@@ -50,6 +50,12 @@ architecture.
   exact provider-backed platform application remains pending after the current
   Codex CLI platform request timed out. Runtime geometry, tiling, and
   image-pixel inference remain deferred.
+- Sprint 18 Freeze Review: Human/CTO froze Visually Coherent Platformer
+  Generation at v1.164 with Code Complete and Product Verified both YES.
+- Sprint 19 direction decision: Human/CTO authorized Animated Entity
+  Presentation. The first repository audit proved semantic visual-identity
+  grouping already deduplicates equivalent entity generations, so no reuse
+  infrastructure is planned; the current bounded work is Player presentation.
 
 ## Current direction
 

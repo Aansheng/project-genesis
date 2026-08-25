@@ -1,5 +1,18 @@
 # Changelog
 
+### Sprint 18 Freeze / Sprint 19 Authorization
+
+- Human/CTO froze Sprint 18 at v1.164: Code Complete = YES; Product Verified
+  = YES; FROZEN = YES. See `SPRINT18_REVIEW.md`.
+- Human/CTO authorized Sprint 19 — Animated Entity Presentation. The bounded
+  pre-animation audit proves equivalent Runtime entities already share one
+  semantic visual identity, one provider generation, and one resolved URI while
+  retaining independent Renderer instances. No reuse/dedup infrastructure WO
+  is required.
+- Fresh Gap Analysis selected WO-S19-001: Player required states already exist
+  but current Renderer still receives only static entity visuals. The first
+  proof will use separate state images rather than an unproven spritesheet path.
+
 ### Sprint 18 — WO-S18-004 Ground-Repeat Composition Across the Authoritative Ground Plane
 
 - A direct Human/CTO Studio observation superseded the earlier freeze
