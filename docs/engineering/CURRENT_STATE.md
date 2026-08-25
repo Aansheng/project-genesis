@@ -3,21 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.159
-current_sprint: Sprint 17 (ACTIVE — Freeze Review gate)
+architecture_version: v1.160
+current_sprint: Sprint 17 (ACTIVE — Freeze Review pending)
 current_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
 current_work_order_status: blocked
 current_control_plane_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
 current_control_plane_work_order_status: blocked
-last_completed_work_order: WO-S17-003 — Platformer Goal/Collectible Target Isolation
-last_completed_product_work_order: WO-S17-003
-last_completed_control_plane_work_order: WO-S17-003 — Platformer Goal/Collectible Target Isolation
-next_ready_work_order: NONE — the post-WO-S17-003 Gap Analysis found no
-  measured product blocker; Freeze Review is the single blocked horizon item
-product_architecture_changed: yes — WO-S17-002 implemented v1.158 → v1.159
-sprint_status: Sprint 17 is ACTIVE; Sprint 16 remains FROZEN at v1.157
-product_verified: YES — WO-S17-003 passed real fallback traversal and the
-  primary success lifecycle; Sprint Freeze Review remains a Human/CTO gate
+last_completed_work_order: WO-S17-004 — Runtime-Authoritative Lethal Failure and Same-Session Respawn
+last_completed_product_work_order: WO-S17-004
+last_completed_control_plane_work_order: WO-S17-004 — Runtime-Authoritative Lethal Failure and Same-Session Respawn
+next_ready_work_order: SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation (BLOCKED; Human/CTO decision required)
+product_architecture_changed: yes — WO-S17-004 implemented v1.159 → v1.160
+sprint_status: Sprint 17 is ACTIVE at the Freeze Review gate; Sprint 16 remains FROZEN at v1.157
+product_verified: YES — WO-S17-003 success and WO-S17-004 failure/recovery
+  lifecycles are Product Verified; Sprint 17 Freeze Review is awaiting
+  Human/CTO decision
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
@@ -134,10 +134,19 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
   100→99, enemy stomp removal, and committed `reach-goal` completion in one
   fallback session; Full Observatory showed the ordered rule/event facts and
   browser error/warning logs were empty.
-- Post-WO-S17-003 product-level Gap Analysis found no new measured blocker in
-  the primary success lifecycle. Exactly one next control-plane item remains:
-  `SPRINT17_FREEZE_REVIEW`, BLOCKED on Human/CTO FREEZE or CONTINUE. Sprint 18
-  is not entered automatically.
+- Human/CTO Sprint 17 Freeze Review chose CONTINUE on 2026-08-25. Fresh
+  lifecycle measurement found the smallest remaining blocker: lethal player
+  damage reaches Health `0`, but the Runtime session remains `active` and no
+  same-world recovery operation exists. Exactly one bounded READY item was
+  generated: `WO-S17-004`.
+- WO-S17-004 is complete at v1.160 and Product Verified: trusted lethal player
+  damage commits Runtime `failed`, failed ticks stop gameplay rule execution,
+  and the Studio Respawn control invokes a Runtime-owned same-world recovery
+  that restores Health/velocity while preserving position, entities,
+  progression, and World Evolution continuity. Real Studio verification
+  confirmed the button and recovery; the existing contact rule can immediately
+  reduce restored `100/100` to `99/100` when the preserved position overlaps
+  the enemy.
 - The configured AI gateway produced a structurally valid but mechanically
   incomplete platformer candidate containing only `player` and `platform`.
   Observatory truthfully reported `ai · success`, `Validation: passed`, and
@@ -155,10 +164,14 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
 - Generic REMOVE_ENTITY and APPLY_VELOCITY rule execution after finalized
   Runtime events; the approved enemy-stomp rule is the bounded two-action slice.
 - Generic Health components for player/enemy/npc and trusted DAMAGE_ENTITY
-  mutation after finalized non-top contact events; zero Health is state only.
+  mutation after finalized non-top contact events; lethal player damage makes
+  the Runtime session `failed`.
+- Same-world Runtime respawn restores the player's current Health maximum and
+  existing velocity to zero, resumes `active`, and preserves current entities,
+  numeric progression, semantic revision, and World Evolution continuity.
 - Generic `COMPLETE_GOAL` execution after finalized player→goal contact, with
-  immutable RuntimeGameplaySessionState as the sole completion authority and
-  committed Renderer/Observatory projection.
+  immutable RuntimeGameplaySessionState as the sole completion/failure
+  authority and committed Renderer/Observatory projection.
 - Typed Runtime-owned contact direction and deterministic rule-level staged
   all-or-nothing execution for the two trusted stomp actions.
 - Pixi Renderer synchronization and truthful Observatory projections.
@@ -187,8 +200,10 @@ READY/BLOCKED WO; Sprint 18 is never entered automatically.
 - Upgrade/skill selection and progression-driven modifiers.
 - Score or other numeric gameplay state beyond the bounded `experience`
   progression use case.
-- Death, respawn, game-over, enemy AI, victory UI, next level, restart, score,
-  later level curves, skills, modifiers, timers, spawns, goal deletion, rich actions,
+- Game-over, lives, checkpoints, victory UI, next level, restart beyond the
+  bounded same-world respawn, score, later level curves, skills, modifiers,
+  timers, spawns, goal deletion, rich actions,
+  enemy AI,
   unrelated rich multi-action transactions, generic gameplay state, and broad
   gameplay-rule evolution beyond the bounded reconciliation WO.
 - Durable gameplay/context/evolution history, replay, persistence, and reload
@@ -252,24 +267,29 @@ Fresh post-WO-S17-002 Gap Analysis (2026-08-24):
   same-session evolution continuity, stale-world isolation, and truthful
   projections. The fallback Studio path observed `Experience: 1`, `Level: 2`
   after collectible contact.
-- **Not a current blocker:** zero Health remains state only; the default
-  baseline has no hazard, and its player-death failure condition is deferred.
-  Failure/death, restart/respawn, autonomous enemy behavior, hazards, score
-  beyond XP/level, richer pacing, persistence, and broad gameplay state remain
-  candidates rather than pre-approved work.
+- WO-S17-004 is Code Complete and Product Verified. Real Studio confirmed
+  lethal player damage → visible `failed` state → Respawn control → same-world
+  active play; the current player position is preserved and the next existing
+  contact tick may truthfully apply one more nonlethal damage point, so the
+  observed post-respawn Health can be `99/100` when respawning in contact.
+  The bounded scope does not add checkpoints, lives, death animation,
+  autonomous enemy behavior, hazards, score, or a manager.
+- Autonomous enemy behavior, hazards, score beyond XP/level, richer pacing,
+  persistence, and broad gameplay state remain deferred candidates.
 
-`WO-S17-003` is complete and the primary success lifecycle is Product
-Verified. No new measured blocker was found; the queue horizon is the single
-blocked `SPRINT17_FREEZE_REVIEW` Human/CTO gate. No Runtime authority or
-genre-specific Runtime was added.
+`WO-S17-003` and `WO-S17-004` are complete and both the primary success
+lifecycle and the bounded failure/recovery lifecycle are Product Verified.
+The fresh post-WO-S17-004 measurement found no remaining product blocker in
+the Sprint 17 platformer loop; only `SPRINT17_FREEZE_REVIEW` remains, blocked
+on the Human/CTO decision. No Runtime authority or genre-specific Runtime was
+added, and adjacent candidate gaps remain deferred.
 
 ## Next Recommended Verification
 
-Sprint 17 product-level Gap Analysis is complete: the real fallback path
-reaches truthful Runtime completion, and no new success-path blocker is
-measured. Stop at `SPRINT17_FREEZE_REVIEW` for Human/CTO decision; do not enter
-Sprint 18 automatically or pre-select death/respawn or other deferred
-candidates.
+The success and failure/recovery lifecycles are verified. Perform the Sprint 17
+Freeze Review and prefer FREEZE; this is a Human/CTO gate, so do not enter
+Sprint 18 automatically. The pre-existing Full Observatory v1.157/Sprint 16
+header mismatch remains recorded projection debt, not this gate's blocker.
 
 ## Authority
 

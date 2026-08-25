@@ -252,12 +252,14 @@ export interface RuntimeEntityViewModel {
   readonly components: readonly RuntimeComponentViewModel[]
 }
 
-export type RuntimeGameplaySessionStatus = 'active' | 'completed'
+export type RuntimeGameplaySessionStatus = 'active' | 'failed' | 'completed'
 
 export interface RuntimeGameplaySessionViewModel {
   readonly status: RuntimeGameplaySessionStatus
   readonly completedByGoalId?: string
   readonly completedAtTick?: number
+  readonly failedByEntityId?: string
+  readonly failedAtTick?: number
 }
 
 export interface RuntimeGameplayProgressionStateViewModel {

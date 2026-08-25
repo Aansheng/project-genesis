@@ -17,9 +17,10 @@ Primary scenario:
 damage/health → truthful failure when applicable → recovery as required →
 continue → goal → Runtime session completed`
 
-Death/failure, restart/respawn, autonomous enemy behavior, hazards,
+Autonomous enemy behavior, hazards,
 reward/score feedback, pacing, and complete generation quality are measurement
-inputs, not pre-approved implementation scope.
+inputs, not pre-approved implementation scope. Failure/recovery was selected
+only after the success-path measurement exposed it as the smallest blocker.
 
 ## WO-S17-001 — Platformer Baseline Collectible Composition
 
@@ -201,6 +202,61 @@ new measured blocker was found. Death/respawn, hazards, autonomous enemy
 behavior, score beyond XP/level, pacing, persistence, and broader game-quality
 evaluation remain candidates and are not pre-approved.
 
-Exactly one next control-plane item remains:
-`SPRINT17_FREEZE_REVIEW`, BLOCKED on Human/CTO FREEZE or CONTINUE. Sprint 18 is
-not entered automatically.
+Human/CTO chose CONTINUE at the Sprint Freeze Review. The fresh bounded
+product question was: what is the smallest generic implementation necessary so
+that a generated platformer has a truthful failure lifecycle and can become
+playable again? The real measured gap is that lethal `DAMAGE_ENTITY` can reduce
+Health to `0`, but RuntimeGameplaySessionState remains `active` and the Studio
+path has no same-world recovery operation. Exactly one next item was generated:
+`WO-S17-004`, READY and auto-executing under `SPRINT_CONTINUOUS`. It is limited
+to Runtime failure truth, same-world player respawn, existing projection seams,
+and product verification; no enemy AI, hazards, score, pacing, checkpoints,
+lives, manager, or generic framework is selected.
+
+## WO-S17-004 — Runtime-Authoritative Lethal Failure and Same-Session Respawn
+
+Status: **DONE**. Code Complete: YES. Product Verified: YES. Architecture:
+v1.159 → v1.160.
+
+Acceptance boundary:
+
+- trusted lethal player `DAMAGE_ENTITY` commits Health `0` and Runtime session
+  status `failed`;
+- failed gameplay cannot falsely complete or commit further gameplay rules;
+- explicit same-world respawn restores player Health to max and safe velocity,
+  returns the Runtime session to `active`, and preserves current world,
+  progression, and World Evolution continuity;
+- the player can continue through the already verified collectible/progression,
+  enemy, damage, stomp, goal, and `COMPLETE_GOAL` path;
+- stale World A facts remain isolated from World B and Web/Renderer remain
+  projections.
+
+No checkpoint, lives, death animation, autonomous enemy, hazard, score,
+platformer-specific Runtime, manager, candidate merge, regeneration loop, or
+arbitrary executable generation is in scope.
+
+### Evidence
+
+- Runtime tests prove lethal `DAMAGE_ENTITY` commits `failed`, failed ticks
+  stop systems/rules, same-world respawn restores Health/velocity and retains
+  progression/entities, and a post-respawn tick executes again.
+- Full AI (156 files / 9406 tests), Runtime (23 files / 693 tests), and Web
+  (47 files / 3530 tests) suites passed; TypeScript, ESLint, Web build, and
+  `git diff --check` passed.
+- Real Studio verification confirmed `Health: 0` → visible `Respawn` control
+  → unchanged same-world position → active play. The observed `99/100` after
+  clicking is the existing next-tick contact damage caused by preserving the
+  dangerous position; no new invincibility or checkpoint behavior was added.
+
+## Post-WO-S17-004 Gap Analysis — 2026-08-25
+
+The complete natural-language fallback path now proves both truthful success
+and bounded failure/recovery: creation and provider completeness selection,
+movement/jump, collectible/progression, enemy interaction, Health damage,
+lethal Runtime failure, same-world Respawn, resumed gameplay, goal interaction,
+and Runtime completion. No adjacent measured blocker remains for the Sprint 17
+product goal.
+
+Exactly one next control-plane item is retained:
+`SPRINT17_FREEZE_REVIEW`, BLOCKED pending Human/CTO FREEZE or CONTINUE. Do not
+generate adjacent gameplay work and do not enter Sprint 18 automatically.

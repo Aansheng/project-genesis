@@ -202,6 +202,8 @@ export const useObservatoryDataStore = defineStore('observatoryData', () => {
           status: state.status,
           ...(state.completedByGoalId ? { completedByGoalId: state.completedByGoalId } : {}),
           ...(state.completedAtTick !== undefined ? { completedAtTick: state.completedAtTick } : {}),
+          ...(state.failedByEntityId ? { failedByEntityId: state.failedByEntityId } : {}),
+          ...(state.failedAtTick !== undefined ? { failedAtTick: state.failedAtTick } : {}),
         }),
       }),
     })

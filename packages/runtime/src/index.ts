@@ -14,7 +14,10 @@ export { DefaultRuntimeSystemRegistry, NoOpRuntimeSystem } from './system'
 // Runtime Execution Loop Foundation
 export type { RuntimeExecutionLoop, ExecutionTickResult } from './execution'
 export { DefaultRuntimeExecutionLoop } from './execution'
-export type { RuntimeGameplayRuleExecutionConfig } from './execution/DefaultRuntimeExecutionLoop'
+export type {
+  RuntimeGameplayRespawnResult,
+  RuntimeGameplayRuleExecutionConfig,
+} from './execution/DefaultRuntimeExecutionLoop'
 export type { RuntimeGameplayEventCollector } from './events'
 export { DefaultRuntimeGameplayEventCollector } from './events'
 
@@ -85,6 +88,10 @@ export type {
   RuntimeGameplaySessionBinding,
   RuntimeGameplaySessionCompletionOutcome,
   RuntimeGameplaySessionCompletionResult,
+  RuntimeGameplaySessionFailureOutcome,
+  RuntimeGameplaySessionFailureResult,
+  RuntimeGameplaySessionRespawnOutcome,
+  RuntimeGameplaySessionRespawnResult,
   RuntimeGameplaySessionState,
   RuntimeGameplaySessionStatus,
   RuntimeGameplayNumericChangeResult,
@@ -99,6 +106,8 @@ export {
   completeRuntimeGameplaySession,
   createRuntimeGameplaySessionState,
   DefaultRuntimeGameplaySessionStateStore,
+  failRuntimeGameplaySession,
+  respawnRuntimeGameplaySession,
   applyRuntimeGameplayNumericChange,
   createRuntimeGameplayProgressionState,
   DefaultRuntimeGameplayProgressionStateStore,

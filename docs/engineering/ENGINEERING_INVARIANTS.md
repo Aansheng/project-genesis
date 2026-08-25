@@ -2,7 +2,7 @@
 
 These invariants are the durable boundary for supervised work. They were
 checked against the current source wiring, PROJECT_STATE.md, Sprint 16/17
-backlogs, capability matrices, and ADR-0261 through ADR-0273 on 2026-08-24.
+backlogs, capability matrices, and ADR-0261 through ADR-0274 on 2026-08-25.
 The source code and accepted ADRs remain authoritative if this projection
 becomes stale.
 
@@ -53,11 +53,12 @@ becomes stale.
 18. Existing unrelated baseline environment failures are recorded and do not
     automatically block a focused work item; new failures and failures in the
     affected path do block completion.
-19. Current-session goal completion is Runtime-owned
-    `RuntimeGameplaySessionState`; Goal entities may trigger it, but
-    Web/Pinia/Observatory are projections and must not author or reset
-    completion. World/session replacement rebinds the state; non-replacing
-    semantic evolution does not.
+19. Current-session goal completion and lethal failure are Runtime-owned
+    `RuntimeGameplaySessionState`; Goal and damage rules may trigger them, but
+    Web/Pinia/Renderer/Observatory are projections and must not author or
+    reset the state. World/session replacement rebinds the state;
+    non-replacing semantic evolution does not. Same-world recovery is only the
+    explicit Runtime respawn operation.
 20. Numeric progression is Runtime-owned immutable keyed finite state. A
     supported `CHANGE_NUMERIC_STATE` rule may commit only finite additive
     deltas through the existing execution seam; the lifecycle baseline is
@@ -70,6 +71,11 @@ becomes stale.
     current mechanically-complete baseline before acceptance. An incomplete
     candidate is rejected into the existing deterministic baseline; no
     candidate merge or provider regeneration is authoritative.
+22. A trusted player `DAMAGE_ENTITY` action that reaches Health `0` commits
+    Runtime session `failed`; failed sessions do not execute further gameplay
+    rules until the explicit same-world Runtime respawn restores Health to its
+    existing maximum and safe velocity. Respawn preserves the current entity
+    set, progression, semantic revision, and World Evolution continuity.
 
 ## Evidence anchors
 
@@ -83,5 +89,6 @@ becomes stale.
 - Capability-specific context: docs/adr/ADR-0261-capability-specific-generation-context-foundation.md
 - Gameplay specification/events/rules/execution:
   docs/adr/ADR-0262-gameplay-specification-game-loop-foundation.md through
-  docs/adr/ADR-0272-default-platformer-collectible-composition.md and
-  docs/adr/ADR-0273-platformer-provider-candidate-completeness-gate.md
+  docs/adr/ADR-0272-default-platformer-collectible-composition.md,
+  docs/adr/ADR-0273-platformer-provider-candidate-completeness-gate.md, and
+  docs/adr/ADR-0274-runtime-gameplay-failure-and-respawn.md

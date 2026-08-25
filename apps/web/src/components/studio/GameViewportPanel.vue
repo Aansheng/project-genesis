@@ -29,7 +29,11 @@ import {
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeSystemRegistry,
 } from '@genesis/runtime'
-import type { GameplayRuleExecutionObserver, RuntimeGameplayRuleExecutionConfig } from '@genesis/runtime'
+import type {
+  GameplayRuleExecutionObserver,
+  RuntimeGameplayRuleExecutionConfig,
+  RuntimeGameplaySessionStatus,
+} from '@genesis/runtime'
 import type { GameplayEventObserver } from '@genesis/shared'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
@@ -38,6 +42,7 @@ const store = useGameStore()
 const observatoryDataStore = useObservatoryDataStore()
 const gameContainer = ref<HTMLDivElement | null>(null)
 const runtimeMounted = ref(false)
+const gameplaySessionStatus = ref<RuntimeGameplaySessionStatus>('active')
 const entityCount = computed(() => {
   void store.renderVersion
   return store.worldStore.getWorld().entities.length
@@ -54,6 +59,7 @@ let entityRenderer: DefaultPixiEntityRenderer | null = null
 let environmentRenderer: PixiEnvironmentRenderer | null = null
 let inputProvider: KeyboardInputProvider | null = null
 let resizeObserver: ResizeObserver | null = null
+let respawnRuntimeGameplay: (() => void) | null = null
 const cameraAnchor = { x: 400, y: 300 }
 const visualCatalog = new DefaultEntityVisualCatalog()
 const gameplayEventObserver: GameplayEventObserver = {
@@ -74,6 +80,7 @@ const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {
 }
 const gameplaySessionStateObserver: RuntimeGameplaySessionStateObserver = {
   observe(state) {
+    gameplaySessionStatus.value = state.status
     observatoryDataStore.recordRuntimeGameplaySessionState(state)
   },
 }
@@ -190,6 +197,14 @@ onMounted(() => {
     },
   }
 
+  respawnRuntimeGameplay = () => {
+    const result = executionLoop.respawnGameplay(store.worldStore.getWorld())
+    if (!result.respawned) return
+    worldSink.setWorld(result.world)
+    if (result.gameplaySessionState) gameplaySessionStateObserver.observe(result.gameplaySessionState)
+    if (result.gameplayProgressionState) gameplayProgressionStateObserver.observe(result.gameplayProgressionState)
+  }
+
   visLoop = new DefaultRuntimeVisualizationLoop(
     executionLoop,
     adapter,
@@ -213,6 +228,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   runtimeMounted.value = false
+  respawnRuntimeGameplay = null
   resizeObserver?.disconnect()
   resizeObserver = null
   runner?.stop()
@@ -271,6 +287,15 @@ onUnmounted(() => {
     >
       <span>Arrow Keys <em>Move</em></span>
       <span>Space <em>Jump</em></span>
+      <button
+        v-if="gameplaySessionStatus === 'failed'"
+        type="button"
+        class="viewport-respawn-control"
+        data-testid="studio-respawn-gameplay"
+        @click="respawnRuntimeGameplay?.()"
+      >
+        Respawn
+      </button>
     </footer>
   </section>
 </template>
@@ -412,5 +437,22 @@ h2 {
   margin-left: var(--studio-space-1);
   color: var(--studio-text-dim);
   font-style: normal;
+}
+
+.viewport-respawn-control {
+  margin-left: auto;
+  min-height: 24px;
+  padding: 0 var(--studio-space-3);
+  border: 1px solid var(--studio-accent);
+  border-radius: var(--studio-radius-sm);
+  background: var(--studio-accent);
+  color: var(--studio-bg);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.viewport-respawn-control:hover {
+  background: var(--studio-accent-strong);
 }
 </style>

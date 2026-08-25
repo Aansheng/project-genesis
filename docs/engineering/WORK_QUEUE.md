@@ -973,15 +973,71 @@ code_complete: YES
 human_decision_required: NO — the measured fix reuses the approved generic
   RuleBuilder and existing Runtime completion authority.
 
+## WO-S17-004 — Runtime-Authoritative Lethal Failure and Same-Session Respawn
+
+status: DONE
+priority: P0
+dependencies: WO-S17-003 DONE; Human/CTO Sprint 17 Freeze Review CONTINUE
+  recorded on 2026-08-25
+architecture_before: v1.159
+architecture_expected_after: v1.160 — extend the existing Runtime session
+  state contract and expose one bounded Runtime respawn operation
+mission: Close the measured lifecycle gap in the generated platformer: a
+  trusted lethal player DAMAGE_ENTITY transition must make the Runtime session
+  failed, and an explicit same-world respawn must restore active gameplay so
+  the player can continue to the existing goal completion path.
+measured_bottleneck: WO-S17-003 proved the success path, but a player Health
+  value reaching 0 remained only component state; RuntimeGameplaySessionState
+  had no failed status and the production path had no recovery control.
+allowed_scope: Extend RuntimeGameplaySessionState with failed and bounded
+  failure metadata; transition active → failed only from trusted lethal
+  player DAMAGE_ENTITY execution; block post-failure gameplay rule commits;
+  add one same-world Runtime respawn operation that restores the player's
+  existing Health maximum and safe velocity while preserving current world
+  entities, progression, semantic revision, and World Evolution continuity;
+  add the smallest Studio control needed to request that Runtime operation;
+  project failed/active truth through existing Renderer/Web/Observatory seams;
+  add focused regressions and real product verification.
+forbidden_scope: MarioRuntime, DeathManager, RespawnManager,
+  GameplayManager, generic workflow/state-machine framework, lives,
+  checkpoints, death animation, autonomous enemy behavior, hazards, score,
+  pacing, candidate augmentation/merging, AI regeneration loops, arbitrary
+  generated code/eval, visual infrastructure expansion, Observatory expansion,
+  or Sprint 18 work.
+acceptance: A lethal trusted player DAMAGE_ENTITY action commits Health 0 and
+  Runtime session status failed with truthful failure metadata; a goal or
+  damage event cannot advance failed gameplay; the explicit same-world respawn
+  restores player Health to max, clears unsafe velocity, returns Runtime
+  status to active, and preserves collected/progression/world-evolution state;
+  the player can then continue and reach COMPLETE_GOAL in the same product
+  session path; stale World A events cannot affect World B; no provider or
+  Renderer projection becomes authority.
+verification: Targeted Runtime session/action/loop tests, affected package
+  tests, TypeScript, ESLint, Web build/regression checks as applicable, and
+  real Studio/browser verification of lethal failure → respawn → continuation
+  → completion with clean browser logs. PASS — Runtime and Web regressions,
+  direct package checks, and real Studio verification passed. The browser
+  session showed Health `0`, the `Respawn` control, unchanged same-world
+  position, and active play after recovery; `99/100` after clicking is the
+  existing next-tick contact damage at the preserved position.
+product_verification: YES — real Studio failure/recovery traversal completed on
+  2026-08-25; the success lifecycle was already Product Verified in
+  WO-S17-003.
+code_complete: YES
+human_decision_required: NO — the Human/CTO CONTINUE boundary is recorded;
+  execute this bounded READY item automatically under SPRINT_CONTINUOUS.
+state: GENERATED_AFTER_SPRINT17_FREEZE_REVIEW_CONTINUE_GAP_ANALYSIS → READY →
+  IN_PROGRESS → VERIFYING → DONE
+
 ## SPRINT17_FREEZE_REVIEW — Sprint 17 Mechanically Complete Platformer Generation
 
 status: BLOCKED
-state_transition: GENERATED_AFTER_WO_S17_003_GAP_ANALYSIS → BLOCKED
+state_transition: GENERATED_AFTER_WO_S17_004_GAP_ANALYSIS → BLOCKED
 priority: P0
-dependencies: WO-S17-001 DONE; WO-S17-002 DONE; WO-S17-003 DONE; Sprint 17
-  product-level Gap Analysis complete
-architecture_before: v1.159
-architecture_expected_after: v1.159
+dependencies: WO-S17-001 DONE; WO-S17-002 DONE; WO-S17-003 DONE; WO-S17-004
+  DONE; Sprint 17 success and failure/recovery lifecycles Product Verified
+architecture_before: v1.160
+architecture_expected_after: v1.160
 mission: Evaluate whether Sprint 17's product goal is satisfied by the
   provider-gated deterministic baseline and accumulated generic gameplay/
   Runtime evidence.
@@ -992,10 +1048,12 @@ forbidden_scope: Automatic Sprint 18 entry, pre-generated Sprint 18 backlog,
   architecture.
 acceptance: PASS only when the complete natural-language platformer path,
   truthful provider selection, deterministic fallback lifecycle, current
-  generic mechanics, progression, goal completion, continuity, and isolation
-  evidence are reconciled against the Sprint 17 goal. Deferred failure/recovery
-  capabilities remain explicitly classified rather than silently claimed.
-human_decision_required: YES — Human/CTO must accept FREEZE or CONTINUE.
+  generic mechanics, progression, goal completion, continuity, isolation, and
+  both success and bounded failure/recovery lifecycle evidence are reconciled
+  against the Sprint 17 goal. Adjacent deferred capabilities remain explicitly
+  classified rather than silently claimed.
+human_decision_required: YES — Human/CTO must accept FREEZE or CONTINUE after
+  WO-S17-004 Product Verification.
 
 ## Queue transition vocabulary
 

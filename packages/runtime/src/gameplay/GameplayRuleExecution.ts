@@ -29,6 +29,7 @@ import {
 import {
   completeRuntimeGameplaySession,
   DefaultRuntimeGameplaySessionStateStore,
+  failRuntimeGameplaySession,
 } from './RuntimeGameplaySessionState'
 import type { RuntimeGameplayProgressionState } from './RuntimeGameplayProgressionState'
 import type {
@@ -520,10 +521,15 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
         tick: event.tick,
       })
       const completed = completion.outcome === 'completed'
+      const reason = completed
+        ? undefined
+        : completion.outcome === 'already_failed'
+          ? 'session_failed'
+          : 'goal_already_completed'
       return Object.freeze({
         ...base,
         status: completed ? 'executed' as const : 'no_op' as const,
-        reason: completed ? undefined : 'goal_already_completed',
+        ...(reason ? { reason } : {}),
         sessionStateAfter: completion.state,
         mutation: Object.freeze({
           type: completed ? 'GOAL_COMPLETED' as const : 'GOAL_COMPLETION_NOOP' as const,
@@ -669,11 +675,21 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
         })
       }
 
+      const playerLethal = target.type === 'player'
+        || semanticFactsOf(target, context.semanticWorld).category === 'player'
+      const failure = playerLethal && nextCurrent === 0 && request.sessionState !== undefined
+        ? failRuntimeGameplaySession(request.sessionState, {
+            entityId: target.id,
+            tick: event.tick,
+          })
+        : undefined
+
       return Object.freeze({
         ...base,
         status: 'executed' as const,
         targetEntityIds: Object.freeze([target.id]),
         worldAfter,
+        ...(failure ? { sessionStateAfter: failure.state } : {}),
         mutation: Object.freeze({
           type: 'HEALTH_UPDATED' as const,
           targetEntityId: target.id,
@@ -851,9 +867,11 @@ export class DefaultGameplayRuleExecutor implements GameplayRuleExecutor {
         }
         continue
       }
+      if (sessionState.status === 'failed') continue
       const eventContext = Object.freeze({ ...context, world })
       const matchedRules = this.matcher.match(event, ruleSet, eventContext)
       for (const rule of matchedRules) {
+        if (sessionState.status === 'failed') break
         const consumedKey = `${event.eventId}\u0000${rule.ruleId}`
         if (this.consumedEventRules.has(consumedKey)) continue
         this.remember(consumedKey)

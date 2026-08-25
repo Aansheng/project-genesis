@@ -102,6 +102,19 @@ describe('Gameplay Observatory projection', () => {
     expect(store.viewModel.runtimeView.gameplaySession).toEqual(completed)
   })
 
+  it('projects committed Runtime failure metadata without owning the state', () => {
+    const store = useObservatoryDataStore()
+    const failed: RuntimeGameplaySessionState = Object.freeze({
+      status: 'failed',
+      failedByEntityId: 'player',
+      failedAtTick: 18,
+    })
+
+    store.recordRuntimeGameplaySessionState(failed)
+
+    expect(store.viewModel.runtimeView.gameplaySession).toEqual(failed)
+  })
+
   it('projects committed Runtime numeric progression without owning the state', () => {
     const store = useObservatoryDataStore()
     const progression: RuntimeGameplayProgressionState = Object.freeze({

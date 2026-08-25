@@ -1,5 +1,27 @@
 # Changelog
 
+### Sprint 17 — WO-S17-004 Failure/Recovery Completion and Freeze Review
+
+- Human/CTO chose CONTINUE after WO-S17-003: the successful platformer path is
+  Product Verified, but lethal damage had not produced a truthful failure or
+  recovery lifecycle.
+- Generated exactly one bounded item under `SPRINT_CONTINUOUS`: extend the
+  existing Runtime session authority with `failed` and add same-world player
+  respawn. Preserve progression, World Evolution continuity, stale-world
+  isolation, and all existing success mechanics; do not add a manager,
+  checkpoint, lives system, enemy AI, hazard, score, or generic framework.
+- WO-S17-004 is DONE with Code Complete = YES and Product Verified = YES.
+  Runtime now commits lethal player damage as `failed`, blocks further gameplay
+  commits while failed, and exposes one explicit same-world Respawn operation
+  that restores active play without resetting the current world or progression.
+- Real Studio verification confirmed Health `0` → Respawn control → unchanged
+  position → active gameplay. Health can display `99/100` immediately after
+  recovery when the preserved position overlaps the enemy and the existing
+  contact rule executes on the next tick.
+- The complete success and bounded failure/recovery lifecycles are now
+  Product Verified. Sprint 17 is at the blocked Human/CTO Freeze Review gate;
+  Sprint 18 remains disabled.
+
 ### Sprint 17 — WO-S17-003 Platformer Goal/Collectible Target Isolation
 
 - Fresh product-level verification of the real fallback traversal found that

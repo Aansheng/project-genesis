@@ -15,4 +15,7 @@
 export type { ExecutionTickResult } from './ExecutionTickResult'
 export type { RuntimeExecutionLoop } from './RuntimeExecutionLoop'
 export { DefaultRuntimeExecutionLoop } from './DefaultRuntimeExecutionLoop'
-export type { RuntimeGameplayRuleExecutionConfig } from './DefaultRuntimeExecutionLoop'
+export type {
+  RuntimeGameplayRespawnResult,
+  RuntimeGameplayRuleExecutionConfig,
+} from './DefaultRuntimeExecutionLoop'

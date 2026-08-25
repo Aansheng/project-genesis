@@ -405,12 +405,20 @@ export class DefaultObservatoryAdapter implements ObservatoryAdapter {
   private adaptRuntimeGameplaySession(raw: Record<string, unknown>): RuntimeGameplaySessionViewModel {
     const value = safeGet<Record<string, unknown>>(raw, 'gameplaySession')
     if (!isObject(value)) return Object.freeze({ status: 'active' as const })
-    const status = safeGet(value, 'status') === 'completed' ? 'completed' as const : 'active' as const
+    const status = safeGet(value, 'status') === 'completed'
+      ? 'completed' as const
+      : safeGet(value, 'status') === 'failed'
+        ? 'failed' as const
+        : 'active' as const
     return Object.freeze({
       status,
       ...(typeof safeGet(value, 'completedByGoalId') === 'string' ? { completedByGoalId: safeGet<string>(value, 'completedByGoalId') } : {}),
       ...(typeof safeGet(value, 'completedAtTick') === 'number' && Number.isFinite(safeGet(value, 'completedAtTick'))
         ? { completedAtTick: safeGet<number>(value, 'completedAtTick') }
+        : {}),
+      ...(typeof safeGet(value, 'failedByEntityId') === 'string' ? { failedByEntityId: safeGet<string>(value, 'failedByEntityId') } : {}),
+      ...(typeof safeGet(value, 'failedAtTick') === 'number' && Number.isFinite(safeGet(value, 'failedAtTick'))
+        ? { failedAtTick: safeGet<number>(value, 'failedAtTick') }
         : {}),
     })
   }

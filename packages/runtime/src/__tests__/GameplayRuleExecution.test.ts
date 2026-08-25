@@ -14,6 +14,7 @@ import {
   createCollisionBoundsComponent,
   createHealthComponent,
   createPositionComponent,
+  createVelocityComponent,
   isHealthComponent,
   isVelocityComponent,
 } from '@genesis/shared'
@@ -25,6 +26,8 @@ import {
   DefaultGameplayRuleMatcher,
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeGameplayEventCollector,
+  DefaultRuntimeGameplayProgressionStateStore,
+  DefaultRuntimeGameplaySessionStateStore,
   DefaultRuntimeSystemRegistry,
   DefaultRuntimeWorldStore,
 } from '../index'
@@ -702,6 +705,125 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(health?.properties).toEqual({ current: 97, max: 100 })
     expect(damageWorld.entities.find(item => item.id === 'player')?.components?.find(isHealthComponent)?.properties)
       .toEqual({ current: 100, max: 100 })
+  })
+
+  it('commits Runtime failure at lethal player damage and blocks completion until respawn', () => {
+    const baselinePlayer = entity('player', 'player', 'Player', 0, 0, true)
+    const lethalPlayer = Object.freeze({
+      ...baselinePlayer,
+      components: Object.freeze(baselinePlayer.components?.map(component =>
+        isHealthComponent(component) ? createHealthComponent(1, 100) : component,
+      )),
+    }) as unknown as Entity
+    const lethalWorld = Object.freeze({
+      entities: Object.freeze([lethalPlayer, entity('enemy-1', 'enemy', 'Enemy', 24, 0, true)]),
+    }) as unknown as World
+    const actor = Object.freeze({ kind: 'eventActor' as const })
+    const target = Object.freeze({ kind: 'eventTarget' as const })
+    const damageRule = rule({
+      ruleId: 'lethal-enemy-contact-damage',
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: actor, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: target, category: 'enemy' },
+        { type: 'COMPONENT_EXISTS', entity: actor, componentType: 'health' },
+        { type: 'CONTACT_DIRECTION_EQUALS', direction: 'top', negated: true },
+      ],
+      actions: [{ type: 'DAMAGE_ENTITY', target: actor, amount: 3 }],
+    })
+    const executor = new DefaultGameplayRuleExecutor()
+    const lethal = executor.executeEvent(
+      Object.freeze({ ...contactEvent('world-1:12:0'), targetEntityId: 'enemy-1', direction: 'left' }),
+      ruleSet([damageRule]),
+      Object.freeze({ ...context(lethalWorld), semanticWorld }),
+    )
+
+    expect(lethal.sessionState).toEqual({
+      status: 'failed',
+      failedByEntityId: 'player',
+      failedAtTick: 1,
+    })
+    expect(lethal.world.entities.find(item => item.id === 'player')?.components?.find(isHealthComponent)?.properties)
+      .toEqual({ current: 0, max: 100 })
+    expect(lethal.results).toMatchObject([{
+      status: 'executed',
+      committed: true,
+      actionResults: [{
+        actionType: 'DAMAGE_ENTITY',
+        status: 'executed',
+        sessionStateAfter: { status: 'failed', failedByEntityId: 'player', failedAtTick: 1 },
+      }],
+    }])
+
+    const goalAttempt = executor.executeEvent(
+      Object.freeze({ ...contactEvent('world-1:13:0'), targetEntityId: 'goal' }),
+      ruleSet([rule({
+        ruleId: 'reach-goal-after-failure',
+        actions: [Object.freeze({ type: 'COMPLETE_GOAL' as const, goalId: 'goal' })],
+      })]),
+      Object.freeze({ ...context(lethal.world), semanticWorld }),
+    )
+    expect(goalAttempt.results).toEqual([])
+    expect(goalAttempt.sessionState?.status).toBe('failed')
+  })
+
+  it('respawns a failed player in the same Runtime world without resetting progression', () => {
+    const baselinePlayer = entity('player', 'player', 'Player', 12, 34, true)
+    const failedPlayer = Object.freeze({
+      ...baselinePlayer,
+      components: Object.freeze([
+        ...(baselinePlayer.components ?? []).map(component =>
+          isHealthComponent(component) ? createHealthComponent(0, 100) : component,
+        ),
+        createVelocityComponent(8, -6),
+      ]),
+    }) as unknown as Entity
+    const failedWorld = Object.freeze({
+      entities: Object.freeze([failedPlayer, entity('coin-1', 'item', 'Coin', 80, 0, true)]),
+    }) as unknown as World
+    const sessionStateStore = new DefaultRuntimeGameplaySessionStateStore()
+    const progressionStateStore = new DefaultRuntimeGameplayProgressionStateStore()
+    sessionStateStore.bind({ worldId: 'world-1', sessionId: 'session-1' })
+    sessionStateStore.commit({ status: 'failed', failedByEntityId: 'player', failedAtTick: 7 })
+    progressionStateStore.bind({ worldId: 'world-1', sessionId: 'session-1' })
+    progressionStateStore.commit({ values: { experience: 4, level: 3 } })
+    const registry = new DefaultRuntimeSystemRegistry()
+    registry.register(new GameplayJumpEventSystem())
+    const loop = new DefaultRuntimeExecutionLoop(registry, new DefaultRuntimeGameplayEventCollector('world-1'), {
+      getRuleSet: () => ruleSet([progressionRule()], { sessionId: 'session-1' }),
+      getWorldId: () => 'world-1',
+      getSessionId: () => 'session-1',
+      getSemanticRevision: () => 0,
+      sessionStateStore,
+      progressionStateStore,
+    })
+
+    const blocked = loop.tickWithResult(failedWorld)
+    expect(blocked.executedSystems).toEqual([])
+    expect(blocked.gameplayRuleResults).toEqual([])
+    expect(blocked.gameplaySessionState).toEqual({
+      status: 'failed',
+      failedByEntityId: 'player',
+      failedAtTick: 7,
+    })
+    expect(blocked.gameplayProgressionState).toEqual({ values: { experience: 4, level: 3 } })
+
+    const respawn = loop.respawnGameplay(failedWorld)
+
+    expect(respawn.respawned).toBe(true)
+    expect(respawn.gameplaySessionState).toEqual({ status: 'active' })
+    expect(respawn.gameplayProgressionState).toEqual({ values: { experience: 4, level: 3 } })
+    expect(respawn.world.entities.find(item => item.id === 'coin-1')).toBeDefined()
+    expect(respawn.world.entities.find(item => item.id === 'player')?.components?.find(isHealthComponent)?.properties)
+      .toEqual({ current: 100, max: 100 })
+    expect(respawn.world.entities.find(item => item.id === 'player')?.components?.find(isVelocityComponent)?.properties)
+      .toEqual({ x: 0, y: 0 })
+    expect(failedWorld.entities.find(item => item.id === 'player')?.components?.find(isHealthComponent)?.properties)
+      .toEqual({ current: 0, max: 100 })
+
+    const resumed = loop.tickWithResult(respawn.world)
+    expect(resumed.executedSystems).toEqual(['GameplayJumpEventSystem'])
+    expect(resumed.gameplayEvents).toMatchObject([{ type: 'ENTITY_JUMPED', actorEntityId: 'player' }])
+    expect(resumed.gameplaySessionState).toEqual({ status: 'active' })
   })
 
   it('fails damage safely when the target has no valid Health component', () => {

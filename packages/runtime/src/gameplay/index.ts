@@ -3,11 +3,17 @@ export {
   completeRuntimeGameplaySession,
   createRuntimeGameplaySessionState,
   DefaultRuntimeGameplaySessionStateStore,
+  failRuntimeGameplaySession,
+  respawnRuntimeGameplaySession,
 } from './RuntimeGameplaySessionState'
 export type {
   RuntimeGameplaySessionBinding,
   RuntimeGameplaySessionCompletionOutcome,
   RuntimeGameplaySessionCompletionResult,
+  RuntimeGameplaySessionFailureOutcome,
+  RuntimeGameplaySessionFailureResult,
+  RuntimeGameplaySessionRespawnOutcome,
+  RuntimeGameplaySessionRespawnResult,
   RuntimeGameplaySessionState,
   RuntimeGameplaySessionStatus,
 } from './RuntimeGameplaySessionState'
