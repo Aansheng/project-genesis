@@ -51,10 +51,10 @@ function promptFor(request: ImageGenerationRequest, outputPath: string): string 
 
 function failure(code: ImageGenerationFailure['code'], message: string): ImageGenerationFailure { return { code, message } }
 
-function operation(request: ImageGenerationRequest, operationId: string, status: ImageGenerationOperation['status'], output?: ImageGenerationOperation['output'], error?: ImageGenerationFailure): ImageGenerationOperation {
+function operation(request: ImageGenerationRequest, operationId: string, status: ImageGenerationOperation['status'], output?: ImageGenerationOperation['output'], error?: ImageGenerationFailure, submittedPrompt?: string): ImageGenerationOperation {
   return {
     operationId, assetId: request.assetId, mode: request.mode, status,
-    input: { ...(request.subject ? { subject: request.subject } : {}), prompt: request.prompt, visualContext: request.visualContext },
+    input: { ...(request.subject ? { subject: request.subject } : {}), prompt: request.prompt, ...(submittedPrompt ? { submittedPrompt } : {}), visualContext: request.visualContext },
     ...(output ? { output } : {}), ...(error ? { failure: error } : {}),
   }
 }
@@ -150,9 +150,10 @@ export class CodexCliImageGenerationProvider implements ImageGenerationProvider 
       const controller = new AbortController()
       let runPromise: Promise<CodexCliRunResult> | undefined
       let timeout: ReturnType<typeof setTimeout> | undefined
+      const submittedPrompt = promptFor(request, outputPath)
       try {
-        await writeFile(join(workdir, 'request.txt'), promptFor(request, outputPath), 'utf8')
-        runPromise = this.runner(promptFor(request, outputPath), workdir, controller.signal)
+        await writeFile(join(workdir, 'request.txt'), submittedPrompt, 'utf8')
+        runPromise = this.runner(submittedPrompt, workdir, controller.signal)
         const timedResult = new Promise<CodexCliRunResult>((resolveResult, rejectResult) => {
           timeout = setTimeout(() => {
             controller.abort()
@@ -163,13 +164,13 @@ export class CodexCliImageGenerationProvider implements ImageGenerationProvider 
         const result = await timedResult
         if (controller.signal.aborted) {
           const error = failure('timeout', 'Codex CLI image generation timed out')
-          return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error) }
+          return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error, submittedPrompt) }
         }
         try {
           for (const imagePath of imagePathsFromOutput(result.stdout, outputPath)) {
             try {
               const asset = await readPngAsset(imagePath, request)
-              return { status: 'success', assetId: request.assetId, mode: request.mode, asset, operation: operation(request, operationId, 'succeeded', { resource: asset.resource, metadata: asset.metadata }) }
+              return { status: 'success', assetId: request.assetId, mode: request.mode, asset, operation: operation(request, operationId, 'succeeded', { resource: asset.resource, metadata: asset.metadata }, undefined, submittedPrompt) }
             } catch {
               continue
             }
@@ -178,13 +179,13 @@ export class CodexCliImageGenerationProvider implements ImageGenerationProvider 
         } catch {
           const error = failure(result.exitCode === 0 ? 'invalid_output' : attempt === attempts ? 'provider_unavailable' : 'generation_failed', 'Codex CLI did not produce a usable PNG')
           if (error.code === 'generation_failed') continue
-          return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error) }
+          return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error, submittedPrompt) }
         }
       } catch {
         if (controller.signal.aborted && runPromise) await Promise.race([runPromise.catch(() => undefined), new Promise<void>((resolveResult) => setTimeout(resolveResult, 500))])
         const error = failure(controller.signal.aborted ? 'timeout' : attempt === attempts ? 'provider_unavailable' : 'generation_failed', controller.signal.aborted ? 'Codex CLI image generation timed out' : 'Codex CLI could not be started')
         if (error.code === 'generation_failed') continue
-        return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error) }
+        return { status: 'failed', assetId: request.assetId, mode: request.mode, failure: error, operation: operation(request, operationId, 'failed', undefined, error, submittedPrompt) }
       } finally {
         if (timeout !== undefined) clearTimeout(timeout)
         await rm(workdir, { recursive: true, force: true }).catch(() => undefined)

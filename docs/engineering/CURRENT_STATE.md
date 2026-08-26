@@ -4,17 +4,17 @@ This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
 architecture_version: v1.171 (Sprint 20 remains frozen; with a current semantic world, deterministic command-routing misses reach the existing validated structured World Evolution planner)
-current_sprint: Sprint 22 (DISCOVERY COMPLETE — FREEZE REVIEW READY)
-current_work_order: NONE — no Sprint 22 product WO created
-current_work_order_status: idle — current source and real SPA product behavior satisfy the bounded continuity goal
-current_control_plane_work_order: SPRINT22_FREEZE_REVIEW
-current_control_plane_work_order_status: ready — evidence review only; no product implementation authorized
+current_sprint: Sprint 23 (ACTIVE)
+current_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
+current_work_order_status: in_progress
+current_control_plane_work_order: NONE
+current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
 last_completed_product_work_order: WO-S21-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT22_FREEZE_REVIEW — no product WO generated
+next_ready_work_order: WO-S23-001
 product_architecture_changed: yes — WO-S21-001 v1.170 → v1.171 preserves deterministic routing but sends unknown follow-up text in an existing world to the existing AI candidate → Genesis validation → targeted World Evolution path rather than the create-only Unknown-command terminal path
-sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167; Sprint 20 is FROZEN at v1.170; Sprint 21 is FROZEN at v1.171
+sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167; Sprint 20 is FROZEN at v1.170; Sprint 21 and Sprint 22 are FROZEN at v1.171
 product_verified: YES for WO-S20-001 and WO-S21-001 — real Studio through the existing Codex CLI gateway added five enemies for `增加5个enemy` and another five for `再加五只怪`, retaining world/session, Player, Health, XP/Level, original entities, active gameplay, visual synchronization, and a clean browser console
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and

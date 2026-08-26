@@ -515,6 +515,7 @@ export const useGameStore = defineStore('game', () => {
       ?? null
   })
   let imageGenerationToken = 0
+  let imageGenerationRetrySequence = 0
   let evolutionOperationSequence = 0
   const visualAssetJobCancellation: { cancel?: (jobId: string) => void } = {}
   const scheduler = new VisualAssetGenerationScheduler<unknown>(1, (jobId, status) => {
@@ -615,10 +616,10 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], generationContext: ImageGenerationContext, token: number): Promise<void> {
+  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], generationContext: ImageGenerationContext, token: number, retry?: { readonly operationId: string; readonly retryOfOperationId: string }): Promise<void> {
     const [requirement, bindings] = requirements
     const request = buildImageGenerationRequest(specification, requirement, generationContext)
-    const pending = createPendingImageGenerationOperation(request)
+    const pending = { ...createPendingImageGenerationOperation(request), ...(retry ? { operationId: retry.operationId, retryOfOperationId: retry.retryOfOperationId } : {}) }
     try {
       const result = await imageClient.generate(request)
       if (token !== imageGenerationToken) return
@@ -630,7 +631,7 @@ export const useGameStore = defineStore('game', () => {
           operationId: pending.operationId,
           entityId: request.entityId,
           assetKind: request.constraints?.assetKind,
-          input: pending.input,
+          input: providerOperation.input,
           bindingAssetIds: bindings.map(binding => binding.id),
         }, {
           status: 'failed',
@@ -673,6 +674,28 @@ export const useGameStore = defineStore('game', () => {
         failure: { code: 'provider_unavailable', message: error instanceof Error ? error.message : 'Image generation unavailable' },
       }))
     }
+  }
+
+  async function retryFailedArtwork(failedOperationId: string): Promise<void> {
+    const failed = visualGenerationOperations.value[failedOperationId]
+    const specification = assetSpecificationState.value
+    const design = visualDesignSpecification.value
+    const state = semanticState.value
+    if (!failed || failed.status !== 'failed' || failed.stage !== 'fallback' || !specification || !design || !state?.semanticWorld) return
+    const requirements = groupAiGenerationRequirements(specification).find(([canonical]) => canonical.id === failed.assetId)
+    if (!requirements) return
+    const [requirement, bindings] = requirements
+    const retryOperationId = `image-generation-client-retry-${++imageGenerationRetrySequence}-${requirement.id}`
+    const generationContext = imageGenerationContextBuilder.build({
+      metadata: { worldId: state.worldId, operationId: retryOperationId, semanticRevision: state.semanticRevision, runtimeSemanticRevision: runtimeSemanticRevision.value, visualRevision: visualRevision.value, architectureVersion: PROJECT_METADATA.architectureVersion },
+      semanticWorld: state.semanticWorld,
+      ...(Object.keys(state.properties).length ? { properties: state.properties } : {}),
+      visualDesign: design,
+      assetSpecification: specification,
+      requirement,
+      bindings,
+    })
+    await generateArtwork(specification, requirements, generationContext, imageGenerationToken, { operationId: retryOperationId, retryOfOperationId: failedOperationId })
   }
 
   function reportAssetApplication(event: { readonly assetId: string; readonly entityId?: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
@@ -1129,6 +1152,7 @@ export const useGameStore = defineStore('game', () => {
     imageGenerationOperation,
     visualGenerationOperations,
     reportAssetApplication,
+    retryFailedArtwork,
     send,
     // Streaming state (inert — preserved for UI backward compatibility)
     isStreaming,

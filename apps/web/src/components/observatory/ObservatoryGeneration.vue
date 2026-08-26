@@ -1,12 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
 import { useGameStore } from '../../stores/gameStore'
+import { useI18n } from '../../stores/i18n'
 import { assetArtworkLabel } from '../../assets/GeneratedAssetOrchestrator'
 
 const data = useObservatoryDataStore()
 const game = useGameStore()
+const i18n = useI18n()
 const imageGenerations = computed(() => Object.values(game.visualGenerationOperations))
+const copiedOperationId = ref<string | null>(null)
+function retry(operationId: string): void { void game.retryFailedArtwork(operationId) }
+async function copySubmittedPrompt(operationId: string, prompt: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(prompt)
+    copiedOperationId.value = operationId
+    setTimeout(() => { if (copiedOperationId.value === operationId) copiedOperationId.value = null }, 1800)
+  } catch {
+    copiedOperationId.value = null
+  }
+}
 const labels: Record<string, string> = {
   REQUEST: 'Request', PROMPT_ASSEMBLY: 'Prompt Assembly', MODEL_GENERATION: 'Model Generation',
   CANDIDATE_PARSE: 'Candidate Parse', VALIDATION: 'Validation', DESIGN_SPECIFICATION: 'Design Specification',
@@ -59,6 +72,7 @@ const labels: Record<string, string> = {
             <div v-if="imageGeneration.model"><dt>Model</dt><dd>{{ imageGeneration.model }}</dd></div>
             <div><dt>Mode</dt><dd>{{ imageGeneration.mode }}</dd></div>
             <div><dt>Generation</dt><dd>{{ imageGeneration.status }}</dd></div>
+            <div v-if="imageGeneration.retryOfOperationId"><dt>{{ i18n.t('observatory.generation.retryOf') }}</dt><dd>{{ imageGeneration.retryOfOperationId }}</dd></div>
             <div><dt>Artifact</dt><dd>{{ imageGeneration.artifactStatus ?? 'pending' }}</dd></div>
             <div><dt>Manifest</dt><dd>{{ imageGeneration.manifestStatus ?? 'pending' }}</dd></div>
             <div><dt>Asset resolution</dt><dd>{{ imageGeneration.assetResolutionStatus ?? 'pending' }}</dd></div>
@@ -72,6 +86,17 @@ const labels: Record<string, string> = {
             :alt="`${assetArtworkLabel(imageGeneration)} preview`"
           >
           <p v-if="imageGeneration.failure" class="fallback-note"><span>Fallback</span>{{ imageGeneration.failure.message }}</p>
+          <details v-if="imageGeneration.input.submittedPrompt" class="submitted-prompt">
+            <summary>{{ i18n.t('observatory.generation.viewSubmittedPrompt') }}</summary>
+            <div class="submitted-prompt-actions">
+              <button type="button" class="copy-prompt-button" @click="copySubmittedPrompt(imageGeneration.operationId, imageGeneration.input.submittedPrompt)">
+                {{ copiedOperationId === imageGeneration.operationId ? i18n.t('observatory.generation.copied') : i18n.t('observatory.generation.copy') }}
+              </button>
+            </div>
+            <pre tabindex="0">{{ imageGeneration.input.submittedPrompt }}</pre>
+          </details>
+          <p v-else-if="imageGeneration.stage === 'fallback'" class="fallback-note"><span>{{ i18n.t('observatory.generation.submittedPrompt') }}</span>{{ i18n.t('observatory.generation.unavailable') }}</p>
+          <button v-if="imageGeneration.status === 'failed' && imageGeneration.stage === 'fallback'" type="button" class="retry-button" @click="retry(imageGeneration.operationId)">{{ i18n.t('observatory.generation.retry') }}</button>
           </article>
         </template>
       </section>
@@ -171,6 +196,12 @@ const labels: Record<string, string> = {
 
 <style scoped>
 .generation-panel { min-width: 0; min-height: 100%; border: 1px solid var(--obs-border, #232327); border-radius: var(--obs-radius-m, 10px); background: var(--obs-surface, #111113); overflow: hidden; }
+.submitted-prompt { margin-top: var(--obs-space-2); }
+.submitted-prompt summary, .retry-button { color: var(--obs-accent, #60a5fa); font-size: 12px; cursor: pointer; }
+.submitted-prompt-actions { display: flex; justify-content: flex-end; margin-top: var(--obs-space-2); }
+.copy-prompt-button { padding: var(--obs-space-1) var(--obs-space-2); color: var(--obs-accent, #60a5fa); font-size: 12px; cursor: pointer; border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-surface); }
+.submitted-prompt pre { max-height: 220px; margin: var(--obs-space-2) 0 0; padding: var(--obs-space-2); overflow: auto; white-space: pre-wrap; color: var(--obs-text); background: var(--obs-bg); border: 1px solid var(--obs-border); }
+.retry-button { align-self: flex-start; padding: var(--obs-space-1) var(--obs-space-2); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-surface); }
 .generation-header { display: flex; align-items: center; justify-content: space-between; gap: var(--obs-space-3); padding: var(--obs-space-5) var(--obs-space-5) var(--obs-space-4); border-bottom: 1px solid var(--obs-border); background: var(--obs-bg); }
 .generation-kicker, .stages-header h3, .card-heading h3 { margin: 0; color: var(--obs-text-dim); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 h2 { margin: var(--obs-space-1) 0 0; color: var(--obs-text); font-size: 18px; letter-spacing: -0.02em; }

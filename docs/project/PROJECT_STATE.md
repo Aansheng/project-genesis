@@ -23,8 +23,9 @@
 **Sprint 19** - Animated Entity Presentation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.167**)
 **Sprint 20** - Playable Platform Geometry (**FROZEN — Code Complete = YES; Product Verified = YES; v1.170**)
 **Sprint 21** - Free-form Conversational World Evolution (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
-**Sprint 22** - Studio Session Continuity (**FREEZE REVIEW READY — no product WO; current SPA behavior verified; v1.171**)
-**Current WO** - None — SPRINT22_FREEZE_REVIEW selected; no next product WO created
+**Sprint 22** - Studio Session Continuity (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
+**Sprint 23** - Generation Transparency & Recovery (**ACTIVE — WO-S23-001 IN_PROGRESS**)
+**Current WO** - WO-S23-001 — Generation Prompt Truth and Targeted Retry
 
 ---
 
@@ -32,14 +33,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 21 is FROZEN at v1.171. Sprint 22 bounded continuity measurement is complete and selects SPRINT22_FREEZE_REVIEW; no product WO was needed. |
+| Status | Sprint 22 is FROZEN at v1.171: the session-loss issue is NOT REPRODUCED IN CURRENT PRODUCT. Sprint 23 is active. |
 | Architecture Version | v1.171; a deterministic miss with a current semantic world now reaches the existing structured World Evolution planner rather than the create-only `Unknown command` terminal path. |
 | Last Completed WO | WO-S21-001 — Free-form World Evolution Front-door Fallback; Code Complete = YES; Product Verified = YES at v1.171. |
 | Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified Enemy ADD paraphrases, a Coin ADD (`1 → 3`), and `删掉一个敌人` REMOVE (`1 → 0`, entities `7 → 6`), all preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, and unrelated terrain/items. Runtime/Renderer activity stayed clean. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | No measured Sprint 22 continuity product blocker. The previously reported Studio → Full Observatory state loss is not reproducible in the current SPA route; durable refresh/close persistence is deliberately out of scope. |
+| Current Blocking Issue | Visual generation does not yet expose the exact provider-submitted prompt and a failed canonical asset has no explicit targeted retry path. |
 | Product Verification | WO-S21-001: Code Complete = YES; Product Verified = YES. Provider-connected Studio evidence verifies free-form Enemy/Coin quantitative ADD and targeted Enemy REMOVE with same-session continuity, Runtime/Renderer synchronization, compatible visual reuse where observable, and clean browser diagnostics. |
-| Next Recommended Verification | Perform SPRINT22_FREEZE_REVIEW; do not create a product WO unless fresh product evidence identifies a smaller actual blocker. |
+| Next Recommended Verification | Complete WO-S23-001 through a real failed-asset retry without resetting the active world/session. |
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The

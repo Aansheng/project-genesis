@@ -1,5 +1,15 @@
 # Changelog
 
+### Sprint 22 Freeze / Sprint 23 Authorization
+
+- Human/CTO froze Sprint 22 at v1.171: Code Complete = YES and Product
+  Verified = YES. The historical session-loss report is NOT REPRODUCED IN
+  CURRENT PRODUCT; no persistence or SessionManager work was introduced.
+- Sprint 23 begins with WO-S23-001. Audit found that the exact Codex CLI
+  wrapper prompt and an explicit retry action are the smallest measured gaps;
+  existing canonical grouping, manifest update, resolver invalidation, and
+  Renderer replacement seams are reused.
+
 ### Sprint 22 — Studio Session Continuity Measurement (No Product WO)
 
 - Human/CTO authorized a bounded audit of the historical Studio → Full

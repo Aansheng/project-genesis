@@ -19,6 +19,15 @@ export const enUS: MessageCatalog = {
       generation: 'Generation',
       settings: 'Settings',
     },
+    generation: {
+      viewSubmittedPrompt: 'View submitted provider prompt',
+      submittedPrompt: 'Submitted provider prompt',
+      unavailable: 'The exact final submitted prompt is unavailable for this operation',
+      retry: 'Retry this asset',
+      retryOf: 'Retry of',
+      copy: 'Copy prompt',
+      copied: 'Copied',
+    },
     status: {
       ready: 'Ready',
     },

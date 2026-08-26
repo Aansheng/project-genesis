@@ -20,6 +20,15 @@ export const zhCN: MessageCatalog = {
       generation: '生成追踪',
       settings: '设置',
     },
+    generation: {
+      viewSubmittedPrompt: '查看提交给提供方的 Prompt',
+      submittedPrompt: '提交给提供方的 Prompt',
+      unavailable: '当前操作没有可用的最终提交 Prompt',
+      retry: '重试此资源',
+      retryOf: '重试原操作',
+      copy: '复制 Prompt',
+      copied: '已复制',
+    },
     status: {
       ready: '就绪',
     },

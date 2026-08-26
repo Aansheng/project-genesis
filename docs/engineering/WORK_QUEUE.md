@@ -5,13 +5,13 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-26
-current_sprint: Sprint 22
-current_work_order: NONE — no Sprint 22 product WO created
-current_work_order_status: IDLE — measured current SPA behavior has no continuity defect
-current_control_plane_work_order: SPRINT22_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — bounded continuity evidence is sufficient; awaiting review
+current_sprint: Sprint 23
+current_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
+current_work_order_status: IN_PROGRESS
+current_control_plane_work_order: NONE
+current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
-next_work_order: NONE — no product WO; SPRINT22_FREEZE_REVIEW is the selected control-plane item
+next_work_order: NONE — WO-S23-001 is the only current product item
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -99,10 +99,34 @@ next_work_order: NONE — SPRINT22_FREEZE_REVIEW selected.
 
 ## SPRINT22_FREEZE_REVIEW
 
-status: READY — no product implementation authorized
-decision: Review whether the bounded Studio Session Continuity thesis freezes
-  at v1.171. Durable refresh/close persistence, session management, and other
-  Problem Register items remain separate.
+status: DONE — Human/CTO froze Sprint 22 at v1.171
+decision: FROZEN — Code Complete = YES; Product Verified = YES. The historical
+Studio → Full Observatory loss is NOT REPRODUCED IN CURRENT PRODUCT; refresh,
+close, and durable persistence remain out of scope.
+
+## WO-S23-001 — Generation Prompt Truth and Targeted Retry
+
+status: IN_PROGRESS
+priority: P0
+architecture_before: v1.171
+architecture_expected_after: v1.172
+measured_bottleneck: The exact Codex CLI provider prompt is built after the
+browser request and is not projected to the user; a failed canonical asset has
+no explicit targeted retry action even though grouping, incremental manifest
+publication, resolver invalidation, and Renderer application already exist.
+allowed_scope: Preserve the exact provider-submitted prompt on the existing
+operation, project it through existing Observatory generation details, and add
+one explicit failed-canonical-asset retry using the existing request/context,
+manifest, resolver, and Renderer seams.
+forbidden_scope: Manager/queue/persistence/event-sourcing infrastructure,
+automatic retries, multi-provider orchestration, world rebuild, successful
+asset regeneration, Runtime/session reset, or historical i18n cleanup.
+acceptance: Original failure stays immutable; retry receives a new operation ID
+linked to it, reuses one canonical identity and existing bindings, updates only
+that manifest identity on success, and leaves successful assets/world/session
+untouched. The UI exposes only the exact final prompt returned by the provider.
+product_verification: Real provider-backed Studio failure → explicit retry →
+recovered Renderer asset without unrelated regeneration or session reset.
 
 ## Queue rules
 

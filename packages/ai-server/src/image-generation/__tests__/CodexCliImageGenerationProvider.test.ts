@@ -24,7 +24,7 @@ describe('CodexCliImageGenerationProvider', () => {
       return { exitCode: 0, stdout: `IMAGE_PATH=${outputPath}`, stderr: '' }
     })
     const result = await provider.generate(request)
-    expect(result).toMatchObject({ status: 'success', assetId: 'codex-player', asset: { metadata: { mimeType: 'image/png' }, generationMode: 'text-to-image' }, operation: { status: 'succeeded' } })
+    expect(result).toMatchObject({ status: 'success', assetId: 'codex-player', asset: { metadata: { mimeType: 'image/png' }, generationMode: 'text-to-image' }, operation: { status: 'succeeded', input: { prompt: request.prompt, submittedPrompt: expect.stringContaining('image prompt: a stylized 2D game character') } } })
   })
 
   it('harvests a PNG path from a generated_images JSONL event', async () => {

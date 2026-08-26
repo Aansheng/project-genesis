@@ -113,6 +113,8 @@ export type ImageGenerationRendererStatus = 'pending' | 'applied' | 'failed'
 
 export interface ImageGenerationOperation {
   readonly operationId: string
+  /** A user-triggered retry keeps the original failed operation immutable. */
+  readonly retryOfOperationId?: string
   readonly assetId: string
   readonly mode: ImageGenerationMode
   readonly status: ImageGenerationOperationStatus
@@ -138,6 +140,8 @@ export interface ImageGenerationOperation {
   readonly input: {
     readonly subject?: string
     readonly prompt: string
+    /** Exact final text submitted by the selected provider, when that provider adds a transport wrapper. */
+    readonly submittedPrompt?: string
     readonly visualContext: AssetVisualContext
   }
   readonly output?: {
