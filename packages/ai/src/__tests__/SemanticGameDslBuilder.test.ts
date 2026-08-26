@@ -147,6 +147,24 @@ describe('construction', () => {
   })
 })
 
+describe('semantic Platform Runtime geometry', () => {
+  it('projects a bounded Platform surface while keeping ordinary terrain distinct', () => {
+    const result = createBuilder().build({
+      worldType: 'platformer',
+      entities: [
+        entity('platform', 'terrain', 'Platform'),
+        entity('ground', 'terrain', 'Ground'),
+      ],
+    })
+    const platform = result.world.entities.find(value => value.id === 'platform')!
+    const ground = result.world.entities.find(value => value.id === 'ground')!
+    expect(platform.components.find(component => component.type === 'collision-bounds')?.properties).toEqual({
+      width: 96, height: 24, offsetX: 0, offsetY: 0,
+    })
+    expect(ground.components.some(component => component.type === 'collision-bounds')).toBe(false)
+  })
+})
+
 // ---------------------------------------------------------------------------
 // Section 2 — Empty World
 // ---------------------------------------------------------------------------

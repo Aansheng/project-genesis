@@ -49,7 +49,7 @@ import type {
   ComponentDsl,
 } from '@genesis/shared'
 import {
-  createDefaultCollisionBoundsForType,
+  createDefaultCollisionBoundsForSemanticEntity,
   createDefaultHealthComponentForType,
   createPositionComponent,
 } from '@genesis/shared'
@@ -201,7 +201,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
     position: { readonly x: number; readonly y: number } | undefined,
   ): EntityDsl {
     const health = createDefaultHealthComponentForType(entity.category)
-    const collisionBounds = createDefaultCollisionBoundsForType(entity.category)
+    const collisionBounds = createDefaultCollisionBoundsForSemanticEntity(entity.category, entity.name)
     return Object.freeze({
       id: String(entity.id ?? ''),
       type: String(entity.category ?? ''),

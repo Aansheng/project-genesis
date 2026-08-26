@@ -92,7 +92,9 @@ const VISUAL_MAP: Readonly<Record<string, EntityVisualDefinition>> = Object.free
     width: 96,
     height: 24,
     shape: 'rectangle',
-    anchor: 'top-left',
+    // Runtime Platform collision bounds are centered on PositionComponent.
+    // Keep the visual skin on that same coordinate contract.
+    anchor: 'center',
   }),
   goal: Object.freeze<EntityVisualDefinition>({
     width: 24,

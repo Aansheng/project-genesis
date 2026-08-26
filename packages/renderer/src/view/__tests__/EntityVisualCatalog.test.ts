@@ -208,6 +208,7 @@ describe('platform type mappings', () => {
     expect(visual.shape).toBe('rectangle')
     expect(visual.width).toBe(96)
     expect(visual.height).toBe(24)
+    expect(visual.anchor).toBe('center')
   })
 
   it('goal returns rectangle 24x96', () => {

@@ -31,6 +31,7 @@
  */
 import type { GameplayEventSink, World, Entity } from '@genesis/shared'
 import {
+  isCollisionBoundsComponent,
   isPositionComponent,
   createPositionComponent,
   createVelocityComponent,
@@ -119,7 +120,7 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
     let groundedEntities = 0
 
     for (const entity of world.entities) {
-      if (this.isBelowGround(entity)) {
+      if (this.landingYFor(entity, world) !== undefined) {
         groundedEntities++
       }
     }
@@ -134,9 +135,10 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
     const updatedEntities: Entity[] = []
 
     for (const entity of world.entities) {
-      if (this.isBelowGround(entity)) {
+      const landingY = this.landingYFor(entity, world)
+      if (landingY !== undefined) {
         const oldComponent = this.findPositionComponent(entity)!
-        const clampedY = this.groundY
+        const clampedY = landingY
         const newPositionComponent = createPositionComponent(
           oldComponent.properties.x,
           clampedY,
@@ -183,16 +185,20 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
   }
 
   /**
-   * Check whether an entity with a PositionComponent is below ground level.
-   * Only entities with a PositionComponent and y > groundY are considered.
-   * At exactly groundY (y === groundY), no clamping is needed.
+   * Resolve the next support surface. The global ground plane remains the
+   * fallback, while a semantic Platform is a bounded one-way surface: it only
+   * catches a Player crossing its top while moving downward.
    */
-  private isBelowGround(entity: Entity): boolean {
+  private landingYFor(entity: Entity, world: World): number | undefined {
     const component = this.findPositionComponent(entity)
-    if (!component) return false
+    if (!component) return undefined
 
-    // Only clamp when strictly above groundY — at groundY or above, no change
-    return component.properties.y > this.groundY
+    if (entity.type === 'player') {
+      const platformLandingY = this.platformLandingY(entity, world)
+      if (platformLandingY !== undefined) return platformLandingY
+    }
+
+    return component.properties.y > this.groundY ? this.groundY : undefined
   }
 
   /**
@@ -215,7 +221,7 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
       const position = this.findPositionComponent(entity)
       if (!position) continue
       presentIds.add(entity.id)
-      const grounded = position.properties.y >= this.groundY
+      const grounded = position.properties.y >= this.groundY || this.isStandingOnPlatform(entity, outputWorld)
       const previous = this.groundedByEntityId.get(entity.id)
       if (previous === false && grounded) {
         this.eventSink?.emit({
@@ -229,5 +235,61 @@ export class DefaultGroundCollisionSystem implements GroundCollisionSystem {
     for (const entityId of this.groundedByEntityId.keys()) {
       if (!presentIds.has(entityId)) this.groundedByEntityId.delete(entityId)
     }
+  }
+
+  private platformLandingY(player: Entity, world: World): number | undefined {
+    const playerPosition = this.findPositionComponent(player)
+    const playerBounds = player.components?.find(isCollisionBoundsComponent)
+    const velocity = player.components?.find(isVelocityComponent)
+    if (!playerPosition || !playerBounds || !velocity || velocity.properties.y <= 0) return undefined
+
+    const playerLeft = playerPosition.properties.x + playerBounds.properties.offsetX - playerBounds.properties.width / 2
+    const playerRight = playerPosition.properties.x + playerBounds.properties.offsetX + playerBounds.properties.width / 2
+    // Player PositionComponent is the established feet contact point: global
+    // GroundCollisionSystem clamps that value directly to groundY and the
+    // Player Renderer uses it as the feet anchor. Platform support must use
+    // the same production coordinate contract rather than treating Position as
+    // the centre of the generic contact envelope.
+    const currentFootY = playerPosition.properties.y
+    const previousFootY = currentFootY - velocity.properties.y
+
+    for (const platform of world.entities) {
+      const platformPosition = this.findPositionComponent(platform)
+      const platformBounds = platform.components?.find(isCollisionBoundsComponent)
+      if (!this.isPlatform(platform) || !platformPosition || !platformBounds) continue
+      const platformLeft = platformPosition.properties.x + platformBounds.properties.offsetX - platformBounds.properties.width / 2
+      const platformRight = platformPosition.properties.x + platformBounds.properties.offsetX + platformBounds.properties.width / 2
+      const platformTop = platformPosition.properties.y + platformBounds.properties.offsetY - platformBounds.properties.height / 2
+      const overlapsHorizontally = playerLeft < platformRight && playerRight > platformLeft
+      if (overlapsHorizontally && previousFootY <= platformTop && currentFootY >= platformTop) {
+        return platformTop
+      }
+    }
+    return undefined
+  }
+
+  private isStandingOnPlatform(player: Entity, world: World): boolean {
+    const playerPosition = this.findPositionComponent(player)
+    const playerBounds = player.components?.find(isCollisionBoundsComponent)
+    if (!playerPosition || !playerBounds) return false
+    const playerLeft = playerPosition.properties.x + playerBounds.properties.offsetX - playerBounds.properties.width / 2
+    const playerRight = playerPosition.properties.x + playerBounds.properties.offsetX + playerBounds.properties.width / 2
+    const playerFootY = playerPosition.properties.y
+    return world.entities.some((platform) => {
+      const platformPosition = this.findPositionComponent(platform)
+      const platformBounds = platform.components?.find(isCollisionBoundsComponent)
+      if (!this.isPlatform(platform) || !platformPosition || !platformBounds) return false
+      const platformLeft = platformPosition.properties.x + platformBounds.properties.offsetX - platformBounds.properties.width / 2
+      const platformRight = platformPosition.properties.x + platformBounds.properties.offsetX + platformBounds.properties.width / 2
+      const platformTop = platformPosition.properties.y + platformBounds.properties.offsetY - platformBounds.properties.height / 2
+      return playerLeft < platformRight
+        && playerRight > platformLeft
+        && Math.abs(playerFootY - platformTop) < 0.0001
+    })
+  }
+
+  private isPlatform(entity: Entity): boolean {
+    const semantic = entity.components?.find((component) => component.type === 'semantic')
+    return semantic?.properties.category === 'terrain' && semantic.properties.name === 'Platform'
   }
 }

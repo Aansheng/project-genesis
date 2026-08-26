@@ -1,5 +1,42 @@
 # Changelog
 
+### Sprint 20 — WO-S20-001 Playable Platform Geometry (Code Complete; Product Verification Pending)
+
+- Explicit Human/CTO authorization opened Sprint 20 at v1.167. Repository
+  analysis found that semantic Platform projected no collision bounds;
+  `DefaultGroundCollisionSystem` only consumed global `groundY`, while
+  `DefaultEntityContactSystem` was observation-only.
+- v1.168 projects the semantic `terrain` named `Platform` as bounded Runtime
+  collision geometry and extends the existing ground-collision system with
+  one-way top-surface resolution. The Player may pass upward from below, lands
+  while descending, remains supported within bounds, and falls after walking
+  off; global ground remains unchanged. No image-derived collision or physics
+  framework was introduced. See ADR-0282.
+- Shared/AI/Runtime/Web affected-package suites pass, including a production
+  registered system-chain regression that reaches Platform landing and edge
+  fall through real Runtime systems and horizontal input. Root Turbo validation
+  could not initialize because the local keychain/TLS setup failed.
+- A local Studio run created the real seven-entity platformer and exposed the
+  semantic Platform plus its `96×24` Runtime collision bounds in Inspector.
+  Full visible landing/standing/edge-fall and gameplay-continuity checks remain
+  incomplete. WO-S20-001 is Code Complete = YES; Product Verified = PENDING.
+
+- Manual Studio evidence found an image/collision alignment defect: Platform's
+  Runtime collision rectangle was centered at its position while the generated
+  visual was top-left anchored, creating a transparent standable offset. v1.169
+  makes the existing Platform visual center-anchored (`252,308,96,24` at
+  Runtime position `300,320`), matching the Runtime bounds without using image
+  geometry for gameplay. Renderer geometry regressions, typecheck, Web runtime
+  regression, and Web build pass; visual Product Verification remains pending.
+
+- The generated-image Studio screenshot proved the actual remaining defect was
+  Player contact semantics, not Platform asset size: Player Position is a feet
+  coordinate in the Ground and Renderer paths, but Platform landing previously
+  treated it as a collision-box center. v1.170 lands Player feet directly on
+  the Runtime Platform top, retaining Runtime-owned horizontal bounds and
+  one-way upward passage. Runtime and Web production-chain regressions plus
+  affected type checks pass; human visual re-verification remains required.
+
 ### Sprint 19 Freeze — WO-S19-002 Product Verification (2026-08-26)
 
 - Real Studio verification passed for WO-S19-002: stationary Player shows idle

@@ -148,7 +148,7 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
     const sprites = actualTerrainLayer.children as unknown as Sprite[]
     expect(sprites.map(item => ({ x: item.x, y: item.y, width: item.width, height: item.height }))).toEqual([
       { x: 160, y: 400, width: 64, height: 32 },
-      { x: 300, y: 320, width: 96, height: 24 },
+      { x: 252, y: 308, width: 96, height: 24 },
     ])
   })
 
@@ -274,7 +274,7 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
     expect(tiles[0]!.tileScale).toMatchObject({ x: 1, y: 1 })
     const sprites = (root.children[1] as unknown as Container & { children: Sprite[] }).children
     expect(sprites).toHaveLength(2)
-    expect(sprites[1]).toMatchObject({ x: 300, y: 320, width: 96, height: 24 })
+    expect(sprites[1]).toMatchObject({ x: 252, y: 308, width: 96, height: 24 })
   })
 
   it('invalidates only a changed environment resource when the manifest is rebound', () => {

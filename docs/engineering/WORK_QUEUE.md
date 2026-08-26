@@ -5,13 +5,13 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-26
-current_sprint: Sprint 19
-current_work_order: NONE — Sprint 19 FROZEN at v1.167
-current_work_order_status: DONE — Sprint 19 Freeze Review passed
-current_control_plane_work_order: SPRINT19_FREEZE_REVIEW
-current_control_plane_work_order_status: DONE — Sprint 19 frozen; Sprint 20 authorization required
+current_sprint: Sprint 20
+current_work_order: WO-S20-001 — Playable Platform Geometry
+current_work_order_status: CODE_COMPLETE_PRODUCT_VERIFICATION_PENDING
+current_control_plane_work_order: WO-S20-001
+current_control_plane_work_order_status: Product Verification pending
 last_completed_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
-next_work_order: NONE — await explicit Human/CTO authorization for Sprint 20 or fresh product prioritization
+next_work_order: NONE — complete WO-S20-001 Product Verification before Sprint 20 Gap Analysis
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -46,6 +46,41 @@ primary_architecture_changing_work_items_in_progress: 0
 - A completed Sprint Freeze Review may generate at most one high-level next
   Sprint discovery or BLOCKED human-decision item; it must not pre-generate a
   future Sprint feature backlog or cross the Sprint boundary automatically.
+
+## WO-S20-001 — Playable Platform Geometry
+
+status: CODE_COMPLETE_PRODUCT_VERIFICATION_PENDING
+priority: P0
+dependencies: Sprint 19 FROZEN; explicit Human/CTO Sprint 20 authorization
+architecture_before: v1.167
+architecture_after: v1.170
+mission: Make the existing generated semantic Platform a Runtime-authoritative,
+bounded, landable gameplay surface without image-derived collision or a
+genre-specific Runtime.
+allowed_scope: Semantic Platform → Runtime collision bounds projection;
+existing gravity/vertical-motion/ground-collision seam; focused Runtime and
+production-chain regressions; ADR and state documentation.
+forbidden_scope: Physics engine, Platform/Terrain/Physics manager, image-based
+collision, solid-all-sides policy framework, moving platforms, slopes, enemy
+AI, and Sprint 21 work.
+acceptance: PASS (automated) — descending Player lands on and remains supported
+by Platform; leaving horizontal bounds resumes falling; global Ground remains;
+upward passage remains valid for the current elevated layout; Platform remains
+semantic/runtime-distinct from Ground; real registered-system-chain regression
+passes.
+  The rendered Platform uses the same center-anchored rectangle as Runtime
+  collision geometry; no transparent offset remains.
+  Player feet land on that top surface, matching the existing Ground and
+  Player Renderer coordinate contract.
+verification: PASS — Shared 209, AI 9407, Runtime 696, and Web 3537 tests;
+affected type checks; package lint with only pre-existing warnings; Web build;
+`git diff --check`. Root Turbo typecheck did not start because the local
+keychain/TLS environment cannot initialize its API client.
+product_verification: PENDING — local Studio creation confirms the real
+seven-entity Platform and its `96×24` Runtime bounds, but visible
+landing/standing/edge-fall and gameplay continuity remain incomplete; do not
+mark this WO DONE or start another Sprint 20 item.
+human_decision_required: NO
 
 ## WO-S15-004 — Minimal Gameplay Rule Execution Vertical Slice
 

@@ -8,6 +8,7 @@ export type { PositionComponent } from './PositionComponent'
 export {
   COLLISION_BOUNDS_COMPONENT_TYPE,
   createCollisionBoundsComponent,
+  createDefaultCollisionBoundsForSemanticEntity,
   createDefaultCollisionBoundsForType,
   isCollisionBoundsComponent,
 } from './CollisionBoundsComponent'

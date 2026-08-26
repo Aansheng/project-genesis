@@ -48,3 +48,21 @@ export function createDefaultCollisionBoundsForType(
   const size = sizes[type]
   return size ? createCollisionBoundsComponent(size[0], size[1]) : undefined
 }
+
+/**
+ * Returns the Runtime-owned contact geometry for a semantic entity.
+ *
+ * `Platform` intentionally remains a `terrain` category in the current Game
+ * DSL, so its bounded gameplay surface cannot be inferred from category alone.
+ * This is an explicit semantic-to-Runtime geometry mapping; it does not read
+ * renderer catalogs, image dimensions, or pixels.
+ */
+export function createDefaultCollisionBoundsForSemanticEntity(
+  category: string,
+  semanticName: string,
+): CollisionBoundsComponent | undefined {
+  if (category === 'terrain' && semanticName === 'Platform') {
+    return createCollisionBoundsComponent(96, 24)
+  }
+  return createDefaultCollisionBoundsForType(category)
+}

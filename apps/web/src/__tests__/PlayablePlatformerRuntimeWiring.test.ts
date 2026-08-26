@@ -22,7 +22,7 @@ import { DefaultRuntimeRendererAdapter } from '@genesis/renderer'
 import { DefaultRuntimeVisualizationLoop } from '@genesis/renderer'
 import type { PixiEntityRenderer, RenderWorldView } from '@genesis/renderer'
 import type { RenderWorld } from '@genesis/renderer'
-import { isVelocityComponent } from '@genesis/shared'
+import { createPositionComponent, createVelocityComponent, isVelocityComponent, type World } from '@genesis/shared'
 
 class CaptureRenderer implements PixiEntityRenderer {
   worlds: RenderWorld[] = []
@@ -101,6 +101,46 @@ describe('WO-S10-010: playable platformer runtime wiring', () => {
     runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }))
     for (let index = 0; index < 300; index++) runtime.loop.tick()
     expect(playerPosition(runtime.store).y).toBe(400)
+  })
+
+  it('reaches the semantic Platform through the registered Runtime systems and falls after walking off it', () => {
+    const runtime = createPlayableRuntime()
+    runtime.input.attach()
+    runtime.loop.start()
+    const generated = runtime.store.getWorld()
+    const platform = generated.entities.find((entity) => entity.id === 'platform')!
+    expect(platform.type).toBe('terrain')
+    expect(platform.components?.find((component) => component.type === 'semantic')?.properties.name).toBe('Platform')
+    expect(platform.components?.find((component) => component.type === 'collision-bounds')?.properties).toEqual({
+      width: 96, height: 24, offsetX: 0, offsetY: 0,
+    })
+
+    runtime.store.setWorld(Object.freeze({
+      entities: Object.freeze(generated.entities.map((entity) => entity.type !== 'player' ? entity : Object.freeze({
+        ...entity,
+        components: Object.freeze([
+          ...entity.components!.map((component) =>
+            component.type === 'position' ? createPositionComponent(300, 275)
+              : component.type === 'velocity' ? createVelocityComponent(0, 5)
+                : component,
+          ),
+          ...(entity.components!.some((component) => component.type === 'velocity') ? [] : [createVelocityComponent(0, 5)]),
+        ]),
+      }))),
+    }) as unknown as World)
+    for (let index = 0; index < 10 && playerVelocity(runtime.store)?.y !== 0; index += 1) runtime.loop.tick()
+    const landedPlatform = runtime.store.getWorld().entities.find((entity) => entity.id === 'platform')!
+    const landedPlatformPosition = landedPlatform.components?.find((component) => component.type === 'position')?.properties as { y: number }
+    const platformRestingY = playerPosition(runtime.store).y
+    expect(playerPosition(runtime.store).x).toBe(300)
+    expect(platformRestingY).toBe(landedPlatformPosition.y - 12)
+    expect(playerVelocity(runtime.store)?.y).toBe(0)
+
+    runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    for (let index = 0; index < 25; index += 1) runtime.loop.tick()
+    expect(playerPosition(runtime.store).x).toBeGreaterThan(348)
+    expect(playerPosition(runtime.store).y).toBeGreaterThan(platformRestingY)
+    expect(playerVelocity(runtime.store)?.y).toBeGreaterThan(0)
   })
 
   it('proves the production Runtime-to-Renderer Player presentation chain is reachable', () => {

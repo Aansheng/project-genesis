@@ -21,7 +21,8 @@
 **Sprint 17** - Mechanically Complete Platformer Generation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.160**)
 **Sprint 18** - Visually Coherent Platformer Generation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.164**)
 **Sprint 19** - Animated Entity Presentation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.167**)
-**Current WO** - None — Sprint 19 Freeze Review passed; Sprint 20 requires explicit Human/CTO authorization
+**Sprint 20** - Playable Platform Geometry (**IN PROGRESS — Code Complete = YES; Product Verified = PENDING; v1.170**)
+**Current WO** - WO-S20-001 — Playable Platform Geometry
 
 ---
 
@@ -29,14 +30,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 15 through Sprint 18 are Code Complete = YES, Product Verified = YES, and FROZEN = YES. Sprint 18 froze at v1.164. WO-S19-001 and WO-S19-002 are DONE at v1.166 and v1.167 respectively. Sprint 19 Freeze Review passed on 2026-08-26; Sprint 20 is not entered automatically. |
-| Architecture Version | v1.167; Runtime-derived Player `idle` / `run` / `jump` state, horizontal facing, and bounded temporal run-frame alternation are Product Verified. Ground continues to consume `ground-repeat-x` over the Runtime-authoritative continuous ground plane and Platform remains locally bounded. |
-| Last Completed WO | WO-S19-002 — Bounded Player Run-Frame Presentation; Code Complete = YES; Product Verified = YES at v1.167 |
+| Status | Sprint 19 remains FROZEN at v1.167. Explicit Human/CTO authorization opened Sprint 20. WO-S20-001 is code complete; real Studio Product Verification is pending. |
+| Architecture Version | v1.170; semantic `Platform` projects Runtime collision bounds and is a Runtime-authoritative bounded one-way support surface. Platform top support now shares the established Player feet-coordinate contract used by Ground and Player rendering. |
+| Last Completed WO | WO-S19-002 — Bounded Player Run-Frame Presentation; Code Complete = YES; Product Verified = YES at v1.167. Current WO-S20-001 is awaiting product verification. |
 | Current User-Visible Behavior | A natural-language platformer request passes structural validation and the bounded baseline gate. A complete provider candidate is accepted; an incomplete or unavailable provider selects the deterministic fallback with truthful selection diagnostics. The Runtime owns `active`/`failed`/`completed`; lethal player damage pauses gameplay rules, and the Studio Respawn control requests same-world Health/velocity recovery while preserving current entities and progression. Real Studio verification passed stationary→idle, right movement→run with two distinct generated run frames visibly alternating, stop→idle with cycling stopped, left movement→temporal run with correct mirror, jump→jump without run cycling, landing while moving→temporal run, gameplay continuity, mechanically complete platformer flow, and a clean browser console. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | No new measured Sprint-19-specific blocker remains after the WO-S19-002 real Studio verification. The six separately measured high-priority product problems remain open in the Problem Register and require fresh product-level prioritization after this freeze. |
-| Product Verification | WO-S19-001: Code Complete = YES; Product Verified = YES on 2026-08-26. WO-S19-002: Code Complete = YES; Product Verified = YES on 2026-08-26 after temporal run-frame, state-transition, gameplay-continuity, and clean-console observations. Sprint 19 Freeze Review: FROZEN. |
-| Next Recommended Verification | Perform fresh product-level prioritization across the Problem Register. Do not enter Sprint 20 automatically; require explicit Human/CTO authorization. |
+| Current Blocking Issue | A local Studio platformer run confirms the real Platform semantic entity and its `96×24` Runtime collision bounds, but full visible landing/standing/edge-fall/gameplay-continuity and console checks still require completion. The unrelated Problem Register items remain out of scope. |
+| Product Verification | WO-S20-001 automated verification passes; real Studio Product Verification is PENDING. Do not freeze Sprint 20 yet. |
+| Next Recommended Verification | Complete a real Studio platformer run: land on Platform, stand/move, walk off edge, jump again, confirm ground/presentation/gameplay continuity, and inspect browser diagnostics. |
 
 ## Problem Register
 

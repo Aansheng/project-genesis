@@ -3,40 +3,38 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.167 (Sprint 19 frozen; Player temporal run-frame presentation Product Verified)
-current_sprint: Sprint 19 (FROZEN)
-current_work_order: NONE — Sprint 19 Freeze Review passed
-current_work_order_status: done
-current_control_plane_work_order: SPRINT19_FREEZE_REVIEW
-current_control_plane_work_order_status: done — Sprint 19 frozen; Sprint 20 authorization required
+architecture_version: v1.170 (Sprint 20; Runtime-authoritative one-way Platform surfaces aligned to Player feet semantics; Product Verification pending)
+current_sprint: Sprint 20 (IN PROGRESS)
+current_work_order: WO-S20-001 — Playable Platform Geometry
+current_work_order_status: code_complete_product_verification_pending
+current_control_plane_work_order: WO-S20-001
+current_control_plane_work_order_status: product verification pending
 last_completed_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
 last_completed_product_work_order: WO-S19-002
 last_completed_control_plane_work_order: SPRINT19_FREEZE_REVIEW
-next_ready_work_order: NONE — await fresh product prioritization and explicit Human/CTO direction
-product_architecture_changed: yes — WO-S19-001 v1.164 → v1.166 and WO-S19-002 v1.166 → v1.167 are Product Verified; v1.167 adds only bounded Player run-frame asset metadata and Renderer tick selection
+next_ready_work_order: NONE — complete WO-S20-001 Product Verification before fresh Sprint 20 Gap Analysis
+product_architecture_changed: yes — WO-S20-001 v1.167 → v1.170 projects semantic Platform collision bounds, reuses the ground-collision seam for bounded one-way support, aligns its visual, and uses the established Player feet coordinate for Platform support
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167 after the 2026-08-26 Freeze Review
-product_verified: YES for WO-S19-001 and WO-S19-002 — real Studio manual observations passed on 2026-08-26; Sprint 19 FROZEN
+product_verified: PENDING for WO-S20-001 — automated gates pass; real Studio Platform landing/edge-fall verification is incomplete
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
-  automatic cross-Sprint execution disabled; Sprint 19 boundary stop enabled
+  automatic cross-Sprint execution disabled; Sprint 20 boundary stop enabled
 
 ## Current Sprint goal
 
-Sprint 19 — Animated Entity Presentation:
+Sprint 20 — Playable Platform Geometry:
 
-1. Derive Player visual presentation from authoritative Runtime behavior.
-2. Prove idle, run, jump, and facing presentation without changing Runtime
-   gameplay or collision authority.
-3. Reuse equivalent semantic visual assets; Runtime entity identity is not
-   visual asset identity.
+1. Make a generated semantic Platform a Runtime-authoritative playable surface.
+2. Preserve global Ground, jump, gravity, Runtime-authoritative geometry, and
+   Sprint 18/19 visual/presentation behavior.
+3. Prove real Studio landing, standing, edge fall, and gameplay continuity.
 
-Sprint 18 is frozen at v1.164. Sprint 19 completed its sequential bounded work
-and is frozen at v1.167; the Sprint 20 boundary is active and is never crossed
-automatically.
+Sprint 18 and Sprint 19 remain frozen. Sprint 20 is explicitly authorized and
+may not cross into Sprint 21 automatically.
 
 ## Problem Register
 
@@ -44,7 +42,8 @@ The following separately measured high-priority product problems are preserved
 after the Sprint 19 freeze. They are not part of WO-S19-002 and require fresh
 product-level prioritization:
 
-- Player can currently pass through generated Platform geometry.
+- Platform Product Verification is pending; source and automated Runtime
+  behavior are repaired, but the real Studio observation is not yet complete.
 - A follow-up such as `增加5个enemy` can return `Unknown command`, indicating
   that the front-door intent layer rejects valid free-form World Evolution
   requests outside deterministic mappings.
