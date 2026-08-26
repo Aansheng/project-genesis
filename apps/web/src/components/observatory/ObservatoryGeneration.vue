@@ -10,7 +10,11 @@ const game = useGameStore()
 const i18n = useI18n()
 const imageGenerations = computed(() => Object.values(game.visualGenerationOperations))
 const copiedOperationId = ref<string | null>(null)
-function retry(operationId: string): void { void game.retryFailedArtwork(operationId) }
+const editingOperationId = ref<string | null>(null)
+const promptDraft = ref('')
+function beginRegeneration(operationId: string, prompt: string): void { editingOperationId.value = operationId; promptDraft.value = prompt }
+function cancelRegeneration(): void { editingOperationId.value = null; promptDraft.value = '' }
+function regenerate(operationId: string): void { void game.regenerateArtwork(operationId, promptDraft.value); cancelRegeneration() }
 async function copySubmittedPrompt(operationId: string, prompt: string): Promise<void> {
   try {
     await navigator.clipboard.writeText(prompt)
@@ -52,9 +56,19 @@ const labels: Record<string, string> = {
           <article v-for="imageGeneration in imageGenerations" :key="imageGeneration.operationId" class="visual-operation">
           <header class="visual-operation-header">
             <strong class="visual-operation-title">{{ assetArtworkLabel(imageGeneration) }}</strong>
-            <span class="visual-operation-status" :class="`visual-operation-status--${imageGeneration.stage ?? imageGeneration.status}`">
-              {{ imageGeneration.stage ?? imageGeneration.status }}
-            </span>
+            <div class="visual-operation-actions">
+              <button
+                v-if="editingOperationId !== imageGeneration.operationId"
+                type="button"
+                class="regenerate-button"
+                @click="beginRegeneration(imageGeneration.operationId, imageGeneration.input.prompt)"
+              >
+                {{ i18n.t('observatory.generation.regenerate') }}
+              </button>
+              <span class="visual-operation-status" :class="`visual-operation-status--${imageGeneration.stage ?? imageGeneration.status}`">
+                {{ imageGeneration.stage ?? imageGeneration.status }}
+              </span>
+            </div>
           </header>
           <dl class="detail-list visual-operation-details">
             <div><dt>Asset ID</dt><dd>{{ imageGeneration.assetId }}</dd></div>
@@ -96,7 +110,14 @@ const labels: Record<string, string> = {
             <pre tabindex="0">{{ imageGeneration.input.submittedPrompt }}</pre>
           </details>
           <p v-else-if="imageGeneration.stage === 'fallback'" class="fallback-note"><span>{{ i18n.t('observatory.generation.submittedPrompt') }}</span>{{ i18n.t('observatory.generation.unavailable') }}</p>
-          <button v-if="imageGeneration.status === 'failed' && imageGeneration.stage === 'fallback'" type="button" class="retry-button" @click="retry(imageGeneration.operationId)">{{ i18n.t('observatory.generation.retry') }}</button>
+          <template v-if="editingOperationId === imageGeneration.operationId">
+            <label class="prompt-editor-label" :for="`prompt-editor-${imageGeneration.operationId}`">{{ i18n.t('observatory.generation.editPrompt') }}</label>
+            <textarea :id="`prompt-editor-${imageGeneration.operationId}`" v-model="promptDraft" class="prompt-editor" rows="8" />
+            <div class="submitted-prompt-actions">
+              <button type="button" class="retry-button" @click="cancelRegeneration">{{ i18n.t('observatory.generation.cancel') }}</button>
+              <button type="button" class="retry-button" :disabled="!promptDraft.trim()" @click="regenerate(imageGeneration.operationId)">{{ i18n.t('observatory.generation.submitRegeneration') }}</button>
+            </div>
+          </template>
           </article>
         </template>
       </section>
@@ -199,7 +220,11 @@ const labels: Record<string, string> = {
 .submitted-prompt { margin-top: var(--obs-space-2); }
 .submitted-prompt summary, .retry-button { color: var(--obs-accent, #60a5fa); font-size: 12px; cursor: pointer; }
 .submitted-prompt-actions { display: flex; justify-content: flex-end; margin-top: var(--obs-space-2); }
+.visual-operation-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--obs-space-2); }
 .copy-prompt-button { padding: var(--obs-space-1) var(--obs-space-2); color: var(--obs-accent, #60a5fa); font-size: 12px; cursor: pointer; border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-surface); }
+.regenerate-button { padding: var(--obs-space-1) var(--obs-space-2); color: var(--obs-text); font-size: 11px; cursor: pointer; border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-surface); }
+.prompt-editor-label { color: var(--obs-text-dim); font-size: 12px; }
+.prompt-editor { width: 100%; box-sizing: border-box; margin-top: var(--obs-space-1); padding: var(--obs-space-2); resize: vertical; color: var(--obs-text); font: inherit; background: var(--obs-bg); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); }
 .submitted-prompt pre { max-height: 220px; margin: var(--obs-space-2) 0 0; padding: var(--obs-space-2); overflow: auto; white-space: pre-wrap; color: var(--obs-text); background: var(--obs-bg); border: 1px solid var(--obs-border); }
 .retry-button { align-self: flex-start; padding: var(--obs-space-1) var(--obs-space-2); border: 1px solid var(--obs-border); border-radius: var(--obs-radius-s, 6px); background: var(--obs-surface); }
 .generation-header { display: flex; align-items: center; justify-content: space-between; gap: var(--obs-space-3); padding: var(--obs-space-5) var(--obs-space-5) var(--obs-space-4); border-bottom: 1px solid var(--obs-border); background: var(--obs-bg); }

@@ -28,6 +28,10 @@ export const zhCN: MessageCatalog = {
       retryOf: '重试原操作',
       copy: '复制 Prompt',
       copied: '已复制',
+      regenerate: '重新生成此资源',
+      editPrompt: '调整生成 Prompt',
+      submitRegeneration: '提交重新生成',
+      cancel: '取消',
     },
     status: {
       ready: '就绪',

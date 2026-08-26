@@ -27,6 +27,10 @@ export const enUS: MessageCatalog = {
       retryOf: 'Retry of',
       copy: 'Copy prompt',
       copied: 'Copied',
+      regenerate: 'Regenerate this asset',
+      editPrompt: 'Adjust generation prompt',
+      submitRegeneration: 'Submit regeneration',
+      cancel: 'Cancel',
     },
     status: {
       ready: 'Ready',

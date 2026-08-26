@@ -616,9 +616,10 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], generationContext: ImageGenerationContext, token: number, retry?: { readonly operationId: string; readonly retryOfOperationId: string }): Promise<void> {
+  async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], generationContext: ImageGenerationContext, token: number, retry?: { readonly operationId: string; readonly retryOfOperationId: string; readonly prompt?: string }): Promise<void> {
     const [requirement, bindings] = requirements
-    const request = buildImageGenerationRequest(specification, requirement, generationContext)
+    const builtRequest = buildImageGenerationRequest(specification, requirement, generationContext)
+    const request = retry?.prompt?.trim() ? Object.freeze({ ...builtRequest, prompt: retry.prompt.trim() }) : builtRequest
     const pending = { ...createPendingImageGenerationOperation(request), ...(retry ? { operationId: retry.operationId, retryOfOperationId: retry.retryOfOperationId } : {}) }
     try {
       const result = await imageClient.generate(request)
@@ -676,13 +677,13 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function retryFailedArtwork(failedOperationId: string): Promise<void> {
-    const failed = visualGenerationOperations.value[failedOperationId]
+  async function regenerateArtwork(previousOperationId: string, prompt?: string): Promise<void> {
+    const previous = visualGenerationOperations.value[previousOperationId]
     const specification = assetSpecificationState.value
     const design = visualDesignSpecification.value
     const state = semanticState.value
-    if (!failed || failed.status !== 'failed' || failed.stage !== 'fallback' || !specification || !design || !state?.semanticWorld) return
-    const requirements = groupAiGenerationRequirements(specification).find(([canonical]) => canonical.id === failed.assetId)
+    if (!previous || !specification || !design || !state?.semanticWorld) return
+    const requirements = groupAiGenerationRequirements(specification).find(([canonical]) => canonical.id === previous.assetId)
     if (!requirements) return
     const [requirement, bindings] = requirements
     const retryOperationId = `image-generation-client-retry-${++imageGenerationRetrySequence}-${requirement.id}`
@@ -695,7 +696,7 @@ export const useGameStore = defineStore('game', () => {
       requirement,
       bindings,
     })
-    await generateArtwork(specification, requirements, generationContext, imageGenerationToken, { operationId: retryOperationId, retryOfOperationId: failedOperationId })
+    await generateArtwork(specification, requirements, generationContext, imageGenerationToken, { operationId: retryOperationId, retryOfOperationId: previousOperationId, ...(prompt?.trim() ? { prompt } : {}) })
   }
 
   function reportAssetApplication(event: { readonly assetId: string; readonly entityId?: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
@@ -1152,7 +1153,7 @@ export const useGameStore = defineStore('game', () => {
     imageGenerationOperation,
     visualGenerationOperations,
     reportAssetApplication,
-    retryFailedArtwork,
+    regenerateArtwork,
     send,
     // Streaming state (inert — preserved for UI backward compatibility)
     isStreaming,
