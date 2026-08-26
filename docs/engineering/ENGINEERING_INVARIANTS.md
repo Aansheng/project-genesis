@@ -85,6 +85,11 @@ becomes stale.
     but Runtime-projected position and existing bounds remain authoritative.
     Legacy manifests without usage retain deterministic kind/target fallbacks;
     Renderer selection must not create gameplay geometry.
+25. Product capability reachability must be proven through the production path
+    that claims the capability. A test that injects downstream Runtime state
+    directly does not prove that upstream input and registered Runtime systems
+    can produce that state. For input → Runtime → projection → Renderer claims,
+    include at least one real-system-chain reachability regression.
 
 ## Evidence anchors
 

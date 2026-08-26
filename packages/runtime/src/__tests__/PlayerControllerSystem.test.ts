@@ -21,7 +21,7 @@
 
 import { describe, it, expect } from 'vitest'
 import type { World, Entity } from '@genesis/shared'
-import { createPositionComponent, isPositionComponent } from '@genesis/shared'
+import { createPositionComponent, createVelocityComponent, isPositionComponent, isVelocityComponent } from '@genesis/shared'
 import { DefaultInputState } from '../input'
 import type { InputKey, InputProvider, InputState } from '../input'
 import type { PlayerControllerSystem } from '../systems'
@@ -93,6 +93,10 @@ function createSinglePlayerWorld(
   }) as unknown as World
 }
 
+function horizontalVelocity(entity: Entity): number | undefined {
+  return entity.components?.find(isVelocityComponent)?.properties.x
+}
+
 // ---------------------------------------------------------------------------
 // Section 1 — Construction
 // ---------------------------------------------------------------------------
@@ -122,25 +126,27 @@ describe('construction', () => {
 // ---------------------------------------------------------------------------
 
 describe('left movement', () => {
-  it('moves player left by speed when ArrowLeft is pressed', () => {
+  it('sets leftward horizontal velocity when ArrowLeft is pressed', () => {
     const provider = new MockInputProvider(['ArrowLeft'])
     const system = new DefaultPlayerControllerSystem(provider)
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(9)
+    expect(result.entities[0].x).toBe(10)
     expect(result.entities[0].y).toBe(5)
+    expect(horizontalVelocity(result.entities[0])).toBe(-1)
   })
 
-  it('updates PositionComponent properties on left movement', () => {
+  it('preserves PositionComponent x until VerticalMotionSystem integrates it', () => {
     const provider = new MockInputProvider(['ArrowLeft'])
     const system = new DefaultPlayerControllerSystem(provider, 2)
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
     const pos = result.entities[0].components?.find(isPositionComponent)
-    expect(pos?.properties.x).toBe(8)
+    expect(pos?.properties.x).toBe(10)
     expect(pos?.properties.y).toBe(5)
+    expect(horizontalVelocity(result.entities[0])).toBe(-2)
   })
 })
 
@@ -149,24 +155,26 @@ describe('left movement', () => {
 // ---------------------------------------------------------------------------
 
 describe('right movement', () => {
-  it('moves player right by speed when ArrowRight is pressed', () => {
+  it('sets rightward horizontal velocity when ArrowRight is pressed', () => {
     const provider = new MockInputProvider(['ArrowRight'])
     const system = new DefaultPlayerControllerSystem(provider)
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(11)
+    expect(result.entities[0].x).toBe(10)
     expect(result.entities[0].y).toBe(5)
+    expect(horizontalVelocity(result.entities[0])).toBe(1)
   })
 
-  it('updates PositionComponent properties on right movement', () => {
+  it('writes the configured speed to horizontal velocity', () => {
     const provider = new MockInputProvider(['ArrowRight'])
     const system = new DefaultPlayerControllerSystem(provider, 3)
     const world = createSinglePlayerWorld('player-1', 0, 0)
 
     const result = system.update(world)
     const pos = result.entities[0].components?.find(isPositionComponent)
-    expect(pos?.properties.x).toBe(3)
+    expect(pos?.properties.x).toBe(0)
+    expect(horizontalVelocity(result.entities[0])).toBe(3)
   })
 })
 
@@ -223,8 +231,9 @@ describe('diagonal movement', () => {
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(11)
+    expect(result.entities[0].x).toBe(10)
     expect(result.entities[0].y).toBe(6)
+    expect(horizontalVelocity(result.entities[0])).toBe(1)
   })
 
   it('moves player diagonally when ArrowLeft and ArrowUp are pressed', () => {
@@ -233,8 +242,9 @@ describe('diagonal movement', () => {
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(9)
+    expect(result.entities[0].x).toBe(10)
     expect(result.entities[0].y).toBe(4)
+    expect(horizontalVelocity(result.entities[0])).toBe(-1)
   })
 
   it('moves player diagonally when ArrowUp and ArrowRight are pressed', () => {
@@ -243,8 +253,9 @@ describe('diagonal movement', () => {
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(11)
+    expect(result.entities[0].x).toBe(10)
     expect(result.entities[0].y).toBe(4)
+    expect(horizontalVelocity(result.entities[0])).toBe(1)
   })
 
   it('moves player diagonally when ArrowDown and ArrowLeft are pressed', () => {
@@ -253,8 +264,9 @@ describe('diagonal movement', () => {
     const world = createSinglePlayerWorld('player-1', 10, 5)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(9)
+    expect(result.entities[0].x).toBe(10)
     expect(result.entities[0].y).toBe(6)
+    expect(horizontalVelocity(result.entities[0])).toBe(-1)
   })
 
   it('applies speed correctly to each axis in diagonal movement', () => {
@@ -263,8 +275,9 @@ describe('diagonal movement', () => {
     const world = createSinglePlayerWorld('player-1', 0, 0)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(3)
+    expect(result.entities[0].x).toBe(0)
     expect(result.entities[0].y).toBe(3)
+    expect(horizontalVelocity(result.entities[0])).toBe(3)
   })
 })
 
@@ -285,9 +298,12 @@ describe('multiple players', () => {
     }) as unknown as World
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(1)
-    expect(result.entities[1].x).toBe(6)
-    expect(result.entities[2].x).toBe(11)
+    expect(result.entities[0].x).toBe(0)
+    expect(result.entities[1].x).toBe(5)
+    expect(result.entities[2].x).toBe(10)
+    expect(horizontalVelocity(result.entities[0])).toBe(1)
+    expect(horizontalVelocity(result.entities[1])).toBe(1)
+    expect(horizontalVelocity(result.entities[2])).toBe(1)
     expect(result.entities[0].y).toBe(0)
     expect(result.entities[1].y).toBe(5)
     expect(result.entities[2].y).toBe(10)
@@ -304,10 +320,12 @@ describe('multiple players', () => {
     }) as unknown as World
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(2)
+    expect(result.entities[0].x).toBe(0)
     expect(result.entities[0].y).toBe(2)
-    expect(result.entities[1].x).toBe(5)
+    expect(result.entities[1].x).toBe(3)
     expect(result.entities[1].y).toBe(5)
+    expect(horizontalVelocity(result.entities[0])).toBe(2)
+    expect(horizontalVelocity(result.entities[1])).toBe(2)
   })
 })
 
@@ -345,9 +363,11 @@ describe('non-player entities', () => {
     }) as unknown as World
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(1)  // player moved
+    expect(result.entities[0].x).toBe(0)  // VerticalMotionSystem integrates later
     expect(result.entities[1].x).toBe(10) // enemy unchanged
-    expect(result.entities[2].x).toBe(6)  // player moved
+    expect(result.entities[2].x).toBe(5)  // VerticalMotionSystem integrates later
+    expect(horizontalVelocity(result.entities[0])).toBe(1)
+    expect(horizontalVelocity(result.entities[2])).toBe(1)
   })
 
   it('preserves non-player entity positions and components', () => {
@@ -393,7 +413,8 @@ describe('speed override', () => {
     const world = createSinglePlayerWorld('player-1', 0, 0)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(5)
+    expect(result.entities[0].x).toBe(0)
+    expect(horizontalVelocity(result.entities[0])).toBe(5)
   })
 
   it('moves player by custom speed with fractional value', () => {
@@ -402,7 +423,8 @@ describe('speed override', () => {
     const world = createSinglePlayerWorld('player-1', 0, 0)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(0.5)
+    expect(result.entities[0].x).toBe(0)
+    expect(horizontalVelocity(result.entities[0])).toBe(0.5)
   })
 
   it('moves player by custom speed with negative keys', () => {
@@ -411,8 +433,9 @@ describe('speed override', () => {
     const world = createSinglePlayerWorld('player-1', 50, 50)
 
     const result = system.update(world)
-    expect(result.entities[0].x).toBe(40)
+    expect(result.entities[0].x).toBe(50)
     expect(result.entities[0].y).toBe(40)
+    expect(horizontalVelocity(result.entities[0])).toBe(-10)
   })
 })
 
@@ -441,6 +464,23 @@ describe('no key pressed', () => {
     // But positions must be identical
     expect(result.entities[0].x).toBe(world.entities[0].x)
     expect(result.entities[0].y).toBe(world.entities[0].y)
+  })
+
+  it('clears previous horizontal velocity when input is released', () => {
+    const provider = new MockInputProvider()
+    const system = new DefaultPlayerControllerSystem(provider)
+    const player = Object.freeze({
+      ...createPlayer('player-1', 10, 5),
+      components: Object.freeze([
+        createPositionComponent(10, 5),
+        createVelocityComponent(3, 0),
+      ]),
+    }) as unknown as Entity
+    const world = Object.freeze({ entities: Object.freeze([player]) }) as unknown as World
+
+    const result = system.update(world)
+    expect(result.entities[0].x).toBe(10)
+    expect(horizontalVelocity(result.entities[0])).toBe(0)
   })
 })
 
@@ -528,7 +568,8 @@ describe('updateWithResult', () => {
     expect(result.movedPlayers).toBe(1)
     expect(result.deltaX).toBe(1)
     expect(result.deltaY).toBe(0)
-    expect(resultWorld.entities[0].x).toBe(1)
+    expect(resultWorld.entities[0].x).toBe(0)
+    expect(horizontalVelocity(resultWorld.entities[0])).toBe(1)
   })
 
   it('returns movedPlayers=0 when no key is pressed', () => {

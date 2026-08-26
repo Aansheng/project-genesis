@@ -1,10 +1,10 @@
 # ADR-0279 — Runtime-Derived Player Presentation State Assets
 
-- Status: Accepted; Product Verification Pending
+- Status: Accepted; reopened for bounded production reachability repair; Product Verification Pending
 - Date: 2026-08-25
 - Sprint: Sprint 19
 - Work Order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
-- Architecture: v1.164 → v1.165
+- Architecture: v1.164 → v1.165; repaired in ADR-0280 at v1.166
 
 ## Context
 
@@ -46,9 +46,16 @@ this proof; they are not true multi-frame animation.
 
 ## Verification
 
-Automated tests and type/build checks pass. Real Studio verification observed
-separate Codex CLI requests and a generated/applied Player idle asset; the run
-and jump assets were published into the manifest but remained renderer-pending
-because the in-app browser keyboard bridge did not deliver subsequent Runtime
-input during the final verification attempt. Therefore the WO remains
-Product Verification Pending and no WO-S19-002 is generated.
+Automated tests and type/build checks pass. Human/CTO observation in the real
+Studio Game page confirmed that jumping changes the visible Player to the
+generated jump-state image, closing the Runtime-derived jump selection proof.
+The production reachability audit and bounded repair are recorded in ADR-0280:
+the active controller now writes horizontal `Velocity.x`, allowing the existing
+Runtime motion path to reach the adapter's run/facing branches through real
+input. Automated reachability tests pass. The remaining direct observations
+(idle, run, stop-to-idle, left-facing mirror, jump, land-while-moving,
+post-movement idle, gameplay continuity, and clean console) are not yet
+recorded. The unreliable in-app browser keyboard bridge is a verification-tool
+limitation, not a product defect, and is not a reason to change Runtime/Input.
+Therefore the WO remains Product Verification Pending and no WO-S19-002 is
+generated.

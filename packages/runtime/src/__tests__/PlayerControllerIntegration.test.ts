@@ -18,7 +18,7 @@
 
 import { describe, it, expect } from 'vitest'
 import type { World } from '@genesis/shared'
-import { createPositionComponent, isPositionComponent } from '@genesis/shared'
+import { createPositionComponent, isPositionComponent, isVelocityComponent } from '@genesis/shared'
 import { DefaultInputState } from '../input'
 import type { InputKey, InputProvider, InputState } from '../input'
 import { DefaultPlayerControllerSystem } from '../systems'
@@ -64,6 +64,10 @@ function createNonPlayer(id: string, type: string, x: number, y: number): Entity
   }) as unknown as Entity
 }
 
+function horizontalVelocity(entity: Entity): number | undefined {
+  return entity.components?.find(isVelocityComponent)?.properties.x
+}
+
 // ---------------------------------------------------------------------------
 
 describe('PlayerControllerIntegration', () => {
@@ -80,8 +84,9 @@ describe('PlayerControllerIntegration', () => {
       }) as unknown as World
 
       const result = system.update(world)
-      expect(result.entities[0].x).toBe(6)
+      expect(result.entities[0].x).toBe(5)
       expect(result.entities[0].y).toBe(5)
+      expect(horizontalVelocity(result.entities[0])).toBe(1)
     })
 
     it('pressing ArrowDown moves player down', () => {
@@ -103,7 +108,8 @@ describe('PlayerControllerIntegration', () => {
       }) as unknown as World
 
       const result = system.update(world)
-      expect(result.entities[0].x).toBe(4)
+      expect(result.entities[0].x).toBe(5)
+      expect(horizontalVelocity(result.entities[0])).toBe(-1)
     })
 
     it('pressing ArrowUp moves player up', () => {
@@ -131,8 +137,9 @@ describe('PlayerControllerIntegration', () => {
       }) as unknown as World
 
       const result = system.update(world)
-      expect(result.entities[0].x).toBe(1)
+      expect(result.entities[0].x).toBe(0)
       expect(result.entities[0].y).toBe(1)
+      expect(horizontalVelocity(result.entities[0])).toBe(1)
     })
 
     it('pressing ArrowUp and ArrowLeft moves player diagonally', () => {
@@ -143,8 +150,9 @@ describe('PlayerControllerIntegration', () => {
       }) as unknown as World
 
       const result = system.update(world)
-      expect(result.entities[0].x).toBe(7)
+      expect(result.entities[0].x).toBe(10)
       expect(result.entities[0].y).toBe(7)
+      expect(horizontalVelocity(result.entities[0])).toBe(-3)
     })
   })
 
@@ -182,8 +190,10 @@ describe('PlayerControllerIntegration', () => {
       }) as unknown as World
 
       const result = system.update(world)
-      expect(result.entities[0].x).toBe(1)
-      expect(result.entities[1].x).toBe(11)
+      expect(result.entities[0].x).toBe(0)
+      expect(result.entities[1].x).toBe(10)
+      expect(horizontalVelocity(result.entities[0])).toBe(1)
+      expect(horizontalVelocity(result.entities[1])).toBe(1)
     })
   })
 
@@ -204,9 +214,11 @@ describe('PlayerControllerIntegration', () => {
       }) as unknown as World
 
       const result = system.update(world)
-      expect(result.entities[0].x).toBe(1)
+      expect(result.entities[0].x).toBe(0)
       expect(result.entities[1].x).toBe(20)
-      expect(result.entities[2].x).toBe(6)
+      expect(result.entities[2].x).toBe(5)
+      expect(horizontalVelocity(result.entities[0])).toBe(1)
+      expect(horizontalVelocity(result.entities[2])).toBe(1)
     })
   })
 
@@ -226,13 +238,14 @@ describe('PlayerControllerIntegration', () => {
       const entity = result.entities[0]
 
       // Legacy x/y updated
-      expect(entity.x).toBe(3)
+      expect(entity.x).toBe(1)
       expect(entity.y).toBe(3)
 
       // PositionComponent updated
       const pos = entity.components?.find(isPositionComponent)
-      expect(pos?.properties.x).toBe(3)
+      expect(pos?.properties.x).toBe(1)
       expect(pos?.properties.y).toBe(3)
+      expect(horizontalVelocity(entity)).toBe(2)
     })
 
     it('preserves other components when updating PositionComponent', () => {
@@ -260,7 +273,8 @@ describe('PlayerControllerIntegration', () => {
 
       // PositionComponent updated
       const pos = components.find(isPositionComponent)
-      expect(pos?.properties.x).toBe(1)
+      expect(pos?.properties.x).toBe(0)
+      expect(horizontalVelocity(entity)).toBe(1)
 
       // Other components preserved
       const health = components.find((c) => c.type === 'health')

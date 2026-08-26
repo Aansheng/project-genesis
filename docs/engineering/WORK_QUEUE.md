@@ -8,10 +8,10 @@ updated: 2026-08-25
 current_sprint: Sprint 19
 current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
 current_work_order_status: IN_PROGRESS
-current_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
-current_control_plane_work_order_status: DONE
+current_control_plane_work_order: WO-S19-001_PRODUCTION_REACHABILITY_REPAIR
+current_control_plane_work_order_status: IN_PROGRESS
 last_completed_work_order: WO-S18-004
-next_work_order: NONE — WO-S19-001 Product Verification pending; do not generate WO-S19-002
+next_work_order: NONE — WO-S19-001 reachability repair awaiting real Studio Product Verification; do not generate WO-S19-002
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 1
 
@@ -1403,7 +1403,7 @@ status: IN_PROGRESS
 priority: P0
 dependencies: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS DONE
 architecture_before: v1.164
-architecture_after: v1.165
+architecture_after: v1.166
 mission: Prove one Player's idle, run, jump, and facing presentation from
   Runtime behavior without changing Runtime gameplay/collision authority.
 allowed_scope: Separate Player state images through the existing request/
@@ -1418,11 +1418,16 @@ acceptance: Standing Player is idle; horizontal motion visibly presents run;
   left/right facing is correct; airborne presents jump; land-while-moving
   returns run and stopping returns idle. The complete existing gameplay flow
   remains functional and browser diagnostics stay clean.
-product_verification: PENDING
+product_verification: NO
 human_decision_required: NO
 code_complete: YES
-verification_note: Real Studio issued separate Codex CLI idle/run/jump requests;
-  idle reached renderer applied and run/jump artifacts were published into the
-  manifest. Final run/jump renderer application is pending because the in-app
-  browser keyboard bridge stopped delivering Runtime input. No WO-S19-002 is
-  generated before this gate closes.
+verification_note: Reopened by Human/CTO for P0 production reachability repair.
+  The active controller previously mutated Position.x without producing
+  production Velocity.x, making Runtime-derived run/facing unreachable through
+  real input. The bounded repair writes Velocity.x, preserves existing
+  VerticalMotion integration and vertical/jump/collision authority, clears x on
+  release, and adds a real registered input → Runtime → adapter → Renderer
+  reachability regression. Automated gates pass; real Studio observations are
+  still pending. The unreliable in-app browser keyboard bridge is a tooling
+  limitation, not a product defect. No WO-S19-002 is generated before this gate
+  closes.

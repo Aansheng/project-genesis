@@ -3,8 +3,9 @@
  *
  * Accepts an InputProvider and optional movement speed at construction.
  * On each tick, reads the current keyboard state and computes a delta
- * vector. Iterates over all entities in the world; those with type 'player'
- * AND a PositionComponent have their position updated.
+ * vector. Horizontal input is written to the Player's VelocityComponent.x;
+ * the existing VerticalMotionSystem then integrates that velocity into the
+ * PositionComponent. Legacy direct vertical-arrow movement remains unchanged.
  *
  * Input mapping:
  *   ArrowLeft  → x -= speed
@@ -36,7 +37,12 @@
  */
 
 import type { World, Entity } from '@genesis/shared'
-import { createPositionComponent, isPositionComponent } from '@genesis/shared'
+import {
+  createPositionComponent,
+  createVelocityComponent,
+  isPositionComponent,
+  isVelocityComponent,
+} from '@genesis/shared'
 import type { InputKey, InputProvider } from '../input'
 import type { PlayerControllerSystem } from './PlayerControllerSystem'
 import type { PlayerControllerResult } from './PlayerControllerResult'
@@ -61,13 +67,14 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
    * Apply input-driven movement to all player entities.
    *
    * @param world — immutable input World
-   * @returns Frozen output World with player positions updated
+   * @returns Frozen output World with horizontal velocity and legacy vertical
+   * position updated
    */
   update(world: World): World {
-    const { movedPlayers } = this.applyInput(world)
-    return movedPlayers === 0
-      ? this.freezeCopy(world)
-      : this.buildUpdatedWorld(world)
+    const input = this.applyInput(world)
+    return input.requiresWorldUpdate
+      ? this.buildUpdatedWorld(world, input.deltaX, input.deltaY)
+      : this.freezeCopy(world)
   }
 
   /**
@@ -80,17 +87,17 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
     world: World
     result: PlayerControllerResult
   } {
-    const { deltaX, deltaY, movedPlayers } = this.applyInput(world)
-    const outputWorld = movedPlayers === 0
-      ? this.freezeCopy(world)
-      : this.buildUpdatedWorld(world)
+    const input = this.applyInput(world)
+    const outputWorld = input.requiresWorldUpdate
+      ? this.buildUpdatedWorld(world, input.deltaX, input.deltaY)
+      : this.freezeCopy(world)
 
     return Object.freeze({
       world: outputWorld,
       result: Object.freeze({
-        movedPlayers,
-        deltaX,
-        deltaY,
+        movedPlayers: input.movedPlayers,
+        deltaX: input.deltaX,
+        deltaY: input.deltaY,
       }),
     })
   }
@@ -107,24 +114,28 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
     movedPlayers: number
     deltaX: number
     deltaY: number
+    requiresWorldUpdate: boolean
   } {
     const inputState = this.inputProvider.getState()
     const deltaX = this.computeDeltaX(inputState)
     const deltaY = this.computeDeltaY(inputState)
 
-    if (deltaX === 0 && deltaY === 0) {
-      return { movedPlayers: 0, deltaX: 0, deltaY: 0 }
-    }
-
     let movedPlayers = 0
+    let requiresWorldUpdate = false
 
     for (const entity of world.entities) {
       if (entity.type === 'player' && this.hasPositionComponent(entity)) {
-        movedPlayers++
+        if (deltaX !== 0 || deltaY !== 0) {
+          movedPlayers++
+          requiresWorldUpdate = true
+        } else if (this.findVelocityComponent(entity)?.properties.x !== 0) {
+          // Released horizontal input must clear the previous motion truth.
+          requiresWorldUpdate = true
+        }
       }
     }
 
-    return { movedPlayers, deltaX, deltaY }
+    return { movedPlayers, deltaX, deltaY, requiresWorldUpdate }
   }
 
   /**
@@ -148,35 +159,44 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
   }
 
   /**
-   * Build a new frozen World with updated player entity positions.
+   * Build a new frozen World with horizontal velocity and legacy vertical
+   * position updated. Horizontal position is integrated by VerticalMotionSystem.
    */
-  private buildUpdatedWorld(world: World): World {
-    const inputState = this.inputProvider.getState()
-    const deltaX = this.computeDeltaX(inputState)
-    const deltaY = this.computeDeltaY(inputState)
+  private buildUpdatedWorld(world: World, deltaX: number, deltaY: number): World {
     const updatedEntities: Entity[] = []
 
     for (const entity of world.entities) {
       if (entity.type === 'player' && this.hasPositionComponent(entity)) {
         const oldComponent = this.findPositionComponent(entity)!
-        const newX = oldComponent.properties.x + deltaX
         const newY = oldComponent.properties.y + deltaY
-        const newPositionComponent = createPositionComponent(newX, newY)
+        const newPositionComponent = createPositionComponent(oldComponent.properties.x, newY)
+        const oldVelocity = this.findVelocityComponent(entity)
+        const newVelocityComponent = createVelocityComponent(
+          deltaX,
+          oldVelocity?.properties.y ?? 0,
+        )
 
         const updatedComponents = entity.components
           ? Object.freeze(
-              entity.components.map((c) =>
-                isPositionComponent(c) ? newPositionComponent : c,
-              ),
+              [
+                ...entity.components.map((component) =>
+                  isPositionComponent(component)
+                    ? newPositionComponent
+                    : isVelocityComponent(component)
+                      ? newVelocityComponent
+                      : component,
+                ),
+                ...(oldVelocity ? [] : [newVelocityComponent]),
+              ],
             )
-          : Object.freeze([newPositionComponent])
+          : Object.freeze([newPositionComponent, newVelocityComponent])
 
         updatedEntities.push(
           Object.freeze({
             id: entity.id,
             type: entity.type,
-            x: entity.x + deltaX,
-            y: entity.y + deltaY,
+            x: entity.x,
+            y: newY,
             components: updatedComponents,
           }) as unknown as Entity,
         )
@@ -227,5 +247,10 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
       }
     }
     return undefined
+  }
+
+  /** Find the current authoritative motion vector, when one exists. */
+  private findVelocityComponent(entity: Entity) {
+    return entity.components?.find(isVelocityComponent)
   }
 }

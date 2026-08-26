@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.165 (Runtime-derived Player presentation state asset wiring; Product Verification pending)
+architecture_version: v1.166 (WO-S19-001 production reachability repair; Product Verification pending)
 current_sprint: Sprint 19 (ACTIVE)
 current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
 current_work_order_status: in_progress
-current_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
-current_control_plane_work_order_status: done
+current_control_plane_work_order: WO-S19-001_PRODUCTION_REACHABILITY_REPAIR
+current_control_plane_work_order_status: in_progress
 last_completed_work_order: WO-S18-004 — Ground-Repeat Composition Across the Authoritative Ground Plane
 last_completed_product_work_order: WO-S18-004
 last_completed_control_plane_work_order: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS
-next_ready_work_order: none — WO-S19-001 Product Verification pending; do not generate WO-S19-002
-product_architecture_changed: yes — WO-S18-004 Renderer consumption repair v1.163 → v1.164 is Product Verified; WO-S19-001 bounded Player state asset wiring is implemented v1.164 → v1.165 with Product Verification pending
+next_ready_work_order: none — WO-S19-001 reachability repair awaiting real Studio Product Verification; do not generate WO-S19-002
+product_architecture_changed: yes — WO-S18-004 Renderer consumption repair v1.163 → v1.164 is Product Verified; WO-S19-001 bounded Player state asset wiring plus production reachability repair is implemented v1.164 → v1.166 with Product Verification pending
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is ACTIVE under SPRINT_CONTINUOUS
-product_verified: PENDING for WO-S19-001 — real Codex CLI idle/run/jump state requests observed; idle applied, run/jump renderer application still pending
+product_verified: NO for WO-S19-001 — reopened by Human/CTO for P0 production reachability repair; automated real-system chain now proves input → Runtime → adapter → Renderer reachability, but direct Studio observations remain pending
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -344,24 +344,27 @@ existing `ground-repeat-x` material as a camera-visible tile across the
 Runtime-authoritative ground plane. No scene contamination, Ground coverage
 gap, Runtime-geometry change, or Platform material reuse remains measured.
 
-WO-S19-001 is Code Complete at v1.165: Player `idle`, `run`, and `jump`
-requirements are independent generated visuals; `presentationState` and
-`renderUsage` survive request/context/manifest evolution; Runtime velocity is
-projected to Renderer state selection; state-specific entries are selected with
-backward-compatible fallback; and left-facing sprites are mirrored. Targeted
-and affected package regressions, TypeScript, ESLint, and the web build pass.
-Real Studio observed separate Codex CLI Player state requests and an applied
-idle asset. Run/jump artifacts were published but final state application
-remains pending because the in-app browser keyboard bridge stopped delivering
-Runtime input. Product Verification is pending; no next WO is generated.
+WO-S19-001 is reopened at v1.166 for a P0 production reachability repair.
+Audit found that the active `DefaultPlayerControllerSystem` mutated
+`Position.x` directly without producing non-zero production `Velocity.x`, so
+the Runtime-derived `run` and facing branches were unreachable through real
+input. The bounded repair makes horizontal input authoritative in
+`VelocityComponent.x`; existing `DefaultVerticalMotionSystem` integrates that
+velocity into Position, release clears it, vertical/jump/collision behavior is
+preserved, and a real registered input → Runtime → adapter → Renderer
+reachability regression covers idle, right/left run, stop, jump, airborne
+horizontal movement, landing, and facing. Automated gates pass. Product
+Verification remains pending until the real Studio sequence is observed.
 
 ## Next Recommended Verification
 
-Resume WO-S19-001 Product Verification in the existing Game session: deliver
-Runtime ArrowRight/ArrowLeft/Space input, observe Player run/jump selection,
-landing/stopping transitions, and confirm the three state-specific assets reach
-`renderer applied` with clean browser diagnostics. Do not generate WO-S19-002
-until this WO is Product Verified and a fresh Sprint 19 gap analysis is run.
+Complete the direct Human/CTO observations in the real Game session: stationary
+idle, right run, stop-to-idle, left run with correct mirror, jump, land while
+movement continues back to run, stop-after-movement idle, gameplay continuity,
+and clean browser diagnostics. Do not change Runtime/Input for the unreliable
+browser keyboard bridge. After Product Verification, run a fresh Sprint 19 gap
+analysis and select exactly one smallest measured next WO; do not enter Sprint
+20 automatically.
 
 ## Authority
 

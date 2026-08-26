@@ -22,6 +22,7 @@ import { DefaultRuntimeRendererAdapter } from '@genesis/renderer'
 import { DefaultRuntimeVisualizationLoop } from '@genesis/renderer'
 import type { PixiEntityRenderer, RenderWorldView } from '@genesis/renderer'
 import type { RenderWorld } from '@genesis/renderer'
+import { isVelocityComponent } from '@genesis/shared'
 
 class CaptureRenderer implements PixiEntityRenderer {
   worlds: RenderWorld[] = []
@@ -53,12 +54,22 @@ function createPlayableRuntime() {
     new DefaultRuntimeExecutionLoop(registry),
     new DefaultRuntimeRendererAdapter(), renderer, world, store, store,
   )
-  return { store, target, input, registry, loop }
+  return { store, target, input, registry, loop, renderer }
 }
 
 function playerPosition(store: DefaultRuntimeWorldStore) {
   const player = store.getWorld().entities.find((entity) => entity.type === 'player')!
   return player.components!.find((component) => component.type === 'position')!.properties as { x: number; y: number }
+}
+
+function playerVelocity(store: DefaultRuntimeWorldStore) {
+  const player = store.getWorld().entities.find((entity) => entity.type === 'player')!
+  return player.components!.find(isVelocityComponent)?.properties
+}
+
+function renderedPlayer(runtime: ReturnType<typeof createPlayableRuntime>) {
+  const world = runtime.renderer.worlds[runtime.renderer.worlds.length - 1]
+  return world.entities.find((entity) => entity.type === 'player')!
 }
 
 describe('WO-S10-010: playable platformer runtime wiring', () => {
@@ -90,6 +101,59 @@ describe('WO-S10-010: playable platformer runtime wiring', () => {
     runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }))
     for (let index = 0; index < 300; index++) runtime.loop.tick()
     expect(playerPosition(runtime.store).y).toBe(400)
+  })
+
+  it('proves the production Runtime-to-Renderer Player presentation chain is reachable', () => {
+    const runtime = createPlayableRuntime()
+    runtime.input.attach()
+    runtime.loop.start()
+
+    for (let index = 0; index < 100; index++) runtime.loop.tick()
+    expect(renderedPlayer(runtime).presentationState).toBe('idle')
+
+    const initialX = playerPosition(runtime.store).x
+    runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    runtime.loop.tick()
+    expect(playerPosition(runtime.store).x).toBe(initialX + 3)
+    expect(playerVelocity(runtime.store)?.x).toBe(3)
+    expect(renderedPlayer(runtime).presentationState).toBe('run')
+
+    runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }))
+    runtime.loop.tick()
+    expect(playerVelocity(runtime.store)?.x).toBe(0)
+    expect(renderedPlayer(runtime).presentationState).toBe('idle')
+
+    const beforeLeft = playerPosition(runtime.store).x
+    runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
+    runtime.loop.tick()
+    expect(playerPosition(runtime.store).x).toBe(beforeLeft - 3)
+    expect(playerVelocity(runtime.store)?.x).toBe(-3)
+    expect(renderedPlayer(runtime).presentationState).toBe('run')
+    expect(renderedPlayer(runtime).velocity?.x).toBe(-3)
+
+    runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }))
+    runtime.loop.tick()
+    expect(playerPosition(runtime.store).y).toBeLessThan(400)
+    expect(playerVelocity(runtime.store)?.x).toBe(-3)
+    expect(playerVelocity(runtime.store)?.y).toBeLessThan(0)
+    expect(renderedPlayer(runtime).presentationState).toBe('jump')
+
+    runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }))
+    for (
+      let index = 0;
+      index < 200 && (playerPosition(runtime.store).y < 400 || playerVelocity(runtime.store)?.y !== 0);
+      index++
+    ) {
+      runtime.loop.tick()
+    }
+    expect(playerPosition(runtime.store).y).toBe(400)
+    expect(playerVelocity(runtime.store)?.x).toBe(-3)
+    expect(renderedPlayer(runtime).presentationState).toBe('run')
+
+    runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }))
+    runtime.loop.tick()
+    expect(playerVelocity(runtime.store)?.x).toBe(0)
+    expect(renderedPlayer(runtime).presentationState).toBe('idle')
   })
 
   it('detaches input cleanly and preserves replacement-world gameplay', () => {

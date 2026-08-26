@@ -1,5 +1,21 @@
 # Changelog
 
+### Sprint 19 — WO-S19-001 Reopened for Production Reachability Repair
+
+- Human/CTO reopened WO-S19-001 as a P0 repair after source audit found that the
+  active `DefaultPlayerControllerSystem` mutated `Position.x` directly but did
+  not produce non-zero production `VelocityComponent.x`. Because the adapter
+  derives `run`/facing from Runtime velocity, those production presentation
+  branches were unreachable through real input. Code Complete is now YES at
+  v1.166, while Product Verified remains NO pending real Studio observation.
+- The bounded repair makes horizontal input write truthful `Velocity.x`; the
+  existing `DefaultVerticalMotionSystem` remains the Position integration
+  authority, release clears horizontal velocity, and vertical arrows, jump,
+  gravity, and ground collision remain compatible. A real registered
+  input → Runtime → adapter → Renderer regression covers the required state
+  reachability. No input bridge, animation framework, spritesheet, or
+  WO-S19-002 was added.
+
 ### Sprint 19 — WO-S19-001 Implementation / Product Verification Pending
 
 - Player `idle`, `run`, and `jump` requirements now retain distinct visual
@@ -12,9 +28,12 @@
   this is not true multi-frame animation.
 - Focused and full package regressions, TypeScript, ESLint, and the web build
   pass. Real Studio observed independent Codex CLI Player state requests and an
-  applied idle asset. Run/jump artifacts were published but final state-driven
-  application remains pending because the in-app browser keyboard bridge did
-  not deliver Runtime input. No WO-S19-002 is generated before verification.
+  applied idle asset. Human/CTO directly observed jumping switch the visible
+  Player to the generated jump-state image, confirming the jump selection
+  chain. Remaining direct acceptance observations are still pending. The
+  unreliable browser keyboard bridge is not a product defect and no Runtime or
+  Input infrastructure change is warranted. No WO-S19-002 is generated before
+  verification.
 
 ### Sprint 18 Freeze / Sprint 19 Authorization
 

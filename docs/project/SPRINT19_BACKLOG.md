@@ -35,7 +35,7 @@ the first proof must use separate state images rather than a spritesheet.
 
 ## WO-S19-001 — Runtime-Derived Player Presentation State Assets
 
-Status: **IN_PROGRESS — Code Complete; Product Verification Pending**
+Status: **IN_PROGRESS — reopened P0 reachability repair; Code Complete = YES; Product Verified = NO**
 
 Scope: one Player only; separate idle/run/jump image assets; Runtime velocity
 and grounded truth projected to Renderer; state selection and horizontal mirror
@@ -49,8 +49,13 @@ Implementation status: independent `idle`/`run`/`jump` generation identity and
 request prompts are wired; `presentationState` and `renderUsage` are preserved
 through context and manifest evolution; Runtime velocity derives the bounded
 state; Renderer selects state entries, preserves async upgrades after later
-render ticks, and mirrors left-facing sprites. Automated regression and web
-build gates pass. Real Studio has observed three separate Codex CLI Player
-requests and applied idle; run/jump artifacts are published but remain pending
-state-driven Renderer application because the in-app browser keyboard bridge
-did not deliver the final Runtime input. Do not generate WO-S19-002 yet.
+render ticks, and mirrors left-facing sprites. Human/CTO reopened this WO after
+the production audit found that `DefaultPlayerControllerSystem` mutated
+`Position.x` without producing non-zero production `Velocity.x`, making the
+Runtime-derived run/facing branches unreachable through real input. The bounded
+repair writes `Velocity.x`, preserves existing motion/jump/collision authority,
+clears x on release, and adds a real registered input → Runtime → adapter →
+Renderer reachability regression. Automated regression and web build gates
+pass. Real Studio Product Verification is still pending; the unreliable
+in-app browser keyboard bridge is not a product defect and must not trigger
+Runtime/Input changes. Do not generate WO-S19-002 yet.
