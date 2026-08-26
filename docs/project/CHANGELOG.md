@@ -1,6 +1,6 @@
 # Changelog
 
-### Sprint 21 — WO-S21-001 Free-form World Evolution Front-door Fallback (Code Complete; Product Verification Pending)
+### Sprint 21 — WO-S21-001 Free-form World Evolution Front-door Fallback (DONE)
 
 - Human/CTO authorization opened Sprint 21 from frozen Sprint 20 at v1.170.
   Repository audit located the measured failure before AI planning: the narrow
@@ -18,11 +18,19 @@
   distinct Runtime enemy additions, preserved Player, and one canonical visual
   requirement. Full Web suite (3543), focused AI/Shared/Runtime checks, Web
   typecheck, lint (existing warnings only), and production build pass.
-- Local real Studio generated an active seven-entity platformer. Its
-  `增加5个enemy` follow-up reached the World Evolution planner instead of
-  `Unknown command`, then truthfully failed because the local gateway did not
-  return a structured candidate; console was clean. Provider-connected visible
-  +5/session-continuity verification remains pending.
+- Real Studio Product Verification used the existing Codex CLI gateway. In
+  `world-1`, `增加5个enemy` changed Enemy count `1 → 6` and total Runtime
+  entities `7 → 12`; the semantically equivalent `再加五只怪` changed Enemy
+  count `6 → 11` and entities `12 → 17`. Both reported `Add Enemy ×5`,
+  Runtime synchronization, and completed visual synchronization.
+- Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, the active session,
+  and all original terrain/item entities remained. Compatible Enemy visuals
+  reused the existing canonical contract without five duplicate image jobs; the
+  rendered game remained active and the browser warning/error log was empty.
+- WO-S21-001 is DONE: Code Complete = YES; Product Verified = YES. Fresh Gap
+  Analysis records exactly one unimplemented next measurement,
+  `再加两个金币`, to test non-enemy semantic-target generality. No WO-S21-002
+  was created and Sprint 22 was not entered.
 
 ### Sprint 20 Freeze — WO-S20-001 Product Verification (2026-08-26)
 

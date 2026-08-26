@@ -6,18 +6,18 @@ not a database or task service.
 queue_version: 1
 updated: 2026-08-26
 current_sprint: Sprint 21
-current_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
-current_work_order_status: VERIFYING — Code Complete; provider-connected Studio verification pending
+current_work_order: NONE — WO-S21-001 is DONE; post-WO measurement recorded
+current_work_order_status: IDLE — awaiting Human/CTO direction; no next WO created
 current_control_plane_work_order: SPRINT21_DISCOVERY
 current_control_plane_work_order_status: DONE — Human/CTO authorization and source audit selected one bounded product repair
-last_completed_work_order: WO-S20-001 — Playable Platform Geometry
-next_work_order: NONE — one Sprint 21 work item is in progress
+last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
+next_work_order: NONE — explicit Human/CTO direction prohibits creating WO-S21-002
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
 ## WO-S21-001 — Free-form World Evolution Front-door Fallback
 
-status: VERIFYING — Code Complete = YES; Product Verified = PENDING
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0
 dependencies: Sprint 20 FROZEN; explicit Human/CTO Sprint 21 authorization
 architecture_before: v1.170
@@ -47,11 +47,23 @@ Evolution regressions; package checks, typecheck, lint, and Web build.
 verification: PASS — Web full suite (3543), focused AI/Shared/Runtime suites,
   Web typecheck, Web lint (existing warnings only), Web production build, and
   `git diff --check`.
-product_verification: PENDING — local real Studio generated and retained an
-  active seven-entity platformer; `增加5个enemy` entered the evolution planner
-  rather than returning `Unknown command`, but its configured/default gateway
-  could not produce a structured candidate. No browser console errors/warnings.
+product_verification: PASS — through the existing Codex CLI gateway, real Studio
+  retained `world-1` and added exactly five enemies for `增加5个enemy` (1 → 6),
+  then exactly five for `再加五只怪` (6 → 11). Player `(80,400)`, Health
+  `100/100`, XP `0`, Level `1`, original entities, active gameplay, canonical
+  Enemy visual reuse, and a clean browser warning/error log were preserved.
 human_decision_required: NO
+
+## SPRINT21_GAP_ANALYSIS_POST_WO-S21-001
+
+status: DONE — exactly one measured blocker recorded; no work order created
+measured_blocker: Free-form Enemy-add wording variation is verified, but
+non-enemy semantic-target generality is unmeasured.
+next_measurement: In an existing real Studio session, submit `再加两个金币` and
+require exactly two collectible additions with same-world/session continuity.
+failure_classification: FRONT_DOOR | PROVIDER | INTERPRETATION | VALIDATION |
+  MUTATION | RUNTIME_SYNC | VISUAL_RECONCILIATION
+next_work_order: NONE — explicit Human/CTO direction: do not create WO-S21-002.
 
 ## Queue rules
 
