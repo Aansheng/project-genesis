@@ -46,7 +46,8 @@ separate measured product question.
 
 ## Verification
 
-Automated Runtime and Web reachability tests must pass with real input and
-registered systems rather than injected velocity. Real Studio Product
-Verification remains required for visible idle/run/stop/facing/jump/landing,
-gameplay continuity, and clean browser diagnostics.
+Automated Runtime and Web reachability tests pass with real input and registered
+systems rather than injected velocity. Real Studio Product Verification passed
+on 2026-08-26 for visible idle/run/stop/facing/jump/landing, gameplay
+continuity, and clean browser diagnostics. Temporal multi-frame run animation
+remains a separate measured gap and is covered by WO-S19-002.

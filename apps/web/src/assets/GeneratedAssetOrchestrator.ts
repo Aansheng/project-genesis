@@ -31,6 +31,8 @@ export function createPendingImageGenerationOperation(
     operationId: `image-generation-client-${request.assetId}`,
     assetId: request.assetId,
     ...(request.entityId ? { entityId: request.entityId } : {}),
+    ...(request.presentationState ? { presentationState: request.presentationState } : {}),
+    ...(request.presentationFrame !== undefined ? { presentationFrame: request.presentationFrame } : {}),
     ...(request.visualArchetype ? { visualArchetype: request.visualArchetype } : {}),
     ...(request.renderUsage ? { renderUsage: request.renderUsage } : {}),
     mode: request.mode,

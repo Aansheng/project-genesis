@@ -39,6 +39,8 @@ export interface AssetRequirement {
   readonly visualArchetype?: string
   /** Optional bounded visual state; it is selected from Runtime truth only. */
   readonly presentationState?: AssetVisualState
+  /** Optional bounded frame index for the Player run presentation proof. */
+  readonly presentationFrame?: number
   /** How the current consumer should compose the generated visual. */
   readonly renderUsage?: AssetRenderUsage
   readonly requiredStates: readonly AssetVisualState[]

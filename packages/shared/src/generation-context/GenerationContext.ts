@@ -103,6 +103,7 @@ export interface ImageGenerationAssetContext {
   readonly visualRole?: string
   readonly visualArchetype?: string
   readonly presentationState?: AssetVisualState
+  readonly presentationFrame?: number
   readonly renderUsage?: AssetRenderUsage
   readonly requiredStates: readonly AssetVisualState[]
   readonly technicalProfile: AssetTechnicalProfile
@@ -349,6 +350,7 @@ export class DefaultImageGenerationContextBuilder implements ImageGenerationCont
       ...(requirement.visualRole ? { visualRole: requirement.visualRole } : {}),
       ...(requirement.visualArchetype ? { visualArchetype: requirement.visualArchetype } : {}),
       ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+      ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
       ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
       requiredStates: Object.freeze([...requirement.requiredStates]),
       technicalProfile: Object.freeze({ ...requirement.technicalProfile }),

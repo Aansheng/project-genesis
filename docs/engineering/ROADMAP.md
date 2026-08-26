@@ -55,7 +55,12 @@ architecture.
 - Sprint 19 direction decision: Human/CTO authorized Animated Entity
   Presentation. The first repository audit proved semantic visual-identity
   grouping already deduplicates equivalent entity generations, so no reuse
-  infrastructure is planned; the current bounded work is Player presentation.
+  infrastructure is planned. WO-S19-001 is Product Verified at v1.166 for
+  Runtime-derived idle/run/jump/facing state switching. Fresh real Studio
+  observation measured one static run pose sliding through the world, so the
+  only generated next item is WO-S19-002: two independent Player run frames
+  with Player-only Renderer tick alternation at v1.167. Product Verification
+  remains pending; Sprint 20 is not entered automatically.
 
 ## Current direction
 

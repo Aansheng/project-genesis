@@ -22,6 +22,7 @@ export interface AssetManifestEntry {
   readonly entityId?: string
   readonly renderUsage?: AssetRenderUsage
   readonly presentationState?: AssetVisualState
+  readonly presentationFrame?: number
   readonly status: AssetResolutionStatus
   readonly origin?: AssetOrigin
   readonly resource?: AssetResourceReference

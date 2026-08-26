@@ -49,6 +49,7 @@ export interface ImageGenerationRequest {
   readonly assetId: string
   readonly entityId?: string
   readonly presentationState?: AssetVisualState
+  readonly presentationFrame?: number
   readonly mode: ImageGenerationMode
   readonly prompt: string
   readonly subject?: string
@@ -119,6 +120,8 @@ export interface ImageGenerationOperation {
   readonly provider?: string
   readonly model?: string
   readonly entityId?: string
+  readonly presentationState?: AssetVisualState
+  readonly presentationFrame?: number
   readonly visualArchetype?: string
   readonly renderUsage?: AssetRenderUsage
   /** Asset IDs sharing this generated visual; the first remains canonical. */

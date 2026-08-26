@@ -92,6 +92,7 @@ function unresolvedEntry(requirement: AssetRequirement): AssetManifestEntry {
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
     ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+    ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
     status: 'unresolved' as const,
   })
 }
@@ -105,6 +106,7 @@ function generatedEntry(requirement: AssetRequirement, asset: TargetedGeneratedA
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
     ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+    ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
     status: 'resolved' as const,
     origin: 'generated' as const,
     resource: freeze({ uri: asset.resource.uri }),

@@ -32,6 +32,7 @@ function createEntry(
       ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
       ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
       ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+      ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
       status: 'unresolved' as const,
     })
   }
@@ -45,6 +46,7 @@ function createEntry(
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
     ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+    ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
     status,
     ...(input.origin ? { origin: input.origin } : {}),
     ...(input.resource ? { resource: freeze({ uri: input.resource.uri }) } : {}),

@@ -1,6 +1,7 @@
 # Visual Capability Matrix
 
-Architecture version: v1.149
+Architecture version: v1.167 (Sprint 19 active; WO-S19-001 Product Verified;
+WO-S19-002 Code Complete with temporal Product Verification pending)
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 
@@ -41,7 +42,7 @@ This matrix distinguishes semantic intent from asset and renderer realization.
 | Background asset rendering | YES | YES | YES | Viewport-covering Pixi environment layer with fallback |
 | Terrain asset rendering | YES | YES | YES | Existing terrain/platform bounds decorated by Pixi environment layer |
 | Tileset rendering | NO | NO | NO | NOT YET |
-| Animation | NO | NO | NO | NOT YET |
+| Animation | NO | YES — two bounded Player run-frame requirements | PENDING real distinct frame generation/application | Renderer tick alternation implemented for Player run frames; not Product Verified |
 | AI image generation | YES | YES | YES | YES for meaningful character/prop/environment assets; static-only technical markers |
 | Image generation domain | YES | NO | NO | NO |
 | Text-to-image request | YES | NO | NO | NO |
@@ -102,3 +103,11 @@ the existing request seam. It includes current semantic/visual/asset facts,
 stable canonical bindings, and bounded metadata-only continuity hints. Prompt
 assembly remains provider-neutral; reference bytes, resource URIs, similarity
 search, and durable persistence remain deferred.
+
+Sprint 19 Product Verification proved Runtime-derived Player `idle`, `run`,
+`jump`, horizontal mirroring, landing/stop continuity, and clean Studio
+diagnostics. Real observation also measured that `run` remains one static pose
+sliding through the world. WO-S19-002 adds exactly two independent Player run
+frame requirements and Renderer-local tick alternation through existing asset
+contracts; it does not claim a universal animation system or Product Verified
+temporal animation until two distinct generated frames are observed in Studio.

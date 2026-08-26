@@ -108,4 +108,8 @@ becomes stale.
   docs/adr/ADR-0274-runtime-gameplay-failure-and-respawn.md,
   docs/adr/ADR-0275-bounded-platformer-asset-render-usage.md, and
   docs/adr/ADR-0276-consume-bounded-platform-usage.md,
-  docs/adr/ADR-0277-semantic-platform-render-projection.md
+  docs/adr/ADR-0277-semantic-platform-render-projection.md,
+  docs/adr/ADR-0278-ground-repeat-composition.md,
+  docs/adr/ADR-0279-runtime-derived-player-presentation-state-assets.md,
+  docs/adr/ADR-0280-player-horizontal-motion-truth-reachability-repair.md,
+  docs/adr/ADR-0281-bounded-player-run-frame-presentation.md

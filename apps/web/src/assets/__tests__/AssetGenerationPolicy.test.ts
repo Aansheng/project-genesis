@@ -121,6 +121,25 @@ describe('AI asset generation policy', () => {
     expect(buildImageGenerationRequest(next, playerStates[2]).presentationState).toBe('jump')
   })
 
+  it('keeps Player run frames as separate generated visuals', () => {
+    const runFrames = [0, 1].map(presentationFrame => ({
+      ...specification.assets[0],
+      id: `entity-player-run-${presentationFrame}`,
+      presentationState: 'run' as const,
+      presentationFrame,
+      requiredStates: ['idle', 'run', 'jump'] as const,
+    }))
+    const next = { ...specification, assets: runFrames }
+
+    expect(groupAiGenerationRequirements(next)).toHaveLength(2)
+    const first = buildImageGenerationRequest(next, runFrames[0])
+    const second = buildImageGenerationRequest(next, runFrames[1])
+    expect(first.presentationFrame).toBe(0)
+    expect(second.presentationFrame).toBe(1)
+    expect(first.prompt).toContain('animation frame 1 of 2')
+    expect(second.prompt).toContain('animation frame 2 of 2')
+  })
+
   it('creates a new immutable manifest snapshot for a generated resource', () => {
     const current = { entries: specification.assets.map((asset) => ({ assetId: asset.id, kind: asset.kind, target: asset.target, entityId: asset.entityId, status: 'unresolved' as const })) }
     const result: Extract<ImageGenerationResult, { status: 'success' }> = {

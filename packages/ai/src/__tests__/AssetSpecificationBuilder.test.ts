@@ -44,6 +44,7 @@ describe('DefaultAssetSpecificationBuilder', () => {
       'entity-player-1-idle',
       'entity-player-1-run',
       'entity-player-1-jump',
+      'entity-player-1-run-frame-2',
       'entity-enemy-1-primary',
       'entity-enemy-2-primary',
       'entity-boss-1-primary',
@@ -53,8 +54,8 @@ describe('DefaultAssetSpecificationBuilder', () => {
       'background-main',
     ])
     expect(new Set(assets.map(asset => asset.id)).size).toBe(assets.length)
-    expect(assets.slice(0, 8).map(asset => asset.entityId)).toEqual([
-      'player-1', 'player-1', 'player-1', 'enemy-1', 'enemy-2', 'boss-1', 'checkpoint-1', 'goal-1',
+    expect(assets.slice(0, 9).map(asset => asset.entityId)).toEqual([
+      'player-1', 'player-1', 'player-1', 'player-1', 'enemy-1', 'enemy-2', 'boss-1', 'checkpoint-1', 'goal-1',
     ])
   })
 
@@ -63,24 +64,25 @@ describe('DefaultAssetSpecificationBuilder', () => {
 
     expect(assets[0]).toMatchObject({ kind: 'character', subject: 'player character', renderUsage: 'entity-sprite', requiredStates: ['idle', 'run', 'jump'] })
     expect(assets[0]).toMatchObject({ presentationState: 'idle' })
-    expect(assets[1]).toMatchObject({ presentationState: 'run' })
+    expect(assets[1]).toMatchObject({ presentationState: 'run', presentationFrame: 0 })
     expect(assets[2]).toMatchObject({ presentationState: 'jump' })
-    expect(assets[3]).toMatchObject({ kind: 'character', subject: 'enemy creature', renderUsage: 'entity-sprite', requiredStates: ['idle'] })
-    expect(assets[5]).toMatchObject({ kind: 'character', subject: 'boss character', renderUsage: 'entity-sprite', requiredStates: ['idle'] })
+    expect(assets[3]).toMatchObject({ presentationState: 'run', presentationFrame: 1 })
+    expect(assets[4]).toMatchObject({ kind: 'character', subject: 'enemy creature', renderUsage: 'entity-sprite', requiredStates: ['idle'] })
+    expect(assets[6]).toMatchObject({ kind: 'character', subject: 'boss character', renderUsage: 'entity-sprite', requiredStates: ['idle'] })
   })
 
   it('creates prop requirements for checkpoint and goal entities', () => {
     const assets = new DefaultAssetSpecificationBuilder().build(visualDesign()).assets
 
-    expect(assets[6]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'checkpoint marker', renderUsage: 'entity-sprite' })
-    expect(assets[7]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'goal marker', renderUsage: 'entity-sprite' })
+    expect(assets[7]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'checkpoint marker', renderUsage: 'entity-sprite' })
+    expect(assets[8]).toMatchObject({ kind: 'prop', target: 'entity', visualRole: 'goal marker', renderUsage: 'entity-sprite' })
   })
 
   it('creates terrain and background environment requirements', () => {
     const assets = new DefaultAssetSpecificationBuilder().build(visualDesign()).assets
 
-    expect(assets[8]).toMatchObject({ id: 'terrain-main', kind: 'terrain', target: 'environment', subject: 'ice platforms', visualRole: 'ground terrain', renderUsage: 'ground-repeat-x' })
-    expect(assets[9]).toMatchObject({ id: 'background-main', kind: 'background', target: 'environment', subject: 'snow mountains', visualRole: 'scene background', renderUsage: 'background-cover' })
+    expect(assets[9]).toMatchObject({ id: 'terrain-main', kind: 'terrain', target: 'environment', subject: 'ice platforms', visualRole: 'ground terrain', renderUsage: 'ground-repeat-x' })
+    expect(assets[10]).toMatchObject({ id: 'background-main', kind: 'background', target: 'environment', subject: 'snow mountains', visualRole: 'scene background', renderUsage: 'background-cover' })
   })
 
   it('deeply freezes the semantic output', () => {

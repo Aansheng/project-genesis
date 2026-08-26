@@ -36,6 +36,18 @@ describe('DefaultAssetManifestBuilder', () => {
     expect(entries[3].renderUsage).toBe('background-cover')
   })
 
+  it('preserves the bounded presentation frame in manifest entries', () => {
+    const runFrame = {
+      ...specification.assets[0],
+      id: 'entity-player-run-frame-2',
+      presentationState: 'run' as const,
+      presentationFrame: 1,
+    }
+    const manifest = new DefaultAssetManifestBuilder().build({ ...specification, assets: [runFrame] })
+
+    expect(manifest.entries[0]).toMatchObject({ presentationState: 'run', presentationFrame: 1 })
+  })
+
   it('supports partial static resolution with metadata and origin', () => {
     const manifest = new DefaultAssetManifestBuilder().build(specification, {
       'entity-player-primary': {

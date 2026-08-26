@@ -169,6 +169,7 @@ describe('VisualAssetEvolutionExecutor', () => {
 
     expect(next.entries.find(entry => entry.assetId === run.id)).toMatchObject({
       presentationState: 'run',
+      presentationFrame: 0,
       renderUsage: 'entity-sprite',
       status: 'resolved',
       resource: { uri: '/generated/player-run.png' },

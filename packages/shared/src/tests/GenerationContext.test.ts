@@ -141,6 +141,7 @@ describe('generation context builders', () => {
     const requirement = {
       ...character('entity-player-run', 'Player', 'Player', 'player'),
       presentationState: 'run' as const,
+      presentationFrame: 1,
       requiredStates: ['idle', 'run', 'jump'] as const,
     }
     const context = new DefaultImageGenerationContextBuilder().build({
@@ -164,6 +165,7 @@ describe('generation context builders', () => {
     })
 
     expect(context.asset.presentationState).toBe('run')
+    expect(context.asset.presentationFrame).toBe(1)
   })
 
   it('captures existing game-design request and capabilities without requiring a world', () => {

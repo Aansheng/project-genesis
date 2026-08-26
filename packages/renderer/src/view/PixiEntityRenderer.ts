@@ -32,7 +32,7 @@
  */
 
 import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
-import type { AssetManifest } from '@genesis/shared'
+import type { AssetManifest, AssetManifestEntry, AssetVisualState } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
 import type { RenderWorld } from '../model'
 import type { RenderEntity } from '../model'
@@ -53,6 +53,9 @@ const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
   shape: 'rectangle',
   anchor: 'top-left',
 })
+
+/** Bounded Player-only cadence for switching between separate run images. */
+const PLAYER_RUN_FRAME_TICKS = 8
 
 /**
  * Per-entity-type fill colors.
@@ -139,6 +142,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _onAssetApplication?: PixiEntityRendererOptions['onAssetApplication']
   private _entityViews: RenderEntityView[] = []
   private _renderGeneration = 0
+  private readonly _runFrameTicks = new Map<string, number>()
 
   constructor(
     container: Container,
@@ -172,10 +176,10 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       this._container.position.y = this._cameraAnchor.y - camera.y
     }
 
-    // Keep an already-visible generated Sprite for a changed binding until the
-    // replacement texture is ready. Primitive-only views still follow the
-    // existing clear-and-render path.
-    const preservedViews = this.detachPendingAssetViews()
+    // Keep an already-visible generated Sprite while a state/frame replacement
+    // texture is loading. Primitive-only views still follow the existing
+    // clear-and-render path.
+    const preservedViews = this.detachReusableAssetViews(world)
 
     // Clear previous render
     this.clear()
@@ -187,18 +191,22 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
       const preserved = preservedViews.get(entity.id)
       if (preserved?.sprite) {
+        const visual = this.resolveVisual(entity.type)
+        const presentationFrame = this.resolvePresentationFrame(entity)
+        const assetEntry = this.resolveAssetEntry(entity.id, entity.presentationState, presentationFrame)
         preserved.sprite.x = entity.position.x
         preserved.sprite.y = entity.position.y
         this._container.addChild(preserved.sprite)
         views.push(preserved)
-        this.tryUpgradeToSprite(entity.id, preserved, this.resolveVisual(entity.type), entity.position, entity.presentationState, entity.velocity)
+        this.tryUpgradeToSprite(entity.id, preserved, visual, entity.position, entity.velocity, assetEntry)
         continue
       }
 
       const gfx = this._createGraphics()
       const visual = this.resolveVisual(entity.type)
       const color = this.resolveColor(entity.type)
-      const assetEntry = this.resolveAssetEntry(entity.id, entity.presentationState)
+      const presentationFrame = this.resolvePresentationFrame(entity)
+      const assetEntry = this.resolveAssetEntry(entity.id, entity.presentationState, presentationFrame)
 
       gfx.beginFill(color)
 
@@ -225,7 +233,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         displayObject: gfx,
       }
       views.push(view)
-      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, entity.presentationState, entity.velocity)
+      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, entity.velocity, assetEntry)
     }
 
     this._entityViews = views
@@ -275,12 +283,16 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._assetManifest = manifest ?? null
   }
 
-  private detachPendingAssetViews(): Map<string, RenderEntityView> {
+  private detachReusableAssetViews(world: RenderWorld): Map<string, RenderEntityView> {
     const preserved = new Map<string, RenderEntityView>()
-    if (!this._pendingAssetReplacements.size) return preserved
+    const currentEntityIds = new Set(
+      world.entities
+        .filter(entity => entity.position && !this.isEnvironmentRendered(entity.type))
+        .map(entity => entity.id),
+    )
     const remaining: RenderEntityView[] = []
     for (const view of this._entityViews) {
-      if (view.assetId && this._pendingAssetReplacements.has(view.assetId) && view.sprite) {
+      if (currentEntityIds.has(view.id) && view.sprite) {
         this._container.removeChild(view.sprite)
         preserved.set(view.id, view)
       } else {
@@ -296,13 +308,17 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     view: RenderEntityView,
     visual: EntityVisualDefinition,
     position: NonNullable<RenderEntity['position']>,
-    presentationState?: import('@genesis/shared').AssetVisualState,
     velocity?: Readonly<{ x: number; y: number }>,
+    entry?: AssetManifestEntry,
   ): void {
     if (!this._assetManifest || !this._assetStore || !this._assetAdapter) return
 
-    const entry = this.resolveAssetEntry(entityId, presentationState)
     if (!entry) return
+
+    if (view.sprite && view.assetId === entry.assetId && !this._pendingAssetReplacements.has(entry.assetId)) {
+      this.syncSpriteTransform(view.sprite, position, velocity)
+      return
+    }
 
     const resource = this._assetStore.get(entry.assetId)
     const resolved = resource
@@ -316,7 +332,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       .then(texture => {
         if (!this._entityViews.includes(view)) return
         try {
-          this.upgrade(view, texture, visual, position, velocity)
+          this.upgrade(view, texture, visual, position, velocity, entry.assetId)
           this._pendingAssetReplacements.delete(entry.assetId)
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'applied' })
         } catch {
@@ -329,11 +345,28 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       })
   }
 
-  private resolveAssetEntry(entityId: string, presentationState?: import('@genesis/shared').AssetVisualState) {
+  private resolveAssetEntry(entityId: string, presentationState?: AssetVisualState, presentationFrame?: number): AssetManifestEntry | undefined {
     const entries = this._assetManifest?.entries.filter(item => item.entityId === entityId) ?? []
-    return entries.find(item => item.presentationState === presentationState)
+    return entries.find(item => item.presentationState === presentationState && item.presentationFrame === presentationFrame)
+      ?? entries.find(item => item.presentationState === presentationState && item.presentationFrame === undefined)
       ?? entries.find(item => !item.presentationState)
       ?? entries[0]
+  }
+
+  private resolvePresentationFrame(entity: RenderEntity): number | undefined {
+    if (entity.type !== 'player' || entity.presentationState !== 'run') {
+      this._runFrameTicks.delete(entity.id)
+      return undefined
+    }
+
+    const frames = (this._assetManifest?.entries ?? [])
+      .filter(entry => entry.entityId === entity.id && entry.presentationState === 'run' && entry.presentationFrame !== undefined)
+      .sort((left, right) => (left.presentationFrame ?? 0) - (right.presentationFrame ?? 0))
+    if (frames.length < 2) return undefined
+
+    const tick = this._runFrameTicks.get(entity.id) ?? 0
+    this._runFrameTicks.set(entity.id, tick + 1)
+    return frames[Math.floor(tick / PLAYER_RUN_FRAME_TICKS) % frames.length]?.presentationFrame
   }
 
   private upgrade(
@@ -342,6 +375,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     visual: EntityVisualDefinition,
     position: NonNullable<RenderEntity['position']>,
     velocity?: Readonly<{ x: number; y: number }>,
+    assetId?: string,
   ): void {
     const sprite = this._createSprite(texture)
     const anchor = getRenderAnchor(visual)
@@ -351,16 +385,24 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     const scale = Math.min(visual.width / nativeWidth, visual.height / nativeHeight)
     sprite.width = nativeWidth * scale
     sprite.height = nativeHeight * scale
-    if (velocity?.x && velocity.x < 0) sprite.scale.x *= -1
-    sprite.x = position.x
-    sprite.y = position.y
+    this.syncSpriteTransform(sprite, position, velocity)
 
     const previousDisplay = view.sprite ?? view.graphics
     this._container.removeChild(previousDisplay)
     if (view.sprite) view.sprite.destroy({ texture: false, baseTexture: false })
     else view.graphics.destroy()
     this._container.addChild(sprite)
-    Object.assign(view, { sprite, displayObject: sprite })
+    Object.assign(view, { ...(assetId ? { assetId } : {}), sprite, displayObject: sprite })
+  }
+
+  private syncSpriteTransform(
+    sprite: Sprite,
+    position: NonNullable<RenderEntity['position']>,
+    velocity?: Readonly<{ x: number; y: number }>,
+  ): void {
+    sprite.scale.x = Math.abs(sprite.scale.x) * (velocity?.x && velocity.x < 0 ? -1 : 1)
+    sprite.x = position.x
+    sprite.y = position.y
   }
 
   // ─── Private ────────────────────────────────────────────────────────

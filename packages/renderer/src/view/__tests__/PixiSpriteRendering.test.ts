@@ -154,6 +154,34 @@ describe('Pixi sprite rendering foundation', () => {
     expect(applications).toEqual([{ assetId: 'player-run', entityId: 'player', status: 'applied' }])
   })
 
+  it('cycles between separate Player run frame assets on render ticks', () => {
+    const runFramesManifest: AssetManifest = {
+      entries: [
+        {
+          assetId: 'player-run-frame-1', kind: 'character', target: 'entity', entityId: 'player',
+          presentationState: 'run', presentationFrame: 0, status: 'resolved', resource: { uri: '/player-run-1.png' },
+        },
+        {
+          assetId: 'player-run-frame-2', kind: 'character', target: 'entity', entityId: 'player',
+          presentationState: 'run', presentationFrame: 1, status: 'resolved', resource: { uri: '/player-run-2.png' },
+        },
+      ],
+    }
+    const renderer = new DefaultPixiEntityRenderer(container(), {
+      createGraphics: graphics,
+      assetManifest: runFramesManifest,
+    })
+    const runWorld: RenderWorld = {
+      entities: [{ id: 'player', type: 'player', position: { x: 10, y: 20 }, presentationState: 'run', velocity: { x: 3, y: 0 } }],
+    }
+
+    const assetIds = Array.from({ length: 17 }, () => renderer.render(runWorld).entities[0]?.assetId)
+
+    expect(new Set(assetIds)).toEqual(new Set(['player-run-frame-1', 'player-run-frame-2']))
+    expect(assetIds[0]).toBe('player-run-frame-1')
+    expect(assetIds[8]).toBe('player-run-frame-2')
+  })
+
   it('mirrors a generated Player sprite when Runtime velocity faces left', async () => {
     const leftWorld: RenderWorld = {
       entities: [{ id: 'player', type: 'player', position: { x: 10, y: 20 }, presentationState: 'run', velocity: { x: -3, y: 0 } }],

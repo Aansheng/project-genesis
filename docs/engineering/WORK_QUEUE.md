@@ -4,14 +4,14 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-25
+updated: 2026-08-26
 current_sprint: Sprint 19
-current_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
+current_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
 current_work_order_status: IN_PROGRESS
-current_control_plane_work_order: WO-S19-001_PRODUCTION_REACHABILITY_REPAIR
-current_control_plane_work_order_status: IN_PROGRESS
-last_completed_work_order: WO-S18-004
-next_work_order: NONE — WO-S19-001 reachability repair awaiting real Studio Product Verification; do not generate WO-S19-002
+current_control_plane_work_order: NONE
+current_control_plane_work_order_status: DONE — WO-S19-001 Product Verification and fresh Gap Analysis recorded
+last_completed_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
+next_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 1
 
@@ -1399,7 +1399,7 @@ human_decision_required: NO
 
 ## WO-S19-001 — Runtime-Derived Player Presentation State Assets
 
-status: IN_PROGRESS
+status: DONE
 priority: P0
 dependencies: SPRINT19_ASSET_REUSE_AUDIT_AND_PLAYER_GAP_ANALYSIS DONE
 architecture_before: v1.164
@@ -1418,7 +1418,11 @@ acceptance: Standing Player is idle; horizontal motion visibly presents run;
   left/right facing is correct; airborne presents jump; land-while-moving
   returns run and stopping returns idle. The complete existing gameplay flow
   remains functional and browser diagnostics stay clean.
-product_verification: NO
+product_verification: YES — real Studio manual verification completed on
+2026-08-26. Stationary→idle, move-right→run, stop→idle, move-left→run with
+correct horizontal mirroring, jump→jump, land-while-moving→run,
+stop-after-landing→idle, gameplay continuity, and clean browser console all
+passed. The same observation measured the remaining static run-pose blocker.
 human_decision_required: NO
 code_complete: YES
 verification_note: Reopened by Human/CTO for P0 production reachability repair.
@@ -1427,7 +1431,86 @@ verification_note: Reopened by Human/CTO for P0 production reachability repair.
   real input. The bounded repair writes Velocity.x, preserves existing
   VerticalMotion integration and vertical/jump/collision authority, clears x on
   release, and adds a real registered input → Runtime → adapter → Renderer
-  reachability regression. Automated gates pass; real Studio observations are
-  still pending. The unreliable in-app browser keyboard bridge is a tooling
-  limitation, not a product defect. No WO-S19-002 is generated before this gate
-  closes.
+  reachability regression. Automated gates and the required real Studio
+  observations pass. The browser keyboard bridge limitation was not treated as
+  a product defect. Fresh Gap Analysis measured true temporal run animation as
+  the next smallest Sprint 19 blocker.
+
+## SPRINT19_GAP_ANALYSIS_POST_WO-S19-001
+
+status: DONE
+priority: P0
+dependencies: WO-S19-001 DONE; direct real Studio observation recorded
+mission: Re-evaluate the actual Sprint 19 Player experience after the repaired
+state-selection path was Product Verified and generate exactly one bounded next
+WO.
+measured_result: Verified capabilities are Runtime-derived idle/run/jump state
+switching, horizontal facing/mirroring, real input reachability,
+landing/stop continuity, gameplay continuity, and clean browser diagnostics.
+The real Studio run still shows one static run pose sliding through the world.
+This is a measured PRODUCT_GAP plus a bounded asset/Renderer ARCHITECTURE_GAP;
+it directly blocks the Sprint 19 temporal presentation objective.
+selection: Add two independent Player run-frame assets and Player-only
+Renderer-local tick alternation through the existing asset/manifest/render-loop
+contracts. Do not assume spritesheets, AnimationManager, universal state
+machines, or skeletal animation.
+selected_work_order: WO-S19-002
+product_verification: NOT_APPLICABLE — discovery only.
+human_decision_required: NO — existing authority boundaries and provider-neutral
+asset contracts determine the smallest slice.
+
+problem_register: Player can currently pass through generated Platform geometry.
+This remains a separately measured product defect and is not included in
+Sprint 19 unless the current Sprint product goal requires it.
+
+## WO-S19-002 — Bounded Player Run-Frame Presentation
+
+status: IN_PROGRESS
+priority: P0
+state_transition: GENERATED_AFTER_WO-S19-001_PRODUCT_VERIFICATION → READY → IN_PROGRESS → VERIFYING
+dependencies: WO-S19-001 DONE; SPRINT19_GAP_ANALYSIS_POST_WO-S19-001 DONE
+architecture_before: v1.166
+architecture_expected_after: v1.167
+architecture_after: v1.167 — bounded Player presentationFrame contract and
+  Player-only Renderer tick selection
+mission: Close the measured static-run-pose blocker with the smallest real
+temporal movement proof while keeping Runtime state and geometry authority
+unchanged.
+measured_bottleneck: `idle`/`run`/`jump` state selection is Product Verified,
+but sustained horizontal movement still shows one static run pose. Existing
+separate state assets, manifest selection, and render tick are present; frame
+identity and frame selection are the smallest missing capabilities.
+allowed_scope: Shared optional presentationFrame metadata; exactly two
+independent Player run-frame requirements; distinct generation identity and
+prompt/context/request/operation propagation; targeted manifest binding;
+Player-only Renderer tick alternation with async replacement and primitive
+fallback; focused Shared/AI/Renderer/Web tests and Studio verification.
+forbidden_scope: AnimationManager/Engine, universal state machines, BlendTree,
+spritesheets/atlases, skeletal animation, interpolation, attack/death/hurt
+states, all-entity rollout, Runtime gameplay/collision changes, image-derived
+gameplay, durable generated assets, generic cache, Platform collision repair,
+or Sprint 20 entry.
+implementation_boundaries: Shared owns provider-neutral frame metadata; AI/Web
+owns the two Player run requirements, distinct grouping, prompt/context
+propagation, and manifest preservation; Renderer owns only Player run-frame
+selection. Runtime remains the authority for state, velocity, facing, motion,
+and geometry.
+acceptance: Two distinct Player run-frame assets complete through provider →
+manifest → AssetStore → Pixi; authoritative horizontal movement visibly
+alternates those assets; idle/jump/facing/landing/stop/gameplay continuity,
+legacy one-frame manifests, and clean browser diagnostics remain intact.
+automated_tests: Shared frame contract/manifest/context; AI builder and
+generation identity; Web request/prompt/executor propagation; Renderer tick
+selection, async replacement, fallback, facing, and legacy manifest behavior;
+affected package tests, TypeScript, ESLint, Web build, and regression suites.
+product_verification: REQUIRED — real Studio must show two distinct generated
+run frames visibly alternating during movement, with continuity and clean
+browser console. Pending; no visual evidence is fabricated.
+observability_expectations: Each run frame keeps its own truthful generation
+operation and manifest asset ID; preserve the existing succeeded → published →
+manifest updated → resolved → Renderer applied lifecycle and fallback status.
+completion_report_requirements: architecture v1.166 → v1.167; files created /
+modified; real flow; tests; TypeScript; ESLint; constraints; remaining gaps;
+manual verification steps; Code Complete; Product Verified.
+human_decision_required: NO — no authority, provider, dependency, or
+Sprint-direction fork is introduced.

@@ -1,6 +1,8 @@
 # Gameplay Capability Matrix — Sprint 18 Frozen / Sprint 19 Active
 
-Architecture version: v1.164 (Sprint 18 FROZEN; visual composition Product Verified; Sprint 19 Player presentation discovery active)
+Architecture version: v1.167 (Sprint 18 FROZEN; WO-S19-001 Player state
+presentation Product Verified; WO-S19-002 temporal run-frame Product
+Verification pending)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

@@ -30,6 +30,7 @@ export function visualGenerationIdentity(specification: AssetSpecification, requ
     archetype: requirement.visualArchetype ?? requirement.subject ?? requirement.visualRole,
     subject: requirement.subject,
     presentationState: requirement.presentationState ?? null,
+    presentationFrame: requirement.presentationFrame ?? null,
     context: specification.visualContext,
   })
 }
@@ -74,12 +75,14 @@ export function buildImageGenerationRequest(
     requirement.subject,
     requirement.visualRole,
     requirement.presentationState ? `${requirement.presentationState} presentation pose` : undefined,
+    requirement.presentationFrame !== undefined ? `animation frame ${requirement.presentationFrame + 1} of 2` : undefined,
     renderUsagePrompt(requirement),
   ].filter(Boolean).join('; ')
   return Object.freeze({
     assetId: requirement.id,
     ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
     ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+    ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
     mode: 'text-to-image',
     prompt,
     subject: requirement.subject,
@@ -116,6 +119,7 @@ function buildContextualImagePrompt(
     context.asset.visualRole ? `role: ${context.asset.visualRole}` : undefined,
     context.asset.visualArchetype ? `archetype: ${context.asset.visualArchetype}` : undefined,
     context.asset.presentationState ? `presentation state: ${context.asset.presentationState}` : undefined,
+    context.asset.presentationFrame !== undefined ? `animation frame: ${context.asset.presentationFrame + 1} of 2` : undefined,
     `kind: ${context.asset.kind}`,
     context.visual.environment ? `environment: ${context.visual.environment.background}; ${context.visual.environment.atmosphere}` : undefined,
     references ? `metadata-only visual neighbors: ${references}` : undefined,

@@ -1,13 +1,36 @@
 # Changelog
 
-### Sprint 19 — WO-S19-001 Reopened for Production Reachability Repair
+### Sprint 19 — WO-S19-001 Product Verification and WO-S19-002 Bounded Run Frames
+
+- Real Studio manual verification completed on 2026-08-26 for WO-S19-001.
+  Stationary→idle, right movement→run, stop→idle, left movement→run with
+  correct horizontal mirroring, jump→jump, land-while-moving→run,
+  stop-after-landing→idle, gameplay continuity, and clean browser console all
+  passed. WO-S19-001 is DONE: Code Complete = YES; Product Verified = YES.
+- Fresh Sprint 19 Gap Analysis measured the actual remaining Player blocker:
+  `run` is still one static pose sliding through the world. The separately
+  measured defect that Player can pass through generated Platform geometry is
+  preserved in the Problem Register and is not silently added to Sprint 19.
+- Generated exactly one next bounded WO, `WO-S19-002 — Bounded Player Run-Frame
+  Presentation`, and executed it automatically. v1.167 carries two independent
+  Player run-frame requirements through Shared/AI/Web request, context, and
+  manifest contracts, differentiates their generation identity/prompts, and
+  alternates them in the existing Player Renderer path at render ticks. No
+  AnimationManager, universal state machine, spritesheet, skeletal animation,
+  Runtime gameplay/collision change, or Sprint 20 entry was introduced.
+- WO-S19-002 is Code Complete = YES; Product Verified = PENDING until a real
+  Studio run observes two distinct generated run frames visibly alternating
+  during movement with continuity and clean diagnostics.
+
+### Sprint 19 — WO-S19-001 Reopened for Production Reachability Repair (Historical)
 
 - Human/CTO reopened WO-S19-001 as a P0 repair after source audit found that the
   active `DefaultPlayerControllerSystem` mutated `Position.x` directly but did
   not produce non-zero production `VelocityComponent.x`. Because the adapter
   derives `run`/facing from Runtime velocity, those production presentation
-  branches were unreachable through real input. Code Complete is now YES at
-  v1.166, while Product Verified remains NO pending real Studio observation.
+  branches were unreachable through real input. Code Complete was YES at
+  v1.166, while Product Verification was pending at that point in the history;
+  the current verified status is recorded in the entry above.
 - The bounded repair makes horizontal input write truthful `Velocity.x`; the
   existing `DefaultVerticalMotionSystem` remains the Position integration
   authority, release clears horizontal velocity, and vertical arrows, jump,
@@ -16,7 +39,7 @@
   reachability. No input bridge, animation framework, spritesheet, or
   WO-S19-002 was added.
 
-### Sprint 19 — WO-S19-001 Implementation / Product Verification Pending
+### Sprint 19 — WO-S19-001 Implementation / Product Verification Pending (Historical)
 
 - Player `idle`, `run`, and `jump` requirements now retain distinct visual
   identities through image-generation requests, generation context, targeted

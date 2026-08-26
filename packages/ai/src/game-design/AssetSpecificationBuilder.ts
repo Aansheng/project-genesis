@@ -7,6 +7,8 @@ import type {
   VisualDesignSpecification,
 } from '@genesis/shared'
 
+const PLAYER_RUN_FRAME_COUNT = 2
+
 export interface AssetSpecificationBuilder {
   build(specification: VisualDesignSpecification): AssetSpecification
 }
@@ -76,7 +78,19 @@ export class DefaultAssetSpecificationBuilder implements AssetSpecificationBuild
     const entityAssets = specification.entities.flatMap(entity => {
       const primary = createEntityRequirement(entity, usedIds)
       return entity.category === 'player'
-        ? primary.requiredStates.map(state => freeze({ ...primary, id: createUniqueId(`entity-${entity.entityId}-${state}`, usedIds), presentationState: state }))
+        ? primary.requiredStates.map(state => freeze({
+          ...primary,
+          id: createUniqueId(`entity-${entity.entityId}-${state}`, usedIds),
+          presentationState: state,
+          ...(state === 'run' ? { presentationFrame: 0 } : {}),
+        })).concat(
+          Array.from({ length: PLAYER_RUN_FRAME_COUNT - 1 }, (_, index) => index + 1).map(frame => freeze({
+            ...primary,
+            id: createUniqueId(`entity-${entity.entityId}-run-frame-${frame + 1}`, usedIds),
+            presentationState: 'run' as const,
+            presentationFrame: frame,
+          })),
+        )
         : [primary]
     })
     const terrain = freeze<AssetRequirement>({
