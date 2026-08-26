@@ -5,13 +5,13 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-26
-current_sprint: Sprint 21
-current_work_order: NONE — WO-S21-001 is DONE; no next product WO created
-current_work_order_status: IDLE — SPRINT21_FREEZE_REVIEW pending
-current_control_plane_work_order: SPRINT21_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — Sprint thesis evidence is sufficient; awaiting review
+current_sprint: Sprint 22
+current_work_order: NONE — no Sprint 22 product WO created
+current_work_order_status: IDLE — measured current SPA behavior has no continuity defect
+current_control_plane_work_order: SPRINT22_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — bounded continuity evidence is sufficient; awaiting review
 last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
-next_work_order: NONE — no product WO; SPRINT21_FREEZE_REVIEW is the selected control-plane item
+next_work_order: NONE — no product WO; SPRINT22_FREEZE_REVIEW is the selected control-plane item
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -72,13 +72,37 @@ next_work_order: NONE — no product WO; SPRINT21_FREEZE_REVIEW selected.
 
 ## SPRINT21_FREEZE_REVIEW
 
-status: READY — evidence review only; no product implementation authorized
+status: DONE — Human/CTO froze Sprint 21 at v1.171
 inputs: WO-S21-001 DONE and real Studio measurements for Enemy ADD paraphrases,
   Coin ADD, and Enemy REMOVE, all using deterministic-miss fallback where
   required with same-session Runtime/Renderer continuity.
-decision: Confirm whether Sprint 21 freezes at v1.171. Do not add REPLACE,
-  property mutation, a conversational framework, phrase mappings, or Sprint 22
-  work as a side effect.
+decision: FROZEN — Code Complete = YES; Product Verified = YES. No REPLACE,
+  property mutation, conversational framework, phrase mappings, or semantic
+  ontology was added.
+
+## SPRINT22_DISCOVERY
+
+status: DONE — real SPA product measurement found no current continuity blocker
+mission: Audit the exact Studio ↔ Full Observatory lifecycle and measure whether
+  a current game/session survives navigation without durable persistence.
+measured_result: `useGameStore` retains `Runtime` and `RuntimeWorldStore` at
+  Pinia application scope while `GameViewportPanel` only releases Pixi/input
+  presentation resources. In real Studio, `world-1` changed `7 → 12` through
+  `增加5个enemy`; Full Observatory showed Runtime entities `12`; return retained
+  the same world, Player `(80,400)`, Health `100/100`, and 12 entities; then
+  `再加两个金币` succeeded, reaching 14 entities. Browser warnings/errors were
+  empty.
+conclusion: The historical navigation-loss report is not reproducible on the
+  current SPA route. Do not add a SessionManager, persistence, reload handler,
+  router rewrite, or product WO.
+next_work_order: NONE — SPRINT22_FREEZE_REVIEW selected.
+
+## SPRINT22_FREEZE_REVIEW
+
+status: READY — no product implementation authorized
+decision: Review whether the bounded Studio Session Continuity thesis freezes
+  at v1.171. Durable refresh/close persistence, session management, and other
+  Problem Register items remain separate.
 
 ## Queue rules
 

@@ -5,6 +5,14 @@ architecture.
 
 ## Completed foundations
 
+- Sprint 21 Freeze Review: Human/CTO froze Free-form Conversational World
+  Evolution at v1.171. The bounded thesis is verified through free-form Enemy
+  ADD paraphrases, Coin ADD, and Enemy REMOVE without phrase-specific routing.
+- Sprint 22 direction decision: Human/CTO authorized Studio Session Continuity
+  measurement. Source audit and real Studio SPA navigation preserved the same
+  application-scoped Runtime/session; no implementation WO was generated and
+  `SPRINT22_FREEZE_REVIEW` is ready. Durable persistence remains out of scope.
+
 - Sprints 6–10: Observatory, DSL, Runtime, Renderer, and AI generation
   foundations.
 - Sprint 11: Genesis Studio baseline.

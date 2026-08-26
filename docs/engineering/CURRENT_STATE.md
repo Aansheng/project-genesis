@@ -4,17 +4,17 @@ This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
 architecture_version: v1.171 (Sprint 20 remains frozen; with a current semantic world, deterministic command-routing misses reach the existing validated structured World Evolution planner)
-current_sprint: Sprint 21 (FREEZE REVIEW PENDING — WO-S21-001 DONE)
-current_work_order: NONE — no next product WO created
-current_work_order_status: idle — Code Complete YES; Product Verified YES
-current_control_plane_work_order: SPRINT21_FREEZE_REVIEW
+current_sprint: Sprint 22 (DISCOVERY COMPLETE — FREEZE REVIEW READY)
+current_work_order: NONE — no Sprint 22 product WO created
+current_work_order_status: idle — current source and real SPA product behavior satisfy the bounded continuity goal
+current_control_plane_work_order: SPRINT22_FREEZE_REVIEW
 current_control_plane_work_order_status: ready — evidence review only; no product implementation authorized
 last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
 last_completed_product_work_order: WO-S21-001
-last_completed_control_plane_work_order: SPRINT20_FREEZE_REVIEW
-next_ready_work_order: SPRINT21_FREEZE_REVIEW — no product WO or Sprint 22 work
+last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
+next_ready_work_order: SPRINT22_FREEZE_REVIEW — no product WO generated
 product_architecture_changed: yes — WO-S21-001 v1.170 → v1.171 preserves deterministic routing but sends unknown follow-up text in an existing world to the existing AI candidate → Genesis validation → targeted World Evolution path rather than the create-only Unknown-command terminal path
-sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167 after the 2026-08-26 Freeze Review
+sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167; Sprint 20 is FROZEN at v1.170; Sprint 21 is FROZEN at v1.171
 product_verified: YES for WO-S20-001 and WO-S21-001 — real Studio through the existing Codex CLI gateway added five enemies for `增加5个enemy` and another five for `再加五只怪`, retaining world/session, Player, Health, XP/Level, original entities, active gameplay, visual synchronization, and a clean browser console
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
@@ -22,11 +22,34 @@ prior_product_verification: YES for WO-S18-004 — exact semantic Platform
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
-  automatic cross-Sprint execution disabled; Sprint 21 boundary stop enabled
+  automatic cross-Sprint execution disabled; Sprint 22 boundary stop enabled
 
 ## Current Sprint goal
 
-Sprint 21 — Free-form Conversational World Evolution (ACTIVE):
+Sprint 22 — Studio Session Continuity (FREEZE REVIEW READY):
+
+1. Studio and Full Observatory are SPA views over the same application-scoped
+   Runtime world authority; leaving the Pixi viewport may release presentation
+   resources but must not reset the current Runtime/session.
+2. A generated and evolved world can enter Full Observatory, return to Studio,
+   and accept another validated targeted World Evolution request without a
+   world/session, Player, Health, XP/Level, or entity reset.
+
+Source audit finds that `App.vue` keeps the Pinia application mounted across
+Vue Router navigation; `useGameStore` owns its `Runtime` and
+`DefaultRuntimeWorldStore` at that application scope. `GameViewportPanel`
+only destroys/recreates Pixi/input/visualization resources on view unmount;
+it never resets the store. `ObservatorySpaRuntimeSession.test.ts` exercises
+the same route transition. Real Studio verification reproduced the intended
+path: `world-1` began at seven entities, `增加5个enemy` made it 12, Full
+Observatory reported 12 Runtime entities, returning to Studio retained
+`world-1`, 12 entities, Player `(80,400)`, and Health `100/100`, and the
+post-return `再加两个金币` made it 14. Browser warning/error logs were empty.
+The previously recorded navigation-loss issue is not reproducible in the
+current SPA product; no persistence or session-management implementation is
+needed. `SPRINT22_FREEZE_REVIEW` is selected rather than a product WO.
+
+Sprint 21 — Free-form Conversational World Evolution (FROZEN):
 
 1. A free-form follow-up outside the narrow deterministic vocabulary reaches
    semantic AI interpretation rather than `Unknown command` when a current
@@ -62,8 +85,8 @@ Sprint 20 — Playable Platform Geometry (FROZEN):
    Sprint 18/19 visual/presentation behavior.
 3. Prove real Studio landing, standing, edge fall, and gameplay continuity.
 
-Sprint 18, Sprint 19, and Sprint 20 remain frozen. Sprint 21 may not start
-without explicit Human/CTO authorization.
+Sprint 18, Sprint 19, Sprint 20, and Sprint 21 remain frozen. Sprint 22 was
+explicitly authorized and has completed its bounded discovery measurement.
 
 ## Problem Register
 
@@ -76,8 +99,10 @@ product-level prioritization:
 - A follow-up such as `增加5个enemy` can return `Unknown command`, indicating
   that the front-door intent layer rejects valid free-form World Evolution
   requests outside deterministic mappings.
-- Studio runtime state can be lost when switching to Full Observatory due to
-  page reload/navigation lifecycle.
+- Full Observatory runtime-state loss is not reproducible in the current SPA
+  path: RouterLinks preserve the application-scoped store and real Studio
+  navigation retained the active Runtime/session. Closed for the bounded
+  Sprint 22 continuity question; durable refresh/close persistence is not in scope.
 - Failed image generation lacks a targeted user retry flow.
 - Image generation UI does not expose the actual final prompt submitted to the
   image agent/provider.

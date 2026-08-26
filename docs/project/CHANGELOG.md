@@ -1,5 +1,32 @@
 # Changelog
 
+### Sprint 22 — Studio Session Continuity Measurement (No Product WO)
+
+- Human/CTO authorized a bounded audit of the historical Studio → Full
+  Observatory session-loss report. Source wiring shows that Vue Router swaps
+  views under one application-scoped Pinia store: `useGameStore` retains the
+  Runtime/RuntimeWorldStore while `GameViewportPanel` destroys only Pixi/input
+  presentation resources on unmount.
+- Real Studio measurement did not reproduce a continuity failure. `world-1`
+  began with seven entities; `增加5个enemy` made it 12; Full Observatory showed
+  12 Runtime entities; return retained the same world, Player `(80,400)`, and
+  Health `100/100`; post-return `再加两个金币` succeeded and made it 14.
+  Browser warning/error logs were empty.
+- No SessionManager, persistence layer, router rewrite, reset handler, or
+  product implementation WO was created. `SPRINT22_FREEZE_REVIEW` is selected;
+  refresh/close durability remains explicitly unmeasured and out of scope.
+
+### Sprint 21 Freeze (v1.171)
+
+- Human/CTO froze Free-form Conversational World Evolution: Code Complete =
+  YES; Product Verified = YES. Evidence covers free-form Enemy ADD phrasing,
+  non-Enemy Coin ADD, and Enemy REMOVE with validated targeted mutation,
+  Runtime/Renderer synchronization, same-session continuity, compatible asset
+  reuse where applicable, and clean browser diagnostics.
+- The freeze does not add REPLACE/property editing, a universal conversational
+  agent, NLP framework, semantic ontology, RAG/memory system, or phrase-regex
+  library.
+
 ### Sprint 21 — WO-S21-001 Free-form World Evolution Front-door Fallback (DONE)
 
 - Human/CTO authorization opened Sprint 21 from frozen Sprint 20 at v1.170.

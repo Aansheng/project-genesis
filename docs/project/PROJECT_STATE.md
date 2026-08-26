@@ -22,8 +22,9 @@
 **Sprint 18** - Visually Coherent Platformer Generation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.164**)
 **Sprint 19** - Animated Entity Presentation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.167**)
 **Sprint 20** - Playable Platform Geometry (**FROZEN — Code Complete = YES; Product Verified = YES; v1.170**)
-**Sprint 21** - Free-form Conversational World Evolution (**FREEZE REVIEW PENDING — WO-S21-001 DONE; Code Complete = YES; Product Verified = YES; v1.171**)
-**Current WO** - None — SPRINT21_FREEZE_REVIEW selected; no next product WO created
+**Sprint 21** - Free-form Conversational World Evolution (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
+**Sprint 22** - Studio Session Continuity (**FREEZE REVIEW READY — no product WO; current SPA behavior verified; v1.171**)
+**Current WO** - None — SPRINT22_FREEZE_REVIEW selected; no next product WO created
 
 ---
 
@@ -31,14 +32,20 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 20 remains FROZEN at v1.170. Sprint 21 evidence supports the selected SPRINT21_FREEZE_REVIEW; WO-S21-001 remains DONE. |
+| Status | Sprint 21 is FROZEN at v1.171. Sprint 22 bounded continuity measurement is complete and selects SPRINT22_FREEZE_REVIEW; no product WO was needed. |
 | Architecture Version | v1.171; a deterministic miss with a current semantic world now reaches the existing structured World Evolution planner rather than the create-only `Unknown command` terminal path. |
 | Last Completed WO | WO-S21-001 — Free-form World Evolution Front-door Fallback; Code Complete = YES; Product Verified = YES at v1.171. |
 | Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified Enemy ADD paraphrases, a Coin ADD (`1 → 3`), and `删掉一个敌人` REMOVE (`1 → 0`, entities `7 → 6`), all preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, and unrelated terrain/items. Runtime/Renderer activity stayed clean. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | No measured Sprint 21 product blocker. SPRINT21_FREEZE_REVIEW is pending; REPLACE/world-property conversation is deliberately unmeasured rather than pre-authorized scope. |
+| Current Blocking Issue | No measured Sprint 22 continuity product blocker. The previously reported Studio → Full Observatory state loss is not reproducible in the current SPA route; durable refresh/close persistence is deliberately out of scope. |
 | Product Verification | WO-S21-001: Code Complete = YES; Product Verified = YES. Provider-connected Studio evidence verifies free-form Enemy/Coin quantitative ADD and targeted Enemy REMOVE with same-session continuity, Runtime/Renderer synchronization, compatible visual reuse where observable, and clean browser diagnostics. |
-| Next Recommended Verification | Perform SPRINT21_FREEZE_REVIEW; do not create a new product WO or enter Sprint 22 without Human/CTO direction. |
+| Next Recommended Verification | Perform SPRINT22_FREEZE_REVIEW; do not create a product WO unless fresh product evidence identifies a smaller actual blocker. |
+
+For active SPA navigation, the current path is `Studio view → application-scoped
+Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The
+Pixi viewport may be recreated on return, but the current Runtime world/session
+remains the authority; browser refresh, close, and durable restore are not part
+of this contract.
 
 ## Problem Register
 
@@ -46,7 +53,7 @@
 | --- | --- | --- |
 | Player can pass through generated Platform geometry | Resolved and Product Verified in WO-S20-001. | Closed — Sprint 20 frozen at v1.170. |
 | Natural-language follow-up `增加5个enemy` can return `Unknown command` | Resolved in real provider-connected Studio: two free-form Chinese requests reached the validated targeted evolution path and added exactly five enemies each. | Closed for WO-S21-001. |
-| Full Observatory navigation can lose Studio runtime state | Switching to Full Observatory can trigger page reload/navigation lifecycle loss of the active Studio runtime state. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
+| Full Observatory navigation can lose Studio runtime state | Current source and real SPA measurement retained `world-1`, Player, Health, entities, and post-return World Evolution across Studio → Full Observatory → Studio. | Closed for Sprint 22 continuity. No claim is made for browser refresh, tab close, durable save, or cross-session restore. |
 | Failed image generation lacks targeted retry | Failed image generation currently has no targeted user retry flow. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
 | Final image-generation prompt is not exposed in the UI | The image-generation UI does not show the actual final prompt submitted to the image agent/provider. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
 | Failed/completed gameplay presentation is basic | Failed and completed gameplay lifecycle presentation remains basic and should later use a more game-like overlay/modal where appropriate. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
