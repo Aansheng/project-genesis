@@ -22,8 +22,8 @@
 **Sprint 18** - Visually Coherent Platformer Generation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.164**)
 **Sprint 19** - Animated Entity Presentation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.167**)
 **Sprint 20** - Playable Platform Geometry (**FROZEN — Code Complete = YES; Product Verified = YES; v1.170**)
-**Sprint 21** - Free-form Conversational World Evolution (**ACTIVE — WO-S21-001 DONE; Code Complete = YES; Product Verified = YES; v1.171**)
-**Current WO** - None — post-WO-S21-001 gap measurement recorded; no next WO created by Human/CTO direction
+**Sprint 21** - Free-form Conversational World Evolution (**FREEZE REVIEW PENDING — WO-S21-001 DONE; Code Complete = YES; Product Verified = YES; v1.171**)
+**Current WO** - None — SPRINT21_FREEZE_REVIEW selected; no next product WO created
 
 ---
 
@@ -31,14 +31,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 20 remains FROZEN at v1.170. Sprint 21 WO-S21-001 is DONE: Code Complete = YES; Product Verified = YES. |
+| Status | Sprint 20 remains FROZEN at v1.170. Sprint 21 evidence supports the selected SPRINT21_FREEZE_REVIEW; WO-S21-001 remains DONE. |
 | Architecture Version | v1.171; a deterministic miss with a current semantic world now reaches the existing structured World Evolution planner rather than the create-only `Unknown command` terminal path. |
 | Last Completed WO | WO-S21-001 — Free-form World Evolution Front-door Fallback; Code Complete = YES; Product Verified = YES at v1.171. |
-| Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified two Enemy-add phrasings and a non-Enemy Coin add: `再加两个金币` changed Coin count `1 → 3` and entities `7 → 9`, preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, Enemy, and original terrain/items. Runtime/Renderer activity stayed clean. |
+| Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified Enemy ADD paraphrases, a Coin ADD (`1 → 3`), and `删掉一个敌人` REMOVE (`1 → 0`, entities `7 → 6`), all preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, and unrelated terrain/items. Runtime/Renderer activity stayed clean. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | No blocker for WO-S21-001 or the non-Enemy ADD measurement. Sprint 21’s next measured question is free-form operation diversity; no next WO has been created. |
-| Product Verification | WO-S21-001: Code Complete = YES; Product Verified = YES. Provider-connected Studio evidence verifies free-form Enemy and Coin quantitative additions, same-session continuity, active gameplay, renderer synchronization, compatible visual reuse without duplicate image jobs, and a clean browser console. |
-| Next Recommended Verification | Measure one bounded free-form REMOVE request in the same real Studio path: `删掉一个敌人`; classify the first failing boundary if it does not remove exactly one Enemy. Do not pre-implement it or create a new WO. |
+| Current Blocking Issue | No measured Sprint 21 product blocker. SPRINT21_FREEZE_REVIEW is pending; REPLACE/world-property conversation is deliberately unmeasured rather than pre-authorized scope. |
+| Product Verification | WO-S21-001: Code Complete = YES; Product Verified = YES. Provider-connected Studio evidence verifies free-form Enemy/Coin quantitative ADD and targeted Enemy REMOVE with same-session continuity, Runtime/Renderer synchronization, compatible visual reuse where observable, and clean browser diagnostics. |
+| Next Recommended Verification | Perform SPRINT21_FREEZE_REVIEW; do not create a new product WO or enter Sprint 22 without Human/CTO direction. |
 
 ## Problem Register
 

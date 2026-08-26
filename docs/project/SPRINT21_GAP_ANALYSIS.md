@@ -78,3 +78,42 @@ as FRONT_DOOR, AI_INTERPRETATION, TARGET_RESOLUTION, QUANTITY, VALIDATION,
 SEMANTIC_MUTATION, RUNTIME_SYNC, GAMEPLAY_RECONCILIATION, or
 VISUAL_RECONCILIATION. This is a measurement, not a pre-authorized
 implementation item; no WO-S21-002 is created.
+
+## Completed REMOVE Measurement and Freeze Recommendation
+
+In a new active `world-1`, the baseline had one Enemy and seven Runtime
+entities. `删掉一个敌人` passed through the existing-world fallback:
+
+- `enemy/敌人` is absent from the deterministic target-anchor list, so the
+  otherwise recognized deletion wording was a deterministic route miss and
+  entered the existing structured AI World Evolution planner;
+- Studio reported `Remove enemy`; Enemy count changed `1 → 0` and Runtime
+  entity count changed `7 → 6`;
+- the Explorer, Runtime facts, and rendered active viewport agree that the
+  Enemy instance was removed rather than merely hidden;
+- `world-1`, Player `(80,400)`, Health `100/100`, Experience `0`, Level `1`,
+  collectible, Ground/terrain, Platform, goal, checkpoint, and the active
+  session remained; Activity reported Runtime and completed visual
+  synchronization; browser warning/error logs remained empty.
+
+The generated baseline had only one Enemy, so no remaining same-archetype
+Enemy existed for a shared-visual-instance check. This conditional check is
+therefore not claimed as observed; the removal still proves the requested
+targeted `N=1 → N-1=0` semantic, Runtime, and Renderer result.
+
+### Fresh Sprint 21 Gap Analysis
+
+The Sprint thesis is now sufficiently evidenced without expanding into a
+universal conversational surface:
+
+- deterministic misses reach the same validated AI World Evolution path;
+- wording variation succeeds for Enemy ADD;
+- a distinct Coin target succeeds with quantitative ADD (`1 → 3`);
+- a distinct REMOVE operation succeeds with a targeted Enemy mutation
+  (`1 → 0`);
+- all observed changes retain same-world/session continuity and visual/runtime
+  synchronization.
+
+REPLACE and world-property edits remain explicitly unmeasured candidates, not
+blockers. The selected next control-plane item is `SPRINT21_FREEZE_REVIEW`;
+no product WO and no Sprint 22 work are created.

@@ -38,6 +38,16 @@
   visual reuse, and a clean browser console. Fresh Gap Analysis now records
   exactly one later measurement, `删掉一个敌人`, for operation diversity; no
   implementation WO was created.
+- The operation-diversity REMOVE probe also passed in real Studio:
+  `删掉一个敌人` changed Enemy count `1 → 0` and entities `7 → 6`. The existing
+  world/session, Player, Health, XP/Level, collectible, terrain/Platform,
+  active gameplay, Runtime/Renderer synchronization, and clean console were
+  retained. The one-Enemy baseline made the shared asset with remaining Enemy
+  condition inapplicable; it is not claimed as observed.
+- Fresh Sprint 21 Gap Analysis finds the thesis sufficiently evidenced across
+  free-form route misses, Enemy/Coin ADD, and Enemy REMOVE. `SPRINT21_FREEZE_REVIEW`
+  is selected; REPLACE/world-property edits remain unmeasured candidates, no
+  product WO was created, and Sprint 22 was not entered.
 
 ### Sprint 20 Freeze — WO-S20-001 Product Verification (2026-08-26)
 
