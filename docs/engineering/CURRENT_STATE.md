@@ -40,8 +40,12 @@ seven-entity `world-1` with one Enemy received `增加5个enemy` (Enemy `1 → 6
 and then `再加五只怪` (Enemy `6 → 11`). Both result messages reported targeted
 Runtime synchronization and completed visual synchronization; Player
 `(80,400)`, Health `100/100`, XP `0`, Level `1`, original entities, and active
-gameplay remained, with no browser warning/error. The fresh bounded next
-measurement is `再加两个金币`; it is not a new work order and is not
+gameplay remained, with no browser warning/error. The non-Enemy ADD measurement
+also passed: `再加两个金币` changed Coin/collectible count `1 → 3` and entities
+`7 → 9`, retained the same world/session and all baseline state, completed
+Runtime/visual synchronization without duplicate Coin work, and left the
+browser diagnostics clean. The fresh bounded next measurement is
+`删掉一个敌人` for operation diversity; it is not a new work order and is not
 pre-authorized for implementation.
 
 Sprint 20 — Playable Platform Geometry (FROZEN):

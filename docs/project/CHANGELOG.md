@@ -31,6 +31,13 @@
   Analysis records exactly one unimplemented next measurement,
   `再加两个金币`, to test non-enemy semantic-target generality. No WO-S21-002
   was created and Sprint 22 was not entered.
+- The measured non-Enemy ADD probe passed in real Studio: `再加两个金币` changed
+  Coin/collectible count `1 → 3` and entities `7 → 9`, with `Add Coin ×2`,
+  targeted Runtime/visual synchronization, same `world-1`, preserved Player,
+  Health, XP/Level, Enemy, terrain/items, active session, compatible Coin
+  visual reuse, and a clean browser console. Fresh Gap Analysis now records
+  exactly one later measurement, `删掉一个敌人`, for operation diversity; no
+  implementation WO was created.
 
 ### Sprint 20 Freeze — WO-S20-001 Product Verification (2026-08-26)
 

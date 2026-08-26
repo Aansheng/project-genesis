@@ -36,19 +36,45 @@ separate per-operation candidate trace without leaving the active session, so
 the valid-candidate inference is bounded to the observed successful mutation
 and the production path that permits it.
 
+## Completed Non-Enemy Target Measurement
+
+In a new real active `world-1`, the baseline contained one existing
+collectible/coin. `再加两个金币` succeeded through the same production
+fallback:
+
+- the deterministic router does not list `再加` or `金币` among its v1
+  evolution verb/target anchors, so this was a route miss; the existing-world
+  `gameStore.send()` fallback invoked the structured World Evolution planner;
+
+- the activity reported `Add Coin ×2`;
+- the total entity count changed `7 → 9`;
+- the original `collectible` plus `coin-1` and `coin-2` establish Coin count
+  `1 → 3`, not a replacement total of two;
+- Player `(80,400)`, Health `100/100`, Experience `0`, Level `1`, original
+  Enemy, terrain, Platform, goal, checkpoint, active session, and clean
+  browser diagnostics remained;
+- the activity reported Runtime and completed visual synchronization. The
+  pre-existing Coin image-operation list did not gain duplicate equivalent
+  Coin work, and the rendered active world reflected the targeted update.
+
+This proves free-form paraphrase robustness for two distinct add targets
+(Enemy and Coin), quantitative ADD semantics, targeted mutation, and
+same-session continuation. No new product code was added.
+
 ## Exactly One Next Measured Blocker
 
-**Unmeasured semantic-target generality:** the verified requests prove wording
-variation for an Enemy addition, but do not yet prove that the same free-form
-fallback preserves a different semantic target and quantity.
+**Unmeasured operation diversity:** Sprint 21 now proves multiple free-form
+ADD targets, but has not measured whether an ordinary non-ADD edit reaches the
+same validated targeted path.
 
 The next bounded measurement is one request only:
 
-`再加两个金币`
+`删掉一个敌人`
 
-Expected result: exactly two collectible additions in the same current
-world/session, with existing entities and Player/progression preserved. If it
-does not succeed, classify the first failing boundary as FRONT_DOOR,
-PROVIDER, INTERPRETATION, VALIDATION, MUTATION, RUNTIME_SYNC, or
+Expected result: remove exactly one existing Enemy while retaining the current
+world/session, Player/progression, unrelated entities, gameplay rules, and
+compatible visuals. If it does not succeed, classify the first failing boundary
+as FRONT_DOOR, AI_INTERPRETATION, TARGET_RESOLUTION, QUANTITY, VALIDATION,
+SEMANTIC_MUTATION, RUNTIME_SYNC, GAMEPLAY_RECONCILIATION, or
 VISUAL_RECONCILIATION. This is a measurement, not a pre-authorized
 implementation item; no WO-S21-002 is created.

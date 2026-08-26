@@ -56,13 +56,18 @@ human_decision_required: NO
 
 ## SPRINT21_GAP_ANALYSIS_POST_WO-S21-001
 
-status: DONE — exactly one measured blocker recorded; no work order created
-measured_blocker: Free-form Enemy-add wording variation is verified, but
-non-enemy semantic-target generality is unmeasured.
-next_measurement: In an existing real Studio session, submit `再加两个金币` and
-require exactly two collectible additions with same-world/session continuity.
-failure_classification: FRONT_DOOR | PROVIDER | INTERPRETATION | VALIDATION |
-  MUTATION | RUNTIME_SYNC | VISUAL_RECONCILIATION
+status: DONE — non-Enemy ADD measurement passed; exactly one next measurement recorded
+measured_result: In real Studio, `再加两个金币` added exactly two Coin entities,
+  changing the Coin/collectible count `1 → 3` and Runtime entities `7 → 9`,
+  while retaining `world-1`, Player, Health, XP/Level, Enemy, original world
+  entities, active gameplay, compatible visual reuse, and clean diagnostics.
+measured_blocker: ADD target generality is verified for Enemy and Coin; free-form
+  operation diversity is unmeasured.
+next_measurement: In an existing real Studio session, submit `删掉一个敌人` and
+require exactly one Enemy removal with same-world/session continuity.
+failure_classification: FRONT_DOOR | AI_INTERPRETATION | TARGET_RESOLUTION |
+  QUANTITY | VALIDATION | SEMANTIC_MUTATION | RUNTIME_SYNC |
+  GAMEPLAY_RECONCILIATION | VISUAL_RECONCILIATION
 next_work_order: NONE — explicit Human/CTO direction: do not create WO-S21-002.
 
 ## Queue rules
