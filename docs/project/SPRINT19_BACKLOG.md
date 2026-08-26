@@ -1,6 +1,8 @@
 # Sprint 19 Backlog — Animated Entity Presentation
 
 Sprint 18 is FROZEN at v1.164. Human/CTO authorized Sprint 19 on 2026-08-25.
+Sprint 19 is now **FROZEN at v1.167** after the 2026-08-26 Freeze Review.
+Sprint 20 is not entered automatically.
 
 ## Product Objective
 
@@ -81,7 +83,7 @@ not included in Sprint 19 unless the current Sprint product goal requires it.
 
 ## WO-S19-002 — Bounded Player Run-Frame Presentation
 
-Status: **IN_PROGRESS — Code Complete = YES; Product Verified = PENDING**
+Status: **DONE — Code Complete = YES; Product Verified = YES (2026-08-26)**
 
 State transition: `GENERATED_AFTER_WO-S19-001_PRODUCT_VERIFICATION → READY →
 IN_PROGRESS → VERIFYING`
@@ -138,10 +140,11 @@ generation identity; Web request/prompt/executor propagation; Renderer tick
 selection, async replacement, fallback, facing, and legacy manifest behavior;
 affected package tests, TypeScript, ESLint, Web build, and regression suites.
 
-Product Verification: REQUIRED — real Studio must show two distinct generated
-run frames visibly alternating during movement, with continuity and clean
-browser console. Product verification is pending; no fabricated visual
-evidence is allowed.
+Product Verification: **PASS** — real Studio showed two distinct generated run
+frames visibly alternating during sustained right and left movement; idle and
+jump stopped run-frame cycling; landing resumed temporal run presentation;
+facing/mirroring, Runtime/gameplay authority, the mechanically complete
+platformer flow, and clean browser diagnostics remained intact.
 
 Observability expectations: keep each run frame as its own truthful generation
 operation and manifest asset ID; preserve existing `succeeded → published →
@@ -154,3 +157,45 @@ manual verification steps; Code Complete; Product Verified.
 
 Human/CTO decision required: NO — the slice reuses existing provider-neutral
 asset and Renderer contracts, adds no authority or product-direction fork.
+
+## Sprint 19 Freeze Review
+
+Status: **DONE — FROZEN (2026-08-26)**
+
+Code Complete = **YES**; Product Verified = **YES**; architecture v1.167.
+
+The freeze question passes. The generated Player visibly reads as a character
+action for standing, temporal running, facing, and jumping, with the following
+verified transitions:
+
+- stationary → idle, with no run-frame cycling
+- sustained right → two distinct generated run frames alternate over time
+- sustained left → the same temporal alternation with correct mirroring
+- stop → idle, with cycling stopped
+- jump → jump, with no run cycling while airborne
+- landing while moving → temporal run cycling
+- Runtime movement/collision/gameplay authority unchanged
+- mechanically complete platformer flow preserved
+- no new WO-S19-002-attributable browser console errors/warnings
+
+Out of scope for this freeze: full spritesheets, arbitrary frame counts,
+attack/hurt/death animation, enemy animation, skeletal animation,
+AnimationManager, universal animation state machines, and animation editors.
+
+## Separate High-Priority Problem Register
+
+These measured product problems remain open and are not part of WO-S19-002 or
+the Sprint 19 freeze. They require fresh product-level prioritization after the
+freeze:
+
+1. Generated Platform is pass-through and does not provide the expected Player
+   collision behavior.
+2. A follow-up such as `增加5个enemy` can return `Unknown command` because the
+   front-door intent layer rejects valid free-form World Evolution requests.
+3. Switching to Full Observatory can lose Studio runtime state through page
+   reload/navigation lifecycle.
+4. Failed image generation lacks a targeted user retry flow.
+5. Image generation UI does not expose the actual final prompt submitted to the
+   image agent/provider.
+6. Failed/completed gameplay lifecycle presentation remains basic and should
+   later use a more game-like overlay/modal where appropriate.

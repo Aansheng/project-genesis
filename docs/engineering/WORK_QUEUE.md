@@ -6,14 +6,14 @@ not a database or task service.
 queue_version: 1
 updated: 2026-08-26
 current_sprint: Sprint 19
-current_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
-current_work_order_status: IN_PROGRESS
-current_control_plane_work_order: NONE
-current_control_plane_work_order_status: DONE — WO-S19-001 Product Verification and fresh Gap Analysis recorded
-last_completed_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
-next_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
+current_work_order: NONE — Sprint 19 FROZEN at v1.167
+current_work_order_status: DONE — Sprint 19 Freeze Review passed
+current_control_plane_work_order: SPRINT19_FREEZE_REVIEW
+current_control_plane_work_order_status: DONE — Sprint 19 frozen; Sprint 20 authorization required
+last_completed_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
+next_work_order: NONE — await explicit Human/CTO authorization for Sprint 20 or fresh product prioritization
 continuation_mode: SPRINT_CONTINUOUS
-primary_architecture_changing_work_items_in_progress: 1
+primary_architecture_changing_work_items_in_progress: 0
 
 ## Queue rules
 
@@ -1465,7 +1465,7 @@ Sprint 19 unless the current Sprint product goal requires it.
 
 ## WO-S19-002 — Bounded Player Run-Frame Presentation
 
-status: IN_PROGRESS
+status: DONE
 priority: P0
 state_transition: GENERATED_AFTER_WO-S19-001_PRODUCT_VERIFICATION → READY → IN_PROGRESS → VERIFYING
 dependencies: WO-S19-001 DONE; SPRINT19_GAP_ANALYSIS_POST_WO-S19-001 DONE
@@ -1503,9 +1503,11 @@ automated_tests: Shared frame contract/manifest/context; AI builder and
 generation identity; Web request/prompt/executor propagation; Renderer tick
 selection, async replacement, fallback, facing, and legacy manifest behavior;
 affected package tests, TypeScript, ESLint, Web build, and regression suites.
-product_verification: REQUIRED — real Studio must show two distinct generated
-run frames visibly alternating during movement, with continuity and clean
-browser console. Pending; no visual evidence is fabricated.
+product_verification: YES — real Studio manual verification completed on
+2026-08-26. Two distinct generated run frames visibly alternate during
+sustained right and left movement; idle/jump stop cycling; landing resumes
+cycling; facing, Runtime/gameplay authority, mechanically complete platformer
+flow, and clean browser diagnostics remain intact.
 observability_expectations: Each run frame keeps its own truthful generation
 operation and manifest asset ID; preserve the existing succeeded → published →
 manifest updated → resolved → Renderer applied lifecycle and fallback status.
@@ -1514,3 +1516,51 @@ modified; real flow; tests; TypeScript; ESLint; constraints; remaining gaps;
 manual verification steps; Code Complete; Product Verified.
 human_decision_required: NO — no authority, provider, dependency, or
 Sprint-direction fork is introduced.
+
+## SPRINT19_FREEZE_REVIEW
+
+status: DONE
+priority: P0
+dependencies: WO-S19-002 DONE; all Sprint 19 acceptance observations PASS
+architecture_before: v1.164
+architecture_after: v1.167
+decision: FROZEN — 2026-08-26
+code_complete: YES
+product_verification: YES
+human_decision_required: NO for this requested review; Sprint 20 entry still
+requires explicit Human/CTO authorization
+
+freeze_question: Can Genesis present the generated Player according to real
+Runtime behavior so standing, running, facing, and jumping visually read as
+character actions rather than a static image sliding through the world?
+
+verified_scope: Runtime-reachable horizontal motion truth; idle, temporal run,
+jump, and left/right facing presentation; two-frame run alternation; landing
+back to run; stop back to idle; unchanged Runtime gameplay/collision authority;
+existing mechanically complete platformer flow; and no new WO-S19-002-attributable
+browser console errors/warnings.
+
+out_of_scope: full spritesheet pipeline, arbitrary frame counts, attack/hurt/
+death animation, enemy animation, skeletal animation, AnimationManager,
+universal animation state machine, and animation editor.
+
+result: Sprint 19 is frozen at v1.167. No new Sprint 19 feature WO is generated,
+and continuation stops at the Sprint boundary.
+
+## SPRINT19_SEPARATE_HIGH_PRIORITY_PROBLEM_REGISTER
+
+The following measured product problems remain preserved after the freeze. They
+are not part of WO-S19-002 and require fresh product-level prioritization:
+
+1. Generated Platform is pass-through and does not provide the expected Player
+   collision behavior.
+2. `增加5个enemy` can return `Unknown command`; the front-door intent layer
+   rejects valid free-form World Evolution requests outside deterministic
+   mappings.
+3. Studio runtime state can be lost when switching to Full Observatory because
+   of page reload/navigation lifecycle.
+4. Failed image generation lacks a targeted user retry flow.
+5. Image generation UI does not expose the actual final prompt submitted to the
+   image agent/provider.
+6. Failed/completed gameplay lifecycle presentation remains basic and should
+   later use a more game-like overlay/modal where appropriate.

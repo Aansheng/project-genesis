@@ -59,8 +59,9 @@ architecture.
   Runtime-derived idle/run/jump/facing state switching. Fresh real Studio
   observation measured one static run pose sliding through the world, so the
   only generated next item is WO-S19-002: two independent Player run frames
-  with Player-only Renderer tick alternation at v1.167. Product Verification
-  remains pending; Sprint 20 is not entered automatically.
+  with Player-only Renderer tick alternation at v1.167. WO-S19-002 is Product
+  Verified, and Sprint 19 Freeze Review froze Animated Entity Presentation at
+  v1.167. Sprint 20 is not entered automatically.
 
 ## Current direction
 
@@ -115,7 +116,5 @@ next READY/BLOCKED work item. With `continuation_mode = SPRINT_CONTINUOUS`, it
 may continue sequentially through that next item and later same-Sprint items
 after all gates pass. `max_concurrent_subagents = 2`, repair budget `= 3`,
 Human/CTO escalation, one-next-WO generation, and the Sprint-boundary stop
-remain active. With Sprint 17 frozen and Sprint 18 explicitly authorized,
-continuous mode may execute one sequential Sprint 18 WO at a time. It still
-stops at Human/CTO gates and the Sprint Freeze Review, and it never enters
-Sprint 19 automatically.
+remain active. Sprint 19 is now frozen at v1.167; the boundary requires
+explicit Human/CTO authorization before Sprint 20 can begin.

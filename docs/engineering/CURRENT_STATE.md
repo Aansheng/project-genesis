@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.167 (WO-S19-002 bounded Player run-frame presentation; Product Verification pending)
-current_sprint: Sprint 19 (ACTIVE)
-current_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
-current_work_order_status: in_progress
-current_control_plane_work_order: NONE
-current_control_plane_work_order_status: done — WO-S19-001 Product Verification and fresh Gap Analysis recorded
-last_completed_work_order: WO-S19-001 — Runtime-Derived Player Presentation State Assets
-last_completed_product_work_order: WO-S19-001
-last_completed_control_plane_work_order: SPRINT19_GAP_ANALYSIS_POST_WO-S19-001
-next_ready_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation (executing)
-product_architecture_changed: yes — WO-S19-001 v1.164 → v1.166 is Product Verified; WO-S19-002 v1.166 → v1.167 adds only bounded Player run-frame asset metadata and Renderer tick selection, with Product Verification pending
-sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is ACTIVE under SPRINT_CONTINUOUS
-product_verified: YES for WO-S19-001 — real Studio manual observations passed on 2026-08-26; NO/PENDING for WO-S19-002 because two distinct temporal run frames have not yet been observed in Studio
+architecture_version: v1.167 (Sprint 19 frozen; Player temporal run-frame presentation Product Verified)
+current_sprint: Sprint 19 (FROZEN)
+current_work_order: NONE — Sprint 19 Freeze Review passed
+current_work_order_status: done
+current_control_plane_work_order: SPRINT19_FREEZE_REVIEW
+current_control_plane_work_order_status: done — Sprint 19 frozen; Sprint 20 authorization required
+last_completed_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
+last_completed_product_work_order: WO-S19-002
+last_completed_control_plane_work_order: SPRINT19_FREEZE_REVIEW
+next_ready_work_order: NONE — await fresh product prioritization and explicit Human/CTO direction
+product_architecture_changed: yes — WO-S19-001 v1.164 → v1.166 and WO-S19-002 v1.166 → v1.167 are Product Verified; v1.167 adds only bounded Player run-frame asset metadata and Renderer tick selection
+sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167 after the 2026-08-26 Freeze Review
+product_verified: YES for WO-S19-001 and WO-S19-002 — real Studio manual observations passed on 2026-08-26; Sprint 19 FROZEN
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -34,16 +34,27 @@ Sprint 19 — Animated Entity Presentation:
 3. Reuse equivalent semantic visual assets; Runtime entity identity is not
    visual asset identity.
 
-Sprint 18 is frozen at v1.164. Sprint 19 is continuous and sequential: each
-completed product WO triggers one fresh Gap Analysis and exactly one next
-READY/BLOCKED WO; Sprint 20 is never entered automatically.
+Sprint 18 is frozen at v1.164. Sprint 19 completed its sequential bounded work
+and is frozen at v1.167; the Sprint 20 boundary is active and is never crossed
+automatically.
 
 ## Problem Register
 
-- Player can currently pass through generated Platform geometry. This is a
-  separately measured product defect. It is preserved here and in
-  `PROJECT_STATE.md`, but is not part of WO-S19-002 and is not automatically
-  promoted into Sprint 19 unless the current Sprint product goal requires it.
+The following separately measured high-priority product problems are preserved
+after the Sprint 19 freeze. They are not part of WO-S19-002 and require fresh
+product-level prioritization:
+
+- Player can currently pass through generated Platform geometry.
+- A follow-up such as `增加5个enemy` can return `Unknown command`, indicating
+  that the front-door intent layer rejects valid free-form World Evolution
+  requests outside deterministic mappings.
+- Studio runtime state can be lost when switching to Full Observatory due to
+  page reload/navigation lifecycle.
+- Failed image generation lacks a targeted user retry flow.
+- Image generation UI does not expose the actual final prompt submitted to the
+  image agent/provider.
+- Failed/completed gameplay lifecycle presentation remains basic and should
+  later use a more game-like overlay/modal where appropriate.
 
 ## Completed
 
@@ -370,23 +381,20 @@ images plus Player-only Renderer tick alternation; spritesheets,
 AnimationManager, universal state machines, and skeletal animation remain
 excluded.
 
-WO-S19-002 is Code Complete at v1.167 with targeted Shared/AI/Renderer/Web
-regressions and type/lint gates passing. Its real Product Verification is
-pending until two distinct generated run frames are visibly applied in Studio.
-The implementation preserves the old one-frame manifest fallback and all
-Runtime state/geometry authority.
+WO-S19-002 is Code Complete and Product Verified at v1.167. Real Studio
+observed two distinct generated run frames alternating during sustained right
+and left movement; idle and jump stopped cycling; landing resumed cycling;
+facing, Runtime/gameplay authority, the mechanically complete platformer flow,
+and clean browser diagnostics remained intact. The implementation preserves
+the old one-frame manifest fallback and all Runtime state/geometry authority.
 
-Separate Problem Register item: Player can currently pass through generated
-Platform geometry. This is retained as a product defect and is not in the
-current WO.
+Sprint 19 Freeze Review passed on 2026-08-26. The Player presentation loop is
+frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Complete WO-S19-002 Product Verification in the real Game session: verify two
-distinct generated run-frame assets complete through the existing generation →
-manifest → Renderer path and visibly alternate during sustained movement;
-recheck landing/stop continuity and clean browser diagnostics. Do not enter
-Sprint 20 automatically.
+Perform fresh product-level prioritization across the six Problem Register
+items. Require explicit Human/CTO authorization before entering Sprint 20.
 
 ## Authority
 

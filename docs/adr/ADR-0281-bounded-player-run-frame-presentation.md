@@ -1,7 +1,6 @@
 # ADR-0281 — Bounded Player Run-Frame Presentation
 
-- Status: Accepted bounded Sprint 19 implementation; Product Verification
-  Pending
+- Status: Accepted; Product Verified; Sprint 19 Freeze evidence
 - Date: 2026-08-26
 - Sprint: Sprint 19
 - Work Order: WO-S19-002 — Bounded Player Run-Frame Presentation
@@ -47,11 +46,11 @@ derived gameplay, or durable generated-asset storage.
 
 ## Consequences
 
-The generation path can produce two distinct static run images and the existing
-Renderer can visibly alternate between them during authoritative horizontal
+The generation path produces two distinct static run images and the existing
+Renderer visibly alternates between them during authoritative horizontal
 movement. The implementation is intentionally Player-only and state-local;
-true animation remains Product Verification pending until a real Studio run
-shows two distinct frames applied in sequence.
+real Studio verification confirmed temporal alternation, state transitions,
+facing, gameplay continuity, and clean diagnostics.
 
 The separately measured Platform collision defect remains outside this WO:
 Player can currently pass through generated Platform geometry. It is recorded
@@ -63,5 +62,9 @@ Sprint product goal requires it.
 Shared, AI, Renderer, and Web targeted regressions cover frame metadata,
 distinct generation identity/prompts, manifest/context propagation, tick-based
 frame selection, legacy unframed fallback, and existing state/facing behavior.
-Real Studio Product Verification remains required for two visibly distinct
-run frames, gameplay continuity, and clean browser diagnostics.
+Real Studio Product Verification completed on 2026-08-26 and passed: stationary
+idle with no cycling; temporal alternation during sustained right and left
+movement; correct mirroring; stop-to-idle with cycling stopped; jump without
+run cycling; landing back to temporal run; unchanged Runtime/gameplay authority;
+preserved mechanically complete platformer flow; and no new attributable
+browser console errors/warnings.

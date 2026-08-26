@@ -1,8 +1,7 @@
-# Gameplay Capability Matrix — Sprint 18 Frozen / Sprint 19 Active
+# Gameplay Capability Matrix — Sprint 19 Frozen
 
-Architecture version: v1.167 (Sprint 18 FROZEN; WO-S19-001 Player state
-presentation Product Verified; WO-S19-002 temporal run-frame Product
-Verification pending)
+Architecture version: v1.167 (Sprint 18 and Sprint 19 FROZEN; Player temporal
+run-frame presentation Product Verified)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -92,5 +91,7 @@ Sprint 17 is frozen at v1.160 with the complete mechanically coherent
 platformer lifecycle Product Verified. Sprint 18 is frozen at v1.164: asset
 render usage travels through request/context/manifest; semantic Platform
 selection is provider-verified; and Ground repeats across Runtime-authoritative
-coverage. Sprint 19 may project Runtime behavior into presentation, but this
-matrix does not yet claim Player animation as supported.
+coverage. Sprint 19 is frozen at v1.167 with Runtime-reachable Player
+idle/run/jump/facing and two-frame temporal run presentation Product Verified.
+This remains a bounded presentation capability, not a generic gameplay
+animation system.

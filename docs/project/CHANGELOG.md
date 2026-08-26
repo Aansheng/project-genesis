@@ -1,5 +1,26 @@
 # Changelog
 
+### Sprint 19 Freeze — WO-S19-002 Product Verification (2026-08-26)
+
+- Real Studio verification passed for WO-S19-002: stationary Player shows idle
+  with no run cycling; sustained right and left movement visibly alternate two
+  distinct generated run frames; left-facing mirroring remains correct; stop
+  returns to idle and stops cycling; jump shows jump without run cycling;
+  landing while moving resumes temporal run cycling; Runtime movement/collision/
+  gameplay authority is unchanged; the mechanically complete platformer flow
+  remains functional; and no new attributable browser console errors/warnings
+  were observed.
+- WO-S19-002 is DONE: Code Complete = YES; Product Verified = YES. Sprint 19
+  Freeze Review passes at v1.167 and Sprint 19 is FROZEN.
+- The freeze is intentionally bounded: no spritesheet pipeline, arbitrary frame
+  counts, attack/hurt/death/enemy animation, skeletal animation,
+  AnimationManager, universal animation state machine, or animation editor is
+  required. Sprint 20 is not entered automatically.
+- The six separate high-priority Problem Register items remain preserved for
+  fresh product prioritization: Platform pass-through, free-form follow-up
+  `Unknown command`, Full Observatory runtime-state loss, missing image retry,
+  hidden final image prompt, and basic failed/completed gameplay presentation.
+
 ### Sprint 19 — WO-S19-001 Product Verification and WO-S19-002 Bounded Run Frames
 
 - Real Studio manual verification completed on 2026-08-26 for WO-S19-001.
@@ -18,9 +39,8 @@
   alternates them in the existing Player Renderer path at render ticks. No
   AnimationManager, universal state machine, spritesheet, skeletal animation,
   Runtime gameplay/collision change, or Sprint 20 entry was introduced.
-- WO-S19-002 is Code Complete = YES; Product Verified = PENDING until a real
-  Studio run observes two distinct generated run frames visibly alternating
-  during movement with continuity and clean diagnostics.
+- At the time of this historical entry WO-S19-002 was Code Complete = YES;
+  later Freeze Review verification is recorded above.
 
 ### Sprint 19 — WO-S19-001 Reopened for Production Reachability Repair (Historical)
 
