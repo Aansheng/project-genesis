@@ -5,15 +5,53 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-26
-current_sprint: Sprint 20
-current_work_order: NONE — Sprint 20 FROZEN at v1.170
-current_work_order_status: DONE — Sprint 20 Freeze Review passed
-current_control_plane_work_order: SPRINT20_FREEZE_REVIEW
-current_control_plane_work_order_status: DONE — Sprint 20 frozen; Sprint 21 authorization required
+current_sprint: Sprint 21
+current_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
+current_work_order_status: VERIFYING — Code Complete; provider-connected Studio verification pending
+current_control_plane_work_order: SPRINT21_DISCOVERY
+current_control_plane_work_order_status: DONE — Human/CTO authorization and source audit selected one bounded product repair
 last_completed_work_order: WO-S20-001 — Playable Platform Geometry
-next_work_order: NONE — await explicit Human/CTO authorization for Sprint 21 prioritization
+next_work_order: NONE — one Sprint 21 work item is in progress
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## WO-S21-001 — Free-form World Evolution Front-door Fallback
+
+status: VERIFYING — Code Complete = YES; Product Verified = PENDING
+priority: P0
+dependencies: Sprint 20 FROZEN; explicit Human/CTO Sprint 21 authorization
+architecture_before: v1.170
+architecture_expected_after: v1.171
+measured_bottleneck: `增加5个enemy` is rejected by the deterministic
+IntentRouter target whitelist and reaches the create-only CommandExecutor as
+`Unknown command`, even though the existing AI World Evolution planner,
+counted `add-entity` delta, atomic semantic applier, targeted Runtime sync,
+gameplay reconciliation, and visual grouping can execute a valid candidate.
+allowed_scope: Existing Studio command front door; fallback into the existing
+structured World Evolution planner; production-reachable paraphrase regression;
+ADR/state documentation and required verification.
+forbidden_scope: New intent framework/ontology, phrase-specific product
+handlers, new World Evolution or Runtime authority, arbitrary code, full world
+rebuild, layout framework, asset manager, conversational memory, or Sprint 22
+work.
+acceptance: Existing deterministic routes remain unchanged. Given a current
+world, a deterministic miss can reach the existing AI planner and only a
+validated candidate applies. The bounded Chinese/English enemy-addition
+paraphrases reach `add-entity` with count 5, add exactly five semantic/Runtime
+enemies at distinct existing-safe placements, retain Player/session, and plan
+one canonical equivalent visual requirement. Malformed/stale provider results
+remain non-applied through existing guards.
+automated_tests: Web production front-door paraphrase regression; existing
+IntentRouter, semantic-applier, Runtime synchronization, and focused World
+Evolution regressions; package checks, typecheck, lint, and Web build.
+verification: PASS — Web full suite (3543), focused AI/Shared/Runtime suites,
+  Web typecheck, Web lint (existing warnings only), Web production build, and
+  `git diff --check`.
+product_verification: PENDING — local real Studio generated and retained an
+  active seven-entity platformer; `增加5个enemy` entered the evolution planner
+  rather than returning `Unknown command`, but its configured/default gateway
+  could not produce a structured candidate. No browser console errors/warnings.
+human_decision_required: NO
 
 ## Queue rules
 

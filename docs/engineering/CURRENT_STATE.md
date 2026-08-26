@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.170 (Sprint 20 frozen; Runtime-authoritative one-way Platform surfaces aligned to Player feet semantics; Product Verified)
-current_sprint: Sprint 20 (FROZEN)
-current_work_order: NONE — Sprint 20 Freeze Review passed
-current_work_order_status: done
-current_control_plane_work_order: SPRINT20_FREEZE_REVIEW
-current_control_plane_work_order_status: done — Sprint 20 frozen; Sprint 21 authorization required
+architecture_version: v1.171 (Sprint 20 remains frozen; with a current semantic world, deterministic command-routing misses reach the existing validated structured World Evolution planner)
+current_sprint: Sprint 21 (VERIFYING)
+current_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
+current_work_order_status: verifying — Code Complete YES; Product Verified PENDING provider-connected Studio evidence
+current_control_plane_work_order: SPRINT21_DISCOVERY
+current_control_plane_work_order_status: done — explicit Human/CTO authorization and front-door audit selected the single bounded repair
 last_completed_work_order: WO-S20-001 — Playable Platform Geometry
 last_completed_product_work_order: WO-S20-001
 last_completed_control_plane_work_order: SPRINT20_FREEZE_REVIEW
-next_ready_work_order: NONE — await explicit Human/CTO authorization and Sprint 21 prioritization
-product_architecture_changed: yes — WO-S20-001 v1.167 → v1.170 projects semantic Platform collision bounds, reuses the ground-collision seam for bounded one-way support, aligns its visual, and uses the established Player feet coordinate for Platform support
+next_ready_work_order: NONE — WO-S21-001 awaits provider-connected Studio Product Verification
+product_architecture_changed: yes — WO-S21-001 v1.170 → v1.171 preserves deterministic routing but sends unknown follow-up text in an existing world to the existing AI candidate → Genesis validation → targeted World Evolution path rather than the create-only Unknown-command terminal path
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167 after the 2026-08-26 Freeze Review
-product_verified: YES for WO-S20-001 — Human Product Verification passed on 2026-08-26; Sprint 20 FROZEN
+product_verified: YES for WO-S20-001; WO-S21-001 Product Verified PENDING — local Studio reached planner truthfully but the local gateway did not return a structured candidate
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -25,6 +25,20 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   automatic cross-Sprint execution disabled; Sprint 21 boundary stop enabled
 
 ## Current Sprint goal
+
+Sprint 21 — Free-form Conversational World Evolution (VERIFYING):
+
+1. A free-form follow-up outside the narrow deterministic vocabulary reaches
+   semantic AI interpretation rather than `Unknown command` when a current
+   world exists.
+2. Genesis validates any candidate and executes only the existing targeted
+   semantic/Runtime/Gameplay/Visual evolution path.
+3. The same Runtime session survives a validated targeted addition.
+
+WO-S21-001 automated evidence covers six Chinese/English enemy-addition
+paraphrases through `gameStore.send()` to a count-five validated delta and
+targeted Runtime/visual path. Real provider-connected Studio verification is
+still required before the work item can be DONE.
 
 Sprint 20 — Playable Platform Geometry (FROZEN):
 

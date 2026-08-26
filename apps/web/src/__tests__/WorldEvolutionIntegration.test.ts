@@ -79,6 +79,24 @@ function gateway(): typeof fetch {
   }) as typeof fetch
 }
 
+/** A provider fixture for the routing test: language interpretation is the provider boundary, not a phrase table in Genesis. */
+function enemyAdditionGateway(): typeof fetch {
+  const fallback = gateway()
+  return vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string }
+    if (body.kind === 'world-evolution') {
+      return Response.json({
+        candidate: {
+          kind: 'add-entity',
+          semantic: { name: 'Enemy', category: 'enemy' },
+          count: 5,
+        },
+      })
+    }
+    return fallback(input, init)
+  }) as typeof fetch
+}
+
 function gatewayWithImages(): { readonly fetcher: typeof fetch; readonly imageRequests: readonly { readonly assetId: string; readonly visualArchetype?: string; readonly generationContext?: Record<string, unknown> }[] } {
   const imageRequests: { assetId: string; visualArchetype?: string; generationContext?: Record<string, unknown> }[] = []
   const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
@@ -255,6 +273,43 @@ describe('World Evolution Studio integration', () => {
     expect(observatory.viewModel.diffView.at(-1)?.runtimeSynchronization).toBe('no_runtime_impact')
     expect(observatory.viewModel.diffView.at(-1)?.visualPlanning).toBe('planned')
     expect(observatory.viewModel.diffView.at(-1)?.visualGenerationRequired).toBe(1)
+  })
+
+  it.each([
+    '增加5个enemy',
+    '添加5个敌人',
+    '再加五只怪',
+    '敌人太少了，再来五个',
+    'add 5 enemies',
+    'add five more enemies',
+  ])('routes free-form enemy additions through the production evolution front door: %s', async instruction => {
+    vi.stubGlobal('fetch', enemyAdditionGateway())
+    const game = useGameStore()
+    await game.send('创建一个 RPG')
+    const player = game.worldStore.getWorld().entities.find(entity => entity.type === 'player')
+    const beforeEnemyCount = game.semanticWorld?.entities.filter(entity => entity.category === 'enemy').length ?? 0
+    const beforeRuntime = game.worldStore.getWorld()
+
+    const result = await game.send(instruction)
+
+    expect(result.success).toBe(true)
+    expect(result.message).not.toContain('Unknown command')
+    expect(result.evolutionPlan?.status).toBe('validated')
+    if (result.evolutionPlan?.status !== 'validated') throw new Error('expected a validated world evolution plan')
+    expect(result.evolutionPlan.intent).toMatchObject({
+      kind: 'add-entity',
+      semantic: { name: 'Enemy', category: 'enemy' },
+      count: 5,
+    })
+    expect(result.evolutionPlan.operation.source).toBe('ai')
+    expect(game.semanticWorld?.entities.filter(entity => entity.category === 'enemy')).toHaveLength(beforeEnemyCount + 5)
+    expect(game.worldStore.getWorld().entities.filter(entity => entity.type === 'enemy')).toHaveLength(beforeEnemyCount + 5)
+    expect(game.worldStore.getWorld().entities.find(entity => entity.id === player?.id)).toBe(player)
+    expect(game.worldStore.getWorld()).not.toBe(beforeRuntime)
+    expect(new Set(game.worldStore.getWorld().entities
+      .filter(entity => entity.type === 'enemy')
+      .map(entity => entity.components?.find(component => component.type === 'position')?.properties.x)).size).toBe(beforeEnemyCount + 5)
+    expect(result.evolutionPlan.visualPlan?.generationRequired).toHaveLength(1)
   })
 
   it('removes the targeted Runtime entity without changing unrelated entities', async () => {

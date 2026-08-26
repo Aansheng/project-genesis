@@ -789,7 +789,16 @@ export const useGameStore = defineStore('game', () => {
   async function send(input: string): Promise<CommandExecutionResult> {
     commandStatus.value = 'running'
     try {
-      if (new DefaultIntentRouter().route(input).route === 'world-evolution') {
+      const routingResult = new DefaultIntentRouter().route(input)
+      // A deterministic route remains the inexpensive fast path. Once a world
+      // exists, however, a deterministic miss is only a routing miss: the
+      // existing structured evolution planner may still interpret and validate
+      // a legitimate conversational follow-up. Its candidate is never applied
+      // unless the normal target-resolution, delta-validation, and revision
+      // guards all succeed.
+      const shouldAttemptEvolution = routingResult.route === 'world-evolution'
+        || (routingResult.route === 'unknown' && semanticState.value?.semanticWorld != null)
+      if (shouldAttemptEvolution) {
         const result = await planEvolution(input, evolutionPlanner)
         lastCommand.value = result
         log.value.push(result.message)

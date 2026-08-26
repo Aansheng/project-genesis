@@ -1,5 +1,29 @@
 # Changelog
 
+### Sprint 21 — WO-S21-001 Free-form World Evolution Front-door Fallback (Code Complete; Product Verification Pending)
+
+- Human/CTO authorization opened Sprint 21 from frozen Sprint 20 at v1.170.
+  Repository audit located the measured failure before AI planning: the narrow
+  deterministic IntentRouter rejects `enemy/敌人/怪` wording and
+  `gameStore.send()` then calls the create-only CommandExecutor, yielding
+  `Unknown command`.
+- v1.171 retains deterministic routes as a fast path and, only when a current
+  semantic world exists, sends a deterministic miss to the existing structured
+  World Evolution planner. Provider output remains a candidate; existing parse,
+  target resolution, delta validation, stale-revision, atomic semantic mutation,
+  Runtime synchronization, gameplay reconciliation, and visual grouping remain
+  the execution authority. See ADR-0283.
+- Production-reachable Web coverage starts from six Chinese/English free-form
+  paraphrases and verifies a validated count-five `add-entity` intent, five
+  distinct Runtime enemy additions, preserved Player, and one canonical visual
+  requirement. Full Web suite (3543), focused AI/Shared/Runtime checks, Web
+  typecheck, lint (existing warnings only), and production build pass.
+- Local real Studio generated an active seven-entity platformer. Its
+  `增加5个enemy` follow-up reached the World Evolution planner instead of
+  `Unknown command`, then truthfully failed because the local gateway did not
+  return a structured candidate; console was clean. Provider-connected visible
+  +5/session-continuity verification remains pending.
+
 ### Sprint 20 Freeze — WO-S20-001 Product Verification (2026-08-26)
 
 - Human Product Verification declares WO-S20-001 DONE: Code Complete = YES and
