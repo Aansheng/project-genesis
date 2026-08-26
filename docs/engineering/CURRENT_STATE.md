@@ -3,38 +3,38 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.170 (Sprint 20; Runtime-authoritative one-way Platform surfaces aligned to Player feet semantics; Product Verification pending)
-current_sprint: Sprint 20 (IN PROGRESS)
-current_work_order: WO-S20-001 — Playable Platform Geometry
-current_work_order_status: code_complete_product_verification_pending
-current_control_plane_work_order: WO-S20-001
-current_control_plane_work_order_status: product verification pending
-last_completed_work_order: WO-S19-002 — Bounded Player Run-Frame Presentation
-last_completed_product_work_order: WO-S19-002
-last_completed_control_plane_work_order: SPRINT19_FREEZE_REVIEW
-next_ready_work_order: NONE — complete WO-S20-001 Product Verification before fresh Sprint 20 Gap Analysis
+architecture_version: v1.170 (Sprint 20 frozen; Runtime-authoritative one-way Platform surfaces aligned to Player feet semantics; Product Verified)
+current_sprint: Sprint 20 (FROZEN)
+current_work_order: NONE — Sprint 20 Freeze Review passed
+current_work_order_status: done
+current_control_plane_work_order: SPRINT20_FREEZE_REVIEW
+current_control_plane_work_order_status: done — Sprint 20 frozen; Sprint 21 authorization required
+last_completed_work_order: WO-S20-001 — Playable Platform Geometry
+last_completed_product_work_order: WO-S20-001
+last_completed_control_plane_work_order: SPRINT20_FREEZE_REVIEW
+next_ready_work_order: NONE — await explicit Human/CTO authorization and Sprint 21 prioritization
 product_architecture_changed: yes — WO-S20-001 v1.167 → v1.170 projects semantic Platform collision bounds, reuses the ground-collision seam for bounded one-way support, aligns its visual, and uses the established Player feet coordinate for Platform support
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167 after the 2026-08-26 Freeze Review
-product_verified: PENDING for WO-S20-001 — automated gates pass; real Studio Platform landing/edge-fall verification is incomplete
+product_verified: YES for WO-S20-001 — Human Product Verification passed on 2026-08-26; Sprint 20 FROZEN
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
-  automatic cross-Sprint execution disabled; Sprint 20 boundary stop enabled
+  automatic cross-Sprint execution disabled; Sprint 21 boundary stop enabled
 
 ## Current Sprint goal
 
-Sprint 20 — Playable Platform Geometry:
+Sprint 20 — Playable Platform Geometry (FROZEN):
 
 1. Make a generated semantic Platform a Runtime-authoritative playable surface.
 2. Preserve global Ground, jump, gravity, Runtime-authoritative geometry, and
    Sprint 18/19 visual/presentation behavior.
 3. Prove real Studio landing, standing, edge fall, and gameplay continuity.
 
-Sprint 18 and Sprint 19 remain frozen. Sprint 20 is explicitly authorized and
-may not cross into Sprint 21 automatically.
+Sprint 18, Sprint 19, and Sprint 20 remain frozen. Sprint 21 may not start
+without explicit Human/CTO authorization.
 
 ## Problem Register
 
@@ -42,8 +42,8 @@ The following separately measured high-priority product problems are preserved
 after the Sprint 19 freeze. They are not part of WO-S19-002 and require fresh
 product-level prioritization:
 
-- Platform Product Verification is pending; source and automated Runtime
-  behavior are repaired, but the real Studio observation is not yet complete.
+- Free-form World Evolution remains the next likely high-priority gap:
+  `增加5个enemy` can return `Unknown command`.
 - A follow-up such as `增加5个enemy` can return `Unknown command`, indicating
   that the front-door intent layer rejects valid free-form World Evolution
   requests outside deterministic mappings.

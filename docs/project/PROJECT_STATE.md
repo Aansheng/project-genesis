@@ -21,8 +21,8 @@
 **Sprint 17** - Mechanically Complete Platformer Generation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.160**)
 **Sprint 18** - Visually Coherent Platformer Generation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.164**)
 **Sprint 19** - Animated Entity Presentation (**FROZEN — Code Complete = YES; Product Verified = YES; v1.167**)
-**Sprint 20** - Playable Platform Geometry (**IN PROGRESS — Code Complete = YES; Product Verified = PENDING; v1.170**)
-**Current WO** - WO-S20-001 — Playable Platform Geometry
+**Sprint 20** - Playable Platform Geometry (**FROZEN — Code Complete = YES; Product Verified = YES; v1.170**)
+**Current WO** - None — Sprint 20 Freeze Review passed; Sprint 21 requires explicit Human/CTO authorization
 
 ---
 
@@ -30,20 +30,20 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 19 remains FROZEN at v1.167. Explicit Human/CTO authorization opened Sprint 20. WO-S20-001 is code complete; real Studio Product Verification is pending. |
+| Status | Sprint 20 is FROZEN at v1.170. WO-S20-001 is DONE: Code Complete = YES; Product Verified = YES by Human Product Verification. |
 | Architecture Version | v1.170; semantic `Platform` projects Runtime collision bounds and is a Runtime-authoritative bounded one-way support surface. Platform top support now shares the established Player feet-coordinate contract used by Ground and Player rendering. |
-| Last Completed WO | WO-S19-002 — Bounded Player Run-Frame Presentation; Code Complete = YES; Product Verified = YES at v1.167. Current WO-S20-001 is awaiting product verification. |
+| Last Completed WO | WO-S20-001 — Playable Platform Geometry; Code Complete = YES; Product Verified = YES at v1.170. |
 | Current User-Visible Behavior | A natural-language platformer request passes structural validation and the bounded baseline gate. A complete provider candidate is accepted; an incomplete or unavailable provider selects the deterministic fallback with truthful selection diagnostics. The Runtime owns `active`/`failed`/`completed`; lethal player damage pauses gameplay rules, and the Studio Respawn control requests same-world Health/velocity recovery while preserving current entities and progression. Real Studio verification passed stationary→idle, right movement→run with two distinct generated run frames visibly alternating, stop→idle with cycling stopped, left movement→temporal run with correct mirror, jump→jump without run cycling, landing while moving→temporal run, gameplay continuity, mechanically complete platformer flow, and a clean browser console. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | A local Studio platformer run confirms the real Platform semantic entity and its `96×24` Runtime collision bounds, but full visible landing/standing/edge-fall/gameplay-continuity and console checks still require completion. The unrelated Problem Register items remain out of scope. |
-| Product Verification | WO-S20-001 automated verification passes; real Studio Product Verification is PENDING. Do not freeze Sprint 20 yet. |
-| Next Recommended Verification | Complete a real Studio platformer run: land on Platform, stand/move, walk off edge, jump again, confirm ground/presentation/gameplay continuity, and inspect browser diagnostics. |
+| Current Blocking Issue | No additional measured Platform-geometry blocker remains. The next high-priority product gap is free-form World Evolution: `增加5个enemy` can produce `Unknown command`; do not enter Sprint 21 automatically. |
+| Product Verification | WO-S20-001: Code Complete = YES; Product Verified = YES by Human Product Verification on 2026-08-26. Sprint 20 Freeze Review: FROZEN. |
+| Next Recommended Verification | Require explicit Human/CTO Sprint 21 prioritization; first candidate is a truthful free-form World Evolution front-door repair. |
 
 ## Problem Register
 
 | Problem | Evidence | Sprint treatment |
 | --- | --- | --- |
-| Player can pass through generated Platform geometry | Separately measured real Studio gameplay defect; generated Platform rendering is visually applied, but the current Runtime collision path does not prevent Player passage through that Platform. | Separate high-priority product issue; not part of WO-S19-002 or Sprint 19 freeze. |
+| Player can pass through generated Platform geometry | Resolved and Product Verified in WO-S20-001. | Closed — Sprint 20 frozen at v1.170. |
 | Natural-language follow-up `增加5个enemy` can return `Unknown command` | Real product observation shows the front-door command/intent layer rejects a valid free-form World Evolution request outside deterministic mappings. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
 | Full Observatory navigation can lose Studio runtime state | Switching to Full Observatory can trigger page reload/navigation lifecycle loss of the active Studio runtime state. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
 | Failed image generation lacks targeted retry | Failed image generation currently has no targeted user retry flow. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |

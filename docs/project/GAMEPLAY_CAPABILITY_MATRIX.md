@@ -1,7 +1,7 @@
-# Gameplay Capability Matrix — Sprint 19 Frozen
+# Gameplay Capability Matrix — Sprint 20 Frozen
 
-Architecture version: v1.167 (Sprint 18 and Sprint 19 FROZEN; Player temporal
-run-frame presentation Product Verified)
+Architecture version: v1.170 (Sprint 20 FROZEN; Runtime-authoritative one-way
+Platform landing/support/edge fall Product Verified)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -20,6 +20,7 @@ slice is not promoted to a general Runtime capability.
 | Gravity | `GameplaySpecification.mechanics` | `supported` | `DefaultGravitySystem` and vertical motion are wired in the playable slice. |
 | Vertical motion | Runtime primitive | `supported` | `DefaultVerticalMotionSystem` updates position from velocity. |
 | Basic ground collision | `GameplaySpecification.mechanics` | `supported` | `DefaultGroundCollisionSystem` clamps the playable ground plane. |
+| Bounded Platform surface | Semantic `Platform` → Runtime collision bounds | `supported` | Semantic Platform geometry resolves downward Player feet onto the top, retains support in bounds, and releases support at an edge. Generated images remain visual skin. |
 | Entity add/remove | Semantic evolution model | `supported` | Existing semantic-to-Runtime synchronization can add/remove non-player entities. |
 | Targeted Gameplay Rule reconciliation | Semantic World Evolution + current `GameplayRuleSet` | `supported` | `DefaultGameplayRuleReconciler` preserves unaffected rules, revalidates/rebuilds affected known rules, removes dangling rules, binds the updated semantic revision, and records immutable reconciliation facts without Provider regeneration. |
 | Gameplay event observation | Runtime event domain | `supported` | Runtime emits bounded immutable gameplay facts through `ExecutionTickResult.gameplayEvents`; this is not rule execution. |

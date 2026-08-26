@@ -1,5 +1,18 @@
 # Changelog
 
+### Sprint 20 Freeze — WO-S20-001 Product Verification (2026-08-26)
+
+- Human Product Verification declares WO-S20-001 DONE: Code Complete = YES and
+  Product Verified = YES. Semantic Platform → Runtime bounds → one-way landing
+  → support → edge loss → gravity resumes is verified, alongside existing
+  Ground and gameplay continuity.
+- Sprint 20 freezes at v1.170. No moving platforms, slopes, wall jumps,
+  ladders, checkpoints, hazards, physics engine, or platform-policy framework
+  was introduced. See `SPRINT20_REVIEW.md`.
+- Fresh Gap Analysis finds no Platform-geometry blocker. Preserve free-form
+  `增加5个enemy` → `Unknown command` for a future Sprint; Sprint 21 is not
+  entered automatically.
+
 ### Sprint 20 — WO-S20-001 Playable Platform Geometry (Code Complete; Product Verification Pending)
 
 - Explicit Human/CTO authorization opened Sprint 20 at v1.167. Repository
