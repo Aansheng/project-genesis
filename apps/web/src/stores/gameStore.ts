@@ -860,7 +860,9 @@ export const useGameStore = defineStore('game', () => {
   async function send(input: string): Promise<CommandExecutionResult> {
     commandStatus.value = 'running'
     try {
-      const routingResult = new DefaultIntentRouter().route(input)
+      const routingResult = new DefaultIntentRouter().route(input, {
+        activeWorld: semanticState.value?.semanticWorld != null,
+      })
       // A deterministic route remains the inexpensive fast path. Once a world
       // exists, however, a deterministic miss is only a routing miss: the
       // existing structured evolution planner may still interpret and validate

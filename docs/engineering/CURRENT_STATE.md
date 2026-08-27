@@ -15,7 +15,7 @@ last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Re
 next_ready_work_order: NONE — complete WO-S24-001 Product Verification first
 product_architecture_changed: yes — WO-S24-001 v1.172 → v1.173 adds only a Web presentation projection; Runtime remains the lifecycle authority and existing Runtime respawn remains the sole recovery action
 sprint_status: Sprint 17–23 are FROZEN (Sprint 23 at v1.172); Sprint 24 has one Code Complete lifecycle-presentation WO at v1.173
-product_verified: PENDING for WO-S24-001 — focused Web projection coverage passes, but the configured provider did not return during the local real-Studio generation attempt; failure/respawn and completion visual flows remain unclaimed
+product_verified: PENDING for WO-S24-001 — focused Web projection coverage passes, but two real Studio generation attempts remained at `Creating world…`: the browser automation surface blocks local Gateway/API access (`net::ERR_BLOCKED_BY_CLIENT`) even through a temporary same-origin proxy. Failure/respawn and completion visual flows remain unclaimed
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed

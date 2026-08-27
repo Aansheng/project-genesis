@@ -18,6 +18,16 @@
  */
 import type { IntentRoutingResult } from './IntentRoutingResult'
 
+/**
+ * Runtime context that affects the meaning of an otherwise ambiguous command.
+ *
+ * The router remains pure and stateless; callers provide whether a current
+ * semantic world is active so creation verbs can be interpreted in scope.
+ */
+export interface IntentRoutingContext {
+  readonly activeWorld?: boolean
+}
+
 export interface IntentRouter {
   /**
    * Route a natural language input string to an IntentRoutingResult.
@@ -25,7 +35,8 @@ export interface IntentRouter {
    * Uses deterministic rule-based detection to classify the route.
    *
    * @param input — raw user input string
+   * @param context — optional active-world context
    * @returns IntentRoutingResult with route and confidence
    */
-  route(input: string): IntentRoutingResult
+  route(input: string, context?: IntentRoutingContext): IntentRoutingResult
 }

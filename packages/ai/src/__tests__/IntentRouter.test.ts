@@ -358,6 +358,42 @@ describe('route detection — mixed Chinese and English', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Route detection — active-world semantic precedence
+// ---------------------------------------------------------------------------
+
+describe('route detection — active-world semantic precedence', () => {
+  const activeWorld = { activeWorld: true }
+
+  it.each([
+    '再生成5个怪物',
+    '再创建5个怪物',
+    '再添加5个怪物',
+    '创建三个NPC',
+    '生成两个金币',
+    'create five enemies',
+    'generate five enemies',
+  ])('keeps entity-scoped creation verbs on world-evolution: %s', input => {
+    const router = new DefaultIntentRouter()
+    expect(router.route(input, activeWorld)).toEqual({ route: 'world-evolution', confidence: 0.8 })
+  })
+
+  it.each([
+    '创建一个新的游戏',
+    '重新生成整个世界',
+    '新建一个2D平台游戏',
+    'start a new game',
+  ])('allows explicit new-world semantics to reach create-world: %s', input => {
+    const router = new DefaultIntentRouter()
+    expect(router.route(input, activeWorld).route).toBe('create-world')
+  })
+
+  it.each(['创建', '生成', 'create', 'generate'])('does not treat a bare creation verb as replacement: %s', input => {
+    const router = new DefaultIntentRouter()
+    expect(router.route(input, activeWorld)).toEqual({ route: 'unknown', confidence: 0.0 })
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Confidence — definite (1.0)
 // ---------------------------------------------------------------------------
 

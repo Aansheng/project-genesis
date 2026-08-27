@@ -34,9 +34,13 @@ Known audit note: Runtime suppresses systems while `failed`; current
 Runtime mechanics; the Victory overlay visibly ends the active-play
 presentation. Any terminal-system policy is a separate future decision.
 
-Product Verification: PENDING. A real local Studio run began world generation
-but the configured provider did not return during this verification attempt;
-the real failure → respawn and completion paths were not claimed.
+Product Verification: PENDING. Two real local Studio attempts reached the
+existing Generate action but remained at `Creating world…`. The first used the
+direct local Gateway; a second used a temporary same-origin Vite proxy after
+the Gateway was restarted. The browser automation surface blocks local
+Gateway/API access (`net::ERR_BLOCKED_BY_CLIENT`), so neither attempt can be
+claimed as a generated-platformer lifecycle result. The real failure → respawn
+and completion paths remain unclaimed.
 
 ## Next work
 

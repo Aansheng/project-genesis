@@ -47,6 +47,23 @@ function gateway(): typeof fetch {
         },
       })
     }
+    if (body.input?.includes('平台跳跃') || body.input?.toLowerCase().includes('platformer')) {
+      return Response.json({
+        candidate: {
+          title: '2D Platformer',
+          genre: 'platformer',
+          entities: [
+            { id: 'player', category: 'player', name: 'Player' },
+            { id: 'ground', category: 'terrain', name: 'Ground' },
+            { id: 'platform', category: 'terrain', name: 'Platform' },
+            { id: 'enemy', category: 'enemy', name: 'Enemy' },
+            { id: 'collectible', category: 'item', name: 'Coin' },
+            { id: 'goal', category: 'item', name: 'Goal' },
+            { id: 'checkpoint', category: 'item', name: 'Checkpoint' },
+          ],
+        },
+      })
+    }
     if (body.input?.toLocaleLowerCase().includes('rpg')) {
       return Response.json({
         candidate: {
@@ -231,7 +248,7 @@ describe('World Evolution Studio integration', () => {
     await game.send('把所有牛改成羊')
     expect(observatory.viewModel.diffView).toHaveLength(1)
 
-    await game.send('创建 Farm B')
+    await game.send('创建一个新的 Farm B')
 
     expect(game.currentWorldId).toBe('world-2')
     expect(observatory.viewModel.historyView).toHaveLength(0)
@@ -310,6 +327,70 @@ describe('World Evolution Studio integration', () => {
       .filter(entity => entity.type === 'enemy')
       .map(entity => entity.components?.find(component => component.type === 'position')?.properties.x)).size).toBe(beforeEnemyCount + 5)
     expect(result.evolutionPlan.visualPlan?.generationRequired).toHaveLength(1)
+  })
+
+  it.each([
+    '再生成5个怪物',
+    '再创建5个怪物',
+    '再添加5个怪物',
+  ])('preserves an existing platformer while routing entity creation to World Evolution: %s', async instruction => {
+    const requestKinds: string[] = []
+    const backend = enemyAdditionGateway()
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string }
+      requestKinds.push(body.kind ?? 'world-generation')
+      return backend(input, init)
+    }) as typeof fetch)
+    const game = useGameStore()
+    const initial = await game.send('生成一个2D平台跳跃游戏')
+    expect(initial.success).toBe(true)
+    const beforeWorldId = game.currentWorldId
+    const beforeSemanticIds = game.semanticWorld?.entities.map(entity => entity.id) ?? []
+    const beforeRuntimeIds = game.worldStore.getWorld().entities.map(entity => entity.id)
+    const beforeEnemyCount = game.semanticWorld?.entities.filter(entity => entity.category === 'enemy').length ?? 0
+    expect(beforeSemanticIds).toEqual(expect.arrayContaining([
+      'player', 'ground', 'platform', 'enemy', 'collectible', 'goal', 'checkpoint',
+    ]))
+
+    const result = await game.send(instruction)
+
+    expect(requestKinds.filter(kind => kind === 'world-evolution')).toHaveLength(1)
+    expect(result.success).toBe(true)
+    expect(result.message).not.toContain('Created world')
+    expect(result.evolutionPlan?.status).toBe('validated')
+    expect(result.evolutionPlan?.operation.source).toBe('ai')
+    expect(game.currentWorldId).toBe(beforeWorldId)
+    expect(game.semanticWorld?.entities.map(entity => entity.id)).toEqual(expect.arrayContaining(beforeSemanticIds))
+    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(expect.arrayContaining(beforeRuntimeIds))
+    expect(game.semanticWorld?.entities.map(entity => entity.id)).toEqual(expect.arrayContaining([
+      'player', 'ground', 'platform', 'enemy', 'collectible', 'goal', 'checkpoint',
+    ]))
+    expect(game.semanticWorld?.entities.filter(entity => entity.category === 'enemy')).toHaveLength(beforeEnemyCount + 5)
+    expect(game.worldStore.getWorld().entities.filter(entity => entity.type === 'enemy')).toHaveLength(beforeEnemyCount + 5)
+  })
+
+  it('routes an explicit new-world request through CreateWorld after an active world exists', async () => {
+    const requestKinds: string[] = []
+    const backend = gateway()
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string }
+      requestKinds.push(body.kind ?? 'world-generation')
+      return backend(input, init)
+    }) as typeof fetch)
+    const game = useGameStore()
+    await game.send('生成一个2D平台跳跃游戏')
+    const previousWorldId = game.currentWorldId
+    const previousEntityIds = game.semanticWorld?.entities.map(entity => entity.id)
+
+    const result = await game.send('创建一个新的游戏')
+
+    expect(result.success).toBe(true)
+    expect(result.message).toContain('Created world')
+    expect(result.evolutionPlan).toBeUndefined()
+    expect(game.currentWorldId).not.toBe(previousWorldId)
+    expect(game.semanticWorld?.entities.map(entity => entity.id)).not.toEqual(previousEntityIds)
+    expect(requestKinds).toContain('world-generation')
+    expect(requestKinds).not.toContain('world-evolution')
   })
 
   it('removes the targeted Runtime entity without changing unrelated entities', async () => {

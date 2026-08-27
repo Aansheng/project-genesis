@@ -102,7 +102,7 @@ describe('Gameplay generation web integration', () => {
     const firstSpecification = store.gameplaySpecification
     const firstRuleSet = store.gameplayRuleSet
 
-    await store.send('create farm')
+    await store.send('create a new farm game')
 
     expect(store.currentWorldId).not.toBe(firstWorldId)
     expect(store.gameplaySpecification).not.toBe(firstSpecification)
