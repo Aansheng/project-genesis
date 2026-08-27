@@ -5,6 +5,14 @@ architecture.
 
 ## Completed foundations
 
+- Sprint 23 Freeze Review: Human/CTO froze Generation Transparency & Recovery
+  at v1.172 with Code Complete and Product Verified both YES. Exact provider
+  prompt truth and one safe, lineage-linked canonical recovery are frozen.
+- Sprint 24 authorization: Game Lifecycle Presentation is limited to a Runtime
+  session-state projection in Studio. WO-S24-001 is Code Complete at v1.173:
+  Game Over uses existing Runtime Respawn, Victory has no invented follow-up,
+  and real Studio Product Verification remains pending.
+
 - Sprint 21 Freeze Review: Human/CTO froze Free-form Conversational World
   Evolution at v1.171. The bounded thesis is verified through free-form Enemy
   ADD paraphrases, Coin ADD, and Enemy REMOVE without phrase-specific routing.
@@ -78,18 +86,11 @@ Keep the end-to-end pipeline playable, truthful, and visually composable:
 Natural language → Intent → Semantic World → Game DSL → Runtime → Renderer
 → playable game → targeted natural-language evolution.
 
-Sprint 17 proved the mechanically complete platformer lifecycle. Sprint 18
-now measures the smallest gap preventing visual assets from being composed by
-their actual roles. Runtime geometry remains authoritative; generated assets
-are skins/materials only. WO-S18-001 establishes the bounded usage fact carried
-from asset requirement to generation request/context and manifest. WO-S18-002
-consumes that fact for platform selection in the existing environment
-projection. WO-S18-003 re-ran the real production image path:
-Background/Terrain/Player/Enemy resolved and applied, while the exact Platform
-asset timed out at the provider boundary. The bounded repair remains under the
-same WO and the WO is BLOCKED until one provider-successful Platform asset is
-applied. No tiling or geometry contract is pre-authorized, and no WO-S18-004
-is generated while this gate remains unresolved.
+Sprint 24 measures only player-facing presentation of the existing Runtime
+failure/completion lifecycle. It must remain a projection: no UI-owned gameplay
+state, generic managers, lifecycle framework, campaign flow, or game menus.
+After real Studio verification, prefer Sprint 24 Freeze Review rather than
+expanding the scope.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

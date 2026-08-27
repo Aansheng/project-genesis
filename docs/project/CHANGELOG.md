@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 24 — WO-S24-001 Runtime-Authoritative Lifecycle Overlay (Code Complete, v1.173)
+
+- The Studio Game Viewport now projects Runtime session truth through the
+  application-scoped game store: `failed` shows a Game Over overlay with only
+  the existing Runtime Respawn action, and `completed` shows a Victory overlay
+  with no invented follow-up action.
+- The overlay is presentation-only. Runtime gameplay/session transitions and
+  blocking remain authoritative; no LifecycleManager, UI state machine,
+  restart, next-level, lives, checkpoints, or menu framework was added.
+- New lifecycle strings are localized in Chinese and English. Focused Web
+  coverage and typecheck pass; lint has no errors (existing warnings only).
+- Real Studio Product Verification remains pending because the configured local
+  provider did not return during world generation; this is not claimed as a
+  lifecycle validation result.
+
+### Sprint 23 Freeze (v1.172)
+
+- Human/CTO froze Generation Transparency & Recovery: Code Complete = YES,
+  Product Verified = YES, FROZEN = YES. See `SPRINT23_REVIEW.md`.
+
 ### Sprint 23 — WO-S23-001 Generation Prompt Truth and Targeted Retry (DONE, v1.172)
 
 - Observatory now projects the exact final prompt returned by the selected image

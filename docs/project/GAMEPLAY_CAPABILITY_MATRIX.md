@@ -1,7 +1,7 @@
-# Gameplay Capability Matrix — Sprint 20 Frozen
+# Gameplay Capability Matrix — Sprint 24 In Progress
 
-Architecture version: v1.170 (Sprint 20 FROZEN; Runtime-authoritative one-way
-Platform landing/support/edge fall Product Verified)
+Architecture version: v1.173 (Sprint 23 FROZEN; Sprint 24 lifecycle overlay
+Code Complete with real Studio Product Verification pending)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -48,8 +48,8 @@ slice is not promoted to a general Runtime capability.
 | Enemy spawn | Spawn rule intent | `deferred` | Spawn rules are descriptive; no gameplay spawner executes them. |
 | Enemy chase / AI | Combat/movement intent | `deferred` | Enemy entities may exist semantically; no enemy controller is wired. |
 | Enemy stomp / defeat | Combat intent | `supported` | Generic `enemy-stomp` rule validates player/enemy/top, removes the target, and applies upward player velocity with rule-level all-or-nothing commit. |
-| Goals / checkpoints / win | Goal intent and semantic entities | `partially supported` | Player contact with the validated goal can commit the Runtime session to `completed`; no victory UI, next level, restart, deletion, or progression flow exists. |
-| Player death / failure | Failure-condition intent | `partially supported` | Trusted lethal player damage commits Runtime `failed`; the bounded same-world respawn restores active play without lives/checkpoints or a generic reset framework. |
+| Goals / checkpoints / win | Goal intent and semantic entities | `partially supported` | Player contact with the validated goal commits Runtime session `completed`; Studio projects that committed state as a Victory overlay. No next level, restart, deletion, or progression flow exists. |
+| Player death / failure | Failure-condition intent | `partially supported` | Trusted lethal player damage commits Runtime `failed`; Studio projects it as a Game Over overlay and exposes only the existing Runtime respawn. No lives/checkpoints or generic reset framework exists. |
 | Timer / survive duration | Loop and goal intent | `deferred` | Duration is descriptive; no gameplay timer or expiry system exists. |
 | Experience / levels | Progression intent | `partially supported` | Supported collect-reward adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. Skill/upgrade state and later thresholds remain deferred. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
@@ -78,11 +78,11 @@ slice is not promoted to a general Runtime capability.
 - **HARDCODED SLICE:** the production Studio viewport still registers the
   platformer movement/jump/physics systems directly; this is represented as a
   catalog fact, not generalized into unsupported mechanics.
-- **NOT EXECUTED:** skill/modifier state, score policy, game-over, lives,
+- **NOT EXECUTED:** skill/modifier state, score policy, lives,
   checkpoints, enemy AI,
   timers, spawn execution, progression beyond the bounded numeric primitive,
   failure flow beyond the bounded player failure/respawn slice, property actions,
-  unrelated rich multi-action transactions, victory UI, next-level/restart
+  unrelated rich multi-action transactions, next-level/restart
   behavior, and win/lose orchestration beyond current session-completed truth.
 
 The catalog is deliberately small. It is a truthful capability boundary, not

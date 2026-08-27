@@ -4,16 +4,42 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-26
-current_sprint: Sprint 23
-current_work_order: NONE — SPRINT23_FREEZE_REVIEW pending Human/CTO decision
-current_work_order_status: COMPLETE
+updated: 2026-08-27
+current_sprint: Sprint 24
+current_work_order: WO-S24-001 — real Studio Product Verification pending
+current_work_order_status: CODE_COMPLETE_PRODUCT_VERIFICATION_PENDING
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
-next_work_order: SPRINT23_FREEZE_REVIEW — no new measured blocker
+next_work_order: WO-S24-001 Product Verification — real Studio lifecycle evidence pending
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## SPRINT23_FREEZE_REVIEW
+
+status: DONE — Human/CTO froze Sprint 23 at v1.172; Code Complete = YES;
+Product Verified = YES. Exact prompt truth and targeted lineage-linked recovery
+are proven. No generation-management expansion is authorized.
+
+## WO-S24-001 — Runtime-Authoritative Lifecycle Overlay
+
+status: CODE COMPLETE — Product Verified = PENDING
+priority: P0
+dependencies: Human/CTO Sprint 23 freeze and Sprint 24 authorization
+architecture_before: v1.172
+architecture_after: v1.173
+measured_bottleneck: Runtime already owns `active | failed | completed`, blocks
+terminal gameplay, and exposes same-world respawn only after failure; Studio
+does not present those states as player lifecycle overlays.
+allowed_scope: Runtime observer → existing Pinia game-store projection → bounded
+Game Viewport overlay; existing Runtime Respawn; i18n; focused regressions.
+forbidden_scope: Runtime transition changes, UI authority, managers, restart,
+next level, lives/checkpoints, menus, HUD redesign, persistence, or Sprint 25.
+automated_tests: PASS — focused GenesisStudioShell lifecycle projection test;
+Web typecheck; lint without errors (existing warnings only).
+product_verification: PENDING — local real Studio verification could not leave
+world generation because the configured provider did not return. No false live
+lifecycle claim is made.
 
 ## WO-S21-001 — Free-form World Evolution Front-door Fallback
 

@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.172 (exact image-provider prompt truth and lineage-linked targeted recovery reuse the existing queue, manifest, resolver, and Renderer seams)
-current_sprint: Sprint 23 (FREEZE REVIEW READY)
-current_work_order: NONE — SPRINT23_FREEZE_REVIEW pending Human/CTO decision
+architecture_version: v1.173 (Runtime session truth now projects through the existing game store into a bounded Studio lifecycle overlay)
+current_sprint: Sprint 24 (Game Lifecycle Presentation)
+current_work_order: WO-S24-001 — real Studio Product Verification pending
 current_work_order_status: complete
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
 last_completed_product_work_order: WO-S23-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: NONE — SPRINT23_FREEZE_REVIEW selected
-product_architecture_changed: yes — WO-S23-001 v1.171 → v1.172 exposes exact provider prompt truth and adds targeted lineage-linked recovery without a new provider, queue, Runtime/session, or Renderer authority
-sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167; Sprint 20 is FROZEN at v1.170; Sprint 21 and Sprint 22 are FROZEN at v1.171
-product_verified: YES for WO-S23-001 — real Studio through the existing Codex CLI gateway verified exact submitted prompt truth, manual prompt editing, targeted successful regeneration, lineage, manifest/resolver/Renderer replacement, same-session continuity, and clean browser diagnostics; controlled product-reachability coverage proved failed operation → targeted retry → recovered asset while preserving unrelated assets and the Runtime world/session
+next_ready_work_order: NONE — complete WO-S24-001 Product Verification first
+product_architecture_changed: yes — WO-S24-001 v1.172 → v1.173 adds only a Web presentation projection; Runtime remains the lifecycle authority and existing Runtime respawn remains the sole recovery action
+sprint_status: Sprint 17–23 are FROZEN (Sprint 23 at v1.172); Sprint 24 has one Code Complete lifecycle-presentation WO at v1.173
+product_verified: PENDING for WO-S24-001 — focused Web projection coverage passes, but the configured provider did not return during the local real-Studio generation attempt; failure/respawn and completion visual flows remain unclaimed
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -26,28 +26,23 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 22 — Studio Session Continuity (FREEZE REVIEW READY):
+Sprint 24 — Game Lifecycle Presentation:
 
-1. Studio and Full Observatory are SPA views over the same application-scoped
-   Runtime world authority; leaving the Pixi viewport may release presentation
-   resources but must not reset the current Runtime/session.
-2. A generated and evolved world can enter Full Observatory, return to Studio,
-   and accept another validated targeted World Evolution request without a
-   world/session, Player, Health, XP/Level, or entity reset.
+1. Runtime `failed` is projected as a Game Over overlay with only its existing
+   same-world respawn action; `active` removes that overlay after Runtime
+   recovery.
+2. Runtime `completed` is projected as a Victory overlay without inventing a
+   next-level/restart action.
 
-Source audit finds that `App.vue` keeps the Pinia application mounted across
-Vue Router navigation; `useGameStore` owns its `Runtime` and
-`DefaultRuntimeWorldStore` at that application scope. `GameViewportPanel`
-only destroys/recreates Pixi/input/visualization resources on view unmount;
-it never resets the store. `ObservatorySpaRuntimeSession.test.ts` exercises
-the same route transition. Real Studio verification reproduced the intended
-path: `world-1` began at seven entities, `增加5个enemy` made it 12, Full
-Observatory reported 12 Runtime entities, returning to Studio retained
-`world-1`, 12 entities, Player `(80,400)`, and Health `100/100`, and the
-post-return `再加两个金币` made it 14. Browser warning/error logs were empty.
-The previously recorded navigation-loss issue is not reproducible in the
-current SPA product; no persistence or session-management implementation is
-needed. `SPRINT22_FREEZE_REVIEW` is selected rather than a product WO.
+Source audit confirms `DefaultRuntimeExecutionLoop` binds
+`RuntimeGameplaySessionState`, stops systems while `failed`, and owns
+same-world respawn. `completed` remains a committed Runtime state, but the
+current loop does not independently suppress systems after completion;
+WO-S24-001's overlay visibly dominates the viewport without adding a second
+gameplay authority. `GameViewportPanel`'s existing Runtime observer writes a
+frozen application-scoped Pinia projection; the component reads that projection
+to render the overlay. No Web code infers Health, collision, or goal state.
+Focused tests, typecheck, and lint pass. Real Studio traversal is pending.
 
 Sprint 21 — Free-form Conversational World Evolution (FROZEN):
 

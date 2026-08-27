@@ -24,8 +24,9 @@
 **Sprint 20** - Playable Platform Geometry (**FROZEN — Code Complete = YES; Product Verified = YES; v1.170**)
 **Sprint 21** - Free-form Conversational World Evolution (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
 **Sprint 22** - Studio Session Continuity (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
-**Sprint 23** - Generation Transparency & Recovery (**FREEZE REVIEW READY — WO-S23-001 DONE**)
-**Current WO** - None — Sprint 23 Freeze Review pending Human/CTO decision
+**Sprint 23** - Generation Transparency & Recovery (**FROZEN — Code Complete = YES; Product Verified = YES; v1.172**)
+**Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = PENDING; v1.173**)
+**Current WO** - WO-S24-001 Product Verification pending real Studio lifecycle verification
 
 ---
 
@@ -33,14 +34,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 23 is FREEZE REVIEW READY at v1.172: prompt truth and targeted recovery are verified without changing provider configuration or runtime ownership. |
-| Architecture Version | v1.172; an image-generation operation retains its exact provider-submitted prompt, and a failed canonical asset can be retried as one lineage-linked operation through existing manifest/resolver/Renderer seams. |
+| Status | Sprint 23 is FROZEN at v1.172. Sprint 24 has one bounded lifecycle-presentation WO at v1.173; automated evidence passes and real Studio verification is pending. |
+| Architecture Version | v1.173; Runtime-owned session state is projected through application-scoped Pinia into a bounded Studio viewport lifecycle overlay, without adding UI gameplay authority. |
 | Last Completed WO | WO-S23-001 — Generation Prompt Truth and Targeted Retry; Code Complete = YES; Product Verified = YES at v1.172. |
 | Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified Enemy ADD paraphrases, a Coin ADD (`1 → 3`), and `删掉一个敌人` REMOVE (`1 → 0`, entities `7 → 6`), all preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, and unrelated terrain/items. Runtime/Renderer activity stayed clean. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | None measured within Sprint 23. A naturally occurring live Codex CLI provider failure was not observed; controlled product-reachability coverage proves the recovery path without falsely claiming such a failure. |
-| Product Verification | WO-S23-001: Code Complete = YES; Product Verified = YES. Real provider Studio verification covers submitted prompt truth, editable targeted regeneration, lineage, publication/resolution/Renderer replacement, same-session continuity, and clean diagnostics. Controlled Web product-reachability coverage covers failed operation → UI product retry entry → linked successful recovery while preserving the original failure, unrelated asset, world, and Player. |
-| Next Recommended Verification | SPRINT23_FREEZE_REVIEW. Do not enter Sprint 24 automatically. |
+| Current Blocking Issue | Real Studio lifecycle verification is pending: the local browser run remained in generation while the configured provider did not return. This is recorded as environment/product-verification evidence, not a failure claim. |
+| Product Verification | WO-S23-001: YES. WO-S24-001: automated Web projection coverage, typecheck, and lint pass; manually driving a real generated platformer through failure → overlay → respawn and goal → overlay remains pending. |
+| Next Recommended Verification | Complete WO-S24-001 Product Verification with the two authoritative real Studio lifecycle paths; then run SPRINT24_FREEZE_REVIEW. Do not enter Sprint 25 automatically. |
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The
@@ -55,9 +56,9 @@ of this contract.
 | Player can pass through generated Platform geometry | Resolved and Product Verified in WO-S20-001. | Closed — Sprint 20 frozen at v1.170. |
 | Natural-language follow-up `增加5个enemy` can return `Unknown command` | Resolved in real provider-connected Studio: two free-form Chinese requests reached the validated targeted evolution path and added exactly five enemies each. | Closed for WO-S21-001. |
 | Full Observatory navigation can lose Studio runtime state | Current source and real SPA measurement retained `world-1`, Player, Health, entities, and post-return World Evolution across Studio → Full Observatory → Studio. | Closed for Sprint 22 continuity. No claim is made for browser refresh, tab close, durable save, or cross-session restore. |
-| Failed image generation lacks targeted retry | Failed image generation currently has no targeted user retry flow. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
-| Final image-generation prompt is not exposed in the UI | The image-generation UI does not show the actual final prompt submitted to the image agent/provider. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
-| Failed/completed gameplay presentation is basic | Failed and completed gameplay lifecycle presentation remains basic and should later use a more game-like overlay/modal where appropriate. | Separate high-priority product issue; prioritize after Sprint 19 freeze. |
+| Failed image generation lacks targeted retry | Resolved in Sprint 23. | Closed — frozen at v1.172. |
+| Final image-generation prompt is not exposed in the UI | Resolved in Sprint 23. | Closed — frozen at v1.172. |
+| Failed/completed gameplay presentation is basic | Runtime session truth now projects to a bounded Game Over / Victory viewport overlay; real generated-platformer verification remains pending. | Sprint 24 verification gate at v1.173. |
 
 ## WO-S19-001 Product Verification Record
 

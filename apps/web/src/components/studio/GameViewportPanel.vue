@@ -37,12 +37,14 @@ import type {
 import type { GameplayEventObserver } from '@genesis/shared'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
+import { useI18nStore } from '../../stores/i18n'
 
 const store = useGameStore()
 const observatoryDataStore = useObservatoryDataStore()
+const i18n = useI18nStore()
 const gameContainer = ref<HTMLDivElement | null>(null)
 const runtimeMounted = ref(false)
-const gameplaySessionStatus = ref<RuntimeGameplaySessionStatus>('active')
+const gameplaySessionStatus = computed<RuntimeGameplaySessionStatus>(() => store.gameplaySessionState.status)
 const entityCount = computed(() => {
   void store.renderVersion
   return store.worldStore.getWorld().entities.length
@@ -80,7 +82,7 @@ const gameplayRuleExecutionObserver: GameplayRuleExecutionObserver = {
 }
 const gameplaySessionStateObserver: RuntimeGameplaySessionStateObserver = {
   observe(state) {
-    gameplaySessionStatus.value = state.status
+    store.recordRuntimeGameplaySessionState(state)
     observatoryDataStore.recordRuntimeGameplaySessionState(state)
   },
 }
@@ -279,6 +281,27 @@ onUnmounted(() => {
           <strong>No game world yet</strong>
           <span>Describe a game below to generate a playable world.</span>
         </div>
+        <div
+          v-if="gameplaySessionStatus !== 'active'"
+          class="gameplay-lifecycle-overlay"
+          :data-testid="`studio-gameplay-${gameplaySessionStatus}`"
+          aria-live="assertive"
+        >
+          <div class="gameplay-lifecycle-card">
+            <span class="gameplay-lifecycle-kicker">{{ gameplaySessionStatus }}</span>
+            <h3>{{ i18n.t(gameplaySessionStatus === 'failed' ? 'studio.lifecycle.gameOver' : 'studio.lifecycle.victory') }}</h3>
+            <p>{{ i18n.t(gameplaySessionStatus === 'failed' ? 'studio.lifecycle.gameOverDetail' : 'studio.lifecycle.victoryDetail') }}</p>
+            <button
+              v-if="gameplaySessionStatus === 'failed'"
+              type="button"
+              class="gameplay-lifecycle-action"
+              data-testid="studio-respawn-gameplay"
+              @click="respawnRuntimeGameplay?.()"
+            >
+              {{ i18n.t('studio.lifecycle.respawn') }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <footer
@@ -287,15 +310,6 @@ onUnmounted(() => {
     >
       <span>Arrow Keys <em>Move</em></span>
       <span>Space <em>Jump</em></span>
-      <button
-        v-if="gameplaySessionStatus === 'failed'"
-        type="button"
-        class="viewport-respawn-control"
-        data-testid="studio-respawn-gameplay"
-        @click="respawnRuntimeGameplay?.()"
-      >
-        Respawn
-      </button>
     </footer>
   </section>
 </template>
@@ -439,20 +453,62 @@ h2 {
   font-style: normal;
 }
 
-.viewport-respawn-control {
-  margin-left: auto;
-  min-height: 24px;
-  padding: 0 var(--studio-space-3);
+.gameplay-lifecycle-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: var(--studio-space-4);
+  background: rgb(3 4 7 / 68%);
+  line-height: 1.4;
+}
+
+.gameplay-lifecycle-card {
+  display: grid;
+  gap: var(--studio-space-3);
+  width: min(360px, 100%);
+  padding: var(--studio-space-5);
+  border: 1px solid var(--studio-border-strong);
+  border-radius: var(--studio-radius-md);
+  background: var(--studio-surface);
+  box-shadow: 0 18px 52px rgb(0 0 0 / 42%);
+  text-align: center;
+}
+
+.gameplay-lifecycle-kicker {
+  color: var(--studio-text-dim);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gameplay-lifecycle-card h3 {
+  color: var(--studio-text);
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.gameplay-lifecycle-card p {
+  color: var(--studio-text-muted);
+  font-size: 12px;
+}
+
+.gameplay-lifecycle-action {
+  justify-self: center;
+  min-height: 32px;
+  padding: 0 var(--studio-space-4);
   border: 1px solid var(--studio-accent);
   border-radius: var(--studio-radius-sm);
   background: var(--studio-accent);
   color: var(--studio-bg);
   font-family: var(--studio-font-mono);
-  font-size: 10px;
+  font-size: 11px;
   cursor: pointer;
 }
 
-.viewport-respawn-control:hover {
+.gameplay-lifecycle-action:hover {
   background: var(--studio-accent-strong);
 }
 </style>

@@ -236,6 +236,35 @@ describe('Genesis Studio Shell Foundation', () => {
     wrapper.unmount()
   })
 
+  it('projects Runtime-owned lifecycle truth into bounded game overlays', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+
+    store.recordRuntimeGameplaySessionState({
+      status: 'failed',
+      failedByEntityId: 'player',
+      failedAtTick: 12,
+    })
+    await nextTick()
+
+    const failure = wrapper.get('[data-testid="studio-gameplay-failed"]')
+    expect(failure.text()).toContain('游戏结束')
+    expect(failure.get('[data-testid="studio-respawn-gameplay"]').text()).toBe('重生')
+    expect(wrapper.find('[data-testid="studio-gameplay-completed"]').exists()).toBe(false)
+
+    store.recordRuntimeGameplaySessionState({
+      status: 'completed',
+      completedByGoalId: 'goal',
+      completedAtTick: 21,
+    })
+    await nextTick()
+
+    const completion = wrapper.get('[data-testid="studio-gameplay-completed"]')
+    expect(completion.text()).toContain('胜利')
+    expect(completion.find('[data-testid="studio-respawn-gameplay"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('selects a real entity and renders its current runtime details', async () => {
     const { wrapper, pinia } = await mountStudio()
     const store = useGameStore(pinia)

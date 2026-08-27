@@ -14,7 +14,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer, DefaultRuntimeGameplayEventCollector } from '@genesis/runtime'
-import type { RuntimeWorldStore } from '@genesis/runtime'
+import type { RuntimeGameplaySessionState, RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
 import type { AssetManifest, GameplayRuleReconciliationResult, GameplayRuleSet, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
 import { bindGameplayRuleSet, DefaultImageGenerationContextBuilder, DefaultSemanticWorldDeltaApplier } from '@genesis/shared'
@@ -481,6 +481,9 @@ export const useGameStore = defineStore('game', () => {
   const semanticState = ref<CurrentSemanticWorldState | null>(null)
   const gameplaySpecificationState = ref<GameplaySpecification | null>(null)
   const gameplayRuleSetState = ref<GameplayRuleSet | null>(null)
+  // This is a Web projection of Runtime-owned session truth. The Runtime
+  // execution observer is its only production writer; no UI action mutates it.
+  const gameplaySessionState = ref<RuntimeGameplaySessionState>(Object.freeze({ status: 'active' }))
   const currentWorldId = computed(() => semanticState.value?.worldId ?? '')
   const semanticWorld = computed(() => semanticState.value?.semanticWorld ?? null)
   const semanticProperties = computed<WorldSemanticProperties>(() => semanticState.value?.properties ?? EMPTY_SEMANTIC_PROPERTIES)
@@ -615,6 +618,10 @@ export const useGameStore = defineStore('game', () => {
     ) {
       selectedEntityId.value = null
     }
+  }
+
+  function recordRuntimeGameplaySessionState(state: RuntimeGameplaySessionState): void {
+    gameplaySessionState.value = Object.freeze({ ...state })
   }
 
   async function generateArtwork(specification: AssetSpecification, requirements: readonly [import('@genesis/shared').AssetRequirement, readonly import('@genesis/shared').AssetRequirement[]], generationContext: ImageGenerationContext, token: number, retry?: { readonly operationId: string; readonly retryOfOperationId: string; readonly prompt?: string }): Promise<void> {
@@ -905,6 +912,7 @@ export const useGameStore = defineStore('game', () => {
         gameplayRuleSetState.value = result.gameplayRuleSet
           ? bindGameplayRuleSet(result.gameplayRuleSet, { worldId: nextWorldId, semanticRevision: 0 })
           : null
+        recordRuntimeGameplaySessionState(Object.freeze({ status: 'active' }))
         runtimeSemanticRevision.value = 0
         runtimeSyncWorldId.value = nextWorldId
         lastRuntimeSyncOperationId.value = null
@@ -1176,6 +1184,8 @@ export const useGameStore = defineStore('game', () => {
     semanticProperties,
     semanticRevision,
     gameplaySpecification: gameplaySpecificationState,
+    gameplaySessionState,
+    recordRuntimeGameplaySessionState,
     gameplayRevision: computed(() => gameplaySpecificationState.value?.gameplayRevision ?? 0),
     gameplayRuleSet: gameplayRuleSetState,
     visualDesignSpecification,

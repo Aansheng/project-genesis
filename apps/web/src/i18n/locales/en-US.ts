@@ -109,4 +109,13 @@ export const enUS: MessageCatalog = {
       inactive: 'Inactive',
     },
   },
+  studio: {
+    lifecycle: {
+      gameOver: 'Game Over',
+      gameOverDetail: 'Your run has ended. Respawn to continue this world.',
+      victory: 'Victory',
+      victoryDetail: 'Goal complete. This world remains available to explore.',
+      respawn: 'Respawn',
+    },
+  },
 }

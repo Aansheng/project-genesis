@@ -110,4 +110,13 @@ export const zhCN: MessageCatalog = {
       inactive: '非活跃',
     },
   },
+  studio: {
+    lifecycle: {
+      gameOver: '游戏结束',
+      gameOverDetail: '本次挑战已结束。重生后可继续当前世界。',
+      victory: '胜利',
+      victoryDetail: '目标已完成。当前世界仍可继续探索。',
+      respawn: '重生',
+    },
+  },
 }
