@@ -3,19 +3,19 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.171 (Sprint 20 remains frozen; with a current semantic world, deterministic command-routing misses reach the existing validated structured World Evolution planner)
-current_sprint: Sprint 23 (ACTIVE)
-current_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
-current_work_order_status: in_progress
+architecture_version: v1.172 (exact image-provider prompt truth and lineage-linked targeted recovery reuse the existing queue, manifest, resolver, and Renderer seams)
+current_sprint: Sprint 23 (FREEZE REVIEW READY)
+current_work_order: NONE — SPRINT23_FREEZE_REVIEW pending Human/CTO decision
+current_work_order_status: complete
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
-last_completed_product_work_order: WO-S21-001
+last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
+last_completed_product_work_order: WO-S23-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: WO-S23-001
-product_architecture_changed: yes — WO-S21-001 v1.170 → v1.171 preserves deterministic routing but sends unknown follow-up text in an existing world to the existing AI candidate → Genesis validation → targeted World Evolution path rather than the create-only Unknown-command terminal path
+next_ready_work_order: NONE — SPRINT23_FREEZE_REVIEW selected
+product_architecture_changed: yes — WO-S23-001 v1.171 → v1.172 exposes exact provider prompt truth and adds targeted lineage-linked recovery without a new provider, queue, Runtime/session, or Renderer authority
 sprint_status: Sprint 17 is FROZEN at v1.160; Sprint 18 is FROZEN at v1.164; Sprint 19 is FROZEN at v1.167; Sprint 20 is FROZEN at v1.170; Sprint 21 and Sprint 22 are FROZEN at v1.171
-product_verified: YES for WO-S20-001 and WO-S21-001 — real Studio through the existing Codex CLI gateway added five enemies for `增加5个enemy` and another five for `再加五只怪`, retaining world/session, Player, Health, XP/Level, original entities, active gameplay, visual synchronization, and a clean browser console
+product_verified: YES for WO-S23-001 — real Studio through the existing Codex CLI gateway verified exact submitted prompt truth, manual prompt editing, targeted successful regeneration, lineage, manifest/resolver/Renderer replacement, same-session continuity, and clean browser diagnostics; controlled product-reachability coverage proved failed operation → targeted retry → recovered asset while preserving unrelated assets and the Runtime world/session
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed

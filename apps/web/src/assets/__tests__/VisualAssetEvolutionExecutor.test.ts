@@ -235,4 +235,29 @@ describe('VisualAssetEvolutionExecutor', () => {
     expect(committed).toHaveLength(0)
     expect(assetStore.get(canonical.id)?.uri).toBe('/generated/cow.png')
   })
+
+  it('retains the current resolved resource when candidate generation fails before activation', async () => {
+    const before = specification([{ id: 'cow-1', category: 'npc', name: 'Cow' }])
+    const updated = specification([{ id: 'cow-1', category: 'npc', name: 'Sheep' }])
+    const canonical = groupAiGenerationRequirements(updated).find(([, requirements]) => requirements[0]?.visualArchetype === 'Sheep')![0]
+    const current = resolvedManifest(before, '/generated/cow.png')
+    const assetStore = new DefaultAssetStore(new DefaultAssetResolver())
+    await assetStore.resolve(canonical.id, current)
+    const committed: AssetManifest[] = []
+    const executor = new VisualAssetEvolutionExecutor({
+      imageClient: { generate: async request => ({ status: 'failed', assetId: request.assetId, mode: request.mode, failure: { code: 'provider_unavailable', message: 'provider unavailable' } }) },
+      scheduler: new VisualAssetGenerationScheduler(1),
+      assetStore,
+      onManifestCommitted: ({ manifest }) => committed.push(manifest),
+    })
+
+    const result = await executor.execute(plan(updated, [canonical], 'generation-failure'), current, {
+      worldId: 'world-test', semanticRevision: 1, visualRevision: 1, manifestRevision: 0, token: 1,
+    })
+
+    expect(result.status).toBe('failed')
+    expect(result.previousVisualRetained).toBe(true)
+    expect(committed).toHaveLength(0)
+    expect(assetStore.get(canonical.id)?.uri).toBe('/generated/cow.png')
+  })
 })

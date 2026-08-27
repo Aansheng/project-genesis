@@ -508,6 +508,7 @@ export const useGameStore = defineStore('game', () => {
     result?: VisualAssetExecutionResult
   }
   const activeVisualExecutions = new Map<string, ActiveVisualExecution>()
+  const pendingAssetReplacements = new Map<string, { readonly manifest: AssetManifest; readonly revision: number }>()
   const imageGenerationOperation = computed<ImageGenerationOperation | null>(() => {
     const operations = Object.values(visualGenerationOperations.value)
     return operations.find(operation => operation.stage === 'generating' || operation.stage === 'applying')
@@ -621,9 +622,13 @@ export const useGameStore = defineStore('game', () => {
     const builtRequest = buildImageGenerationRequest(specification, requirement, generationContext)
     const request = retry?.prompt?.trim() ? Object.freeze({ ...builtRequest, prompt: retry.prompt.trim() }) : builtRequest
     const pending = { ...createPendingImageGenerationOperation(request), ...(retry ? { operationId: retry.operationId, retryOfOperationId: retry.retryOfOperationId } : {}) }
+    if (retry) pendingAssetReplacements.set(pending.operationId, { manifest: assetManifest.value, revision: assetManifestRevision.value })
     try {
       const result = await imageClient.generate(request)
-      if (token !== imageGenerationToken) return
+      if (token !== imageGenerationToken) {
+        pendingAssetReplacements.delete(pending.operationId)
+        return
+      }
       if (result.status !== 'success') {
         const providerOperation = result.operation ?? pending
         setOperation(finishImageGenerationOperation({
@@ -634,6 +639,7 @@ export const useGameStore = defineStore('game', () => {
           assetKind: request.constraints?.assetKind,
           input: providerOperation.input,
           bindingAssetIds: bindings.map(binding => binding.id),
+          bindingEntityIds: bindings.flatMap(binding => binding.entityId ? [binding.entityId] : []),
         }, {
           status: 'failed',
           stage: 'fallback',
@@ -642,6 +648,7 @@ export const useGameStore = defineStore('game', () => {
           fallback: 'static',
           failure: result.failure,
         }))
+        pendingAssetReplacements.delete(pending.operationId)
         return
       }
       const providerOperation = result.operation ?? pending
@@ -659,13 +666,17 @@ export const useGameStore = defineStore('game', () => {
         rendererStatus: 'pending',
         fallback: 'static',
         bindingAssetIds: bindings.map(binding => binding.id),
+        bindingEntityIds: bindings.flatMap(binding => binding.entityId ? [binding.entityId] : []),
       })
       assetStore.invalidate(result.assetId)
       for (const binding of bindings) assetStore.invalidate(binding.id)
       assetManifest.value = buildGeneratedAssetManifest(specification, assetManifest.value, result, bindings.map(binding => binding.id))
       markWorldUpdated()
     } catch (error) {
-      if (token !== imageGenerationToken) return
+      if (token !== imageGenerationToken) {
+        pendingAssetReplacements.delete(pending.operationId)
+        return
+      }
       setOperation(finishImageGenerationOperation(pending, {
         status: 'failed',
         stage: 'fallback',
@@ -674,6 +685,7 @@ export const useGameStore = defineStore('game', () => {
         fallback: 'static',
         failure: { code: 'provider_unavailable', message: error instanceof Error ? error.message : 'Image generation unavailable' },
       }))
+      pendingAssetReplacements.delete(pending.operationId)
     }
   }
 
@@ -696,7 +708,26 @@ export const useGameStore = defineStore('game', () => {
       requirement,
       bindings,
     })
-    await generateArtwork(specification, requirements, generationContext, imageGenerationToken, { operationId: retryOperationId, retryOfOperationId: previousOperationId, ...(prompt?.trim() ? { prompt } : {}) })
+    const builtRequest = buildImageGenerationRequest(specification, requirement, generationContext)
+    const request = prompt?.trim() ? Object.freeze({ ...builtRequest, prompt: prompt.trim() }) : builtRequest
+    const pending = createPendingImageGenerationOperation(request)
+    setOperation({
+      ...pending,
+      operationId: retryOperationId,
+      retryOfOperationId: previousOperationId,
+      bindingAssetIds: bindings.map(binding => binding.id),
+      bindingEntityIds: bindings.flatMap(binding => binding.entityId ? [binding.entityId] : []),
+      stage: 'queued',
+      status: 'queued',
+    })
+    scheduler.enqueue({
+      jobId: retryOperationId,
+      run: () => generateArtwork(specification, requirements, generationContext, imageGenerationToken, {
+        operationId: retryOperationId,
+        retryOfOperationId: previousOperationId,
+        ...(prompt?.trim() ? { prompt } : {}),
+      }),
+    })
   }
 
   function reportAssetApplication(event: { readonly assetId: string; readonly entityId?: string; readonly status: 'applied' | 'failed'; readonly reason?: 'resolution' | 'renderer' }): void {
@@ -727,6 +758,7 @@ export const useGameStore = defineStore('game', () => {
         rendererStatus: 'applied',
         outcome: 'generated_and_applied',
       }))
+      pendingAssetReplacements.delete(operation.operationId)
       if (execution) {
         execution.plan = withAssetExecutionProgress(execution.plan, {
           stage: 'RENDERER_APPLIED',
@@ -739,6 +771,14 @@ export const useGameStore = defineStore('game', () => {
         if (execution.plan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(execution.plan)
       }
       return
+    }
+    const previousReplacement = operation.retryOfOperationId ? pendingAssetReplacements.get(operation.operationId) : undefined
+    if (previousReplacement) {
+      assetManifest.value = previousReplacement.manifest
+      assetManifestRevision.value = previousReplacement.revision
+      for (const assetId of operation.bindingAssetIds ?? [operation.assetId]) assetStore.invalidate(assetId)
+      markWorldUpdated()
+      pendingAssetReplacements.delete(operation.operationId)
     }
     setOperation(finishImageGenerationOperation(operation, {
       status: 'failed',

@@ -6,12 +6,12 @@ not a database or task service.
 queue_version: 1
 updated: 2026-08-26
 current_sprint: Sprint 23
-current_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
-current_work_order_status: IN_PROGRESS
+current_work_order: NONE — SPRINT23_FREEZE_REVIEW pending Human/CTO decision
+current_work_order_status: COMPLETE
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S21-001 — Free-form World Evolution Front-door Fallback
-next_work_order: NONE — WO-S23-001 is the only current product item
+last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
+next_work_order: SPRINT23_FREEZE_REVIEW — no new measured blocker
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -106,7 +106,7 @@ close, and durable persistence remain out of scope.
 
 ## WO-S23-001 — Generation Prompt Truth and Targeted Retry
 
-status: IN_PROGRESS
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0
 architecture_before: v1.171
 architecture_expected_after: v1.172
@@ -125,8 +125,27 @@ acceptance: Original failure stays immutable; retry receives a new operation ID
 linked to it, reuses one canonical identity and existing bindings, updates only
 that manifest identity on success, and leaves successful assets/world/session
 untouched. The UI exposes only the exact final prompt returned by the provider.
-product_verification: Real provider-backed Studio failure → explicit retry →
-recovered Renderer asset without unrelated regeneration or session reset.
+product_verification: PASS — real Codex CLI Studio verified exact final prompt
+truth, editable prompt override, successful targeted regeneration, operation
+lineage, `published → resolved → Renderer applied`, same `world-1` Runtime
+session, and clean diagnostics. A live provider failed/timeout event was not
+observed. CTO-authorized controlled product-reachability coverage begins at
+the Web retry entry, preserves original failed A, creates lineage-linked B,
+recovers only its canonical identity, retains an unrelated ready asset, and
+preserves the Runtime world and Player.
+
+## SPRINT23_GAP_ANALYSIS_POST_WO-S23-001
+
+status: DONE — SPRINT23_FREEZE_REVIEW selected
+measured_result: The Sprint thesis is satisfied: users can inspect the actual
+provider request and safely regenerate or recover one canonical asset without
+losing successful assets or the active game. Real provider evidence covers
+successful regeneration; controlled product-reachability covers failure
+recovery. No live natural provider failed/timeout was observed or claimed.
+conclusion: No new bounded transparency/recovery blocker exists. Do not add
+generation-management variants merely to seek more failure cases.
+next_work_order: SPRINT23_FREEZE_REVIEW — requires Human/CTO freeze decision;
+Sprint 24 is not entered automatically.
 
 ## Queue rules
 

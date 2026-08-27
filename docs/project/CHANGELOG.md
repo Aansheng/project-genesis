@@ -1,5 +1,29 @@
 # Changelog
 
+### Sprint 23 — WO-S23-001 Generation Prompt Truth and Targeted Retry (DONE, v1.172)
+
+- Observatory now projects the exact final prompt returned by the selected image
+  provider, with a copy action and a clearly distinct editable source-prompt
+  field for targeted regeneration.
+- A regeneration creates a new lineage-linked operation for exactly one
+  canonical identity, is visible through the existing single-concurrency queue,
+  and reuses the current request/context, manifest, resolver, and Renderer
+  seams. Successful current assets are not removed while their candidates run.
+- Real Codex CLI Studio verification confirmed final prompt truth, prompt edit,
+  one targeted Background regeneration, historical operation lineage, and
+  `published → resolved → Renderer applied` without resetting `world-1` or the
+  Runtime session. No live provider failure/timeout occurred in the acceptance
+  session.
+- Controlled Web product-reachability coverage begins at
+  `game.regenerateArtwork` (the Observatory action path): a historical failed
+  Terrain operation stays failed, retry B has a new ID linked to A, succeeds
+  through the normal targeted application callback, preserves the world and
+  Player, and leaves a ready Background asset unchanged. Existing regressions
+  continue to prove preservation when generation fails before activation and
+  when downstream candidate resolution fails.
+- Sprint 23 has no new measured transparency/recovery blocker;
+  `SPRINT23_FREEZE_REVIEW` is selected. Sprint 24 is not entered automatically.
+
 ### Sprint 22 Freeze / Sprint 23 Authorization
 
 - Human/CTO froze Sprint 22 at v1.171: Code Complete = YES and Product

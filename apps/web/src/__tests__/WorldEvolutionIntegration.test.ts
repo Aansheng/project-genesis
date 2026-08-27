@@ -420,4 +420,50 @@ describe('World Evolution Studio integration', () => {
     )
     releaseInitialImage(Response.json({ status: 'failed', failure: { code: 'stale_operation', message: 'superseded' } }))
   })
+
+  it('recovers one failed canonical asset through the product retry entry without changing the active world', async () => {
+    let terrainAttempts = 0
+    const requests: string[] = []
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? '{}')) as { assetId?: string; visualArchetype?: string }
+      if (!body.assetId) return gateway()(input, init)
+      requests.push(body.assetId)
+      if (body.assetId === 'terrain-main' && terrainAttempts++ === 0) {
+        return Response.json({
+          status: 'failed', assetId: body.assetId, mode: 'text-to-image',
+          failure: { code: 'provider_unavailable', message: 'controlled provider failure' },
+          operation: { operationId: 'provider-terrain-failed', assetId: body.assetId, mode: 'text-to-image', status: 'failed', artifactStatus: 'failed', input: { prompt: 'failed terrain prompt', visualContext: {} } },
+        }, { status: 502 })
+      }
+      return Response.json({
+        status: 'success', assetId: body.assetId, mode: 'text-to-image',
+        asset: { assetId: body.assetId, resource: { uri: `/generated/${body.assetId}-${terrainAttempts}.png` }, generationMode: 'text-to-image' },
+      })
+    }) as typeof fetch
+    vi.stubGlobal('fetch', fetcher)
+    const game = useGameStore()
+    await game.send('创建一个农场游戏，3头牛')
+    await vi.waitFor(() => expect(Object.values(game.visualGenerationOperations).find(operation => operation.assetId === 'terrain-main' && operation.status === 'failed')).toBeDefined())
+    const failed = Object.values(game.visualGenerationOperations).find(operation => operation.assetId === 'terrain-main' && operation.status === 'failed')!
+    const world = game.worldStore.getWorld()
+    const player = world.entities.find(entity => entity.id === 'player-1')
+
+    await vi.waitFor(() => expect(Object.values(game.visualGenerationOperations).find(operation => operation.assetId === 'background-main' && operation.stage === 'applying')).toBeDefined())
+    game.reportAssetApplication({ assetId: 'background-main', status: 'applied' })
+    const unrelatedBefore = game.assetManifest.entries.find(entry => entry.assetId === 'background-main')?.resource?.uri
+
+    await game.regenerateArtwork(failed.operationId)
+    await vi.waitFor(() => expect(Object.values(game.visualGenerationOperations).find(operation => operation.retryOfOperationId === failed.operationId && operation.assetId === 'terrain-main' && operation.stage === 'applying')).toBeDefined())
+    const recovered = Object.values(game.visualGenerationOperations).find(operation => operation.retryOfOperationId === failed.operationId && operation.assetId === 'terrain-main')!
+    game.reportAssetApplication({ assetId: 'terrain-main', status: 'applied' })
+
+    await vi.waitFor(() => expect(game.visualGenerationOperations[recovered.operationId]?.stage).toBe('ready'))
+    expect(game.visualGenerationOperations[failed.operationId]).toMatchObject({ status: 'failed', stage: 'fallback' })
+    expect(recovered.operationId).not.toBe(failed.operationId)
+    expect(game.visualGenerationOperations[recovered.operationId]).toMatchObject({ status: 'succeeded', stage: 'ready', retryOfOperationId: failed.operationId })
+    expect(requests.filter(assetId => assetId === 'terrain-main')).toHaveLength(2)
+    expect(game.assetManifest.entries.find(entry => entry.assetId === 'background-main')?.resource?.uri).toBe(unrelatedBefore)
+    expect(game.worldStore.getWorld()).toBe(world)
+    expect(game.worldStore.getWorld().entities.find(entity => entity.id === 'player-1')).toBe(player)
+  })
 })

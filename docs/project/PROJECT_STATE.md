@@ -24,8 +24,8 @@
 **Sprint 20** - Playable Platform Geometry (**FROZEN — Code Complete = YES; Product Verified = YES; v1.170**)
 **Sprint 21** - Free-form Conversational World Evolution (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
 **Sprint 22** - Studio Session Continuity (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
-**Sprint 23** - Generation Transparency & Recovery (**ACTIVE — WO-S23-001 IN_PROGRESS**)
-**Current WO** - WO-S23-001 — Generation Prompt Truth and Targeted Retry
+**Sprint 23** - Generation Transparency & Recovery (**FREEZE REVIEW READY — WO-S23-001 DONE**)
+**Current WO** - None — Sprint 23 Freeze Review pending Human/CTO decision
 
 ---
 
@@ -33,14 +33,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 22 is FROZEN at v1.171: the session-loss issue is NOT REPRODUCED IN CURRENT PRODUCT. Sprint 23 is active. |
-| Architecture Version | v1.171; a deterministic miss with a current semantic world now reaches the existing structured World Evolution planner rather than the create-only `Unknown command` terminal path. |
-| Last Completed WO | WO-S21-001 — Free-form World Evolution Front-door Fallback; Code Complete = YES; Product Verified = YES at v1.171. |
+| Status | Sprint 23 is FREEZE REVIEW READY at v1.172: prompt truth and targeted recovery are verified without changing provider configuration or runtime ownership. |
+| Architecture Version | v1.172; an image-generation operation retains its exact provider-submitted prompt, and a failed canonical asset can be retried as one lineage-linked operation through existing manifest/resolver/Renderer seams. |
+| Last Completed WO | WO-S23-001 — Generation Prompt Truth and Targeted Retry; Code Complete = YES; Product Verified = YES at v1.172. |
 | Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified Enemy ADD paraphrases, a Coin ADD (`1 → 3`), and `删掉一个敌人` REMOVE (`1 → 0`, entities `7 → 6`), all preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, and unrelated terrain/items. Runtime/Renderer activity stayed clean. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | Visual generation does not yet expose the exact provider-submitted prompt and a failed canonical asset has no explicit targeted retry path. |
-| Product Verification | WO-S21-001: Code Complete = YES; Product Verified = YES. Provider-connected Studio evidence verifies free-form Enemy/Coin quantitative ADD and targeted Enemy REMOVE with same-session continuity, Runtime/Renderer synchronization, compatible visual reuse where observable, and clean browser diagnostics. |
-| Next Recommended Verification | Complete WO-S23-001 through a real failed-asset retry without resetting the active world/session. |
+| Current Blocking Issue | None measured within Sprint 23. A naturally occurring live Codex CLI provider failure was not observed; controlled product-reachability coverage proves the recovery path without falsely claiming such a failure. |
+| Product Verification | WO-S23-001: Code Complete = YES; Product Verified = YES. Real provider Studio verification covers submitted prompt truth, editable targeted regeneration, lineage, publication/resolution/Renderer replacement, same-session continuity, and clean diagnostics. Controlled Web product-reachability coverage covers failed operation → UI product retry entry → linked successful recovery while preserving the original failure, unrelated asset, world, and Player. |
+| Next Recommended Verification | SPRINT23_FREEZE_REVIEW. Do not enter Sprint 24 automatically. |
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The
