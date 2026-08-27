@@ -5,17 +5,17 @@ code remain the product authority.
 
 architecture_version: v1.173 (Runtime session truth now projects through the existing game store into a bounded Studio lifecycle overlay)
 current_sprint: Sprint 24 (Game Lifecycle Presentation)
-current_work_order: WO-S24-001 — real Studio Product Verification pending
-current_work_order_status: complete
+current_work_order: WO-S24-001 — lifecycle Product Verification complete; freeze review pending
+current_work_order_status: CODE_COMPLETE_PRODUCT_VERIFIED_FREEZE_REVIEW_PENDING
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
 last_completed_product_work_order: WO-S23-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: NONE — complete WO-S24-001 Product Verification first
-product_architecture_changed: yes — WO-S24-001 v1.172 → v1.173 adds only a Web presentation projection; Runtime remains the lifecycle authority and existing Runtime respawn remains the sole recovery action
+next_ready_work_order: SPRINT24_FREEZE_REVIEW — requires Human/CTO freeze decision
+product_architecture_changed: yes — WO-S24-001 v1.172 → v1.173 adds only a Web presentation projection; no Runtime code change has been made for the measured completed-state blocker
 sprint_status: Sprint 17–23 are FROZEN (Sprint 23 at v1.172); Sprint 24 has one Code Complete lifecycle-presentation WO at v1.173
-product_verified: PENDING for WO-S24-001 — focused Web projection coverage passes, but two real Studio generation attempts remained at `Creating world…`: the browser automation surface blocks local Gateway/API access (`net::ERR_BLOCKED_BY_CLIENT`) even through a temporary same-origin proxy. Failure/respawn and completion visual flows remain unclaimed
+product_verified: YES for WO-S24-001 — PV A and PV B both pass; completed + ArrowRight exploration is expected by the clarified Victory contract
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -36,13 +36,23 @@ Sprint 24 — Game Lifecycle Presentation:
 
 Source audit confirms `DefaultRuntimeExecutionLoop` binds
 `RuntimeGameplaySessionState`, stops systems while `failed`, and owns
-same-world respawn. `completed` remains a committed Runtime state, but the
-current loop does not independently suppress systems after completion;
-WO-S24-001's overlay visibly dominates the viewport without adding a second
-gameplay authority. `GameViewportPanel`'s existing Runtime observer writes a
-frozen application-scoped Pinia projection; the component reads that projection
-to render the overlay. No Web code infers Health, collision, or goal state.
-Focused tests, typecheck, and lint pass. Real Studio traversal is pending.
+same-world respawn. `completed` remains a committed, explorable Runtime state
+by product contract. Real Studio confirmed that an ArrowRight input moved
+Player x=641 → x=695 under the Victory overlay, matching the copy
+`目标已完成。当前世界仍可继续探索`. WO-S24-002 was cancelled before any
+product code execution.
+`GameViewportPanel`'s existing Runtime observer writes a frozen
+application-scoped Pinia projection; the component reads that projection to
+render the overlay. No Web code infers Health, collision, or goal state.
+Focused tests, typecheck, and lint pass.
+
+## Sprint 24 Gap Analysis Post-PV
+
+Fresh Gap Analysis found no new lifecycle-presentation blocker. The measured
+completed + ArrowRight movement is expected exploration under the clarified
+Victory contract, not a Runtime defect. Cancel WO-S24-002; do not change
+`DefaultRuntimeExecutionLoop` to gate `completed`. Select
+`SPRINT24_FREEZE_REVIEW`; Sprint 25 is not entered automatically.
 
 Sprint 21 — Free-form Conversational World Evolution (FROZEN):
 
@@ -73,6 +83,12 @@ The single-Enemy baseline makes the remaining shared-Enemy visual condition
 inapplicable. Fresh Gap Analysis selects SPRINT21_FREEZE_REVIEW rather than
 another conversational feature measurement.
 
+The v1.173 active-world create/generate routing repair received one bounded
+real Studio preflight before Sprint 24 verification resumed: `world-1` with 7
+entities accepted `再创建5个怪物` as targeted evolution and became 12 entities
+with the baseline preserved; `创建一个新的游戏` intentionally created
+`world-2`. Sprint 21 remains frozen and no new Sprint/WO was created.
+
 Sprint 20 — Playable Platform Geometry (FROZEN):
 
 1. Make a generated semantic Platform a Runtime-authoritative playable surface.
@@ -101,8 +117,10 @@ product-level prioritization:
 - Failed image generation lacks a targeted user retry flow.
 - Image generation UI does not expose the actual final prompt submitted to the
   image agent/provider.
-- Failed/completed gameplay lifecycle presentation remains basic and should
-  later use a more game-like overlay/modal where appropriate.
+- Failed/completed gameplay lifecycle presentation is now covered by the
+  bounded Runtime-authoritative Studio overlay and real lifecycle PV. No new
+  lifecycle-presentation blocker was measured; completed exploration remains
+  intentional product behavior.
 
 ## Completed
 

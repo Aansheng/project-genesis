@@ -1,5 +1,55 @@
 # Changelog
 
+### Sprint 24 Human/CTO Clarification — Completion Exploration Contract (v1.173)
+
+- Human/CTO clarified that `completed` is a goal-achieved state whose existing
+  Victory copy, `目标已完成。当前世界仍可继续探索`, intentionally permits
+  continued Player exploration in the same world/session.
+- The previously proposed `WO-S24-002 — Runtime Completion Execution Gate` is
+  cancelled before implementation. No product code was executed, and
+  `DefaultRuntimeExecutionLoop` must not be changed to gate `completed`.
+- Reclassified Sprint 24 lifecycle Product Verification as PASS: both
+  `active → failed → Game Over → Respawn → active` and
+  `active → completed → Victory` passed in real Studio, with clean console
+  diagnostics and preserved world/session continuity.
+- Fresh Sprint 24 Gap Analysis found no new lifecycle-presentation blocker and
+  selected `SPRINT24_FREEZE_REVIEW`. Sprint 25 is not entered automatically.
+
+### Sprint 24 Product Verification Measurement — Completion Exploration Evidence (v1.173)
+
+- Real Studio PV A passed on `localhost:5888`: legitimate enemy damage drove
+  `world-1` to `failed`; Game Over exposed only `重生`; failed-state ticks kept
+  the same world/entities stable; Runtime Respawn returned to `active` with the
+  same `world-1` and 11 entities. Browser diagnostics remained clean.
+- Real Studio PV B reached the authoritative goal and projected `completed` as
+  Victory with no fabricated restart/next-level action. The required
+  post-completion measurement found idle state stable and real ArrowRight
+  exploration moving Player x=`641` → x=`695` while Victory remained visible.
+  This matches the clarified explorable-world contract and is expected
+  behavior, not a Runtime blocker.
+- The earlier provisional WO-S24-002 proposal was cancelled before
+  implementation. No product code was modified.
+
+### Sprint 24 Preflight — Active-world Create/Generate Routing Regression (v1.173)
+
+- The accepted routing repair was verified in the real local Studio without
+  reopening Sprint 21 or creating a new Sprint/WO. A generated platformer began
+  as `world-1` with 7 entities; `再创建5个怪物` reached targeted World Evolution,
+  preserved `world-1` and the existing Player, terrain/Ground, Platform,
+  Enemy, collectible, goal, and checkpoint, and produced 12 entities with five
+  new enemies.
+- The explicit new-world request `创建一个新的游戏` intentionally reached
+  CreateWorld and replaced the session with `world-2` (1 entity). This confirms
+  that the semantic active-world precedence repair distinguishes entity-scoped
+  create/generate from explicit new-world semantics.
+- This bounded preflight passes the regression invariant and Sprint 24
+  lifecycle Product Verification is resumed. It does not claim the separate
+  `active → failed → respawn` or `active → completed → Victory` paths verified.
+- The separate provider `CANDIDATE_PARSE: failed` report was not reproduced in
+  this smoke. Initial generation did select the existing deterministic fallback
+  with `product_incomplete`; that is distinct from the routing regression and
+  remains governed by the existing validation authority.
+
 ### Sprint 24 — WO-S24-001 Runtime-Authoritative Lifecycle Overlay (Code Complete, v1.173)
 
 - The Studio Game Viewport now projects Runtime session truth through the
@@ -11,9 +61,9 @@
   restart, next-level, lives, checkpoints, or menu framework was added.
 - New lifecycle strings are localized in Chinese and English. Focused Web
   coverage and typecheck pass; lint has no errors (existing warnings only).
-- Real Studio Product Verification remains pending because the configured local
-  provider did not return during world generation; this is not claimed as a
-  lifecycle validation result.
+- Real Studio lifecycle Product Verification remains pending for the failure /
+  respawn and completion / Victory paths; the bounded routing-regression
+  preflight is recorded above and is not counted as lifecycle evidence.
 
 ### Sprint 23 Freeze (v1.172)
 

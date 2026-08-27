@@ -25,8 +25,8 @@
 **Sprint 21** - Free-form Conversational World Evolution (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
 **Sprint 22** - Studio Session Continuity (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
 **Sprint 23** - Generation Transparency & Recovery (**FROZEN — Code Complete = YES; Product Verified = YES; v1.172**)
-**Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = PENDING; v1.173**)
-**Current WO** - WO-S24-001 Product Verification pending real Studio lifecycle verification
+**Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = YES; v1.173**)
+**Current WO** - SPRINT24_FREEZE_REVIEW pending Human/CTO decision
 
 ---
 
@@ -34,14 +34,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 23 is FROZEN at v1.172. Sprint 24 has one bounded lifecycle-presentation WO at v1.173; automated evidence passes and real Studio verification is pending. |
+| Status | Sprint 23 is FROZEN at v1.172. Sprint 24 is Code Complete and Product Verified at v1.173; fresh Gap Analysis found no lifecycle-presentation blocker and selected SPRINT24_FREEZE_REVIEW. |
 | Architecture Version | v1.173; Runtime-owned session state is projected through application-scoped Pinia into a bounded Studio viewport lifecycle overlay, without adding UI gameplay authority. |
 | Last Completed WO | WO-S23-001 — Generation Prompt Truth and Targeted Retry; Code Complete = YES; Product Verified = YES at v1.172. |
-| Current User-Visible Behavior | With a current world, a deterministic routing miss reaches the existing AI World Evolution planner rather than `Unknown command`. Real Studio through the existing Codex CLI gateway verified Enemy ADD paraphrases, a Coin ADD (`1 → 3`), and `删掉一个敌人` REMOVE (`1 → 0`, entities `7 → 6`), all preserving `world-1`, Player `(80,400)`, Health `100/100`, XP `0`, Level `1`, active gameplay, and unrelated terrain/items. Runtime/Renderer activity stayed clean. |
+| Current User-Visible Behavior | Entity-scoped create/generate/add requests still reach targeted World Evolution. In a real generated platformer, legitimate enemy damage drove `world-1` to `failed`; Game Over showed only `重生`, Runtime respawn returned to `active`, and the same world/entities remained. The real goal then showed Victory with no fabricated restart/next-level action; the copy truthfully states that the current world remains explorable, and Player exploration continued in the same world/session. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | Real Studio lifecycle verification is pending: two browser-automated generation attempts remained at `Creating world…` because the automation surface blocks local Gateway/API access (`net::ERR_BLOCKED_BY_CLIENT`), including through a temporary same-origin proxy. This is environment/product-verification evidence, not a lifecycle failure claim. |
-| Product Verification | WO-S23-001: YES. WO-S24-001: automated Web projection coverage, typecheck, and lint pass; manually driving a real generated platformer through failure → overlay → respawn and goal → overlay remains pending. |
-| Next Recommended Verification | Complete WO-S24-001 Product Verification with the two authoritative real Studio lifecycle paths; then run SPRINT24_FREEZE_REVIEW. Do not enter Sprint 25 automatically. |
+| Current Blocking Issue | None for Sprint 24 lifecycle presentation. The observed completed + ArrowRight movement is expected explorable-world behavior under the clarified Victory contract. |
+| Product Verification | WO-S23-001: YES. v1.173 routing-regression preflight: YES. WO-S24-001 lifecycle PV A: PASS. WO-S24-001 lifecycle PV B: PASS. |
+| Next Recommended Verification | SPRINT24_FREEZE_REVIEW — requires Human/CTO freeze decision. Do not enter Sprint 25 automatically. |
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The
@@ -54,11 +54,36 @@ of this contract.
 | Problem | Evidence | Sprint treatment |
 | --- | --- | --- |
 | Player can pass through generated Platform geometry | Resolved and Product Verified in WO-S20-001. | Closed — Sprint 20 frozen at v1.170. |
-| Natural-language follow-up `增加5个enemy` can return `Unknown command` | Resolved in real provider-connected Studio: two free-form Chinese requests reached the validated targeted evolution path and added exactly five enemies each. | Closed for WO-S21-001. |
+| Natural-language follow-up `增加5个enemy` can return `Unknown command` | Sprint 21 behavior remains verified. A later active-world create/generate precedence regression was repaired; the v1.173 real Studio preflight verified `再创建5个怪物` as same-world targeted evolution (`7 → 12`) and verified explicit `创建一个新的游戏` as intentional CreateWorld. | Closed for WO-S21-001; regression repair verified in v1.173. Sprint 21 remains frozen; no new Sprint/WO. |
 | Full Observatory navigation can lose Studio runtime state | Current source and real SPA measurement retained `world-1`, Player, Health, entities, and post-return World Evolution across Studio → Full Observatory → Studio. | Closed for Sprint 22 continuity. No claim is made for browser refresh, tab close, durable save, or cross-session restore. |
 | Failed image generation lacks targeted retry | Resolved in Sprint 23. | Closed — frozen at v1.172. |
 | Final image-generation prompt is not exposed in the UI | Resolved in Sprint 23. | Closed — frozen at v1.172. |
-| Failed/completed gameplay presentation is basic | Runtime session truth now projects to a bounded Game Over / Victory viewport overlay; real generated-platformer verification remains pending. | Sprint 24 verification gate at v1.173. |
+| Failed/completed gameplay presentation is basic | Runtime session truth now projects to a bounded Game Over / Victory viewport overlay; both real generated-platformer lifecycle paths pass. | Product Verified — Sprint 24 freeze review selected at v1.173. |
+| Completed gameplay continues under Victory | Real Studio confirmed completed + Victory permits Player exploration, matching `目标已完成。当前世界仍可继续探索`. | Expected product behavior; WO-S24-002 cancelled. |
+
+## Sprint 24 Product Verification Record
+
+Real Studio lifecycle measurement completed on 2026-08-27 at `localhost:5888`.
+
+- PV A `active → failed → Game Over → Respawn → active`: PASS. Legitimate
+  enemy contact damage reduced Player Health to `0`; the overlay showed
+  `failed` and only `重生`; `world-1` and 11 entities remained. Waiting in
+  `failed` kept Player/world state stable. Respawn returned to `active` with
+  the same `world-1` and 11 entities; no regeneration occurred.
+- PV B `active → completed → Victory`: presentation PASS. The real goal
+  reached `completed`; Victory was projected from Runtime state and exposed
+  no restart/next-level action. Console diagnostics contained only Vite
+  connection messages.
+- PV B lifecycle correctness: PASS. Idle completed state kept Player at
+  `(641,400)` with Health `96`; a real ArrowRight input moved Player to
+  `(695,400)` while Victory remained visible, which is expected exploration
+  under the clarified contract. Same world/session remained coherent and the
+  console stayed clean.
+- Human/CTO clarification cancelled WO-S24-002 before implementation. No
+  change was made to `DefaultRuntimeExecutionLoop`, and completed does not
+  inherit failed-state execution blocking.
+- Fresh Sprint 24 Gap Analysis found no new lifecycle-presentation blocker;
+  `SPRINT24_FREEZE_REVIEW` is selected and Sprint 25 is not entered.
 
 ## WO-S19-001 Product Verification Record
 
