@@ -5,19 +5,20 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-28
-current_sprint: Sprint 27
-current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+current_sprint: Sprint 28
+current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+current_work_order_status: READY — initial source Gap Analysis complete; implementation not started
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-next_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
+next_work_order: SPRINT28_FREEZE_REVIEW — Survival Gameplay Pressure
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT27_AUTHORIZATION — Human/CTO Priority Correction
 
-status: AUTHORIZED — 2026-08-28; Sprint 27 is opened despite the stale
+status: CLOSED — Sprint 27 FROZEN at v1.177 after the 2026-08-28 Human/CTO
+decision; originally AUTHORIZED because Sprint 27 was opened despite the stale
 Sprint 26 freeze-review projection. The Human/CTO instruction is the higher
 authority and explicitly forbids beginning the previously proposed Survival
 gameplay-pressure work.
@@ -26,9 +27,11 @@ architecture_target: v1.177
 goal: Make Survival visually and spatially read as top-down through the
 existing Natural Language → Semantic World → Game DSL → Runtime → Renderer
 pipeline while preserving Platformer.
-forbidden_next: Enemy pursuit, offense, weapons/projectiles, spawning, waves,
-timer/duration, Survivor-specific Runtime/Renderer, CameraManager,
-GenreRenderer, SurvivorRuntime, animation-state framework, or Sprint 28.
+historical_forbidden_next: Enemy pursuit, offense, weapons/projectiles,
+spawning, waves, timer/duration, Survivor-specific Runtime/Renderer,
+CameraManager, GenreRenderer, SurvivorRuntime, animation-state framework, or
+Sprint 28. This boundary applied before the separate Human/CTO freeze and
+Sprint 28 authorization recorded below.
 source_of_truth: docs/project/SPRINT27_BACKLOG.md, ADR-0287, and actual source
 runtime wiring; the previous Sprint 26 freeze review is not a blocker.
 
@@ -71,13 +74,13 @@ repair WO is opened.
 observability: Preserve actual Runtime geometry, submitted prompt text,
 asset render usage, renderer application events, and console diagnostics;
 do not infer enemy gameplay from this spatial slice.
-next_gate: SPRINT27_FREEZE_REVIEW only — the bounded acceptance and Product
-Verification pass; do not enter Sprint 28 automatically.
+next_gate: Sprint 27 freeze review accepted by Human/CTO at v1.177; Sprint 28
+is separately authorized below. Sprint 29 is not entered automatically.
 
 ## SPRINT27_GAP_ANALYSIS_POST_PV
 
-status: READY_FOR_FREEZE_REVIEW — no additional measured Spatial & Visual
-Composition blocker
+status: DONE — Human/CTO accepted Sprint 27 freeze at v1.177; no additional
+measured Spatial & Visual Composition blocker
 thesis: A user can immediately recognize generated Survival as a top-down game
 through spatial composition, environment, terrain usage, and directional Player
 presentation while existing Platformer behavior remains correct.
@@ -88,8 +91,75 @@ controls. Human/CTO confirms the existing Mario/Platformer product remains
 correct; the previous automated Space observation is an input/observation
 limitation rather than a product failure.
 conclusion: No additional measured Spatial & Visual Composition blocker exists.
-Select only SPRINT27_FREEZE_REVIEW; do not create a polish-only visual WO and
-do not enter Sprint 28 automatically.
+The freeze was accepted and Sprint 28 was separately authorized. Do not create
+a polish-only visual WO.
+
+## SPRINT27_FREEZE_REVIEW
+
+status: DONE — Human/CTO froze Sprint 27 at v1.177 on 2026-08-28.
+WO-S27-001 Code Complete = YES; Product Verified = YES; Status = DONE.
+The existing Mario/Platformer product is confirmed correct. The earlier
+automated Space observation is `AUTOMATED INPUT / OBSERVATION LIMITATION`, not
+a product regression. No Platformer repair WO is opened.
+artifact: docs/project/SPRINT27_REVIEW.md
+result: Survival top-down spatial composition thesis PASS; no additional visual
+composition blocker; Sprint 27 frozen. The closure documentation passed
+`git diff --check`; inability to create `.git/index.lock` is an environment
+limitation, not a product blocker.
+
+## SPRINT28_AUTHORIZATION — Human/CTO Survival Gameplay Pressure
+
+status: AUTHORIZED — 2026-08-28; initial production-path Gap Analysis complete
+architecture_before: v1.177
+architecture_target: v1.178 expected only if implementation changes the
+accepted architecture
+goal: Make the generated Survival pressure loop immediately observable as
+Enemy → approaches current Player → contact threatens Player → Player avoids,
+using deterministic generic Runtime behavior and the existing damage,
+Health, failed, and Respawn foundations.
+selected_bottleneck: PRODUCT_GAP / EXECUTION_GAP — no registered generic
+Runtime capability reads current Player Position, computes target-directed
+Enemy movement, and integrates it for initial and conversationally added
+enemies.
+required_reuse: Existing Survival generation and top-down composition,
+Runtime Position/Velocity/collision/Health, EntityContactSystem,
+`survival-enemy-contact` / `DAMAGE_ENTITY`, failed state, Respawn, and targeted
+world evolution.
+forbidden_scope: player kill, weapons/attacks/projectiles, spawn/waves,
+timer/duration, XP/skills/progression, Survivor-specific Runtime/Renderer,
+EnemyAI/Chase managers, BehaviorTree, pathfinding/navmesh/steering, and
+Platformer changes.
+source_of_truth: docs/project/SPRINT28_BACKLOG.md, actual Runtime/Web wiring,
+and the Human/CTO decision log. Exactly one bounded Sprint 28 WO is selected.
+
+## WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+
+status: READY — source Gap Analysis complete; implementation not started
+priority: P0 / Human-CTO authorized
+dependencies: Sprint 27 FROZEN at v1.177; explicit Sprint 28 authorization;
+fresh nine-question production-chain Gap Analysis
+architecture_before: v1.177
+architecture_after: v1.178 expected only if implementation changes accepted
+architecture
+measured_bottleneck: Survival enemies have Position/collision/Health but are
+stationary; no registered generic Runtime system moves eligible enemies toward
+the current Player or updates direction after Player movement.
+allowed_scope: One generic target-directed Runtime movement capability with an
+explicit target selector; minimal generic Velocity/Position integration for
+eligible non-Player entities; Survival composition wiring; existing evolution
+composition inheritance; focused tests and required truthful documentation.
+forbidden_scope: Any Survivor-specific engine/manager/AI, BehaviorTree,
+pathfinding/navmesh/steering, weapons/attacks/projectiles, player kill,
+spawn/wave/timer/duration/XP/skills, Renderer/camera architecture, manual-only
+entities, or Platformer changes.
+acceptance: Real `生成一个幸存者游戏` shows Enemy movement toward stationary
+Player and direction updates after Player movement; contact damage decreases
+authoritative Player Health; existing failed/Game Over and same-session
+Respawn remain coherent; same-world `再加五只怪` is exactly +5 without rebuild
+and additions inherit pursuit/contact behavior; Platformer remains correct and
+the console is clean.
+next_gate: SPRINT28_FREEZE_REVIEW only after this single WO passes; do not enter
+Sprint 29 automatically.
 
 ## SPRINT24_FREEZE_REVIEW
 

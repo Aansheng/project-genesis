@@ -28,8 +28,9 @@
 **Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = YES; v1.173**)
 **Sprint 25** — Production Reachability & Legacy Disposition Review (**FROZEN — WO-S25-001 audit complete; v1.173**)
 **Sprint 26** — Second-Genre Generalization Proof (**bounded proof complete; v1.176**)
-**Sprint 27** — Survival Top-Down Spatial Composition (**WO-S27-001 DONE — Code Complete = YES; Product Verified = YES; Freeze Review pending — v1.177**)
-**Current WO** - WO-S27-001 — DONE; next gate `SPRINT27_FREEZE_REVIEW`
+**Sprint 27** — Survival Top-Down Spatial Composition (**FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES; v1.177**)
+**Sprint 28** — Survival Gameplay Pressure (**AUTHORIZED — WO-S28-001 READY; implementation not started — v1.177**)
+**Current WO** - WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit — READY
 
 ---
 
@@ -37,14 +38,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. WO-S27-001 is DONE at v1.177 after Survival and Platformer non-regression Product Verification; `SPRINT27_FREEZE_REVIEW` is the only next gate. |
+| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. Sprint 27 is FROZEN at v1.177: WO-S27-001 is DONE with Code Complete = YES and Product Verified = YES. Human/CTO explicitly authorized Sprint 28; its fresh source Gap Analysis selected exactly one READY item, WO-S28-001. |
 | Architecture Version | v1.177; Survival resolves to bounded `top-down` spatial mode, carries top-view/arena-fill visual intent, exposes Runtime four-way direction, and composes a repeatable X/Y arena without adding Survivor-specific Runtime/Renderer authority. |
-| Last Completed WO | WO-S27-001 — Survival Top-Down Spatial Composition; Code Complete = YES; Product Verified = YES at v1.177. |
-| Current User-Visible Behavior | The existing Survival path creates six entities, uses Arrow Keys-only generic two-axis motion, and accepts same-world enemy addition. Provider-backed Survival assets render in a top-down X/Y arena with no Jump control. The existing 7-entity Mario/Platformer experience retains side-view composition, Ground/Platform, Arrow Keys/Space controls, and correct gameplay behavior as confirmed by Human/CTO. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → generic Runtime systems → Runtime World → Runtime-derived position/velocity → adapter with bounded `WorldSpatialMode`/Player direction → Pixi environment arena-fill/background composition and entity sprites → visual design/asset requirements with top-view and Prompt Truth constraints → state/frame-preserving manifest; Runtime geometry remains authoritative and Platformer keeps its existing side-view path. |
-| Current Blocking Issue | None within the bounded Sprint 27 Spatial & Visual Composition thesis. The earlier automated Space observation is classified as `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a product blocker. Enemy pursuit and other gameplay pressure remain out of scope. |
-| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. WO-S27-001: PASS — Survival evidence and Platformer non-regression both verified; Code Complete = YES; Product Verified = YES. |
-| Next Recommended Verification | `SPRINT27_FREEZE_REVIEW` only. Do not create a polish-only visual WO or enter Sprint 28 automatically. |
+| Last Completed WO | WO-S27-001 — Survival Top-Down Spatial Composition; Code Complete = YES; Product Verified = YES; Sprint 27 frozen at v1.177. |
+| Current User-Visible Behavior | Survival creates a provider-backed top-down X/Y arena with Arrow Keys-only generic motion, no Jump control, and same-world enemy addition. Current Survival enemies are stationary; contact damage/Health/failed/Respawn foundations exist but the enemy pressure loop is not yet active. The existing Mario/Platformer experience retains side-view composition, Ground/Platform, Arrow Keys/Space controls, and correct gameplay behavior as confirmed by Human/CTO. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → Semantic World → Game DSL with generic Health/collision bounds → Runtime projection → Runtime system registry / `DefaultRuntimeExecutionLoop` → gameplay event collector / `EntityContactSystem` → post-system GameplayRuleExecutor → Runtime World, Health, and session state → RuntimeRendererAdapter → Pixi Renderer → Observatory; visual/asset generation remains provider-backed with Prompt Truth and published → resolved → Renderer applied lineage. |
+| Current Blocking Issue | Sprint 28's first measured blocker is missing generic Runtime target-directed Enemy movement: no registered capability reads current Player Position, computes direct pursuit, and integrates it for initial and conversationally added enemies. The earlier automated Space observation remains `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a Platformer product blocker. |
+| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. Sprint 27: PASS and FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES. Sprint 28 Product Verification is pending implementation of WO-S28-001. |
+| Next Recommended Verification | Execute only `WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit`, then evaluate `SPRINT28_FREEZE_REVIEW`. Do not enter Sprint 29 automatically. |
 
 ## Sprint 27 Spatial Composition Snapshot
 
@@ -58,7 +59,8 @@ asset/Prompt Truth semantics, and a repeatable X/Y `arena-fill` surface.
 Platformer remains the compatibility control: its system composition, Jump
 control, side-view asset requirements, horizontal Ground tiling, and existing
 presentation state path are unchanged. No enemy pursuit or gameplay-pressure
-work is part of Sprint 27.
+work was part of Sprint 27. Sprint 27 is now frozen at v1.177 under
+`docs/project/SPRINT27_REVIEW.md`.
 
 ## Sprint 27 Gap Analysis Post Product Verification
 
@@ -69,9 +71,28 @@ correct. Real provider-backed Survival Prompt Truth and published → resolved �
 Renderer applied evidence pass, and Human/CTO confirms the existing
 Mario/Platformer product behaves correctly.
 
-No additional measured Spatial & Visual Composition blocker exists. Select
-`SPRINT27_FREEZE_REVIEW` as the only next gate; do not add another visual
-composition polish WO and do not enter Sprint 28 automatically.
+No additional measured Spatial & Visual Composition blocker exists. Human/CTO
+accepted the freeze at v1.177 and separately authorized Sprint 28. Do not add
+another visual-composition polish WO or treat the automated Space observation
+as a Platformer defect.
+
+## Sprint 28 Gameplay Pressure Snapshot
+
+The first production-path Gap Analysis inspected the real chain from
+`StudioCommandBar` through `gameStore`, CreateWorld, Semantic World, Game DSL,
+Runtime projection and system registry, Runtime gameplay event/rule execution,
+Renderer, and Observatory. It found that initial Survival enemies have
+semantic, Position, Health, and collision-bounds components but no Velocity or
+target-directed Runtime behavior. The current fixed-delta movement system and
+Player-only position integrator cannot express pursuit.
+
+The existing generic contact event, Survival contact damage rule,
+`DAMAGE_ENTITY`, Health, failed state, and same-session Respawn are reusable;
+same-world `再加五只怪` is also already verified for continuity and exact +5,
+but added enemies do not yet inherit a complete pursuit composition. Therefore
+the single smallest selected blocker is generic Runtime target-directed
+movement, recorded as `WO-S28-001` in `SPRINT28_BACKLOG.md`. No second Sprint 28
+WO is created.
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The

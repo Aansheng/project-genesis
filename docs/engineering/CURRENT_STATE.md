@@ -3,23 +3,24 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.177 (Sprint 27 Survival top-down spatial composition complete; freeze review pending)
-current_sprint: Sprint 27 (Survival Top-Down Spatial Composition)
-current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+architecture_version: v1.177 (Sprint 27 frozen; Sprint 28 authorized; first bounded WO ready)
+current_sprint: Sprint 28 (Survival Gameplay Pressure)
+current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+current_work_order_status: READY — initial source Gap Analysis complete; implementation not started
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
 last_completed_product_work_order: WO-S27-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
+next_ready_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
 product_architecture_changed: yes — v1.176 → v1.177; Survival now carries a bounded spatial composition contract through visual/assets and Runtime→Renderer projection
-sprint_status: Sprint 17–25 remain historically frozen; Sprint 26 bounded proof
-  is complete at v1.176. Human/CTO priority correction opened Sprint 27 and
-  WO-S27-001; WO-S27-001 is DONE at v1.177 and only the Sprint 27 freeze
-  review remains.
+sprint_status: Sprint 17–26 remain historically frozen or complete; Sprint 27
+  is FROZEN at v1.177 after WO-S27-001 passed Code Complete and Product
+  Verification. Human/CTO explicitly authorized Sprint 28; its first source
+  Gap Analysis selected exactly one READY item, WO-S28-001. Implementation has
+  not started.
 code_complete: YES for WO-S27-001; product_verified: YES for Sprint 27;
-  Sprint 26 bounded proof remains YES
+  Sprint 28 code and Product Verification are pending
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -30,13 +31,14 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 27 — Survival Top-Down Spatial Composition:
+Sprint 28 — Survival Gameplay Pressure:
 
-1. Make Survival visually and spatially read as top-down through the existing
-   natural-language → Semantic World → DSL → Runtime → Renderer path.
-2. Preserve Platformer behavior and Runtime geometry authority.
-3. Stop for Human/CTO freeze review after this bounded spatial slice; do not
-   begin enemy pursuit or Sprint 28 automatically.
+1. Make a generated Survival world produce deterministic pressure through
+   Enemy → approaches Player → contact threatens Player → Player avoids.
+2. Reuse generic Runtime Position/Velocity/collision/Health/contact/damage/
+   failed/Respawn capabilities and preserve Platformer behavior.
+3. Execute only `WO-S28-001`; stop for `SPRINT28_FREEZE_REVIEW` and do not
+   enter Sprint 29 automatically.
 
 Sprint 25 is frozen at v1.173. Its audit-only WO-S25-001 is complete and the
 freeze review is recorded in `docs/project/SPRINT25_REVIEW.md`.
@@ -80,9 +82,53 @@ arena-fill terrain, top-view asset Prompt Truth, and Runtime-derived
 four-direction Player presentation. Platformer non-regression is PASS by the
 existing automated evidence plus Human/CTO real-product verification.
 
-No additional measured Spatial & Visual Composition blocker exists. Select
-`SPRINT27_FREEZE_REVIEW` as the only next gate; do not add visual polish as a
-new WO and do not enter Sprint 28 automatically.
+No additional measured Spatial & Visual Composition blocker exists. Human/CTO
+accepted the freeze at v1.177 and separately authorized Sprint 28. Do not add
+visual polish as a new WO or treat the earlier automated Space observation as a
+Platformer defect.
+
+## Sprint 28 Initial Gap Analysis
+
+The inspected production chain is:
+
+`StudioCommandBar → gameStore → IntentRouter / CreateWorldPipeline → Semantic
+World → Game DSL → Runtime projection → Runtime system registry /
+DefaultRuntimeExecutionLoop → Gameplay event collector /
+EntityContactSystem → post-system GameplayRuleExecutor → Runtime World,
+Health, and session state → RuntimeRendererAdapter / Pixi → Observatory`.
+
+Source findings:
+
+1. Survival enemies are stationary in the current production composition:
+   initial enemies have semantic, Position, Health, and collision-bounds
+   components, but no Velocity and no target reference.
+2. Generic Position, Velocity, collision-bounds, Health, and semantic
+   components exist. `DefaultRuntimeProjection` projects them without
+   behavior.
+3. The current `DefaultMovementSystem` applies fixed deltas, and
+   `DefaultVerticalMotionSystem` integrates Player only. Survival's real
+   registry has PlayerController, VerticalMotion, EntityContact, and gameplay
+   execution, but no target-directed movement system.
+4. Contact damage is already production-reachable on the deterministic/default
+   Survival path: collision bounds → `ENTITY_CONTACT_STARTED` → the existing
+   `survival-enemy-contact` rule → trusted `DAMAGE_ENTITY` → Player Health and
+   session state. It is contact-start based rather than repeated while an
+   overlap remains.
+5. Generic Health, damage, failed state, and same-session Respawn are reusable
+   unchanged for this bounded slice and are already product-verified.
+6. Same-world `再加五只怪` preserves session and exact entity count, but the
+   evolution synchronizer does not yet give added enemies the full initial
+   Enemy Health/Velocity composition or any pursuit behavior.
+
+**Selected first blocker:** missing generic Runtime target-directed movement /
+pursuit execution. This is the smallest blocker because contact threat and
+recovery already exist, while no registered Runtime capability can move an
+eligible Enemy toward the current Player and update that direction after Player
+movement. The single selected item is `WO-S28-001`; no second Sprint 28 WO is
+created.
+
+See `docs/project/SPRINT28_BACKLOG.md` for the complete nine-question audit,
+bounded scope, acceptance, and manual verification contract.
 
 ## Sprint 26 Initial Gap Analysis (historical)
 

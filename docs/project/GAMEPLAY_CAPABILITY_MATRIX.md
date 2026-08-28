@@ -1,7 +1,7 @@
-# Gameplay Capability Matrix — Sprint 24 Frozen / Sprint 25 Audit
+# Gameplay Capability Matrix — Sprint 27 Frozen / Sprint 28 Authorized
 
-Architecture version: v1.173 (Sprint 23 FROZEN; Sprint 24 lifecycle overlay
-Code Complete and Product Verified; Sprint 25 reachability audit is audit-only)
+Architecture version: v1.177 (Sprint 27 FROZEN; Sprint 28 authorized; generic
+Enemy chase remains deferred pending WO-S28-001)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

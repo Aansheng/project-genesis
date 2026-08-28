@@ -3,7 +3,9 @@
 **Authorization:** Human/CTO priority correction, 2026-08-28
 **Architecture boundary:** v1.176 → v1.177
 **Current work order:** WO-S27-001
-**Status:** DONE — Code Complete = YES; Product Verified = YES
+**Status:** FROZEN — Code Complete = YES; Product Verified = YES; Human/CTO
+freeze accepted at v1.177
+**FROZEN:** YES
 
 ## First action — repository-grounded Gap Analysis
 
@@ -114,8 +116,12 @@ Mario/Platformer experience remains correct; the earlier automated Space
 observation does not constitute a product blocker.
 
 **Conclusion:** No additional measured Spatial & Visual Composition blocker
-exists. Select `SPRINT27_FREEZE_REVIEW` as the only next gate; do not create a
-polish-only visual-composition WO and do not enter Sprint 28 automatically.
+exists. The Human/CTO decision accepted `SPRINT27_FREEZE_REVIEW`, froze Sprint
+27 at v1.177, and separately authorized Sprint 28. Do not create a
+polish-only visual-composition WO. Sprint 28's single bounded discovery result
+is recorded in `SPRINT28_BACKLOG.md`; Sprint 29 is not entered automatically.
 
-**Non-goals:** This slice is complete pending `SPRINT27_FREEZE_REVIEW`; do not
-automatically begin Sprint 28 or enemy pursuit.
+**Non-goals:** Enemy pursuit, offense, weapons/projectiles, spawn/wave/timer/
+duration, inventory/ability/XP, Survivor-specific Runtime/Renderer, and
+Platformer repair remain outside Sprint 27. The freeze is complete; any
+Sprint 28 work is governed by its separately authorized bounded WO.

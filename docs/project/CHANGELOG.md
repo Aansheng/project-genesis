@@ -1,5 +1,20 @@
 # Changelog
 
+### Sprint 27 Freeze + Sprint 28 Authorization (v1.177)
+
+- Human/CTO froze Sprint 27 at v1.177. `WO-S27-001` is DONE with Code Complete
+  = YES and Product Verified = YES. The real Mario/Platformer experience is
+  confirmed correct; the earlier automated Space observation is recorded as
+  `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a product regression.
+- The fresh Sprint 27 thesis Gap Analysis found no additional Spatial & Visual
+  Composition blocker. Sprint 28 — Survival Gameplay Pressure is explicitly
+  authorized, with exactly one bounded READY item: `WO-S28-001 — Generic
+  Runtime Target-Directed Enemy Pursuit`. The source audit found that generic
+  contact damage, Health, failed state, and Respawn are reusable, while
+  target-directed Enemy movement is the first missing Runtime capability.
+- No Sprint 29 entry is authorized automatically. See `SPRINT27_REVIEW.md` and
+  `SPRINT28_BACKLOG.md`.
+
 ### Sprint 27 — WO-S27-001 Survival Top-Down Spatial Composition (v1.177)
 
 - Added the bounded shared `WorldSpatialMode` contract. Survival maps to
@@ -21,8 +36,9 @@
   `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a product regression.
   WO-S27-001 is DONE with Code Complete = YES and Product Verified = YES. A
   fresh Gap Analysis found no additional Spatial & Visual Composition blocker;
-  `SPRINT27_FREEZE_REVIEW` is the only next gate, and Sprint 28 is not entered
-  automatically.
+  `SPRINT27_FREEZE_REVIEW` was subsequently accepted by Human/CTO; the Sprint
+  27 freeze and explicit Sprint 28 authorization are recorded in the entry
+  above.
 
 ### Sprint 26 — WO-S26-003 and Freeze Review Readiness (v1.176)
 
