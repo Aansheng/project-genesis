@@ -329,6 +329,27 @@ describe('World Evolution Studio integration', () => {
     expect(result.evolutionPlan.visualPlan?.generationRequired).toHaveLength(1)
   })
 
+  it('recovers the Chinese five-enemy addition through deterministic evolution when the structured provider is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline') }) as typeof fetch)
+    const game = useGameStore()
+    const initial = await game.send('帮我生成一个2D幸存者游戏')
+    expect(initial.success).toBe(true)
+
+    const worldId = game.currentWorldId
+    const beforeEnemyCount = game.semanticWorld?.entities.filter(entity => entity.category === 'enemy').length ?? 0
+    const result = await game.send('再加五只怪')
+
+    expect(result.success).toBe(true)
+    expect(result.evolutionPlan?.status).toBe('validated')
+    if (result.evolutionPlan?.status !== 'validated') throw new Error('expected a validated world evolution plan')
+    expect(result.evolutionPlan.operation.source).toBe('deterministic')
+    expect(game.currentWorldId).toBe(worldId)
+    expect(game.semanticWorld?.entities.filter(entity => entity.category === 'enemy')).toHaveLength(beforeEnemyCount + 5)
+    expect(game.worldStore.getWorld().entities.filter(entity => entity.type === 'enemy')).toHaveLength(beforeEnemyCount + 5)
+    expect(result.evolutionPlan.runtimeSync?.status).toBe('synchronized')
+    expect(result.evolutionPlan.visualPlan).toBeDefined()
+  })
+
   it.each([
     '再生成5个怪物',
     '再创建5个怪物',

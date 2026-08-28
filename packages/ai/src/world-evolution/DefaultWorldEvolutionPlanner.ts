@@ -231,6 +231,10 @@ export class DeterministicWorldEvolutionCandidateProvider implements WorldEvolut
     if ((text.includes('商人') || text.includes('merchant')) && (text.includes('机器人') || text.includes('robot')) && (text.includes('改') || text.includes('replace') || text.includes('change') || text.includes('变'))) {
       return Object.freeze({ kind: 'replace-entity-semantic', scope: 'entity', target: { semantic: 'merchant', match: 'one' }, replacement: { name: 'robot' }, preserveIdentity: true })
     }
+    const additionRequested = /(?:增加|添加|新增|再添加|再创建|再生成|再加|add|create|generate)/iu.test(text)
+    if (additionRequested && ['敌人', '怪物', '怪', 'enemy', 'enemies'].some(alias => text.includes(alias))) {
+      return Object.freeze({ kind: 'add-entity', scope: 'entity', semantic: { name: 'Enemy', category: 'enemy' }, count: requestedCount(request.instruction) })
+    }
     if ((text.includes('增加') || text.includes('添加') || text.includes('新增') || text.includes('add')) && (text.includes('商人') || text.includes('merchant'))) {
       return Object.freeze({ kind: 'add-entity', scope: 'entity', semantic: { name: 'merchant', category: 'npc' }, count: requestedCount(request.instruction) })
     }
@@ -272,7 +276,7 @@ function sourceFor(provider: WorldEvolutionCandidateProvider): WorldEvolutionSou
 }
 
 function requestedCount(instruction: string): number {
-  const match = instruction.match(/(?:增加|添加|新增|add)\s*(?:(\d+)|(一个|一|两个|两|三个|三|四个|四|五个|五))?/iu)
+  const match = instruction.replace(/再(?:添加|创建|生成|加)/u, '增加').match(/(?:增加|添加|新增|add|create|generate)\s*(?:(\d+)|(一个|一|两个|两|三个|三|四个|四|五个|五))?/iu)
   if (!match) return 1
   if (match[1]) return Math.max(1, Number(match[1]))
   const chinese = { 一个: 1, 一: 1, 两个: 2, 两: 2, 三个: 3, 三: 3, 四个: 4, 四: 4, 五个: 5, 五: 5 } as const
@@ -324,6 +328,7 @@ const SEMANTIC_HINTS = [
   { name: 'slime', aliases: ['史莱姆', 'slime', 'slimes'] },
   { name: 'skeleton', aliases: ['骷髅', 'skeleton'] },
   { name: 'wolf', aliases: ['狼', 'wolf', 'wolves'] },
+  { name: 'enemy', aliases: ['敌人', '怪物', '怪', 'enemy', 'enemies'] },
   { name: 'boss', aliases: ['首领', 'boss'] },
 ] as const
 

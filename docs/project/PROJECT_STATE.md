@@ -26,8 +26,9 @@
 **Sprint 22** - Studio Session Continuity (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
 **Sprint 23** - Generation Transparency & Recovery (**FROZEN — Code Complete = YES; Product Verified = YES; v1.172**)
 **Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = YES; v1.173**)
-**Sprint 25** — Production Reachability & Legacy Disposition Review (**WO-S25-001 audit complete; architecture unchanged at v1.173**)
-**Current WO** - SPRINT25_FREEZE_REVIEW pending Human/CTO decision
+**Sprint 25** — Production Reachability & Legacy Disposition Review (**FROZEN — WO-S25-001 audit complete; v1.173**)
+**Sprint 26** — Second-Genre Generalization Proof (**READY FOR FREEZE REVIEW — bounded proof complete; v1.176**)
+**Current WO** - SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
 
 ---
 
@@ -35,20 +36,38 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 24 is FROZEN at v1.173. Sprint 25 WO-S25-001 completed the audit-only Production Reachability & Legacy Disposition Review; fresh Gap Analysis found no current reachability blocker and selected SPRINT25_FREEZE_REVIEW. |
-| Architecture Version | v1.173; Runtime-owned session state is projected through application-scoped Pinia into a bounded Studio viewport lifecycle overlay, without adding UI gameplay authority. |
-| Last Completed WO | WO-S24-001 — Runtime-Authoritative Lifecycle Overlay; Code Complete = YES; Product Verified = YES at v1.173. |
-| Current User-Visible Behavior | Entity-scoped create/generate/add requests still reach targeted World Evolution. In a real generated platformer, legitimate enemy damage drove `world-1` to `failed`; Game Over showed only `重生`, Runtime respawn returned to `active`, and the same world/entities remained. The real goal then showed Victory with no fabricated restart/next-level action; the copy truthfully states that the current world remains explorable, and Player exploration continued in the same world/session. |
+| Status | Sprint 25 is FROZEN at v1.173. Sprint 26 is authorized and its bounded proof is complete: classification, top-down motion composition, and same-world five-enemy recovery all pass. The only next gate is SPRINT26_FREEZE_REVIEW; Sprint 27 is not opened. |
+| Architecture Version | v1.176; Chinese `幸存者`/`生存` aliases select `survival`, the existing Web composition selects generic top-down motion, and active-world evolution can recover deterministically without adding Survivor-specific Runtime/Renderer authority. |
+| Last Completed WO | WO-S26-003 — Deterministic Active-World Enemy Addition Recovery; Code Complete = YES; Product Verified = YES at v1.176. |
+| Current User-Visible Behavior | `帮我生成一个2D幸存者游戏` creates an active six-entity survival world, supports generic Arrow Keys movement in two axes without `Space Jump`, and accepts same-world `再加五只怪`, preserving `world-1` and producing 11 synchronized entities. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | None for current production reachability. The audit identified a DEAD `renderWorld.ts` candidate and stale legacy Observatory imports, but deletion/cleanup requires a separate bounded authorization. |
-| Product Verification | Sprint 24 lifecycle PV A: PASS. Sprint 24 lifecycle PV B: PASS. WO-S25-001 audit acceptance: PASS; Product Verification is NOT APPLICABLE to this audit-only WO. |
-| Next Recommended Verification | SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision. |
+| Current Blocking Issue | None within the bounded Sprint 26 acceptance. Enemy chase, offense, spawn/wave, timer/duration, ability/inventory, and progression expansion remain explicitly deferred non-goals. |
+| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 audit acceptance: PASS. WO-S26-001/002/003 and the bounded Sprint 26 proof: PASS. |
+| Next Recommended Verification | Human/CTO review `docs/project/SPRINT26_REVIEW.md` and decide whether to freeze Sprint 26 at v1.176. Do not open Sprint 27 automatically. |
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The
 Pixi viewport may be recreated on return, but the current Runtime world/session
 remains the authority; browser refresh, close, and durable restore are not part
 of this contract.
+
+## Sprint 26 Post-WO Gap Analysis Snapshot
+
+The exact request now reaches `survival` with genre confidence `1.0`; real
+Studio showed six active Runtime/Pixi entities, Player Inspector Position
+`(80,400)`, and clean diagnostics. The initial alias blocker is closed.
+
+Motion-profile measurement then closed that gap: survival uses the existing
+generic four-direction controller, the viewport omits `Space Jump`, and real
+Studio observed horizontal and vertical Player movement while MarioWorld kept
+its platformer control surface.
+
+The fresh next gap closed active-world five-enemy addition recovery: clean-page
+Studio preserved `world-1`, changed six entities to 11 through deterministic
+fallback, reported `deterministic · fallback / provider_failed`, and kept
+warning/error diagnostics empty. No further blocker is selected within the
+bounded proof; enemy chase, offense, spawning, waves, duration, and progression
+expansion are deferred non-goals. SPRINT26_FREEZE_REVIEW is the sole next gate.
 
 ## Sprint 25 Reachability Audit Snapshot
 

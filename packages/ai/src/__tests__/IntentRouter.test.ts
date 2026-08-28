@@ -191,6 +191,13 @@ describe('route detection — create-world: Chinese "生成"', () => {
     const router = new DefaultIntentRouter()
     const result = router.route('帮我生成一个生存游戏')
     expect(result.route).toBe('create-world')
+    expect(result.confidence).toBe(1.0)
+  })
+
+  it('should route the core Chinese Survivor request with genre confidence', () => {
+    const router = new DefaultIntentRouter()
+    const result = router.route('帮我生成一个2D幸存者游戏')
+    expect(result).toEqual({ route: 'create-world', confidence: 1.0 })
   })
 
   it('should route "生成" alone to create-world', () => {

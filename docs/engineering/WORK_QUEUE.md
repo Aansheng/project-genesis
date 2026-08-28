@@ -4,14 +4,14 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-27
-current_sprint: Sprint 25
-current_work_order: WO-S25-001 — Production Reachability & Legacy Disposition Audit complete; freeze review pending
-current_work_order_status: AUDIT_COMPLETE_FREEZE_REVIEW_PENDING
+updated: 2026-08-28
+current_sprint: Sprint 26
+current_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
+current_work_order_status: READY_FOR_HUMAN_CTO_REVIEW
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S24-001 — Runtime-Authoritative Lifecycle Overlay
-next_work_order: SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision
+last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
+next_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -57,11 +57,218 @@ no cleanup WO opened by the audit-only work order.
 
 ## SPRINT25_FREEZE_REVIEW
 
-status: READY — pending Human/CTO freeze decision
+status: DONE — Human/CTO froze Sprint 25 at v1.173 on 2026-08-28. WO-S25-001
+Code Complete = YES; Product Verified = NOT APPLICABLE; Audit Complete = YES.
 scope: review WO-S25-001 audit artifact, dispositions, documentation drift,
 and the bounded future cleanup recommendation
-stop_rule: Do not begin another work order or enter Sprint 26 until this review
-is explicitly decided.
+result: Sprint 25 audit and control-plane documentation are finalized. No
+reachability blocker was found. `renderWorld.ts` remains a public-export
+cleanup candidate and was not deleted; FROZEN_LEGACY systems were not
+reconnected. Sprint 26 was explicitly authorized after this review.
+
+## SPRINT26_DISCOVERY — Second-Genre Generalization Proof
+
+status: DONE — first production-path Gap Analysis complete; exactly one next WO
+generated
+architecture_before: v1.173
+measured_result: The exact request `帮我生成一个2D幸存者游戏` reaches CreateWorld
+through the Chinese `生成` keyword, but `DefaultGameIntentExtractor` recognizes
+only English `survival`/`survivor`. The authoritative intent becomes `sandbox`,
+so the deterministic semantic path produces only the sandbox Player. The
+survival WorldType, six-entity template, DSL projection, generic movement,
+contact/damage, progression, mutation, and visual seams exist but cannot be
+measured for this request until the genre alias is corrected.
+selected_bottleneck: PRODUCT_GAP — Chinese Survivor intent alias alignment
+next_work_order: WO-S26-001 — Chinese Survivor Intent Alias
+selection_status: READY — no human decision or architecture fork required
+
+## WO-S26-001 — Chinese Survivor Intent Alias
+
+status: DONE — Code Complete = YES; Product Verified = YES for bounded alias/pipeline acceptance
+priority: P0
+dependencies: Sprint 25 FROZEN at v1.173; explicit Human/CTO Sprint 26
+authorization; SPRINT26_DISCOVERY complete
+architecture_before: v1.173
+architecture_after: v1.174
+measured_bottleneck: The core Chinese Survivor request is routed as CreateWorld
+but authoritative intent extraction falls back to `sandbox`, preventing the
+production path from constructing the semantic survival world.
+allowed_scope: Existing deterministic intent extractor, router genre-confidence
+aliases, standalone semantic-generator compatibility matcher, focused AI tests,
+Web production CreateWorld regression, and state documentation.
+forbidden_scope: SurvivorRuntime, SurvivorEngine, SurvivorGameManager,
+genre-specific execution or renderer, new ontology, gravity/movement policy,
+enemy chase, weapons/projectiles, spawn/wave/timer infrastructure, ability or
+inventory systems, provider changes, structured-output infrastructure, legacy
+reconnection, or unrelated refactoring.
+implementation_boundaries: Reuse the existing GameGenre/WorldType `survival`
+value and current provider/fallback, Semantic World, DSL, Runtime, Gameplay,
+visual, and evolution seams. Add aliases only at the existing front-door
+classification boundaries; do not make the provider authoritative.
+acceptance: The exact Chinese request extracts `survival`, routes with genre
+confidence 1.0, and traverses the current CreateWorld pipeline to six
+survival semantic/Runtime entities with Position components. Existing English
+survival/survivor, platformer, and deterministic fallback behavior remain
+valid. No Runtime/Renderer implementation is added.
+automated_tests: Focused AI intent/router/generator tests plus the Web production
+pipeline regression; affected-package typecheck, lint, and relevant regression
+suites.
+product_verification: Source/pipeline verification is required for this alias
+WO. A genuinely playable Survivor session is intentionally PENDING and must be
+measured by the next fresh Gap Analysis.
+observability: Preserve actual generation source/fallback diagnostics and do not
+claim combat or gameplay facts from semantic classification alone.
+non_goals: No Survivor gameplay implementation or Sprint 26 freeze claim.
+
+## SPRINT26_GAP_ANALYSIS_POST_WO-S26-001
+
+status: DONE — alias blocker closed; exactly one next WO generated
+architecture_before: v1.173
+architecture_after: v1.174
+measured_result: The exact request `帮我生成一个2D幸存者游戏` now reaches
+`survival` with genre confidence 1.0. Real Studio showed Runtime active with
+six entities (`player/resource/tree/stone/enemy/campfire`), Player Position
+`(80,400)`, and clean browser diagnostics. The existing semantic → DSL →
+Runtime → Pixi path is reachable for the second genre.
+selected_bottleneck: PRODUCT_GAP — GameViewportPanel registers platformer
+gravity, jump, vertical motion, and ground collision for every WorldType. The
+survival probe still exposes `Space Jump` and is not yet a top-down motion
+profile. A discrete browser ArrowRight probe left the inspected Player at
+`(80,400)`; this is not counted as movement proof.
+reusable_capabilities: Existing four-direction DefaultPlayerControllerSystem,
+generic Runtime Position/motion/contact systems, and current renderer are
+reusable. Enemy AI, offense, spawning, waves, timer, and duration remain
+unmeasured/deferred.
+next_work_order: WO-S26-002 — World-Type-Selected Generic Motion Profile
+selection_status: READY — no human decision or architecture fork required
+
+## WO-S26-002 — World-Type-Selected Generic Motion Profile
+
+status: DONE — Code Complete = YES; Product Verified = YES
+priority: P0
+dependencies: WO-S26-001 DONE; Sprint 26 explicitly authorized
+architecture_before: v1.174
+architecture_after: v1.175
+measured_bottleneck: Every Studio world receives platformer-only jump,
+gravity, and ground-collision registration. The requested survival world is
+classified correctly but cannot yet be verified as top-down.
+allowed_scope: Existing Web composition boundary, existing semantic WorldType,
+existing generic player controller/position/motion/contact systems, focused
+motion-profile wiring tests, relevant regression tests, and current state docs.
+forbidden_scope: Survivor-specific Runtime/engine/manager/renderer/world
+authority, new gameplay loop or ontology, enemy chase, weapons/projectiles,
+auto-attack, spawn/wave/timer/survive-duration, ability/inventory/XP/level
+expansion, platformer behavior changes, provider authority changes, legacy
+reconnection/deletion, or unrelated refactoring.
+implementation_boundaries: Select a generic motion profile at the existing Web
+composition boundary. Preserve the platformer system set exactly. Compose
+survival with existing four-direction input and generic position/motion/contact
+capabilities, omitting platformer jump/gravity/ground systems. Do not add a
+genre-specific Runtime or Renderer.
+acceptance: Survival uses four-direction movement without platformer-only
+physics; platformer behavior remains unchanged; real Studio observes survival
+movement in at least two directions with six-entity continuity and clean
+diagnostics; no Survivor-specific implementation is added.
+automated_tests: Focused Web motion-profile/wiring tests, AI/Web regressions,
+affected-package TypeScript and lint, and Web production build.
+product_verification: PASS — real Studio observed survival Arrow Keys-only
+controls and Player movement `x:80→83`, `y:300→297`; reloaded MarioWorld
+retained the seven-entity platformer and Space/Jump controls; browser
+diagnostics were clean.
+observability: Preserve Runtime-derived position and actual system/effect
+diagnostics; do not claim combat, waves, or duration from motion evidence.
+non_goals: No enemy pressure/combat/spawn/progression expansion and no Sprint
+26 freeze claim.
+
+## SPRINT26_GAP_ANALYSIS_POST_WO-S26-002
+
+status: DONE — motion blocker closed; exactly one next WO generated
+architecture_before: v1.174
+architecture_after: v1.175
+measured_result: Survival now uses the existing generic four-direction Player
+controller without platformer-only jump/gravity/ground systems. Real Studio
+verified two-axis movement and retained platformer controls after reload.
+selected_bottleneck: PRODUCT_GAP — active-world five-enemy addition recovery.
+The real survival session rejected `再加五只怪`, `再创建5个怪物`, and
+`增加5个enemy` with `Structured world evolution planning failed`; world-1
+remained at six entities. Source tracing shows the configured browser path
+selects the structured evolution planner, while the deterministic provider has
+no enemy-addition vocabulary and no provider-error fallback at this boundary.
+reusable_capabilities: Existing semantic delta application, Runtime
+synchronization, gameplay reconciliation, visual evolution, and deterministic
+planner seams. Enemy chase, offense, spawning, waves, timer, and duration
+remain deferred.
+next_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
+selection_status: READY — no human decision or architecture fork required
+
+## WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
+
+status: DONE — Code Complete = YES; Product Verified = YES
+priority: P0
+dependencies: WO-S26-002 DONE; Sprint 26 explicitly authorized
+architecture_before: v1.175
+architecture_after: v1.176
+measured_bottleneck: The same-world five-enemy acceptance request fails when
+the structured evolution provider is unavailable, and deterministic evolution
+does not recognize enemy-addition language.
+allowed_scope: Existing deterministic World Evolution candidate vocabulary and
+count parsing, existing Web command-executor provider-error/no-primary recovery
+using DefaultWorldEvolutionPlanner, focused planner/store tests, and truthful
+state documentation.
+forbidden_scope: Enemy chase, weapons, projectiles, auto-attack, combat
+balancing, spawn/wave/timer/survive-duration, progression, Survivor-specific
+Runtime/engine/manager/renderer/world authority, provider protocol changes,
+legacy reconnection/deletion, or unrelated refactoring.
+implementation_boundaries: Preserve successful structured-AI evolution when
+available. On provider error or no primary provider, use the existing
+deterministic planner; operation metadata must identify the actual selected
+deterministic source. Add only enemy/怪物/怪 addition aliases and count forms.
+acceptance: In an active survival world, `再加五只怪` succeeds on structured
+provider failure, preserves world-1, adds five semantic/Runtime enemies, and
+completes existing Runtime/visual synchronization. Explicit new-world creation
+still reaches CreateWorld, and no Survivor-specific implementation is added.
+automated_tests: Focused AI planner and Web active-world fallback tests,
+affected-package TypeScript and lint, relevant regressions, and Web build.
+product_verification: PASS — clean real Studio verification created survival
+world-1 with six entities, applied `再加五只怪` through deterministic fallback,
+preserved world-1, added enemy-1 through enemy-5, reached 11 Runtime/Explorer/
+Viewport entities, and completed Runtime/visual synchronization. Observatory
+showed `deterministic · fallback` and `provider_failed`; warning/error
+diagnostics were empty.
+observability: Preserve structured-versus-deterministic source/fallback facts;
+do not claim combat or enemy behavior from entity addition alone.
+non_goals: No enemy movement, combat, spawning, waves, duration, or Sprint 26
+ freeze claim.
+
+## SPRINT26_GAP_ANALYSIS_POST_WO-S26-003
+
+status: DONE — bounded Sprint 26 acceptance complete; freeze review selected;
+no Sprint 27
+architecture_before: v1.175
+architecture_after: v1.176
+measured_result: The exact Chinese Survivor request reaches the existing
+semantic → DSL → Runtime → Pixi path, uses generic top-down movement in two
+axes, and accepts same-world addition of five enemies with deterministic
+provider recovery. Entity/world identity and Runtime/visual synchronization
+remain coherent.
+deferred_non_blockers: Enemy chase, offense, spawn/wave, timer/
+survive-duration, ability/inventory, and progression expansion are outside the
+bounded Sprint 26 proof and do not open another WO.
+next_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
+selection_status: READY_FOR_HUMAN_CTO_REVIEW — stop here; do not open Sprint 27
+
+## SPRINT26_FREEZE_REVIEW
+
+status: READY FOR HUMAN/CTO REVIEW
+recommended_architecture: Freeze Sprint 26 at v1.176
+code_complete: YES
+product_verified: YES for the bounded Second-Genre Generalization Proof
+evidence: Exact `帮我生成一个2D幸存者游戏` created a six-entity active survival
+world; generic top-down Player movement was observed in two axes; same-world
+`再加五只怪` preserved world-1 and produced 11 synchronized entities through
+truthful deterministic fallback; clean-page browser diagnostics were empty.
+constraints: No Survivor-specific Runtime/engine/manager/renderer/world
+authority, no legacy reconnection/deletion, and no Sprint 27 auto-creation.
 
 ## SPRINT23_FREEZE_REVIEW
 

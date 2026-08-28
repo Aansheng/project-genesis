@@ -7,7 +7,7 @@
  *   a creation verb alone is not sufficient to replace the current world
  * - explicit new-world/reset semantics → route = create-world in either context
  * - additional genre keyword confidence boost:
- *   - contains "mario", "farm", "rpg", "survival", or "survivor" → confidence = 1.0 (with creation keyword)
+ *   - contains "mario", "farm", "rpg", "survival", "survivor", "生存", or "幸存者" → confidence = 1.0 (with creation keyword)
  *   - creation keyword only (no genre keyword) → confidence = 0.8
  * - a supported evolution verb plus a known semantic target → route = world-evolution
  * - otherwise → route = unknown, confidence = 0.0
@@ -50,11 +50,8 @@ const KEYWORD_FARM = 'farm'
 /** RPG genre keyword. */
 const KEYWORD_RPG = 'rpg'
 
-/** Survival genre keyword. */
-const KEYWORD_SURVIVAL = 'survival'
-
-/** Common genre alias used by survivor-like games. */
-const KEYWORD_SURVIVOR = 'survivor'
+/** Survival genre aliases shared with the intent extractor. */
+const SURVIVAL_GENRE_ALIASES = Object.freeze(['survival', 'survivor', '生存', '幸存者'])
 
 const EVOLUTION_KEYWORDS = [
   '把', '增加', '添加', '新增', '删除', '移除', '改成', '改为', '变成', '修改', '提升', '整个世界',
@@ -135,8 +132,7 @@ function hasGenreKeyword(input: string): boolean {
     lower.includes(KEYWORD_MARIO) ||
     lower.includes(KEYWORD_FARM) ||
     lower.includes(KEYWORD_RPG) ||
-    lower.includes(KEYWORD_SURVIVAL) ||
-    lower.includes(KEYWORD_SURVIVOR)
+    SURVIVAL_GENRE_ALIASES.some(keyword => lower.includes(keyword))
   )
 }
 

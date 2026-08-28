@@ -116,13 +116,22 @@ describe('World Evolution planner', () => {
 
   it('supports deterministic add, remove, and world update intents', async () => {
     const add = await planner().plan(request('增加一个商人'))
+    const enemies = await planner().plan(request('再加五只怪', {
+      worldType: 'survival',
+      entities: [{ id: 'player', category: 'player', name: 'Player' }, { id: 'enemy', category: 'enemy', name: 'Enemy' }],
+    }))
     const remove = await planner().plan(request('删除 Boss', { worldType: 'rpg', entities: [{ id: 'boss-1', category: 'enemy', name: 'Boss' }] }))
     const night = await planner().plan(request('把整个世界改成夜晚'))
 
     expect(add.status).toBe('validated')
+    expect(enemies.status).toBe('validated')
     expect(remove.status).toBe('validated')
     expect(night.status).toBe('validated')
     if (add.status === 'validated') expect(add.delta.operations[0]).toMatchObject({ kind: 'add-entity', semantic: { name: 'Merchant', category: 'npc' }, count: 1 })
+    if (enemies.status === 'validated') {
+      expect(enemies.delta.operations[0]).toMatchObject({ kind: 'add-entity', semantic: { name: 'Enemy', category: 'enemy' }, count: 5 })
+      expect(enemies.operation.source).toBe('deterministic')
+    }
     if (night.status === 'validated') expect(night.delta.operations[0]).toMatchObject({ kind: 'update-world-property', property: 'timeOfDay', from: 'day', to: 'night' })
   })
 

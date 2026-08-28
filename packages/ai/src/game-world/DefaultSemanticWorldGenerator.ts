@@ -27,7 +27,7 @@
  * - Contains "farm"      → 'farm'
  * - Contains "rpg"       → 'rpg'
  * - Contains "platform"  → 'platformer'
- * - Contains "survival"  → 'survival'
+ * - Contains "survival", "survivor", "生存", or "幸存者" → 'survival'
  * - Otherwise            → 'sandbox'
  *
  * Entity generation via WorldTemplateCatalog:
@@ -80,6 +80,9 @@ const WORLD_TYPE_KEYWORDS: Readonly<Array<{ keyword: string; worldType: WorldTyp
     { keyword: 'rpg', worldType: 'rpg' },
     { keyword: 'platform', worldType: 'platformer' },
     { keyword: 'survival', worldType: 'survival' },
+    { keyword: 'survivor', worldType: 'survival' },
+    { keyword: '生存', worldType: 'survival' },
+    { keyword: '幸存者', worldType: 'survival' },
   ])
 
 // ---------------------------------------------------------------------------

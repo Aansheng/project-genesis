@@ -1,5 +1,67 @@
 # Changelog
 
+### Sprint 26 — WO-S26-003 and Freeze Review Readiness (v1.176)
+
+- Deterministic World Evolution now recognizes enemy/怪物/怪 additions and
+  count forms such as `再加五只怪`. When structured evolution reports a
+  provider error or has no primary provider, the Web command boundary reuses
+  the existing deterministic Planner; successful recovery reports
+  `source: deterministic`.
+- Clean real Studio verification preserved `world-1`, changed the generated
+  survival world from six to 11 entities, completed Runtime and visual
+  synchronization, exposed `deterministic · fallback / provider_failed` in
+  Observatory, and returned no browser warning/error diagnostics.
+- Fresh Gap Analysis found no further blocker within the bounded Sprint 26
+  acceptance. `SPRINT26_FREEZE_REVIEW` is the only next gate; Sprint 27 is not
+  opened automatically. See `SPRINT26_REVIEW.md`.
+
+### Sprint 26 — WO-S26-002 World-Type-Selected Generic Motion Profile (v1.175)
+
+- The existing Web composition now selects a generic top-down motion profile
+  for `survival`: four-direction Player input, generic position motion, and
+  contact remain; platformer-only jump, gravity, and ground collision are
+  omitted. Platformer worlds retain their established system set.
+- The survival viewport now truthfully hides `Space / Jump`. Real Studio
+  verification observed Player `x:80→83` and `y:300→297`; reloaded MarioWorld
+  retained seven entities and `Space / Jump`, with clean diagnostics.
+- Fresh Gap Analysis measured the next blocker: same-world `再加五只怪`,
+  `再创建5个怪物`, and `增加5个enemy` failed when the structured evolution
+  provider was unavailable, leaving `world-1` at six entities. Exactly one
+  READY item was opened: `WO-S26-003 — Deterministic Active-World Enemy
+  Addition Recovery`.
+
+### Sprint 26 — WO-S26-001 Chinese Survivor Intent Alias (v1.174)
+
+- Added the existing front-door survival aliases `生存` and `幸存者` to the
+  deterministic intent extractor, Router genre-confidence check, and semantic
+  generator compatibility matcher. No Runtime, Renderer, provider, or legacy
+  path was changed.
+- The exact request `帮我生成一个2D幸存者游戏` now reaches `survival` with
+  confidence `1.0` and the existing six-entity survival template. Full AI and
+  Web suites, package TypeScript checks, lint, and Web build pass.
+- Real Studio verification passed for active Runtime/Pixi creation, six
+  entities, Player Position/Health/collision projection, and clean browser
+  diagnostics. This is bounded alias/pipeline verification, not combat or
+  full Survivor proof.
+- Fresh Gap Analysis selected exactly one next READY item:
+  `WO-S26-002 — World-Type-Selected Generic Motion Profile`, because the Web
+  composition still wires platformer jump/gravity/ground systems into survival.
+
+### Sprint 26 Authorization and Initial Gap Analysis (v1.173 boundary)
+
+- Human/CTO froze Sprint 25 at v1.173 and authorized Sprint 26 — Second-Genre
+  Generalization Proof.
+- The first production-path Gap Analysis traced `帮我生成一个2D幸存者游戏`
+  through the existing CreateWorld route and found the smallest blocker:
+  Chinese `幸存者`/`生存` are not recognized by the authoritative intent
+  extractor, so the request becomes a sandbox world with one Player.
+- Existing survival semantics, DSL/Runtime projection, generic movement,
+  contact/damage, progression, mutation, and visual seams were recorded as
+  reusable or deferred capabilities. No Survivor-specific Runtime or speculative
+  combat/spawn infrastructure was opened.
+- Exactly one bounded READY item was generated: `WO-S26-001 — Chinese Survivor
+  Intent Alias`. See `SPRINT26_BACKLOG.md` and `SPRINT25_REVIEW.md`.
+
 ### Sprint 25 — Production Reachability & Legacy Disposition Audit (v1.173)
 
 - Human/CTO Sprint 24 freeze was recorded and Sprint 25 WO-S25-001 was executed

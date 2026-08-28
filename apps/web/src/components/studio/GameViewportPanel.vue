@@ -20,12 +20,6 @@ import type {
   VisualizationRunner,
 } from '@genesis/renderer'
 import {
-  DefaultGravitySystem,
-  DefaultGroundCollisionSystem,
-  DefaultEntityContactSystem,
-  DefaultJumpSystem,
-  DefaultPlayerControllerSystem,
-  DefaultVerticalMotionSystem,
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeSystemRegistry,
 } from '@genesis/runtime'
@@ -38,6 +32,7 @@ import type { GameplayEventObserver } from '@genesis/shared'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
 import { useI18nStore } from '../../stores/i18n'
+import { registerStudioRuntimeSystems } from './runtimeMotionProfile'
 
 const store = useGameStore()
 const observatoryDataStore = useObservatoryDataStore()
@@ -45,6 +40,7 @@ const i18n = useI18nStore()
 const gameContainer = ref<HTMLDivElement | null>(null)
 const runtimeMounted = ref(false)
 const gameplaySessionStatus = computed<RuntimeGameplaySessionStatus>(() => store.gameplaySessionState.status)
+const isTopDownWorld = computed(() => store.semanticWorld?.worldType === 'survival')
 const entityCount = computed(() => {
   void store.renderVersion
   return store.worldStore.getWorld().entities.length
@@ -61,6 +57,7 @@ let entityRenderer: DefaultPixiEntityRenderer | null = null
 let environmentRenderer: PixiEnvironmentRenderer | null = null
 let inputProvider: KeyboardInputProvider | null = null
 let resizeObserver: ResizeObserver | null = null
+let stopMotionProfileWatch: (() => void) | null = null
 let respawnRuntimeGameplay: (() => void) | null = null
 const cameraAnchor = { x: 400, y: 300 }
 const visualCatalog = new DefaultEntityVisualCatalog()
@@ -139,12 +136,12 @@ onMounted(() => {
   const systemRegistry = new DefaultRuntimeSystemRegistry()
   inputProvider = new KeyboardInputProvider(window)
   inputProvider.attach()
-  systemRegistry.register(new DefaultPlayerControllerSystem(inputProvider, 3))
-  systemRegistry.register(new DefaultJumpSystem(inputProvider, 10))
-  systemRegistry.register(new DefaultGravitySystem(0.5))
-  systemRegistry.register(new DefaultVerticalMotionSystem())
-  systemRegistry.register(new DefaultGroundCollisionSystem(400))
-  systemRegistry.register(new DefaultEntityContactSystem())
+  registerStudioRuntimeSystems(systemRegistry, inputProvider, store.semanticWorld?.worldType)
+  stopMotionProfileWatch = watch(
+    () => store.semanticWorld?.worldType,
+    (worldType) => registerStudioRuntimeSystems(systemRegistry, inputProvider!, worldType),
+    { flush: 'sync' },
+  )
 
   const ruleExecutionConfig: RuntimeGameplayRuleExecutionConfig = {
     getRuleSet: () => store.gameplayRuleSet,
@@ -230,6 +227,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   runtimeMounted.value = false
+  stopMotionProfileWatch?.()
+  stopMotionProfileWatch = null
   respawnRuntimeGameplay = null
   resizeObserver?.disconnect()
   resizeObserver = null
@@ -309,7 +308,7 @@ onUnmounted(() => {
       aria-label="Game controls"
     >
       <span>Arrow Keys <em>Move</em></span>
-      <span>Space <em>Jump</em></span>
+      <span v-if="!isTopDownWorld">Space <em>Jump</em></span>
     </footer>
   </section>
 </template>

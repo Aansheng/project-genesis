@@ -5,7 +5,7 @@
  * - contains "mario", "platformer", or the Chinese platformer phrase → genre = platformer
  * - contains "farm"  → genre = farm
  * - contains "rpg"   → genre = rpg
- * - contains "survival" or "survivor" → genre = survival
+ * - contains "survival", "survivor", "生存", or "幸存者" → genre = survival
  * - otherwise        → genre = sandbox
  *
  * Title extraction:
@@ -34,11 +34,8 @@ const KEYWORD_FARM = 'farm'
 /** RPG detection keyword. */
 const KEYWORD_RPG = 'rpg'
 
-/** Survival detection keyword. */
-const KEYWORD_SURVIVAL = 'survival'
-
-/** Common survivor-like game alias. */
-const KEYWORD_SURVIVOR = 'survivor'
+/** Survival genre aliases, including the Chinese Studio vocabulary. */
+const SURVIVAL_ALIASES = Object.freeze(['survival', 'survivor', '生存', '幸存者'])
 
 // ---------------------------------------------------------------------------
 // Fallback
@@ -116,7 +113,7 @@ export class DefaultGameIntentExtractor implements GameIntentExtractor {
       genre = 'farm'
     } else if (lowerTitle.includes(KEYWORD_RPG)) {
       genre = 'rpg'
-    } else if (lowerTitle.includes(KEYWORD_SURVIVAL) || lowerTitle.includes(KEYWORD_SURVIVOR)) {
+    } else if (SURVIVAL_ALIASES.some(keyword => lowerTitle.includes(keyword))) {
       genre = 'survival'
     } else {
       genre = FALLBACK_GENRE

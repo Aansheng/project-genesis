@@ -1,0 +1,63 @@
+/**
+ * Studio runtime motion composition.
+ *
+ * The semantic WorldType selects between the existing generic platformer and
+ * top-down motion capabilities at the Web composition boundary. This module
+ * does not add a Runtime system or a genre-specific execution path.
+ */
+import type {
+  InputProvider,
+  RuntimeSystemRegistry,
+} from '@genesis/runtime'
+import {
+  DefaultEntityContactSystem,
+  DefaultGravitySystem,
+  DefaultGroundCollisionSystem,
+  DefaultJumpSystem,
+  DefaultPlayerControllerSystem,
+  DefaultVerticalMotionSystem,
+} from '@genesis/runtime'
+import type { WorldType } from '@genesis/shared'
+
+export type StudioMotionProfile = 'platformer' | 'top-down'
+
+/**
+ * Resolve the generic motion profile for the current semantic world.
+ *
+ * Unknown/empty worlds retain the existing platformer composition until a
+ * generated semantic world selects a more specific profile.
+ */
+export function resolveStudioMotionProfile(
+  worldType: WorldType | null | undefined,
+): StudioMotionProfile {
+  return worldType === 'survival' ? 'top-down' : 'platformer'
+}
+
+/**
+ * Register the current Studio motion systems in deterministic order.
+ *
+ * The survival profile reuses four-direction input, generic position motion,
+ * and contact. Platformer-only jump, gravity, and ground collision systems are
+ * omitted. All other WorldTypes preserve the established platformer set.
+ */
+export function registerStudioRuntimeSystems(
+  registry: RuntimeSystemRegistry,
+  inputProvider: InputProvider,
+  worldType: WorldType | null | undefined,
+): void {
+  registry.clear()
+  registry.register(new DefaultPlayerControllerSystem(inputProvider, 3))
+
+  if (resolveStudioMotionProfile(worldType) === 'platformer') {
+    registry.register(new DefaultJumpSystem(inputProvider, 10))
+    registry.register(new DefaultGravitySystem(0.5))
+  }
+
+  registry.register(new DefaultVerticalMotionSystem())
+
+  if (resolveStudioMotionProfile(worldType) === 'platformer') {
+    registry.register(new DefaultGroundCollisionSystem(400))
+  }
+
+  registry.register(new DefaultEntityContactSystem())
+}

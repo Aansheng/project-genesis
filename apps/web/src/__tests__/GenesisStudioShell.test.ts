@@ -129,6 +129,19 @@ describe('Genesis Studio Shell Foundation', () => {
     wrapper.unmount()
   })
 
+  it('selects top-down controls after generating a survival world', async () => {
+    const { wrapper, pinia } = await mountStudio()
+    const store = useGameStore(pinia)
+
+    await store.send('帮我生成一个2D幸存者游戏')
+    await nextTick()
+
+    expect(wrapper.find('.viewport-controls').text()).toContain('Arrow Keys')
+    expect(wrapper.find('.viewport-controls').text()).not.toContain('Space')
+
+    wrapper.unmount()
+  })
+
   it('renders the unified empty Studio without mock world data', async () => {
     const { wrapper } = await mountStudio()
 

@@ -3,19 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.173 (Runtime session truth now projects through the existing game store into a bounded Studio lifecycle overlay)
-current_sprint: Sprint 25 (Production Reachability & Legacy Disposition Review)
-current_work_order: WO-S25-001 — audit complete; freeze review pending
-current_work_order_status: AUDIT_COMPLETE_FREEZE_REVIEW_PENDING
+architecture_version: v1.176 (Sprint 26 bounded proof complete; freeze review is the only next gate)
+current_sprint: Sprint 26 (Second-Genre Generalization Proof)
+current_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
+current_work_order_status: READY_FOR_HUMAN_CTO_REVIEW
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S24-001 — Runtime-Authoritative Lifecycle Overlay
+last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
 last_completed_product_work_order: WO-S24-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision
-product_architecture_changed: no — WO-S25-001 was audit-only; architecture remains v1.173
-sprint_status: Sprint 17–24 are FROZEN (Sprint 24 at v1.173); Sprint 25 audit WO-S25-001 is complete with no product-code change
-product_verified: NOT APPLICABLE for WO-S25-001 audit-only work; Sprint 24 lifecycle Product Verification remains YES
+next_ready_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
+product_architecture_changed: yes — v1.175 → v1.176; active-world evolution now has deterministic provider recovery with no Survivor-specific Runtime/Renderer path
+sprint_status: Sprint 17–25 are FROZEN (Sprint 25 at v1.173); Sprint 26 is
+  authorized and its bounded proof is complete; SPRINT26_FREEZE_REVIEW is
+  READY_FOR_HUMAN_CTO_REVIEW; no Sprint 27 is opened
+product_verified: YES for the bounded Sprint 26 Second-Genre Generalization Proof
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -26,22 +28,76 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 25 — Production Reachability & Legacy Disposition Review:
+Sprint 26 — Second-Genre Generalization Proof:
 
-1. Trace the current production entry point through initial generation,
-   conversational evolution, gameplay, visual generation/regeneration, and
-   observability.
-2. Classify the authorized audit targets as ACTIVE, SUPPORTING,
-   FROZEN_LEGACY, or DEAD using production call-chain evidence.
-3. Record a fresh Gap Analysis and stop at SPRINT25_FREEZE_REVIEW without
-   opening a cleanup WO unless a trivial safe deletion is proven.
+1. Prove a small playable top-down Survivor-like game through the existing
+   natural-language → Semantic World → DSL → Runtime → Gameplay → Renderer
+   path.
+2. Reuse generic mechanics and add only measured blockers; do not introduce a
+   genre-specific Runtime.
+3. Verify one same-world conversational addition of five enemies after the
+   initial game works, then stop at the Sprint freeze review.
 
-WO-S25-001 is complete as an audit-only work order. The current A–E production
-chains are reachable at v1.173; the old PromptBuilder/strategy/Planner,
-Canvas2D, and Mario/demo paths are not current production paths. No Runtime,
-Renderer, AI provider, asset, or Web behavior was changed, and no file was
-deleted. Full evidence is in
-`docs/project/SPRINT25_PRODUCTION_REACHABILITY_AUDIT.md`.
+Sprint 25 is frozen at v1.173. Its audit-only WO-S25-001 is complete and the
+freeze review is recorded in `docs/project/SPRINT25_REVIEW.md`.
+
+## Sprint 26 Initial Gap Analysis
+
+The exact Chinese request `帮我生成一个2D幸存者游戏` routes with genre
+confidence `1.0`, extracts `survival`, reaches six entities, and now uses a
+top-down generic motion profile. Real Studio observed Player `x:80→83` and
+`y:300→297`, with clean diagnostics; platformer controls remain intact.
+WO-S26-001 and WO-S26-002 are complete.
+
+The fresh post-WO measurement closed active-world enemy addition recovery:
+`再加五只怪` preserved `world-1` and changed the survival world from six to 11
+entities through truthful deterministic fallback. The bounded Sprint 26 proof
+is complete; the only next gate is SPRINT26_FREEZE_REVIEW. Enemy chase,
+offense, spawning, waves, duration, and progression expansion are explicit
+deferred non-goals, not new WOs.
+
+## Sprint 26 Gap Analysis Post WO-S26-001
+
+The alias blocker is closed by source tests and real Studio behavior: the
+requested Chinese input created six entities (`player/resource/tree/stone/
+enemy/campfire`) in an active Runtime/Pixi session; Player Inspector showed
+`Position (80,400)` and browser warning/error diagnostics were empty.
+
+The next measured product gap is motion-profile selection. The existing Web
+composition wires platformer-only systems unconditionally, and the survival
+viewport visibly advertises `Space Jump`. A discrete ArrowRight probe did not
+move the inspected Player, so movement is not claimed as verified yet. Reuse
+the existing four-direction controller and generic Runtime motion seam in
+WO-S26-002; do not add Survivor-specific execution or rendering.
+
+## Sprint 26 Gap Analysis Post WO-S26-002
+
+The motion-profile blocker is closed: survival uses the existing generic
+four-direction controller, the viewport omits `Space Jump`, and real Studio
+observed horizontal and vertical Player movement while the platformer control
+surface remained unchanged.
+
+The next measured product gap is active-world five-enemy addition recovery.
+Three equivalent enemy-addition requests failed with the structured evolution
+provider in local Studio and left `world-1` at six entities. The existing
+deterministic planner lacks enemy aliases, and no provider-error fallback is
+wired at the Web command boundary. Reuse the existing semantic, Runtime, and
+visual evolution seams in WO-S26-003; do not add Survivor-specific execution
+or rendering.
+
+## Sprint 26 Gap Analysis Post WO-S26-003
+
+The bounded acceptance is complete. Clean-page Studio evidence confirms the
+exact Chinese request creates an active six-entity survival world, generic
+top-down movement works in two axes, and same-world `再加五只怪` keeps `world-1`
+and produces 11 Runtime/visual entities via deterministic fallback. Observatory
+reports the actual `deterministic · fallback / provider_failed` source and
+browser warning/error diagnostics are empty.
+
+No further blocker is selected within the authorized Sprint 26 target. Enemy
+chase, offense, spawn/wave, timer/survive-duration, ability/inventory, and
+progression expansion remain explicitly deferred non-goals. Select
+`SPRINT26_FREEZE_REVIEW` and stop; do not open Sprint 27.
 
 ## Sprint 24 Gap Analysis Post-PV
 

@@ -7,15 +7,10 @@ import {
   DefaultSemanticWorldGenerator,
 } from '@genesis/ai'
 import {
-  DefaultGroundCollisionSystem,
-  DefaultGravitySystem,
-  DefaultJumpSystem,
-  DefaultPlayerControllerSystem,
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeProjection,
   DefaultRuntimeSystemRegistry,
   DefaultRuntimeWorldStore,
-  DefaultVerticalMotionSystem,
 } from '@genesis/runtime'
 import { KeyboardInputProvider } from '@genesis/renderer'
 import { DefaultRuntimeRendererAdapter } from '@genesis/renderer'
@@ -23,6 +18,7 @@ import { DefaultRuntimeVisualizationLoop } from '@genesis/renderer'
 import type { PixiEntityRenderer, RenderWorldView } from '@genesis/renderer'
 import type { RenderWorld } from '@genesis/renderer'
 import { createPositionComponent, createVelocityComponent, isVelocityComponent, type World } from '@genesis/shared'
+import { registerStudioRuntimeSystems } from '../components/studio/runtimeMotionProfile'
 
 class CaptureRenderer implements PixiEntityRenderer {
   worlds: RenderWorld[] = []
@@ -44,11 +40,7 @@ function createPlayableRuntime() {
   const target = new EventTarget()
   const input = new KeyboardInputProvider(target)
   const registry = new DefaultRuntimeSystemRegistry()
-  registry.register(new DefaultPlayerControllerSystem(input, 3))
-  registry.register(new DefaultJumpSystem(input, 50))
-  registry.register(new DefaultGravitySystem(1))
-  registry.register(new DefaultVerticalMotionSystem())
-  registry.register(new DefaultGroundCollisionSystem(400))
+  registerStudioRuntimeSystems(registry, input, 'platformer')
   const renderer = new CaptureRenderer()
   const loop = new DefaultRuntimeVisualizationLoop(
     new DefaultRuntimeExecutionLoop(registry),
@@ -77,6 +69,7 @@ describe('WO-S10-010: playable platformer runtime wiring', () => {
     const { registry } = createPlayableRuntime()
     expect(registry.getSystems().map((system) => system.name)).toEqual([
       'PlayerControllerSystem', 'JumpSystem', 'GravitySystem', 'VerticalMotionSystem', 'GroundCollisionSystem',
+      'EntityContactSystem',
     ])
   })
 

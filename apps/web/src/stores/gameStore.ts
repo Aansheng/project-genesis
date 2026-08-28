@@ -403,7 +403,7 @@ export function createCommandExecutor(
   worldStore: RuntimeWorldStore,
   env: Record<string, string | undefined> = import.meta.env,
   fetcher: typeof fetch = globalThis.fetch.bind(globalThis),
-): { executor: CommandExecutor; useAsync: boolean; evolutionPlanner?: WorldEvolutionPlanner } {
+): { executor: CommandExecutor; useAsync: boolean; evolutionPlanner?: WorldEvolutionPlanner; evolutionFallbackPlanner: WorldEvolutionPlanner } {
   const configuration = createAIConfiguration(env)
   const deterministicProvider = new DeterministicGameWorldGenerationProvider()
   const deterministicGameplayProvider: GameplayGenerationProvider = new DeterministicGameplayGenerationProvider(new DefaultGameplaySpecificationBuilder())
@@ -411,6 +411,7 @@ export function createCommandExecutor(
   let gameplayProvider: GameplayGenerationProvider = deterministicGameplayProvider
   let useAsync = false
   let evolutionPlanner: WorldEvolutionPlanner | undefined
+  const evolutionFallbackPlanner: WorldEvolutionPlanner = new DefaultWorldEvolutionPlanner()
 
   // The server owns runtime provider availability. The browser always uses the
   // gateway when one is known; unavailable/disabled server state is handled by
@@ -464,7 +465,12 @@ export function createCommandExecutor(
     gameplayProvider,
   )
   const createWorldExecutor = new DefaultCreateWorldRuntimeExecutor(pipeline, worldStore)
-  return { executor: new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor), useAsync, evolutionPlanner }
+  return {
+    executor: new DefaultCommandExecutor(new DefaultIntentRouter(), createWorldExecutor),
+    useAsync,
+    evolutionPlanner,
+    evolutionFallbackPlanner,
+  }
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -552,7 +558,12 @@ export const useGameStore = defineStore('game', () => {
   const streamingFinished = ref(false)
   const useStreaming = ref(false)
 
-  const { executor: commandExecutor, useAsync: useAsyncGeneration, evolutionPlanner } = createCommandExecutor(worldStore)
+  const {
+    executor: commandExecutor,
+    useAsync: useAsyncGeneration,
+    evolutionPlanner,
+    evolutionFallbackPlanner,
+  } = createCommandExecutor(worldStore)
   const imageClient = new BrowserImageGenerationClient(imageGatewayURL(
     createAIConfiguration(import.meta.env).gatewayURL || DEFAULT_AI_GATEWAY_URL,
   ))
@@ -872,7 +883,7 @@ export const useGameStore = defineStore('game', () => {
       const shouldAttemptEvolution = routingResult.route === 'world-evolution'
         || (routingResult.route === 'unknown' && semanticState.value?.semanticWorld != null)
       if (shouldAttemptEvolution) {
-        const result = await planEvolution(input, evolutionPlanner)
+        const result = await planEvolution(input, evolutionPlanner, evolutionFallbackPlanner)
         lastCommand.value = result
         log.value.push(result.message)
         commandStatus.value = result.success ? 'success' : 'error'
@@ -973,9 +984,13 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function planEvolution(input: string, planner: WorldEvolutionPlanner | undefined): Promise<import('../command').CommandExecutionResult> {
+  async function planEvolution(
+    input: string,
+    planner: WorldEvolutionPlanner | undefined,
+    fallbackPlanner: WorldEvolutionPlanner | undefined,
+  ): Promise<import('../command').CommandExecutionResult> {
     const stateAtRequest = semanticState.value
-    if (!planner || !stateAtRequest?.semanticWorld || !stateAtRequest.worldId) {
+    if ((!planner && !fallbackPlanner) || !stateAtRequest?.semanticWorld || !stateAtRequest.worldId) {
       return { success: false, message: 'Cannot evolve: no current semantic world is available' }
     }
     const request: WorldEvolutionRequest = Object.freeze({
@@ -992,7 +1007,13 @@ export const useGameStore = defineStore('game', () => {
         ...(selectedEntityId.value ? { selectedEntityId: selectedEntityId.value } : {}),
       }),
     })
-    const plan: WorldEvolutionPlanResult = await planner.plan(request)
+    const primaryPlan: WorldEvolutionPlanResult = await (planner ?? fallbackPlanner!).plan(request)
+    const fallbackPlan = planner && fallbackPlanner && primaryPlan.status === 'failed' && primaryPlan.operation.failureReason === 'provider_error'
+      ? await fallbackPlanner.plan(request)
+      : undefined
+    const plan: WorldEvolutionPlanResult = fallbackPlan?.status === 'validated'
+      ? fallbackPlan
+      : primaryPlan
     if (plan.status !== 'validated') {
       if (plan.operation.worldId === currentWorldId.value) useObservatoryDataStore().recordWorldEvolution(plan)
       return {

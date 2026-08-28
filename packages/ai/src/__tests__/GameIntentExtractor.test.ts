@@ -309,6 +309,12 @@ describe('genre detection — survival', () => {
     const result = extractor.extract(createModel('The Last survival'))
     expect(result.genre).toBe('survival')
   })
+
+  it.each(['帮我生成一个2D幸存者游戏', '帮我生成一个生存游戏'])('should detect survival from Chinese alias: %s', (title) => {
+    const extractor = new DefaultGameIntentExtractor()
+    const result = extractor.extract(createModel(title))
+    expect(result.genre).toBe('survival')
+  })
 })
 
 // ---------------------------------------------------------------------------

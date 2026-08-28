@@ -23,6 +23,8 @@ describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
     ['创建农场', 'farm'],
     ['create RPG world', 'rpg'],
     ['create survival world', 'survival'],
+    ['帮我生成一个2D幸存者游戏', 'survival'],
+    ['帮我生成一个生存游戏', 'survival'],
     ['create sandbox world', 'sandbox'],
     ['创建 MarioWorld', 'platformer'],
     ['create Mario game', 'platformer'],
