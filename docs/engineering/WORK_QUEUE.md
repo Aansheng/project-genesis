@@ -5,15 +5,63 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-27
-current_sprint: Sprint 24
-current_work_order: WO-S24-001 — lifecycle Product Verification complete; freeze review pending
-current_work_order_status: CODE_COMPLETE_PRODUCT_VERIFIED_FREEZE_REVIEW_PENDING
+current_sprint: Sprint 25
+current_work_order: WO-S25-001 — Production Reachability & Legacy Disposition Audit complete; freeze review pending
+current_work_order_status: AUDIT_COMPLETE_FREEZE_REVIEW_PENDING
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
-next_work_order: SPRINT24_FREEZE_REVIEW — requires Human/CTO freeze decision
+last_completed_work_order: WO-S24-001 — Runtime-Authoritative Lifecycle Overlay
+next_work_order: SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## SPRINT24_FREEZE_REVIEW
+
+status: DONE — Human/CTO froze Sprint 24 at v1.173 on 2026-08-27. Code Complete
+= YES; Product Verified = YES. The clarified completed/Victory exploration
+contract is accepted. No Sprint 25 product behavior was implied by the freeze.
+
+## WO-S25-001 — Production Reachability & Legacy Disposition Audit
+
+status: DONE — audit-only; Code Complete = YES; Product Verified = NOT APPLICABLE
+priority: P0 / control-plane
+dependencies: Human/CTO Sprint 24 freeze and explicit Sprint 25 authorization
+architecture_before: v1.173
+architecture_after: v1.173
+allowed_scope: production call-chain tracing, mandatory-target disposition,
+test-confidence review, fresh Gap Analysis, and necessary state/documentation
+corrections
+forbidden_scope: product behavior changes, legacy reconnection, mass deletion,
+mass refactor, architecture replacement, or Sprint 26 work
+acceptance: PASS — Chains A–E were traced from the current Studio front door;
+all mandatory targets received ACTIVE, SUPPORTING, FROZEN_LEGACY, or DEAD
+dispositions; no current reachability blocker was found.
+artifact: docs/project/SPRINT25_PRODUCTION_REACHABILITY_AUDIT.md
+result: Current generation/provider/fallback, CreateWorldPipeline, semantic
+world/DSL/Runtime projection, Runtime gameplay loop, Pixi Renderer,
+visual/asset flow, and current Observatory are production-reachable. Legacy
+PromptBuilder/strategy/Planner/DefaultPipeline/Canvas2D/Mario paths are not.
+No product source file was modified and no file was deleted.
+
+## SPRINT25_GAP_ANALYSIS_POST_WO-S25-001
+
+status: DONE — no current production reachability blocker
+measured_result: The current A–E chains are reachable at v1.173. `renderWorld.ts`
+is a DEAD candidate by repository call-site evidence, but its public barrel
+export makes deletion non-trivial until package consumers are checked. Legacy
+Observatory bridge/mapper imports are a bounded cleanup opportunity, not a
+runtime defect.
+conclusion: Audit goal satisfied. Do not reconnect or mass-delete legacy paths.
+next_work_order: SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision;
+no cleanup WO opened by the audit-only work order.
+
+## SPRINT25_FREEZE_REVIEW
+
+status: READY — pending Human/CTO freeze decision
+scope: review WO-S25-001 audit artifact, dispositions, documentation drift,
+and the bounded future cleanup recommendation
+stop_rule: Do not begin another work order or enter Sprint 26 until this review
+is explicitly decided.
 
 ## SPRINT23_FREEZE_REVIEW
 

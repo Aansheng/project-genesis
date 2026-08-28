@@ -26,7 +26,8 @@
 **Sprint 22** - Studio Session Continuity (**FROZEN — Code Complete = YES; Product Verified = YES; v1.171**)
 **Sprint 23** - Generation Transparency & Recovery (**FROZEN — Code Complete = YES; Product Verified = YES; v1.172**)
 **Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = YES; v1.173**)
-**Current WO** - SPRINT24_FREEZE_REVIEW pending Human/CTO decision
+**Sprint 25** — Production Reachability & Legacy Disposition Review (**WO-S25-001 audit complete; architecture unchanged at v1.173**)
+**Current WO** - SPRINT25_FREEZE_REVIEW pending Human/CTO decision
 
 ---
 
@@ -34,20 +35,45 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 23 is FROZEN at v1.172. Sprint 24 is Code Complete and Product Verified at v1.173; fresh Gap Analysis found no lifecycle-presentation blocker and selected SPRINT24_FREEZE_REVIEW. |
+| Status | Sprint 24 is FROZEN at v1.173. Sprint 25 WO-S25-001 completed the audit-only Production Reachability & Legacy Disposition Review; fresh Gap Analysis found no current reachability blocker and selected SPRINT25_FREEZE_REVIEW. |
 | Architecture Version | v1.173; Runtime-owned session state is projected through application-scoped Pinia into a bounded Studio viewport lifecycle overlay, without adding UI gameplay authority. |
-| Last Completed WO | WO-S23-001 — Generation Prompt Truth and Targeted Retry; Code Complete = YES; Product Verified = YES at v1.172. |
+| Last Completed WO | WO-S24-001 — Runtime-Authoritative Lifecycle Overlay; Code Complete = YES; Product Verified = YES at v1.173. |
 | Current User-Visible Behavior | Entity-scoped create/generate/add requests still reach targeted World Evolution. In a real generated platformer, legitimate enemy damage drove `world-1` to `failed`; Game Over showed only `重生`, Runtime respawn returned to `active`, and the same world/entities remained. The real goal then showed Victory with no fabricated restart/next-level action; the copy truthfully states that the current world remains explorable, and Player exploration continued in the same world/session. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → provider candidate structural validation → bounded platformer baseline completeness gate → accepted provider or deterministic fallback with typed selection diagnostics → `GameplaySpecification` → deterministic `GameplayRuleBuilder` → world-bound `GameplayRuleSet` → ordered Runtime systems with Runtime-owned position/collision geometry → finalized `GameplayEvent` batch → generic matcher/condition evaluator → trusted gameplay actions and Runtime session/progression commit → Runtime-derived velocity/presentation state → Renderer adapter → visual design → Player idle/run/jump asset requirements plus two run-frame requirements → independent provider requests/context/prompt → state/frame-preserving manifest → Pixi state selection, facing mirror, and bounded run-frame tick alternation with primitive fallback; Runtime geometry remains authoritative. |
-| Current Blocking Issue | None for Sprint 24 lifecycle presentation. The observed completed + ArrowRight movement is expected explorable-world behavior under the clarified Victory contract. |
-| Product Verification | WO-S23-001: YES. v1.173 routing-regression preflight: YES. WO-S24-001 lifecycle PV A: PASS. WO-S24-001 lifecycle PV B: PASS. |
-| Next Recommended Verification | SPRINT24_FREEZE_REVIEW — requires Human/CTO freeze decision. Do not enter Sprint 25 automatically. |
+| Current Blocking Issue | None for current production reachability. The audit identified a DEAD `renderWorld.ts` candidate and stale legacy Observatory imports, but deletion/cleanup requires a separate bounded authorization. |
+| Product Verification | Sprint 24 lifecycle PV A: PASS. Sprint 24 lifecycle PV B: PASS. WO-S25-001 audit acceptance: PASS; Product Verification is NOT APPLICABLE to this audit-only WO. |
+| Next Recommended Verification | SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision. |
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The
 Pixi viewport may be recreated on return, but the current Runtime world/session
 remains the authority; browser refresh, close, and durable restore are not part
 of this contract.
+
+## Sprint 25 Reachability Audit Snapshot
+
+WO-S25-001 confirmed that the current production path is `ACTIVE` across
+generation providers/fallbacks, CreateWorldPipeline, semantic-to-DSL and
+Runtime projection, Runtime systems, Pixi rendering, visual/asset generation,
+and the current Observatory store/view model. `PromptAssemblyDomainModel` is
+`SUPPORTING` as a compatibility-shaped DTO on the active pipeline. The old
+PromptBuilder/strategy/Planner/DefaultPipeline stack, legacy Observatory
+metadata route, Mario/demo bootstrap, and inert streaming path are
+`FROZEN_LEGACY`; `packages/renderer/src/renderWorld.ts` is a `DEAD` candidate
+whose public export must be checked before any cleanup. See
+`docs/project/SPRINT25_PRODUCTION_REACHABILITY_AUDIT.md` for evidence and the
+full mandatory-target matrix.
+
+## Known Legacy Paths
+
+- `FROZEN_LEGACY`: historical `DefaultPromptBuilder`, `strategy/`, Planner and
+  MockPlanner providers, `DefaultPipeline`, Prompt Observatory metadata
+  bridge/mapper route, Mario/demo bootstrap, and inert streaming state.
+- `DEAD`: `packages/renderer/src/renderWorld.ts` has no current production call
+  site, but remains publicly exported pending a bounded consumer check.
+- `SUPPORTING`: mock Observatory hydration is limited to the test fixture hook;
+  deterministic generation, static asset, and primitive Renderer fallbacks are
+  intentional ACTIVE product recovery paths rather than mocks.
 
 ## Problem Register
 

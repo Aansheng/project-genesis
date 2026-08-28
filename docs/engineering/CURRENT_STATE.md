@@ -4,47 +4,44 @@ This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
 architecture_version: v1.173 (Runtime session truth now projects through the existing game store into a bounded Studio lifecycle overlay)
-current_sprint: Sprint 24 (Game Lifecycle Presentation)
-current_work_order: WO-S24-001 — lifecycle Product Verification complete; freeze review pending
-current_work_order_status: CODE_COMPLETE_PRODUCT_VERIFIED_FREEZE_REVIEW_PENDING
+current_sprint: Sprint 25 (Production Reachability & Legacy Disposition Review)
+current_work_order: WO-S25-001 — audit complete; freeze review pending
+current_work_order_status: AUDIT_COMPLETE_FREEZE_REVIEW_PENDING
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S23-001 — Generation Prompt Truth and Targeted Retry
-last_completed_product_work_order: WO-S23-001
+last_completed_work_order: WO-S24-001 — Runtime-Authoritative Lifecycle Overlay
+last_completed_product_work_order: WO-S24-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT24_FREEZE_REVIEW — requires Human/CTO freeze decision
-product_architecture_changed: yes — WO-S24-001 v1.172 → v1.173 adds only a Web presentation projection; no Runtime code change has been made for the measured completed-state blocker
-sprint_status: Sprint 17–23 are FROZEN (Sprint 23 at v1.172); Sprint 24 has one Code Complete lifecycle-presentation WO at v1.173
-product_verified: YES for WO-S24-001 — PV A and PV B both pass; completed + ArrowRight exploration is expected by the clarified Victory contract
+next_ready_work_order: SPRINT25_FREEZE_REVIEW — requires Human/CTO freeze decision
+product_architecture_changed: no — WO-S25-001 was audit-only; architecture remains v1.173
+sprint_status: Sprint 17–24 are FROZEN (Sprint 24 at v1.173); Sprint 25 audit WO-S25-001 is complete with no product-code change
+product_verified: NOT APPLICABLE for WO-S25-001 audit-only work; Sprint 24 lifecycle Product Verification remains YES
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
 continuation_mode: SPRINT_CONTINUOUS
 control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
   max_concurrent_subagents=2; repair_budget=3; Sprint boundary stop enabled;
-  automatic cross-Sprint execution disabled; Sprint 22 boundary stop enabled
+  automatic cross-Sprint execution disabled
 
 ## Current Sprint goal
 
-Sprint 24 — Game Lifecycle Presentation:
+Sprint 25 — Production Reachability & Legacy Disposition Review:
 
-1. Runtime `failed` is projected as a Game Over overlay with only its existing
-   same-world respawn action; `active` removes that overlay after Runtime
-   recovery.
-2. Runtime `completed` is projected as a Victory overlay without inventing a
-   next-level/restart action.
+1. Trace the current production entry point through initial generation,
+   conversational evolution, gameplay, visual generation/regeneration, and
+   observability.
+2. Classify the authorized audit targets as ACTIVE, SUPPORTING,
+   FROZEN_LEGACY, or DEAD using production call-chain evidence.
+3. Record a fresh Gap Analysis and stop at SPRINT25_FREEZE_REVIEW without
+   opening a cleanup WO unless a trivial safe deletion is proven.
 
-Source audit confirms `DefaultRuntimeExecutionLoop` binds
-`RuntimeGameplaySessionState`, stops systems while `failed`, and owns
-same-world respawn. `completed` remains a committed, explorable Runtime state
-by product contract. Real Studio confirmed that an ArrowRight input moved
-Player x=641 → x=695 under the Victory overlay, matching the copy
-`目标已完成。当前世界仍可继续探索`. WO-S24-002 was cancelled before any
-product code execution.
-`GameViewportPanel`'s existing Runtime observer writes a frozen
-application-scoped Pinia projection; the component reads that projection to
-render the overlay. No Web code infers Health, collision, or goal state.
-Focused tests, typecheck, and lint pass.
+WO-S25-001 is complete as an audit-only work order. The current A–E production
+chains are reachable at v1.173; the old PromptBuilder/strategy/Planner,
+Canvas2D, and Mario/demo paths are not current production paths. No Runtime,
+Renderer, AI provider, asset, or Web behavior was changed, and no file was
+deleted. Full evidence is in
+`docs/project/SPRINT25_PRODUCTION_REACHABILITY_AUDIT.md`.
 
 ## Sprint 24 Gap Analysis Post-PV
 

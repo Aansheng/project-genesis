@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 25 — Production Reachability & Legacy Disposition Audit (v1.173)
+
+- Human/CTO Sprint 24 freeze was recorded and Sprint 25 WO-S25-001 was executed
+  as audit-only. Architecture remains v1.173; no product code was changed and
+  no file was deleted.
+- Traced the real Studio A–E chains: initial generation, active-world
+  evolution, Runtime gameplay, visual/asset generation and regeneration, and
+  current Observatory projection.
+- Classified the historical PromptBuilder/strategy/Planner/DefaultPipeline,
+  legacy Observatory metadata route, Canvas2D `renderWorld.ts`, and Mario/demo
+  bootstrap according to production reachability. Intentional deterministic,
+  static-asset, and primitive-renderer fallbacks remain product support rather
+  than mocks.
+- Fresh Gap Analysis found no current reachability blocker. `renderWorld.ts`
+  remains a DEAD cleanup candidate but is not trivially removable while it is
+  publicly exported. Selected `SPRINT25_FREEZE_REVIEW`; no Sprint 26 work was
+  started.
+- Full evidence and the mandatory-target matrix are in
+  `docs/project/SPRINT25_PRODUCTION_REACHABILITY_AUDIT.md`.
+
 ### Sprint 24 Human/CTO Clarification — Completion Exploration Contract (v1.173)
 
 - Human/CTO clarified that `completed` is a goal-achieved state whose existing

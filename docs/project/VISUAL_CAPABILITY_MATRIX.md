@@ -1,7 +1,7 @@
 # Visual Capability Matrix
 
-Architecture version: v1.167 (Sprint 19 FROZEN; WO-S19-001 and WO-S19-002
-Product Verified)
+Architecture version: v1.173 (Sprint 19–24 frozen; Sprint 25 reachability audit
+is audit-only)
 
 This matrix distinguishes semantic intent from asset and renderer realization.
 

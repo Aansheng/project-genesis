@@ -1,7 +1,7 @@
-# Gameplay Capability Matrix — Sprint 24 In Progress
+# Gameplay Capability Matrix — Sprint 24 Frozen / Sprint 25 Audit
 
 Architecture version: v1.173 (Sprint 23 FROZEN; Sprint 24 lifecycle overlay
-Code Complete with real Studio Product Verification pending)
+Code Complete and Product Verified; Sprint 25 reachability audit is audit-only)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

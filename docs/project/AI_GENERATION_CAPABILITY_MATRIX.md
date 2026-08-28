@@ -4,6 +4,12 @@ Validated against the v1.123 semantic candidate contract. This matrix describes
 what the current pipeline can preserve and execute; it does not claim gameplay
 behavior that has not been implemented.
 
+> **Historical validation notice (Sprint 25, 2026-08-27):** The matrix version
+> and claims below predate the v1.173 production wiring and are not the current
+> state authority. Consult `PROJECT_STATE.md` and
+> `SPRINT25_PRODUCTION_REACHABILITY_AUDIT.md` for the current reachable
+> provider, fallback, Runtime, gameplay, and observability paths.
+
 | Semantic | Understood | Preserved | Compiled | Runtime realized | Visually realized |
 | --- | --- | --- | --- | --- | --- |
 | platformer genre | yes | yes | yes | yes | primitive platformer geometry |
