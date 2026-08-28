@@ -1,5 +1,22 @@
 # Changelog
 
+### Sprint 28 — WO-S28-001 Runtime Pursuit Implementation (v1.178)
+
+- Implemented generic `TargetDirectedMovementComponent` plus Runtime target
+  lookup, normalized finite pursuit Velocity, and generic Velocity→Position
+  integration. Survival composition injects the explicit Player target for
+  initial and same-world added enemies; Platformer registration is unchanged.
+- Human/CTO confirms automatic Enemy pursuit and the existing contact-start
+  damage path. One Health decrease during persistent overlap is expected
+  contact de-duplication, not a new attack-loop requirement.
+- Repaired the measured incremental visual gap: Survival Enemy additions
+  inherit the first Enemy visual identity and the resolved shared resource is
+  rebound to each new entity without duplicate image generation.
+- Code Complete = YES. Product Verified remains PENDING the final successful
+  Human/CTO real-session confirmation of the repaired visual binding; local
+  post-repair retries received an invalid provider candidate. Sprint 29 is not
+  entered automatically.
+
 ### Sprint 27 Freeze + Sprint 28 Authorization (v1.177)
 
 - Human/CTO froze Sprint 27 at v1.177. `WO-S27-001` is DONE with Code Complete

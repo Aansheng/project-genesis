@@ -16,7 +16,7 @@ import type {
 import { DefaultImageGenerationContextBuilder } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
 import type { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
-import { buildImageGenerationRequest, groupAiGenerationRequirements } from './AssetGenerationPolicy'
+import { buildImageGenerationRequest, groupAiGenerationRequirements, visualGenerationIdentity } from './AssetGenerationPolicy'
 import { createPendingImageGenerationOperation, finishImageGenerationOperation } from './GeneratedAssetOrchestrator'
 import { VisualAssetGenerationScheduler } from './VisualAssetGenerationScheduler'
 
@@ -114,6 +114,22 @@ function generatedEntry(requirement: AssetRequirement, asset: TargetedGeneratedA
   })
 }
 
+function inheritedEntry(requirement: AssetRequirement, source: AssetManifestEntry): AssetManifestEntry {
+  return freeze({
+    assetId: requirement.id,
+    kind: requirement.kind,
+    target: requirement.target,
+    ...(requirement.entityId ? { entityId: requirement.entityId } : {}),
+    ...(requirement.renderUsage ? { renderUsage: requirement.renderUsage } : {}),
+    ...(requirement.presentationState ? { presentationState: requirement.presentationState } : {}),
+    ...(requirement.presentationFrame !== undefined ? { presentationFrame: requirement.presentationFrame } : {}),
+    status: source.status,
+    ...(source.origin ? { origin: source.origin } : {}),
+    ...(source.resource ? { resource: freeze({ ...source.resource }) } : {}),
+    ...(source.metadata ? { metadata: freeze({ ...source.metadata }) } : {}),
+  })
+}
+
 /**
  * Apply only generated bindings to the current manifest.
  * Existing entry objects are kept by identity when they are unaffected.
@@ -129,10 +145,22 @@ export function buildTargetedAssetManifest(
   }
 
   const currentById = new Map(currentManifest.entries.map(entry => [entry.assetId, entry]))
+  const currentEntriesByVisualIdentity = new Map<string, AssetManifestEntry>()
+  for (const [, requirements] of groupAiGenerationRequirements(specification)) {
+    const source = requirements
+      .map(requirement => currentById.get(requirement.id))
+      .find(entry => entry?.status === 'resolved' && entry.resource?.uri)
+    if (!source) continue
+    const identity = visualGenerationIdentity(specification, requirements[0]!)
+    currentEntriesByVisualIdentity.set(identity, source)
+  }
   const entries = specification.assets.map(requirement => {
     const generatedAsset = generated.get(requirement.id)
     if (generatedAsset) return generatedEntry(requirement, generatedAsset)
-    return currentById.get(requirement.id) ?? unresolvedEntry(requirement)
+    const currentEntry = currentById.get(requirement.id)
+    if (currentEntry) return currentEntry
+    const inherited = currentEntriesByVisualIdentity.get(visualGenerationIdentity(specification, requirement))
+    return inherited ? inheritedEntry(requirement, inherited) : unresolvedEntry(requirement)
   })
   if (entries.length === currentManifest.entries.length && entries.every((entry, index) => entry === currentManifest.entries[index])) {
     return currentManifest

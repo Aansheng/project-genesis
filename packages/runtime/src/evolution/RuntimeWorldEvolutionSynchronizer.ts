@@ -1,8 +1,12 @@
 import {
   createDefaultCollisionBoundsForType,
+  createDefaultHealthComponentForType,
   createPositionComponent,
+  createTargetDirectedMovementComponent,
+  DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED,
   type Entity,
   type EntityCategory,
+  type WorldType,
   type RuntimeComponent,
   type RuntimeEvolutionFailureReason,
   type RuntimeEvolutionResult,
@@ -111,8 +115,14 @@ function entityWithSemantic(
   category: EntityCategory,
   name: string,
   position: Readonly<{ x: number; y: number }>,
+  worldType: WorldType,
+  targetEntityId: string | undefined,
 ): Entity {
   const collisionBounds = createDefaultCollisionBoundsForType(category)
+  const health = worldType === 'survival' ? createDefaultHealthComponentForType(category) : undefined
+  const targetDirectedMovement = worldType === 'survival' && category === 'enemy' && targetEntityId
+    ? createTargetDirectedMovementComponent(targetEntityId, DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED)
+    : undefined
   return Object.freeze({
     id,
     type: category,
@@ -123,7 +133,9 @@ function entityWithSemantic(
     components: Object.freeze([
       semanticComponent(name, category),
       createPositionComponent(position.x, position.y),
+      ...(health ? [health] : []),
       ...(collisionBounds ? [collisionBounds] : []),
+      ...(targetDirectedMovement ? [targetDirectedMovement] : []),
     ]),
   }) as unknown as Entity
 }
@@ -290,6 +302,9 @@ export class DefaultRuntimeWorldEvolutionSynchronizer
       changed: false,
     }
     const addedSemanticEntities = [...semanticMutation.addedEntities]
+    const targetEntityId = semanticMutation.updatedWorld.worldType === 'survival'
+      ? semanticMutation.updatedWorld.entities.find(entity => entity.category === 'player')?.id
+      : undefined
     const touched = new Set<string>()
 
     for (const operation of semanticMutation.appliedOperations) {
@@ -305,7 +320,14 @@ export class DefaultRuntimeWorldEvolutionSynchronizer
             return failure(runtimeWorld, semanticMutation, previousRevision, 'duplicate_entity_id')
           }
           const position = safePosition(working.entities, semantic.id, semantic.category)
-          working.entities.push(entityWithSemantic(semantic.id, semantic.category, semantic.name, position))
+          working.entities.push(entityWithSemantic(
+            semantic.id,
+            semantic.category,
+            semantic.name,
+            position,
+            semanticMutation.updatedWorld.worldType,
+            targetEntityId,
+          ))
           working.addedEntityIds.push(semantic.id)
           working.affectedEntityIds.push(semantic.id)
           touched.add(semantic.id)

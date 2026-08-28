@@ -15,14 +15,14 @@ import { DefaultVisualEvolutionPlanner } from '../VisualEvolutionPlanner'
 
 const worldId = 'world-visual-test'
 
-function world(entities: GameWorldModel['entities']): GameWorldModel {
-  return Object.freeze({ worldType: 'farm', entities: Object.freeze(entities.map(entity => Object.freeze({ ...entity }))) })
+function world(entities: GameWorldModel['entities'], worldType: GameWorldModel['worldType'] = 'farm'): GameWorldModel {
+  return Object.freeze({ worldType, entities: Object.freeze(entities.map(entity => Object.freeze({ ...entity }))) })
 }
 
 function designFor(semanticWorld: GameWorldModel, theme = 'green fields'): GameDesignSpecification {
   return {
     title: 'Visual evolution test world',
-    genre: 'farm',
+    genre: semanticWorld.worldType === 'survival' ? 'survival' : 'farm',
     theme: { name: theme },
     objectives: [],
     entities: semanticWorld.entities,
@@ -213,6 +213,30 @@ describe('DefaultVisualEvolutionPlanner', () => {
     expect(result.addedVisualRequirements[0]?.visualArchetype).toBe('Merchant')
     expect(result.generationRequired).toHaveLength(1)
     expect(result.assetImpactPlan.entries.at(-1)?.action).toBe('ADD')
+  })
+
+  it('reuses the existing Survival enemy visual identity for added enemies', () => {
+    const before = world([
+      { id: 'player', category: 'player', name: 'Survivor' },
+      { id: 'enemy', category: 'enemy', name: '荒野敌人' },
+    ], 'survival')
+    const { result } = planFor(before, [{
+      kind: 'add-entity',
+      scope: 'entity',
+      semantic: { name: '怪物', category: 'enemy' },
+      count: 2,
+    }])
+
+    expect(result.generationRequired).toHaveLength(0)
+    expect(result.status).toBe('no_visual_impact')
+    expect(result.bindingOnlyChanges).toEqual([
+      expect.objectContaining({ entityId: 'entity-1', action: 'ADD' }),
+      expect.objectContaining({ entityId: 'entity-2', action: 'ADD' }),
+    ])
+    expect(result.updatedVisualDesign.entities.filter(entity => entity.entityId.startsWith('entity-'))).toEqual([
+      expect.objectContaining({ visualArchetype: '荒野敌人', visualRole: 'enemy creature' }),
+      expect.objectContaining({ visualArchetype: '荒野敌人', visualRole: 'enemy creature' }),
+    ])
   })
 
   it('removes Boss binding and marks its orphaned asset without generation', () => {

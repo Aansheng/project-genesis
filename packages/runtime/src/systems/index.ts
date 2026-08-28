@@ -33,6 +33,8 @@ export type { GroundCollisionSystemResult } from './GroundCollisionSystemResult'
 export { DefaultGroundCollisionSystem } from './DefaultGroundCollisionSystem'
 export type { VerticalMotionSystem } from './VerticalMotionSystem'
 export { DefaultVerticalMotionSystem } from './DefaultVerticalMotionSystem'
+export { DefaultTargetDirectedMovementSystem } from './DefaultTargetDirectedMovementSystem'
+export { DefaultVelocityMotionSystem } from './DefaultVelocityMotionSystem'
 
 // Jump System Foundation (WO-S9-014)
 export type { JumpSystem } from './JumpSystem'

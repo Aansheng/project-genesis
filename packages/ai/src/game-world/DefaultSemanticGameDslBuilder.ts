@@ -52,6 +52,8 @@ import {
   createDefaultCollisionBoundsForSemanticEntity,
   createDefaultHealthComponentForType,
   createPositionComponent,
+  createTargetDirectedMovementComponent,
+  DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED,
 } from '@genesis/shared'
 import type { SemanticGameDslBuilder } from './SemanticGameDslBuilder'
 import { DefaultWorldLayoutGenerator } from './layout'
@@ -176,13 +178,16 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
     }
 
     const result: EntityDsl[] = []
+    const targetEntityId = world.worldType === 'survival'
+      ? entities.find(entity => entity?.category === 'player')?.id
+      : undefined
 
     for (const entity of entities) {
       if (!entity || typeof entity !== 'object') {
         continue
       }
 
-      result.push(this.createEntityDsl(entity, positions[entity.id]))
+      result.push(this.createEntityDsl(entity, positions[entity.id], targetEntityId))
     }
 
     return Object.freeze(result)
@@ -199,9 +204,13 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
   private createEntityDsl(
     entity: GameWorldEntity,
     position: { readonly x: number; readonly y: number } | undefined,
+    targetEntityId: string | undefined,
   ): EntityDsl {
     const health = createDefaultHealthComponentForType(entity.category)
     const collisionBounds = createDefaultCollisionBoundsForSemanticEntity(entity.category, entity.name)
+    const targetDirectedMovement = entity.category === 'enemy' && targetEntityId
+      ? createTargetDirectedMovementComponent(targetEntityId, DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED)
+      : undefined
     return Object.freeze({
       id: String(entity.id ?? ''),
       type: String(entity.category ?? ''),
@@ -210,6 +219,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
         createPositionComponent(position?.x ?? 0, position?.y ?? 0),
         ...(health ? [health] : []),
         ...(collisionBounds ? [collisionBounds] : []),
+        ...(targetDirectedMovement ? [targetDirectedMovement] : []),
       ]),
     })
   }

@@ -418,6 +418,19 @@ describe('component mapping', () => {
     }
   })
 
+  it('adds target-directed movement only to Survival enemies', () => {
+    const survival = createBuilder().build(createSurvivalWorld())
+    const enemy = survival.world.entities.find(value => value.id === 'zombie')!
+    expect(enemy.components.find(component => component.type === 'target-directed-movement')?.properties).toEqual({
+      targetEntityId: 'survivor',
+      speed: 1.5,
+    })
+
+    const platformer = createBuilder().build(createPlatformerWorld())
+    const platformerEnemy = platformer.world.entities.find(value => value.id === 'goomba')!
+    expect(platformerEnemy.components.some(component => component.type === 'target-directed-movement')).toBe(false)
+  })
+
   it('component type is "semantic"', () => {
     const result = createBuilder().build(createRpgWorld())
     for (const entity of result.world.entities) {

@@ -148,6 +148,17 @@ function buildVisualDesign(
   mutation: SemanticWorldMutationResult,
 ): { readonly design: VisualDesignSpecification; readonly worldImpact: readonly VisualWorldImpact[] } {
   const currentById = new Map(current.entities.map(entity => [entity.entityId, entity]))
+  const addedEntityIds = new Set(mutation.addedEntityIds)
+
+  // Survival enemy additions are the same gameplay role as the existing
+  // enemy pressure source. Preserve that role's visual identity so the
+  // existing generated enemy resource can be rebound to every new entity.
+  // This is composition at the Web visual boundary; Runtime remains
+  // component-driven and does not know about world types or assets.
+  const inheritedVisual = (entity: GameWorldModel['entities'][number]): VisualDesignSpecification['entities'][number] | undefined => {
+    if (afterSemanticWorld.worldType !== 'survival' || entity.category !== 'enemy' || !addedEntityIds.has(entity.id)) return undefined
+    return current.entities.find(candidate => candidate.category === 'enemy' && !addedEntityIds.has(candidate.entityId))
+  }
   let theme = current.theme
   let palette = current.palette
   let environment = current.environment
@@ -186,6 +197,15 @@ function buildVisualDesign(
       && previous.category === entity.category
       && previous.visualArchetype === entity.name
       && previous.visualRole) return previous
+    const inherited = inheritedVisual(entity)
+    if (inherited) {
+      return freezeObject({
+        entityId: entity.id,
+        category: entity.category,
+        visualRole: inherited.visualRole,
+        visualArchetype: inherited.visualArchetype,
+      })
+    }
     const categoryChanged = previous?.category !== entity.category
     return freezeObject({
       entityId: entity.id,

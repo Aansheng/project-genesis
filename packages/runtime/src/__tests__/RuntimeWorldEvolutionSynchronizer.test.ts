@@ -54,6 +54,19 @@ const runtimeWorld = Object.freeze({
   ]),
 }) as unknown as World
 
+const survivalSemanticWorld: GameWorldModel = Object.freeze({
+  worldType: 'survival',
+  entities: Object.freeze([
+    Object.freeze({ id: 'player-1', category: 'player' as const, name: 'Player' }),
+  ]),
+})
+
+const survivalRuntimeWorld = Object.freeze({
+  entities: Object.freeze([
+    runtimeEntity('player-1', 'player', 80, 400, 'Player'),
+  ]),
+}) as unknown as World
+
 function mutation(
   operations: WorldSemanticDelta['operations'],
   revision = 0,
@@ -74,6 +87,39 @@ function mutation(
 
 describe('DefaultRuntimeWorldEvolutionSynchronizer', () => {
   const synchronizer = new DefaultRuntimeWorldEvolutionSynchronizer()
+
+  it('gives conversationally added Survival enemies the same health and pursuit composition', () => {
+    const semanticMutation = new DefaultSemanticWorldDeltaApplier().apply(survivalSemanticWorld, {
+      operationId: 'survival-add-enemies',
+      worldId: 'world-survival',
+      semanticRevision: 0,
+      operations: [{
+        kind: 'add-entity',
+        scope: 'entity',
+        semantic: { name: 'Enemy', category: 'enemy' },
+        count: 5,
+      }],
+      summary: 'add five enemies',
+    }, { worldId: 'world-survival', semanticRevision: 0 })
+
+    const result = synchronizer.synchronize(survivalRuntimeWorld, semanticMutation, {
+      worldId: 'world-survival',
+      runtimeRevision: 0,
+    })
+    const added = result.updatedWorld.entities.filter(entity => entity.id !== 'player-1')
+
+    expect(result.status).toBe('synchronized')
+    expect(result.addedEntityIds).toHaveLength(5)
+    expect(added).toHaveLength(5)
+    for (const enemy of added) {
+      expect(enemy.components?.find(component => component.type === 'health')?.properties).toEqual({ current: 100, max: 100 })
+      expect(enemy.components?.find(component => component.type === 'target-directed-movement')?.properties).toEqual({
+        targetEntityId: 'player-1',
+        speed: 1.5,
+      })
+    }
+    expect(result.updatedWorld.entities[0]).toBe(survivalRuntimeWorld.entities[0])
+  })
 
   it('replaces exact Runtime targets while preserving identity, position, gameplay components, and unrelated entities', () => {
     const result = synchronizer.synchronize(runtimeWorld, mutation([{

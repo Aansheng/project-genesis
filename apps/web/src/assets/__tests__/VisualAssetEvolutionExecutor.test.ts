@@ -130,6 +130,26 @@ describe('VisualAssetEvolutionExecutor', () => {
     expect(next.entries.find(entry => entry.entityId === 'player-1')).toBe(playerBefore)
   })
 
+  it('inherits a resolved shared asset for new binding-only requirements', () => {
+    const before = specification([
+      { id: 'enemy', category: 'npc', name: 'Enemy' },
+    ])
+    const updated = specification([
+      { id: 'enemy', category: 'npc', name: 'Enemy' },
+      { id: 'enemy-2', category: 'npc', name: 'Enemy' },
+    ])
+    const current = resolvedManifest(before, '/generated/enemy.png')
+
+    const next = buildTargetedAssetManifest(updated, current)
+    expect(next.entries.find(entry => entry.entityId === 'enemy-2')).toMatchObject({
+      assetId: 'entity-enemy-2-primary',
+      entityId: 'enemy-2',
+      status: 'resolved',
+      origin: 'generated',
+      resource: { uri: '/generated/enemy.png' },
+    })
+  })
+
   it('applies remove-only changes without starting a generation request', async () => {
     const before = specification([
       { id: 'cow-1', category: 'npc', name: 'Cow' },

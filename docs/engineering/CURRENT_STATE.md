@@ -3,24 +3,25 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.177 (Sprint 27 frozen; Sprint 28 authorized; first bounded WO ready)
+architecture_version: v1.178 (Sprint 27 frozen; WO-S28-001 implemented; Product Verification pending)
 current_sprint: Sprint 28 (Survival Gameplay Pressure)
 current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-current_work_order_status: READY — initial source Gap Analysis complete; implementation not started
+current_work_order_status: IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human recheck of incremental visual binding
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
 last_completed_product_work_order: WO-S27-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-product_architecture_changed: yes — v1.176 → v1.177; Survival now carries a bounded spatial composition contract through visual/assets and Runtime→Renderer projection
+next_ready_work_order: SPRINT28_FREEZE_REVIEW — pending final Human/CTO Product Verification
+product_architecture_changed: yes — v1.176 → v1.177 → v1.178; Survival now carries bounded spatial composition and generic target-directed Runtime behavior through the existing pipeline
 sprint_status: Sprint 17–26 remain historically frozen or complete; Sprint 27
   is FROZEN at v1.177 after WO-S27-001 passed Code Complete and Product
   Verification. Human/CTO explicitly authorized Sprint 28; its first source
-  Gap Analysis selected exactly one READY item, WO-S28-001. Implementation has
-  not started.
-code_complete: YES for WO-S27-001; product_verified: YES for Sprint 27;
-  Sprint 28 code and Product Verification are pending
+  Gap Analysis selected exactly one READY item, WO-S28-001. WO-S28-001 is now
+  Code Complete at v1.178; Product Verification remains pending the final
+  human visual-binding recheck.
+code_complete: YES for WO-S28-001; product_verified: PENDING for Sprint 28;
+  Sprint 27 remains Product Verified = YES and frozen
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -129,6 +130,31 @@ created.
 
 See `docs/project/SPRINT28_BACKLOG.md` for the complete nine-question audit,
 bounded scope, acceptance, and manual verification contract.
+
+## Sprint 28 Implementation and Product Verification
+
+WO-S28-001 is implemented at v1.178. The production chain now composes
+`TargetDirectedMovementComponent(targetEntityId, speed)` onto initial and
+same-world added Survival enemies. `DefaultTargetDirectedMovementSystem`
+resolves the current target Position and writes normalized finite Velocity;
+`DefaultVelocityMotionSystem` integrates Position for eligible entities. The
+Runtime behavior is generic and component-driven; Survival selection remains
+at the Web composition boundary, and Platformer registration is unchanged.
+
+Human/CTO confirms automatic pursuit and the existing contact damage path. A
+single Health decrease while entities remain overlapped is expected because
+`EntityContactSystem` emits one `ENTITY_CONTACT_STARTED` until separation;
+continuous attack damage remains outside this WO.
+
+The reported incremental visual gap was repaired in the existing Web visual
+evolution seam. Survival Enemy additions inherit the existing Enemy visual
+identity, and the targeted manifest copies the first resolved shared resource
+to each new binding without duplicate image generation. Automated Web
+integration proves exact +5, no duplicate image request, and resolved resource
+reuse. Product Verification remains PENDING until Human/CTO confirms this
+repair in a successful real Studio `再加五只怪` run; local post-repair retries
+received an invalid provider candidate and are recorded as provider-path
+limitations.
 
 ## Sprint 26 Initial Gap Analysis (historical)
 

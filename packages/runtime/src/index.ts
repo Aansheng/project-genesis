@@ -36,6 +36,7 @@ export type { GroundCollisionSystem, GroundCollisionSystemResult } from './syste
 export { DefaultGroundCollisionSystem } from './systems'
 export type { VerticalMotionSystem } from './systems'
 export { DefaultVerticalMotionSystem } from './systems'
+export { DefaultTargetDirectedMovementSystem, DefaultVelocityMotionSystem } from './systems'
 export type { JumpSystem, JumpSystemResult } from './systems'
 export { DefaultJumpSystem } from './systems'
 export { DefaultEntityContactSystem } from './systems'

@@ -21,6 +21,14 @@ export {
 export type { VelocityComponent } from './VelocityComponent'
 
 export {
+  DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED,
+  TARGET_DIRECTED_MOVEMENT_COMPONENT_TYPE,
+  createTargetDirectedMovementComponent,
+  isTargetDirectedMovementComponent,
+} from './TargetDirectedMovementComponent'
+export type { TargetDirectedMovementComponent } from './TargetDirectedMovementComponent'
+
+export {
   HEALTH_COMPONENT_TYPE,
   createHealthComponent,
   createDefaultHealthComponentForType,

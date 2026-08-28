@@ -1,7 +1,7 @@
-# Gameplay Capability Matrix — Sprint 27 Frozen / Sprint 28 Authorized
+# Gameplay Capability Matrix — Sprint 27 Frozen / Sprint 28 Implemented
 
-Architecture version: v1.177 (Sprint 27 FROZEN; Sprint 28 authorized; generic
-Enemy chase remains deferred pending WO-S28-001)
+Architecture version: v1.178 (Sprint 27 FROZEN; WO-S28-001 implemented;
+final Product Verification pending human visual-binding recheck)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -46,6 +46,7 @@ slice is not promoted to a general Runtime capability.
 | Collection / collectibles | Mechanics, optional goals/targets | `partially supported` | A player contact with semantic category `item` can remove the target and the bounded collect-reward rule can add `experience`; inventory, score, and `ITEM_COLLECTED` remain absent. |
 | Damage / health | Combat and failure intent | `partially supported` | Player/enemy/npc Health is a generic Runtime component and non-top contact can decrease current Health; lethal player damage commits Runtime `failed`, and same-world respawn restores Health/active play. |
 | Enemy spawn | Spawn rule intent | `deferred` | Spawn rules are descriptive; no gameplay spawner executes them. |
+| Enemy target-directed movement | Survival semantic composition → generic Runtime target component | `supported` | `DefaultTargetDirectedMovementSystem` resolves the explicit target entity's current Position and writes finite normalized Velocity; `DefaultVelocityMotionSystem` integrates Position. Composition is enabled only for Survival enemies, while the Runtime systems remain generic. |
 | Enemy chase / AI | Combat/movement intent | `deferred` | Enemy entities may exist semantically; no enemy controller is wired. |
 | Enemy stomp / defeat | Combat intent | `supported` | Generic `enemy-stomp` rule validates player/enemy/top, removes the target, and applies upward player velocity with rule-level all-or-nothing commit. |
 | Goals / checkpoints / win | Goal intent and semantic entities | `partially supported` | Player contact with the validated goal commits Runtime session `completed`; Studio projects that committed state as a Victory overlay. No next level, restart, deletion, or progression flow exists. |

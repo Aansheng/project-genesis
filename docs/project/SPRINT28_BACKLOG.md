@@ -2,7 +2,7 @@
 
 **Authorization:** Human/CTO decision, 2026-08-28
 **Architecture at authorization:** v1.177
-**Status:** READY — exactly one bounded WO generated; implementation not started
+**Status:** IMPLEMENTATION COMPLETE — Code Complete = YES; Product Verified = PENDING
 
 ## Product thesis
 
@@ -53,10 +53,11 @@ claim that enemy pursuit has already been manually verified in Studio.
 
 ### WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
 
-**Status:** READY — source Gap Analysis complete; implementation not started
+**Status:** IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human
+recheck of the repaired incremental visual binding
 **Architecture before:** v1.177
-**Architecture after:** v1.178 expected only if the implementation changes the
-accepted architecture and passes verification
+**Architecture after:** v1.178 — generic target-directed Runtime composition
+implemented; Product Verification remains pending the final human recheck
 
 **Measured bottleneck:** Survival has stationary generated enemies. Generic
 Position, Velocity, collision, Health, contact, damage, failure, and Respawn
@@ -128,6 +129,39 @@ integration, and production registry execution; test Survival composition and
 world-evolution inheritance; run existing Platformer regressions; then run
 affected package suites, TypeScript checks, ESLint, Web build, and
 `git diff --check`.
+
+## WO-S28-001 Execution Record — 2026-08-28
+
+**Implementation result:** The bounded Runtime capability is implemented at
+v1.178. Survival composition attaches an explicit target entity ID and finite
+speed to eligible Enemy entities. Runtime resolves the target Position,
+writes normalized Velocity, and a generic Velocity motion system integrates
+Position. The same composition is injected by the semantic-to-DSL path and
+the existing same-world evolution synchronizer; Platformer registration is
+unchanged.
+
+**Human product observations:** Human/CTO real-product verification confirms
+that the generated Survival Enemy automatically approaches the Player and
+that the existing contact path decreases Player Health. The observed single
+damage application while overlap persists is expected: the existing
+`ENTITY_CONTACT_STARTED` contract de-duplicates a continuous overlap. No
+attack or continuous-damage mechanic is added by this WO.
+
+**Measured visual gap and repair:** Human/CTO observed that newly added
+enemies did not visibly use the first generated Enemy artwork. The repair is
+within this WO's existing evolution seam: Survival Enemy additions inherit
+the existing Enemy visual identity, and the targeted manifest copies the
+already-resolved shared resource to each new entity binding without creating
+duplicate generation work. This is asset binding reuse, not a new visual
+architecture.
+
+**Verification status:** Automated integration proves exact same-world +5
+enemy addition, pursuit/contact composition inheritance, zero duplicate image
+generation, and resolved resource reuse. A post-repair real Studio retry of
+`再加五只怪` returned an invalid provider candidate twice, while the browser
+console remained clean; this provider result is not treated as a product
+failure. Product Verified remains PENDING until Human/CTO confirms the
+repaired visual binding in a successful real session.
 
 **Product verification steps:** In a clean real Studio session, run the exact
 Survival command, inspect actual Runtime Position/Velocity for an Enemy while

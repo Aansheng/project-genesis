@@ -7,11 +7,11 @@ queue_version: 1
 updated: 2026-08-28
 current_sprint: Sprint 28
 current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-current_work_order_status: READY — initial source Gap Analysis complete; implementation not started
+current_work_order_status: IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human recheck of incremental visual binding
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-next_work_order: SPRINT28_FREEZE_REVIEW — Survival Gameplay Pressure
+next_work_order: SPRINT28_FREEZE_REVIEW — pending final Human/CTO Product Verification
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -134,13 +134,13 @@ and the Human/CTO decision log. Exactly one bounded Sprint 28 WO is selected.
 
 ## WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
 
-status: READY — source Gap Analysis complete; implementation not started
+status: IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human
+recheck of the repaired incremental visual binding
 priority: P0 / Human-CTO authorized
 dependencies: Sprint 27 FROZEN at v1.177; explicit Sprint 28 authorization;
 fresh nine-question production-chain Gap Analysis
 architecture_before: v1.177
-architecture_after: v1.178 expected only if implementation changes accepted
-architecture
+architecture_after: v1.178
 measured_bottleneck: Survival enemies have Position/collision/Health but are
 stationary; no registered generic Runtime system moves eligible enemies toward
 the current Player or updates direction after Player movement.
@@ -160,6 +160,28 @@ and additions inherit pursuit/contact behavior; Platformer remains correct and
 the console is clean.
 next_gate: SPRINT28_FREEZE_REVIEW only after this single WO passes; do not enter
 Sprint 29 automatically.
+
+## WO-S28-001 Execution Record — 2026-08-28
+
+implementation_result: PASS — added generic immutable
+TargetDirectedMovementComponent, Runtime target lookup and normalized
+Velocity output, generic Velocity→Position integration, Survival composition
+wiring, and same-world evolution inheritance. The Runtime system has no
+world-type branch; Survival selection remains at the existing Web composition
+boundary. Platformer systems and gameplay foundations were not modified.
+visual_binding_repair: PASS — Survival Enemy additions inherit the existing
+Enemy visual identity, and binding-only manifest updates copy the first
+resolved shared resource to each new entity asset binding without duplicate
+generation.
+human_observation: PASS for automatic pursuit and existing contact damage.
+The single Health decrease observed during persistent overlap is the existing
+contact-start de-duplication contract, not a missing attack loop in this WO.
+product_verification: PENDING — Human/CTO observed the pre-repair incremental
+visual gap. Automated integration now proves the repaired binding; two
+post-repair real Studio retries returned an invalid provider candidate, so the
+final human visual confirmation is still required before freeze review.
+next_gate: SPRINT28_FREEZE_REVIEW after the repaired visual binding is confirmed;
+Sprint 29 is not entered automatically.
 
 ## SPRINT24_FREEZE_REVIEW
 

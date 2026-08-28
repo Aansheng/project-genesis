@@ -137,6 +137,39 @@ function gatewayWithImages(): { readonly fetcher: typeof fetch; readonly imageRe
   return { fetcher, imageRequests }
 }
 
+function survivalGatewayWithImages(): ReturnType<typeof gatewayWithImages> {
+  const controlled = gatewayWithImages()
+  const backend = gateway()
+  const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string; input?: string; assetId?: string }
+    if (body.assetId) return controlled.fetcher(input, init)
+    if (body.kind === 'world-evolution') {
+      return Response.json({
+        candidate: {
+          kind: 'add-entity',
+          semantic: { name: '怪物', category: 'enemy' },
+          count: 5,
+        },
+      })
+    }
+    if (body.input?.includes('幸存者')) {
+      return Response.json({
+        candidate: {
+          title: 'Survival',
+          genre: 'survival',
+          entities: [
+            { id: 'player', category: 'player', name: '幸存者' },
+            { id: 'enemy', category: 'enemy', name: '敌人' },
+            { id: 'terrain', category: 'terrain', name: '荒野' },
+          ],
+        },
+      })
+    }
+    return backend(input, init)
+  }) as typeof fetch
+  return { fetcher, imageRequests: controlled.imageRequests }
+}
+
 describe('World Evolution Studio integration', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -290,6 +323,37 @@ describe('World Evolution Studio integration', () => {
     expect(observatory.viewModel.diffView.at(-1)?.runtimeSynchronization).toBe('no_runtime_impact')
     expect(observatory.viewModel.diffView.at(-1)?.visualPlanning).toBe('planned')
     expect(observatory.viewModel.diffView.at(-1)?.visualGenerationRequired).toBe(1)
+  })
+
+  it('reuses the first Survival enemy artwork for same-session enemy additions', async () => {
+    const controlled = survivalGatewayWithImages()
+    vi.stubGlobal('fetch', controlled.fetcher)
+    const game = useGameStore()
+    const initial = await game.send('生成一个幸存者游戏')
+
+    expect(initial.success).toBe(true)
+    await vi.waitFor(() => expect(game.assetManifest.entries.find(entry => entry.entityId === 'enemy')?.origin).toBe('generated'))
+    const initialEnemy = game.assetManifest.entries.find(entry => entry.entityId === 'enemy')
+    const imageRequestCount = controlled.imageRequests.length
+    const worldId = game.currentWorldId
+
+    const result = await game.send('再加五只怪')
+
+    expect(result.success).toBe(true)
+    expect(game.currentWorldId).toBe(worldId)
+    expect(game.semanticWorld?.entities.filter(entity => entity.category === 'enemy')).toHaveLength(6)
+    expect(result.evolutionPlan?.visualPlan?.generationRequired).toHaveLength(0)
+    expect(result.evolutionPlan?.visualPlan?.status).toBe('no_visual_impact')
+    expect(controlled.imageRequests).toHaveLength(imageRequestCount)
+
+    const addedEnemyIds = game.semanticWorld?.entities
+      .filter(entity => entity.id !== 'enemy' && entity.category === 'enemy')
+      .map(entity => entity.id) ?? []
+    expect(addedEnemyIds).toHaveLength(5)
+    expect(addedEnemyIds.every(entityId => {
+      const entry = game.assetManifest.entries.find(item => item.entityId === entityId)
+      return entry?.origin === 'generated' && entry.resource?.uri === initialEnemy?.resource?.uri
+    })).toBe(true)
   })
 
   it.each([
