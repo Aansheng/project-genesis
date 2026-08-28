@@ -28,7 +28,7 @@
 **Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = YES; v1.173**)
 **Sprint 25** — Production Reachability & Legacy Disposition Review (**FROZEN — WO-S25-001 audit complete; v1.173**)
 **Sprint 26** — Second-Genre Generalization Proof (**bounded proof complete; v1.176**)
-**Sprint 27** — Survival Top-Down Spatial Composition (**IN PROGRESS — v1.177**)
+**Sprint 27** — Survival Top-Down Spatial Composition (**IN PROGRESS — final PV blocked/pending — v1.177**)
 **Current WO** - WO-S27-001 — Survival Top-Down Spatial Composition
 
 ---
@@ -40,11 +40,11 @@
 | Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. Human/CTO priority correction opened Sprint 27 and WO-S27-001 to repair Survival top-down spatial composition. |
 | Architecture Version | v1.177; Survival resolves to bounded `top-down` spatial mode, carries top-view/arena-fill visual intent, exposes Runtime four-way direction, and composes a repeatable X/Y arena without adding Survivor-specific Runtime/Renderer authority. |
 | Last Completed WO | WO-S26-003 — Deterministic Active-World Enemy Addition Recovery; Code Complete = YES; Product Verified = YES at v1.176. |
-| Current User-Visible Behavior | The existing Survival path creates six entities, uses Arrow Keys-only generic two-axis motion, and accepts same-world enemy addition. Sprint 27 code is complete: the Studio renders a top-down X/Y arena fallback with no Jump control; provider-backed Prompt Truth verification remains pending. |
+| Current User-Visible Behavior | The existing Survival path creates six entities, uses Arrow Keys-only generic two-axis motion, and accepts same-world enemy addition. Sprint 27 code is complete and real provider-backed Survival assets now render in a top-down X/Y arena with no Jump control. Fresh Platformer smoke restores the 7-entity side-view world and Space control; ArrowRight moved the Player, but manual Space did not produce a Y transition from grounded `y:400`. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → generic Runtime systems → Runtime World → Runtime-derived position/velocity → adapter with bounded `WorldSpatialMode`/Player direction → Pixi environment arena-fill/background composition and entity sprites → visual design/asset requirements with top-view and Prompt Truth constraints → state/frame-preserving manifest; Runtime geometry remains authoritative and Platformer keeps its existing side-view path. |
-| Current Blocking Issue | Sprint 27 Product Verification is pending only for final provider-submitted spatial Prompt Truth: the local image provider returned `Failed to fetch`. Studio already confirms the top-down arena, no horizon/sky or horizontal Ground/Platform strip, Runtime geometry continuity, and clean diagnostics. Enemy pursuit and other gameplay pressure remain out of scope. |
-| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. WO-S27-001: PENDING until real Studio spatial evidence. |
-| Next Recommended Verification | Complete the real Studio Sprint 27 sequence in `docs/project/SPRINT27_BACKLOG.md`. If it passes, freeze Sprint 27 for Human/CTO review; do not begin Sprint 28 automatically. |
+| Current Blocking Issue | Sprint 27 Survival provider recovery and spatial Prompt Truth are now verified, including published → resolved → Renderer applied assets. Final Product Verification is blocked/pending because fresh real-browser Platformer smoke did not observe Space Jump/Y transition from grounded `y:400`, although ArrowRight moved and existing Runtime/Jump integration tests pass. Enemy pursuit and other gameplay pressure remain out of scope. |
+| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. WO-S27-001: BLOCKED/PENDING on manual Platformer Jump/collision smoke. |
+| Next Recommended Verification | Diagnose and re-run only the existing Platformer Space Jump/collision path in real Studio. Do not mark Sprint 27 DONE, enter freeze review, begin Sprint 28, or add new gameplay scope until this gate is observed. |
 
 ## Sprint 27 Spatial Composition Snapshot
 

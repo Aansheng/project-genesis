@@ -3,21 +3,21 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.177 (Sprint 27 Survival top-down spatial composition in progress)
+architecture_version: v1.177 (Sprint 27 Survival top-down spatial composition; final PV blocked)
 current_sprint: Sprint 27 (Survival Top-Down Spatial Composition)
 current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-current_work_order_status: IN_PROGRESS
+current_work_order_status: IN_PROGRESS — final Product Verification blocked/pending
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
 last_completed_product_work_order: WO-S24-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
+next_ready_work_order: NONE — SPRINT27_FREEZE_REVIEW is not ready while final Platformer smoke is blocked
 product_architecture_changed: yes — v1.176 → v1.177; Survival now carries a bounded spatial composition contract through visual/assets and Runtime→Renderer projection
 sprint_status: Sprint 17–25 remain historically frozen; Sprint 26 bounded proof
   is complete at v1.176. Human/CTO priority correction opened Sprint 27 and
   WO-S27-001; the previous Sprint 26 freeze-review projection is superseded.
-code_complete: YES for WO-S27-001; product_verified: PENDING for Sprint 27;
+code_complete: YES for WO-S27-001; product_verified: BLOCKED/PENDING for Sprint 27;
   Sprint 26 bounded proof remains YES
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
@@ -58,13 +58,18 @@ mode. No genre-specific Runtime/Renderer or gameplay-pressure work is opened.
 
 ## Sprint 27 Product Verification Target
 
-Real Studio now shows `worldType: survival`, Arrow Keys-only controls with no
-Jump, a coherent top-down arena without Mario sky/horizon or horizontal
-Ground/Platform strip, Runtime position/velocity continuity, and clean console
-diagnostics. The local image provider returned `Failed to fetch`, so
-Observatory has no final provider-submitted spatial Prompt to inspect. Code
-Complete is YES; Product Verified remains PENDING until that provider-backed
-Prompt Truth observation is available.
+Real Studio now shows a provider-backed `生成一个幸存者游戏` with
+`worldType: survival`, Arrow Keys-only controls with no Jump, a coherent
+top-down arena without Mario sky/horizon or horizontal Ground/Platform strip,
+Runtime position/velocity continuity, clean console diagnostics, and actual
+submitted top-down/arena-fill/top-view Prompts. Published Survival assets
+reached `manifest updated → resolved → Renderer applied` and appeared in the
+real canvas. A fresh `创建 MarioWorld` smoke restored the 7-entity side-view
+Platformer and Arrow Keys/Space controls, and ArrowRight moved the Player, but
+Space did not produce a real-browser Y transition from grounded `y:400`; the
+existing Platformer Runtime/Jump integration tests pass. Code Complete is YES;
+Product Verified is BLOCKED/PENDING on the manual Platformer Jump/collision
+observation. No product code or new WO is opened by this verification turn.
 
 ## Sprint 26 Initial Gap Analysis (historical)
 

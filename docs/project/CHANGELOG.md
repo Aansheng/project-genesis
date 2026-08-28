@@ -12,9 +12,14 @@
   Runtime-to-Renderer projection exposes four-way direction, top-down actor
   rotation, and a camera-visible repeatable X/Y arena surface. Platformer
   behavior remains on its existing path.
-- Automated targeted and affected-package checks pass. Real Studio spatial
-  Product Verification remains pending; if it passes, stop at Sprint 27 freeze
-  review and do not begin Sprint 28 or enemy pursuit automatically.
+- Automated targeted and affected-package checks pass. Real Studio Survival
+  Product Verification now passes the provider Prompt Truth and published →
+  resolved → Renderer applied asset lineage checks. Final PV is blocked/pending
+  because a fresh real-browser Platformer smoke showed the existing side-view
+  world and Arrow Keys/Space controls, but Space did not produce a Y transition
+  from grounded Player `y:400`; ArrowRight did move. Existing Runtime/Jump
+  integration tests pass. No product code or new WO was opened; do not enter
+  Sprint 27 freeze review or Sprint 28 automatically.
 
 ### Sprint 26 — WO-S26-003 and Freeze Review Readiness (v1.176)
 

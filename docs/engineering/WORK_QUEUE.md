@@ -7,7 +7,7 @@ queue_version: 1
 updated: 2026-08-28
 current_sprint: Sprint 27
 current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-current_work_order_status: IN_PROGRESS
+current_work_order_status: IN_PROGRESS — final Product Verification blocked/pending
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
@@ -34,7 +34,7 @@ runtime wiring; the previous Sprint 26 freeze review is not a blocker.
 
 ## WO-S27-001 — Survival Top-Down Spatial Composition
 
-status: CODE_COMPLETE — Code Complete = YES; Product Verified = pending
+status: CODE_COMPLETE — Code Complete = YES; Product Verified = BLOCKED/PENDING
 priority: P0 / Human-CTO corrected priority
 dependencies: WO-S26-003 implementation complete; explicit Sprint 27
 authorization; fresh repository-grounded Gap Analysis complete
@@ -59,10 +59,16 @@ Ground/Platform strip; Platformer preserves its system/control behavior and
 the real Studio Prompt Truth/console evidence is clean.
 automated_tests: Shared/AI/Runtime/Renderer/Web targeted tests, affected
 package suites, TypeScript, ESLint, Web build, and git diff --check.
-product_verification: PENDING — real Studio confirms the spatial/runtime and
-diagnostic checks, but the local image provider returned `Failed to fetch` and
-therefore no final provider-submitted spatial Prompt is available in
-Observatory. See docs/project/SPRINT27_BACKLOG.md and the completion report.
+product_verification: BLOCKED/PENDING — real provider-backed Studio Survival
+verification passed the submitted top-down background/arena-fill/top-view
+Prompt checks and published → resolved → Renderer applied asset lineage. A
+fresh `创建 MarioWorld` Platformer smoke restored the 7-entity side-view
+world and Arrow Keys/Space controls; ArrowRight moved the Player, but Space
+did not produce a real-browser Y transition from grounded `y:400`, despite
+the existing Platformer Runtime/Jump integration tests passing. Do not infer
+manual Product Verification from those tests and do not select freeze review
+until the real Jump/collision smoke is observed. The prior provider
+`Failed to fetch` blocker is recovered; no product code or new WO is opened.
 observability: Preserve actual Runtime geometry, submitted prompt text,
 asset render usage, renderer application events, and console diagnostics;
 do not infer enemy gameplay from this spatial slice.

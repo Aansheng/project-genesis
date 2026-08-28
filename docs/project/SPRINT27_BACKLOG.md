@@ -3,7 +3,7 @@
 **Authorization:** Human/CTO priority correction, 2026-08-28
 **Architecture boundary:** v1.176 → v1.177
 **Current work order:** WO-S27-001
-**Status:** CODE_COMPLETE — Product Verification PENDING
+**Status:** CODE_COMPLETE — Product Verification BLOCKED/PENDING
 
 ## First action — repository-grounded Gap Analysis
 
@@ -82,14 +82,22 @@ and Platformer behavior changes.
 package TypeScript checks; ESLint; full affected-package regressions; Web
 build; `git diff --check`.
 
-**Product verification:** PENDING. Real Studio evidence now confirms
-`worldType: survival`, Arrow Keys-only controls with no Jump, a full X/Y arena
-fallback, Runtime position/velocity continuity, no horizon/sky or horizontal
-Ground strip, and an empty browser `warn/error` diagnostic set. The local image
-provider returned `Failed to fetch`, so Observatory truthfully reports that no
-final provider-submitted Prompt is available; spatial Prompt Truth remains the
-single open product gate and must not be inferred from the client request or
-unit tests.
+**Product verification:** BLOCKED/PENDING. Real Studio evidence now confirms
+the provider-backed Survival request `生成一个幸存者游戏`, `worldType:
+survival`, Arrow Keys-only controls with no Jump, a real top-down X/Y arena,
+Runtime position/velocity continuity, no horizon/sky or horizontal Ground
+strip, empty browser `warn/error` diagnostics, and actual submitted provider
+Prompts for the top-down background, arena-fill terrain, and top-view Player.
+The published background, terrain, Player idle/run, and enemy assets reached
+`manifest updated → resolved → Renderer applied` and appeared in the real
+canvas. The requested fresh Platformer smoke generated the existing 7-entity
+side-view world and preserved Arrow Keys/Space Jump controls, but Space did
+not produce a real-browser Y transition from the grounded Player (`y:400`),
+even after Browser and local Chrome input attempts; ArrowRight did move the
+Player (`x:80→86`). Existing Platformer Runtime/Jump integration tests pass,
+so this turn does not infer a manual product PASS from tests. Do not mark the
+WO DONE or enter freeze review until the real Platformer Jump/collision smoke
+is observed; no new product code or WO is opened by this verification turn.
 
 **Non-goals:** If this slice passes, freeze Sprint 27 for Human/CTO review;
 do not automatically begin Sprint 28 or enemy pursuit.
