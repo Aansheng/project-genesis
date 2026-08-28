@@ -13,13 +13,16 @@
   rotation, and a camera-visible repeatable X/Y arena surface. Platformer
   behavior remains on its existing path.
 - Automated targeted and affected-package checks pass. Real Studio Survival
-  Product Verification now passes the provider Prompt Truth and published →
-  resolved → Renderer applied asset lineage checks. Final PV is blocked/pending
-  because a fresh real-browser Platformer smoke showed the existing side-view
-  world and Arrow Keys/Space controls, but Space did not produce a Y transition
-  from grounded Player `y:400`; ArrowRight did move. Existing Runtime/Jump
-  integration tests pass. No product code or new WO was opened; do not enter
-  Sprint 27 freeze review or Sprint 28 automatically.
+  Product Verification passes the provider Prompt Truth and published →
+  resolved → Renderer applied asset lineage checks. Human/CTO real-product
+  verification confirms the existing Mario/Platformer experience, including
+  side-view composition, Ground/Platform, Arrow Keys/Space controls, and Jump
+  behavior. The earlier automated Space observation is closed as
+  `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a product regression.
+  WO-S27-001 is DONE with Code Complete = YES and Product Verified = YES. A
+  fresh Gap Analysis found no additional Spatial & Visual Composition blocker;
+  `SPRINT27_FREEZE_REVIEW` is the only next gate, and Sprint 28 is not entered
+  automatically.
 
 ### Sprint 26 — WO-S26-003 and Freeze Review Readiness (v1.176)
 

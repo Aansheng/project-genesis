@@ -7,13 +7,13 @@ queue_version: 1
 updated: 2026-08-28
 current_sprint: Sprint 27
 current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-current_work_order_status: IN_PROGRESS — final Product Verification blocked/pending
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
+last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
 next_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
 continuation_mode: SPRINT_CONTINUOUS
-primary_architecture_changing_work_items_in_progress: 1
+primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT27_AUTHORIZATION — Human/CTO Priority Correction
 
@@ -34,7 +34,7 @@ runtime wiring; the previous Sprint 26 freeze review is not a blocker.
 
 ## WO-S27-001 — Survival Top-Down Spatial Composition
 
-status: CODE_COMPLETE — Code Complete = YES; Product Verified = BLOCKED/PENDING
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / Human-CTO corrected priority
 dependencies: WO-S26-003 implementation complete; explicit Sprint 27
 authorization; fresh repository-grounded Gap Analysis complete
@@ -59,21 +59,37 @@ Ground/Platform strip; Platformer preserves its system/control behavior and
 the real Studio Prompt Truth/console evidence is clean.
 automated_tests: Shared/AI/Runtime/Renderer/Web targeted tests, affected
 package suites, TypeScript, ESLint, Web build, and git diff --check.
-product_verification: BLOCKED/PENDING — real provider-backed Studio Survival
-verification passed the submitted top-down background/arena-fill/top-view
-Prompt checks and published → resolved → Renderer applied asset lineage. A
-fresh `创建 MarioWorld` Platformer smoke restored the 7-entity side-view
-world and Arrow Keys/Space controls; ArrowRight moved the Player, but Space
-did not produce a real-browser Y transition from grounded `y:400`, despite
-the existing Platformer Runtime/Jump integration tests passing. Do not infer
-manual Product Verification from those tests and do not select freeze review
-until the real Jump/collision smoke is observed. The prior provider
-`Failed to fetch` blocker is recovered; no product code or new WO is opened.
+product_verification: PASS — real provider-backed Studio Survival verification
+passed the submitted top-down background/arena-fill/top-view Prompt checks and
+published → resolved → Renderer applied asset lineage. Human/CTO real-product
+verification confirms the existing 7-entity side-view Mario/Platformer world,
+Ground/Platform composition, Arrow Keys / Space controls, horizontal movement,
+and gameplay experience remain correct. The earlier automated Space
+observation is reclassified as AUTOMATED INPUT / OBSERVATION LIMITATION, not a
+confirmed product regression. No Jump, collision, controller, or Platformer
+repair WO is opened.
 observability: Preserve actual Runtime geometry, submitted prompt text,
 asset render usage, renderer application events, and console diagnostics;
 do not infer enemy gameplay from this spatial slice.
-next_gate: If acceptance and product verification pass, mark this item DONE
-and select only SPRINT27_FREEZE_REVIEW; do not enter Sprint 28 automatically.
+next_gate: SPRINT27_FREEZE_REVIEW only — the bounded acceptance and Product
+Verification pass; do not enter Sprint 28 automatically.
+
+## SPRINT27_GAP_ANALYSIS_POST_PV
+
+status: READY_FOR_FREEZE_REVIEW — no additional measured Spatial & Visual
+Composition blocker
+thesis: A user can immediately recognize generated Survival as a top-down game
+through spatial composition, environment, terrain usage, and directional Player
+presentation while existing Platformer behavior remains correct.
+measured_result: PASS — Survival has a real provider-backed X/Y top-down arena,
+top-view/arena-fill Prompt Truth, no sky/horizon/side-view composition, no
+horizontal Ground strip, Runtime-authoritative movement, and four-direction
+controls. Human/CTO confirms the existing Mario/Platformer product remains
+correct; the previous automated Space observation is an input/observation
+limitation rather than a product failure.
+conclusion: No additional measured Spatial & Visual Composition blocker exists.
+Select only SPRINT27_FREEZE_REVIEW; do not create a polish-only visual WO and
+do not enter Sprint 28 automatically.
 
 ## SPRINT24_FREEZE_REVIEW
 

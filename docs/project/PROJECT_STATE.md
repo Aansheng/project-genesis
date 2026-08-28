@@ -28,8 +28,8 @@
 **Sprint 24** - Game Lifecycle Presentation (**WO-S24-001 Code Complete = YES; Product Verified = YES; v1.173**)
 **Sprint 25** — Production Reachability & Legacy Disposition Review (**FROZEN — WO-S25-001 audit complete; v1.173**)
 **Sprint 26** — Second-Genre Generalization Proof (**bounded proof complete; v1.176**)
-**Sprint 27** — Survival Top-Down Spatial Composition (**IN PROGRESS — final PV blocked/pending — v1.177**)
-**Current WO** - WO-S27-001 — Survival Top-Down Spatial Composition
+**Sprint 27** — Survival Top-Down Spatial Composition (**WO-S27-001 DONE — Code Complete = YES; Product Verified = YES; Freeze Review pending — v1.177**)
+**Current WO** - WO-S27-001 — DONE; next gate `SPRINT27_FREEZE_REVIEW`
 
 ---
 
@@ -37,14 +37,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. Human/CTO priority correction opened Sprint 27 and WO-S27-001 to repair Survival top-down spatial composition. |
+| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. WO-S27-001 is DONE at v1.177 after Survival and Platformer non-regression Product Verification; `SPRINT27_FREEZE_REVIEW` is the only next gate. |
 | Architecture Version | v1.177; Survival resolves to bounded `top-down` spatial mode, carries top-view/arena-fill visual intent, exposes Runtime four-way direction, and composes a repeatable X/Y arena without adding Survivor-specific Runtime/Renderer authority. |
-| Last Completed WO | WO-S26-003 — Deterministic Active-World Enemy Addition Recovery; Code Complete = YES; Product Verified = YES at v1.176. |
-| Current User-Visible Behavior | The existing Survival path creates six entities, uses Arrow Keys-only generic two-axis motion, and accepts same-world enemy addition. Sprint 27 code is complete and real provider-backed Survival assets now render in a top-down X/Y arena with no Jump control. Fresh Platformer smoke restores the 7-entity side-view world and Space control; ArrowRight moved the Player, but manual Space did not produce a Y transition from grounded `y:400`. |
+| Last Completed WO | WO-S27-001 — Survival Top-Down Spatial Composition; Code Complete = YES; Product Verified = YES at v1.177. |
+| Current User-Visible Behavior | The existing Survival path creates six entities, uses Arrow Keys-only generic two-axis motion, and accepts same-world enemy addition. Provider-backed Survival assets render in a top-down X/Y arena with no Jump control. The existing 7-entity Mario/Platformer experience retains side-view composition, Ground/Platform, Arrow Keys/Space controls, and correct gameplay behavior as confirmed by Human/CTO. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → semantic world → Game DSL with generic Health/collision bounds → Runtime projection → generic Runtime systems → Runtime World → Runtime-derived position/velocity → adapter with bounded `WorldSpatialMode`/Player direction → Pixi environment arena-fill/background composition and entity sprites → visual design/asset requirements with top-view and Prompt Truth constraints → state/frame-preserving manifest; Runtime geometry remains authoritative and Platformer keeps its existing side-view path. |
-| Current Blocking Issue | Sprint 27 Survival provider recovery and spatial Prompt Truth are now verified, including published → resolved → Renderer applied assets. Final Product Verification is blocked/pending because fresh real-browser Platformer smoke did not observe Space Jump/Y transition from grounded `y:400`, although ArrowRight moved and existing Runtime/Jump integration tests pass. Enemy pursuit and other gameplay pressure remain out of scope. |
-| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. WO-S27-001: BLOCKED/PENDING on manual Platformer Jump/collision smoke. |
-| Next Recommended Verification | Diagnose and re-run only the existing Platformer Space Jump/collision path in real Studio. Do not mark Sprint 27 DONE, enter freeze review, begin Sprint 28, or add new gameplay scope until this gate is observed. |
+| Current Blocking Issue | None within the bounded Sprint 27 Spatial & Visual Composition thesis. The earlier automated Space observation is classified as `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a product blocker. Enemy pursuit and other gameplay pressure remain out of scope. |
+| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. WO-S27-001: PASS — Survival evidence and Platformer non-regression both verified; Code Complete = YES; Product Verified = YES. |
+| Next Recommended Verification | `SPRINT27_FREEZE_REVIEW` only. Do not create a polish-only visual WO or enter Sprint 28 automatically. |
 
 ## Sprint 27 Spatial Composition Snapshot
 
@@ -59,6 +59,19 @@ Platformer remains the compatibility control: its system composition, Jump
 control, side-view asset requirements, horizontal Ground tiling, and existing
 presentation state path are unchanged. No enemy pursuit or gameplay-pressure
 work is part of Sprint 27.
+
+## Sprint 27 Gap Analysis Post Product Verification
+
+The thesis passes: a user can immediately recognize generated Survival as a
+top-down game through spatial composition, environment, terrain usage, and
+directional Player presentation while existing Platformer behavior remains
+correct. Real provider-backed Survival Prompt Truth and published → resolved →
+Renderer applied evidence pass, and Human/CTO confirms the existing
+Mario/Platformer product behaves correctly.
+
+No additional measured Spatial & Visual Composition blocker exists. Select
+`SPRINT27_FREEZE_REVIEW` as the only next gate; do not add another visual
+composition polish WO and do not enter Sprint 28 automatically.
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The

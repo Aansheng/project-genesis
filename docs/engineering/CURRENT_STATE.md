@@ -3,21 +3,22 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.177 (Sprint 27 Survival top-down spatial composition; final PV blocked)
+architecture_version: v1.177 (Sprint 27 Survival top-down spatial composition complete; freeze review pending)
 current_sprint: Sprint 27 (Survival Top-Down Spatial Composition)
 current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-current_work_order_status: IN_PROGRESS — final Product Verification blocked/pending
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
-last_completed_product_work_order: WO-S24-001
+last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
+last_completed_product_work_order: WO-S27-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: NONE — SPRINT27_FREEZE_REVIEW is not ready while final Platformer smoke is blocked
+next_ready_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
 product_architecture_changed: yes — v1.176 → v1.177; Survival now carries a bounded spatial composition contract through visual/assets and Runtime→Renderer projection
 sprint_status: Sprint 17–25 remain historically frozen; Sprint 26 bounded proof
   is complete at v1.176. Human/CTO priority correction opened Sprint 27 and
-  WO-S27-001; the previous Sprint 26 freeze-review projection is superseded.
-code_complete: YES for WO-S27-001; product_verified: BLOCKED/PENDING for Sprint 27;
+  WO-S27-001; WO-S27-001 is DONE at v1.177 and only the Sprint 27 freeze
+  review remains.
+code_complete: YES for WO-S27-001; product_verified: YES for Sprint 27;
   Sprint 26 bounded proof remains YES
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
@@ -58,18 +59,30 @@ mode. No genre-specific Runtime/Renderer or gameplay-pressure work is opened.
 
 ## Sprint 27 Product Verification Target
 
-Real Studio now shows a provider-backed `生成一个幸存者游戏` with
+Real Studio shows a provider-backed `生成一个幸存者游戏` with
 `worldType: survival`, Arrow Keys-only controls with no Jump, a coherent
 top-down arena without Mario sky/horizon or horizontal Ground/Platform strip,
 Runtime position/velocity continuity, clean console diagnostics, and actual
 submitted top-down/arena-fill/top-view Prompts. Published Survival assets
 reached `manifest updated → resolved → Renderer applied` and appeared in the
-real canvas. A fresh `创建 MarioWorld` smoke restored the 7-entity side-view
-Platformer and Arrow Keys/Space controls, and ArrowRight moved the Player, but
-Space did not produce a real-browser Y transition from grounded `y:400`; the
-existing Platformer Runtime/Jump integration tests pass. Code Complete is YES;
-Product Verified is BLOCKED/PENDING on the manual Platformer Jump/collision
-observation. No product code or new WO is opened by this verification turn.
+real canvas. Human/CTO real-product verification confirms the existing
+7-entity side-view Mario/Platformer and gameplay experience remains correct;
+the earlier automated Space observation is an
+`AUTOMATED INPUT / OBSERVATION LIMITATION`, not a product regression. Code
+Complete is YES and Product Verified is YES. No Jump, collision, controller,
+or Platformer repair WO is opened.
+
+## Sprint 27 Gap Analysis Post Product Verification
+
+The Sprint 27 thesis passes: Survival is immediately recognizable as a
+top-down game through its X/Y arena composition, environment, repeatable
+arena-fill terrain, top-view asset Prompt Truth, and Runtime-derived
+four-direction Player presentation. Platformer non-regression is PASS by the
+existing automated evidence plus Human/CTO real-product verification.
+
+No additional measured Spatial & Visual Composition blocker exists. Select
+`SPRINT27_FREEZE_REVIEW` as the only next gate; do not add visual polish as a
+new WO and do not enter Sprint 28 automatically.
 
 ## Sprint 26 Initial Gap Analysis (historical)
 

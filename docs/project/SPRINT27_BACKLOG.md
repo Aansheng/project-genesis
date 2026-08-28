@@ -3,7 +3,7 @@
 **Authorization:** Human/CTO priority correction, 2026-08-28
 **Architecture boundary:** v1.176 → v1.177
 **Current work order:** WO-S27-001
-**Status:** CODE_COMPLETE — Product Verification BLOCKED/PENDING
+**Status:** DONE — Code Complete = YES; Product Verified = YES
 
 ## First action — repository-grounded Gap Analysis
 
@@ -82,22 +82,40 @@ and Platformer behavior changes.
 package TypeScript checks; ESLint; full affected-package regressions; Web
 build; `git diff --check`.
 
-**Product verification:** BLOCKED/PENDING. Real Studio evidence now confirms
-the provider-backed Survival request `生成一个幸存者游戏`, `worldType:
-survival`, Arrow Keys-only controls with no Jump, a real top-down X/Y arena,
-Runtime position/velocity continuity, no horizon/sky or horizontal Ground
-strip, empty browser `warn/error` diagnostics, and actual submitted provider
-Prompts for the top-down background, arena-fill terrain, and top-view Player.
-The published background, terrain, Player idle/run, and enemy assets reached
+**Product verification:** PASS. Real Studio evidence confirms the
+provider-backed Survival request `生成一个幸存者游戏`, `worldType: survival`,
+Arrow Keys-only controls with no Jump, a real top-down X/Y arena, Runtime
+position/velocity continuity, no horizon/sky or horizontal Ground strip,
+empty browser `warn/error` diagnostics, and actual submitted provider Prompts
+for the top-down background, arena-fill terrain, and top-view Player. The
+published background, terrain, Player idle/run, and enemy assets reached
 `manifest updated → resolved → Renderer applied` and appeared in the real
-canvas. The requested fresh Platformer smoke generated the existing 7-entity
-side-view world and preserved Arrow Keys/Space Jump controls, but Space did
-not produce a real-browser Y transition from the grounded Player (`y:400`),
-even after Browser and local Chrome input attempts; ArrowRight did move the
-Player (`x:80→86`). Existing Platformer Runtime/Jump integration tests pass,
-so this turn does not infer a manual product PASS from tests. Do not mark the
-WO DONE or enter freeze review until the real Platformer Jump/collision smoke
-is observed; no new product code or WO is opened by this verification turn.
+canvas. Platformer non-regression is also PASS: the existing 7-entity
+side-view Mario/Platformer world, Ground/Platform composition, Arrow Keys /
+Space controls, horizontal movement, and Runtime Jump integration remain
+correctly preserved, as additionally confirmed by Human/CTO real-product
+verification. The earlier automated Space observation is classified as
+`AUTOMATED INPUT / OBSERVATION LIMITATION`, not a confirmed product
+regression. No Jump, collision, controller, or Platformer repair WO is
+opened.
 
-**Non-goals:** If this slice passes, freeze Sprint 27 for Human/CTO review;
-do not automatically begin Sprint 28 or enemy pursuit.
+## Sprint 27 Gap Analysis Post Product Verification
+
+**Thesis result:** PASS. A user can immediately recognize the generated
+Survival world as a top-down game through spatial composition, environment,
+terrain usage, and directional Player presentation while the existing
+Platformer behavior remains correct.
+
+Measured evidence confirms a provider-backed Survival canvas with a coherent
+X/Y arena, top-view assets and Prompt Truth, no sky/horizon/side-view
+composition, no horizontal Ground strip, Runtime-authoritative movement, and
+four-direction controls. Human/CTO verification confirms that the existing
+Mario/Platformer experience remains correct; the earlier automated Space
+observation does not constitute a product blocker.
+
+**Conclusion:** No additional measured Spatial & Visual Composition blocker
+exists. Select `SPRINT27_FREEZE_REVIEW` as the only next gate; do not create a
+polish-only visual-composition WO and do not enter Sprint 28 automatically.
+
+**Non-goals:** This slice is complete pending `SPRINT27_FREEZE_REVIEW`; do not
+automatically begin Sprint 28 or enemy pursuit.
