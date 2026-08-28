@@ -3,21 +3,22 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.176 (Sprint 26 bounded proof complete; freeze review is the only next gate)
-current_sprint: Sprint 26 (Second-Genre Generalization Proof)
-current_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
-current_work_order_status: READY_FOR_HUMAN_CTO_REVIEW
+architecture_version: v1.177 (Sprint 27 Survival top-down spatial composition in progress)
+current_sprint: Sprint 27 (Survival Top-Down Spatial Composition)
+current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
+current_work_order_status: IN_PROGRESS
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
 last_completed_product_work_order: WO-S24-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
-product_architecture_changed: yes — v1.175 → v1.176; active-world evolution now has deterministic provider recovery with no Survivor-specific Runtime/Renderer path
-sprint_status: Sprint 17–25 are FROZEN (Sprint 25 at v1.173); Sprint 26 is
-  authorized and its bounded proof is complete; SPRINT26_FREEZE_REVIEW is
-  READY_FOR_HUMAN_CTO_REVIEW; no Sprint 27 is opened
-product_verified: YES for the bounded Sprint 26 Second-Genre Generalization Proof
+next_ready_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
+product_architecture_changed: yes — v1.176 → v1.177; Survival now carries a bounded spatial composition contract through visual/assets and Runtime→Renderer projection
+sprint_status: Sprint 17–25 remain historically frozen; Sprint 26 bounded proof
+  is complete at v1.176. Human/CTO priority correction opened Sprint 27 and
+  WO-S27-001; the previous Sprint 26 freeze-review projection is superseded.
+code_complete: YES for WO-S27-001; product_verified: PENDING for Sprint 27;
+  Sprint 26 bounded proof remains YES
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -28,20 +29,44 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 26 — Second-Genre Generalization Proof:
+Sprint 27 — Survival Top-Down Spatial Composition:
 
-1. Prove a small playable top-down Survivor-like game through the existing
-   natural-language → Semantic World → DSL → Runtime → Gameplay → Renderer
-   path.
-2. Reuse generic mechanics and add only measured blockers; do not introduce a
-   genre-specific Runtime.
-3. Verify one same-world conversational addition of five enemies after the
-   initial game works, then stop at the Sprint freeze review.
+1. Make Survival visually and spatially read as top-down through the existing
+   natural-language → Semantic World → DSL → Runtime → Renderer path.
+2. Preserve Platformer behavior and Runtime geometry authority.
+3. Stop for Human/CTO freeze review after this bounded spatial slice; do not
+   begin enemy pursuit or Sprint 28 automatically.
 
 Sprint 25 is frozen at v1.173. Its audit-only WO-S25-001 is complete and the
 freeze review is recorded in `docs/project/SPRINT25_REVIEW.md`.
 
-## Sprint 26 Initial Gap Analysis
+## Sprint 27 Initial Gap Analysis
+
+The existing source chain reaches Survival classification and generic two-axis
+motion, but the visual path has no shared spatial contract. Visual/asset
+builders request side-view assets, Player requirements include `jump`, and
+terrain uses `ground-repeat-x`. Survival vertical input is written directly to
+Position while the Renderer adapter only sees horizontal Runtime velocity.
+When environment terrain resolves, Pixi suppresses terrain entities and draws
+a horizontal ground strip; background prompts request sky/horizon scenery.
+
+The selected smallest slice is `WO-S27-001`: add only the bounded
+`WorldSpatialMode`, opt-in generic vector velocity, Runtime-derived four-way
+direction, top-view/arena-fill asset and Prompt Truth semantics, and a
+camera-visible repeatable X/Y arena surface. Theme evolution must preserve the
+mode. No genre-specific Runtime/Renderer or gameplay-pressure work is opened.
+
+## Sprint 27 Product Verification Target
+
+Real Studio now shows `worldType: survival`, Arrow Keys-only controls with no
+Jump, a coherent top-down arena without Mario sky/horizon or horizontal
+Ground/Platform strip, Runtime position/velocity continuity, and clean console
+diagnostics. The local image provider returned `Failed to fetch`, so
+Observatory has no final provider-submitted spatial Prompt to inspect. Code
+Complete is YES; Product Verified remains PENDING until that provider-backed
+Prompt Truth observation is available.
+
+## Sprint 26 Initial Gap Analysis (historical)
 
 The exact Chinese request `帮我生成一个2D幸存者游戏` routes with genre
 confidence `1.0`, extracts `survival`, reaches six entities, and now uses a
@@ -85,7 +110,7 @@ wired at the Web command boundary. Reuse the existing semantic, Runtime, and
 visual evolution seams in WO-S26-003; do not add Survivor-specific execution
 or rendering.
 
-## Sprint 26 Gap Analysis Post WO-S26-003
+## Sprint 26 Gap Analysis Post WO-S26-003 (historical; superseded)
 
 The bounded acceptance is complete. Clean-page Studio evidence confirms the
 exact Chinese request creates an active six-entity survival world, generic
@@ -94,10 +119,11 @@ and produces 11 Runtime/visual entities via deterministic fallback. Observatory
 reports the actual `deterministic · fallback / provider_failed` source and
 browser warning/error diagnostics are empty.
 
-No further blocker is selected within the authorized Sprint 26 target. Enemy
-chase, offense, spawn/wave, timer/survive-duration, ability/inventory, and
-progression expansion remain explicitly deferred non-goals. Select
-`SPRINT26_FREEZE_REVIEW` and stop; do not open Sprint 27.
+At the time, no further blocker was selected within the authorized Sprint 26
+target. Enemy chase, offense, spawn/wave, timer/survive-duration,
+ability/inventory, and progression expansion remain explicitly deferred
+non-goals. The later Human/CTO priority correction superseded this freeze-only
+projection and opened Sprint 27.
 
 ## Sprint 24 Gap Analysis Post-PV
 

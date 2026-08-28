@@ -1,10 +1,12 @@
 import type {
+  EnvironmentVisualDesign,
   GameDesignEntity,
   GameDesignSpecification,
   VisualDesignSpecification,
   VisualMood,
   VisualTemperature,
 } from '@genesis/shared'
+import { resolveWorldSpatialMode } from '@genesis/shared'
 
 export interface VisualDesignSpecificationBuilder {
   build(specification: GameDesignSpecification): VisualDesignSpecification
@@ -63,10 +65,36 @@ function deriveVisualArchetype(entity: GameDesignEntity, visualRole: string): st
   return entity.name.trim() || visualRole
 }
 
+function deriveEnvironment(
+  theme: ReturnType<typeof resolveTheme>,
+  worldSpatialMode: VisualDesignSpecification['worldSpatialMode'],
+): EnvironmentVisualDesign {
+  if (worldSpatialMode !== 'top-down') {
+    return {
+      terrain: theme.terrain,
+      background: theme.background,
+      atmosphere: theme.atmosphere,
+    }
+  }
+
+  return {
+    terrain: theme.terrain === DEFAULT_THEME.terrain
+      ? 'continuous arena surface'
+      : `${theme.terrain} arena surface`,
+    background: theme.background === DEFAULT_THEME.background
+      ? 'top-down environmental field'
+      : `${theme.background} viewed from above`,
+    atmosphere: theme.atmosphere === DEFAULT_THEME.atmosphere
+      ? 'clear top-down arena atmosphere'
+      : theme.atmosphere,
+  }
+}
+
 export class DefaultVisualDesignSpecificationBuilder implements VisualDesignSpecificationBuilder {
   build(specification: GameDesignSpecification): VisualDesignSpecification {
     const sourceTheme = specification.theme?.name?.trim() || 'none'
     const theme = resolveTheme(specification.theme?.name)
+    const worldSpatialMode = resolveWorldSpatialMode(specification.genre)
     const entities = specification.entities.map(entity => {
       const visualRole = deriveVisualRole(entity)
       return freeze({
@@ -79,6 +107,7 @@ export class DefaultVisualDesignSpecificationBuilder implements VisualDesignSpec
 
     return freeze({
       artDirection: 'stylized-2d',
+      worldSpatialMode,
       theme: freeze({ sourceTheme, visualTheme: theme.visualTheme }),
       palette: freeze({
         temperature: theme.temperature,
@@ -86,9 +115,7 @@ export class DefaultVisualDesignSpecificationBuilder implements VisualDesignSpec
         mood: theme.mood,
       }),
       environment: freeze({
-        terrain: theme.terrain,
-        background: theme.background,
-        atmosphere: theme.atmosphere,
+        ...deriveEnvironment(theme, worldSpatialMode),
       }),
       entities: Object.freeze(entities),
     })

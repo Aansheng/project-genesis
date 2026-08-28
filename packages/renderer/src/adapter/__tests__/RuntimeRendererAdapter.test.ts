@@ -91,6 +91,20 @@ describe('Single Entity', () => {
     expect(adapter.adapt(makeWorld([player(2, -4)])).entities[0]).toMatchObject({ presentationState: 'jump' })
   })
 
+  it('projects top-down velocity into walk state and four-way direction', () => {
+    const adapter = new DefaultRuntimeRendererAdapter({ getWorldSpatialMode: () => 'top-down' })
+    const player = makeEntity({
+      id: 'player',
+      type: 'player',
+      components: [createPositionComponent(10, 20), createVelocityComponent(0, -3)],
+    })
+
+    expect(adapter.adapt(makeWorld([player]))).toMatchObject({
+      spatialMode: 'top-down',
+      entities: [{ presentationState: 'run', presentationDirection: 'up', velocity: { x: 0, y: -3 } }],
+    })
+  })
+
   it('maps a single entity id and type', () => {
     const adapter = new DefaultRuntimeRendererAdapter()
     const entity = makeEntity({ id: 'hero-1', type: 'player' })

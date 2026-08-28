@@ -32,7 +32,7 @@
  */
 
 import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
-import type { AssetManifest, AssetManifestEntry, AssetVisualState } from '@genesis/shared'
+import type { AssetManifest, AssetManifestEntry, AssetVisualState, WorldSpatialMode } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
 import type { RenderWorld } from '../model'
 import type { RenderEntity } from '../model'
@@ -187,23 +187,22 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
     for (const entity of world.entities) {
       if (!entity.position) continue
-      if (this.isEnvironmentRendered(entity.type)) continue
+      if (this.isEnvironmentRendered(entity, world.spatialMode)) continue
 
       const preserved = preservedViews.get(entity.id)
       if (preserved?.sprite) {
-        const visual = this.resolveVisual(entity.type)
+        const visual = this.resolveVisual(entity.type, world.spatialMode)
         const presentationFrame = this.resolvePresentationFrame(entity)
         const assetEntry = this.resolveAssetEntry(entity.id, entity.presentationState, presentationFrame)
-        preserved.sprite.x = entity.position.x
-        preserved.sprite.y = entity.position.y
+        this.syncSpriteTransform(preserved.sprite, entity.position, entity.velocity, entity.presentationDirection, world.spatialMode)
         this._container.addChild(preserved.sprite)
         views.push(preserved)
-        this.tryUpgradeToSprite(entity.id, preserved, visual, entity.position, entity.velocity, assetEntry)
+        this.tryUpgradeToSprite(entity.id, preserved, visual, entity.position, entity.velocity, entity.presentationDirection, assetEntry, world.spatialMode)
         continue
       }
 
       const gfx = this._createGraphics()
-      const visual = this.resolveVisual(entity.type)
+      const visual = this.resolveVisual(entity.type, world.spatialMode)
       const color = this.resolveColor(entity.type)
       const presentationFrame = this.resolvePresentationFrame(entity)
       const assetEntry = this.resolveAssetEntry(entity.id, entity.presentationState, presentationFrame)
@@ -233,7 +232,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
         displayObject: gfx,
       }
       views.push(view)
-      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, entity.velocity, assetEntry)
+      this.tryUpgradeToSprite(entity.id, view, visual, entity.position, entity.velocity, entity.presentationDirection, assetEntry, world.spatialMode)
     }
 
     this._entityViews = views
@@ -241,8 +240,17 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     return { entities: views }
   }
 
-  private isEnvironmentRendered(entityType: string): boolean {
+  private isEnvironmentRendered(entity: RenderEntity, spatialMode?: WorldSpatialMode): boolean {
+    const entityType = entity.type
     if (entityType !== 'terrain' && entityType !== 'platform') return false
+    // Top-down terrain is a world-level arena surface. Keep terrain-like props
+    // available to the entity renderer instead of collapsing the whole scene
+    // into a horizontal ground strip. A semantic Ground/Platform plane is
+    // intentionally omitted; its visual role is the arena-fill asset.
+    if (spatialMode === 'top-down') {
+      const semanticName = entity.semanticName?.trim().toLocaleLowerCase()
+      return entityType === 'platform' || semanticName === 'ground' || semanticName?.includes('ground') === true
+    }
     return this._assetManifest?.entries.some(entry =>
       entry.target === 'environment' && entry.kind === 'terrain' && entry.status === 'resolved',
     ) ?? false
@@ -287,7 +295,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     const preserved = new Map<string, RenderEntityView>()
     const currentEntityIds = new Set(
       world.entities
-        .filter(entity => entity.position && !this.isEnvironmentRendered(entity.type))
+        .filter(entity => entity.position && !this.isEnvironmentRendered(entity, world.spatialMode))
         .map(entity => entity.id),
     )
     const remaining: RenderEntityView[] = []
@@ -309,14 +317,16 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     visual: EntityVisualDefinition,
     position: NonNullable<RenderEntity['position']>,
     velocity?: Readonly<{ x: number; y: number }>,
+    presentationDirection?: RenderEntity['presentationDirection'],
     entry?: AssetManifestEntry,
+    spatialMode?: WorldSpatialMode,
   ): void {
     if (!this._assetManifest || !this._assetStore || !this._assetAdapter) return
 
     if (!entry) return
 
     if (view.sprite && view.assetId === entry.assetId && !this._pendingAssetReplacements.has(entry.assetId)) {
-      this.syncSpriteTransform(view.sprite, position, velocity)
+      this.syncSpriteTransform(view.sprite, position, velocity, presentationDirection, spatialMode)
       return
     }
 
@@ -332,7 +342,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       .then(texture => {
         if (!this._entityViews.includes(view)) return
         try {
-          this.upgrade(view, texture, visual, position, velocity, entry.assetId)
+          this.upgrade(view, texture, visual, position, velocity, presentationDirection, spatialMode, entry.assetId)
           this._pendingAssetReplacements.delete(entry.assetId)
           this._onAssetApplication?.({ assetId: entry.assetId, entityId, status: 'applied' })
         } catch {
@@ -375,6 +385,8 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     visual: EntityVisualDefinition,
     position: NonNullable<RenderEntity['position']>,
     velocity?: Readonly<{ x: number; y: number }>,
+    presentationDirection?: RenderEntity['presentationDirection'],
+    spatialMode?: WorldSpatialMode,
     assetId?: string,
   ): void {
     const sprite = this._createSprite(texture)
@@ -385,7 +397,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     const scale = Math.min(visual.width / nativeWidth, visual.height / nativeHeight)
     sprite.width = nativeWidth * scale
     sprite.height = nativeHeight * scale
-    this.syncSpriteTransform(sprite, position, velocity)
+    this.syncSpriteTransform(sprite, position, velocity, presentationDirection, spatialMode)
 
     const previousDisplay = view.sprite ?? view.graphics
     this._container.removeChild(previousDisplay)
@@ -399,8 +411,17 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     sprite: Sprite,
     position: NonNullable<RenderEntity['position']>,
     velocity?: Readonly<{ x: number; y: number }>,
+    presentationDirection?: RenderEntity['presentationDirection'],
+    spatialMode?: WorldSpatialMode,
   ): void {
-    sprite.scale.x = Math.abs(sprite.scale.x) * (velocity?.x && velocity.x < 0 ? -1 : 1)
+    if (spatialMode === 'top-down') {
+      sprite.scale.x = Math.abs(sprite.scale.x)
+      if (presentationDirection) {
+        sprite.rotation = directionToRotation(presentationDirection)
+      }
+    } else {
+      sprite.scale.x = Math.abs(sprite.scale.x) * (velocity?.x && velocity.x < 0 ? -1 : 1)
+    }
     sprite.x = position.x
     sprite.y = position.y
   }
@@ -412,19 +433,28 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
    * Uses the catalog if available, falling back to tile catalog, then
    * default 20×20 rectangle.
    */
-  private resolveVisual(entityType: string): EntityVisualDefinition {
+  private resolveVisual(entityType: string, spatialMode?: WorldSpatialMode): EntityVisualDefinition {
     if (this._catalog) {
-      return this._catalog.getVisual(entityType)
+      return this.applySpatialVisual(entityType, this._catalog.getVisual(entityType), spatialMode)
     }
     if (this._tileCatalog) {
       const tile = this._tileCatalog.getTile(entityType)
-      return {
+      return this.applySpatialVisual(entityType, {
         width: tile.width,
         height: tile.height,
         shape: 'rectangle',
-      }
+      }, spatialMode)
     }
-    return DEFAULT_VISUAL
+    return this.applySpatialVisual(entityType, DEFAULT_VISUAL, spatialMode)
+  }
+
+  private applySpatialVisual(
+    entityType: string,
+    visual: EntityVisualDefinition,
+    spatialMode?: WorldSpatialMode,
+  ): EntityVisualDefinition {
+    if (spatialMode !== 'top-down' || !TOP_DOWN_ACTOR_TYPES.has(entityType)) return visual
+    return { ...visual, anchor: 'center' }
   }
 
   /**
@@ -433,5 +463,16 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
    */
   private resolveColor(entityType: string): number {
     return ENTITY_COLORS[entityType] ?? DEFAULT_ENTITY_COLOR
+  }
+}
+
+const TOP_DOWN_ACTOR_TYPES = new Set(['player', 'enemy', 'npc', 'animal', 'merchant', 'boss'])
+
+function directionToRotation(direction: NonNullable<RenderEntity['presentationDirection']>): number {
+  switch (direction) {
+    case 'right': return Math.PI / 2
+    case 'up': return Math.PI
+    case 'left': return -Math.PI / 2
+    default: return 0
   }
 }

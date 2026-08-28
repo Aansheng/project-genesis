@@ -1,5 +1,21 @@
 # Changelog
 
+### Sprint 27 — WO-S27-001 Survival Top-Down Spatial Composition (v1.177)
+
+- Added the bounded shared `WorldSpatialMode` contract. Survival maps to
+  `top-down`; other current world types retain the existing `side-view`
+  fallback.
+- Survival now carries top-view asset intent, `idle/run` Player requirements,
+  `arena-fill` terrain usage, and explicit no-horizon/no-sky/X-and-Y-repeat
+  Prompt Truth constraints. Visual evolution preserves the spatial mode.
+- The existing generic Player controller has an opt-in velocity-vector mode;
+  Runtime-to-Renderer projection exposes four-way direction, top-down actor
+  rotation, and a camera-visible repeatable X/Y arena surface. Platformer
+  behavior remains on its existing path.
+- Automated targeted and affected-package checks pass. Real Studio spatial
+  Product Verification remains pending; if it passes, stop at Sprint 27 freeze
+  review and do not begin Sprint 28 or enemy pursuit automatically.
+
 ### Sprint 26 — WO-S26-003 and Freeze Review Readiness (v1.176)
 
 - Deterministic World Evolution now recognizes enemy/怪物/怪 additions and

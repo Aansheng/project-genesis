@@ -18,6 +18,7 @@ export { DefaultMovementSystem } from './DefaultMovementSystem'
 
 // Player Controller System Foundation (WO-S9-009)
 export type { PlayerControllerSystem } from './PlayerControllerSystem'
+export type { PlayerControllerMotionMode, PlayerControllerOptions } from './DefaultPlayerControllerSystem'
 export type { PlayerControllerResult } from './PlayerControllerResult'
 export { DefaultPlayerControllerSystem } from './DefaultPlayerControllerSystem'
 

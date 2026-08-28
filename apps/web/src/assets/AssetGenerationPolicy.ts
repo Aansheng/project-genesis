@@ -4,6 +4,7 @@ import type {
   AssetSpecification,
   ImageGenerationContext,
   ImageGenerationRequest,
+  WorldSpatialMode,
 } from '@genesis/shared'
 
 /** Meaningful semantic assets are eligible; technical markers remain static-only. */
@@ -52,9 +53,16 @@ const RENDER_USAGE_PROMPTS: Readonly<Record<AssetRenderUsage, string>> = Object.
   'entity-sprite': 'isolated game entity sprite; transparent background; no scenery; no ground; no text; no UI',
   'background-cover': 'distant background scenery only; sky, clouds, mountains, or distant vegetation; no playable ground; no platform; no foreground character; no text; no UI',
   'ground-repeat-x': 'seamless repeatable side-view ground surface material; horizontal repeat intent; no sky; no clouds; no distant scenery; no platform layout; no character; no text; no UI',
+  'arena-fill': 'continuous top-down arena environment surface; repeatable across X and Y; no horizon; no sky; no clouds; no side-view scenery; no platform strip; no character; no text; no UI',
 })
 
-function renderUsagePrompt(requirement: AssetRequirement): string {
+function renderUsagePrompt(
+  requirement: AssetRequirement,
+  worldSpatialMode: WorldSpatialMode = 'side-view',
+): string {
+  if (requirement.renderUsage === 'background-cover' && worldSpatialMode === 'top-down') {
+    return 'top-down environment background; ambient field viewed from above; no horizon; no sky; no side-view scenery; no playable foreground geometry; no character; no text; no UI'
+  }
   return requirement.renderUsage
     ? RENDER_USAGE_PROMPTS[requirement.renderUsage]
     : requirement.kind === 'background'
@@ -76,7 +84,7 @@ export function buildImageGenerationRequest(
     requirement.visualRole,
     requirement.presentationState ? `${requirement.presentationState} presentation pose` : undefined,
     requirement.presentationFrame !== undefined ? `animation frame ${requirement.presentationFrame + 1} of 2` : undefined,
-    renderUsagePrompt(requirement),
+    renderUsagePrompt(requirement, specification.visualContext.worldSpatialMode),
   ].filter(Boolean).join('; ')
   return Object.freeze({
     assetId: requirement.id,
@@ -112,6 +120,7 @@ function buildContextualImagePrompt(
     context.game.timeOfDay ? `time of day: ${context.game.timeOfDay}` : undefined,
     'VISUAL CONTEXT',
     `art direction: ${context.visual.artDirection}`,
+    context.visual.worldSpatialMode ? `world spatial mode: ${context.visual.worldSpatialMode}` : undefined,
     `theme: ${context.visual.theme.sourceTheme}; visual theme: ${context.visual.theme.visualTheme}`,
     `palette: ${context.visual.palette.temperature}, ${context.visual.palette.contrast}, ${context.visual.palette.mood}`,
     'TARGET ASSET',
@@ -121,12 +130,14 @@ function buildContextualImagePrompt(
     context.asset.presentationState ? `presentation state: ${context.asset.presentationState}` : undefined,
     context.asset.presentationFrame !== undefined ? `animation frame: ${context.asset.presentationFrame + 1} of 2` : undefined,
     `kind: ${context.asset.kind}`,
-    context.visual.environment ? `environment: ${context.visual.environment.background}; ${context.visual.environment.atmosphere}` : undefined,
+    context.visual.environment
+      ? `environment: ${context.visual.environment.background}; ${context.visual.environment.terrain}; ${context.visual.environment.atmosphere}`
+      : undefined,
     references ? `metadata-only visual neighbors: ${references}` : undefined,
     'CONSTRAINTS',
     context.asset.technicalProfile.view ? `view: ${context.asset.technicalProfile.view}` : undefined,
     context.asset.technicalProfile.transparentBackground ? 'isolated subject, transparent background' : undefined,
-    renderUsagePrompt(requirement),
+    renderUsagePrompt(requirement, context.visual.worldSpatialMode),
     'no text, no logos',
   ].filter((value): value is string => Boolean(value)).join('\n')
 }

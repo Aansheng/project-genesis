@@ -53,6 +53,29 @@ describe('AI asset generation policy', () => {
     expect(buildImageGenerationRequest(next, ground).prompt).toContain('repeatable side-view ground')
   })
 
+  it('makes top-down environment intent explicit in both prompt and constraints', () => {
+    const arena = {
+      id: 'arena', kind: 'terrain' as const, target: 'environment' as const, subject: 'forest arena',
+      visualRole: 'arena environment surface', renderUsage: 'arena-fill' as const, requiredStates: [],
+      technicalProfile: { transparentBackground: false, view: 'top' as const },
+    }
+    const background = {
+      id: 'top-down-background', kind: 'background' as const, target: 'environment' as const, subject: 'forest field',
+      visualRole: 'top-down environment background', renderUsage: 'background-cover' as const, requiredStates: [],
+      technicalProfile: { transparentBackground: false, view: 'top' as const },
+    }
+    const next: AssetSpecification = {
+      ...specification,
+      visualContext: { ...specification.visualContext, worldSpatialMode: 'top-down' },
+      assets: [arena, background],
+    }
+
+    expect(buildImageGenerationRequest(next, arena).prompt).toContain('repeatable across X and Y')
+    expect(buildImageGenerationRequest(next, arena).prompt).toContain('no horizon')
+    expect(buildImageGenerationRequest(next, background).prompt).toContain('top-down environment background')
+    expect(buildImageGenerationRequest(next, background).constraints).toMatchObject({ view: 'top', renderUsage: 'background-cover' })
+  })
+
   it('assembles deterministic provider-neutral sections from a bounded context', () => {
     const requirement = specification.assets[0]
     const context = new DefaultImageGenerationContextBuilder().build({

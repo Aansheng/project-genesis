@@ -38,7 +38,7 @@ function store(result: AssetResolutionResult): AssetStore {
 }
 
 function sprite(): Sprite {
-  return { x: 0, y: 0, width: 0, height: 0, scale: { x: 1, y: 1 }, anchor: { set() {} }, destroy() {} } as unknown as Sprite
+  return { x: 0, y: 0, width: 0, height: 0, rotation: 0, scale: { x: 1, y: 1 }, anchor: { set() {} }, destroy() {} } as unknown as Sprite
 }
 
 describe('Pixi sprite rendering foundation', () => {
@@ -54,6 +54,22 @@ describe('Pixi sprite rendering foundation', () => {
 
     expect(renderer.render(terrainWorld()).entities).toHaveLength(0)
     expect(c.children).toHaveLength(0)
+  })
+
+  it('omits a top-down Ground plane while keeping terrain props eligible for entity rendering', () => {
+    const renderer = new DefaultPixiEntityRenderer(container(), {
+      createGraphics: graphics,
+      assetManifest: environmentManifest,
+    })
+
+    expect(renderer.render({
+      spatialMode: 'top-down',
+      entities: [{ id: 'ground', type: 'terrain', semanticName: 'Ground', position: { x: 10, y: 20 } }],
+    }).entities).toHaveLength(0)
+    expect(renderer.render({
+      spatialMode: 'top-down',
+      entities: [{ id: 'tree', type: 'terrain', semanticName: 'Oak Tree', position: { x: 10, y: 20 } }],
+    }).entities).toHaveLength(1)
   })
 
   it('keeps the primitive visible while pending, then upgrades it', async () => {
@@ -201,6 +217,31 @@ describe('Pixi sprite rendering foundation', () => {
     await Promise.resolve()
 
     expect(view.sprite?.scale.x).toBe(-1)
+  })
+
+  it('rotates a top-down generated Player from Runtime direction without mirroring', async () => {
+    const renderer = new DefaultPixiEntityRenderer(container(), {
+      createGraphics: graphics,
+      assetManifest: manifest,
+      assetStore: store({ status: 'resolved', resource }),
+      assetAdapter: { load: async () => ({ width: 24, height: 24 } as Texture), clear() {} },
+      createSprite: sprite,
+    })
+    const view = renderer.render({
+      spatialMode: 'top-down',
+      entities: [{
+        id: 'player', type: 'player', position: { x: 10, y: 20 },
+        presentationState: 'run', presentationDirection: 'up', velocity: { x: 0, y: -3 },
+      }],
+    }).entities[0]
+
+    await new Promise(resolve => setTimeout(resolve, 0))
+    await Promise.resolve()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(view.sprite?.rotation).toBe(Math.PI)
+    expect(view.sprite?.scale.x).toBe(1)
   })
 
   it('retains the primitive when resolution fails', async () => {

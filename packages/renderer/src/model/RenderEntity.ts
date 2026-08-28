@@ -16,7 +16,7 @@
  */
 
 import type { RenderPosition } from './RenderPosition'
-import type { AssetVisualState } from '@genesis/shared'
+import type { AssetVisualState, VisualDirection } from '@genesis/shared'
 
 export interface RenderEntity {
   readonly id: string
@@ -25,4 +25,6 @@ export interface RenderEntity {
   readonly position?: RenderPosition
   readonly velocity?: Readonly<{ x: number; y: number }>
   readonly presentationState?: AssetVisualState
+  /** Runtime-derived four-way direction for a top-down Player presentation. */
+  readonly presentationDirection?: VisualDirection
 }

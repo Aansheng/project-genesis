@@ -3,9 +3,11 @@
  *
  * Accepts an InputProvider and optional movement speed at construction.
  * On each tick, reads the current keyboard state and computes a delta
- * vector. Horizontal input is written to the Player's VelocityComponent.x;
- * the existing VerticalMotionSystem then integrates that velocity into the
- * PositionComponent. Legacy direct vertical-arrow movement remains unchanged.
+ * vector. The default axis-delta mode preserves the established platformer
+ * contract: horizontal input is written to VelocityComponent.x while
+ * vertical-arrow movement updates Position directly. The velocity-vector mode
+ * records both axes in Runtime velocity so a free 2D composition can derive
+ * presentation direction from the same authoritative motion fact.
  *
  * Input mapping:
  *   ArrowLeft  → x -= speed
@@ -48,27 +50,40 @@ import type { PlayerControllerSystem } from './PlayerControllerSystem'
 import type { PlayerControllerResult } from './PlayerControllerResult'
 import type { PositionComponent } from '@genesis/shared'
 
+export type PlayerControllerMotionMode = 'axis-delta' | 'velocity-vector'
+
+export interface PlayerControllerOptions {
+  /** Use Runtime velocity for both X and Y movement when set. */
+  readonly motionMode?: PlayerControllerMotionMode
+}
+
 export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
   readonly name = 'PlayerControllerSystem'
 
   private readonly inputProvider: InputProvider
   private readonly speed: number
+  private readonly motionMode: PlayerControllerMotionMode
 
   /**
    * @param inputProvider  — source of keyboard state for each tick
    * @param movementSpeed  — pixel(s) per tick (default: 1)
+   * @param options        — optional generic motion representation
    */
-  constructor(inputProvider: InputProvider, movementSpeed: number = 1) {
+  constructor(
+    inputProvider: InputProvider,
+    movementSpeed: number = 1,
+    options: PlayerControllerOptions = {},
+  ) {
     this.inputProvider = inputProvider
     this.speed = movementSpeed
+    this.motionMode = options.motionMode ?? 'axis-delta'
   }
 
   /**
    * Apply input-driven movement to all player entities.
    *
    * @param world — immutable input World
-   * @returns Frozen output World with horizontal velocity and legacy vertical
-   * position updated
+   * @returns Frozen output World using the selected movement representation
    */
   update(world: World): World {
     const input = this.applyInput(world)
@@ -128,8 +143,9 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
         if (deltaX !== 0 || deltaY !== 0) {
           movedPlayers++
           requiresWorldUpdate = true
-        } else if (this.findVelocityComponent(entity)?.properties.x !== 0) {
-          // Released horizontal input must clear the previous motion truth.
+        } else if (this.hasActiveControllerVelocity(entity)) {
+          // Released input must clear the previous motion truth on every
+          // axis represented by the selected controller mode.
           requiresWorldUpdate = true
         }
       }
@@ -159,8 +175,9 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
   }
 
   /**
-   * Build a new frozen World with horizontal velocity and legacy vertical
-   * position updated. Horizontal position is integrated by VerticalMotionSystem.
+   * Build a new frozen World with the selected generic movement representation.
+   * Velocity-vector mode leaves Position integration to VerticalMotionSystem
+   * for both axes; axis-delta mode preserves the existing vertical contract.
    */
   private buildUpdatedWorld(world: World, deltaX: number, deltaY: number): World {
     const updatedEntities: Entity[] = []
@@ -168,12 +185,13 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
     for (const entity of world.entities) {
       if (entity.type === 'player' && this.hasPositionComponent(entity)) {
         const oldComponent = this.findPositionComponent(entity)!
-        const newY = oldComponent.properties.y + deltaY
+        const usesVelocityVector = this.motionMode === 'velocity-vector'
+        const newY = usesVelocityVector ? oldComponent.properties.y : oldComponent.properties.y + deltaY
         const newPositionComponent = createPositionComponent(oldComponent.properties.x, newY)
         const oldVelocity = this.findVelocityComponent(entity)
         const newVelocityComponent = createVelocityComponent(
           deltaX,
-          oldVelocity?.properties.y ?? 0,
+          usesVelocityVector ? deltaY : oldVelocity?.properties.y ?? 0,
         )
 
         const updatedComponents = entity.components
@@ -252,5 +270,13 @@ export class DefaultPlayerControllerSystem implements PlayerControllerSystem {
   /** Find the current authoritative motion vector, when one exists. */
   private findVelocityComponent(entity: Entity) {
     return entity.components?.find(isVelocityComponent)
+  }
+
+  private hasActiveControllerVelocity(entity: Entity): boolean {
+    const velocity = this.findVelocityComponent(entity)?.properties
+    if (!velocity) return false
+    return this.motionMode === 'velocity-vector'
+      ? velocity.x !== 0 || velocity.y !== 0
+      : velocity.x !== 0
   }
 }

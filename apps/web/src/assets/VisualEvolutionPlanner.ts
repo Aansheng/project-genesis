@@ -117,10 +117,13 @@ function roleForCategory(category: EntityCategory): string {
   return 'world element'
 }
 
-function buildThemeContext(sourceTheme: string): Pick<VisualDesignSpecification, 'theme' | 'palette' | 'environment'> {
+function buildThemeContext(
+  sourceTheme: string,
+  worldSpatialMode: VisualDesignSpecification['worldSpatialMode'] = 'side-view',
+): Pick<VisualDesignSpecification, 'theme' | 'palette' | 'environment' | 'worldSpatialMode'> {
   const design: GameDesignSpecification = {
     title: 'visual-evolution-theme',
-    genre: 'sandbox',
+    genre: worldSpatialMode === 'top-down' ? 'survival' : 'sandbox',
     theme: { name: sourceTheme },
     objectives: [],
     entities: [],
@@ -130,6 +133,7 @@ function buildThemeContext(sourceTheme: string): Pick<VisualDesignSpecification,
     theme: derived.theme,
     palette: derived.palette,
     environment: derived.environment,
+    worldSpatialMode: derived.worldSpatialMode ?? worldSpatialMode,
   }
 }
 
@@ -151,7 +155,7 @@ function buildVisualDesign(
 
   for (const update of mutation.worldPropertyUpdates) {
     if (update.property === 'theme') {
-      const context = buildThemeContext(update.to)
+      const context = buildThemeContext(update.to, current.worldSpatialMode)
       theme = context.theme
       palette = context.palette
       environment = context.environment
@@ -194,6 +198,7 @@ function buildVisualDesign(
   return {
     design: freezeObject({
       artDirection: current.artDirection,
+      ...(current.worldSpatialMode ? { worldSpatialMode: current.worldSpatialMode } : {}),
       theme,
       palette,
       environment,

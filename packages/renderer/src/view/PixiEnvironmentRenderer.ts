@@ -29,8 +29,13 @@ interface EnvironmentRenderTarget {
   readonly assetId: string
   readonly resourceUri?: string
   readonly bounds: RenderBounds
-  readonly repeatX: boolean
+  readonly repeat: 'x' | 'xy' | false
 }
+
+const ARENA_SURFACE_TARGET_ID = '__arena-surface__'
+const TOP_DOWN_FALLBACK_FILL = 0x16231d
+const TOP_DOWN_FALLBACK_GRID = 0x1f3328
+const TOP_DOWN_FALLBACK_GRID_SIZE = 64
 
 /** World-level visuals; no environment asset is a Runtime entity. */
 export class PixiEnvironmentRenderer {
@@ -84,24 +89,43 @@ export class PixiEnvironmentRenderer {
     if (camera) this.terrainLayer.position.set(this.cameraAnchor.x - camera.x, this.cameraAnchor.y - camera.y)
     this.terrainLayer.removeChildren().forEach(child => child.destroy())
     this.environmentRenderTargets.clear()
+    const topDownArena = world.spatialMode === 'top-down' ? this.arenaVisualEntry() : undefined
     if (this.assetStore && this.assetAdapter) {
-      for (const entity of world.entities) {
-        if ((entity.type !== 'terrain' && entity.type !== 'platform') || !entity.position) continue
-        const visual = this.environmentVisualEntry(entity)
-        if (!visual) continue
-        const repeatX = !this.isPlatformSurface(entity) && visual.renderUsage === 'ground-repeat-x'
-        const visualType = this.isPlatformSurface(entity) ? 'platform' : entity.type
-        const bounds = repeatX
-          ? this.visibleGroundBounds(entity.position, camera)
-          : projectRenderBounds(entity.position, this.visualCatalog.getVisual(visualType))
-        this.environmentRenderTargets.set(entity.id, {
-          assetId: visual.assetId,
-          resourceUri: visual.resource?.uri,
-          bounds,
-          repeatX,
-        })
-        this.upgradeTerrain(visual.assetId, entity.id)
+      if (world.spatialMode === 'top-down') {
+        if (topDownArena) {
+          this.environmentRenderTargets.set(ARENA_SURFACE_TARGET_ID, {
+            assetId: topDownArena.assetId,
+            resourceUri: topDownArena.resource?.uri,
+            bounds: this.visibleArenaBounds(camera),
+            repeat: 'xy',
+          })
+          this.upgradeTerrain(topDownArena.assetId, ARENA_SURFACE_TARGET_ID)
+        }
+      } else {
+        for (const entity of world.entities) {
+          if ((entity.type !== 'terrain' && entity.type !== 'platform') || !entity.position) continue
+          const visual = this.environmentVisualEntry(entity)
+          if (!visual) continue
+          const repeat = !this.isPlatformSurface(entity) && visual.renderUsage === 'ground-repeat-x' ? 'x' : false
+          const visualType = this.isPlatformSurface(entity) ? 'platform' : entity.type
+          const bounds = repeat === 'x'
+            ? this.visibleGroundBounds(entity.position, camera)
+            : projectRenderBounds(entity.position, this.visualCatalog.getVisual(visualType))
+          this.environmentRenderTargets.set(entity.id, {
+            assetId: visual.assetId,
+            resourceUri: visual.resource?.uri,
+            bounds,
+            repeat,
+          })
+          this.upgradeTerrain(visual.assetId, entity.id)
+        }
       }
+    }
+    // Keep a deterministic arena surface under generated art. This covers the
+    // initial frame and provider/resource failures without letting a missing
+    // image turn Survival back into a black or side-view scene.
+    if (world.spatialMode === 'top-down') {
+      this.drawFallbackTopDownArena(camera)
     }
     const background = this.manifest?.entries.find(entry => entry.renderUsage === 'background-cover' && entry.status === 'resolved')
       ?? this.manifest?.entries.find(entry => entry.kind === 'background' && entry.status === 'resolved')
@@ -151,6 +175,28 @@ export class PixiEnvironmentRenderer {
     this.backgroundSprite = null
   }
 
+  /** Resource-independent top-down fallback; generated arena art can replace it asynchronously. */
+  private drawFallbackTopDownArena(camera: Readonly<{ x: number; y: number }> | undefined): void {
+    const bounds = this.visibleArenaBounds(camera)
+    const fallback = this.createGraphics()
+    fallback.beginFill(TOP_DOWN_FALLBACK_FILL).drawRect(bounds.x, bounds.y, bounds.width, bounds.height).endFill()
+    const grid = fallback as unknown as {
+      lineStyle?: (width: number, color: number, alpha?: number) => unknown
+      moveTo?: (x: number, y: number) => { lineTo: (x: number, y: number) => unknown }
+      lineTo?: (x: number, y: number) => unknown
+    }
+    if (grid.lineStyle && grid.moveTo && grid.lineTo) {
+      grid.lineStyle(1, TOP_DOWN_FALLBACK_GRID, 0.45)
+      for (let x = bounds.x; x <= bounds.x + bounds.width; x += TOP_DOWN_FALLBACK_GRID_SIZE) {
+        grid.moveTo(x, bounds.y).lineTo(x, bounds.y + bounds.height)
+      }
+      for (let y = bounds.y; y <= bounds.y + bounds.height; y += TOP_DOWN_FALLBACK_GRID_SIZE) {
+        grid.moveTo(bounds.x, y).lineTo(bounds.x + bounds.width, y)
+      }
+    }
+    this.terrainLayer.addChild(fallback)
+  }
+
   /**
    * Select the smallest existing role-aware asset for one environment entity.
    * Ground keeps the environment material; a platform prefers its exact
@@ -173,6 +219,16 @@ export class PixiEnvironmentRenderer {
       entry.status === 'resolved'
       && entry.target === 'environment'
       && (entry.renderUsage === 'ground-repeat-x' || (entry.renderUsage === undefined && entry.kind === 'terrain')),
+    )
+  }
+
+  /** Select the world-level surface for a top-down arena. */
+  private arenaVisualEntry(): AssetManifest['entries'][number] | undefined {
+    return (this.manifest?.entries ?? []).find(entry =>
+      entry.status === 'resolved'
+      && entry.target === 'environment'
+      && entry.kind === 'terrain'
+      && entry.renderUsage === 'arena-fill',
     )
   }
 
@@ -203,6 +259,16 @@ export class PixiEnvironmentRenderer {
     })
   }
 
+  /** Camera-visible world rectangle for a repeatable two-dimensional arena surface. */
+  private visibleArenaBounds(camera: Readonly<{ x: number; y: number }> | undefined): RenderBounds {
+    return Object.freeze({
+      x: (camera?.x ?? 0) - this.cameraAnchor.x,
+      y: (camera?.y ?? 0) - this.cameraAnchor.y,
+      width: this.width,
+      height: this.height,
+    })
+  }
+
   private resolveTexture(assetId: string): Promise<Texture> {
     const entry = this.manifest?.entries.find(item => item.assetId === assetId)
     if (!entry || !this.assetStore || !this.assetAdapter) return Promise.reject(new Error('environment asset unavailable'))
@@ -220,14 +286,19 @@ export class PixiEnvironmentRenderer {
         || target.assetId !== assetId
         || target.resourceUri !== manifestEntry?.resource?.uri
       ) return
-      const sprite = target.repeatX
+      const sprite = target.repeat
         ? this.createTilingSprite(texture, target.bounds.width, target.bounds.height)
         : this.createSprite(texture)
       sprite.x = target.bounds.x
       sprite.y = target.bounds.y
-      if (target.repeatX) {
+      if (target.repeat) {
         const tileScale = (sprite as Sprite & { tileScale?: { set(x: number, y?: number): void } }).tileScale
-        const scale = target.bounds.height / (texture.height || target.bounds.height)
+        const scale = target.repeat === 'xy'
+          ? Math.min(
+            this.visualCatalog.getVisual('terrain').width / (texture.width || this.visualCatalog.getVisual('terrain').width),
+            this.visualCatalog.getVisual('terrain').height / (texture.height || this.visualCatalog.getVisual('terrain').height),
+          )
+          : target.bounds.height / (texture.height || target.bounds.height)
         tileScale?.set(scale, scale)
       } else {
         // The generated image is skin; the Runtime/render bounds remain authoritative.
@@ -235,10 +306,21 @@ export class PixiEnvironmentRenderer {
         sprite.height = target.bounds.height
       }
       this.terrainLayer.addChild(sprite)
-      this.onAssetApplication?.({ assetId, entityId, status: 'applied' })
+      this.onAssetApplication?.({
+        assetId,
+        ...(entityId === ARENA_SURFACE_TARGET_ID ? {} : { entityId }),
+        status: 'applied',
+      })
     }).catch(() => {
       const target = this.environmentRenderTargets.get(entityId)
-      if (target?.assetId === assetId) this.onAssetApplication?.({ assetId, entityId, status: 'failed', reason: 'resolution' })
+      if (target?.assetId === assetId) {
+        this.onAssetApplication?.({
+          assetId,
+          ...(entityId === ARENA_SURFACE_TARGET_ID ? {} : { entityId }),
+          status: 'failed',
+          reason: 'resolution',
+        })
+      }
     })
   }
 

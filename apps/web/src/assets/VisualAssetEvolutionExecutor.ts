@@ -286,6 +286,9 @@ export class VisualAssetEvolutionExecutor {
         ...(context.properties ? { properties: context.properties } : {}),
         visualDesign: {
           artDirection: visualDesign.artDirection ?? visualContext.artDirection,
+          ...(visualDesign.worldSpatialMode ?? visualContext.worldSpatialMode
+            ? { worldSpatialMode: visualDesign.worldSpatialMode ?? visualContext.worldSpatialMode }
+            : {}),
           theme: visualDesign.theme ?? visualContext.theme,
           palette: visualDesign.palette ?? visualContext.palette,
           ...(visualDesign.environment ? { environment: visualDesign.environment } : {}),

@@ -5,6 +5,7 @@ import type {
   AssetTarget,
   AssetVisualState,
   VisualDesignSpecification,
+  WorldSpatialMode,
 } from '@genesis/shared'
 
 const PLAYER_RUN_FRAME_COUNT = 2
@@ -27,9 +28,17 @@ function entityAssetKind(visualRole: string, category: string): AssetKind {
   return 'prop'
 }
 
-function entityStates(kind: AssetKind, category: string): readonly AssetVisualState[] {
+function entityStates(
+  kind: AssetKind,
+  category: string,
+  worldSpatialMode?: WorldSpatialMode,
+): readonly AssetVisualState[] {
   if (kind !== 'character') return Object.freeze([])
-  if (category === 'player') return Object.freeze<AssetVisualState[]>(['idle', 'run', 'jump'])
+  if (category === 'player') {
+    return worldSpatialMode === 'top-down'
+      ? Object.freeze<AssetVisualState[]>(['idle', 'run'])
+      : Object.freeze<AssetVisualState[]>(['idle', 'run', 'jump'])
+  }
   return Object.freeze<AssetVisualState[]>(['idle'])
 }
 
@@ -56,6 +65,7 @@ function createUniqueId(base: string, used: Set<string>): string {
 function createEntityRequirement(
   entity: VisualDesignSpecification['entities'][number],
   usedIds: Set<string>,
+  worldSpatialMode?: WorldSpatialMode,
 ): AssetRequirement {
   const kind = entityAssetKind(entity.visualRole, entity.category)
   return freeze({
@@ -67,16 +77,20 @@ function createEntityRequirement(
     subject: entitySubject(entity.visualRole, kind, entity.visualArchetype),
     visualRole: entity.visualRole,
     renderUsage: 'entity-sprite',
-    requiredStates: entityStates(kind, entity.category),
-    technicalProfile: freeze({ transparentBackground: true, view: 'side' }),
+    requiredStates: entityStates(kind, entity.category, worldSpatialMode),
+    technicalProfile: freeze({
+      transparentBackground: true,
+      view: worldSpatialMode === 'top-down' ? 'top' : 'side',
+    }),
   })
 }
 
 export class DefaultAssetSpecificationBuilder implements AssetSpecificationBuilder {
   build(specification: VisualDesignSpecification): AssetSpecification {
     const usedIds = new Set<string>()
+    const worldSpatialMode = specification.worldSpatialMode
     const entityAssets = specification.entities.flatMap(entity => {
-      const primary = createEntityRequirement(entity, usedIds)
+      const primary = createEntityRequirement(entity, usedIds, worldSpatialMode)
       return entity.category === 'player'
         ? primary.requiredStates.map(state => freeze({
           ...primary,
@@ -98,23 +112,24 @@ export class DefaultAssetSpecificationBuilder implements AssetSpecificationBuild
       kind: 'terrain',
       target: 'environment',
       subject: specification.environment.terrain,
-      visualRole: 'ground terrain',
-      renderUsage: 'ground-repeat-x',
+      visualRole: worldSpatialMode === 'top-down' ? 'arena environment surface' : 'ground terrain',
+      renderUsage: worldSpatialMode === 'top-down' ? 'arena-fill' : 'ground-repeat-x',
       requiredStates: Object.freeze([]),
-      technicalProfile: freeze({ transparentBackground: false, view: 'side' }),
+      technicalProfile: freeze({ transparentBackground: false, view: worldSpatialMode === 'top-down' ? 'top' : 'side' }),
     })
     const background = freeze<AssetRequirement>({
       id: createUniqueId('background-main', usedIds),
       kind: 'background',
       target: 'environment',
       subject: specification.environment.background,
-      visualRole: 'scene background',
+      visualRole: worldSpatialMode === 'top-down' ? 'top-down environment background' : 'scene background',
       renderUsage: 'background-cover',
       requiredStates: Object.freeze([]),
-      technicalProfile: freeze({ transparentBackground: false, view: 'side' }),
+      technicalProfile: freeze({ transparentBackground: false, view: worldSpatialMode === 'top-down' ? 'top' : 'side' }),
     })
     const visualContext = freeze({
       artDirection: specification.artDirection,
+      ...(worldSpatialMode ? { worldSpatialMode } : {}),
       theme: freeze({ ...specification.theme }),
       palette: freeze({ ...specification.palette }),
     })

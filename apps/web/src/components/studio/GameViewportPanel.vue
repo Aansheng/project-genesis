@@ -29,6 +29,7 @@ import type {
   RuntimeGameplaySessionStatus,
 } from '@genesis/runtime'
 import type { GameplayEventObserver } from '@genesis/shared'
+import { resolveWorldSpatialMode } from '@genesis/shared'
 import { useGameStore } from '../../stores/gameStore'
 import { useObservatoryDataStore } from '../../stores/observatoryData'
 import { useI18nStore } from '../../stores/i18n'
@@ -40,7 +41,7 @@ const i18n = useI18nStore()
 const gameContainer = ref<HTMLDivElement | null>(null)
 const runtimeMounted = ref(false)
 const gameplaySessionStatus = computed<RuntimeGameplaySessionStatus>(() => store.gameplaySessionState.status)
-const isTopDownWorld = computed(() => store.semanticWorld?.worldType === 'survival')
+const isTopDownWorld = computed(() => resolveWorldSpatialMode(store.semanticWorld?.worldType) === 'top-down')
 const entityCount = computed(() => {
   void store.renderVersion
   return store.worldStore.getWorld().entities.length
@@ -151,7 +152,9 @@ onMounted(() => {
     getSemanticWorld: () => store.semanticWorld ?? undefined,
   }
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry, store.gameplayEventCollector, ruleExecutionConfig)
-  const adapter = new DefaultRuntimeRendererAdapter()
+  const adapter = new DefaultRuntimeRendererAdapter({
+    getWorldSpatialMode: () => resolveWorldSpatialMode(store.semanticWorld?.worldType),
+  })
   const cameraController = new DefaultCameraController()
   watch(() => store.worldRevision, () => cameraController.reset?.(), { flush: 'sync' })
   watch(() => store.currentWorldId, (worldId) => {

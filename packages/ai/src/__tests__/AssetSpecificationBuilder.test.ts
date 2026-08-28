@@ -85,6 +85,19 @@ describe('DefaultAssetSpecificationBuilder', () => {
     expect(assets[10]).toMatchObject({ id: 'background-main', kind: 'background', target: 'environment', subject: 'snow mountains', visualRole: 'scene background', renderUsage: 'background-cover' })
   })
 
+  it('builds top-down Survival requirements without jump or horizontal ground semantics', () => {
+    const assets = new DefaultAssetSpecificationBuilder().build({
+      ...visualDesign(),
+      worldSpatialMode: 'top-down',
+    }).assets
+
+    expect(assets.slice(0, 3).map(asset => asset.presentationState)).toEqual(['idle', 'run', 'run'])
+    expect(assets.slice(0, 3).every(asset => asset.technicalProfile.view === 'top')).toBe(true)
+    expect(assets.some(asset => asset.presentationState === 'jump')).toBe(false)
+    expect(assets[8]).toMatchObject({ visualRole: 'arena environment surface', renderUsage: 'arena-fill', technicalProfile: { view: 'top' } })
+    expect(assets[9]).toMatchObject({ visualRole: 'top-down environment background', technicalProfile: { view: 'top' } })
+  })
+
   it('deeply freezes the semantic output', () => {
     const result = new DefaultAssetSpecificationBuilder().build(visualDesign())
 

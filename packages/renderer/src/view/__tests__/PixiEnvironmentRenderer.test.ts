@@ -53,6 +53,19 @@ const roleAwareManifest: AssetManifest = {
   ],
 }
 
+const topDownManifest: AssetManifest = {
+  entries: [
+    {
+      assetId: 'arena-main',
+      kind: 'terrain',
+      target: 'environment',
+      renderUsage: 'arena-fill',
+      status: 'resolved',
+      resource: { uri: '/arena.png' },
+    },
+  ],
+}
+
 function rootContainer(): Container & { children: Container[] } {
   const children: Container[] = []
   return {
@@ -275,6 +288,55 @@ describe('PixiEnvironmentRenderer geometry contract', () => {
     const sprites = (root.children[1] as unknown as Container & { children: Sprite[] }).children
     expect(sprites).toHaveLength(2)
     expect(sprites[1]).toMatchObject({ x: 252, y: 308, width: 96, height: 24 })
+  })
+
+  it('tiles a top-down arena surface across both axes without using a Runtime terrain plane', async () => {
+    const root = rootContainer()
+    const tiles: Array<Sprite & { tileScale: { x: number; y: number } }> = []
+    const applied: Array<{ assetId: string; entityId?: string }> = []
+    const arenaResource: ResolvedAssetResource = {
+      assetId: 'arena-main', kind: 'terrain', target: 'environment', uri: '/arena.png',
+    }
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      assetManifest: topDownManifest,
+      assetStore: store({ status: 'resolved', resource: arenaResource }),
+      assetAdapter: { load: async () => ({ width: 128, height: 64 } as Texture), clear() {} },
+      createTilingSprite: (_texture, width, height) => {
+        const tile = tilingSprite(width, height)
+        tiles.push(tile)
+        return tile
+      },
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+      onAssetApplication: event => applied.push({ assetId: event.assetId, entityId: event.entityId }),
+    })
+
+    renderer.render({
+      spatialMode: 'top-down',
+      entities: [{ id: 'ground', type: 'terrain', position: { x: 160, y: 400 } }],
+    })
+    await flush()
+
+    expect(tiles).toHaveLength(1)
+    expect(tiles[0]).toMatchObject({ x: 0, y: 0, width: 800, height: 600 })
+    expect(tiles[0]!.tileScale).toMatchObject({ x: 0.5, y: 0.5 })
+    expect(applied).toEqual([{ assetId: 'arena-main' }])
+  })
+
+  it('shows a resource-independent two-dimensional arena fallback before arena art resolves', () => {
+    const root = rootContainer()
+    const renderer = new PixiEnvironmentRenderer(root, {
+      width: 800,
+      height: 600,
+      createGraphics: graphics,
+      createContainer: environmentLayer,
+    })
+
+    renderer.render({ spatialMode: 'top-down', entities: [] })
+
+    expect((root.children[1] as unknown as Container & { children: Graphics[] }).children).toHaveLength(1)
   })
 
   it('invalidates only a changed environment resource when the manifest is rebound', () => {

@@ -97,6 +97,10 @@ function horizontalVelocity(entity: Entity): number | undefined {
   return entity.components?.find(isVelocityComponent)?.properties.x
 }
 
+function velocity(entity: Entity): { x: number; y: number } | undefined {
+  return entity.components?.find(isVelocityComponent)?.properties
+}
+
 // ---------------------------------------------------------------------------
 // Section 1 — Construction
 // ---------------------------------------------------------------------------
@@ -436,6 +440,18 @@ describe('speed override', () => {
     expect(result.entities[0].x).toBe(50)
     expect(result.entities[0].y).toBe(40)
     expect(horizontalVelocity(result.entities[0])).toBe(-10)
+  })
+})
+
+describe('top-down velocity-vector mode', () => {
+  it('leaves both axes to VerticalMotionSystem while exposing four-way velocity', () => {
+    const provider = new MockInputProvider(['ArrowUp', 'ArrowRight'])
+    const system = new DefaultPlayerControllerSystem(provider, 3, { motionMode: 'velocity-vector' })
+    const result = system.update(createSinglePlayerWorld('player-1', 10, 5))
+
+    expect(result.entities[0].x).toBe(10)
+    expect(result.entities[0].y).toBe(5)
+    expect(velocity(result.entities[0])).toEqual({ x: 3, y: -3 })
   })
 })
 

@@ -12,7 +12,7 @@ import {
   DefaultRuntimeSystemRegistry,
   DefaultRuntimeWorldStore,
 } from '@genesis/runtime'
-import { KeyboardInputProvider } from '@genesis/renderer'
+import { DefaultRuntimeRendererAdapter, KeyboardInputProvider } from '@genesis/renderer'
 import { registerStudioRuntimeSystems, resolveStudioMotionProfile } from '../components/studio/runtimeMotionProfile'
 
 function createSurvivalRuntime() {
@@ -69,6 +69,19 @@ describe('WO-S26-002: WorldType-selected generic motion profile', () => {
     runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowUp' }))
     expect(playerPosition(runtime.store)).toEqual({ x: initial.x + 3, y: initial.y - 3 })
 
+    runtime.input.detach()
+  })
+
+  it('keeps vertical Survival motion as Runtime velocity for Renderer direction truth', () => {
+    const runtime = createSurvivalRuntime()
+    runtime.input.attach()
+    runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+    const updated = runtime.loop.tick(runtime.store.getWorld())
+    const renderWorld = new DefaultRuntimeRendererAdapter({ getWorldSpatialMode: () => 'top-down' }).adapt(updated)
+    const player = renderWorld.entities.find(entity => entity.type === 'player')
+
+    expect(renderWorld.spatialMode).toBe('top-down')
+    expect(player).toMatchObject({ presentationState: 'run', presentationDirection: 'down', velocity: { x: 0, y: 3 } })
     runtime.input.detach()
   })
 

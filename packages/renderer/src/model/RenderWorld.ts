@@ -6,16 +6,19 @@
  *   - `entities`: ordered list of RenderEntity instances
  *
  * Constraints (WO-S9-002):
- *   - No position data
  *   - No components
  *   - No runtime system references
- *   - Foundation only
+ *   - Spatial mode is projection metadata; Runtime geometry remains on
+ *     RenderEntity and is authoritative for positions
  */
 
 import type { RenderEntity } from './RenderEntity'
+import type { WorldSpatialMode } from '@genesis/shared'
 
 export interface RenderWorld {
   readonly entities: readonly RenderEntity[]
+  /** Optional spatial mode projected by the active Runtime adapter. */
+  readonly spatialMode?: WorldSpatialMode
 }
 
 /** Frozen empty RenderWorld constant. */

@@ -41,6 +41,17 @@ describe('DefaultVisualDesignSpecificationBuilder', () => {
     expect(first.theme).toEqual({ sourceTheme: 'none', visualTheme: 'classic-neutral' })
   })
 
+  it('derives top-down environment semantics for Survival without changing other genres', () => {
+    const result = new DefaultVisualDesignSpecificationBuilder().build(design({ genre: 'survival', theme: { name: 'forest' } }))
+
+    expect(result.worldSpatialMode).toBe('top-down')
+    expect(result.environment).toEqual({
+      terrain: 'natural ground arena surface',
+      background: 'layered woodland viewed from above',
+      atmosphere: 'lush and grounded',
+    })
+  })
+
   it('preserves stable entity identity and derives role semantics', () => {
     const entities = new DefaultVisualDesignSpecificationBuilder().build(design()).entities
 

@@ -28,7 +28,7 @@ export { DefaultWorldMutator } from './mutation'
 // Runtime Gameplay Systems
 export type { MovementSystem, MovementSystemResult } from './systems'
 export { DefaultMovementSystem } from './systems'
-export type { PlayerControllerSystem, PlayerControllerResult } from './systems'
+export type { PlayerControllerSystem, PlayerControllerMotionMode, PlayerControllerOptions, PlayerControllerResult } from './systems'
 export { DefaultPlayerControllerSystem } from './systems'
 export type { GravitySystem, GravitySystemResult } from './systems'
 export { DefaultGravitySystem } from './systems'

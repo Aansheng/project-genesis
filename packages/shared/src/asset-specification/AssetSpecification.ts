@@ -3,6 +3,7 @@ import type {
   VisualPaletteSemantics,
   VisualTheme,
 } from '../visual-design'
+import type { WorldSpatialMode } from '../game-world'
 
 export type AssetKind = 'character' | 'terrain' | 'background' | 'prop' | 'icon'
 export type AssetTarget = 'entity' | 'environment'
@@ -10,13 +11,14 @@ export type AssetView = 'side' | 'front' | 'top'
 export type AssetVisualState = 'idle' | 'run' | 'jump'
 
 /**
- * Bounded current platformer render usages. This is request/manifest metadata,
- * not a universal visual taxonomy or a source of Runtime geometry.
+ * Bounded current render usages. This is request/manifest metadata, not a
+ * universal visual taxonomy or a source of Runtime geometry.
  */
 export type AssetRenderUsage =
   | 'entity-sprite'
   | 'background-cover'
   | 'ground-repeat-x'
+  | 'arena-fill'
 
 export interface AssetTechnicalProfile {
   readonly transparentBackground: boolean
@@ -25,6 +27,8 @@ export interface AssetTechnicalProfile {
 
 export interface AssetVisualContext {
   readonly artDirection: ArtDirection
+  /** Bounded spatial composition used by image prompts and Renderer roles. */
+  readonly worldSpatialMode?: WorldSpatialMode
   readonly theme: VisualTheme
   readonly palette: VisualPaletteSemantics
 }

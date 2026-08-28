@@ -2,7 +2,7 @@
 
 These invariants are the durable boundary for supervised work. They were
 checked against the current source wiring, PROJECT_STATE.md, Sprint 16/17/18
-backlogs, capability matrices, and ADR-0261 through ADR-0276 on 2026-08-25.
+backlogs, capability matrices, and ADR-0261 through ADR-0287 on 2026-08-28.
 The source code and accepted ADRs remain authoritative if this projection
 becomes stale.
 
@@ -91,6 +91,12 @@ becomes stale.
     can produce that state. For input → Runtime → projection → Renderer claims,
     include at least one real-system-chain reachability regression.
 
+26. `WorldSpatialMode` is a bounded visual/motion composition contract, not a
+    genre-specific Runtime or Renderer authority. Runtime Position, Velocity,
+    collision bounds, and camera-visible render bounds remain authoritative;
+    `arena-fill` and top-view prompt metadata may only shape visual skin and
+    composition.
+
 ## Evidence anchors
 
 - Current product state: docs/project/PROJECT_STATE.md
@@ -112,4 +118,5 @@ becomes stale.
   docs/adr/ADR-0278-ground-repeat-composition.md,
   docs/adr/ADR-0279-runtime-derived-player-presentation-state-assets.md,
   docs/adr/ADR-0280-player-horizontal-motion-truth-reachability-repair.md,
-  docs/adr/ADR-0281-bounded-player-run-frame-presentation.md
+  docs/adr/ADR-0281-bounded-player-run-frame-presentation.md, and
+  docs/adr/ADR-0287-survival-top-down-spatial-composition.md

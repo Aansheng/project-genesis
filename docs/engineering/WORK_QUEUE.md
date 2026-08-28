@@ -5,15 +5,69 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-28
-current_sprint: Sprint 26
-current_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
-current_work_order_status: READY_FOR_HUMAN_CTO_REVIEW
+current_sprint: Sprint 27
+current_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
+current_work_order_status: IN_PROGRESS
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S26-003 — Deterministic Active-World Enemy Addition Recovery
-next_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
+next_work_order: SPRINT27_FREEZE_REVIEW — Survival Top-Down Spatial Composition
 continuation_mode: SPRINT_CONTINUOUS
-primary_architecture_changing_work_items_in_progress: 0
+primary_architecture_changing_work_items_in_progress: 1
+
+## SPRINT27_AUTHORIZATION — Human/CTO Priority Correction
+
+status: AUTHORIZED — 2026-08-28; Sprint 27 is opened despite the stale
+Sprint 26 freeze-review projection. The Human/CTO instruction is the higher
+authority and explicitly forbids beginning the previously proposed Survival
+gameplay-pressure work.
+architecture_before: v1.176
+architecture_target: v1.177
+goal: Make Survival visually and spatially read as top-down through the
+existing Natural Language → Semantic World → Game DSL → Runtime → Renderer
+pipeline while preserving Platformer.
+forbidden_next: Enemy pursuit, offense, weapons/projectiles, spawning, waves,
+timer/duration, Survivor-specific Runtime/Renderer, CameraManager,
+GenreRenderer, SurvivorRuntime, animation-state framework, or Sprint 28.
+source_of_truth: docs/project/SPRINT27_BACKLOG.md, ADR-0287, and actual source
+runtime wiring; the previous Sprint 26 freeze review is not a blocker.
+
+## WO-S27-001 — Survival Top-Down Spatial Composition
+
+status: CODE_COMPLETE — Code Complete = YES; Product Verified = pending
+priority: P0 / Human-CTO corrected priority
+dependencies: WO-S26-003 implementation complete; explicit Sprint 27
+authorization; fresh repository-grounded Gap Analysis complete
+architecture_before: v1.176
+architecture_after: v1.177
+measured_bottleneck: Survival already has generic top-down motion selection,
+but visual design/assets remain side-view, vertical movement is not exposed
+as Runtime velocity direction, and resolved terrain composes as a horizontal
+ground strip.
+allowed_scope: Shared bounded WorldSpatialMode, AI visual/asset requirements,
+Prompt Truth context/prompt metadata, generic controller option, Web
+composition/adapter wiring, existing Pixi entity/environment composition,
+focused tests, ADR and truthful project projections.
+forbidden_scope: Any Survivor-specific Runtime/engine/manager/renderer,
+CameraManager, GenreRenderer, animation-state framework, enemy pressure,
+weapons/projectiles, spawn/wave/timer/duration, inventory/ability/XP,
+image-pixel geometry, legacy reconnection/deletion, or Platformer changes.
+acceptance: Survival produces top-down visual/asset semantics with top-view
+assets, idle/run Player states, four-way Runtime-derived direction, a
+repeatable X/Y arena surface, no Mario sky/horizon and no horizontal
+Ground/Platform strip; Platformer preserves its system/control behavior and
+the real Studio Prompt Truth/console evidence is clean.
+automated_tests: Shared/AI/Runtime/Renderer/Web targeted tests, affected
+package suites, TypeScript, ESLint, Web build, and git diff --check.
+product_verification: PENDING — real Studio confirms the spatial/runtime and
+diagnostic checks, but the local image provider returned `Failed to fetch` and
+therefore no final provider-submitted spatial Prompt is available in
+Observatory. See docs/project/SPRINT27_BACKLOG.md and the completion report.
+observability: Preserve actual Runtime geometry, submitted prompt text,
+asset render usage, renderer application events, and console diagnostics;
+do not infer enemy gameplay from this spatial slice.
+next_gate: If acceptance and product verification pass, mark this item DONE
+and select only SPRINT27_FREEZE_REVIEW; do not enter Sprint 28 automatically.
 
 ## SPRINT24_FREEZE_REVIEW
 
@@ -240,10 +294,10 @@ do not claim combat or enemy behavior from entity addition alone.
 non_goals: No enemy movement, combat, spawning, waves, duration, or Sprint 26
  freeze claim.
 
-## SPRINT26_GAP_ANALYSIS_POST_WO-S26-003
+## SPRINT26_GAP_ANALYSIS_POST_WO-S26-003 (historical; superseded)
 
-status: DONE — bounded Sprint 26 acceptance complete; freeze review selected;
-no Sprint 27
+status: DONE — bounded Sprint 26 acceptance complete; the original freeze
+projection was superseded by the later Human/CTO Sprint 27 authorization
 architecture_before: v1.175
 architecture_after: v1.176
 measured_result: The exact Chinese Survivor request reaches the existing
@@ -255,7 +309,8 @@ deferred_non_blockers: Enemy chase, offense, spawn/wave, timer/
 survive-duration, ability/inventory, and progression expansion are outside the
 bounded Sprint 26 proof and do not open another WO.
 next_work_order: SPRINT26_FREEZE_REVIEW — Second-Genre Generalization Proof
-selection_status: READY_FOR_HUMAN_CTO_REVIEW — stop here; do not open Sprint 27
+selection_status: SUPERSEDED — Human/CTO later opened Sprint 27; this historical
+projection is not the current queue state
 
 ## SPRINT26_FREEZE_REVIEW
 

@@ -1,5 +1,5 @@
 import type { AssetKind, AssetRenderUsage, AssetRequirement, AssetSpecification, AssetTarget, AssetTechnicalProfile, AssetVisualState } from '../asset-specification'
-import type { EntityCategory, GameWorldModel, WorldType } from '../game-world'
+import type { EntityCategory, GameWorldModel, WorldSpatialMode, WorldType } from '../game-world'
 import type { GameDifficulty, GameObjectiveType } from '../game-design'
 import type {
   GameplayActionType,
@@ -129,6 +129,8 @@ export interface ImageGenerationContext extends GenerationContextMetadata {
   }
   readonly visual: {
     readonly artDirection: ArtDirection
+    /** Bounded spatial composition used by the final provider prompt. */
+    readonly worldSpatialMode?: WorldSpatialMode
     readonly theme: VisualTheme
     readonly palette: VisualPaletteSemantics
     readonly environment?: EnvironmentVisualDesign
@@ -146,6 +148,7 @@ export interface ImageGenerationContextBuilderInput {
   readonly properties?: WorldSemanticProperties
   readonly visualDesign: {
     readonly artDirection: ArtDirection
+    readonly worldSpatialMode?: WorldSpatialMode
     readonly theme: VisualTheme
     readonly palette: VisualPaletteSemantics
     readonly environment?: EnvironmentVisualDesign
@@ -364,6 +367,7 @@ export class DefaultImageGenerationContextBuilder implements ImageGenerationCont
       }),
       visual: Object.freeze({
         artDirection: input.visualDesign.artDirection,
+        ...(input.visualDesign.worldSpatialMode ? { worldSpatialMode: input.visualDesign.worldSpatialMode } : {}),
         theme: Object.freeze({ ...input.visualDesign.theme }),
         palette: Object.freeze({ ...input.visualDesign.palette }),
         ...(environmentTarget && input.visualDesign.environment ? { environment: Object.freeze({ ...input.visualDesign.environment }) } : {}),

@@ -5,8 +5,9 @@
  * world in semantic terms: what kind of world it is (worldType), what entities
  * exist (entities), and what category each entity belongs to.
  *
- * This is a CONTRACTS-ONLY model — no AI generation, no Runtime systems,
- * no Renderer integration, no gameplay execution.
+ * This is a CONTRACTS-FIRST model — no AI generation, no Runtime systems,
+ * no Renderer integration, no gameplay execution. The only behavior here is
+ * the pure, bounded mapping from world type to the shared spatial mode.
  *
  * Design principles:
  * - Immutable: all fields are readonly
@@ -15,7 +16,7 @@
  * - Runtime-independent: no Runtime type imports
  * - UI-independent: no ViewModel or UI type imports
  * - Extensible: future fields can be added without breaking changes
- * - Types only: no behavior, no methods, no logic
+ * - Bounded behavior only: no methods, systems, or gameplay logic
  */
 
 // ---------------------------------------------------------------------------
@@ -41,6 +42,33 @@ export type WorldType =
   | 'rpg'
   | 'survival'
   | 'sandbox'
+
+// ---------------------------------------------------------------------------
+// WorldSpatialMode
+// ---------------------------------------------------------------------------
+
+/**
+ * WorldSpatialMode — the bounded spatial presentation shared by motion and
+ * visual composition.
+ *
+ * This is intentionally smaller than a camera or genre system. It describes
+ * how the current world should read visually; Runtime geometry remains the
+ * authority for positions, bounds, and collision.
+ */
+export type WorldSpatialMode = 'side-view' | 'top-down'
+
+/**
+ * Resolve the current generic spatial presentation from semantic world type.
+ *
+ * Only Survival has measured top-down behavior today. Other world types keep
+ * the established side-view fallback until a separate product measurement
+ * authorizes another mapping.
+ */
+export function resolveWorldSpatialMode(
+  worldType: WorldType | null | undefined,
+): WorldSpatialMode {
+  return worldType === 'survival' ? 'top-down' : 'side-view'
+}
 
 // ---------------------------------------------------------------------------
 // EntityCategory

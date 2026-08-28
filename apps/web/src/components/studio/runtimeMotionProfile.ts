@@ -17,6 +17,7 @@ import {
   DefaultPlayerControllerSystem,
   DefaultVerticalMotionSystem,
 } from '@genesis/runtime'
+import { resolveWorldSpatialMode } from '@genesis/shared'
 import type { WorldType } from '@genesis/shared'
 
 export type StudioMotionProfile = 'platformer' | 'top-down'
@@ -30,7 +31,7 @@ export type StudioMotionProfile = 'platformer' | 'top-down'
 export function resolveStudioMotionProfile(
   worldType: WorldType | null | undefined,
 ): StudioMotionProfile {
-  return worldType === 'survival' ? 'top-down' : 'platformer'
+  return resolveWorldSpatialMode(worldType) === 'top-down' ? 'top-down' : 'platformer'
 }
 
 /**
@@ -46,16 +47,19 @@ export function registerStudioRuntimeSystems(
   worldType: WorldType | null | undefined,
 ): void {
   registry.clear()
-  registry.register(new DefaultPlayerControllerSystem(inputProvider, 3))
+  const motionProfile = resolveStudioMotionProfile(worldType)
+  registry.register(new DefaultPlayerControllerSystem(inputProvider, 3, {
+    motionMode: motionProfile === 'top-down' ? 'velocity-vector' : 'axis-delta',
+  }))
 
-  if (resolveStudioMotionProfile(worldType) === 'platformer') {
+  if (motionProfile === 'platformer') {
     registry.register(new DefaultJumpSystem(inputProvider, 10))
     registry.register(new DefaultGravitySystem(0.5))
   }
 
   registry.register(new DefaultVerticalMotionSystem())
 
-  if (resolveStudioMotionProfile(worldType) === 'platformer') {
+  if (motionProfile === 'platformer') {
     registry.register(new DefaultGroundCollisionSystem(400))
   }
 
