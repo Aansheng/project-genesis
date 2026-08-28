@@ -340,10 +340,13 @@ describe('World Evolution Studio integration', () => {
     const result = await game.send('再加五只怪')
 
     expect(result.success).toBe(true)
+    if (result.evolutionPlan?.status !== 'validated') {
+      throw new Error('Expected validated enemy-addition evolution plan')
+    }
     expect(game.currentWorldId).toBe(worldId)
     expect(game.semanticWorld?.entities.filter(entity => entity.category === 'enemy')).toHaveLength(6)
-    expect(result.evolutionPlan?.visualPlan?.generationRequired).toHaveLength(0)
-    expect(result.evolutionPlan?.visualPlan?.status).toBe('no_visual_impact')
+    expect(result.evolutionPlan.visualPlan?.generationRequired).toHaveLength(0)
+    expect(result.evolutionPlan.visualPlan?.status).toBe('no_visual_impact')
     expect(controlled.imageRequests).toHaveLength(imageRequestCount)
 
     const addedEnemyIds = game.semanticWorld?.entities

@@ -29,8 +29,9 @@
 **Sprint 25** — Production Reachability & Legacy Disposition Review (**FROZEN — WO-S25-001 audit complete; v1.173**)
 **Sprint 26** — Second-Genre Generalization Proof (**bounded proof complete; v1.176**)
 **Sprint 27** — Survival Top-Down Spatial Composition (**FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES; v1.177**)
-**Sprint 28** — Survival Gameplay Pressure (**ACTIVE — WO-S28-001 DONE; Code Complete = YES; Product Verified = YES; Freeze Review selected — v1.178**)
-**Current WO** - WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit — DONE; next gate `SPRINT28_FREEZE_REVIEW`
+**Sprint 28** — Survival Gameplay Pressure (**FROZEN — Code Complete = YES; Product Verified = YES; v1.178**)
+**Sprint 29** — Generic Offensive Interaction (**ACTIVE — WO-S29-001 DONE; Code Complete = YES; Product Verified = YES; Freeze Review selected — v1.179**)
+**Current WO** - WO-S29-001 — Generic Contact Offense Rule Composition — DONE; next gate `SPRINT29_FREEZE_REVIEW`
 
 ---
 
@@ -38,14 +39,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. Sprint 27 is FROZEN at v1.177: WO-S27-001 is DONE with Code Complete = YES and Product Verified = YES. Sprint 28 WO-S28-001 is DONE at v1.178 with Code Complete = YES and Product Verified = YES; `SPRINT28_FREEZE_REVIEW` is selected. |
-| Architecture Version | v1.178; Survival retains bounded `top-down` spatial mode and now composes a generic target-directed Runtime behavior from explicit target identity → Position lookup → normalized Velocity → Position integration, while visual additions reuse the first resolved Enemy resource. |
-| Last Completed WO | WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit; Code Complete = YES; Product Verified = YES; v1.178. |
-| Current User-Visible Behavior | Survival creates a provider-backed top-down X/Y arena with Arrow Keys-only generic motion, no Jump control, and same-world enemy addition. Initial and evolved Survival enemies pursue the current Player through Runtime target-directed motion; existing contact damage decreases Health once per contact-start overlap. Evolved enemies reuse the first resolved compatible Enemy artwork without duplicate image generation. The existing Mario/Platformer experience retains side-view composition, Ground/Platform, Arrow Keys/Space controls, and correct gameplay behavior as confirmed by Human/CTO. |
+| Status | Sprint 28 is FROZEN at v1.178. Sprint 29 WO-S29-001 is DONE at v1.179 with Code Complete = YES and Product Verified = YES; `SPRINT29_FREEZE_REVIEW` is selected. |
+| Architecture Version | v1.179; Survival retains v1.178 top-down pursuit and adds only a generic contact-offense RuleSet composition over existing Health, damage, removal, and progression primitives. |
+| Last Completed WO | WO-S29-001 — Generic Contact Offense Rule Composition; Code Complete = YES; Product Verified = YES; v1.179. |
+| Current User-Visible Behavior | Top-down Survival retains movement, pursuit/contact threat, same-world +5, and visual reuse. Each distinct Player/Enemy contact damages Enemy Health by 25; Health zero explicitly removes the Enemy, grants XP +1, and can execute the existing first Level transition. Initial and evolved enemies use the same category-based rules. Platformer remains unchanged. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → Semantic World → Game DSL with generic Health/collision bounds → Runtime projection → Runtime system registry / `DefaultRuntimeExecutionLoop` → gameplay event collector / `EntityContactSystem` → post-system GameplayRuleExecutor → Runtime World, Health, and session state → RuntimeRendererAdapter → Pixi Renderer → Observatory; visual/asset generation remains provider-backed with Prompt Truth and published → resolved → Renderer applied lineage. |
-| Current Blocking Issue | None for the bounded Sprint 28 thesis. The single contact damage observation is expected contact-start de-duplication, not a blocker. The earlier automated Space observation remains `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a Platformer product blocker. The full Observatory header's stale v1.177/Sprint 27 label is a metadata projection mismatch, not a gameplay blocker. |
-| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. Sprint 27: PASS and FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES. Sprint 28: Code Complete = YES; Product Verified = YES after successful real provider-backed +5 visual-binding verification. |
-| Next Recommended Verification | `SPRINT28_FREEZE_REVIEW` — review the completed bounded thesis and decide whether to freeze Sprint 28. Do not enter Sprint 29 automatically. |
+| Current Blocking Issue | None for the bounded Sprint 29 thesis. Timed/range/projectile/spawn capabilities remain explicitly deferred and are not required by the selected contact offense. Browser automation cannot reliably hold movement keys for four separate recontacts; production-chain AUTO VERIFIED evidence closes that repeated defeat path. |
+| Product Verification | Sprint 28 remains PASS/FROZEN. Sprint 29: AUTO VERIFIED repeated defeat/XP/Level through production composition plus real provider-backed Studio verification of initial/evolved Enemy damage, same-world +5, pursuit, and clean diagnostics. |
+| Next Recommended Verification | `SPRINT29_FREEZE_REVIEW`. Do not enter Sprint 30 automatically. |
 
 ## Sprint 27 Spatial Composition Snapshot
 

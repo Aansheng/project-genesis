@@ -256,8 +256,8 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     }),
     Object.freeze({
       id: 'damage-health',
-      description: 'A trusted generic DAMAGE_ENTITY rule decreases an entity Health component without adding death or game-over behavior.',
-      mechanicIds: Object.freeze(['enemy-side-damage']),
+      description: 'Trusted generic contact rules can decrease entity Health; bounded composition may remove a defeated non-player entity.',
+      mechanicIds: Object.freeze(['enemy-side-damage', 'contact-offense']),
     }),
     Object.freeze({
       id: 'goal-completion',
@@ -290,6 +290,7 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'event-entity-removed',
     'enemy-stomp',
     'enemy-side-damage',
+    'contact-offense',
     'reach-goal',
     'collect-reward',
     'gain-experience',

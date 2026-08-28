@@ -79,6 +79,19 @@ describe('Gameplay create-world integration', () => {
     ]))
   })
 
+  it('composes the bounded offensive loop for a generated Survival world', () => {
+    const result = createPipeline().execute({ input: '生成一个幸存者游戏' })
+
+    expect(result.success).toBe(true)
+    expect(result.semanticWorld?.worldType).toBe('survival')
+    expect(result.gameplayRuleSet?.rules.map(rule => rule.ruleId)).toEqual([
+      'survival-contact-offense',
+      'survival-enemy-defeat',
+      'survival-level-up-at-experience-threshold',
+      'survival-enemy-contact',
+    ])
+  })
+
   it('passes the semantic world and capability catalog to an injected gameplay provider', async () => {
     let requestWorld: GameWorldModel | undefined
     const builder = new DefaultGameplaySpecificationBuilder()

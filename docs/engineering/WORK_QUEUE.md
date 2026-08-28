@@ -5,15 +5,59 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-28
-current_sprint: Sprint 28
-current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+current_sprint: Sprint 29
+current_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
 current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-next_work_order: SPRINT28_FREEZE_REVIEW — READY for Human/CTO freeze decision
+last_completed_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
+next_work_order: SPRINT29_FREEZE_REVIEW — READY for Human/CTO decision
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## SPRINT28_FREEZE_REVIEW
+
+status: DONE — Human/CTO froze Sprint 28 at v1.178 on 2026-08-28.
+WO-S28-001 Code Complete = YES; Product Verified = YES; Fresh Gap Analysis =
+PASS. Combat, weapons, projectiles, spawning, waves, and attack animations are
+outside the frozen boundary. Artifact: `docs/project/SPRINT28_REVIEW.md`.
+
+## SPRINT29_AUTHORIZATION — Generic Offensive Interaction
+
+status: AUTHORIZED — 2026-08-28; ten-question production-path Gap Analysis complete
+architecture_before: v1.178
+goal: Player offensive interaction → Enemy Health loss → explicit defeat →
+continued Survival gameplay, without a genre-specific combat engine.
+selected_bottleneck: PRODUCT_GAP / COMPOSITION_GAP — supported generic Health,
+damage, removal, contact identity, atomic rules, and XP/Level exist, but the
+generated Survival RuleSet does not compose them for Player-originated offense.
+deferred_non_blockers: timing/cooldown, range/proximity, nearest target,
+projectile execution, gameplay spawning, waves, attack animation, inventory.
+source_of_truth: `docs/project/SPRINT29_BACKLOG.md`, ADR-0289, and actual source.
+
+## WO-S29-001 — Generic Contact Offense Rule Composition
+
+status: DONE — Code Complete = YES; Product Verified = YES
+priority: P0 / Human-CTO authorized
+architecture_before: v1.178
+architecture_after: v1.179 target
+allowed_scope: supported `contact-offense` capability truth; deterministic
+Survival contact damage to Enemy; explicit zero-Health remove + XP; existing
+first Level threshold; tests/docs.
+forbidden_scope: weapons, projectiles, cooldown/timer, radius/nearest targeting,
+spawn/waves, inventory/equipment/ability systems, visual combat framework,
+Survivor-specific Runtime/manager/renderer, Platformer behavior changes.
+acceptance: generated Survival uses real Studio Runtime composition; distinct
+contacts reduce Enemy Health 100→75→50→25→0, remove the Enemy, grant XP and the
+existing first Level transition, keep the session active, and remain compatible
+with same-world added enemies. Full checks and real Studio PV required.
+result: PASS — production-chain regression proves Health 100→75→50→25→0,
+Enemy removal, XP 1, Level 2, and active session. Real provider-backed Studio
+proves initial and all five evolved Enemy contacts at Health 75/100, same
+`world-1`, pursuit composition, and clean diagnostics.
+fresh_gap_analysis: PASS — meaningful bounded contact offense exists; no
+immediate timed/ranged/projectile/spawn blocker is required.
+next_gate: SPRINT29_FREEZE_REVIEW — READY; do not enter Sprint 30.
 
 ## SPRINT27_AUTHORIZATION — Human/CTO Priority Correction
 

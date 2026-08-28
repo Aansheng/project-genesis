@@ -95,6 +95,20 @@ function numericStateCondition(
   })
 }
 
+function numericEntityCondition(
+  entity: ReturnType<typeof playerSelector> | ReturnType<typeof targetSelector>,
+  property: 'health',
+  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte',
+  expected: number,
+): GameplayCondition {
+  return Object.freeze({
+    type: 'NUMBER_COMPARE',
+    value: Object.freeze({ kind: 'entityProperty' as const, entity, property }),
+    operator,
+    expected,
+  })
+}
+
 function rule(
   ruleId: string,
   name: string,
@@ -159,7 +173,7 @@ function deterministicRules(
     ))
   }
 
-  if (item && hasMechanic(specification, 'level-up')) {
+  if (item && hasMechanic(specification, 'collect-reward') && hasMechanic(specification, 'level-up')) {
     rules.push(rule(
       'level-up-at-experience-threshold',
       'Level up at experience threshold',
@@ -192,7 +206,7 @@ function deterministicRules(
     ))
   }
 
-  if (enemy && hasMechanic(specification, 'enemy-side-damage')) {
+  if (world.worldType !== 'survival' && enemy && hasMechanic(specification, 'enemy-side-damage')) {
     rules.push(rule(
       'enemy-contact-damage',
       'Enemy side contact damage',
@@ -230,11 +244,53 @@ function deterministicRules(
     }
   }
 
-  if (world.worldType === 'survival' && enemy && hasMechanic(specification, 'auto-attack')) {
+  if (world.worldType === 'survival' && enemy && hasMechanic(specification, 'contact-offense')) {
+    rules.push(rule(
+      'survival-contact-offense',
+      'Survival contact offense',
+      'contact-offense',
+      [
+        categoryCondition(player, 'player'),
+        categoryCondition(target, 'enemy'),
+        componentCondition(target, 'health'),
+      ],
+      [Object.freeze({ type: 'DAMAGE_ENTITY', target, amount: 25 })],
+    ))
+    rules.push(rule(
+      'survival-enemy-defeat',
+      'Survival enemy defeat',
+      'contact-offense',
+      [
+        categoryCondition(player, 'player'),
+        categoryCondition(target, 'enemy'),
+        numericEntityCondition(target, 'health', 'lte', 0),
+      ],
+      [
+        Object.freeze({ type: 'REMOVE_ENTITY', target }),
+        ...(hasMechanic(specification, 'gain-experience')
+          ? [Object.freeze({ type: 'CHANGE_NUMERIC_STATE' as const, state: 'experience', amount: 1 })]
+          : []),
+      ],
+    ))
+    if (hasMechanic(specification, 'level-up')) {
+      rules.push(rule(
+        'survival-level-up-at-experience-threshold',
+        'Survival level up at experience threshold',
+        'level-up',
+        [
+          numericStateCondition('experience', 'gte', 1),
+          numericStateCondition('level', 'lt', 2),
+        ],
+        [Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'level', amount: 1 })],
+      ))
+    }
+  }
+
+  if (world.worldType === 'survival' && enemy && hasMechanic(specification, 'enemy-side-damage')) {
     rules.push(rule(
       'survival-enemy-contact',
       'Survival enemy contact',
-      'auto-attack',
+      'enemy-side-damage',
       [categoryCondition(player, 'player'), categoryCondition(target, 'enemy')],
       [Object.freeze({ type: 'DAMAGE_ENTITY', target: player, amount: 1 })],
     ))

@@ -137,6 +137,47 @@ describe('GameplayRule foundation', () => {
     })
   })
 
+  it('composes bounded Survival contact offense, defeat, XP, level, and threat rules', () => {
+    const survivalWorld: GameWorldModel = Object.freeze({
+      worldType: 'survival',
+      entities: Object.freeze([
+        Object.freeze({ id: 'survivor', category: 'player', name: 'Survivor' }),
+        Object.freeze({ id: 'enemy-1', category: 'enemy', name: 'Enemy' }),
+      ]),
+    })
+    const specification = new DefaultGameplaySpecificationBuilder().build({ semanticWorld: survivalWorld })
+    const ruleSet = new DefaultGameplayRuleBuilder().build({
+      semanticWorld: survivalWorld,
+      gameplaySpecification: specification,
+    })
+
+    expect(ruleSet.rules.map(rule => rule.ruleId)).toEqual([
+      'survival-contact-offense',
+      'survival-enemy-defeat',
+      'survival-level-up-at-experience-threshold',
+      'survival-enemy-contact',
+    ])
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-contact-offense')).toMatchObject({
+      supportStatus: 'supported',
+      actions: [{ type: 'DAMAGE_ENTITY', target: { kind: 'eventTarget' }, amount: 25 }],
+    })
+    const defeatRule = ruleSet.rules.find(rule => rule.ruleId === 'survival-enemy-defeat')
+    expect(defeatRule).toMatchObject({
+      supportStatus: 'supported',
+      actions: [
+        { type: 'REMOVE_ENTITY', target: { kind: 'eventTarget' } },
+        { type: 'CHANGE_NUMERIC_STATE', state: 'experience', amount: 1 },
+      ],
+    })
+    expect(defeatRule?.conditions).toContainEqual({
+      type: 'NUMBER_COMPARE',
+      value: { kind: 'entityProperty', entity: { kind: 'eventTarget' }, property: 'health' },
+      operator: 'lte',
+      expected: 0,
+    })
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-enemy-contact')?.sourceMechanicId).toBe('enemy-side-damage')
+  })
+
   it('normalizes IDs and rejects unknown events, actions, exact references, and code', () => {
     const validator = new DefaultGameplayRuleValidator()
     const invalid = validator.validate([

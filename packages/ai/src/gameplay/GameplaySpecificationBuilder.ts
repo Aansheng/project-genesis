@@ -185,9 +185,11 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanic('player-move', 'movement', 'Player moves to avoid pressure.', 'supported', playerId),
       mechanic('enemy-spawn', 'spawn', 'Enemies appear over time.', 'deferred'),
       mechanic('enemy-chase', 'movement', 'Enemies pursue the player.', 'deferred', 'enemy', playerId),
-      mechanic('auto-attack', 'combat', 'Player attacks threats automatically.', 'deferred', playerId, 'enemy'),
-      mechanic('gain-experience', 'progression', 'Enemy defeat grants experience.', 'deferred', playerId),
-      mechanic('level-up', 'progression', 'Experience thresholds offer a stronger player state.', 'deferred', playerId),
+      mechanic('contact-offense', 'combat', 'Player contact damages an enemy through generic Runtime Health rules.', 'supported', playerId, 'enemy'),
+      mechanic('enemy-side-damage', 'combat', 'Enemy contact damages the Player through generic Runtime Health rules.', 'supported', 'enemy', playerId),
+      mechanic('auto-attack', 'combat', 'Player attacks threats automatically at range.', 'deferred', playerId, 'enemy'),
+      mechanic('gain-experience', 'progression', 'Enemy defeat grants Runtime experience.', 'supported', playerId),
+      mechanic('level-up', 'progression', 'The first experience threshold increases Runtime level once.', 'supported', playerId),
       mechanic('choose-skill', 'progression', 'The player chooses an upgrade.', 'deferred', playerId),
       mechanic('player-death', 'failure', 'Player death ends the run.', 'deferred', playerId),
     ])
@@ -206,8 +208,8 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanics,
       progression: Object.freeze({
         modes: Object.freeze(['experience', 'levels', 'upgrades'] as const),
-        description: 'Experience, levels, and upgrades are desired but not executed yet.',
-        supportStatus: 'deferred',
+        description: 'Enemy defeat grants experience and the first level transition; upgrade choice remains deferred.',
+        supportStatus: 'partially_supported',
       }),
       goals: Object.freeze([Object.freeze({
         id: 'survive-run',
@@ -317,15 +319,17 @@ export class DefaultGameplaySpecificationBuilder implements GameplaySpecificatio
         ? 'supported' as const
         : 'deferred' as const,
     }))
+    const progressionMechanics = mechanics.filter(mechanic => mechanic.kind === 'progression')
     const progression: GameplayProgressionSpecification | undefined = candidate.progression
       ? Object.freeze({
           modes: Object.freeze([...candidate.progression.modes]),
           description: candidate.progression.description,
-          supportStatus: mechanics.some(mechanic => mechanic.kind === 'progression')
-            && mechanics.filter(mechanic => mechanic.kind === 'progression')
-              .every(mechanic => mechanic.supportStatus === 'supported')
+          supportStatus: progressionMechanics.length > 0
+            && progressionMechanics.every(mechanic => mechanic.supportStatus === 'supported')
             ? 'supported' as const
-            : 'deferred' as const,
+            : progressionMechanics.some(mechanic => mechanic.supportStatus === 'supported')
+              ? 'partially_supported' as const
+              : 'deferred' as const,
         })
       : undefined
     const goals: readonly GameplayGoalSpecification[] | undefined = candidate.goals?.map(item => Object.freeze({

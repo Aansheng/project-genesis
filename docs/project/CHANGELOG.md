@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 28 Freeze + Sprint 29 WO-S29-001 Complete (v1.178 → v1.179)
+
+- Human/CTO froze Sprint 28 at v1.178 with WO-S28-001 Code Complete = YES,
+  Product Verified = YES, and Fresh Gap Analysis PASS.
+- Sprint 29 source audit found that Enemy Health, generic `DAMAGE_ENTITY`,
+  `REMOVE_ENTITY`, Runtime XP/Level, typed Health comparison, and atomic rules
+  already exist. No timed trigger, range/nearest selector, projectile executor,
+  or gameplay spawn executor is production-reachable.
+- Selected exactly one bounded WO: `WO-S29-001 — Generic Contact Offense Rule
+  Composition`. It adds no new Runtime system: a distinct Player/Enemy contact
+  damages Enemy Health by 25; Health zero triggers atomic removal and XP +1;
+  the existing first XP threshold may commit Level 1→2.
+- Production reachability verifies four distinct contacts, Enemy removal,
+  XP 1, Level 2, and continued active session. Real provider-backed Studio
+  verifies initial Enemy Health 75/100 and all five same-world additions at
+  75/100 with pursuit/Health composition; console diagnostics are clean.
+- Shared 211, AI 9430, Runtime 705, and Web 3564 tests pass, as do TypeScript,
+  ESLint (zero errors), Web build, and diff hygiene. Code Complete = YES;
+  Product Verified = YES; `SPRINT29_FREEZE_REVIEW` selected.
+
 ### Sprint 28 — WO-S28-001 Product Verification (v1.178)
 
 - Implemented generic `TargetDirectedMovementComponent` plus Runtime target

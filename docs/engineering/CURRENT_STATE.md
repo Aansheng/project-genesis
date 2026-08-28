@@ -3,25 +3,36 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.178 (Sprint 27 frozen; WO-S28-001 DONE; Product Verified)
-current_sprint: Sprint 28 (Survival Gameplay Pressure)
-current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+architecture_version: v1.179 (Sprint 28 frozen; WO-S29-001 DONE; Product Verified)
+current_sprint: Sprint 29 (Generic Offensive Interaction)
+current_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
 current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-last_completed_product_work_order: WO-S28-001
+last_completed_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
+last_completed_product_work_order: WO-S29-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT28_FREEZE_REVIEW — READY for Human/CTO freeze decision
-product_architecture_changed: yes — v1.176 → v1.177 → v1.178; Survival now carries bounded spatial composition and generic target-directed Runtime behavior through the existing pipeline
-sprint_status: Sprint 17–26 remain historically frozen or complete; Sprint 27
-  is FROZEN at v1.177 after WO-S27-001 passed Code Complete and Product
-  Verification. Human/CTO explicitly authorized Sprint 28; its first source
-  Gap Analysis selected exactly one READY item, WO-S28-001. WO-S28-001 is now
-  Code Complete and Product Verified at v1.178 after the final real Studio
-  visual-binding recheck.
-code_complete: YES for WO-S28-001; product_verified: YES for Sprint 28;
-  Sprint 27 remains Product Verified = YES and frozen
+next_ready_work_order: SPRINT29_FREEZE_REVIEW — READY for Human/CTO decision
+product_architecture_changed: yes — v1.178 → v1.179; only generic Gameplay Rule composition/support truth changes
+sprint_status: Sprint 28 is FROZEN at v1.178. Human/CTO authorized Sprint 29;
+  its ten-question source audit selected exactly one bounded WO-S29-001.
+code_complete: YES for WO-S29-001; product_verified: YES;
+  Sprint 28 remains Product Verified = YES and frozen
+
+## Sprint 29 Gap Analysis and result
+
+Repository truth showed that generic Enemy Health, `DAMAGE_ENTITY`, explicit
+non-player removal, atomic multi-action rules, Runtime XP/Level, and contact
+identity already existed. There is no timed/cooldown trigger, range/nearest
+condition, projectile executor, or gameplay spawn executor. The first smallest
+gap was production RuleSet composition, not a combat framework.
+
+WO-S29-001 now composes 25 contact damage, typed zero-Health removal + XP, and
+the existing first Level threshold. Automated production reachability proves
+the four-contact defeat chain and continued active session. Real Studio proves
+provider acceptance, initial/evolved Enemy damage, pursuit, same-world exact
++5 compatibility, and clean diagnostics. Fresh Gap Analysis finds no immediate
+offense blocker; `SPRINT29_FREEZE_REVIEW` is selected.
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -32,14 +43,13 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 28 — Survival Gameplay Pressure:
+Sprint 29 — Generic Offensive Interaction:
 
-1. Make a generated Survival world produce deterministic pressure through
-   Enemy → approaches Player → contact threatens Player → Player avoids.
-2. Reuse generic Runtime Position/Velocity/collision/Health/contact/damage/
-   failed/Respawn capabilities and preserve Platformer behavior.
-3. Execute only `WO-S28-001`; stop for `SPRINT28_FREEZE_REVIEW` and do not
-   enter Sprint 29 automatically.
+1. Give generated Survival one minimal genuine Player-offense loop.
+2. Reuse contact identity, Enemy Health, `DAMAGE_ENTITY`, explicit removal,
+   and Runtime progression without a weapon/projectile framework.
+3. Execute only the first measured blocker, WO-S29-001, then perform fresh Gap
+   Analysis and stop at Freeze Review or one measured blocker.
 
 Sprint 25 is frozen at v1.173. Its audit-only WO-S25-001 is complete and the
 freeze review is recorded in `docs/project/SPRINT25_REVIEW.md`.
