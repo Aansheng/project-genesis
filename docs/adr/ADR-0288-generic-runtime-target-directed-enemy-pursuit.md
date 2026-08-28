@@ -1,6 +1,6 @@
 # ADR-0288 — Generic Runtime Target-Directed Enemy Pursuit
 
-- Status: Accepted for implementation; Product Verification pending
+- Status: Accepted; Product Verified; Sprint 28 Freeze Review selected
 - Date: 2026-08-28
 - Work Order: WO-S28-001
 - Architecture: v1.177 → v1.178
@@ -84,7 +84,12 @@ expected and no continuous attack mechanic is introduced.
 
 Automated Runtime, Shared, AI, Web composition, visual planner/executor, and
 World Evolution integration tests pass. Web full tests, TypeScript, ESLint
-(zero errors), and production build pass. Human/CTO confirms pursuit and the
-existing contact damage path. Final Product Verification remains pending a
-successful real Studio confirmation that `再加五只怪` displays the inherited
-resolved Enemy artwork after the repair.
+(zero errors), and production build pass. The final clean provider-backed
+Studio session preserved `world-1`, changed 4 entities to 9 with exactly five
+new Enemies, confirmed target-directed following after real Player input, and
+recorded binding-only visual execution with no new generation operation. The
+final Diff reported semantic, Runtime, asset, and visual synchronization
+complete; the browser console was clean. The full Observatory does not expose
+per-entity canonical IDs or resource URLs, so the available binding-only and
+no-duplicate-generation evidence is recorded without inventing those values.
+Product Verified = YES. `SPRINT28_FREEZE_REVIEW` is selected.

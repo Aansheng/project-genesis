@@ -3,24 +3,24 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.178 (Sprint 27 frozen; WO-S28-001 implemented; Product Verification pending)
+architecture_version: v1.178 (Sprint 27 frozen; WO-S28-001 DONE; Product Verified)
 current_sprint: Sprint 28 (Survival Gameplay Pressure)
 current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-current_work_order_status: IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human recheck of incremental visual binding
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-last_completed_product_work_order: WO-S27-001
+last_completed_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+last_completed_product_work_order: WO-S28-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT28_FREEZE_REVIEW — pending final Human/CTO Product Verification
+next_ready_work_order: SPRINT28_FREEZE_REVIEW — READY for Human/CTO freeze decision
 product_architecture_changed: yes — v1.176 → v1.177 → v1.178; Survival now carries bounded spatial composition and generic target-directed Runtime behavior through the existing pipeline
 sprint_status: Sprint 17–26 remain historically frozen or complete; Sprint 27
   is FROZEN at v1.177 after WO-S27-001 passed Code Complete and Product
   Verification. Human/CTO explicitly authorized Sprint 28; its first source
   Gap Analysis selected exactly one READY item, WO-S28-001. WO-S28-001 is now
-  Code Complete at v1.178; Product Verification remains pending the final
-  human visual-binding recheck.
-code_complete: YES for WO-S28-001; product_verified: PENDING for Sprint 28;
+  Code Complete and Product Verified at v1.178 after the final real Studio
+  visual-binding recheck.
+code_complete: YES for WO-S28-001; product_verified: YES for Sprint 28;
   Sprint 27 remains Product Verified = YES and frozen
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
@@ -147,14 +147,32 @@ single Health decrease while entities remain overlapped is expected because
 continuous attack damage remains outside this WO.
 
 The reported incremental visual gap was repaired in the existing Web visual
-evolution seam. Survival Enemy additions inherit the existing Enemy visual
-identity, and the targeted manifest copies the first resolved shared resource
-to each new binding without duplicate image generation. Automated Web
-integration proves exact +5, no duplicate image request, and resolved resource
-reuse. Product Verification remains PENDING until Human/CTO confirms this
-repair in a successful real Studio `再加五只怪` run; local post-repair retries
-received an invalid provider candidate and are recorded as provider-path
-limitations.
+evolution seam. Final real Studio verification passed: `world-1` remained the
+same while `再加五只怪` changed 4 Runtime entities to 9 with exactly five
+additions. All five additions had `target-directed-movement(target=survivor,
+speed=1.5)` and followed the Player after real ArrowRight input x=80→83→86.
+The final Diff recorded five visual binding additions and binding-only
+execution with no generation required; visual operations remained 8, 6
+ready/0 active/0 fallback, manifest assets were 13 generated-origin entries,
+and the console was clean. The current Observatory does not expose
+per-entity canonical IDs or URLs; its available synchronized
+binding/no-generation evidence and visible canvas result are recorded without
+inventing those values. Product Verified is YES. The stale v1.177/Sprint 27
+Observatory header is a metadata projection mismatch, not a Survival
+gameplay-pressure blocker.
+
+## Sprint 28 Fresh Gap Analysis — 2026-08-28
+
+The real production path now satisfies the bounded thesis: Enemy approaches
+the current Player, contact threatens Player through the existing
+`ENTITY_CONTACT_STARTED` damage semantics, and Player avoidance input is
+observable. Same-session +5 evolution preserves Runtime entity independence,
+generic pursuit composition, and the existing Enemy visual identity without
+duplicate image-generation operations. No additional measured Survival
+gameplay-pressure blocker exists.
+
+`SPRINT28_FREEZE_REVIEW` is selected as the next gate. Sprint 29 is not
+entered automatically.
 
 ## Sprint 26 Initial Gap Analysis (historical)
 

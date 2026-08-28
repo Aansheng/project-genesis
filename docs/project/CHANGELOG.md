@@ -1,6 +1,6 @@
 # Changelog
 
-### Sprint 28 — WO-S28-001 Runtime Pursuit Implementation (v1.178)
+### Sprint 28 — WO-S28-001 Product Verification (v1.178)
 
 - Implemented generic `TargetDirectedMovementComponent` plus Runtime target
   lookup, normalized finite pursuit Velocity, and generic Velocity→Position
@@ -12,10 +12,20 @@
 - Repaired the measured incremental visual gap: Survival Enemy additions
   inherit the first Enemy visual identity and the resolved shared resource is
   rebound to each new entity without duplicate image generation.
-- Code Complete = YES. Product Verified remains PENDING the final successful
-  Human/CTO real-session confirmation of the repaired visual binding; local
-  post-repair retries received an invalid provider candidate. Sprint 29 is not
-  entered automatically.
+- Final provider-backed Studio verification passed: `world-1` remained the same
+  while `再加五只怪` changed 4 entities to 9 with exactly five new Enemies.
+  All five exposed `target-directed-movement` targeting `survivor`, and real
+  ArrowRight input moved Player x=80→83→86 with the additions following.
+- Observatory Diff recorded five visual binding additions and explicitly
+  reported binding-only execution with no generation required. Visual
+  operations remained 8 with 6 ready, 0 active, 0 fallback; manifest assets
+  were 13 generated-origin entries; the canvas continued displaying the
+  generated Enemy artwork; and the console was clean. The full Observatory
+  does not expose per-entity canonical IDs/URLs, so no unobserved values are
+  claimed.
+- Code Complete = YES. Product Verified = YES. Fresh Sprint 28 Gap Analysis
+  found no additional measured gameplay-pressure blocker. `SPRINT28_FREEZE_REVIEW`
+  is selected; Sprint 29 is not entered automatically.
 
 ### Sprint 27 Freeze + Sprint 28 Authorization (v1.177)
 

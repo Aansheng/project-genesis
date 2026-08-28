@@ -7,11 +7,11 @@ queue_version: 1
 updated: 2026-08-28
 current_sprint: Sprint 28
 current_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
-current_work_order_status: IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human recheck of incremental visual binding
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S27-001 — Survival Top-Down Spatial Composition
-next_work_order: SPRINT28_FREEZE_REVIEW — pending final Human/CTO Product Verification
+last_completed_work_order: WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
+next_work_order: SPRINT28_FREEZE_REVIEW — READY for Human/CTO freeze decision
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -134,8 +134,7 @@ and the Human/CTO decision log. Exactly one bounded Sprint 28 WO is selected.
 
 ## WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
 
-status: IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human
-recheck of the repaired incremental visual binding
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / Human-CTO authorized
 dependencies: Sprint 27 FROZEN at v1.177; explicit Sprint 28 authorization;
 fresh nine-question production-chain Gap Analysis
@@ -158,8 +157,8 @@ authoritative Player Health; existing failed/Game Over and same-session
 Respawn remain coherent; same-world `再加五只怪` is exactly +5 without rebuild
 and additions inherit pursuit/contact behavior; Platformer remains correct and
 the console is clean.
-next_gate: SPRINT28_FREEZE_REVIEW only after this single WO passes; do not enter
-Sprint 29 automatically.
+next_gate: SPRINT28_FREEZE_REVIEW — READY after this single WO passed; do not
+enter Sprint 29 automatically.
 
 ## WO-S28-001 Execution Record — 2026-08-28
 
@@ -176,12 +175,22 @@ generation.
 human_observation: PASS for automatic pursuit and existing contact damage.
 The single Health decrease observed during persistent overlap is the existing
 contact-start de-duplication contract, not a missing attack loop in this WO.
-product_verification: PENDING — Human/CTO observed the pre-repair incremental
-visual gap. Automated integration now proves the repaired binding; two
-post-repair real Studio retries returned an invalid provider candidate, so the
-final human visual confirmation is still required before freeze review.
-next_gate: SPRINT28_FREEZE_REVIEW after the repaired visual binding is confirmed;
-Sprint 29 is not entered automatically.
+product_verification: PASS — clean provider-backed Studio session preserved
+`world-1`, changed 4 entities to 9 with exactly five added Enemy entities, and
+recorded five binding-only visual additions with no generation required. All
+five additions exposed `target-directed-movement` targeting `survivor`; real
+ArrowRight input moved Player x=80→83→86 and the additions followed. Visual
+operations remained 8 with 6 ready, 0 active, 0 fallback; the manifest had 13
+generated-origin entries; the Diff reported Runtime and visual synchronization
+completed; and the browser console had no error/warning entries. The full
+Observatory does not expose per-entity canonical IDs/URLs, so the available
+binding-only and no-duplicate-generation evidence is recorded as the truthful
+visual proof. Contact-start damage semantics remain unchanged.
+fresh_gap_analysis: PASS — no additional measured Survival gameplay-pressure
+blocker. The stale v1.177/Sprint 27 full-Observatory header is a projection
+metadata mismatch, not a gameplay blocker or new WO.
+next_gate: SPRINT28_FREEZE_REVIEW — READY; Sprint 29 is not entered
+automatically.
 
 ## SPRINT24_FREEZE_REVIEW
 

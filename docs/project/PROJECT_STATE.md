@@ -29,8 +29,8 @@
 **Sprint 25** — Production Reachability & Legacy Disposition Review (**FROZEN — WO-S25-001 audit complete; v1.173**)
 **Sprint 26** — Second-Genre Generalization Proof (**bounded proof complete; v1.176**)
 **Sprint 27** — Survival Top-Down Spatial Composition (**FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES; v1.177**)
-**Sprint 28** — Survival Gameplay Pressure (**IMPLEMENTED — WO-S28-001 Code Complete = YES; Product Verified = PENDING human visual recheck — v1.178**)
-**Current WO** - WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit — IMPLEMENTED / Product Verification pending
+**Sprint 28** — Survival Gameplay Pressure (**ACTIVE — WO-S28-001 DONE; Code Complete = YES; Product Verified = YES; Freeze Review selected — v1.178**)
+**Current WO** - WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit — DONE; next gate `SPRINT28_FREEZE_REVIEW`
 
 ---
 
@@ -38,14 +38,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. Sprint 27 is FROZEN at v1.177: WO-S27-001 is DONE with Code Complete = YES and Product Verified = YES. Sprint 28 implementation is complete at v1.178; Product Verification remains pending one successful Human/CTO confirmation of repaired incremental Enemy visual binding. |
+| Status | Sprint 25 remains historically frozen at v1.173. Sprint 26 bounded proof is complete at v1.176. Sprint 27 is FROZEN at v1.177: WO-S27-001 is DONE with Code Complete = YES and Product Verified = YES. Sprint 28 WO-S28-001 is DONE at v1.178 with Code Complete = YES and Product Verified = YES; `SPRINT28_FREEZE_REVIEW` is selected. |
 | Architecture Version | v1.178; Survival retains bounded `top-down` spatial mode and now composes a generic target-directed Runtime behavior from explicit target identity → Position lookup → normalized Velocity → Position integration, while visual additions reuse the first resolved Enemy resource. |
-| Last Completed WO | WO-S27-001 — Survival Top-Down Spatial Composition; Code Complete = YES; Product Verified = YES; Sprint 27 frozen at v1.177. |
-| Current User-Visible Behavior | Survival creates a provider-backed top-down X/Y arena with Arrow Keys-only generic motion, no Jump control, and same-world enemy addition. Initial and evolved Survival enemies now pursue the current Player through Runtime target-directed motion; existing contact damage decreases Health once per contact-start overlap. Evolved enemies are intended to reuse the first resolved Enemy artwork. The existing Mario/Platformer experience retains side-view composition, Ground/Platform, Arrow Keys/Space controls, and correct gameplay behavior as confirmed by Human/CTO. |
+| Last Completed WO | WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit; Code Complete = YES; Product Verified = YES; v1.178. |
+| Current User-Visible Behavior | Survival creates a provider-backed top-down X/Y arena with Arrow Keys-only generic motion, no Jump control, and same-world enemy addition. Initial and evolved Survival enemies pursue the current Player through Runtime target-directed motion; existing contact damage decreases Health once per contact-start overlap. Evolved enemies reuse the first resolved compatible Enemy artwork without duplicate image generation. The existing Mario/Platformer experience retains side-view composition, Ground/Platform, Arrow Keys/Space controls, and correct gameplay behavior as confirmed by Human/CTO. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → Semantic World → Game DSL with generic Health/collision bounds → Runtime projection → Runtime system registry / `DefaultRuntimeExecutionLoop` → gameplay event collector / `EntityContactSystem` → post-system GameplayRuleExecutor → Runtime World, Health, and session state → RuntimeRendererAdapter → Pixi Renderer → Observatory; visual/asset generation remains provider-backed with Prompt Truth and published → resolved → Renderer applied lineage. |
-| Current Blocking Issue | The Runtime pursuit blocker is implemented. Product Verification is pending a successful Human/CTO real-session confirmation that `再加五只怪` reuses the first resolved Enemy artwork; two post-repair retries received an invalid provider candidate. The single contact damage observation is expected contact-start de-duplication, not a Sprint 28 blocker. The earlier automated Space observation remains `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a Platformer product blocker. |
-| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. Sprint 27: PASS and FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES. Sprint 28: Code Complete = YES; Product Verified = PENDING final human visual-binding confirmation. |
-| Next Recommended Verification | In a successful real Studio Survival session, run `再加五只怪` and confirm same `world-1`, exact +5, pursuit components, and the first Enemy's resolved artwork on all additions; then evaluate `SPRINT28_FREEZE_REVIEW`. Do not enter Sprint 29 automatically. |
+| Current Blocking Issue | None for the bounded Sprint 28 thesis. The single contact damage observation is expected contact-start de-duplication, not a blocker. The earlier automated Space observation remains `AUTOMATED INPUT / OBSERVATION LIMITATION`, not a Platformer product blocker. The full Observatory header's stale v1.177/Sprint 27 label is a metadata projection mismatch, not a gameplay blocker. |
+| Product Verification | Sprint 24 lifecycle PV A/B: PASS. WO-S25-001 and Sprint 26 bounded proof: PASS. Sprint 27: PASS and FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES. Sprint 28: Code Complete = YES; Product Verified = YES after successful real provider-backed +5 visual-binding verification. |
+| Next Recommended Verification | `SPRINT28_FREEZE_REVIEW` — review the completed bounded thesis and decide whether to freeze Sprint 28. Do not enter Sprint 29 automatically. |
 
 ## Sprint 27 Spatial Composition Snapshot
 
@@ -112,10 +112,24 @@ separate; this WO does not introduce attacks or continuous damage.
 The reported incremental visual gap was repaired at the Web visual boundary:
 new Survival enemies inherit the existing Enemy visual identity and the
 resolved resource is copied to each new asset binding without duplicate
-generation. Automated Web integration proves this behavior. Product Verified
-remains PENDING until a successful real Studio `再加五只怪` run confirms the
-repaired visual binding; the local retries received an invalid provider
-candidate and are recorded as provider-path limitations, not product failure.
+generation. Final real Studio verification passed: the successful provider-
+backed session preserved `world-1`, changed 4 entities to 9 with exactly five
+new Enemies, confirmed pursuit components and real-input following, and
+recorded five binding-only visual additions with no generation required.
+Visual operations remained 8 with 6 ready, 0 active, 0 fallback; manifest
+assets were 13 with 13 generated-origin entries; the final Diff reported
+synchronized semantic, Runtime, asset, and visual stages; and the console was
+clean. The UI does not expose per-entity canonical IDs/URLs, so no unobserved
+identifier is claimed.
+
+## Sprint 28 Fresh Gap Analysis
+
+The bounded thesis passes: Survival Enemy pressure is immediately observable,
+same-session evolution adds exactly five independent Runtime Enemies, all five
+retain target-directed pursuit and follow the Player, and the compatible Enemy
+visual asset is reused without duplicate generation jobs. No additional
+measured Survival gameplay-pressure blocker exists. `SPRINT28_FREEZE_REVIEW` is
+selected; Sprint 29 is not entered automatically.
 
 For active SPA navigation, the current path is `Studio view → application-scoped
 Pinia gameStore/RuntimeWorldStore → Full Observatory view → Studio view`. The

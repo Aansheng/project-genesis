@@ -2,7 +2,8 @@
 
 **Authorization:** Human/CTO decision, 2026-08-28
 **Architecture at authorization:** v1.177
-**Status:** IMPLEMENTATION COMPLETE — Code Complete = YES; Product Verified = PENDING
+**Status:** WO-S28-001 DONE — Code Complete = YES; Product Verified = YES;
+`SPRINT28_FREEZE_REVIEW` selected
 
 ## Product thesis
 
@@ -53,11 +54,10 @@ claim that enemy pursuit has already been manually verified in Studio.
 
 ### WO-S28-001 — Generic Runtime Target-Directed Enemy Pursuit
 
-**Status:** IMPLEMENTED — Code Complete = YES; Product Verified = PENDING human
-recheck of the repaired incremental visual binding
+**Status:** DONE — Code Complete = YES; Product Verified = YES
 **Architecture before:** v1.177
 **Architecture after:** v1.178 — generic target-directed Runtime composition
-implemented; Product Verification remains pending the final human recheck
+implemented and Product Verified
 
 **Measured bottleneck:** Survival has stationary generated enemies. Generic
 Position, Velocity, collision, Health, contact, damage, failure, and Respawn
@@ -155,28 +155,57 @@ already-resolved shared resource to each new entity binding without creating
 duplicate generation work. This is asset binding reuse, not a new visual
 architecture.
 
-**Verification status:** Automated integration proves exact same-world +5
-enemy addition, pursuit/contact composition inheritance, zero duplicate image
-generation, and resolved resource reuse. A post-repair real Studio retry of
-`再加五只怪` returned an invalid provider candidate twice, while the browser
-console remained clean; this provider result is not treated as a product
-failure. Product Verified remains PENDING until Human/CTO confirms the
-repaired visual binding in a successful real session.
+**Final real product verification — 2026-08-28:** PASS. A clean provider-backed
+Studio session generated `world-1` with 4 entities and a ready, visibly applied
+Enemy asset. `再加五只怪` preserved the same world/session and changed the
+Runtime entity count from 4 to 9 with exactly `entity-1` through `entity-5`
+added. All five additions exposed `target-directed-movement` targeting
+`survivor` at speed `1.5`; real ArrowRight input moved the Player from x=80 to
+x=83 to x=86 and the five additions followed to the same target positions.
+The Diff record reports five visual binding additions and explicitly reports
+binding-only execution with no generation required. Visual operation count
+remained 8, with 6 ready, 0 active, 0 fallback; manifest assets were 13 with
+13 generated-origin entries. The canvas continued displaying the generated
+Enemy artwork. The browser console contained no error or warning entries.
 
-**Product verification steps:** In a clean real Studio session, run the exact
-Survival command, inspect actual Runtime Position/Velocity for an Enemy while
-the Player is stationary and after Player movement, observe contact damage and
-Health decrease, verify failed/Game Over and same-session Respawn, then issue
-`再加五只怪` and verify same-world/session identity, exactly +5 entities, and
-the same behavior on the additions. Reload or create the existing Platformer
-world and repeat the established non-regression checks. Record only observed
-Runtime, gameplay, visual, evolution, and console facts; do not infer pursuit
-from prompts or semantic intent alone.
+The full Observatory does not expose the canonical visual ID or resource URL
+per entity; its available binding-only/no-generation evidence, stable operation
+count, synchronized Diff status, and visible canvas result are the applicable
+product evidence. The earlier two invalid provider candidates are recorded as
+recovered provider-path attempts, not as a blocker.
+
+**Product verification steps:** Completed in the clean real Studio session
+above. Contact damage remained the existing contact-start behavior; no damage
+semantics were changed. Platformer / Jump / collision / spatial composition
+were not modified or reopened by this verification.
 
 **Completion report must include:** architecture version before → after,
 created/modified files, real call chain, tests, TypeScript, ESLint, build,
 constraints honored, remaining gaps, manual product verification steps, Code
 Complete, and Product Verified.
 
-**Next gate after this WO:** `SPRINT28_FREEZE_REVIEW` only if the bounded
-thesis and acceptance pass. Sprint 29 is not entered automatically.
+## Sprint 28 Fresh Gap Analysis — 2026-08-28
+
+The Survival Gameplay Pressure thesis passes on the real production path:
+
+`Enemy → approaches current Player → contact threatens Player → Player avoids`
+
+The initial Enemy and all five same-session additions are Runtime entities with
+independent identities. The additions preserve the generic pursuit component,
+follow the Player after real input, and remain in the same `world-1` session.
+The existing contact-start damage behavior is observable and intentionally
+unchanged. Visual evolution records binding-only reuse of the existing Enemy
+asset with no duplicate equivalent image-generation jobs, and the final Diff
+is `SEMANTIC APPLIED · RUNTIME SYNCHRONIZED · ASSET EXECUTION COMPLETED ·
+VISUAL SYNCHRONIZED`.
+
+No additional measured Survival gameplay-pressure blocker exists. The full
+Observatory header still displays the older v1.177/Sprint 27 label, but its
+current world, Runtime, Diff, and asset facts are synchronized; this stale
+metadata projection is not a new gameplay-pressure WO.
+
+**Conclusion:** `SPRINT28_FREEZE_REVIEW` selected. Sprint 29 is not entered
+automatically.
+
+**Next gate after this WO:** `SPRINT28_FREEZE_REVIEW`. Sprint 29 is not entered
+automatically.

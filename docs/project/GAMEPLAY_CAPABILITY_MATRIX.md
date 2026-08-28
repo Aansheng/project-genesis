@@ -1,7 +1,7 @@
 # Gameplay Capability Matrix — Sprint 27 Frozen / Sprint 28 Implemented
 
-Architecture version: v1.178 (Sprint 27 FROZEN; WO-S28-001 implemented;
-final Product Verification pending human visual-binding recheck)
+Architecture version: v1.178 (Sprint 27 FROZEN; WO-S28-001 Product Verified;
+`SPRINT28_FREEZE_REVIEW` selected)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
