@@ -1,7 +1,13 @@
-# Gameplay Capability Matrix — Sprint 30 Frozen / Sprint 31 Freeze Review
+# Gameplay Capability Matrix — Sprint 31 Frozen / Sprint 32 Product Gap Discovery
 
 Architecture version: v1.181 (Sprint 30 FROZEN; WO-S30-001, WO-S31-001, and
-WO-S31-002 Code Complete; Product Verified; `SPRINT31_FREEZE_REVIEW` ready)
+WO-S31-002 Code Complete; Product Verified; Sprint 31 FROZEN; one Sprint 32
+primary WO READY)
+
+Sprint 32 discovery measured a product gap in how the already-supported
+Survival contact offense is initiated and understood. No new gameplay
+capability has been implemented or promoted by this discovery record;
+`WO-S32-001` is the only READY implementation candidate.
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -86,7 +92,8 @@ general Runtime capability.
 - **NOT EXECUTED:** skill/modifier state, score policy, lives,
   checkpoints, enemy AI,
   timers, periodic/wave spawn execution, progression beyond the bounded numeric primitive,
-  failure flow beyond the bounded player failure/respawn slice, property actions,
+  failure flow beyond the bounded player failure/respawn slice, player-directed
+  short-range offense, property actions,
   unrelated rich multi-action transactions, next-level/restart
   behavior, and win/lose orchestration beyond current session-completed truth.
 

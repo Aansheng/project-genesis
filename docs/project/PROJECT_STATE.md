@@ -32,8 +32,9 @@
 **Sprint 28** — Survival Gameplay Pressure (**FROZEN — Code Complete = YES; Product Verified = YES; v1.178**)
 **Sprint 29** — Generic Offensive Interaction (**FROZEN — WO-S29-001 Code Complete = YES; Product Verified = YES; v1.179**)
 **Sprint 30** — Sustained Survival Loop (**FROZEN — WO-S30-001 Code Complete = YES; Product Verified = YES; v1.180**)
-**Sprint 31** — Observatory Truth Consistency (**ACTIVE — WO-S31-001 and WO-S31-002 Code Complete = YES; Product Verified = YES; v1.181; Freeze Review READY**)
-**Current WO** - `SPRINT31_FREEZE_REVIEW` — READY FOR HUMAN/CTO REVIEW; Sprint 32 is not entered
+**Sprint 31** — Observatory Truth Consistency (**FROZEN — WO-S31-001 and WO-S31-002 Code Complete = YES; Product Verified = YES; v1.181; Human/CTO accepted 2026-08-31**)
+**Sprint 32** — Survival Playability Gap (**AUTHORIZED — Product Gap Discovery DONE; `WO-S32-001` READY; v1.181; execution not started**)
+**Current WO** - `WO-S32-001 — Generic Player-Directed Short-Range Offense` — READY; Sprint 33 is not entered
 
 ---
 
@@ -41,14 +42,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180 by the Human/CTO decision on 2026-08-31. Sprint 31 is ACTIVE after the same decision; WO-S31-001 and WO-S31-002 are Code Complete = YES and Product Verified = YES. `SPRINT31_FREEZE_REVIEW` is ready; Sprint 32 is not entered. |
-| Architecture Version | v1.181; the existing Runtime progression store survives Studio route remounts through the app-session `gameStore` composition boundary, and the current Observatory metadata source reports v1.181 / Sprint 31. |
+| Status | Sprint 30 is FROZEN at v1.180 and Sprint 31 is FROZEN at v1.181 by the Human/CTO decision on 2026-08-31. WO-S31-001 and WO-S31-002 are Code Complete = YES and Product Verified = YES. Sprint 32 Product Gap Discovery is DONE and exactly one primary WO is READY; its implementation has not started. |
+| Architecture Version | v1.181; the existing Runtime progression store survives Studio route remounts through the app-session `gameStore` composition boundary, and the current Observatory metadata source reports v1.181 / Sprint 31. Sprint 32 discovery made no architecture change. |
 | Last Completed WO | WO-S31-002 — Current Observatory Metadata Source; Code Complete = YES; Product Verified = YES; v1.181. Sprint 30's last completed WO remains WO-S30-001 at v1.180. |
-| Current User-Visible Behavior | Top-down Survival retains movement, pursuit/contact threat, same-world replenishment, and visual reuse. Runtime progression remains authoritative across Game → Full Observatory → Game navigation: after XP reaches `2 / Level 2`, returning to Game and back to Observatory still shows the same world `world-1`, active gameplay, and `2 / 2`. Full Observatory header/overview now show current `v1.181 / Sprint 31` from the centralized Web metadata source. Platformer remains unchanged. |
+| Current User-Visible Behavior | Top-down Survival retains movement, pursuit/contact threat, same-world replenishment, and visual reuse. The current visible Game control is `Arrow Keys — Move`; no explicit attack affordance exists yet. Runtime progression remains authoritative across Game → Full Observatory → Game navigation: after XP reaches `2 / Level 2`, returning to Game and back to Observatory still shows the same world `world-1`, active gameplay, and `2 / 2`. Full Observatory header/overview show current `v1.181 / Sprint 31` from the centralized Web metadata source. Platformer remains unchanged. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → Runtime system registry / `DefaultRuntimeExecutionLoop` → `ENTITY_CONTACT_STARTED` / `ENTITY_REMOVED` facts → post-system GameplayRuleExecutor → trusted `SPAWN_ENTITY` → immutable `WorldMutator.addEntity` → Runtime WorldStore → binding-only visual manifest projection → RuntimeRendererAdapter → Pixi Renderer → current Observatory data projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | Sprint 30 has no remaining blocker and is frozen. Sprint 31 has no remaining implementation or selected product-truth blocker; its Human/CTO freeze decision is pending at `SPRINT31_FREEZE_REVIEW`. The partial image queue and unproduced Runtime Stats system/event/FPS metrics remain outside the bounded Sprint 31 scope. No persistence or legacy Observatory reconnection is authorized. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS — real Studio generated Survival, retained `world-1`, reached active XP/Level `2/2`, showed `v1.181 / Sprint 31` in Full Observatory, preserved world/session/progression across repeated Game ↔ Observatory navigation, and returned empty browser error/warning diagnostics. Sprint 31 Freeze Review is ready. |
-| Next Recommended Verification | Human/CTO review `SPRINT31_FREEZE_REVIEW` at v1.181. Do not enter Sprint 32 automatically. |
+| Current Blocking Issue | Sprint 30 and Sprint 31 are frozen with no remaining implementation blocker. Sprint 32 discovery measured the first user-visible blocker as contact-only Survival offense: there is no explicit attack affordance, contact damage is symmetric risk/offense, and repeated independent combat is unclear. `WO-S32-001` is READY to address only that bounded slice. Image queue and unproduced Runtime Stats fields remain deferred/non-blocking. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS — real Studio generated Survival, retained `world-1`, reached active XP/Level `2/2`, showed `v1.181 / Sprint 31` in Full Observatory, preserved world/session/progression across repeated Game ↔ Observatory navigation, and returned empty browser error/warning diagnostics. Sprint 31: FROZEN. Sprint 32 discovery: PASS; no Sprint 32 code Product Verification has been claimed. |
+| Next Recommended Verification | Execute only the READY `WO-S32-001` in a later bounded step. Re-run real Survival Product Verification and Observatory regression; do not generate a second Sprint 32 feature WO or enter Sprint 33. |
 
 ## Sprint 31 Observatory Truth Consistency Snapshot
 
@@ -87,8 +88,37 @@ an empty browser error/warning query.
 
 Fresh Sprint 31 Gap Analysis: **PASS**. Runtime progression and current
 architecture/Sprint metadata both project truthfully through Full Observatory.
-`SPRINT31_FREEZE_REVIEW` is selected for Human/CTO review; Sprint 31 is not
-marked FROZEN and Sprint 32 is not entered automatically.
+Human/CTO accepted the Sprint 31 freeze at v1.181 on 2026-08-31. Sprint 32
+Product Gap Discovery was then authorized; no implementation was entered by
+this freeze decision alone.
+
+## Sprint 32 Survival Playability Gap Snapshot
+
+Human/CTO authorized Sprint 32 Product Gap Discovery after freezing Sprint 31
+at v1.181. A fresh real Studio play session used `生成一个幸存者游戏` and
+observed active deterministic-fallback `world-1` with six entities.
+
+The first largest user-visible blocker is the current contact-only Survival
+offense. The only visible Game control is `Arrow Keys — Move`; before any
+explicit attack action, Player/Enemy contact changed Enemy Health `100 → 75`
+and Player Health `100 → 99` at the same position. Directional movement and
+target-directed pursuit kept the pair co-located in the observed session. A
+replacement Enemy preserved Runtime composition and active-session continuity,
+but resumed pressure at the Player's position. Observatory later showed
+`经验值: 1 / 等级: 2` and `经验值: 2 / 等级: 2`, while the Game surface showed
+no attack or progression affordance.
+
+The source audit confirmed that Position, Health, target-directed movement,
+Runtime ticks, existing `DAMAGE_ENTITY`, and the generic Rule path are already
+available. There is no nearest/range selector or attack input fact; no projectile
+or timer is required for the smallest measured fix.
+
+Exactly one primary WO was generated: `WO-S32-001 — Generic Player-Directed
+Short-Range Offense`, READY and not executed. It may reuse the existing `Space`
+input in the top-down composition, choose a deterministic nearby target, and
+reuse trusted Runtime damage. Weapon systems, projectiles, waves, timers,
+scaling, upgrades, XP redesign, and separate pacing work are not authorized by
+this discovery step.
 
 ## Sprint 30 Sustained Survival Loop Snapshot
 

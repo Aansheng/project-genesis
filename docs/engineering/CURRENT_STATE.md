@@ -3,24 +3,51 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.181 (Sprint 30 frozen; Sprint 31 WO-S31-001 and WO-S31-002 complete, Product Verified; freeze review ready)
-current_sprint: Sprint 31 (Observatory Truth Consistency)
-current_work_order: SPRINT31_FREEZE_REVIEW
-current_work_order_status: READY FOR HUMAN/CTO REVIEW
-current_control_plane_work_order: SPRINT31_FREEZE_REVIEW
-current_control_plane_work_order_status: READY FOR HUMAN/CTO REVIEW
+architecture_version: v1.181 (Sprint 31 frozen; Sprint 32 Product Gap Discovery complete; one primary WO ready)
+current_sprint: Sprint 32 (Survival Playability Gap)
+current_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
+current_work_order_status: READY — execution not started
+current_control_plane_work_order: SPRINT32_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE
 last_completed_work_order: WO-S31-002 — Current Observatory Metadata Source
 last_completed_product_work_order: WO-S31-002
-last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: NONE — SPRINT31_FREEZE_REVIEW pending Human/CTO decision
-product_architecture_changed: YES — v1.180 → v1.181
-sprint_status: Sprint 30 is FROZEN at v1.180 by Human/CTO decision on 2026-08-31.
-  Sprint 31 is AUTHORIZED; its initial audit selected exactly one bounded
-  progression WO and one metadata WO; both are now complete and the Sprint 31
-  Freeze Review is READY FOR HUMAN/CTO REVIEW.
+last_completed_control_plane_work_order: SPRINT32_PRODUCT_GAP_DISCOVERY
+next_ready_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
+product_architecture_changed: NO — Sprint 32 discovery only; implementation remains pending
+sprint_status: Sprint 30 is FROZEN at v1.180 and Sprint 31 is FROZEN at v1.181
+  by Human/CTO decision on 2026-08-31. Sprint 32 is AUTHORIZED for Product Gap
+  Discovery; discovery is complete and exactly one primary product WO is READY.
 code_complete: YES for WO-S31-001 and WO-S31-002; product_verified: YES for
-  WO-S31-001 and WO-S31-002; Sprint 31 Freeze Review is ready for Human/CTO
-  decision
+WO-S31-001 and WO-S31-002; Sprint 32 WO-S32-001 is READY and not executed
+
+## Sprint 32 Product Gap Discovery and selected primary WO
+
+Human/CTO froze Sprint 31 at v1.181 and authorized Sprint 32 Product Gap
+Discovery on 2026-08-31. The real Studio session used
+`生成一个幸存者游戏`, produced active deterministic-fallback `world-1`, and
+was exercised through movement plus multiple same-session gameplay/lifecycle
+cycles.
+
+The first user-visible blocker is a **PRODUCT_GAP in intentional offensive
+interaction**. The Game surface exposes only `Arrow Keys — Move`; the first
+Enemy contact observed without an explicit attack changed Enemy Health
+`100 → 75` while Player Health changed `100 → 99`; Player and Enemy then
+remained co-located under target-directed pursuit. Repeated damage was only
+observable through route-remount lifecycle cycles, not through a clear player
+attack action. A replacement Enemy preserved the active session and component
+composition but resumed pressure at the Player's position.
+
+The source audit confirms that the smallest generic alternative can reuse the
+existing `Space` input, Runtime Position/Health, deterministic target selection,
+and trusted `DAMAGE_ENTITY` action. There is no current nearest/range selector,
+attack input fact, or projectile requirement. Timers, waves, projectiles,
+upgrades, scaling, and a Survival-specific combat system are explicitly outside
+the selected slice.
+
+Exactly one next WO is generated:
+`WO-S32-001 — Generic Player-Directed Short-Range Offense`, READY for execution
+in a later step. This discovery step does not execute it, enter Sprint 33, or
+change the architecture version.
 
 ## Sprint 31 Gap Analysis, completed WOs, and selected freeze review
 
@@ -57,8 +84,9 @@ Fresh Sprint 31 Gap Analysis: **PASS**. Runtime progression and current
 architecture/Sprint metadata both project truthfully through Full Observatory.
 The partial image queue and the unproduced Runtime Stats system/event/FPS
 metrics remain deferred, non-blocking observations inherited from Sprint 30.
-`SPRINT31_FREEZE_REVIEW` is selected and ready for Human/CTO decision; no
-Sprint 32 work is authorized automatically.
+Sprint 31 is now FROZEN at v1.181 by Human/CTO decision. Sprint 32 Product Gap
+Discovery is authorized and complete; `WO-S32-001` is the only READY primary
+WO. No implementation was performed in the discovery step.
 
 ## Sprint 30 Gap Analysis and selected blocker
 
@@ -639,10 +667,7 @@ product-level prioritization:
 
 - AI_GENERATION_CAPABILITY_MATRIX.md has an older v1.123 header.
 - VISUAL_CAPABILITY_MATRIX.md has an older v1.149 header.
-- `apps/web/src/projectMetadata.ts` projects `v1.164` / `Sprint 18` after the
-  bounded Ground repeat-consumption repair. The older
-  AI/visual capability matrices remain projection debt.
-  `AI_GENERATION_CAPABILITY_MATRIX.md` and `VISUAL_CAPABILITY_MATRIX.md`
+- `AI_GENERATION_CAPABILITY_MATRIX.md` and `VISUAL_CAPABILITY_MATRIX.md`
   still carry older architecture headers; those remain projection debt and
   are not the current visual product bottleneck.
 
@@ -651,6 +676,23 @@ and the current gameplay matrix. Update those older matrix headers in their
 own capability-focused work item rather than broadening WO-META-003.
 
 ## Current product gaps
+
+Fresh Sprint 32 Product Gap Discovery (2026-08-31):
+
+- **Selected PRODUCT_GAP:** Survival offense is contact-only in the current
+  product. The visible Game surface does not expose an attack input; the first
+  Enemy damage is an automatic contact side effect that also damages the
+  Player, and same-position replacement pressure makes the interaction
+  ambiguous. This is the first largest user-visible blocker.
+- **Secondary PRODUCT_GAP:** replacement placement/pacing is awkward because a
+  Runtime-only replacement can resume at the Player's current position. It is
+  not a separate WO; it will be reassessed after offensive agency is usable.
+- **Secondary PRODUCT_GAP:** XP/Level reaches `1/2` and `2/2` in Observatory,
+  but the Game surface shows no visible consequence. It is not selected before
+  the user can intentionally defeat an Enemy.
+- **Selected next WO:** `WO-S32-001 — Generic Player-Directed Short-Range
+  Offense` is READY, with implementation and Product Verification pending.
+  No code, ADR, or Sprint 33 work is authorized by this discovery record.
 
 Fresh post-WO-S17-002 Gap Analysis (2026-08-24):
 
@@ -750,8 +792,10 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Perform fresh product-level prioritization across the six Problem Register
-items. Require explicit Human/CTO authorization before entering Sprint 20.
+Execute the single READY `WO-S32-001` in a later bounded step. Its Product
+Verification must use a real Survival session, preserve Runtime/Observatory
+truth and current metadata, and stop if the measured first blocker changes.
+Do not generate a second Sprint 32 feature WO or enter Sprint 33.
 
 ## Authority
 

@@ -1,5 +1,23 @@
 # Changelog
 
+### Sprint 31 Freeze + Sprint 32 Product Gap Discovery (2026-08-31)
+
+- Human/CTO froze Sprint 31 at architecture v1.181. WO-S31-001 and
+  WO-S31-002 remain DONE with Code Complete = YES, Product Verified = YES,
+  and Fresh Sprint 31 Gap Analysis = PASS.
+- Sprint 32 — Survival Playability Gap is authorized to begin with Product Gap
+  Discovery. A fresh real Studio session using `生成一个幸存者游戏` produced
+  active deterministic-fallback `world-1`; the visible Game surface exposed
+  only `Arrow Keys — Move`, and the first contact changed Enemy Health
+  `100 → 75` while Player Health changed `100 → 99` without an explicit attack.
+- The highest-priority measured blocker is contact-only, non-discoverable
+  Player offense. Replacement pressure and XP/Level meaning are secondary
+  observations; waves, timers, projectiles, and scaling were not preselected.
+- Exactly one next work order was generated:
+  `WO-S32-001 — Generic Player-Directed Short-Range Offense`, READY but not
+  executed. No Sprint 33 entry or Sprint 32 implementation occurred in the
+  discovery step.
+
 ### Sprint 31 — WO-S31-002 Current Observatory Metadata Source (v1.181)
 
 - Source tracing confirmed that `apps/web/src/projectMetadata.ts` is the
@@ -11,14 +29,15 @@
   Observatory store owns only local selection/status UI state. Production route
   regression covers `App → router → /observatory` display and repeated Game ↔
   Observatory navigation, with a guard against the stale current-state values.
-- Web tests 50/3566, Web TypeScript, package ESLint (0 errors; existing
+- Web tests 50/3565, Web TypeScript, package ESLint (0 errors; existing
   warnings only), Web build, and `git diff --check` pass. Real Chrome Studio
   verification retained `world-1`, reached active `经验值: 2 / 等级: 2`, showed
   `v1.181 / Sprint 31` before and after navigation, and returned no browser
   errors or warnings.
 - `WO-S31-002` is DONE with Code Complete = YES and Product Verified = YES.
-  Fresh Sprint 31 Gap Analysis is PASS; `SPRINT31_FREEZE_REVIEW` is selected
-  for Human/CTO review. Sprint 32 is not entered automatically.
+  Fresh Sprint 31 Gap Analysis is PASS; `SPRINT31_FREEZE_REVIEW` was selected
+  for Human/CTO review. Sprint 32 was not entered automatically and was later
+  authorized by the separate Human/CTO decision recorded above.
 
 ### Sprint 30 Freeze + Sprint 31 Authorization (2026-08-31)
 
@@ -44,7 +63,7 @@
   while projecting XP/Level across Game → Full Observatory → Game. A real
   Survival session showed `1 / 2` after the first defeat and `2 / 2` after
   returning to Game, continuing, and re-entering Observatory.
-- Runtime tests 25/705 and Web tests 50/3566 passed. Runtime/Web TypeScript,
+- Runtime tests 25/705 and Web tests 50/3565 passed. Runtime/Web TypeScript,
   package Lint (existing warnings only), Web build, and diff hygiene passed;
   browser error/warning diagnostics were empty.
 - `WO-S31-001` is DONE with Code Complete = YES and Product Verified = YES.

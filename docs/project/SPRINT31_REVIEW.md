@@ -2,8 +2,8 @@
 
 Review date: 2026-08-31
 Architecture: v1.181
-Status: **READY FOR HUMAN/CTO REVIEW**
-Authority: Human/CTO freeze decision pending
+Status: **FROZEN**
+Authority: Human/CTO freeze decision accepted on 2026-08-31
 
 ## Decision boundary
 
@@ -15,8 +15,9 @@ application path:
 
 `WO-S31-001 — Runtime Progression Projection Across SPA Navigation` and
 `WO-S31-002 — Current Observatory Metadata Source` are DONE with Code Complete
-= YES and Product Verified = YES. This review does not authorize Sprint 32 or
-any new product scope.
+= YES and Product Verified = YES. Human/CTO accepted the Sprint 31 freeze at
+v1.181 and separately authorized Sprint 32 Product Gap Discovery. No Sprint 32
+implementation is authorized by this review.
 
 ## WO-S31-002 result
 
@@ -40,7 +41,7 @@ separate from engineering/build metadata.
   the header and Overview. It also guards against `v1.177 / Sprint 27`.
 - The same route regression returns to Game and re-enters Observatory with the
   same Runtime world.
-- Web tests: 50 files / 3566 tests passed.
+- Web tests: 50 files / 3565 tests passed.
 - Web TypeScript passed.
 - Web package ESLint passed with 0 errors and the repository's existing
   warnings.
@@ -82,8 +83,17 @@ claimed as live metrics here. Persistence, refresh recovery, metadata
 services/managers, legacy reconnection, visual redesign, and Sprint 32 work
 remain outside this review.
 
-## Human/CTO decision required
+## Freeze outcome
 
-Human/CTO may accept the Sprint 31 freeze at v1.181 or provide a new bounded
-direction. Until that decision, Sprint 31 remains ACTIVE and the Supervisor
-must not silently freeze it or enter Sprint 32.
+Human/CTO accepted the Sprint 31 freeze at v1.181 on 2026-08-31:
+
+- Sprint 31: **FROZEN = YES**
+- `WO-S31-001`: **DONE**, Code Complete = YES, Product Verified = YES
+- `WO-S31-002`: **DONE**, Code Complete = YES, Product Verified = YES
+- Fresh Sprint 31 Gap Analysis: **PASS**
+- Sprint 32: **AUTHORIZED for Product Gap Discovery only at this boundary**
+
+The resulting real Survival discovery is recorded in
+[`SPRINT32_PRODUCT_GAP_DISCOVERY.md`](SPRINT32_PRODUCT_GAP_DISCOVERY.md).
+Sprint 31 documentation is finalized; no Sprint 33 entry or Sprint 32 product
+implementation is implied by the freeze.

@@ -3,8 +3,8 @@
 **Authorization:** Human/CTO decision, 2026-08-31
 **Architecture at authorization:** v1.180
 **Current architecture:** v1.181
-**Status:** ACTIVE — WO-S31-001 and WO-S31-002 DONE; Sprint 31 Freeze
-Review READY FOR HUMAN/CTO REVIEW
+**Status:** FROZEN — WO-S31-001 and WO-S31-002 DONE; Code Complete = YES;
+Product Verified = YES; Human/CTO accepted freeze at v1.181 on 2026-08-31
 
 ## Product goal
 
@@ -117,7 +117,7 @@ passes that store into each new execution loop. The focused SPA regression
 captures both remounted loops and proves that each reports the committed
 `experience=2, level=2` state.
 
-Runtime tests passed: 25 files / 705 tests. Web tests passed: 50 files / 3566
+Runtime tests passed: 25 files / 705 tests. Web tests passed: 50 files / 3565
 tests. Runtime and Web TypeScript checks passed; package Lint passed with the
 repository's existing warnings and no errors; Web build passed; `git diff
 --check` passed.
@@ -133,8 +133,7 @@ error/warning diagnostics returned `[]`.
 ## Post-WO Fresh Gap Analysis
 
 **Result:** PASS — both measured Sprint 31 Observatory truth blockers are
-closed; Sprint 31 remains ACTIVE only because its freeze decision is a human
-review gate.
+closed; Human/CTO subsequently accepted the freeze at v1.181.
 
 The route sequence proves that the current Runtime progression flows through
 the existing Web projection into Observatory without reset. The same route now
@@ -146,8 +145,9 @@ The image queue's partial readiness remains a truthful non-blocking observation
 from Sprint 30; the Runtime Stats system/event/FPS fields also remain zero
 because their producers are outside this bounded slice. Neither is selected as
 a Sprint 31 blocker. No persistence, metadata framework, or legacy
-reconnection is needed. `SPRINT31_FREEZE_REVIEW` is now selected; Sprint 32 is
-not entered automatically.
+reconnection is needed. `SPRINT31_FREEZE_REVIEW` was selected and is now DONE;
+Sprint 32 Product Gap Discovery is separately authorized and recorded in
+`SPRINT32_BACKLOG.md`.
 
 ## WO-S31-002 — Current Observatory Metadata Source
 
@@ -207,7 +207,7 @@ values with `PROJECT_METADATA`, while guarding against the historical
 `v1.177 / Sprint 27` values. The test also returns to Game and re-enters
 Observatory with the same world.
 
-Web tests passed: 50 files / 3566 tests. Web TypeScript, package ESLint (0
+Web tests passed: 50 files / 3565 tests. Web TypeScript, package ESLint (0
 errors; existing warnings only), Web build, and `git diff --check` passed.
 
 Real Chrome Studio Product Verification on 2026-08-31 used the exact request
@@ -218,13 +218,14 @@ Enemy defeat/replacement cycles reached Full Observatory Runtime state
 the same world/session and the same Runtime progression. Browser
 error/warning diagnostics returned `[]`.
 
-## Sprint 31 Freeze Question
+## Sprint 31 Freeze Outcome
 
 Both current gameplay progression and current architecture/Sprint metadata now
 project truthfully through the Full Observatory, with no mock or stale current
-authority observed. `SPRINT31_FREEZE_REVIEW` is selected for Human/CTO review.
-Sprint 31 is not yet marked FROZEN, and Sprint 32 must not be entered
-automatically.
+authority observed. Human/CTO accepted `SPRINT31_FREEZE_REVIEW` and froze
+Sprint 31 at v1.181 on 2026-08-31. Sprint 32 is authorized to begin with
+Product Gap Discovery; no Sprint 32 implementation is executed by this
+freeze record.
 
 ## Explicit non-goals
 
