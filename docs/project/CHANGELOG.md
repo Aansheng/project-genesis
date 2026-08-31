@@ -1,5 +1,27 @@
 # Changelog
 
+### Sprint 29 Freeze + Sprint 30 WO-S30-001 Code Complete (v1.179 → v1.180)
+
+- Human/CTO froze Sprint 29 at v1.179 with WO-S29-001 Code Complete = YES,
+  Product Verified = YES, and Fresh Gap Analysis PASS.
+- Sprint 30 source Gap Analysis answered all ten questions and selected exactly
+  one smallest blocker: trusted generic `SPAWN_ENTITY` execution with reusable
+  Runtime composition and binding-only visual identity. Existing ticks and
+  `ENTITY_REMOVED` facts are sufficient; timers, counts, and waves are not.
+- WO-S30-001 composes one health-zero Enemy removal fact into one deterministic
+  Runtime-only replacement via `WorldMutator.addEntity()`. The replacement
+  receives Position, Health, collision, target-directed pursuit, contact
+  pressure/offense compatibility, and the canonical Enemy visual without a
+  provider or image-generation call.
+- Full Shared 211, AI 9430, Runtime 705, Renderer 499, and Web 3565 tests,
+  all package TypeScript checks, package ESLint (zero errors), Web build, and
+  `git diff --check` pass. Root Turbo lint is environment-blocked by missing
+  TLS keychain initialization.
+- Code Complete = YES. Real provider-backed Studio Product Verification is
+  PENDING MANUAL because the in-app browser session was reaped and fresh local
+  navigation was denied by browser security review; Sprint 30 Freeze Review is
+  not selected and Sprint 31 is not entered.
+
 ### Sprint 28 Freeze + Sprint 29 WO-S29-001 Complete (v1.178 → v1.179)
 
 - Human/CTO froze Sprint 28 at v1.178 with WO-S28-001 Code Complete = YES,

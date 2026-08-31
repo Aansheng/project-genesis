@@ -25,6 +25,13 @@ export { DefaultRuntimeGameplayEventCollector } from './events'
 export type { WorldMutator, WorldMutationResult } from './mutation'
 export { DefaultWorldMutator } from './mutation'
 
+// Narrow Runtime entity composition shared by semantic evolution and gameplay creation
+export {
+  createComposedRuntimeEntity,
+  findSafeRuntimeEntityPosition,
+  runtimeEntityPosition,
+} from './composition'
+
 // Runtime Gameplay Systems
 export type { MovementSystem, MovementSystemResult } from './systems'
 export { DefaultMovementSystem } from './systems'

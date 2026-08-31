@@ -1,13 +1,6 @@
 import {
-  createDefaultCollisionBoundsForType,
-  createDefaultHealthComponentForType,
-  createPositionComponent,
-  createTargetDirectedMovementComponent,
-  DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED,
   type Entity,
   type EntityCategory,
-  type WorldType,
-  type RuntimeComponent,
   type RuntimeEvolutionFailureReason,
   type RuntimeEvolutionResult,
   type RuntimeEvolutionSynchronizationOptions,
@@ -16,19 +9,13 @@ import {
   type SemanticWorldMutationResult,
   type World,
 } from '@genesis/shared'
+import {
+  createComposedRuntimeEntity,
+  findSafeRuntimeEntityPosition,
+  runtimeEntityPosition,
+} from '../composition'
 
 const SEMANTIC_COMPONENT_TYPE = 'semantic'
-const POSITION_COMPONENT_TYPE = 'position'
-const GROUND_Y = 400
-
-const CATEGORY_X: Readonly<Record<string, number>> = Object.freeze({
-  npc: 100,
-  enemy: 120,
-  terrain: 160,
-  building: 260,
-  item: 360,
-  quest: 440,
-})
 
 interface SemanticFacts {
   readonly name?: string
@@ -49,16 +36,6 @@ function freezeWorld(entities: readonly Entity[]): World {
   }) as unknown as World
 }
 
-function positionOf(entity: Entity): Readonly<{ x: number; y: number }> | undefined {
-  for (const component of entity.components ?? []) {
-    if (component.type !== POSITION_COMPONENT_TYPE) continue
-    const x = component.properties.x
-    const y = component.properties.y
-    if (typeof x === 'number' && typeof y === 'number') return Object.freeze({ x, y })
-  }
-  return undefined
-}
-
 function semanticFactsOf(entity: Entity): SemanticFacts | undefined {
   const component = entity.components?.find(item => item.type === SEMANTIC_COMPONENT_TYPE)
   if (!component) return undefined
@@ -67,16 +44,6 @@ function semanticFactsOf(entity: Entity): SemanticFacts | undefined {
     ? component.properties.category as EntityCategory
     : undefined
   return name || category ? { name, category } : undefined
-}
-
-function semanticComponent(
-  name: string,
-  category: EntityCategory,
-): RuntimeComponent {
-  return Object.freeze({
-    type: SEMANTIC_COMPONENT_TYPE,
-    properties: Object.freeze({ category, name }),
-  })
 }
 
 function replaceSemantic(
@@ -110,74 +77,6 @@ function replaceSemantic(
   }) as unknown as Entity
 }
 
-function entityWithSemantic(
-  id: string,
-  category: EntityCategory,
-  name: string,
-  position: Readonly<{ x: number; y: number }>,
-  worldType: WorldType,
-  targetEntityId: string | undefined,
-): Entity {
-  const collisionBounds = createDefaultCollisionBoundsForType(category)
-  const health = worldType === 'survival' ? createDefaultHealthComponentForType(category) : undefined
-  const targetDirectedMovement = worldType === 'survival' && category === 'enemy' && targetEntityId
-    ? createTargetDirectedMovementComponent(targetEntityId, DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED)
-    : undefined
-  return Object.freeze({
-    id,
-    type: category,
-    // DefaultRuntimeProjection intentionally keeps these legacy scalar
-    // fields at zero; rendering and gameplay read the position component.
-    x: 0,
-    y: 0,
-    components: Object.freeze([
-      semanticComponent(name, category),
-      createPositionComponent(position.x, position.y),
-      ...(health ? [health] : []),
-      ...(collisionBounds ? [collisionBounds] : []),
-      ...(targetDirectedMovement ? [targetDirectedMovement] : []),
-    ]),
-  }) as unknown as Entity
-}
-
-function positionKey(position: Readonly<{ x: number; y: number }>): string {
-  return `${position.x}:${position.y}`
-}
-
-function hash(value: string): number {
-  let result = 2166136261
-  for (let index = 0; index < value.length; index += 1) {
-    result ^= value.charCodeAt(index)
-    result = Math.imul(result, 16777619)
-  }
-  return result >>> 0
-}
-
-/**
- * Pick one deterministic free slot for one added entity.
- * Existing positions are only read; no world-wide layout is regenerated.
- */
-function safePosition(world: readonly Entity[], id: string, category: EntityCategory): Readonly<{ x: number; y: number }> {
-  const occupied = new Set<string>()
-  for (const entity of world) {
-    const position = positionOf(entity)
-    if (position) occupied.add(positionKey(position))
-  }
-
-  const baseX = CATEGORY_X[category] ?? 520
-  const baseY = category === 'building' ? 304 : category === 'item' || category === 'quest' ? 384 : GROUND_Y
-  const step = category === 'building' ? 112 : 72
-  const start = hash(id) % 6
-
-  for (let offset = 0; offset < 100; offset += 1) {
-    const slot = (start + offset) % 100
-    const candidate = Object.freeze({ x: baseX + slot * step, y: baseY })
-    if (!occupied.has(positionKey(candidate))) return candidate
-  }
-
-  return Object.freeze({ x: baseX, y: baseY })
-}
-
 function preservedFacts(
   previousWorld: World,
   updatedWorld: World,
@@ -187,7 +86,7 @@ function preservedFacts(
   for (const entity of previousWorld.entities) {
     const updated = updatedById.get(entity.id)
     if (!updated) continue
-    const position = positionOf(entity)
+    const position = runtimeEntityPosition(entity)
     facts.push(Object.freeze({
       entityId: entity.id,
       componentTypes: Object.freeze((entity.components ?? []).map(component => component.type)),
@@ -319,15 +218,14 @@ export class DefaultRuntimeWorldEvolutionSynchronizer
           if (!semantic || working.entities.some(entity => entity.id === semantic.id)) {
             return failure(runtimeWorld, semanticMutation, previousRevision, 'duplicate_entity_id')
           }
-          const position = safePosition(working.entities, semantic.id, semantic.category)
-          working.entities.push(entityWithSemantic(
-            semantic.id,
-            semantic.category,
-            semantic.name,
+          const position = findSafeRuntimeEntityPosition(working.entities, semantic.id, semantic.category)
+          working.entities.push(createComposedRuntimeEntity({
+            id: semantic.id,
+            semanticEntity: semantic,
             position,
-            semanticMutation.updatedWorld.worldType,
-            targetEntityId,
-          ))
+            worldType: semanticMutation.updatedWorld.worldType,
+            ...(targetEntityId ? { targetEntityId } : {}),
+          }))
           working.addedEntityIds.push(semantic.id)
           working.affectedEntityIds.push(semantic.id)
           touched.add(semantic.id)

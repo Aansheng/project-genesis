@@ -29,7 +29,7 @@ export type GameplayEntitySelector =
 export type GameplayNumericOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
 
 export type GameplayNumericReference =
-  | { readonly kind: 'eventPayload'; readonly key: 'x' | 'y' | 'velocityX' | 'velocityY' | 'amount' }
+  | { readonly kind: 'eventPayload'; readonly key: 'x' | 'y' | 'velocityX' | 'velocityY' | 'amount' | 'health' }
   | { readonly kind: 'entityProperty'; readonly entity: GameplayEntitySelector; readonly property: 'x' | 'y' | 'velocityX' | 'velocityY' | 'health' }
   | { readonly kind: 'gameState'; readonly key: string }
 

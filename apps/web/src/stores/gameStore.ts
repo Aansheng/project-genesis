@@ -28,6 +28,7 @@ import { BrowserStructuredGenerationClient } from '../ai/BrowserStructuredGenera
 import { BrowserImageGenerationClient } from '../ai/BrowserImageGenerationClient'
 import { buildImageGenerationRequest, groupAiGenerationRequirements } from '../assets/AssetGenerationPolicy'
 import { buildGeneratedAssetManifest, createPendingImageGenerationOperation, finishImageGenerationOperation } from '../assets/GeneratedAssetOrchestrator'
+import { synchronizeRuntimeVisualBindings as buildRuntimeVisualBindings } from '../assets/RuntimeVisualBinding'
 import { VisualAssetGenerationScheduler } from '../assets/VisualAssetGenerationScheduler'
 import { DefaultVisualEvolutionPlanner } from '../assets/VisualEvolutionPlanner'
 import { VisualAssetEvolutionExecutor } from '../assets/VisualAssetEvolutionExecutor'
@@ -631,6 +632,22 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  function synchronizeRuntimeVisualBindings(): void {
+    const specification = assetSpecificationState.value
+    const currentSemanticWorld = semanticWorld.value
+    if (!specification || !currentSemanticWorld) return
+    const next = buildRuntimeVisualBindings({
+      manifest: assetManifest.value,
+      specification,
+      semanticWorld: currentSemanticWorld,
+      runtimeWorld: worldStore.getWorld(),
+    })
+    if (next === assetManifest.value) return
+    assetManifest.value = next
+    assetManifestRevision.value += 1
+    markWorldUpdated()
+  }
+
   function recordRuntimeGameplaySessionState(state: RuntimeGameplaySessionState): void {
     gameplaySessionState.value = Object.freeze({ ...state })
   }
@@ -1220,6 +1237,7 @@ export const useGameStore = defineStore('game', () => {
     selectedEntity,
     selectEntity,
     markWorldUpdated,
+    synchronizeRuntimeVisualBindings,
     log,
     commandStatus,
     lastCommand,

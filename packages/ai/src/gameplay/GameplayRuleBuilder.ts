@@ -296,6 +296,26 @@ function deterministicRules(
     ))
   }
 
+  if (world.worldType === 'survival' && enemy && hasMechanic(specification, 'enemy-spawn')) {
+    rules.push(rule(
+      'survival-enemy-replenishment',
+      'Survival enemy replenishment',
+      'enemy-spawn',
+      [Object.freeze({
+        type: 'NUMBER_COMPARE',
+        value: Object.freeze({ kind: 'eventPayload' as const, key: 'health' as const }),
+        operator: 'lte' as const,
+        expected: 0,
+      })],
+      [Object.freeze({ type: 'SPAWN_ENTITY', entity: Object.freeze({ category: 'enemy' }) })],
+      'all',
+      Object.freeze({
+        eventType: 'ENTITY_REMOVED',
+        target: Object.freeze({ kind: 'category', category: 'enemy' }),
+      }),
+    ))
+  }
+
   return Object.freeze(rules)
 }
 

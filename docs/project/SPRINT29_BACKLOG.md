@@ -2,8 +2,8 @@
 
 **Authorization:** Human/CTO decision, 2026-08-28  
 **Architecture at authorization:** v1.178  
-**Status:** WO-S29-001 DONE — Code Complete = YES; Product Verified = YES;
-`SPRINT29_FREEZE_REVIEW` selected
+**Status:** FROZEN — WO-S29-001 DONE; Code Complete = YES; Product Verified =
+YES; `SPRINT29_FREEZE_REVIEW` accepted
 
 ## Product goal
 
@@ -145,7 +145,8 @@ No immediate blocker requires timed/ranged attacks, nearest-target selection,
 projectiles, spawning/waves, animation, inventory, or an ability framework.
 Those remain future measured capabilities.
 
-**Conclusion:** `SPRINT29_FREEZE_REVIEW` selected. Do not enter Sprint 30.
+**Conclusion:** `SPRINT29_FREEZE_REVIEW` accepted by Human/CTO. Sprint 30 is
+separately authorized; this backlog remains the historical Sprint 29 record.
 
 ## Explicit deferred gaps
 

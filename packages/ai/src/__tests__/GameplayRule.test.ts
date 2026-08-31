@@ -70,7 +70,7 @@ describe('GameplayRule foundation', () => {
         { type: 'ENTITY_ID_EQUALS', entity: selector('eventTarget'), entityId: 'goal' },
       ]),
       candidate('question-block-reward', [
-        { type: 'SPAWN_ENTITY', entity: { category: 'item', archetype: 'Reward' } },
+        { type: 'SPAWN_ENTITY', entity: { category: 'item', archetype: 'Coin' } },
         { type: 'SET_ENTITY_PROPERTY', target: selector('eventTarget'), property: 'activated', value: true },
       ], [
         { type: 'ENTITY_CATEGORY_EQUALS', entity: selector('eventActor'), category: 'player' },
@@ -156,6 +156,7 @@ describe('GameplayRule foundation', () => {
       'survival-enemy-defeat',
       'survival-level-up-at-experience-threshold',
       'survival-enemy-contact',
+      'survival-enemy-replenishment',
     ])
     expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-contact-offense')).toMatchObject({
       supportStatus: 'supported',
@@ -176,6 +177,12 @@ describe('GameplayRule foundation', () => {
       expected: 0,
     })
     expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-enemy-contact')?.sourceMechanicId).toBe('enemy-side-damage')
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-enemy-replenishment')).toMatchObject({
+      supportStatus: 'supported',
+      trigger: { eventType: 'ENTITY_REMOVED', target: { kind: 'category', category: 'enemy' } },
+      conditions: [{ type: 'NUMBER_COMPARE', value: { kind: 'eventPayload', key: 'health' }, operator: 'lte', expected: 0 }],
+      actions: [{ type: 'SPAWN_ENTITY', entity: { category: 'enemy' } }],
+    })
   })
 
   it('normalizes IDs and rejects unknown events, actions, exact references, and code', () => {
@@ -213,6 +220,7 @@ describe('GameplayRule foundation', () => {
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'condition-number-compare')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-apply-velocity')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-damage-entity')?.status).toBe('supported')
+    expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-spawn-entity')?.status).toBe('supported')
     expect(context).not.toHaveProperty('runtimeHistory')
     expect(context).not.toHaveProperty('pixi')
   })

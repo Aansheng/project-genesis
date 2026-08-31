@@ -110,9 +110,11 @@ is frozen at v1.157 with its accepted product thesis complete.
 ## Deferred direction
 
 Skills, modifiers, score policy, game-over/lives/checkpoints, enemy behavior,
-timers, spawning, waves, richer rule actions, durable history, and broader
+timers, periodic spawning, waves, richer rule actions, durable history, and broader
 context systems stay deferred until a concrete product need and acceptance path
-justify them. Offline World Evolution fallback remains resilience debt. Sprint
+justify them. The bounded Sprint 30 removal-triggered Runtime replacement is
+supported, but it does not imply timer/count/wave behavior. Offline World
+Evolution fallback remains resilience debt. Sprint
 17 is frozen; Sprint 18 visual work is limited to measured role-aware asset
 composition gaps and must not become a graphics framework, image-based
 collision system, or speculative future-role taxonomy.

@@ -5,15 +5,63 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-28
-current_sprint: Sprint 29
-current_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+current_sprint: Sprint 30
+current_work_order: WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
+current_work_order_status: READY FOR PRODUCT VERIFICATION
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
-next_work_order: SPRINT29_FREEZE_REVIEW — READY for Human/CTO decision
+next_work_order: NONE — WO-S30-001 is the sole active primary WO
 continuation_mode: SPRINT_CONTINUOUS
-primary_architecture_changing_work_items_in_progress: 0
+primary_architecture_changing_work_items_in_progress: 1
+
+## SPRINT29_FREEZE_REVIEW
+
+status: DONE — Human/CTO froze Sprint 29 at v1.179 on 2026-08-28.
+WO-S29-001 Code Complete = YES; Product Verified = YES; Fresh Gap Analysis =
+PASS. Continuous-overlap attacks, cooldowns, weapons, projectiles, spawning,
+and waves remain outside the frozen boundary. Artifact:
+`docs/project/SPRINT29_REVIEW.md`.
+
+## SPRINT30_AUTHORIZATION — Sustained Survival Loop
+
+status: AUTHORIZED — 2026-08-28; ten-question repository Gap Analysis complete
+architecture_before: v1.179
+goal: Enemy defeat/removal → replacement Enemy pressure → continued active
+Survival, through generic Runtime-authoritative mechanics.
+selected_bottleneck_at_authorization: EXECUTION_GAP / PROJECTION_GAP — typed `SPAWN_ENTITY`,
+supported `ENTITY_REMOVED`, WorldMutator addition, and current Enemy component
+composition exist, but Gameplay action execution and runtime-only visual
+binding were absent; WO-S30-001 closes this bounded gap.
+deferred_non_blockers: entity-count conditions, timing, periodic waves,
+difficulty, schedulers, encounter systems, and persistent Semantic mutation.
+source_of_truth: `docs/project/SPRINT30_BACKLOG.md`, actual Runtime/Renderer
+wiring, and the Human/CTO decision.
+
+## WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
+
+status: READY FOR PRODUCT VERIFICATION — Code Complete = YES; Product Verified = PENDING MANUAL
+priority: P0 / Human-CTO authorized
+architecture_before: v1.179
+architecture_after: v1.180
+allowed_scope: trusted generic `SPAWN_ENTITY`; reusable Runtime entity
+composition and safe placement; one Enemy-removal replenishment rule;
+mutation-fact category matching; binding-only canonical Enemy visual reuse;
+production tests/docs.
+forbidden_scope: Wave/Spawn/Encounter/Difficulty managers, timer/scheduler,
+entity-count expression, prefab framework, AI per spawn, Semantic mutation for
+runtime-only replacements, new image generation, or Platformer spawning.
+acceptance: one defeated Enemy is removed; one replacement appears in the same
+active session with Position, Health, collision, pursuit, pressure/offense
+compatibility, and the existing Enemy visual; no provider call or duplicate
+generation occurs; Platformer remains unchanged; full checks pass and real
+Studio PV remains the final required gate.
+result: CODE COMPLETE — automated production reachability and all package
+tests/typechecks/lints plus Web build pass. Real Studio PV is PENDING MANUAL;
+the in-app browser session was reaped and fresh local navigation was denied by
+security review, so no manual Product Verified claim is made.
+next_gate: SPRINT30_FREEZE_REVIEW — BLOCKED ON REAL STUDIO PV; do not enter
+Sprint 31.
 
 ## SPRINT28_FREEZE_REVIEW
 

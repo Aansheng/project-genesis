@@ -3,23 +3,64 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.179 (Sprint 28 frozen; WO-S29-001 DONE; Product Verified)
-current_sprint: Sprint 29 (Generic Offensive Interaction)
-current_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+architecture_version: v1.180 (Sprint 29 frozen; Sprint 30 WO-S30-001 code complete, Product Verification pending)
+current_sprint: Sprint 30 (Sustained Survival Loop)
+current_work_order: WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
+current_work_order_status: READY FOR PRODUCT VERIFICATION
 current_control_plane_work_order: NONE
 current_control_plane_work_order_status: idle
 last_completed_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
 last_completed_product_work_order: WO-S29-001
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: SPRINT29_FREEZE_REVIEW — READY for Human/CTO decision
-product_architecture_changed: yes — v1.178 → v1.179; only generic Gameplay Rule composition/support truth changes
-sprint_status: Sprint 28 is FROZEN at v1.178. Human/CTO authorized Sprint 29;
-  its ten-question source audit selected exactly one bounded WO-S29-001.
-code_complete: YES for WO-S29-001; product_verified: YES;
-  Sprint 28 remains Product Verified = YES and frozen
+next_ready_work_order: NONE — WO-S30-001 is the sole active primary WO
+product_architecture_changed: YES — v1.179 → v1.180
+sprint_status: Sprint 29 is FROZEN at v1.179. Human/CTO authorized Sprint 30;
+  its ten-question source audit selected exactly one bounded WO-S30-001.
+code_complete: YES for WO-S30-001; product_verified: PENDING MANUAL;
+  Sprint 29 remains Product Verified = YES and frozen
 
-## Sprint 29 Gap Analysis and result
+## Sprint 30 Gap Analysis and selected blocker
+
+At authorization, `SPAWN_ENTITY` already existed in the shared rule vocabulary
+and AI validation, `ENTITY_REMOVED` was a supported Runtime fact, and
+`WorldMutator.addEntity()` could update an active snapshot. The Runtime action
+executor rejected spawn, there was no entity-count rule reference, and no timer
+rule existed. Neither count nor timing was needed for the first bounded cycle:
+one Enemy removal could trigger one replacement.
+
+WO-S30-001 was the single selected blocker. It reuses the current generic
+Runtime composition used by World Evolution additions, keeps the replacement
+ephemeral to Runtime gameplay authority, and adds binding-only reuse of the
+canonical Enemy visual. No wave/spawn manager or AI call was authorized.
+
+## Sprint 30 Implementation and Verification
+
+The trusted `SPAWN_ENTITY` action now resolves an existing semantic Enemy
+template, creates one deterministic Runtime-only entity through the shared
+composition helper, and commits it with `WorldMutator.addEntity()` in the
+current active snapshot. A committed `ENTITY_REMOVED` fact carries the
+authoritative zero Health result from Gameplay Rule removal, so semantic World
+evolution removals (which retain their prior Health) do not accidentally
+replenish gameplay entities. The new entity receives Position, Health,
+collision bounds, target-directed movement, and the existing category-based
+contact rules. Web projects its resolved canonical Enemy resource through
+binding-only manifest entries; no provider or image-generation call is made.
+
+Automated production reachability passes: four contacts defeat the Enemy,
+the next mutation boundary emits `ENTITY_REMOVED(health=0)`, one replacement
+executes, the replacement has the full composition, and it can damage Player
+and take offense damage while the session remains active. Full package tests,
+TypeScript, package ESLint, Web build, and diff hygiene pass. Root Turbo lint
+is blocked by this host's missing TLS keychain, while all package lint commands
+exit 0 with existing warnings only.
+
+Product Verification classification: **PENDING MANUAL / browser-blocked**.
+The in-app browser session was reaped after a model switch and its fresh local
+navigation was denied by security review, so no real Studio claim is made.
+Complete the provider-backed scenario in a fresh approved session before
+selecting `SPRINT30_FREEZE_REVIEW`; do not enter Sprint 31.
+
+## Sprint 29 Gap Analysis and result (historical)
 
 Repository truth showed that generic Enemy Health, `DAMAGE_ENTITY`, explicit
 non-player removal, atomic multi-action rules, Runtime XP/Level, and contact
@@ -27,12 +68,13 @@ identity already existed. There is no timed/cooldown trigger, range/nearest
 condition, projectile executor, or gameplay spawn executor. The first smallest
 gap was production RuleSet composition, not a combat framework.
 
-WO-S29-001 now composes 25 contact damage, typed zero-Health removal + XP, and
-the existing first Level threshold. Automated production reachability proves
-the four-contact defeat chain and continued active session. Real Studio proves
+WO-S29-001 composed 25 contact damage, typed zero-Health removal + XP, and the
+existing first Level threshold. Automated production reachability proved the
+four-contact defeat chain and continued active session. Real Studio proved
 provider acceptance, initial/evolved Enemy damage, pursuit, same-world exact
-+5 compatibility, and clean diagnostics. Fresh Gap Analysis finds no immediate
-offense blocker; `SPRINT29_FREEZE_REVIEW` is selected.
++5 compatibility, and clean diagnostics. The fresh Gap Analysis found no
+immediate offense blocker; Human/CTO accepted `SPRINT29_FREEZE_REVIEW` and
+froze Sprint 29 at v1.179 before entering Sprint 30.
 prior_product_verification: YES for WO-S18-004 — exact semantic Platform
   binding, camera-visible Ground tiling over Runtime authority, and
   non-regressed gameplay/diagnostics are observed
@@ -43,13 +85,14 @@ control_plane_status: SPRINT_CONTINUOUS; sequential same-Sprint execution only;
 
 ## Current Sprint goal
 
-Sprint 29 — Generic Offensive Interaction:
+Sprint 30 — Sustained Survival Loop:
 
-1. Give generated Survival one minimal genuine Player-offense loop.
-2. Reuse contact identity, Enemy Health, `DAMAGE_ENTITY`, explicit removal,
-   and Runtime progression without a weapon/projectile framework.
-3. Execute only the first measured blocker, WO-S29-001, then perform fresh Gap
-   Analysis and stop at Freeze Review or one measured blocker.
+1. Sustain a generated Survival loop through one bounded Enemy replacement.
+2. Reuse `ENTITY_REMOVED`, trusted generic Runtime creation, current Enemy
+   composition, and binding-only visual identity without a wave framework.
+3. Complete real Studio Product Verification, perform fresh Gap Analysis, and
+   stop at `SPRINT30_FREEZE_REVIEW` or one measured blocker; do not enter Sprint
+   31 automatically.
 
 Sprint 25 is frozen at v1.173. Its audit-only WO-S25-001 is complete and the
 freeze review is recorded in `docs/project/SPRINT25_REVIEW.md`.

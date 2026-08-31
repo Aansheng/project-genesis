@@ -41,6 +41,8 @@ describe('GameplaySpecification foundation', () => {
     expect(specification.mechanics.find(item => item.id === 'enemy-stomp')?.supportStatus).toBe('supported')
     expect(specification.mechanics.find(item => item.id === 'gain-experience')?.supportStatus).toBe('supported')
     expect(specification.mechanics.find(item => item.id === 'level-up')?.supportStatus).toBe('supported')
+    expect(specification.mechanics.some(item => item.id === 'enemy-spawn')).toBe(false)
+    expect(specification.spawnRules).toBeUndefined()
     expect(specification.gameLoop.progressionModes).toEqual(['experience', 'levels'])
     expect(specification.progression).toMatchObject({ modes: ['experience', 'levels'], supportStatus: 'supported' })
     expect(specification.mechanics.find(item => item.id === 'reach-goal')?.supportStatus).toBe('supported')
@@ -68,13 +70,19 @@ describe('GameplaySpecification foundation', () => {
 
     expect(survivor.progression?.modes).toEqual(['experience', 'levels', 'upgrades'])
     expect(survivor.progression?.supportStatus).toBe('partially_supported')
-    expect(survivor.spawnRules?.[0]?.supportStatus).toBe('deferred')
+    expect(survivor.spawnRules?.[0]).toMatchObject({
+      id: 'enemy-removal-replenishment',
+      kind: 'on-interaction',
+      supportStatus: 'supported',
+    })
     expect(survivor.mechanics.some(item => item.id === 'enemy-chase')).toBe(true)
     expect(survivor.mechanics.find(item => item.id === 'contact-offense')?.supportStatus).toBe('supported')
+    expect(survivor.mechanics.find(item => item.id === 'enemy-spawn')?.supportStatus).toBe('supported')
     expect(survivor.mechanics.find(item => item.id === 'auto-attack')?.supportStatus).toBe('deferred')
     expect(survivor.mechanics.find(item => item.id === 'gain-experience')?.supportStatus).toBe('supported')
     expect(farm.mechanics.some(item => item.id === 'enemy-stomp')).toBe(false)
     expect(farm.mechanics.some(item => item.id === 'choose-skill')).toBe(false)
+    expect(farm.mechanics.some(item => item.id === 'enemy-spawn')).toBe(false)
   })
 
   it('does not promote an arbitrary enemy-contact interaction by concept alone', () => {

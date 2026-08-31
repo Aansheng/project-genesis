@@ -14,6 +14,8 @@ export interface RuntimeGameplayEventCollector extends GameplayEventSink {
   beginTick(tick: number): void
   endTick(): readonly GameplayEvent[]
   observeWorldMutation(previousWorld: World, nextWorld: World): void
+  /** Mark a Runtime removal committed by a gameplay rule before WorldStore publishes it. */
+  markGameplayEntityRemoval?(entityId: string, health?: number): void
 }
 
 function positionOf(entity: Entity): GameplayEventPosition | undefined {
@@ -29,6 +31,16 @@ function entityById(world: World): ReadonlyMap<string, Entity> {
   return new Map(world.entities.map((entity) => [entity.id, entity]))
 }
 
+function semanticNameOf(entity: Entity): string | undefined {
+  const value = entity.components?.find(component => component.type === 'semantic')?.properties.name
+  return typeof value === 'string' && value.trim() ? value : undefined
+}
+
+function healthOf(entity: Entity): number | undefined {
+  const value = entity.components?.find(component => component.type === 'health')?.properties.current
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
 /**
  * Ephemeral Runtime event batch collector.
  *
@@ -42,6 +54,7 @@ export class DefaultRuntimeGameplayEventCollector implements RuntimeGameplayEven
   private active = false
   private pendingEvents: GameplayEvent[] = []
   private currentEvents: GameplayEvent[] = []
+  private pendingGameplayRemovalHealth = new Map<string, number | undefined>()
 
   constructor(worldId?: string) {
     this.worldId = worldId
@@ -84,6 +97,10 @@ export class DefaultRuntimeGameplayEventCollector implements RuntimeGameplayEven
     this.sequence += 1
   }
 
+  markGameplayEntityRemoval(entityId: string, health?: number): void {
+    this.pendingGameplayRemovalHealth.set(entityId, health)
+  }
+
   /** Emit add/remove facts after the WorldStore has committed a new snapshot. */
   observeWorldMutation(previousWorld: World, nextWorld: World): void {
     const previous = entityById(previousWorld)
@@ -95,16 +112,28 @@ export class DefaultRuntimeGameplayEventCollector implements RuntimeGameplayEven
         type: 'ENTITY_ADDED',
         targetEntityId: entity.id,
         position: positionOf(entity),
-        payload: { entityType: entity.type },
+        payload: {
+          entityType: entity.type,
+          ...(semanticNameOf(entity) ? { entityName: semanticNameOf(entity)! } : {}),
+          ...(healthOf(entity) !== undefined ? { health: healthOf(entity)! } : {}),
+        },
       })
     }
 
     for (const entity of previousWorld.entities) {
       if (next.has(entity.id)) continue
+      const gameplayHealth = this.pendingGameplayRemovalHealth.get(entity.id)
+      this.pendingGameplayRemovalHealth.delete(entity.id)
       this.emit({
         type: 'ENTITY_REMOVED',
         targetEntityId: entity.id,
-        payload: { entityType: entity.type },
+        payload: {
+          entityType: entity.type,
+          ...(semanticNameOf(entity) ? { entityName: semanticNameOf(entity)! } : {}),
+          ...(gameplayHealth !== undefined
+            ? { health: gameplayHealth }
+            : healthOf(entity) !== undefined ? { health: healthOf(entity)! } : {}),
+        },
       })
     }
   }

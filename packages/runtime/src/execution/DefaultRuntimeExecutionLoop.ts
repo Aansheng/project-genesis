@@ -215,6 +215,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
     if (systems.length === 0) {
       const gameplayEvents = this.gameplayEventCollector.endTick()
       const gameplayRules = this.executeGameplayRules(world, gameplayEvents)
+      this.recordGameplayMutationFacts(gameplayRules)
       const outputWorld = Object.freeze({
         // Preserve the foundation loop's copy-on-empty-registry behavior
         // when no rule mutation was committed.
@@ -240,6 +241,7 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
 
     const gameplayEvents = this.gameplayEventCollector.endTick()
     const gameplayRules = this.executeGameplayRules(current, gameplayEvents)
+    this.recordGameplayMutationFacts(gameplayRules)
     const result = Object.freeze({
       world: gameplayRules.world,
       executedSystems: Object.freeze(executedSystems),
@@ -283,6 +285,19 @@ export class DefaultRuntimeExecutionLoop implements RuntimeExecutionLoop {
       ...(semanticRevision !== undefined ? { semanticRevision } : {}),
       ...(semanticWorld !== undefined && semanticWorld !== null ? { semanticWorld } : {}),
     }))
+  }
+
+  private recordGameplayMutationFacts(batch: GameplayRuleExecutionBatch): void {
+    if (!this.gameplayEventCollector.markGameplayEntityRemoval) return
+    for (const result of batch.results) {
+      for (const action of result.actionResults) {
+        if (action.mutation?.type !== 'ENTITY_REMOVED') continue
+        this.gameplayEventCollector.markGameplayEntityRemoval(
+          action.mutation.targetEntityId,
+          action.mutation.health,
+        )
+      }
+    }
   }
 
   private gameplayBinding(): { readonly worldId?: string; readonly sessionId?: string } {

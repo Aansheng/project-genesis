@@ -183,7 +183,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
   if (world.worldType === 'survival') {
     const mechanics = Object.freeze([
       mechanic('player-move', 'movement', 'Player moves to avoid pressure.', 'supported', playerId),
-      mechanic('enemy-spawn', 'spawn', 'Enemies appear over time.', 'deferred'),
+      mechanic('enemy-spawn', 'spawn', 'A defeated Enemy is replaced through Runtime-authoritative gameplay rules.', 'supported'),
       mechanic('enemy-chase', 'movement', 'Enemies pursue the player.', 'deferred', 'enemy', playerId),
       mechanic('contact-offense', 'combat', 'Player contact damages an enemy through generic Runtime Health rules.', 'supported', playerId, 'enemy'),
       mechanic('enemy-side-damage', 'combat', 'Enemy contact damages the Player through generic Runtime Health rules.', 'supported', 'enemy', playerId),
@@ -225,12 +225,12 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
         supportStatus: 'deferred',
       })]),
       spawnRules: Object.freeze([Object.freeze({
-        id: 'periodic-enemy-spawn',
-        kind: 'periodic',
-        description: 'Spawn enemies periodically as pressure escalates.',
+        id: 'enemy-removal-replenishment',
+        kind: 'on-interaction',
+        description: 'Replace one defeated Enemy after its committed Runtime removal fact.',
         entityCategory: 'enemy' as EntityCategory,
         entityName: 'Enemy',
-        supportStatus: 'deferred',
+        supportStatus: 'supported',
       })]),
     })
   }
@@ -357,7 +357,10 @@ export class DefaultGameplaySpecificationBuilder implements GameplaySpecificatio
       ...(item.entityCategory ? { entityCategory: item.entityCategory } : {}),
       ...(item.entityName ? { entityName: item.entityName } : {}),
       ...(item.intervalSeconds !== undefined ? { intervalSeconds: item.intervalSeconds } : {}),
-      supportStatus: 'deferred' as const,
+      supportStatus: item.kind === 'on-interaction'
+        && mechanics.some(mechanic => mechanic.id === 'enemy-spawn' && mechanic.supportStatus === 'supported')
+        ? 'supported' as const
+        : 'deferred' as const,
     }))
     return Object.freeze({
       schemaVersion: 1 as const,

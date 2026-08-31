@@ -30,8 +30,9 @@
 **Sprint 26** — Second-Genre Generalization Proof (**bounded proof complete; v1.176**)
 **Sprint 27** — Survival Top-Down Spatial Composition (**FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES; v1.177**)
 **Sprint 28** — Survival Gameplay Pressure (**FROZEN — Code Complete = YES; Product Verified = YES; v1.178**)
-**Sprint 29** — Generic Offensive Interaction (**ACTIVE — WO-S29-001 DONE; Code Complete = YES; Product Verified = YES; Freeze Review selected — v1.179**)
-**Current WO** - WO-S29-001 — Generic Contact Offense Rule Composition — DONE; next gate `SPRINT29_FREEZE_REVIEW`
+**Sprint 29** — Generic Offensive Interaction (**FROZEN — WO-S29-001 Code Complete = YES; Product Verified = YES; v1.179**)
+**Sprint 30** — Sustained Survival Loop (**ACTIVE — WO-S30-001 Code Complete = YES; Product Verified = PENDING MANUAL; v1.180**)
+**Current WO** - WO-S30-001 — Generic Rule-Driven Runtime Entity Creation — READY FOR PRODUCT VERIFICATION; next gate `SPRINT30_FREEZE_REVIEW`
 
 ---
 
@@ -39,14 +40,36 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 28 is FROZEN at v1.178. Sprint 29 WO-S29-001 is DONE at v1.179 with Code Complete = YES and Product Verified = YES; `SPRINT29_FREEZE_REVIEW` is selected. |
-| Architecture Version | v1.179; Survival retains v1.178 top-down pursuit and adds only a generic contact-offense RuleSet composition over existing Health, damage, removal, and progression primitives. |
+| Status | Sprint 29 is FROZEN at v1.179. Sprint 30 is ACTIVE with WO-S30-001 Code Complete = YES; automated evidence passes, while real Studio Product Verification remains PENDING MANUAL because the in-app browser session was reaped by its security policy. |
+| Architecture Version | v1.180; Survival retains v1.179 offense and adds one generic removal-triggered Runtime replacement path with binding-only visual reuse. |
 | Last Completed WO | WO-S29-001 — Generic Contact Offense Rule Composition; Code Complete = YES; Product Verified = YES; v1.179. |
-| Current User-Visible Behavior | Top-down Survival retains movement, pursuit/contact threat, same-world +5, and visual reuse. Each distinct Player/Enemy contact damages Enemy Health by 25; Health zero explicitly removes the Enemy, grants XP +1, and can execute the existing first Level transition. Initial and evolved enemies use the same category-based rules. Platformer remains unchanged. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → Semantic World → Game DSL with generic Health/collision bounds → Runtime projection → Runtime system registry / `DefaultRuntimeExecutionLoop` → gameplay event collector / `EntityContactSystem` → post-system GameplayRuleExecutor → Runtime World, Health, and session state → RuntimeRendererAdapter → Pixi Renderer → Observatory; visual/asset generation remains provider-backed with Prompt Truth and published → resolved → Renderer applied lineage. |
-| Current Blocking Issue | None for the bounded Sprint 29 thesis. Timed/range/projectile/spawn capabilities remain explicitly deferred and are not required by the selected contact offense. Browser automation cannot reliably hold movement keys for four separate recontacts; production-chain AUTO VERIFIED evidence closes that repeated defeat path. |
-| Product Verification | Sprint 28 remains PASS/FROZEN. Sprint 29: AUTO VERIFIED repeated defeat/XP/Level through production composition plus real provider-backed Studio verification of initial/evolved Enemy damage, same-world +5, pursuit, and clean diagnostics. |
-| Next Recommended Verification | `SPRINT29_FREEZE_REVIEW`. Do not enter Sprint 30 automatically. |
+| Current User-Visible Behavior | Top-down Survival retains movement, pursuit/contact threat, same-world +5, and visual reuse. Each distinct Player/Enemy contact damages Enemy Health by 25; Health zero removes the Enemy and grants XP +1 with the existing first Level transition. The next committed removal fact executes one replacement Enemy in the same active Runtime session; the replacement inherits Position, Health, collision, pursuit, contact pressure/offense, and the canonical Enemy visual binding. Platformer remains unchanged. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → Runtime system registry / `DefaultRuntimeExecutionLoop` → `ENTITY_CONTACT_STARTED` / `ENTITY_REMOVED` facts → post-system GameplayRuleExecutor → trusted `SPAWN_ENTITY` → immutable `WorldMutator.addEntity` → Runtime WorldStore → binding-only visual manifest projection → RuntimeRendererAdapter → Pixi Renderer → Observatory. AI/provider calls remain generation-time only. |
+| Current Blocking Issue | No source or automated-test blocker remains. Real Studio Product Verification is blocked/pending because the in-app browser session was reaped after a model switch and subsequent local navigation was denied by browser security review; no alternate browser path was used. |
+| Product Verification | Sprint 29: PASS/FROZEN. Sprint 30: automated production reachability and full package/build checks PASS; real provider-backed Studio verification of defeat → replacement → pursuit/contact/offense → visual reuse is PENDING MANUAL. |
+| Next Recommended Verification | Complete the real Studio Sprint 30 scenario in a fresh approved browser session, record the fresh Gap Analysis, then select `SPRINT30_FREEZE_REVIEW` only if the thesis passes. Do not enter Sprint 31 automatically. |
+
+## Sprint 30 Sustained Survival Loop Snapshot
+
+The fresh source audit answered all ten CTO questions before implementation. The
+shared `SPAWN_ENTITY` contract and `WorldMutator.addEntity()` existed, but the
+trusted Gameplay Rule executor rejected spawn; committed `ENTITY_REMOVED` was
+already the smallest usable trigger. Runtime ticks exist, while timer and
+entity-count references do not. Existing semantic-to-Runtime evolution already
+provided the Enemy composition, and Runtime removal proves that ephemeral
+gameplay entities can remain outside the persistent Semantic World.
+
+WO-S30-001 now promotes only the bounded generic creation slice: one defeated
+Enemy with an authoritative `health <= 0` removal fact creates one deterministic
+Runtime-only replacement from an existing semantic Enemy template. It reuses
+the same composition helper, selects a safe deterministic position, targets
+the current Player, and copies the resolved canonical Enemy visual through a
+binding-only manifest projection. No timer, count, wave, scheduler, manager,
+prefab, AI-per-spawn call, or Semantic World mutation was added.
+
+Automated production reachability proves defeat/removal, replacement component
+composition, replacement contact pressure, and active-session continuity. The
+real Studio scenario remains the required manual gate for Product Verified.
 
 ## Sprint 27 Spatial Composition Snapshot
 

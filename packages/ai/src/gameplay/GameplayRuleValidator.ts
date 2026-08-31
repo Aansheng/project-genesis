@@ -44,7 +44,7 @@ const DIRECTIONS: readonly GameplayContactDirection[] = ['top', 'bottom', 'left'
 const OPERATORS = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte'] as const
 const COMPONENTS = ['position', 'velocity', 'collision-bounds', 'semantic', 'health'] as const
 const PROPERTY_NAMES = ['activated', 'enabled', 'visible'] as const
-const NUMERIC_PAYLOAD_KEYS = ['x', 'y', 'velocityX', 'velocityY', 'amount'] as const
+const NUMERIC_PAYLOAD_KEYS = ['x', 'y', 'velocityX', 'velocityY', 'amount', 'health'] as const
 const BOOLEAN_PAYLOAD_KEYS = ['isGrounded', 'isActive'] as const
 
 type RecordValue = Record<string, unknown>
@@ -362,6 +362,15 @@ function normalizeAction(
     if (category === undefined && !nonEmptyString(archetypeValue) && !nonEmptyString(role)) errors.push(`${path}.entity must describe a category, archetype, or role`)
     if (category !== undefined && (typeof category !== 'string' || !ENTITY_CATEGORIES.includes(category as EntityCategory))) return undefined
     if (category === undefined && !nonEmptyString(archetypeValue) && !nonEmptyString(role)) return undefined
+    const templateExists = world.entities.some(item =>
+      (category === undefined || item.category === category)
+      && (!nonEmptyString(role) || item.category === role)
+      && (!nonEmptyString(archetypeValue) || archetype(item.name) === archetype(archetypeValue)),
+    )
+    if (!templateExists) {
+      errors.push(`${path}.entity must match an existing semantic entity identity`)
+      return undefined
+    }
     return Object.freeze({
       type,
       entity: Object.freeze({

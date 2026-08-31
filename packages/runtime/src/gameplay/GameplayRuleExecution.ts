@@ -22,6 +22,7 @@ import {
 } from '@genesis/shared'
 import { DefaultWorldMutator } from '../mutation'
 import type { WorldMutator } from '../mutation'
+import { createComposedRuntimeEntity, findSafeRuntimeEntityPosition } from '../composition'
 import {
   applyRuntimeGameplayNumericChange,
   DefaultRuntimeGameplayProgressionStateStore,
@@ -121,6 +122,11 @@ export interface GameplayActionExecutionResult {
   readonly mutation?:
     | {
         readonly type: 'ENTITY_REMOVED'
+        readonly targetEntityId: string
+        readonly health?: number
+      }
+    | {
+        readonly type: 'ENTITY_ADDED'
         readonly targetEntityId: string
       }
     | {
@@ -343,7 +349,35 @@ function triggerParticipantMatches(
     return entityId !== undefined && 'targetEntityId' in event && entityId === event.targetEntityId
   }
   const entity = entityById(context.world, entityId)
+  if (entity === undefined && (event.type === 'ENTITY_ADDED' || event.type === 'ENTITY_REMOVED')) {
+    const entityType = typeof event.payload?.entityType === 'string' ? event.payload.entityType : undefined
+    const entityName = typeof event.payload?.entityName === 'string' ? event.payload.entityName : undefined
+    if (selector.kind === 'category') return entityType === selector.category
+    if (selector.kind === 'role') return entityType === selector.role
+    if (selector.kind === 'archetype') return entityName !== undefined
+      && normalizeArchetype(entityName) === normalizeArchetype(selector.archetype)
+  }
   return entity !== undefined && selectorMatchesEntity(selector, entity, event, context.semanticWorld)
+}
+
+function spawnTemplate(
+  action: Extract<GameplayAction, { readonly type: 'SPAWN_ENTITY' }>,
+  semanticWorld: GameWorldModel,
+): GameWorldModel['entities'][number] | undefined {
+  return semanticWorld.entities.find(entity =>
+    (action.entity.category === undefined || entity.category === action.entity.category)
+    && (action.entity.role === undefined || entity.category === action.entity.role)
+    && (action.entity.archetype === undefined
+      || normalizeArchetype(entity.name) === normalizeArchetype(action.entity.archetype)),
+  )
+}
+
+function uniqueSpawnId(world: World, templateId: string, tick: number): string {
+  const base = `${templateId}-runtime-${Math.max(0, Math.floor(tick))}`
+  if (!world.entities.some(entity => entity.id === base)) return base
+  let suffix = 2
+  while (world.entities.some(entity => entity.id === `${base}-${suffix}`)) suffix += 1
+  return `${base}-${suffix}`
 }
 
 export class DefaultGameplayRuleMatcher implements GameplayRuleMatcher {
@@ -574,6 +608,51 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       })
     }
 
+    if (action.type === 'SPAWN_ENTITY') {
+      if (!context.semanticWorld) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'semantic_world_unavailable',
+        })
+      }
+      const template = spawnTemplate(action, context.semanticWorld)
+      if (!template) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'spawn_template_not_found',
+        })
+      }
+      const id = uniqueSpawnId(context.world, template.id, event.tick)
+      const targetEntityId = template.category === 'enemy'
+        ? context.world.entities.find(entity => semanticFactsOf(entity, context.semanticWorld).category === 'player')?.id
+        : undefined
+      const position = findSafeRuntimeEntityPosition(context.world.entities, id, template.category)
+      const spawned = createComposedRuntimeEntity({
+        id,
+        semanticEntity: template,
+        position,
+        worldType: context.semanticWorld.worldType,
+        ...(targetEntityId ? { targetEntityId } : {}),
+      })
+      const worldAfter = this.worldMutator.addEntity(context.world, spawned)
+      if (!worldAfter.entities.some(entity => entity.id === id)) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'runtime_mutation_failed',
+        })
+      }
+      return Object.freeze({
+        ...base,
+        status: 'executed' as const,
+        targetEntityIds: Object.freeze([id]),
+        worldAfter,
+        mutation: Object.freeze({ type: 'ENTITY_ADDED' as const, targetEntityId: id }),
+      })
+    }
+
     if (action.type !== 'REMOVE_ENTITY' && action.type !== 'APPLY_VELOCITY' && action.type !== 'DAMAGE_ENTITY') {
       return Object.freeze({
         ...base,
@@ -615,7 +694,13 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
         status: 'executed' as const,
         targetEntityIds: Object.freeze([target.id]),
         worldAfter,
-        mutation: Object.freeze({ type: 'ENTITY_REMOVED' as const, targetEntityId: target.id }),
+        mutation: Object.freeze({
+          type: 'ENTITY_REMOVED' as const,
+          targetEntityId: target.id,
+          ...(target.components?.find(isHealthComponent)?.properties.current !== undefined
+            ? { health: target.components.find(isHealthComponent)!.properties.current }
+            : {}),
+        }),
       })
     }
 

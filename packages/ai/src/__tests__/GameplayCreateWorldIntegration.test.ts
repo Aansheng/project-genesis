@@ -89,6 +89,7 @@ describe('Gameplay create-world integration', () => {
       'survival-enemy-defeat',
       'survival-level-up-at-experience-threshold',
       'survival-enemy-contact',
+      'survival-enemy-replenishment',
     ])
   })
 

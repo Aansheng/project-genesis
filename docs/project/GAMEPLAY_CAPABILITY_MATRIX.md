@@ -1,7 +1,8 @@
-# Gameplay Capability Matrix — Sprint 28 Frozen / Sprint 29 Implemented
+# Gameplay Capability Matrix — Sprint 29 Frozen / Sprint 30 Code Complete
 
-Architecture version: v1.179 (Sprint 28 FROZEN; WO-S29-001 Product Verified;
-`SPRINT29_FREEZE_REVIEW` selected)
+Architecture version: v1.180 (Sprint 29 FROZEN; WO-S30-001 Code Complete;
+real Studio Product Verification PENDING MANUAL; `SPRINT30_FREEZE_REVIEW` not
+selected)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -9,9 +10,10 @@ capability; `deferred` means the domain can describe it but Runtime does not
 execute it; `unsupported` is reserved for a capability outside the current
 catalog. The rule execution status is active only for the bounded supported
 rules, including the two-action `ENEMY STOMP`, generic Health damage, the
-current-session `COMPLETE_GOAL` slice, and finite additive numeric progression;
-partial/deferred/unsupported rules remain gated as whole rules. A Studio-only
-slice is not promoted to a general Runtime capability.
+current-session `COMPLETE_GOAL` slice, finite additive numeric progression,
+and one removal-triggered `SPAWN_ENTITY` slice; partial/deferred/unsupported
+rules remain gated as whole rules. A Studio-only slice is not promoted to a
+general Runtime capability.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -32,7 +34,7 @@ slice is not promoted to a general Runtime capability.
 | Rule event vocabulary | Rule trigger | `supported` | Only `ENTITY_CONTACT_STARTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
 | Rule entity selectors | Rule condition/target references | `supported` | Event actor/target, exact current ID, category, current semantic name/archetype, and category-backed role selectors are normalized by Genesis. |
 | `REMOVE_ENTITY` rule primitive | Gameplay action schema | `supported` | The bounded executor resolves a current target, protects Player, and calls the immutable `WorldMutator`. |
-| `SPAWN_ENTITY` rule primitive | Gameplay action schema | `deferred` | Entity addition exists as a mutation primitive, but rule-driven spawn execution is not active. |
+| `SPAWN_ENTITY` rule primitive | Gameplay action schema | `supported` | Trusted executor resolves an existing semantic template, composes one Runtime entity, and commits immutable `WorldMutator.addEntity()`; no Semantic World rebuild or provider call occurs. |
 | `APPLY_VELOCITY` rule primitive | Gameplay action schema | `supported` | Generic trusted action reuses `VelocityComponent` and immutable `WorldMutator.replaceEntity`; set/add modes are bounded and deterministic. |
 | `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
 | `SET_ENTITY_PROPERTY` | Gameplay action schema | `deferred` | No generic gameplay property executor exists. |
@@ -46,7 +48,7 @@ slice is not promoted to a general Runtime capability.
 | Farm interaction | Mechanics and interaction intent | `deferred` | Farm entities are semantically modeled; no production interaction executor exists. |
 | Collection / collectibles | Mechanics, optional goals/targets | `partially supported` | A player contact with semantic category `item` can remove the target and the bounded collect-reward rule can add `experience`; inventory, score, and `ITEM_COLLECTED` remain absent. |
 | Damage / health | Combat and failure intent | `partially supported` | Player/enemy/npc Health is a generic Runtime component and non-top contact can decrease current Health; lethal player damage commits Runtime `failed`, and same-world respawn restores Health/active play. |
-| Enemy spawn | Spawn rule intent | `deferred` | Spawn rules are descriptive; no gameplay spawner executes them. |
+| Enemy spawn | Spawn rule intent | `supported` | Bounded `ENTITY_REMOVED` with authoritative `health <= 0` triggers one generic Runtime replacement Enemy in the active Survival session; periodic waves/count/timer semantics remain deferred. |
 | Enemy target-directed movement | Survival semantic composition → generic Runtime target component | `supported` | `DefaultTargetDirectedMovementSystem` resolves the explicit target entity's current Position and writes finite normalized Velocity; `DefaultVelocityMotionSystem` integrates Position. Composition is enabled only for Survival enemies, while the Runtime systems remain generic. |
 | Enemy chase / AI | Combat/movement intent | `partially supported` | Direct target-directed pursuit is production-reachable through the generic component/system; behavior trees, pathfinding, steering, and model-driven frame decisions remain deferred. |
 | Enemy stomp / defeat | Combat intent | `supported` | Generic `enemy-stomp` rule validates player/enemy/top, removes the target, and applies upward player velocity with rule-level all-or-nothing commit. |
@@ -55,7 +57,7 @@ slice is not promoted to a general Runtime capability.
 | Timer / survive duration | Loop and goal intent | `deferred` | Duration is descriptive; no gameplay timer or expiry system exists. |
 | Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. Skill/upgrade state and later thresholds remain deferred. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
-| Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, and finite CHANGE_NUMERIC_STATE are bounded slices, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
+| Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
 
 ## Audit classification
 
@@ -63,15 +65,17 @@ slice is not promoted to a general Runtime capability.
   ground collision, generic Health state, targeted entity add/remove and
   Health mutation, lethal player failure/same-world respawn, current-session
   completion state, immutable keyed finite
-  numeric progression state with additive deltas, and bounded normalized event
-  observation for jump, landing, contact-start, add, and remove facts.
+  numeric progression state with additive deltas, bounded normalized event
+  observation for jump, landing, contact-start, add, and remove facts, and one
+  trusted generic Runtime entity-creation action with reusable composition.
 - **RULE DESCRIPTION IMPLEMENTED:** immutable Trigger/Condition/Action rules,
   deterministic RuleSet mapping, candidate validation, selector validation, and
   capability-derived support status.
 - **RULE EXECUTION IMPLEMENTED:** bounded post-system matching, category/
   archetype/ID/component/direction evaluation, generic `REMOVE_ENTITY`,
-  `APPLY_VELOCITY`, `DAMAGE_ENTITY`, `COMPLETE_GOAL`, and finite additive
-  `CHANGE_NUMERIC_STATE` actions, current-world/semantic binding, Player
+  `APPLY_VELOCITY`, `DAMAGE_ENTITY`, `COMPLETE_GOAL`, finite additive
+  `CHANGE_NUMERIC_STATE`, and bounded removal-triggered `SPAWN_ENTITY` actions,
+  current-world/semantic binding, Player
   protection, exactly-once consumption, and next-boundary mutation observation.
   Multi-action rules stage immutable worlds and commit only when all actions
   succeed; numeric state is committed separately from World mutation.
@@ -82,7 +86,7 @@ slice is not promoted to a general Runtime capability.
   catalog fact, not generalized into unsupported mechanics.
 - **NOT EXECUTED:** skill/modifier state, score policy, lives,
   checkpoints, enemy AI,
-  timers, spawn execution, progression beyond the bounded numeric primitive,
+  timers, periodic/wave spawn execution, progression beyond the bounded numeric primitive,
   failure flow beyond the bounded player failure/respawn slice, property actions,
   unrelated rich multi-action transactions, next-level/restart
   behavior, and win/lose orchestration beyond current session-completed truth.
