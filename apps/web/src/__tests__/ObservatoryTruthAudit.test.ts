@@ -13,6 +13,7 @@ import ObservatoryWorldGraph from '../components/observatory/world/ObservatoryWo
 import ObservatoryRuntimeViewer from '../components/observatory/runtime/ObservatoryRuntimeViewer.vue'
 import ObservatoryGeneration from '../components/observatory/ObservatoryGeneration.vue'
 import { useObservatoryDataStore } from '../stores/observatoryData'
+import { PROJECT_METADATA } from '../projectMetadata'
 
 function world(...ids: string[]): World {
   return {
@@ -147,9 +148,16 @@ describe('WO-OBS-001 Observatory truthfulness', () => {
     expect(text).not.toContain('Bearer secret')
   })
 
-  it('uses the centralized current architecture version', () => {
+  it('uses the centralized current architecture and Sprint metadata', () => {
     const text = mount(ObservatoryOverview).text()
-    expect(text).toContain('v1.177')
+    expect(PROJECT_METADATA).toEqual({
+      architectureVersion: 'v1.181',
+      currentSprint: 'Sprint 31',
+    })
+    expect(text).toContain(PROJECT_METADATA.architectureVersion)
+    expect(text).toContain(PROJECT_METADATA.currentSprint)
+    expect(PROJECT_METADATA.architectureVersion).not.toBe('v1.177')
+    expect(PROJECT_METADATA.currentSprint).not.toBe('Sprint 27')
     expect(text).not.toContain('v1.29')
   })
 })

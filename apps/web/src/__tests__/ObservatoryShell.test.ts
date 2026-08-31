@@ -20,6 +20,7 @@ import ObservatoryHistoryViewer from '../components/observatory/history/Observat
 import ObservatoryDiffViewer from '../components/observatory/diff/ObservatoryDiffViewer.vue'
 import ObservatoryRuntimeViewer from '../components/observatory/runtime/ObservatoryRuntimeViewer.vue'
 import ObservatoryEventStream from '../components/observatory/events/ObservatoryEventStream.vue'
+import { PROJECT_METADATA } from '../projectMetadata'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -78,11 +79,10 @@ describe('observatory store', () => {
     setActivePinia(createPinia())
   })
 
-  it('exposes default state: selectedPanel=Overview, status=Ready, version=v1.177', () => {
+  it('exposes default local UI state', () => {
     const store = useObservatoryStore()
     expect(store.selectedPanel).toBe('Overview')
     expect(store.status).toBe('Ready')
-    expect(store.version).toBe('v1.177')
   })
 
   it('defaults selectedPanel to Overview', () => {
@@ -95,9 +95,10 @@ describe('observatory store', () => {
     expect(store.status).toBe('Ready')
   })
 
-  it('defaults version to v1.177', () => {
+  it('does not own mutable engineering metadata', () => {
     const store = useObservatoryStore()
-    expect(store.version).toBe('v1.177')
+    expect('version' in store).toBe(false)
+    expect('setVersion' in store).toBe(false)
   })
 
   it('selectPanel updates selectedPanel', () => {
@@ -118,12 +119,6 @@ describe('observatory store', () => {
     const store = useObservatoryStore()
     store.setStatus('Busy')
     expect(store.status).toBe('Busy')
-  })
-
-  it('setVersion updates version', () => {
-    const store = useObservatoryStore()
-    store.setVersion('v1.30')
-    expect(store.version).toBe('v1.30')
   })
 
   it('exports OBSERVATORY_PANELS with 11 items including Generation', () => {
@@ -168,12 +163,12 @@ describe('observatory header', () => {
 
   it('renders the current architecture version', () => {
     const wrapper = mountHeader()
-    expect(wrapper.find('.header-version').text()).toBe('v1.177')
+    expect(wrapper.find('.header-version').text()).toBe(PROJECT_METADATA.architectureVersion)
   })
 
   it('renders the current phase on the right side', () => {
     const wrapper = mountHeader()
-    expect(wrapper.find('.header-sprint').text()).toBe('Sprint 27')
+    expect(wrapper.find('.header-sprint').text()).toBe(PROJECT_METADATA.currentSprint)
   })
 
   it('keeps the Game link in the header right layout flow', () => {
@@ -192,12 +187,9 @@ describe('observatory header', () => {
     expect(wrapper.find('.header-badge').text()).toContain('Building')
   })
 
-  it('updates the version when the store version changes', async () => {
-    const store = useObservatoryStore()
+  it('keeps the architecture version sourced from project metadata', () => {
     const wrapper = mountHeader()
-    store.setVersion('v1.30')
-    await nextTick()
-    expect(wrapper.find('.header-version').text()).toBe('v1.30')
+    expect(wrapper.find('.header-version').text()).toBe(PROJECT_METADATA.architectureVersion)
   })
 
   it('exposes an accessible status role', () => {
@@ -903,8 +895,8 @@ describe('observatory shell', () => {
     const wrapper = mountShell()
     expect(wrapper.text()).toContain('Observatory')
     expect(wrapper.text()).toContain('Ready')
-    expect(wrapper.text()).toContain('v1.177')
-    expect(wrapper.text()).toContain('Sprint 27')
+    expect(wrapper.text()).toContain(PROJECT_METADATA.architectureVersion)
+    expect(wrapper.text()).toContain(PROJECT_METADATA.currentSprint)
   })
 
   it('renders the runtime viewer when Runtime is selected from the sidebar', async () => {

@@ -6,12 +6,12 @@ not a database or task service.
 queue_version: 1
 updated: 2026-08-31
 current_sprint: Sprint 31
-current_work_order: WO-S31-002 — Current Observatory Metadata Source
-current_work_order_status: READY
-current_control_plane_work_order: NONE — initial one-WO continuation stop
-current_control_plane_work_order_status: NONE
-last_completed_work_order: WO-S31-001 — Runtime Progression Projection Across SPA Navigation
-next_work_order: WO-S31-002 — Current Observatory Metadata Source
+current_work_order: SPRINT31_FREEZE_REVIEW
+current_work_order_status: READY FOR HUMAN/CTO REVIEW
+current_control_plane_work_order: SPRINT31_FREEZE_REVIEW
+current_control_plane_work_order_status: READY FOR HUMAN/CTO REVIEW
+last_completed_work_order: WO-S31-002 — Current Observatory Metadata Source
+next_work_order: NONE — SPRINT31_FREEZE_REVIEW pending Human/CTO decision
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -31,9 +31,9 @@ selected_priority: Progression first because active gameplay truth was reset by
 constraints: Runtime remains authority; Observatory remains projection-only;
   no persistence, telemetry, route-state framework, duplicate XP state,
   Manager/MetadataManager/PersistenceManager, or Sprint 25 legacy reconnection.
-next_gate: Execute WO-S31-002, rerun the complete real PV, and select
-  SPRINT31_FREEZE_REVIEW only when progression and metadata both project current
-  truth. Do not enter Sprint 32 automatically.
+next_gate: SPRINT31_FREEZE_REVIEW — WO-S31-002 and the complete real PV pass;
+  both are complete and the review is ready for Human/CTO decision. Do not
+  enter Sprint 32 automatically.
 
 ## WO-S31-001 — Runtime Progression Projection Across SPA Navigation
 
@@ -67,7 +67,7 @@ result: PASS — current Runtime progression is retained across remounted loops;
 
 ## WO-S31-002 — Current Observatory Metadata Source
 
-status: READY — not executed in the initial one-WO continuation turn
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P1 / Sprint 31 authorized
 architecture_before: v1.181
 architecture_after: v1.181 (metadata truth correction only)
@@ -85,6 +85,42 @@ forbidden_scope: MetadataManager, new metadata service, persistence,
 acceptance: Full Observatory header/overview show current architecture/Sprint
   values from one current source; real Survival route PV preserves world,
   session, and progression; no fabricated defaults or stale v1.177/Sprint 27.
+result: PASS — `PROJECT_METADATA` is the single current Web application source;
+  it now reports v1.181 / Sprint 31. Observatory header and Overview continue
+  to consume that source, while the FROZEN_LEGACY metadata bridge remains
+  disconnected. Production route tests prove source → `/observatory` display
+  and repeated Game ↔ Observatory navigation.
+verification: Web 50/3566 tests, Web TypeScript, Web package ESLint (0 errors;
+  existing warnings only), Web build, and `git diff --check` pass. Real Chrome
+  Studio used `生成一个幸存者游戏`, retained `world-1`, reached active
+  `经验值: 2` / `等级: 2`, displayed v1.181 / Sprint 31 in Full Observatory
+  before and after route traversal, and returned an empty error/warning query.
+fresh_gap_analysis: PASS — Runtime progression and engineering/build metadata
+  both project current truth through Full Observatory. The partially settling
+  image queue and the unproduced system/event/FPS metrics remain deferred
+  non-blockers from Sprint 30.
+next_gate: SPRINT31_FREEZE_REVIEW — READY FOR HUMAN/CTO REVIEW; Sprint 31
+  remains ACTIVE until Human/CTO decides whether to freeze it.
+
+## SPRINT31_FREEZE_REVIEW
+
+status: READY FOR HUMAN/CTO REVIEW — Sprint 31 remains ACTIVE; no Sprint 32
+  entry has occurred.
+recommended_architecture: Keep Sprint 31 at v1.181
+scope: Review WO-S31-001 and WO-S31-002 completion, current Runtime
+  progression, current Observatory architecture/Sprint metadata, full route
+  reachability, and the fresh Sprint 31 Gap Analysis. No product
+  implementation is proposed by this gate.
+evidence: Runtime progression remains active and continuous at `world-1` with
+  `经验值: 2` / `等级: 2`; the Full Observatory header and Overview show the
+  current centralized source v1.181 / Sprint 31; repeated Game → Observatory
+  → Game → Observatory navigation preserves the same session; browser
+  error/warning diagnostics are empty.
+constraints: Runtime remains the authority; Observatory remains projection-only;
+  no persistence, metadata manager/service, legacy PromptBuilder/metadata
+  reconnection, visual redesign, or Sprint 32 work is authorized.
+decision_required: Human/CTO may accept the Sprint 31 freeze at v1.181 or
+  provide a new bounded direction. The Supervisor must not freeze silently.
 
 ## SPRINT29_FREEZE_REVIEW
 

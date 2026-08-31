@@ -3,34 +3,36 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.181 (Sprint 30 frozen; Sprint 31 WO-S31-001 complete, Product Verified; WO-S31-002 ready)
+architecture_version: v1.181 (Sprint 30 frozen; Sprint 31 WO-S31-001 and WO-S31-002 complete, Product Verified; freeze review ready)
 current_sprint: Sprint 31 (Observatory Truth Consistency)
-current_work_order: WO-S31-002 — Current Observatory Metadata Source
-current_work_order_status: READY
-current_control_plane_work_order: NONE — initial one-WO continuation stop
-current_control_plane_work_order_status: NONE
-last_completed_work_order: WO-S31-001 — Runtime Progression Projection Across SPA Navigation
-last_completed_product_work_order: WO-S31-001
+current_work_order: SPRINT31_FREEZE_REVIEW
+current_work_order_status: READY FOR HUMAN/CTO REVIEW
+current_control_plane_work_order: SPRINT31_FREEZE_REVIEW
+current_control_plane_work_order_status: READY FOR HUMAN/CTO REVIEW
+last_completed_work_order: WO-S31-002 — Current Observatory Metadata Source
+last_completed_product_work_order: WO-S31-002
 last_completed_control_plane_work_order: SPRINT22_DISCOVERY (Sprint 21 Freeze Review is also DONE)
-next_ready_work_order: WO-S31-002 — Current Observatory Metadata Source
+next_ready_work_order: NONE — SPRINT31_FREEZE_REVIEW pending Human/CTO decision
 product_architecture_changed: YES — v1.180 → v1.181
 sprint_status: Sprint 30 is FROZEN at v1.180 by Human/CTO decision on 2026-08-31.
   Sprint 31 is AUTHORIZED; its initial audit selected exactly one bounded
-  progression WO, now complete, and generated one next READY metadata WO.
-code_complete: YES for WO-S31-001; product_verified: YES for WO-S31-001;
-  Sprint 31 overall remains active because current Observatory metadata is stale
+  progression WO and one metadata WO; both are now complete and the Sprint 31
+  Freeze Review is READY FOR HUMAN/CTO REVIEW.
+code_complete: YES for WO-S31-001 and WO-S31-002; product_verified: YES for
+  WO-S31-001 and WO-S31-002; Sprint 31 Freeze Review is ready for Human/CTO
+  decision
 
-## Sprint 31 Gap Analysis, WO-S31-001, and next READY item
+## Sprint 31 Gap Analysis, completed WOs, and selected freeze review
 
 The fresh post-freeze audit found two independent projection defects. The first
 divergence for progression was `GameViewportPanel` constructing a fresh
 `DefaultRuntimeExecutionLoop` without a supplied progression store on each
 route mount; the loop's default Runtime store therefore re-published `0 / 1`.
 The first divergence for metadata was the current centralized
-`apps/web/src/projectMetadata.ts`, whose values remain `v1.177 / Sprint 27`.
-The current Observatory header, overview, and UI store consume that source;
-the Sprint 25 metadata bridge is FROZEN_LEGACY and has no current production
-caller.
+`apps/web/src/projectMetadata.ts`, whose values were stale at `v1.177 / Sprint
+27`. The current Observatory header and Overview consume that source; the
+Observatory store now owns only local selection/status UI state, and the Sprint
+25 metadata bridge is FROZEN_LEGACY with no current production caller.
 
 The independent progression defect ranked first because it corrupted active
 gameplay truth. `WO-S31-001` is complete at v1.181: the existing Runtime
@@ -44,12 +46,19 @@ reached `world-1`, Full Observatory showed active `1 / 2`, Game returned with
 the same world and continued, and Full Observatory then showed active `2 / 2`.
 Browser error/warning diagnostics were empty.
 
-The post-WO Gap Analysis closes progression but leaves metadata drift as the
-single Sprint 31 blocker. `WO-S31-002 — Current Observatory Metadata Source`
-is the only READY item. It must trace and correct the existing centralized
-source, preserve current Runtime/Observatory boundaries, rerun the progression
-PV, and stop at `SPRINT31_FREEZE_REVIEW` only when both gameplay progression and
-metadata are current. No Sprint 32 work is authorized automatically.
+`WO-S31-002` then corrected the existing centralized source to `v1.181 / Sprint
+31`. Header and Overview continue to consume that one immutable source, and a
+production route regression proves source → Full Observatory display without
+reconnecting the FROZEN_LEGACY bridge. The complete real PV retained
+`world-1`, active Runtime progression `经验值: 2 / 等级: 2`, current metadata
+across repeated navigation, and an empty browser error/warning diagnostic.
+
+Fresh Sprint 31 Gap Analysis: **PASS**. Runtime progression and current
+architecture/Sprint metadata both project truthfully through Full Observatory.
+The partial image queue and the unproduced Runtime Stats system/event/FPS
+metrics remain deferred, non-blocking observations inherited from Sprint 30.
+`SPRINT31_FREEZE_REVIEW` is selected and ready for Human/CTO decision; no
+Sprint 32 work is authorized automatically.
 
 ## Sprint 30 Gap Analysis and selected blocker
 

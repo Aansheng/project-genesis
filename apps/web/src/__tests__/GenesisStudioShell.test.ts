@@ -8,6 +8,7 @@ import { createAppRouter } from '../router'
 import { useGameStore } from '../stores/gameStore'
 import { useObservatoryDataStore } from '../stores/observatoryData'
 import { createPositionComponent } from '@genesis/shared'
+import { PROJECT_METADATA } from '../projectMetadata'
 
 const lifecycle = vi.hoisted(() => ({
   pixiCreated: 0,
@@ -469,6 +470,13 @@ describe('Genesis Studio Shell Foundation', () => {
     await router.push('/observatory')
     await nextTick()
     expect(wrapper.find('.observatory-shell').exists()).toBe(true)
+    expect(wrapper.find('.header-version').text()).toBe(PROJECT_METADATA.architectureVersion)
+    expect(wrapper.find('.header-sprint').text()).toBe(PROJECT_METADATA.currentSprint)
+    const overview = wrapper.find('section[aria-labelledby="system-title"]')
+    expect(overview.text()).toContain(PROJECT_METADATA.architectureVersion)
+    expect(overview.text()).toContain(PROJECT_METADATA.currentSprint)
+    expect(overview.text()).not.toContain('v1.177')
+    expect(overview.text()).not.toContain('Sprint 27')
     expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(7)
     expect(lifecycle).toMatchObject({
       pixiDestroyed: 1,
@@ -488,6 +496,13 @@ describe('Genesis Studio Shell Foundation', () => {
       runnerStarted: 2,
       inputAttached: 2,
     })
+
+    await router.push('/observatory')
+    await nextTick()
+    expect(wrapper.find('.header-version').text()).toBe(PROJECT_METADATA.architectureVersion)
+    expect(wrapper.find('.header-sprint').text()).toBe(PROJECT_METADATA.currentSprint)
+    expect(useGameStore(pinia).worldStore).toBe(worldStore)
+    expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entityCount).toBe(7)
 
     wrapper.unmount()
   })

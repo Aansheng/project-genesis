@@ -1,8 +1,7 @@
-# Gameplay Capability Matrix — Sprint 30 Frozen / Sprint 31 Active
+# Gameplay Capability Matrix — Sprint 30 Frozen / Sprint 31 Freeze Review
 
-Architecture version: v1.181 (Sprint 30 FROZEN; WO-S30-001 and WO-S31-001
-Code Complete; Product Verified; `WO-S31-002` is the current READY metadata
-truth item)
+Architecture version: v1.181 (Sprint 30 FROZEN; WO-S30-001, WO-S31-001, and
+WO-S31-002 Code Complete; Product Verified; `SPRINT31_FREEZE_REVIEW` ready)
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

@@ -41,7 +41,7 @@ function onLanguageChange(event: Event): void {
       <span
         class="header-version"
         :aria-label="i18n.t('observatory.labels.version')"
-      >{{ store.version }}</span>
+      >{{ PROJECT_METADATA.architectureVersion }}</span>
     </div>
     <div class="header-right">
       <RouterLink

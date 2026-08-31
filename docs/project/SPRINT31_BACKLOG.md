@@ -3,8 +3,8 @@
 **Authorization:** Human/CTO decision, 2026-08-31
 **Architecture at authorization:** v1.180
 **Current architecture:** v1.181
-**Status:** ACTIVE — WO-S31-001 DONE; WO-S31-002 READY; Sprint 31 Freeze
-Review not yet eligible
+**Status:** ACTIVE — WO-S31-001 and WO-S31-002 DONE; Sprint 31 Freeze
+Review READY FOR HUMAN/CTO REVIEW
 
 ## Product goal
 
@@ -132,22 +132,26 @@ error/warning diagnostics returned `[]`.
 
 ## Post-WO Fresh Gap Analysis
 
-**Result:** progression consistency is closed; Sprint 31 remains active because
-metadata consistency is still false.
+**Result:** PASS — both measured Sprint 31 Observatory truth blockers are
+closed; Sprint 31 remains ACTIVE only because its freeze decision is a human
+review gate.
 
-The route sequence now proves the current Runtime progression flows through the
-existing Web projection into Observatory without reset. The same sequence still
-shows `v1.177 / Sprint 27` in the Full Observatory header and `v1.177` / Sprint
-27 in the Overview System section. This is not caused by the progression store
-and cannot be repaired by the WO-S31-001 boundary.
+The route sequence proves that the current Runtime progression flows through
+the existing Web projection into Observatory without reset. The same route now
+projects the centralized current application metadata as `v1.181 / Sprint 31`
+in both the Full Observatory header and Overview System section. The stale
+`v1.177 / Sprint 27` projection is absent from the current surface.
 
 The image queue's partial readiness remains a truthful non-blocking observation
-from Sprint 30; it is not selected for Sprint 31. No persistence or legacy
-reconnection is needed for the metadata source correction.
+from Sprint 30; the Runtime Stats system/event/FPS fields also remain zero
+because their producers are outside this bounded slice. Neither is selected as
+a Sprint 31 blocker. No persistence, metadata framework, or legacy
+reconnection is needed. `SPRINT31_FREEZE_REVIEW` is now selected; Sprint 32 is
+not entered automatically.
 
 ## WO-S31-002 — Current Observatory Metadata Source
 
-**Status:** READY — not executed in this continuation turn
+**Status:** DONE — Code Complete = YES; Product Verified = YES
 **Architecture before:** v1.181
 **Expected architecture after:** v1.181 (metadata truth correction only)
 **Dependency:** WO-S31-001 DONE; post-WO Gap Analysis complete
@@ -186,12 +190,41 @@ reconnection, unrelated cleanup, or Sprint 32 work.
 - Existing Survival, Platformer, Prompt Truth/assets, runtime-only spawning,
   and route continuity behavior remain green.
 
+### Implementation and verification result
+
+The source audit confirmed that the repository has no separate generated
+build-info convention for these product labels. The existing
+`apps/web/src/projectMetadata.ts` is the current immutable Web application
+metadata source consumed by the Observatory header, Overview, and current
+generation context. The Observatory store owns only local selection/status UI
+state. The source now reports `v1.181` and
+`Sprint 31`; no UI literal, metadata service, or FROZEN_LEGACY bridge was
+introduced or reconnected.
+
+The production route regression traverses `App → router → ObservatoryPage →
+ObservatoryShell → ObservatoryHeader/Overview` and compares the displayed
+values with `PROJECT_METADATA`, while guarding against the historical
+`v1.177 / Sprint 27` values. The test also returns to Game and re-enters
+Observatory with the same world.
+
+Web tests passed: 50 files / 3566 tests. Web TypeScript, package ESLint (0
+errors; existing warnings only), Web build, and `git diff --check` passed.
+
+Real Chrome Studio Product Verification on 2026-08-31 used the exact request
+`生成一个幸存者游戏`. The active generated session retained `world-1`; two
+Enemy defeat/replacement cycles reached Full Observatory Runtime state
+`Gameplay: active`, `经验值: 2`, and `等级: 2`. The header and Overview showed
+`v1.181 / Sprint 31`. Returning to Game and then re-entering Observatory kept
+the same world/session and the same Runtime progression. Browser
+error/warning diagnostics returned `[]`.
+
 ## Sprint 31 Freeze Question
 
-Sprint 31 may select `SPRINT31_FREEZE_REVIEW` only when both current gameplay
-progression and current architecture/Sprint metadata project truthfully through
-the Full Observatory, with no mock or stale authority. That condition is not
-yet true because WO-S31-002 remains READY. Do not enter Sprint 32 automatically.
+Both current gameplay progression and current architecture/Sprint metadata now
+project truthfully through the Full Observatory, with no mock or stale current
+authority observed. `SPRINT31_FREEZE_REVIEW` is selected for Human/CTO review.
+Sprint 31 is not yet marked FROZEN, and Sprint 32 must not be entered
+automatically.
 
 ## Explicit non-goals
 

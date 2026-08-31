@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 31 — WO-S31-002 Current Observatory Metadata Source (v1.181)
+
+- Source tracing confirmed that `apps/web/src/projectMetadata.ts` is the
+  current immutable Web application metadata source for Observatory and
+  current generation context. It was corrected from the historical
+  `v1.177 / Sprint 27` snapshot to the current `v1.181 / Sprint 31` state;
+  no metadata framework or FROZEN_LEGACY bridge was added.
+- Observatory header and Overview continue to read the same source, while the
+  Observatory store owns only local selection/status UI state. Production route
+  regression covers `App → router → /observatory` display and repeated Game ↔
+  Observatory navigation, with a guard against the stale current-state values.
+- Web tests 50/3566, Web TypeScript, package ESLint (0 errors; existing
+  warnings only), Web build, and `git diff --check` pass. Real Chrome Studio
+  verification retained `world-1`, reached active `经验值: 2 / 等级: 2`, showed
+  `v1.181 / Sprint 31` before and after navigation, and returned no browser
+  errors or warnings.
+- `WO-S31-002` is DONE with Code Complete = YES and Product Verified = YES.
+  Fresh Sprint 31 Gap Analysis is PASS; `SPRINT31_FREEZE_REVIEW` is selected
+  for Human/CTO review. Sprint 32 is not entered automatically.
+
 ### Sprint 30 Freeze + Sprint 31 Authorization (2026-08-31)
 
 - Human/CTO froze Sprint 30 at v1.180. `WO-S30-001` remains DONE with Code
