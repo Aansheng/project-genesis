@@ -1,6 +1,6 @@
 # ADR-0290 — Generic Rule-Driven Runtime Entity Creation
 
-- Status: Accepted; Code Complete; Product Verification pending manual
+- Status: Accepted; Code Complete; Product Verified
 - Date: 2026-08-28
 - Architecture: v1.179 → v1.180
 - Work Order: WO-S30-001
@@ -68,7 +68,18 @@ TypeScript checks, package ESLint (zero errors), Web build, and diff hygiene
 pass. Root Turbo lint is blocked by the host's missing TLS keychain, while
 package lint commands exit 0 with pre-existing warnings only.
 
-Real provider-backed Studio verification is still required. The in-app browser
-session was reaped after a model switch and fresh local navigation was denied
-by security review, so Product Verified remains PENDING MANUAL and the Sprint
-30 Freeze Review is not selected.
+Real provider-backed Studio verification passed on 2026-08-31 in a fresh
+Chrome-backed local Studio session using `生成一个幸存者游戏`. The session
+remained on `world-1` with five entities while independent contact-starts
+defeated an Enemy and committed two Runtime-only replacements. The Event Stream
+showed the ordered `ENTITY_REMOVED → SPAWN_ENTITY → ENTITY_ADDED` facts; each
+replacement retained Position, Health, collision, target-directed movement,
+and contact compatibility. Visual operations stayed at nine with no new
+provider/image-generation operation, and browser warning/error diagnostics
+were empty. Direct Runtime observations reached XP/Level `1/2` and then
+`2/2`. Product Verified = YES.
+
+The fresh Gap Analysis found no blocker to the bounded thesis and selected
+`SPRINT30_FREEZE_REVIEW`. Page-remount progression projection, stale full
+Observatory header metadata, and a partially settling image queue remain
+explicit non-blockers outside this decision. Sprint 31 is not entered.

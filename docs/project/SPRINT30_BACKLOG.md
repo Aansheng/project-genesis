@@ -2,8 +2,8 @@
 
 **Authorization:** Human/CTO decision, 2026-08-28  
 **Architecture at authorization:** v1.179  
-**Status:** ACTIVE — initial Gap Analysis complete; WO-S30-001 Code Complete =
-YES; Product Verified = PENDING MANUAL
+**Status:** ACTIVE — WO-S30-001 Code Complete = YES; Product Verified = YES;
+`SPRINT30_FREEZE_REVIEW` READY FOR HUMAN/CTO REVIEW
 
 ## Product goal
 
@@ -49,8 +49,8 @@ policy.
 
 ### WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
 
-**Status:** READY FOR PRODUCT VERIFICATION — Code Complete = YES; Product
-Verified = PENDING MANUAL  
+**Status:** DONE — Code Complete = YES; Product Verified = YES;
+`SPRINT30_FREEZE_REVIEW` READY FOR HUMAN/CTO REVIEW
 **Architecture before:** v1.179  
 **Expected architecture after:** v1.180
 
@@ -112,10 +112,25 @@ replacement composition, replacement contact pressure, and active-session
 continuity. Full package tests, TypeScript, package ESLint, Web build, and
 diff hygiene pass. Code Complete = YES.
 
-Real provider-backed Studio verification is still required. The in-app browser
-session was reaped after a model switch and fresh local navigation was denied
-by security review; therefore Product Verified remains PENDING MANUAL and
-`SPRINT30_FREEZE_REVIEW` is not selected.
+Real provider-backed Studio verification passed on 2026-08-31 in a fresh
+Chrome-backed local Studio session. The exact prompt `生成一个幸存者游戏`
+created `world-1` with five entities and an active Runtime. Independent
+contact-starts defeated the initial Enemy, the committed zero-Health removal
+produced `enemy-runtime-58114`, and a second bounded defeat produced
+`enemy-runtime-79724`; both replacements retained the full six-component
+composition and the session remained on `world-1` with five entities.
+Direct Runtime observations reached XP/Level `1/2` and then `2/2`. The Event
+Stream showed the ordered `ENTITY_REMOVED → SPAWN_ENTITY → ENTITY_ADDED`
+facts. Visual operations remained `9` before and after replacement, the
+canvas stayed rendered, no new provider/image-generation activity appeared,
+and the final browser warning/error query was empty. Product Verified = YES.
+
+Fresh Sprint 30 Gap Analysis = PASS. A Game → Observatory → Game traversal
+exposed the existing page-remount progression projection reset to the
+lifecycle baseline until the next gameplay event; stale Observatory header
+metadata and a partially settling image queue were also observed. These are
+outside this bounded replacement acceptance and do not block the
+`SPRINT30_FREEZE_REVIEW` gate. Sprint 31 is not entered.
 
 ## Deferred non-blockers
 

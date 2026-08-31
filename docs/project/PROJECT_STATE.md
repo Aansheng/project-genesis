@@ -31,8 +31,8 @@
 **Sprint 27** — Survival Top-Down Spatial Composition (**FROZEN — WO-S27-001 Code Complete = YES; Product Verified = YES; v1.177**)
 **Sprint 28** — Survival Gameplay Pressure (**FROZEN — Code Complete = YES; Product Verified = YES; v1.178**)
 **Sprint 29** — Generic Offensive Interaction (**FROZEN — WO-S29-001 Code Complete = YES; Product Verified = YES; v1.179**)
-**Sprint 30** — Sustained Survival Loop (**ACTIVE — WO-S30-001 Code Complete = YES; Product Verified = PENDING MANUAL; v1.180**)
-**Current WO** - WO-S30-001 — Generic Rule-Driven Runtime Entity Creation — READY FOR PRODUCT VERIFICATION; next gate `SPRINT30_FREEZE_REVIEW`
+**Sprint 30** — Sustained Survival Loop (**ACTIVE — WO-S30-001 Code Complete = YES; Product Verified = YES; v1.180; Freeze Review ready**)
+**Current WO** - `SPRINT30_FREEZE_REVIEW` — READY FOR HUMAN/CTO REVIEW; WO-S30-001 DONE; Sprint 31 not entered
 
 ---
 
@@ -40,14 +40,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 29 is FROZEN at v1.179. Sprint 30 is ACTIVE with WO-S30-001 Code Complete = YES; automated evidence passes, while real Studio Product Verification remains PENDING MANUAL because the in-app browser session was reaped by its security policy. |
+| Status | Sprint 29 is FROZEN at v1.179. Sprint 30 is ACTIVE with WO-S30-001 Code Complete = YES and Product Verified = YES; `SPRINT30_FREEZE_REVIEW` is READY FOR HUMAN/CTO REVIEW. |
 | Architecture Version | v1.180; Survival retains v1.179 offense and adds one generic removal-triggered Runtime replacement path with binding-only visual reuse. |
-| Last Completed WO | WO-S29-001 — Generic Contact Offense Rule Composition; Code Complete = YES; Product Verified = YES; v1.179. |
+| Last Completed WO | WO-S30-001 — Generic Rule-Driven Runtime Entity Creation; Code Complete = YES; Product Verified = YES; v1.180. |
 | Current User-Visible Behavior | Top-down Survival retains movement, pursuit/contact threat, same-world +5, and visual reuse. Each distinct Player/Enemy contact damages Enemy Health by 25; Health zero removes the Enemy and grants XP +1 with the existing first Level transition. The next committed removal fact executes one replacement Enemy in the same active Runtime session; the replacement inherits Position, Health, collision, pursuit, contact pressure/offense, and the canonical Enemy visual binding. Platformer remains unchanged. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → Runtime system registry / `DefaultRuntimeExecutionLoop` → `ENTITY_CONTACT_STARTED` / `ENTITY_REMOVED` facts → post-system GameplayRuleExecutor → trusted `SPAWN_ENTITY` → immutable `WorldMutator.addEntity` → Runtime WorldStore → binding-only visual manifest projection → RuntimeRendererAdapter → Pixi Renderer → Observatory. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | No source or automated-test blocker remains. Real Studio Product Verification is blocked/pending because the in-app browser session was reaped after a model switch and subsequent local navigation was denied by browser security review; no alternate browser path was used. |
-| Product Verification | Sprint 29: PASS/FROZEN. Sprint 30: automated production reachability and full package/build checks PASS; real provider-backed Studio verification of defeat → replacement → pursuit/contact/offense → visual reuse is PENDING MANUAL. |
-| Next Recommended Verification | Complete the real Studio Sprint 30 scenario in a fresh approved browser session, record the fresh Gap Analysis, then select `SPRINT30_FREEZE_REVIEW` only if the thesis passes. Do not enter Sprint 31 automatically. |
+| Current Blocking Issue | No Sprint 30 source, automated-test, or bounded gameplay blocker remains. The fresh Gap Analysis records page-remount progression projection, stale full Observatory metadata, and a partially settling image queue as non-blocking/out-of-scope findings. |
+| Product Verification | Sprint 29: PASS/FROZEN. Sprint 30: PASS — fresh provider-backed Studio proved Enemy defeat/removal, two same-world Runtime replacements, full composition, XP/Level `1/2` then `2/2`, stable visual operation count `9`, no new provider/image-generation activity, active session, and clean browser diagnostics. |
+| Next Recommended Verification | Human/CTO review `docs/project/SPRINT30_REVIEW.md` and decide whether to freeze Sprint 30 at v1.180. Do not enter Sprint 31 automatically. |
 
 ## Sprint 30 Sustained Survival Loop Snapshot
 
@@ -67,9 +67,31 @@ the current Player, and copies the resolved canonical Enemy visual through a
 binding-only manifest projection. No timer, count, wave, scheduler, manager,
 prefab, AI-per-spawn call, or Semantic World mutation was added.
 
-Automated production reachability proves defeat/removal, replacement component
-composition, replacement contact pressure, and active-session continuity. The
-real Studio scenario remains the required manual gate for Product Verified.
+Automated production reachability and the fresh provider-backed Studio scenario
+prove defeat/removal, replacement component composition, replacement contact
+pressure/offense, visual binding reuse, and active-session continuity. The
+bounded WO is complete; the next gate is the Sprint 30 Freeze Review.
+
+## Sprint 30 Product Verification and Gap Analysis
+
+The exact request `生成一个幸存者游戏` produced `world-1` with five active
+entities. Independent contact-starts drove the initial Enemy through
+`75→50→25→0`; the Runtime Event Stream showed the committed
+`ENTITY_REMOVED → SPAWN_ENTITY → ENTITY_ADDED` chain. Two replacements
+(`enemy-runtime-58114`, then `enemy-runtime-79724`) appeared in the same
+world/session, retained Position, Health, collision, target-directed pursuit,
+and contact pressure/offense compatibility, and kept the entity count at five.
+Direct Runtime observations reached XP/Level `1/2` and then `2/2`. Visual
+operations stayed at nine and the Game canvas remained rendered without new
+provider/image-generation activity; the final warning/error query was empty.
+
+Fresh Gap Analysis = PASS. An exploratory Game → Observatory → Game traversal
+revealed the existing page-remount progression projection reset to `0/1` until
+the next gameplay event, while world/entity history remained. Full Observatory
+header metadata is still stale at v1.177/Sprint 27, and the provider image
+queue was only partially settled. These findings are documented as
+out-of-scope/non-blocking for this bounded WO. `SPRINT30_FREEZE_REVIEW` is
+selected; Sprint 31 is not entered.
 
 ## Sprint 27 Spatial Composition Snapshot
 

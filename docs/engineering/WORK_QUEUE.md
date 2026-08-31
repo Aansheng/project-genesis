@@ -4,16 +4,16 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-28
+updated: 2026-08-31
 current_sprint: Sprint 30
-current_work_order: WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
-current_work_order_status: READY FOR PRODUCT VERIFICATION
-current_control_plane_work_order: NONE
-current_control_plane_work_order_status: idle
-last_completed_work_order: WO-S29-001 — Generic Contact Offense Rule Composition
-next_work_order: NONE — WO-S30-001 is the sole active primary WO
+current_work_order: SPRINT30_FREEZE_REVIEW — Sustained Survival Loop
+current_work_order_status: READY FOR HUMAN/CTO REVIEW
+current_control_plane_work_order: SPRINT30_FREEZE_REVIEW
+current_control_plane_work_order_status: READY FOR HUMAN/CTO REVIEW
+last_completed_work_order: WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
+next_work_order: NONE — SPRINT30_FREEZE_REVIEW is the current control-plane gate
 continuation_mode: SPRINT_CONTINUOUS
-primary_architecture_changing_work_items_in_progress: 1
+primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT29_FREEZE_REVIEW
 
@@ -40,7 +40,7 @@ wiring, and the Human/CTO decision.
 
 ## WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
 
-status: READY FOR PRODUCT VERIFICATION — Code Complete = YES; Product Verified = PENDING MANUAL
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / Human-CTO authorized
 architecture_before: v1.179
 architecture_after: v1.180
@@ -56,12 +56,38 @@ active session with Position, Health, collision, pursuit, pressure/offense
 compatibility, and the existing Enemy visual; no provider call or duplicate
 generation occurs; Platformer remains unchanged; full checks pass and real
 Studio PV remains the final required gate.
-result: CODE COMPLETE — automated production reachability and all package
-tests/typechecks/lints plus Web build pass. Real Studio PV is PENDING MANUAL;
-the in-app browser session was reaped and fresh local navigation was denied by
-security review, so no manual Product Verified claim is made.
-next_gate: SPRINT30_FREEZE_REVIEW — BLOCKED ON REAL STUDIO PV; do not enter
+result: PASS — automated production reachability and all package
+tests/typechecks/lints plus Web build pass. Fresh Chrome-backed Studio PV
+submitted `生成一个幸存者游戏`, kept `world-1` active at five entities,
+proved independent contact defeat, two Runtime-only replacements, full
+replacement composition, XP/Level `1/2` then `2/2`, stable visual operation
+count `9`, no new provider/image-generation activity, and empty browser
+warning/error diagnostics.
+fresh_gap_analysis: PASS — no blocker to the bounded Sustained Survival Loop.
+Page-remount progression projection, stale full Observatory metadata, and a
+partially settling image queue remain explicit out-of-scope/non-blocking gaps.
+next_gate: SPRINT30_FREEZE_REVIEW — READY FOR HUMAN/CTO REVIEW; do not enter
 Sprint 31.
+
+## SPRINT30_FREEZE_REVIEW
+
+status: READY FOR HUMAN/CTO REVIEW
+recommended_architecture: Freeze Sprint 30 at v1.180
+scope: Review WO-S30-001 completion, real Studio evidence, fresh Gap Analysis,
+and documentation drift; no product implementation.
+evidence: The exact provider-backed request `生成一个幸存者游戏` produced
+`world-1` with five entities. Independent contact-starts removed the initial
+Enemy and committed two same-world Runtime replacements. The Event Stream
+showed `ENTITY_REMOVED → SPAWN_ENTITY → ENTITY_ADDED`; replacement entities
+had Position, Health, collision, target-directed pursuit, and contact
+pressure/offense compatibility. XP/Level reached `1/2` and then `2/2`.
+Visual operations stayed at `9`; no new provider/image-generation activity
+appeared; browser warning/error diagnostics were empty.
+fresh_gap_analysis: PASS — no blocker to the bounded Sprint 30 thesis.
+constraints: No new WO, no waves/timers/count expressions/encounter manager,
+no Semantic mutation for ephemeral replacements, no new visual generation,
+and no Sprint 31 entry.
+artifact: docs/project/SPRINT30_REVIEW.md
 
 ## SPRINT28_FREEZE_REVIEW
 

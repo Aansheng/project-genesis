@@ -1,6 +1,27 @@
 # Changelog
 
-### Sprint 29 Freeze + Sprint 30 WO-S30-001 Code Complete (v1.179 → v1.180)
+### Sprint 30 Product Verification + Freeze Review Readiness (v1.180)
+
+- Fresh provider-backed Studio verification passed the exact
+  `生成一个幸存者游戏` scenario on 2026-08-31. `world-1` remained active with
+  five entities while independent contact-starts defeated an Enemy and
+  committed two Runtime-only replacements.
+- The Event Stream showed the ordered `ENTITY_REMOVED → SPAWN_ENTITY →
+  ENTITY_ADDED` facts. Replacements retained Position, Health, collision,
+  target-directed pursuit, and contact pressure/offense compatibility.
+- Direct Runtime observations reached XP/Level `1/2` and then `2/2`; Player
+  and world identity were retained, and no new World Creation activity
+  appeared.
+- Visual operations remained at `9` before and after replacement. The canvas
+  remained rendered, no new provider/image-generation activity appeared, and
+  the final browser error/warning query was empty. The final queue was
+  `3/9 ready` with fallback/generating entries, so all-assets-ready is not
+  claimed.
+- WO-S30-001 is DONE with Code Complete = YES and Product Verified = YES.
+  Fresh Sprint 30 Gap Analysis is PASS; `SPRINT30_FREEZE_REVIEW` is READY FOR
+  HUMAN/CTO REVIEW. Sprint 31 is not entered.
+
+### Sprint 30 WO-S30-001 Code Complete (v1.179 → v1.180)
 
 - Human/CTO froze Sprint 29 at v1.179 with WO-S29-001 Code Complete = YES,
   Product Verified = YES, and Fresh Gap Analysis PASS.
@@ -17,10 +38,9 @@
   all package TypeScript checks, package ESLint (zero errors), Web build, and
   `git diff --check` pass. Root Turbo lint is environment-blocked by missing
   TLS keychain initialization.
-- Code Complete = YES. Real provider-backed Studio Product Verification is
-  PENDING MANUAL because the in-app browser session was reaped and fresh local
-  navigation was denied by browser security review; Sprint 30 Freeze Review is
-  not selected and Sprint 31 is not entered.
+- Code Complete = YES at the implementation checkpoint. The subsequent
+  provider-backed Studio Product Verification and Freeze Review readiness are
+  recorded in the entry above.
 
 ### Sprint 28 Freeze + Sprint 29 WO-S29-001 Complete (v1.178 → v1.179)
 
