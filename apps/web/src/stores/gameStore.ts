@@ -12,8 +12,8 @@
  * - All streaming state preserved as inert UI (toggle continues to render)
  */
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
-import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer, DefaultRuntimeGameplayEventCollector } from '@genesis/runtime'
+import { computed, markRaw, ref } from 'vue'
+import { Runtime, DefaultRuntimeWorldStore, DefaultRuntimeWorldEvolutionSynchronizer, DefaultRuntimeGameplayEventCollector, DefaultRuntimeGameplayProgressionStateStore } from '@genesis/runtime'
 import type { RuntimeGameplaySessionState, RuntimeWorldStore } from '@genesis/runtime'
 import { DefaultAssetResolver, DefaultAssetStore } from '@genesis/assets'
 import type { AssetManifest, GameplayRuleReconciliationResult, GameplayRuleSet, GameplaySpecification, ImageGenerationContext, ImageGenerationOperation, AssetSpecification, GameDesignSpecification, GameWorldModel, VisualDesignSpecification, VisualEvolutionPlan, VisualAssetExecutionResult, WorldEvolutionEvent, WorldEvolutionRequest, WorldEvolutionStage, WorldSemanticProperties, SemanticWorldMutationResult, RuntimeEvolutionResult, WorldEvolutionOperation } from '@genesis/shared'
@@ -477,6 +477,9 @@ export function createCommandExecutor(
 export const useGameStore = defineStore('game', () => {
   const runtime = new Runtime()
   const gameplayEventCollector = new DefaultRuntimeGameplayEventCollector()
+  // Runtime owns progression truth. Keep the existing Runtime store at the
+  // app-session composition boundary so route remounts cannot reset it.
+  const runtimeGameplayProgressionStateStore = markRaw(new DefaultRuntimeGameplayProgressionStateStore())
   const worldStore: RuntimeWorldStore = new DefaultRuntimeWorldStore(runtime.world, gameplayEventCollector)
   const assetStore = new DefaultAssetStore(new DefaultAssetResolver())
   const assetManifest = ref<AssetManifest>(EMPTY_ASSET_MANIFEST)
@@ -1214,6 +1217,7 @@ export const useGameStore = defineStore('game', () => {
     runtime,
     worldStore,
     gameplayEventCollector,
+    runtimeGameplayProgressionStateStore,
     assetStore,
     assetManifest,
     assetManifestRevision,

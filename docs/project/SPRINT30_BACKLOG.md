@@ -2,8 +2,8 @@
 
 **Authorization:** Human/CTO decision, 2026-08-28  
 **Architecture at authorization:** v1.179  
-**Status:** ACTIVE — WO-S30-001 Code Complete = YES; Product Verified = YES;
-`SPRINT30_FREEZE_REVIEW` READY FOR HUMAN/CTO REVIEW
+**Status:** FROZEN — WO-S30-001 Code Complete = YES; Product Verified = YES;
+architecture v1.180; Human/CTO freeze accepted 2026-08-31
 
 ## Product goal
 
@@ -50,7 +50,7 @@ policy.
 ### WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
 
 **Status:** DONE — Code Complete = YES; Product Verified = YES;
-`SPRINT30_FREEZE_REVIEW` READY FOR HUMAN/CTO REVIEW
+Sprint 30 Freeze Review subsequently accepted
 **Architecture before:** v1.179  
 **Expected architecture after:** v1.180
 
@@ -128,9 +128,17 @@ and the final browser warning/error query was empty. Product Verified = YES.
 Fresh Sprint 30 Gap Analysis = PASS. A Game → Observatory → Game traversal
 exposed the existing page-remount progression projection reset to the
 lifecycle baseline until the next gameplay event; stale Observatory header
-metadata and a partially settling image queue were also observed. These are
-outside this bounded replacement acceptance and do not block the
-`SPRINT30_FREEZE_REVIEW` gate. Sprint 31 is not entered.
+metadata and a partially settling image queue were also observed. The first
+two findings were outside this bounded replacement acceptance and did not
+block the later accepted `SPRINT30_FREEZE_REVIEW`; they became the measured
+inputs to Sprint 31. The image queue remains outside the frozen scope.
+
+## Freeze outcome
+
+Human/CTO froze Sprint 30 at v1.180 on 2026-08-31 with Code Complete = YES,
+Product Verified = YES, and Fresh Gap Analysis = PASS. Sprint 31 — Observatory
+Truth Consistency was explicitly authorized. The next Sprint is governed by
+`docs/project/SPRINT31_BACKLOG.md`; Sprint 30 scope is closed.
 
 ## Deferred non-blockers
 

@@ -151,6 +151,7 @@ onMounted(() => {
     getSessionId: () => store.currentWorldId || undefined,
     getSemanticRevision: () => store.semanticRevision,
     getSemanticWorld: () => store.semanticWorld ?? undefined,
+    progressionStateStore: store.runtimeGameplayProgressionStateStore,
   }
   const executionLoop = new DefaultRuntimeExecutionLoop(systemRegistry, store.gameplayEventCollector, ruleExecutionConfig)
   const adapter = new DefaultRuntimeRendererAdapter({

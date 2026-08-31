@@ -7,6 +7,7 @@ import App from '../App.vue'
 import { createAppRouter } from '../router'
 import { useGameStore } from '../stores/gameStore'
 import { useObservatoryDataStore } from '../stores/observatoryData'
+import { DefaultRuntimeExecutionLoop } from '@genesis/runtime'
 
 const lifecycle = vi.hoisted(() => ({
   pixiCreated: 0,
@@ -17,6 +18,7 @@ const lifecycle = vi.hoisted(() => ({
   inputAttached: 0,
   inputDetached: 0,
 }))
+const executionLoops: DefaultRuntimeExecutionLoop[] = []
 
 vi.mock('pixi.js', () => ({
   Application: class {
@@ -39,6 +41,10 @@ vi.mock('@genesis/renderer', () => ({
   DefaultRuntimeRendererAdapter: class {},
   DefaultPixiEntityRenderer: class {},
   DefaultRuntimeVisualizationLoop: class {
+    constructor(executionLoop: DefaultRuntimeExecutionLoop) {
+      executionLoops.push(executionLoop)
+    }
+
     stop() {
       lifecycle.loopStopped++
     }
@@ -63,6 +69,10 @@ vi.mock('@genesis/renderer', () => ({
     detach() {
       lifecycle.inputDetached++
     }
+
+    getState() {
+      return { isPressed: () => false }
+    }
   },
   DefaultCameraController: class {},
 }))
@@ -85,6 +95,7 @@ beforeEach(() => {
     lifecycle[key as keyof typeof lifecycle] = 0
   })
   document.body.className = ''
+  executionLoops.length = 0
 })
 
 describe('Observatory SPA runtime session integration', () => {
@@ -158,6 +169,35 @@ describe('Observatory SPA runtime session integration', () => {
     expect(useObservatoryDataStore(pinia).viewModel.runtimeView.entities.map(
       (entity) => entity.id,
     )).toEqual(replacementIds)
+    wrapper.unmount()
+  })
+
+  it('keeps Runtime progression truth across Game → Observatory → Game remounts', async () => {
+    const { wrapper, pinia, router } = await mountSession()
+    const gameStore = useGameStore(pinia)
+    await gameStore.send('创建 MarioWorld')
+
+    expect(executionLoops).toHaveLength(1)
+    const firstLoop = executionLoops[0]
+    const progressionStore = gameStore.runtimeGameplayProgressionStateStore
+    progressionStore.bind({ worldId: gameStore.currentWorldId, sessionId: gameStore.currentWorldId })
+    progressionStore.commit({ values: { experience: 2, level: 2 } })
+
+    expect(firstLoop.tickWithResult(gameStore.worldStore.getWorld()).gameplayProgressionState).toEqual({
+      values: { experience: 2, level: 2 },
+    })
+
+    await router.push('/observatory')
+    await nextTick()
+    await router.push('/')
+    await nextTick()
+
+    expect(executionLoops).toHaveLength(2)
+    expect(gameStore.runtimeGameplayProgressionStateStore).toBe(progressionStore)
+    expect(executionLoops[1].tickWithResult(gameStore.worldStore.getWorld()).gameplayProgressionState).toEqual({
+      values: { experience: 2, level: 2 },
+    })
+
     wrapper.unmount()
   })
 

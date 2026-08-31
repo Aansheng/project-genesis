@@ -5,15 +5,86 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-08-31
-current_sprint: Sprint 30
-current_work_order: SPRINT30_FREEZE_REVIEW — Sustained Survival Loop
-current_work_order_status: READY FOR HUMAN/CTO REVIEW
-current_control_plane_work_order: SPRINT30_FREEZE_REVIEW
-current_control_plane_work_order_status: READY FOR HUMAN/CTO REVIEW
-last_completed_work_order: WO-S30-001 — Generic Rule-Driven Runtime Entity Creation
-next_work_order: NONE — SPRINT30_FREEZE_REVIEW is the current control-plane gate
+current_sprint: Sprint 31
+current_work_order: WO-S31-002 — Current Observatory Metadata Source
+current_work_order_status: READY
+current_control_plane_work_order: NONE — initial one-WO continuation stop
+current_control_plane_work_order_status: NONE
+last_completed_work_order: WO-S31-001 — Runtime Progression Projection Across SPA Navigation
+next_work_order: WO-S31-002 — Current Observatory Metadata Source
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## SPRINT31_AUTHORIZATION — Observatory Truth Consistency
+
+status: AUTHORIZED — Human/CTO decision 2026-08-31; Sprint 30 FROZEN at v1.180
+architecture_at_authorization: v1.180
+current_architecture: v1.181
+goal: Current Runtime/gameplay state → current Web projection → Full
+  Observatory across navigation and ongoing gameplay; no stale metadata or
+  fabricated/default progression.
+initial_gap_analysis: Two independent defects were measured. Game remounts
+  created a fresh Runtime progression store and published 0/1; the current
+  centralized apps/web/src/projectMetadata.ts still publishes v1.177/Sprint 27.
+selected_priority: Progression first because active gameplay truth was reset by
+  the route boundary. Metadata is the next separate item.
+constraints: Runtime remains authority; Observatory remains projection-only;
+  no persistence, telemetry, route-state framework, duplicate XP state,
+  Manager/MetadataManager/PersistenceManager, or Sprint 25 legacy reconnection.
+next_gate: Execute WO-S31-002, rerun the complete real PV, and select
+  SPRINT31_FREEZE_REVIEW only when progression and metadata both project current
+  truth. Do not enter Sprint 32 automatically.
+
+## WO-S31-001 — Runtime Progression Projection Across SPA Navigation
+
+status: DONE — Code Complete = YES; Product Verified = YES
+priority: P0 / Sprint 31 authorized
+architecture_before: v1.180
+architecture_after: v1.181
+dependencies: Sprint 30 FROZEN at v1.180; Sprint 31 authorized; initial Gap
+  Analysis complete
+allowed_scope: Reuse the existing Runtime progression store at the existing
+  Web app-session gameStore boundary; mark the stateful object raw for Pinia;
+  inject it into every GameViewportPanel execution loop; add production route
+  regression coverage and truthful ADR/control-plane updates.
+forbidden_scope: Observatory-owned XP, persistence, refresh restore,
+  localStorage/IndexedDB/server session, telemetry, event sourcing, route-state
+  framework, new global state, gameplay rule changes, waves/managers, visual
+  redesign, or legacy metadata reconnection.
+real_flow: GameViewportPanel mount → gameStore Runtime progression store →
+  DefaultRuntimeExecutionLoop → GameplayRuleExecutor → Runtime progression
+  commit → RuntimeGameplayProgressionStateObserver → observatoryDataStore →
+  Full Observatory Runtime viewer
+acceptance: Same world/session retains progression across Game → Full
+  Observatory → Game; real Survival reaches 1/2 then 2/2; no fake 0/1 after
+  remount; existing spawning, visuals, Platformer, and clean diagnostics remain.
+verification: Runtime 25/705 and Web 50/3566 tests pass; Runtime/Web
+  TypeScript pass; package Lint exits 0 with existing warnings only; Web build
+  and git diff --check pass; real Studio route PV passes with browser
+  error/warning query [].
+result: PASS — current Runtime progression is retained across remounted loops;
+  Sprint31 metadata remains a separate measured blocker.
+
+## WO-S31-002 — Current Observatory Metadata Source
+
+status: READY — not executed in the initial one-WO continuation turn
+priority: P1 / Sprint 31 authorized
+architecture_before: v1.181
+architecture_after: v1.181 (metadata truth correction only)
+dependencies: WO-S31-001 DONE; post-WO Gap Analysis complete
+measured_bottleneck: The current Observatory consumers already share
+  PROJECT_METADATA, but apps/web/src/projectMetadata.ts is stale at v1.177 /
+  Sprint 27. Trace the repository source and correct the one current source;
+  do not patch scattered UI strings or reconnect FROZEN_LEGACY metadata.
+allowed_scope: Source trace, centralized current metadata correction, focused
+  header/overview/store tests, production route reachability assertions, and
+  the complete real progression PV.
+forbidden_scope: MetadataManager, new metadata service, persistence,
+  telemetry, route-state framework, legacy PromptBuilder/metadata bridge,
+  unrelated cleanup, or Sprint 32.
+acceptance: Full Observatory header/overview show current architecture/Sprint
+  values from one current source; real Survival route PV preserves world,
+  session, and progression; no fabricated defaults or stale v1.177/Sprint 27.
 
 ## SPRINT29_FREEZE_REVIEW
 
@@ -66,15 +137,15 @@ warning/error diagnostics.
 fresh_gap_analysis: PASS — no blocker to the bounded Sustained Survival Loop.
 Page-remount progression projection, stale full Observatory metadata, and a
 partially settling image queue remain explicit out-of-scope/non-blocking gaps.
-next_gate: SPRINT30_FREEZE_REVIEW — READY FOR HUMAN/CTO REVIEW; do not enter
-Sprint 31.
+next_gate: SPRINT30_FREEZE_REVIEW — DONE; Sprint 30 was frozen at v1.180 and
+Sprint 31 was explicitly authorized by Human/CTO on 2026-08-31.
 
 ## SPRINT30_FREEZE_REVIEW
 
-status: READY FOR HUMAN/CTO REVIEW
+status: DONE — Human/CTO froze Sprint 30 at v1.180 on 2026-08-31.
 recommended_architecture: Freeze Sprint 30 at v1.180
 scope: Review WO-S30-001 completion, real Studio evidence, fresh Gap Analysis,
-and documentation drift; no product implementation.
+and documentation drift; no product implementation. Review accepted.
 evidence: The exact provider-backed request `生成一个幸存者游戏` produced
 `world-1` with five entities. Independent contact-starts removed the initial
 Enemy and committed two same-world Runtime replacements. The Event Stream
@@ -83,10 +154,12 @@ had Position, Health, collision, target-directed pursuit, and contact
 pressure/offense compatibility. XP/Level reached `1/2` and then `2/2`.
 Visual operations stayed at `9`; no new provider/image-generation activity
 appeared; browser warning/error diagnostics were empty.
-fresh_gap_analysis: PASS — no blocker to the bounded Sprint 30 thesis.
-constraints: No new WO, no waves/timers/count expressions/encounter manager,
-no Semantic mutation for ephemeral replacements, no new visual generation,
-and no Sprint 31 entry.
+fresh_gap_analysis: PASS — no blocker to the bounded Sprint 30 thesis. The
+page-remount progression and stale metadata findings became Sprint 31 inputs;
+the partial image queue remains non-blocking.
+constraints: No waves/timers/count expressions/encounter manager, no Semantic
+mutation for ephemeral replacements, and no new visual generation. Sprint 31
+is separately authorized only for Observatory Truth Consistency.
 artifact: docs/project/SPRINT30_REVIEW.md
 
 ## SPRINT28_FREEZE_REVIEW

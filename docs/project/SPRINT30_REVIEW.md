@@ -2,8 +2,8 @@
 
 Review date: 2026-08-31  
 Architecture: v1.180  
-Status: **READY FOR HUMAN/CTO REVIEW**  
-Authority: Human / CTO decision pending
+Status: **FROZEN**
+Authority: Human / CTO decision accepted on 2026-08-31
 
 ## Decision boundary
 
@@ -12,8 +12,10 @@ Sprint 30 proves one bounded Runtime-authoritative replenishment cycle:
 `Enemy pressure → Enemy defeat/removal → replacement Enemy pressure → active
 Survival continues`
 
-This review does not authorize waves, periodic spawning, difficulty scaling,
-encounter orchestration, a Survivor-specific spawn engine, or Sprint 31.
+This review does not authorize waves, periodic spawning, difficulty scaling, or
+encounter orchestration. The Human/CTO decision below explicitly authorizes
+Sprint 31 only for Observatory Truth Consistency; it does not authorize a
+Survivor-specific spawn engine or any deferred wave framework.
 
 `WO-S30-001 — Generic Rule-Driven Runtime Entity Creation` is DONE with Code
 Complete = YES and Product Verified = YES for this bounded target.
@@ -84,14 +86,14 @@ review:
 1. Navigating away from Game unmounts `GameViewportPanel`; returning creates a
    new execution-loop progression store, so the Observatory projection can
    temporarily show the lifecycle baseline `0/1` while the world and entity
-   history remain. The source confirms this is a page/session projection and
-   reload-recovery boundary, not a failure of the replacement rule. It remains
-   outside WO-S30-001 and is not converted into another WO here.
+   history remain. This did not invalidate the bounded replacement rule, but it
+   is a real Observatory consistency defect and is promoted to Sprint 31
+   `WO-S31-001`.
 2. The full Observatory header still displays the stale v1.177/Sprint 27
    projection metadata, and its systems/events/FPS fields remain zero while
    the Runtime entity and Event Stream projections show the current world.
-   This known Observatory projection mismatch does not block the gameplay
-   thesis.
+   This known Observatory projection mismatch does not block the Sprint 30
+   gameplay thesis and is recorded as the independent Sprint 31 metadata gap.
 3. The provider-backed image queue settled partially into ready/fallback/
    generating states. The replacement count and visual binding stayed stable,
    with no duplicate generation. All-assets-ready is outside this bounded
@@ -101,12 +103,27 @@ Entity-count expressions, timers, waves, schedulers, difficulty, encounter
 management, persistent Semantic recording of ephemeral entities, and new
 visual generation remain deferred.
 
+## Human/CTO freeze decision
+
+On 2026-08-31 the Human/CTO accepted the freeze boundary:
+
+- Sprint 30 is **FROZEN = YES** at architecture v1.180.
+- `WO-S30-001` is **DONE**, with Code Complete = YES and Product Verified =
+  YES.
+- Fresh Sprint 30 Gap Analysis is **PASS**.
+- Sprint 31 — Observatory Truth Consistency is explicitly **AUTHORIZED**.
+- Sprint 31 must preserve Runtime authority, SPA continuity, runtime-only
+  spawning, progression, Prompt Truth/assets, and Platformer/Survival behavior.
+- WaveManager, SpawnManager, timers, difficulty scaling, procedural waves,
+  spawn director, enemy factory/prefab, persistence, telemetry, and legacy
+  Observatory reconnection remain forbidden.
+
 ## Review outcome
 
 - Architecture: v1.179 → v1.180
 - Code Complete: YES
 - Product Verified: YES
 - Fresh Gap Analysis: PASS
-- Selected gate: `SPRINT30_FREEZE_REVIEW`
-- Sprint 30: remains active pending Human/CTO freeze decision
-- Sprint 31: not entered
+- Selected gate: `SPRINT30_FREEZE_REVIEW` — DONE
+- Sprint 30: FROZEN at v1.180
+- Sprint 31: AUTHORIZED; initial bounded WO `WO-S31-001` completed at v1.181

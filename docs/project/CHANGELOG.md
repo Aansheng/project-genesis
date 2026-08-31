@@ -1,5 +1,37 @@
 # Changelog
 
+### Sprint 30 Freeze + Sprint 31 Authorization (2026-08-31)
+
+- Human/CTO froze Sprint 30 at v1.180. `WO-S30-001` remains DONE with Code
+  Complete = YES, Product Verified = YES, and Fresh Sprint 30 Gap Analysis =
+  PASS.
+- Sprint 31 — Observatory Truth Consistency is explicitly authorized. Its
+  invariant is `Runtime/current product state → Web projection → Observatory`;
+  Observatory remains a projection and may not invent defaults or reconnect
+  the Sprint 25 FROZEN_LEGACY metadata path.
+- The initial Sprint 31 audit found two independent defects: route remount
+  progression reset and stale centralized Observatory metadata. Per the
+  one-WO policy, progression was selected first; metadata remains the next
+  single READY item.
+
+### Sprint 31 — WO-S31-001 Runtime Progression Projection Across SPA Navigation (v1.180 → v1.181)
+
+- The existing Runtime `DefaultRuntimeGameplayProgressionStateStore` is now
+  held once by the existing Web app-session `gameStore` composition and passed
+  into each `GameViewportPanel` execution loop. Pinia treats the stateful
+  Runtime object as raw; no second XP store or persistence was added.
+- The real route path now preserves the same `world-1` and active gameplay
+  while projecting XP/Level across Game → Full Observatory → Game. A real
+  Survival session showed `1 / 2` after the first defeat and `2 / 2` after
+  returning to Game, continuing, and re-entering Observatory.
+- Runtime tests 25/705 and Web tests 50/3566 passed. Runtime/Web TypeScript,
+  package Lint (existing warnings only), Web build, and diff hygiene passed;
+  browser error/warning diagnostics were empty.
+- `WO-S31-001` is DONE with Code Complete = YES and Product Verified = YES.
+  Fresh post-WO Gap Analysis closes progression but confirms the independent
+  `v1.177 / Sprint 27` metadata drift. `WO-S31-002 — Current Observatory
+  Metadata Source` is READY and is not executed in this continuation turn.
+
 ### Sprint 30 Product Verification + Freeze Review Readiness (v1.180)
 
 - Fresh provider-backed Studio verification passed the exact
