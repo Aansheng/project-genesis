@@ -2,8 +2,8 @@
 
 **Authorization:** Human/CTO decision, 2026-09-01  
 **Architecture at authorization:** v1.183  
-**Current architecture:** v1.183  
-**Status:** ACTIVE — Product Gap Discovery complete; exactly one `READY` WO; do not execute; do not enter Sprint 35
+**Current architecture:** v1.184
+**Status:** ACTIVE — `WO-S34-001` DONE; `SPRINT34_FREEZE_REVIEW` READY for Human/CTO review; do not enter Sprint 35
 
 ## Product goal
 
@@ -48,14 +48,13 @@ The secondary progression observation is:
 It is recorded for later prioritization only. This Sprint 34 boundary does not
 authorize a skill tree, upgrade system, or progression redesign.
 
-## Exactly one READY work order
+## Exactly one READY work order generated at the discovery boundary
 
 ### WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
 
-**Status:** READY — discovery complete; separate Human/CTO execution
-authorization required  
+**Status:** DONE — Code Complete = YES; Product Verified = YES
 **Architecture before:** v1.183  
-**Architecture after:** not changed by discovery; no implementation is claimed
+**Architecture after:** v1.184
 
 #### Root cause
 
@@ -105,9 +104,27 @@ feedback paths.
   HUD redesign, or unrelated cleanup;
 - no second work order and no Sprint 35 entry.
 
+#### Implementation and verification result
+
+`findRuntimeEntityPositionWithMinimumSeparation` now resolves protected
+Runtime entity IDs, applies the default 96-unit minimum center distance,
+rejects occupied/non-finite/overlapping Runtime AABB candidates, and searches
+deterministically within a bounded candidate set. Survival Enemy replacement
+`SPAWN_ENTITY` uses the current Runtime Player; missing protected state or no
+fair candidate fails closed. Initial enemies, non-Survival creation,
+target-directed pursuit, contact, attack/damage, progression, feedback, and
+Platformer remain unchanged.
+
+Runtime 711/711, Renderer 510/510, and Web 3574/3574 passed. Runtime/Web
+TypeScript, ESLint (zero errors; existing Web warnings only), and Web build
+passed. Real Studio verified two Survival defeat/replacement cycles, a
+non-overlapping replacement approach window, continued replacement combat,
+and Platformer `创建 MarioWorld` with seven entities and `Space — 跳跃`.
+Browser error logs were empty. Fresh Sprint 34 post-WO Gap Analysis is PASS.
+
 ## Stop condition
 
-Sprint 34 Product Gap Discovery is complete. Do not implement
-`WO-S34-001`, generate another WO, or enter Sprint 35 until a separate
-Human/CTO authorization is provided.
-
+`WO-S34-001` is complete at v1.184. The fresh post-WO Gap Analysis is PASS and
+the selected next control-plane item is `SPRINT34_FREEZE_REVIEW`, pending
+Human/CTO review. Do not silently freeze Sprint 34, generate another WO, or
+enter Sprint 35.

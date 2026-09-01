@@ -3,9 +3,9 @@
 **Discovery date:** 2026-09-01  
 **Authority:** Human/CTO froze Sprint 33 at v1.183 and authorized Sprint 34
 Product Gap Discovery  
-**Status:** DONE — exactly one measured blocker selected; exactly one READY WO
-generated; no implementation performed
-**Architecture:** v1.183 before and after discovery
+**Status:** DONE — discovery selected exactly one WO; post-WO Gap Analysis
+PASS; `SPRINT34_FREEZE_REVIEW` ready
+**Architecture:** v1.183 at discovery; v1.184 after `WO-S34-001`
 
 ## Boundary and method
 
@@ -105,9 +105,50 @@ redesign, provider/image calls, new gameplay authority, a second WO, and Sprint
 | Exactly one READY WO generated | PASS — `WO-S34-001` |
 | Sprint 35 entered | NO |
 
-## Stop condition
+## Discovery stop condition (at the v1.183 discovery boundary)
 
 Sprint 34 Product Gap Discovery is complete at v1.183. Stop here. Do not
 execute `WO-S34-001`, generate another work order, or enter Sprint 35 until a
 new Human/CTO authorization is given.
 
+## Post-WO Sprint 34 Gap Analysis — 2026-09-01
+
+Human/CTO subsequently authorized and the engineering execution of
+`WO-S34-001 — Generic Runtime Replacement Fair-Start Policy` advanced the
+product to v1.184. This fresh pass evaluates the post-WO product and does not
+replace the original discovery record above.
+
+| Question | Post-WO evidence | Result |
+| --- | --- | --- |
+| 1. Is the selected blocker reachable through the real product path? | Fresh Studio Survival generation reached active `world-1`, defeated the initial Enemy, and produced a new `enemy-runtime-*` entity through the existing replacement path. | PASS |
+| 2. Does a replacement begin away from the current Player? | Inspector read the current Player at `(80,297)` and the replacement at `(134,297)` after the UI observation round trip; the Runtime policy starts from a configured 96-unit minimum before pursuit. | PASS |
+| 3. Is Runtime collision geometry respected? | The replacement retained its Runtime `32×32` collision bounds and the observed post-spawn position was AABB non-overlapping with the Player. | PASS |
+| 4. Is the protected entity resolved from current Runtime truth? | Automated production coverage moves the Player to `(400,240)` and validates the second replacement against that current Runtime Position and ID. | PASS |
+| 5. Does normal pursuit continue after the fair start? | The replacement accepted the existing target-directed movement and subsequent Space hits; automated coverage confirms one pursuit tick reduces the separation. | PASS |
+| 6. Does the replacement loop remain continuous and Runtime-only? | Two defeat/replacement cycles preserved the active session and six-entity Survival composition; no Semantic World rebuild or provider/image call was added. | PASS |
+| 7. Are attack, damage, contact, XP, and Level semantics preserved? | Runtime/Web production tests retain range `48`, damage `25`, contact danger, defeat, and XP/Level behavior; fresh Studio replacement combat reached the second replacement. | PASS |
+| 8. Is Sprint 33 outcome readability preserved? | Existing committed hit/defeat/replacement/no-target feedback remains covered by the accepted Sprint 33 evidence and current Web regression suite. | PASS |
+| 9. Did the change introduce a new boundary or cross-genre regression? | Exact `创建 MarioWorld` retained seven Runtime entities, running Canvas, and `Space — 跳跃`; Renderer suite passed 510/510. | PASS |
+| 10. Is there a new immediate P0 blocker requiring another WO? | No new immediate P0 blocker was found within this bounded slice. Level consequence remains secondary; timers, waves, projectiles, and scaling remain deferred. | PASS — no new WO |
+
+### Post-WO verification summary
+
+The real path remained:
+
+`ENTITY_REMOVED → GameplayRuleExecutor → SPAWN_ENTITY → current Runtime Player
+resolution → deterministic fair-start Position/AABB selection →
+RuntimeEntityComposition → WorldMutator.addEntity → Runtime WorldStore →
+Renderer`
+
+The fair-start policy is spatial only: deterministic, bounded, and fail-closed
+when the protected Runtime state or a fair candidate is unavailable. Runtime
+has no explicit global world-bounds component, so the implementation does not
+read Renderer/Pixi viewport dimensions or invent a new bounds authority.
+
+Automated suites passed: Runtime 711/711, Renderer 510/510, and Web 3574/3574.
+Runtime/Web TypeScript passed; ESLint had zero errors with existing Web
+warnings only; the Web build passed. Browser error logs were empty.
+
+**Fresh post-WO Gap Analysis:** PASS. The selected blocker is resolved within
+the authorized slice. Select `SPRINT34_FREEZE_REVIEW` for Human/CTO review;
+do not silently freeze Sprint 34, generate another WO, or enter Sprint 35.

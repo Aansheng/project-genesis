@@ -6,12 +6,12 @@ not a database or task service.
 queue_version: 1
 updated: 2026-09-01
 current_sprint: Sprint 34
-current_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
-current_work_order_status: READY — discovery complete; separate authorization required; do not execute
-current_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE — exactly one READY WO generated; stop before implementation
-last_completed_work_order: WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
-next_work_order: WO-S34-001
+current_work_order: SPRINT34_FREEZE_REVIEW — Sprint 34 Freeze Review
+current_work_order_status: READY — WO-S34-001 complete; Human/CTO freeze gate pending
+current_control_plane_work_order: SPRINT34_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — Sprint 34 boundary review
+last_completed_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
+next_work_order: none — stop at Sprint 34 freeze review
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -59,18 +59,18 @@ next_gate: Sprint 33 freeze review DONE; Sprint 34 Product Gap Discovery is
 
 ## SPRINT34_AUTHORIZATION — Survival Playability Gap Discovery
 
-status: ACTIVE — Human/CTO decision 2026-09-01; Sprint 33 FROZEN at v1.183
+status: DONE — Human/CTO decision 2026-09-01; WO-S34-001 complete at v1.184
 architecture_at_authorization: v1.183
-current_architecture: v1.183 (discovery only; no product code changed)
+current_architecture: v1.184
 goal: Play the generated Survival product normally, rank exactly one largest
   remaining user-visible blocker, generate exactly one READY WO, and stop.
 discovery_policy: Use the exact request `生成一个幸存者游戏` and multiple
   cycles covering movement/evasion, pursuit, Space attacks, hits, defeats,
   XP/Level, replacements, and replacement combat. Do not preselect a feature;
-  do not execute a WO; do not enter Sprint 35.
+  execution of only `WO-S34-001` was authorized; do not enter Sprint 35.
 constraints: Preserve the accepted Sprint 33 outcome-feedback behavior and
   all Runtime/Renderer authority boundaries. No product code, architecture,
-  new capability, second WO, provider/image call, or Sprint 35 work is
+  new capability, second WO, provider/image call, or Sprint 35 work was
   authorized in discovery.
 
 ## SPRINT34_PRODUCT_GAP_DISCOVERY
@@ -93,16 +93,15 @@ root_cause: The existing `ENTITY_REMOVED (health <= 0) → SPAWN_ENTITY` path
   minimum-distance or non-overlap placement. Target-directed movement then
   resumes immediately.
 selected_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
-next_gate: Separate Human/CTO authorization for the READY WO; do not execute
-  it or enter Sprint 35.
+next_gate: WO execution complete; fresh post-WO Gap Analysis PASS; proceed to
+  `SPRINT34_FREEZE_REVIEW` and do not enter Sprint 35.
 
 ## WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
 
-status: READY — Sprint 34 discovery complete; not executed
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / selected Sprint 34 blocker
 architecture_before: v1.183
-architecture_after: not changed; any execution would require a separate
-  authorization and versioned implementation decision
+architecture_after: v1.184
 allowed_scope: One deterministic, generic spawn-start policy on the existing
   Runtime `SPAWN_ENTITY` replacement path that guarantees a non-overlapping,
   player-relative minimum separation (or equivalent bounded fair-start
@@ -118,8 +117,37 @@ forbidden_scope: WaveManager, wave scheduler, timer/cooldown, periodic spawn
   framework, Survival-specific combat system, projectile, damage rebalance,
   progression redesign/skill tree, provider/image call, broad pacing system,
   unrelated cleanup, or a second work order.
-stop_condition: Discovery is complete. Do not implement this WO, generate a
-  second WO, or enter Sprint 35 until a new Human/CTO authorization is given.
+execution_gate: Spatial fair-start implementation only. No temporal pacing,
+  new authority, second WO, or Sprint 35 entry. All automated and real Studio
+  gates passed.
+result: `findRuntimeEntityPositionWithMinimumSeparation` uses current protected
+  Runtime entity IDs, default distance 96, deterministic bounded candidates,
+  occupied-position rejection, and Runtime collision-AABB non-overlap. Survival
+  Enemy replacement `SPAWN_ENTITY` fails closed when the current Player or a
+  fair candidate is unavailable. Runtime 711/711, Renderer 510/510, and Web
+  3574/3574 passed; TypeScript, ESLint, Web build, real two-cycle Survival
+  Studio verification, Platformer smoke, and empty browser error logs passed.
+  Fresh post-WO Gap Analysis is PASS.
+next_gate: `SPRINT34_FREEZE_REVIEW` — Human/CTO review; no Sprint 35 entry.
+
+## SPRINT34_FREEZE_REVIEW
+
+status: READY — WO-S34-001 complete; Human/CTO freeze decision pending
+architecture_before: v1.183
+architecture_after: v1.184
+decision: The selected Sprint 34 blocker is resolved within the bounded
+  spatial fair-start slice. Code Complete = YES, Product Verified = YES, and
+  the fresh post-WO Gap Analysis = PASS. This record is ready for Human/CTO
+  review; Sprint 34 is not silently frozen.
+evidence: Runtime 711/711, Renderer 510/510, Web 3574/3574; Runtime/Web
+  TypeScript; Runtime/Web ESLint with zero errors and existing Web warnings
+  only; Web build; real two-cycle Survival Studio verification; Platformer
+  smoke; current `v1.184 / Sprint 34` Full Observatory projection; empty
+  browser error logs; and ADR-0294.
+constraints: Preserve the fair-start policy, Runtime authority, accepted
+  Sprint 33 feedback, Platformer behavior, and the one-WO/Sprint-boundary
+  controls. Do not enter Sprint 35 without a new Human/CTO decision.
+next_gate: Human/CTO Sprint 34 freeze decision.
 
 ## SPRINT32_FREEZE_REVIEW
 

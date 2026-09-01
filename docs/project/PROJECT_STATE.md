@@ -35,8 +35,8 @@
 **Sprint 31** — Observatory Truth Consistency (**FROZEN — WO-S31-001 and WO-S31-002 Code Complete = YES; Product Verified = YES; v1.181; Human/CTO accepted 2026-08-31**)
 **Sprint 32** — Survival Playability Gap (**FROZEN — `WO-S32-001` Code Complete = YES; Product Verified = YES; v1.182; Human/CTO accepted 2026-09-01**)
 **Sprint 33** — Survival Playability Gap (**FROZEN — `WO-S33-001` Code Complete = YES; Product Verified = YES; v1.183; Human/CTO accepted 2026-09-01**)
-**Sprint 34** — Survival Playability Gap Discovery (**ACTIVE — discovery complete; exactly one READY WO; v1.183; no Sprint 35**)
-**Current WO** - `WO-S34-001 — Generic Runtime Replacement Fair-Start Policy` — READY; do not execute before a separate authorization
+**Sprint 34** — Survival Playability Gap (**ACTIVE — `WO-S34-001` Code Complete = YES; Product Verified = YES; v1.184; freeze review ready; no Sprint 35**)
+**Current WO** - `SPRINT34_FREEZE_REVIEW` — READY for Human/CTO review; Sprint 35 not entered
 
 ---
 
@@ -44,14 +44,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by Human/CTO decisions. Sprint 34 Product Gap Discovery is complete with exactly one READY WO; do not enter Sprint 35. |
-| Architecture Version | v1.183; committed Runtime gameplay outcomes now project to transient generic Game feedback while Runtime progression, Observatory truth, and v1.182 gameplay semantics remain authoritative. |
-| Last Completed WO | WO-S33-001 — Generic Runtime Gameplay Outcome Feedback; Code Complete = YES; Product Verified = YES; v1.183. WO-S32-001 remains the prior completed gameplay-authority WO at v1.182. |
-| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge still selects one nearby valid Enemy within range 48 and applies the existing Runtime damage/defeat/progression path; committed nonlethal damage shows a transient `-25`/ring cue, lethal removal shows a distinct defeat cue, and replacement shows a spawn cue. No target is a no-op, contact danger is not mislabeled as Player offense, and feedback is bound to Runtime entity IDs rather than visual asset identity. Full Observatory shows `v1.183 / Sprint 33`; Platformer remains unchanged with `Space — 跳跃`. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → top-down `Space` edge → `PlayerAttackRequestSystem` current Position/Health target selection → `ENTITY_ATTACK_REQUESTED` → post-system GameplayRuleExecutor → trusted `DAMAGE_ENTITY` / defeat / progression → Runtime WorldStore → `ExecutionTickResult.gameplayRuleResults` → `projectRuntimeGameplayOutcomeFeedback` → Runtime visualization loop → Pixi feedback layer, alongside binding-only entity rendering and current Observatory data projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | **RUNTIME REPLACEMENT PRESSURE LACKS FAIR PACING.** Fresh Sprint 34 play found immediate/co-located replacement pressure without a deterministic player-relative fair-start guarantee. Progression meaning is secondary; timers/waves/projectiles/scaling remain deferred. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS — real Studio showed hit, defeat, replacement, and post-replacement hit cues; production-path no-target distance 49 produced no cue; Runtime/Observatory truth, Platformer behavior, metadata, and empty browser diagnostics remained intact. Fresh Sprint 33 Gap Analysis: PASS. Sprint 34 real play completed two defeat/replacement cycles and confirmed XP `0 → 1 → 2` while Level remained `2`; discovery evidence is PASS. |
-| Next Recommended Verification | `WO-S34-001` — Generic Runtime Replacement Fair-Start Policy, READY for separate authorization; do not execute it or enter Sprint 35. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by Human/CTO decisions. Sprint 34 `WO-S34-001` is complete at v1.184 with the freeze-review gate ready; do not enter Sprint 35. |
+| Architecture Version | v1.184; Runtime remains authoritative for gameplay and now applies a deterministic, spatial fair-start policy to Survival Enemy replacements before normal pursuit. |
+| Last Completed WO | WO-S34-001 — Generic Runtime Replacement Fair-Start Policy; Code Complete = YES; Product Verified = YES; v1.184. |
+| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge still selects one nearby valid Enemy within range 48 and applies the existing Runtime damage/defeat/progression path; committed nonlethal damage shows a transient `-25`/ring cue, lethal removal shows a distinct defeat cue, and replacement shows a spawn cue. Survival Enemy replacements now start at a deterministic Runtime Position at least 96 units from the current Player when a fair candidate exists, with Runtime AABB non-overlap, then resume existing pursuit. No target is a no-op, contact danger is not mislabeled as Player offense, and feedback is bound to Runtime entity IDs rather than visual asset identity. Full Observatory remains current; Platformer remains unchanged with `Space — 跳跃`. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → top-down `Space` edge → `PlayerAttackRequestSystem` current Position/Health target selection → `ENTITY_ATTACK_REQUESTED` → post-system GameplayRuleExecutor → trusted `DAMAGE_ENTITY` / defeat / progression → `ENTITY_REMOVED` → `SPAWN_ENTITY` → current Runtime Player resolution → deterministic fair-start Position/AABB selection → `RuntimeEntityComposition` → `WorldMutator.addEntity` → Runtime WorldStore → `ExecutionTickResult.gameplayRuleResults` → `projectRuntimeGameplayOutcomeFeedback` → Runtime visualization loop → Pixi feedback layer, alongside binding-only entity rendering and current Observatory data projection. AI/provider calls remain generation-time only. |
+| Current Blocking Issue | No new immediate P0 blocker was found within the accepted Sprint 34 slice. Level progression consequence remains a secondary measured gap; timers/waves/projectiles/scaling remain deferred. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS — Runtime 711/711, Renderer 510/510, Web 3574/3574; TypeScript, ESLint, Web build, real multi-cycle Studio Survival fair-start/replacement and Platformer smoke all passed, with empty browser error logs. Fresh Sprint 34 post-WO Gap Analysis: PASS. |
+| Next Recommended Verification | Human/CTO `SPRINT34_FREEZE_REVIEW`; do not silently freeze Sprint 34 or enter Sprint 35. |
 
 ## Sprint 34 Product Gap Discovery — Survival Playability
 
@@ -115,9 +115,62 @@ selection, contact semantics, Runtime authority, and replacement continuity.
 This is a placement/start-policy slice; it does not introduce a WaveManager,
 timer, cooldown, wave scheduler, or genre-specific system.
 
-The WO is **READY only**. Sprint 34 discovery is complete; no product code was
-modified for this discovery, no second WO was generated, and Sprint 35 was not
-entered.
+At the discovery boundary, the WO was **READY only**. That discovery pass
+modified no product code, generated no second WO, and did not enter Sprint 35;
+the separately authorized execution and post-WO verification are recorded
+below.
+
+## Sprint 34 WO-S34-001 Implementation, Product Verification, and Fresh Gap Analysis
+
+Human/CTO authorized execution of `WO-S34-001 — Generic Runtime Replacement
+Fair-Start Policy` on 2026-09-01. The bounded implementation advances the
+product architecture from v1.183 to v1.184. It adds one reusable Runtime
+composition helper for protected Runtime entity IDs, using current Runtime
+Position and optional collision AABBs; no Renderer viewport dimensions or
+temporal pacing are introduced.
+
+The real replacement path is now:
+
+`ENTITY_REMOVED → GameplayRuleExecutor → SPAWN_ENTITY → current Runtime Player
+resolution → deterministic fair-start Position/AABB selection →
+RuntimeEntityComposition → WorldMutator.addEntity → Runtime WorldStore →
+Renderer`
+
+The default minimum center distance is `96`, twice the existing Survival
+attack range of `48`. The helper tries stable cardinal positions relative to
+the protected entity/entities, then the existing deterministic category
+sequence, with a 100-candidate bound. Occupied Positions, non-finite values,
+insufficient separation, and Runtime AABB overlap are rejected. Missing
+protected identity/Position or exhausted candidates fail closed, so the
+replacement action does not silently spawn on the Player. Only Survival Enemy
+replacements use the policy; initial enemies, non-Survival creation,
+target-directed pursuit, contact, attack/damage, XP/Level, outcome feedback,
+and Platformer behavior remain unchanged.
+
+Automated production-path coverage includes two replacement cycles, a moved
+current Player, current-ID resolution, `96`-unit separation, Runtime AABB
+non-overlap, bounded fair-candidate skipping, fail-closed missing protected
+state, and pursuit continuing after spawn. Full suites passed: Runtime
+711/711, Renderer 510/510, and Web 3574/3574. Runtime/Web TypeScript checks
+passed; ESLint reported zero errors with existing Web warnings only; the Web
+production build passed.
+
+Fresh real Studio Product Verification used a fresh `生成一个幸存者游戏`
+session. The active `world-1` preserved six entities; a replacement was read
+at `(134,297)` while the current Player was `(80,297)` after the Inspector
+observation round trip, retaining AABB non-overlap and an approach window.
+The replacement accepted subsequent Space hits and triggered a second
+`enemy-runtime-*` replacement. The exact `创建 MarioWorld` smoke retained
+seven Runtime entities, a running Canvas, and `Space — 跳跃`; browser error
+logs were empty. Previously accepted Sprint 33 hit/defeat/replacement/no-target
+feedback remains intact.
+
+The fresh Sprint 34 post-WO Gap Analysis is **PASS**. The selected blocker,
+**RUNTIME REPLACEMENT PRESSURE LACKS FAIR PACING**, is resolved within the
+authorized spatial slice. No new immediate P0 blocker was found; progression
+meaning remains secondary and deferred. The next control-plane item is
+`SPRINT34_FREEZE_REVIEW`, pending Human/CTO review. Sprint 34 is not silently
+frozen and Sprint 35 is not entered.
 
 ## Sprint 33 WO-S33-001 Implementation and Product Verification
 

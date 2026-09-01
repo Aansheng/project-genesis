@@ -1,5 +1,32 @@
 # Changelog
 
+### Sprint 34 — WO-S34-001 Generic Runtime Replacement Fair-Start Policy (v1.184, 2026-09-01)
+
+- Human/CTO authorized and execution completed for the single Sprint 34
+  `WO-S34-001` work order. Architecture advances from v1.183 to v1.184.
+- Added a reusable Runtime fair-start placement helper for protected Runtime
+  entity IDs. It uses the current Position and optional collision AABB, default
+  minimum center distance `96`, stable deterministic cardinal candidates, the
+  existing bounded category candidates, occupied-position rejection, and
+  fail-closed action results when no fair candidate exists.
+- Survival Enemy replacement `SPAWN_ENTITY` now resolves the current Runtime
+  Player at spawn time and applies the policy before existing target-directed
+  pursuit. Initial enemies, non-Survival creation, attack range `48`, damage,
+  contact, XP/Level, Sprint 33 feedback, Observatory truth, and Platformer
+  `Space — 跳跃` remain unchanged. No temporal pacing, Renderer viewport
+  geometry, WaveManager, timer, projectile, or new gameplay authority was
+  introduced.
+- Added Runtime composition and Web production-path regression coverage for
+  two replacement cycles, a moved current Player, deterministic separation,
+  Runtime AABB non-overlap, pursuit continuation, occupied candidates, and
+  fail-closed protected state.
+- Verification passed: Runtime 711/711, Renderer 510/510, Web 3574/3574;
+  Runtime/Web TypeScript; ESLint with zero errors and existing Web warnings
+  only; Web production build; real Studio two-cycle Survival fair-start and
+  replacement combat; Platformer smoke; and empty browser error logs.
+- Fresh Sprint 34 post-WO Gap Analysis is PASS. `SPRINT34_FREEZE_REVIEW` is
+  ready for Human/CTO review; Sprint 35 was not entered.
+
 ### Sprint 33 Freeze + Sprint 34 Product Gap Discovery (v1.183, 2026-09-01)
 
 - Human/CTO froze Sprint 33 at v1.183 after `WO-S33-001` completed with Code

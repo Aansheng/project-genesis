@@ -1,8 +1,9 @@
-# Gameplay Capability Matrix — Sprint 33 Frozen / Sprint 34 Discovery Complete
+# Gameplay Capability Matrix — Sprint 34 WO Complete / Freeze Review Ready
 
-Architecture version: v1.183 (Sprint 30, Sprint 31, Sprint 32, and Sprint 33
-FROZEN; `WO-S33-001` Code Complete = YES; Product Verified = YES; Sprint 34
-Product Gap Discovery complete; exactly one READY WO; Sprint 35 not entered)
+Architecture version: v1.184 (Sprint 30, Sprint 31, Sprint 32, and Sprint 33
+FROZEN; `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified =
+YES; Sprint 34 post-WO Gap Analysis PASS; `SPRINT34_FREEZE_REVIEW` ready;
+Sprint 35 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -23,12 +24,11 @@ and one removal-triggered `SPAWN_ENTITY` slice; partial/deferred/unsupported
 rules remain gated as whole rules. A Studio-only slice is not promoted to a
 general Runtime capability.
 
-Sprint 34 discovery did not promote a new capability into this matrix. The
-single READY candidate, `WO-S34-001 — Generic Runtime Replacement Fair-Start
-Policy`, remains **not implemented**: it is a bounded player-relative
-spawn-start fairness policy on the existing generic `SPAWN_ENTITY` path. It
-must preserve Runtime authority and must not become a WaveManager, timer,
-wave, or Survival-specific system.
+Sprint 34 promotes one bounded capability into this matrix:
+`WO-S34-001 — Generic Runtime Replacement Fair-Start Policy` is a supported
+spatial policy on the existing generic `SPAWN_ENTITY` path. It preserves
+Runtime authority and is not a WaveManager, timer, wave, or Survival-specific
+system.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -67,6 +67,7 @@ wave, or Survival-specific system.
 | Collection / collectibles | Mechanics, optional goals/targets | `partially supported` | A player contact with semantic category `item` can remove the target and the bounded collect-reward rule can add `experience`; inventory, score, and `ITEM_COLLECTED` remain absent. |
 | Damage / health | Combat and failure intent | `partially supported` | Player/enemy/npc Health is a generic Runtime component and non-top contact can decrease current Health; lethal player damage commits Runtime `failed`, and same-world respawn restores Health/active play. |
 | Enemy spawn | Spawn rule intent | `supported` | Bounded `ENTITY_REMOVED` with authoritative `health <= 0` triggers one generic Runtime replacement Enemy in the active Survival session; periodic waves/count/timer semantics remain deferred. |
+| Runtime replacement fair-start placement | Spawn-start spatial policy over Runtime Position/collision/identity | `supported` | Survival Enemy replacements resolve the current Runtime Player at spawn time, search deterministic bounded candidates with default minimum distance `96`, reject occupied/non-finite/AABB-overlapping positions, and fail closed when no fair position exists; initial/evolution/non-Survival creation remains unchanged. |
 | Enemy target-directed movement | Survival semantic composition → generic Runtime target component | `supported` | `DefaultTargetDirectedMovementSystem` resolves the explicit target entity's current Position and writes finite normalized Velocity; `DefaultVelocityMotionSystem` integrates Position. Composition is enabled only for Survival enemies, while the Runtime systems remain generic. |
 | Enemy chase / AI | Combat/movement intent | `partially supported` | Direct target-directed pursuit is production-reachable through the generic component/system; behavior trees, pathfinding, steering, and model-driven frame decisions remain deferred. |
 | Enemy stomp / defeat | Combat intent | `supported` | Generic `enemy-stomp` rule validates player/enemy/top, removes the target, and applies upward player velocity with rule-level all-or-nothing commit. |
@@ -123,6 +124,7 @@ idle/run/jump/facing and two-frame temporal run presentation Product Verified.
 This remains a bounded presentation capability, not a generic gameplay
 animation system.
 
-Sprint 33 is ready for freeze review at v1.183. `WO-S33-001` is a supported
-generic Renderer presentation projection only: Runtime committed outcomes stay
-authoritative, and no new combat/feedback manager or gameplay timer exists.
+Sprint 34 is ready for freeze review at v1.184. `WO-S34-001` is a supported
+generic Runtime spatial fair-start placement policy only: Runtime committed
+outcomes and composition stay authoritative, and no new combat/feedback
+manager, gameplay timer, world-bounds authority, or wave system exists.

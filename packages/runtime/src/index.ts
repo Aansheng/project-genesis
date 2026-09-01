@@ -28,9 +28,12 @@ export { DefaultWorldMutator } from './mutation'
 // Narrow Runtime entity composition shared by semantic evolution and gameplay creation
 export {
   createComposedRuntimeEntity,
+  DEFAULT_RUNTIME_PLACEMENT_MINIMUM_DISTANCE,
+  findRuntimeEntityPositionWithMinimumSeparation,
   findSafeRuntimeEntityPosition,
   runtimeEntityPosition,
 } from './composition'
+export type { RuntimeEntityPlacementOptions } from './composition'
 
 // Runtime Gameplay Systems
 export type { MovementSystem, MovementSystemResult } from './systems'

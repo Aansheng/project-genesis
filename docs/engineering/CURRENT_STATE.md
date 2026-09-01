@@ -3,25 +3,25 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.183 (Sprint 33 frozen; Sprint 34 discovery complete; one READY WO)
-current_sprint: Sprint 34 (Product Gap Discovery complete)
-current_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
-current_work_order_status: READY — discovery complete; separate authorization required; do not execute
-current_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE — exactly one READY WO generated; stop before implementation
-last_completed_work_order: WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
-last_completed_product_work_order: WO-S33-001
-last_completed_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY
-next_ready_work_order: WO-S34-001
-product_architecture_changed: NO — discovery only; architecture remains v1.183
+architecture_version: v1.184 (Sprint 34 WO complete; freeze review ready)
+current_sprint: Sprint 34 (SPRINT34_FREEZE_REVIEW)
+current_work_order: SPRINT34_FREEZE_REVIEW — Sprint 34 Freeze Review
+current_work_order_status: READY — WO-S34-001 complete; Human/CTO freeze gate pending
+current_control_plane_work_order: SPRINT34_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — Sprint 34 boundary review
+last_completed_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
+last_completed_product_work_order: WO-S34-001
+last_completed_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY_POST_WO
+next_ready_work_order: none — stop at Sprint 34 freeze review
+product_architecture_changed: YES — v1.183 → v1.184
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
-  Human/CTO decisions. Sprint 34 discovery is complete with exactly one
-  READY WO; Sprint 35 is not entered.
-code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, and WO-S33-001;
-  NO execution claimed for WO-S34-001
-product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, and WO-S33-001;
-  Sprint 34 discovery evidence PASS; WO-S34-001 not executed
+  Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and selected
+  `SPRINT34_FREEZE_REVIEW`; Sprint 35 is not entered.
+code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001, and
+  WO-S34-001
+product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001, and
+  WO-S34-001; fresh Sprint 34 post-WO Gap Analysis PASS
 
 ## Sprint 34 — Survival Playability Gap Discovery
 
@@ -66,10 +66,39 @@ non-overlap/separation before ordinary pursuit, while preserving composition,
 targeting, contact semantics, and Runtime authority. It must not add a
 WaveManager, timer, wave scheduler, cooldown, or Survival-specific system.
 
-Exactly one work order is READY:
-`WO-S34-001 — Generic Runtime Replacement Fair-Start Policy`.
-It is not executed, Sprint 35 is not entered, and the architecture remains
-v1.183.
+The executed work order was `WO-S34-001 — Generic Runtime Replacement
+Fair-Start Policy`. Human/CTO authorized execution on 2026-09-01. It is DONE
+at v1.184 with Code Complete = YES and Product Verified = YES; the next gate
+is `SPRINT34_FREEZE_REVIEW`. Sprint 35 is not entered, and no temporal pacing
+system is in scope.
+
+## Sprint 34 — WO-S34-001 Completion and Freeze-Review Readiness
+
+`WO-S34-001` adds a reusable Runtime fair-start placement helper to the
+existing removal-triggered `SPAWN_ENTITY` path. It resolves the current
+protected Runtime Player by identity at spawn time, applies the default
+minimum center distance `96`, rejects occupied/non-finite and overlapping
+Runtime collision AABB candidates, and uses deterministic bounded search.
+Missing protected state or an exhausted fair candidate fails the action closed;
+no silent co-located spawn, NaN, infinite loop, Renderer viewport read, or
+temporal pacing was introduced.
+
+Only Survival Enemy replacements use the helper. Initial enemies, other
+entity creation, target-directed pursuit, contact, attack range/damage,
+XP/Level, Sprint 33 feedback, Observatory projection, and Platformer
+`Space — 跳跃` remain unchanged. The real flow is:
+
+`ENTITY_REMOVED → GameplayRuleExecutor → SPAWN_ENTITY → current Runtime Player
+resolution → fair-start Position/AABB selection → RuntimeEntityComposition →
+WorldMutator.addEntity → Runtime WorldStore → Renderer`
+
+Verification is complete: Runtime 711/711, Renderer 510/510, Web 3574/3574;
+Runtime/Web TypeScript pass; ESLint zero errors with existing Web warnings
+only; Web build pass; real Studio two-cycle Survival replacement/combat and
+Platformer smoke pass; browser error logs empty. Fresh post-WO Gap Analysis is
+PASS with no new immediate P0 blocker. `SPRINT34_FREEZE_REVIEW` is READY for
+Human/CTO review; Sprint 34 is not silently frozen and Sprint 35 is not
+entered.
 
 ## Sprint 33 WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
 
@@ -812,7 +841,18 @@ own capability-focused work item rather than broadening WO-META-003.
 
 ## Current product gaps
 
-Fresh Sprint 33 Product Gap Discovery (2026-09-01):
+Fresh Sprint 34 post-WO Gap Analysis (2026-09-01):
+
+- **Resolved PRODUCT_GAP:** Runtime Survival replacements now begin with a
+  deterministic player-relative minimum distance and Runtime AABB non-overlap
+  before existing pursuit. The current Runtime Player is resolved by identity
+  at spawn time, and unavailable fair placement fails closed.
+- **Secondary PRODUCT_GAP:** Level 1 → 2 still has no visible Game-surface
+  consequence. This remains deferred and did not generate another WO.
+- **Current gate:** `SPRINT34_FREEZE_REVIEW` is READY for Human/CTO review.
+  Sprint 35 is not entered.
+
+Historical Sprint 33 Product Gap Discovery (2026-09-01):
 
 - **Resolved PRODUCT_GAP:** the Game canvas previously did not visibly
   communicate an accepted attack, damage result, Enemy defeat, or replacement.
@@ -822,8 +862,8 @@ Fresh Sprint 33 Product Gap Discovery (2026-09-01):
   consequence, and replacement at the Player's position resumes pressure
   immediately. These observations do not receive separate WOs in this
   discovery.
-- **Current gate:** `SPRINT33_FREEZE_REVIEW` is READY for Human/CTO review.
-  No Sprint 34 work is generated or entered.
+- **Historical gate:** `SPRINT33_FREEZE_REVIEW` was subsequently accepted;
+  Sprint 34 discovery and execution are recorded above.
 
 Historical Sprint 32 Product Gap Discovery (2026-08-31):
 
@@ -941,10 +981,11 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Review the completed `WO-S33-001` at `SPRINT33_FREEZE_REVIEW`. Confirm the
-v1.182 → v1.183 bounded presentation change, the real Survival evidence, the
-preserved Runtime/Observatory truth, and the fresh post-WO Gap Analysis. Do not
-enter Sprint 34 before an explicit Human/CTO decision.
+Review the completed `WO-S34-001` at `SPRINT34_FREEZE_REVIEW`. Confirm the
+v1.183 → v1.184 bounded spatial fair-start change, the real Survival and
+Platformer evidence, the current `v1.184 / Sprint 34` Observatory truth, and
+the fresh post-WO Gap Analysis. Do not silently freeze Sprint 34 or enter
+Sprint 35 before an explicit Human/CTO decision.
 
 ## Authority
 

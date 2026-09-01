@@ -22,7 +22,11 @@ import {
 } from '@genesis/shared'
 import { DefaultWorldMutator } from '../mutation'
 import type { WorldMutator } from '../mutation'
-import { createComposedRuntimeEntity, findSafeRuntimeEntityPosition } from '../composition'
+import {
+  createComposedRuntimeEntity,
+  findRuntimeEntityPositionWithMinimumSeparation,
+  findSafeRuntimeEntityPosition,
+} from '../composition'
 import {
   applyRuntimeGameplayNumericChange,
   DefaultRuntimeGameplayProgressionStateStore,
@@ -628,7 +632,30 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
       const targetEntityId = template.category === 'enemy'
         ? context.world.entities.find(entity => semanticFactsOf(entity, context.semanticWorld).category === 'player')?.id
         : undefined
-      const position = findSafeRuntimeEntityPosition(context.world.entities, id, template.category)
+      const isSurvivalEnemyReplacement = context.semanticWorld.worldType === 'survival'
+        && template.category === 'enemy'
+      if (isSurvivalEnemyReplacement && !targetEntityId) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'protected_player_position_unavailable',
+        })
+      }
+      const position = isSurvivalEnemyReplacement
+        ? findRuntimeEntityPositionWithMinimumSeparation(
+          context.world.entities,
+          id,
+          template.category,
+          { protectedEntityIds: [targetEntityId!] },
+        )
+        : findSafeRuntimeEntityPosition(context.world.entities, id, template.category)
+      if (!position) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'fair_start_position_unavailable',
+        })
+      }
       const spawned = createComposedRuntimeEntity({
         id,
         semanticEntity: template,
