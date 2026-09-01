@@ -3,23 +3,73 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.183 (Sprint 33 WO done; freeze review ready)
-current_sprint: Sprint 33 (Freeze Review Ready)
-current_work_order: SPRINT33_FREEZE_REVIEW
-current_work_order_status: READY — WO-S33-001 done; awaiting Human/CTO freeze decision
-current_control_plane_work_order: SPRINT33_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — WO complete; human gate
+architecture_version: v1.183 (Sprint 33 frozen; Sprint 34 discovery complete; one READY WO)
+current_sprint: Sprint 34 (Product Gap Discovery complete)
+current_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
+current_work_order_status: READY — discovery complete; separate authorization required; do not execute
+current_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE — exactly one READY WO generated; stop before implementation
 last_completed_work_order: WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
 last_completed_product_work_order: WO-S33-001
-last_completed_control_plane_work_order: SPRINT33_PRODUCT_GAP_DISCOVERY
-next_ready_work_order: SPRINT33_FREEZE_REVIEW
-product_architecture_changed: YES — v1.182 → v1.183 bounded Runtime-outcome-to-Game presentation projection
+last_completed_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY
+next_ready_work_order: WO-S34-001
+product_architecture_changed: NO — discovery only; architecture remains v1.183
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
-  and Sprint 32 is FROZEN at v1.182 by Human/CTO decisions. Sprint 33 is
-  AUTHORIZED for Product Gap Discovery; WO-S33-001 is complete, the freeze
-  review gate is READY, and Sprint 34 is not entered.
+  Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
+  Human/CTO decisions. Sprint 34 discovery is complete with exactly one
+  READY WO; Sprint 35 is not entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, and WO-S33-001;
-product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, and WO-S33-001
+  NO execution claimed for WO-S34-001
+product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, and WO-S33-001;
+  Sprint 34 discovery evidence PASS; WO-S34-001 not executed
+
+## Sprint 34 — Survival Playability Gap Discovery
+
+Human/CTO froze Sprint 33 at v1.183 and authorized Sprint 34 discovery on
+2026-09-01. A fresh real Studio session used the exact request
+`生成一个幸存者游戏` and completed two defeat/replacement cycles in active
+`world-1`. No product code or architecture was modified during discovery.
+
+Measured findings:
+
+- Progression: XP advanced `0 → 1 → 2`; Level advanced `1 → 2` once and did
+  not change after the second defeat. The secondary wording is
+  **LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**; this is not a skill-tree
+  authorization.
+- Replacement pressure: each defeat preserved the session and spawned a new
+  Enemy, but the replacement resumed pursuit immediately and was observed
+  co-located with the Player after brief movement. The existing start policy
+  does not guarantee player-relative minimum distance or non-overlap.
+- Combat: the existing 48-unit nearest-target attack and four 25-damage hits
+  are predictable; no projectile is the smallest response.
+- Outcome readability: Sprint 33's accepted hit/defeat/replacement/no-target
+  feedback remains PASS.
+- Survival fairness: movement is available and the Enemy is slower, but the
+  short observed separation window was not stable; contact damage is
+  edge-triggered, so this is a pacing/fairness issue rather than an immediate
+  death-system failure.
+
+Selected blocker: **RUNTIME REPLACEMENT PRESSURE LACKS FAIR PACING**. It is the
+most visible Game-surface issue, repeats after every defeat, affects short
+session rhythm and agency, and has the smallest generic capability boundary.
+
+Source audit identifies the real path as:
+
+`ENTITY_REMOVED (health <= 0) → SPAWN_ENTITY → semantic Enemy composition →
+findSafeRuntimeEntityPosition → target-directed movement → contact-start`
+
+`findSafeRuntimeEntityPosition` is deterministic but category-based; it does
+not enforce a player-relative minimum-distance/fair-start placement. The
+smallest reusable response is therefore one bounded spawn-start policy on the
+existing generic `SPAWN_ENTITY` path. It must guarantee deterministic
+non-overlap/separation before ordinary pursuit, while preserving composition,
+targeting, contact semantics, and Runtime authority. It must not add a
+WaveManager, timer, wave scheduler, cooldown, or Survival-specific system.
+
+Exactly one work order is READY:
+`WO-S34-001 — Generic Runtime Replacement Fair-Start Policy`.
+It is not executed, Sprint 35 is not entered, and the architecture remains
+v1.183.
 
 ## Sprint 33 WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
 
@@ -48,10 +98,9 @@ Full Observatory truth and route continuity, preserved Platformer `Space —
 跳跃`, and had empty browser error/warning diagnostics. The production-path
 no-target case at distance 49 produced no cue.
 
-Fresh post-WO Gap Analysis: **PASS**. The original Sprint 33 blocker is
-resolved; progression meaning, replacement pacing, and evasion readability
-remain secondary candidates. Next gate: `SPRINT33_FREEZE_REVIEW`; do not enter
-Sprint 34.
+Fresh post-WO Gap Analysis: **PASS**. The original Sprint 33 blocker was
+resolved and Sprint 33 is now FROZEN at v1.183. Sprint 34 discovery selected
+exactly one READY WO, `WO-S34-001`; do not execute it or enter Sprint 35.
 
 ## Historical Sprint 32 Freeze and Sprint 33 Product Gap Discovery
 
@@ -77,7 +126,9 @@ The selected Sprint 33 blocker is **PRODUCT_GAP — generic gameplay outcome
 feedback/combat readability**. It occurs on every attack and is therefore a
 larger normal-play barrier than progression meaning or replacement pacing.
 `WO-S33-001 — Generic Runtime Gameplay Outcome Feedback` is the exactly one
-generated `READY` WO. It has not been executed; Sprint 34 is not entered.
+generated `READY` WO at that historical discovery boundary. It was later
+executed and verified; Sprint 33 was frozen, and Sprint 34 discovery is now
+complete with `WO-S34-001` as the sole current READY item.
 
 ## Sprint 32 Product Gap Discovery and selected primary WO
 

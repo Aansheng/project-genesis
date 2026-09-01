@@ -95,16 +95,21 @@ Natural language → Intent → Semantic World → Game DSL → Runtime → Rend
 → playable game → targeted natural-language evolution.
 
 Sprint 33 Product Gap Discovery selected generic gameplay outcome feedback as
-the largest remaining Game-surface blocker. Human/CTO then authorized the
-single bounded `WO-S33-001`, which is complete at v1.183 and Product Verified.
-Committed Runtime results now project to transient generic hit, defeat, and
-replacement cues; this direction does not authorize weapons, projectiles,
-waves, timers, upgrades, or a new combat authority.
+the largest remaining Game-surface blocker. Human/CTO authorized the single
+bounded `WO-S33-001`, which is complete at v1.183 and Product Verified, and
+then froze Sprint 33. Committed Runtime results now project to transient
+generic hit, defeat, and replacement cues; no weapons, projectiles, waves,
+timers, upgrades, or new combat authority were introduced.
 
-The selected slice remains a projection of Runtime truth: no UI-owned gameplay
-state, generic combat manager, lifecycle framework, campaign flow, or game
-menus were added. `SPRINT33_FREEZE_REVIEW` is READY for Human/CTO review, and
-Sprint 34 is not entered.
+Sprint 34 is now authorized for Survival Playability Gap Discovery. Fresh real
+play selected exactly one current blocker:
+**RUNTIME REPLACEMENT PRESSURE LACKS FAIR PACING**. The existing replacement
+path resumes target pursuit without a deterministic player-relative fair-start
+or non-overlap guarantee. The only READY item is
+`WO-S34-001 — Generic Runtime Replacement Fair-Start Policy`, a bounded
+generic spawn-start policy candidate. Discovery is complete at v1.183; no
+product code, WaveManager, timer framework, second WO, or Sprint 35 work is
+authorized or executed.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

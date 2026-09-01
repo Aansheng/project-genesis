@@ -5,26 +5,24 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-01
-current_sprint: Sprint 33
-current_work_order: SPRINT33_FREEZE_REVIEW
-current_work_order_status: READY — WO-S33-001 DONE; awaiting Human/CTO freeze decision
-current_control_plane_work_order: SPRINT33_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — WO complete; human gate
+current_sprint: Sprint 34
+current_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
+current_work_order_status: READY — discovery complete; separate authorization required; do not execute
+current_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE — exactly one READY WO generated; stop before implementation
 last_completed_work_order: WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
-next_work_order: SPRINT33_FREEZE_REVIEW
+next_work_order: WO-S34-001
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT33_FREEZE_REVIEW
 
-status: READY — `WO-S33-001` complete; Human/CTO freeze review required; no
-Sprint 34 entered
+status: DONE — Human/CTO froze Sprint 33 at v1.183 on 2026-09-01
 architecture_before: v1.182
 architecture_after: v1.183
-decision_proposal: Freeze Sprint 33 at v1.183 with Code Complete = YES and
-  Product Verified = YES. The selected Game-surface outcome-feedback blocker
-  is resolved; progression meaning, replacement pacing, and evasion
-  readability remain secondary candidates.
+decision: Sprint 33 is FROZEN at v1.183 with Code Complete = YES and Product
+  Verified = YES. The selected Game-surface outcome-feedback blocker is
+  resolved; Sprint 34 Product Gap Discovery is authorized.
 evidence: Final Runtime 708/708, Renderer 510/510, and Web 3573/3573 tests;
   affected TypeScript checks; package ESLint with zero errors; Web build;
   `git diff --check`; real Studio hit/defeat/replacement/post-replacement hit
@@ -33,6 +31,8 @@ evidence: Final Runtime 708/708, Renderer 510/510, and Web 3573/3573 tests;
 constraints: Review only the bounded Runtime-result → Renderer projection.
   Do not add Sprint 34 work, weapons, projectiles, timers, waves, scaling,
   progression redesign, or a new gameplay authority.
+next_gate: `SPRINT34_PRODUCT_GAP_DISCOVERY` — authorized; discovery complete
+  and exactly one READY WO is now recorded below.
 
 ## WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
 
@@ -54,7 +54,72 @@ result: Runtime, Renderer, and Web production paths consume existing
   committed results only. No-target distance 49 produces no cue; ordinary
   removal and contact-only damage are not Player-attack feedback. Feedback is
   transient Renderer presentation time and is ID-bound, not asset-bound.
-next_gate: `SPRINT33_FREEZE_REVIEW` READY; do not enter Sprint 34.
+next_gate: Sprint 33 freeze review DONE; Sprint 34 Product Gap Discovery is
+  complete and `WO-S34-001` is the only READY item.
+
+## SPRINT34_AUTHORIZATION — Survival Playability Gap Discovery
+
+status: ACTIVE — Human/CTO decision 2026-09-01; Sprint 33 FROZEN at v1.183
+architecture_at_authorization: v1.183
+current_architecture: v1.183 (discovery only; no product code changed)
+goal: Play the generated Survival product normally, rank exactly one largest
+  remaining user-visible blocker, generate exactly one READY WO, and stop.
+discovery_policy: Use the exact request `生成一个幸存者游戏` and multiple
+  cycles covering movement/evasion, pursuit, Space attacks, hits, defeats,
+  XP/Level, replacements, and replacement combat. Do not preselect a feature;
+  do not execute a WO; do not enter Sprint 35.
+constraints: Preserve the accepted Sprint 33 outcome-feedback behavior and
+  all Runtime/Renderer authority boundaries. No product code, architecture,
+  new capability, second WO, provider/image call, or Sprint 35 work is
+  authorized in discovery.
+
+## SPRINT34_PRODUCT_GAP_DISCOVERY
+
+status: DONE — one measured blocker selected; exactly one READY WO generated
+evidence: Fresh real Studio play of `生成一个幸存者游戏` completed two
+  defeat/replacement cycles in active `world-1`. XP advanced `0 → 1 → 2`,
+  Level advanced `1 → 2` once and remained 2; replacement pressure resumed
+  quickly and was observed co-located after brief movement. Existing Sprint
+  33 hit/defeat/replacement/no-target feedback remains PASS.
+selected_bottleneck: RUNTIME REPLACEMENT PRESSURE LACKS FAIR PACING
+ranking: Replacement pressure is most visible on the normal Game surface,
+  recurs after every defeat, impacts short-session agency/rhythm, and has a
+  smaller generic boundary than progression consequence. Secondary wording:
+  LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE. Combat remains deterministic
+  at range 48 with 25 damage per hit; no projectile is selected.
+root_cause: The existing `ENTITY_REMOVED (health <= 0) → SPAWN_ENTITY` path
+  composes the replacement and calls `findSafeRuntimeEntityPosition`, which is
+  deterministic/category-based but does not guarantee player-relative
+  minimum-distance or non-overlap placement. Target-directed movement then
+  resumes immediately.
+selected_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
+next_gate: Separate Human/CTO authorization for the READY WO; do not execute
+  it or enter Sprint 35.
+
+## WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
+
+status: READY — Sprint 34 discovery complete; not executed
+priority: P0 / selected Sprint 34 blocker
+architecture_before: v1.183
+architecture_after: not changed; any execution would require a separate
+  authorization and versioned implementation decision
+allowed_scope: One deterministic, generic spawn-start policy on the existing
+  Runtime `SPAWN_ENTITY` replacement path that guarantees a non-overlapping,
+  player-relative minimum separation (or equivalent bounded fair-start
+  placement) before normal target-directed pursuit; preserve existing Enemy
+  composition, target binding, contact semantics, replacement continuity, and
+  Runtime authority.
+acceptance: In a real generated Survival session, every lethal replacement
+  begins outside the configured Player overlap/fair-start boundary, preserves
+  the existing six-entity/session/replacement path, allows a readable approach
+  window under current movement and pursuit, and does not alter attack range,
+  damage, XP/Level, outcome feedback, or Platformer `Space` jump behavior.
+forbidden_scope: WaveManager, wave scheduler, timer/cooldown, periodic spawn
+  framework, Survival-specific combat system, projectile, damage rebalance,
+  progression redesign/skill tree, provider/image call, broad pacing system,
+  unrelated cleanup, or a second work order.
+stop_condition: Discovery is complete. Do not implement this WO, generate a
+  second WO, or enter Sprint 35 until a new Human/CTO authorization is given.
 
 ## SPRINT32_FREEZE_REVIEW
 
@@ -82,7 +147,8 @@ goal: Measure the single largest remaining user-visible issue preventing the
 discovery_policy: Play the exact generated Survival request normally through
   movement, pursuit, attacks, defeat, replacement, leveling, and continued
   play. Rank measured experience gaps only; generate exactly one primary WO;
-  do not execute it in this discovery and do not enter Sprint 34.
+  do not execute it at that historical discovery boundary; Sprint 34 was
+  entered only after a later Human/CTO decision.
 verified_baseline: Explicit Space offense, Runtime-authoritative damage,
   defeat/removal, XP/Level, Runtime-only replacement, active-session
   continuity, and truthful Observatory projection are already verified.
@@ -90,7 +156,7 @@ verified_baseline: Explicit Space offense, Runtime-authoritative damage,
 ## Historical SPRINT33_PRODUCT_GAP_DISCOVERY
 
 status: DONE — one measured blocker selected; `WO-S33-001` executed and
-  verified; freeze review is READY
+  verified; Sprint 33 was then frozen at v1.183
 evidence: Fresh local Studio play produced active deterministic-fallback
   world-1 with six entities. Space attacks committed real damage and defeat,
   but the Game canvas gave no hit, damage, defeat, or replacement cue; the
@@ -101,7 +167,8 @@ selected_bottleneck: PRODUCT_GAP — generic gameplay outcome feedback and
   of the primary loop more frequently than progression meaning or replacement
   pacing.
 selected_work_order: WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
-next_gate: WO-S33-001 DONE; `SPRINT33_FREEZE_REVIEW` READY; no Sprint 34.
+next_gate: Historical `SPRINT33_FREEZE_REVIEW` was subsequently accepted;
+  current Sprint 34 discovery and `WO-S34-001` are recorded above.
 
 ## SPRINT31_AUTHORIZATION — Observatory Truth Consistency
 

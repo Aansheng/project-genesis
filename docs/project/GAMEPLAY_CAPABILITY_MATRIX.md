@@ -1,8 +1,8 @@
-# Gameplay Capability Matrix — Sprint 33 Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 33 Frozen / Sprint 34 Discovery Complete
 
-Architecture version: v1.183 (Sprint 30, Sprint 31, and Sprint 32 FROZEN;
-`WO-S33-001` Code Complete = YES; Product Verified = YES; Sprint 33 freeze
-review READY; Sprint 34 not entered)
+Architecture version: v1.183 (Sprint 30, Sprint 31, Sprint 32, and Sprint 33
+FROZEN; `WO-S33-001` Code Complete = YES; Product Verified = YES; Sprint 34
+Product Gap Discovery complete; exactly one READY WO; Sprint 35 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -22,6 +22,13 @@ current-session `COMPLETE_GOAL` slice, finite additive numeric progression,
 and one removal-triggered `SPAWN_ENTITY` slice; partial/deferred/unsupported
 rules remain gated as whole rules. A Studio-only slice is not promoted to a
 general Runtime capability.
+
+Sprint 34 discovery did not promote a new capability into this matrix. The
+single READY candidate, `WO-S34-001 — Generic Runtime Replacement Fair-Start
+Policy`, remains **not implemented**: it is a bounded player-relative
+spawn-start fairness policy on the existing generic `SPAWN_ENTITY` path. It
+must preserve Runtime authority and must not become a WaveManager, timer,
+wave, or Survival-specific system.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |

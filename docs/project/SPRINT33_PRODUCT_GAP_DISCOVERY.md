@@ -2,8 +2,12 @@
 
 Discovery date: 2026-09-01  
 Architecture: v1.182 discovery baseline; current architecture v1.183
-Status: **DONE — `WO-S33-001` executed and verified; freeze review READY**
+Status: **DONE — `WO-S33-001` executed and verified; Sprint 33 FROZEN at v1.183**
 Authority: Human/CTO decision froze Sprint 32 and authorized Sprint 33 Product Gap Discovery
+
+This is the historical Sprint 33 discovery record. The subsequent Sprint 34
+discovery is recorded in `SPRINT34_PRODUCT_GAP_DISCOVERY.md` and does not alter
+the accepted Sprint 33 evidence.
 
 ## Discovery boundary
 
@@ -84,8 +88,10 @@ Exactly one primary work order is generated:
 
 `WO-S33-001 — Generic Runtime Gameplay Outcome Feedback`
 
-The work order is `READY` for a later human-authorized execution step. It is
-not executed by this discovery, and no Sprint 34 work is generated.
+At this discovery boundary the work order was `READY` for a later
+human-authorized execution step. It was subsequently executed and verified as
+WO-S33-001; Sprint 33 was then frozen. No Sprint 34 work belongs to this
+historical discovery record.
 
 See [`SPRINT33_BACKLOG.md`](SPRINT33_BACKLOG.md) for the complete contract,
 acceptance criteria, verification plan, and non-goals.
@@ -148,5 +154,5 @@ so it remains an observation rather than an overstated visual claim.
 Fresh gap analysis: **PASS**. The original selected blocker is resolved and
 the product-success question is YES. Progression meaning, replacement pacing,
 and evasion readability remain secondary candidates, with no new Sprint 33 WO.
-Next gate: `SPRINT33_FREEZE_REVIEW` — READY for Human/CTO review. Sprint 34 is
-not entered.
+Human/CTO subsequently froze Sprint 33 at v1.183 and authorized Sprint 34;
+see `SPRINT34_PRODUCT_GAP_DISCOVERY.md` for the current discovery gate.
