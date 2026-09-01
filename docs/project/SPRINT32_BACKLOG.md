@@ -3,8 +3,8 @@
 **Authorization:** Human/CTO decision, 2026-08-31  
 **Architecture at authorization:** v1.181  
 **Current architecture:** v1.182
-**Status:** ACTIVE — `WO-S32-001` DONE; Code Complete = YES; Product Verified = YES;
-fresh Sprint 32 Gap Analysis = PASS; `SPRINT32_FREEZE_REVIEW` READY
+**Status:** FROZEN — `WO-S32-001` DONE; Code Complete = YES; Product Verified = YES;
+fresh Sprint 32 Gap Analysis = PASS; Human/CTO accepted freeze 2026-09-01
 
 ## Product goal
 
@@ -230,9 +230,10 @@ results, constraints honored, known gaps, exact manual Product Verification
 steps/results, Code Complete, and Product Verified. This discovery step reports
 only `READY`; it does not mark the WO complete.
 
-## Sprint 32 execution boundary
+## Sprint 32 freeze boundary
 
 `WO-S32-001` was the only generated primary WO and is now DONE after the
-authorized bounded implementation and Product Verification. Sprint 32 remains
-the current Sprint; `SPRINT32_FREEZE_REVIEW` is READY and Sprint 33 is not
-entered.
+authorized bounded implementation and Product Verification. Human/CTO accepted
+`SPRINT32_FREEZE_REVIEW` on 2026-09-01 and froze Sprint 32 at v1.182. The
+remaining feedback, progression-meaning, and replacement-pacing observations
+are handed to Sprint 33 discovery; no additional Sprint 32 WO is opened.

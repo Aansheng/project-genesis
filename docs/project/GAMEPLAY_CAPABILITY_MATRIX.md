@@ -1,14 +1,16 @@
-# Gameplay Capability Matrix — Sprint 32 WO-S32-001 Complete / Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 32 Frozen / Sprint 33 Discovery Complete
 
-Architecture version: v1.182 (Sprint 30 and Sprint 31 FROZEN; WO-S30-001,
-WO-S31-001, WO-S31-002, and WO-S32-001 Code Complete; Product Verified; Sprint
-32 active; `SPRINT32_FREEZE_REVIEW` READY)
+Architecture version: v1.182 (Sprint 30, Sprint 31, and Sprint 32 FROZEN;
+WO-S30-001, WO-S31-001, WO-S31-002, and WO-S32-001 Code Complete; Product
+Verified; Sprint 33 discovery complete; `WO-S33-001` READY and not executed)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
 nearby current Runtime Enemy and emits an attack fact consumed by the existing
 trusted damage rule path. No weapon, projectile, timer, cooldown, or
-genre-specific combat system is implied.
+genre-specific combat system is implied. Sprint 33 discovery changes no
+capability status; it records a single remaining Game-surface feedback gap and
+one deferred READY work order.
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the

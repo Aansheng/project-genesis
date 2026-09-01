@@ -78,6 +78,14 @@ architecture.
   with Player-only Renderer tick alternation at v1.167. WO-S19-002 is Product
   Verified, and Sprint 19 Freeze Review froze Animated Entity Presentation at
   v1.167. Sprint 20 is not entered automatically.
+- Sprints 20–31 completed and froze their bounded product slices through
+  playable platform geometry, free-form evolution, Studio session continuity,
+  generation transparency/recovery, lifecycle presentation, production
+  reachability review, Survival generalization/spatial composition, pursuit,
+  contact offense, sustained replacement, and Observatory truth consistency.
+  Sprint 32 then froze at v1.182 after adding generic top-down Player-directed
+  short-range offense with Runtime-authoritative damage and replacement
+  continuity. No future combat system is implied by those slices.
 
 ## Current direction
 
@@ -86,11 +94,17 @@ Keep the end-to-end pipeline playable, truthful, and visually composable:
 Natural language → Intent → Semantic World → Game DSL → Runtime → Renderer
 → playable game → targeted natural-language evolution.
 
-Sprint 24 measures only player-facing presentation of the existing Runtime
-failure/completion lifecycle. It must remain a projection: no UI-owned gameplay
-state, generic managers, lifecycle framework, campaign flow, or game menus.
-After real Studio verification, prefer Sprint 24 Freeze Review rather than
-expanding the scope.
+Sprint 33 is currently authorized only for Product Gap Discovery over the
+generated Survival experience. The fresh session selected one user-visible
+blocker—generic gameplay outcome feedback/combat readability—and generated
+exactly one READY work order, WO-S33-001. Its execution is deliberately
+deferred pending a later explicit decision; this direction does not authorize
+weapons, projectiles, waves, timers, upgrades, or a new combat authority.
+
+The selected slice must remain a projection of Runtime truth: no UI-owned
+gameplay state, generic combat manager, lifecycle framework, campaign flow, or
+game menus. If implementation is later authorized, re-measure the real Game
+surface first and stop if a different blocker is stronger.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,
