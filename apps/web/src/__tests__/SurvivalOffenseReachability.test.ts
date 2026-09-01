@@ -19,6 +19,7 @@ import {
   DEFAULT_RUNTIME_PLACEMENT_MINIMUM_DISTANCE,
   DefaultRuntimeExecutionLoop,
   DefaultRuntimeGameplayEventCollector,
+  DefaultRuntimeGameplayProgressionStateStore,
   DefaultRuntimeProjection,
   DefaultRuntimeSystemRegistry,
   DefaultRuntimeWorldStore,
@@ -102,7 +103,7 @@ interface ProductionRuntime {
   readonly loop: DefaultRuntimeExecutionLoop
 }
 
-function createProductionRuntime(enemyDistance = 40): ProductionRuntime {
+function createProductionRuntime(enemyDistance = 40, initialLevel = 1): ProductionRuntime {
   const generated = createPipeline().execute({ input: '生成一个幸存者游戏' })
   const semanticWorld = generated.semanticWorld!
   const playerId = semanticWorld.entities.find(entity => entity.category === 'player')!.id
@@ -116,6 +117,9 @@ function createProductionRuntime(enemyDistance = 40): ProductionRuntime {
   )
   const collector = new DefaultRuntimeGameplayEventCollector('world-1')
   const store = new DefaultRuntimeWorldStore(initialWorld, collector)
+  const progressionStateStore = new DefaultRuntimeGameplayProgressionStateStore()
+  progressionStateStore.bind({ worldId: 'world-1', sessionId: 'world-1' })
+  progressionStateStore.commit({ values: { experience: 0, level: initialLevel } })
   const target = new EventTarget()
   const input = new KeyboardInputProvider(target)
   input.attach()
@@ -128,6 +132,7 @@ function createProductionRuntime(enemyDistance = 40): ProductionRuntime {
     getSessionId: () => 'world-1',
     getSemanticRevision: () => 0,
     getSemanticWorld: () => semanticWorld,
+    progressionStateStore,
   })
   return { semanticWorld, playerId, enemyId, store, target, input, loop }
 }
@@ -177,6 +182,29 @@ describe('WO-S32-001: generated Survival directed offense production reachabilit
     })
   })
 
+  it('selects exactly one progression-conditioned offense rule at Level 1, Level 2, and above', () => {
+    for (const [level, expectedDamage] of [[1, 25], [2, 50], [3, 50]] as const) {
+      const runtime = createProductionRuntime(40, level)
+      const result = pressSpace(runtime)
+      const executedOffense = result.gameplayRuleResults?.filter(item =>
+        item.ruleId === 'survival-player-offense' || item.ruleId === 'survival-player-offense-level-2',
+      ).filter(item => item.status === 'executed')
+
+      expect(executedOffense).toHaveLength(1)
+      expect(executedOffense?.[0]).toMatchObject({
+        ruleId: level < 2 ? 'survival-player-offense' : 'survival-player-offense-level-2',
+        committed: true,
+        actionResults: [{
+          actionType: 'DAMAGE_ENTITY',
+          status: 'executed',
+          mutation: { damageAmount: expectedDamage },
+        }],
+      })
+      expect(health(result.world, runtime.enemyId)).toBe(100 - expectedDamage)
+      runtime.input.detach()
+    }
+  })
+
   it('does nothing on a valid Space edge when no target is within the finite range', () => {
     const runtime = createProductionRuntime(49)
     const before = runtime.store.getWorld()
@@ -215,6 +243,10 @@ describe('WO-S32-001: generated Survival directed offense production reachabilit
       committed: true,
     })
     expect(defeatResult?.gameplayProgressionState?.values).toMatchObject({ experience: 1, level: 2 })
+    expect(defeatResult?.gameplayRuleResults?.filter(item =>
+      (item.ruleId === 'survival-player-offense' || item.ruleId === 'survival-player-offense-level-2')
+        && item.status === 'executed',
+    )).toHaveLength(1)
     expect(runtime.store.getWorld().entities.some(entity => entity.type === 'enemy' && entity.id !== runtime.enemyId)).toBe(true)
   })
 
@@ -236,7 +268,12 @@ describe('WO-S32-001: generated Survival directed offense production reachabilit
       type: 'ENTITY_ATTACK_REQUESTED',
       targetEntityId: replacement.id,
     }))
-    expect(health(result.world, replacement.id)).toBe(75)
+    expect(health(result.world, replacement.id)).toBe(50)
+    expect(result.gameplayRuleResults?.find(item => item.ruleId === 'survival-player-offense-level-2')).toMatchObject({
+      status: 'executed',
+      committed: true,
+      actionResults: [{ actionType: 'DAMAGE_ENTITY', mutation: { damageAmount: 50 } }],
+    })
   })
 
   it('selects exactly one nearest target from multiple Runtime Enemies', () => {
@@ -293,8 +330,21 @@ describe('WO-S32-001: generated Survival directed offense production reachabilit
     )
     runtime.store.setWorld(movedPlayerWorld)
 
-    for (let attack = 0; attack < 3; attack += 1) pressSpace(runtime)
-    const secondDefeat = pressSpaceWithFollowUp(runtime).followUp
+    for (let attack = 0; attack < 1; attack += 1) pressSpace(runtime)
+    const secondCycle = pressSpaceWithFollowUp(runtime)
+    const secondDefeat = secondCycle.followUp
+    expect(secondCycle.attack.world.entities.some(entity => entity.id === firstReplacement.id)).toBe(false)
+    expect(secondCycle.attack.gameplayRuleResults?.filter(item =>
+      (item.ruleId === 'survival-player-offense' || item.ruleId === 'survival-player-offense-level-2')
+        && item.status === 'executed',
+    )).toHaveLength(1)
+    expect(secondCycle.attack.gameplayRuleResults?.find(item => item.ruleId === 'survival-player-offense-level-2')).toMatchObject({
+      status: 'executed',
+      actionResults: [{ actionType: 'DAMAGE_ENTITY', mutation: { damageAmount: 50 } }],
+    })
+    expect(secondCycle.attack.gameplayRuleResults?.find(item => item.ruleId === 'survival-enemy-defeat')).toMatchObject({
+      status: 'executed',
+    })
     const secondReplacement = secondDefeat.world.entities.find(
       entity => entity.type === 'enemy' && entity.id !== firstReplacement.id,
     )!

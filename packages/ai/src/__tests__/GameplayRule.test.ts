@@ -153,6 +153,7 @@ describe('GameplayRule foundation', () => {
 
     expect(ruleSet.rules.map(rule => rule.ruleId)).toEqual([
       'survival-player-offense',
+      'survival-player-offense-level-2',
       'survival-enemy-defeat',
       'survival-level-up-at-experience-threshold',
       'survival-enemy-contact',
@@ -166,6 +167,27 @@ describe('GameplayRule foundation', () => {
         target: { kind: 'eventTarget' },
       },
       actions: [{ type: 'DAMAGE_ENTITY', target: { kind: 'eventTarget' }, amount: 25 }],
+    })
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-player-offense')?.conditions).toContainEqual({
+      type: 'NUMBER_COMPARE',
+      value: { kind: 'gameState', key: 'level' },
+      operator: 'lt',
+      expected: 2,
+    })
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-player-offense-level-2')).toMatchObject({
+      supportStatus: 'supported',
+      trigger: {
+        eventType: 'ENTITY_ATTACK_REQUESTED',
+        actor: { kind: 'eventActor' },
+        target: { kind: 'eventTarget' },
+      },
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'enemy' },
+        { type: 'COMPONENT_EXISTS', entity: { kind: 'eventTarget' }, componentType: 'health' },
+        { type: 'NUMBER_COMPARE', value: { kind: 'gameState', key: 'level' }, operator: 'gte', expected: 2 },
+      ],
+      actions: [{ type: 'DAMAGE_ENTITY', target: { kind: 'eventTarget' }, amount: 50 }],
     })
     const defeatRule = ruleSet.rules.find(rule => rule.ruleId === 'survival-enemy-defeat')
     expect(defeatRule).toMatchObject({

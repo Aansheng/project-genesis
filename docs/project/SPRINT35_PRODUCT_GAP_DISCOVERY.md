@@ -1,8 +1,8 @@
 # Sprint 35 Product Gap Discovery — Progression Meaning
 
 Discovery date: 2026-09-01  
-Architecture: v1.184  
-Status: **DONE — exactly one READY WO generated; WO-S35-001 not executed; Sprint 36 not entered**  
+Architecture: v1.184 at discovery baseline; current v1.185
+Status: **DONE — WO-S35-001 executed and verified; `SPRINT35_FREEZE_REVIEW` READY; Sprint 36 not entered**
 Authority: Human/CTO decision froze Sprint 34 and authorized Sprint 35 Progression Meaning Discovery
 
 ## Discovery boundary
@@ -12,9 +12,10 @@ Product Verified = YES, and the fresh post-WO Gap Analysis = PASS. Sprint 35
 was authorized only to discover the smallest truthful capability that gives a
 committed Level transition one mechanically observable consequence.
 
-This record is discovery only. It does not implement a progression feature,
-change the architecture version, add a new Runtime authority, or enter Sprint
-36. Exactly one work order is produced below and remains `READY`.
+The discovery section of this record is historical and did not implement a
+progression feature or change the architecture version. The authorized
+execution result and fresh post-WO Gap Analysis are appended below. Exactly
+one next gate remains `READY`: `SPRINT35_FREEZE_REVIEW`.
 
 ## Current progression authority path
 
@@ -109,7 +110,9 @@ an RPG modifier framework.
 
 `WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`
 
-The work order is `READY` only. It is not executed in Sprint 35 discovery.
+At the discovery boundary the work order was `READY` only; it was not executed
+in the discovery step. The separately authorized execution result is recorded
+below.
 Its proposed proof is one generic RuleSet capability selection:
 
 `committed Level 1 → Survival offense action amount 25`
@@ -159,7 +162,8 @@ the condition/action primitive generic. The Runtime must not contain a
 
 ## Explicit non-goals
 
-- No implementation of `WO-S35-001` in this discovery.
+- No implementation of `WO-S35-001` in this discovery step; its later
+  authorized execution is recorded below.
 - No `StatsEngine`, `ModifierManager`, `AttributeSystem`, `BuffSystem`,
   `EffectStack`, `SkillTree`, `UpgradeManager`, or RPG stat framework.
 - No attack-range, movement-speed, Health, weapon, projectile, timer, wave,
@@ -180,9 +184,59 @@ the condition/action primitive generic. The Runtime must not contain a
 | Candidate effects ranked from product and source evidence | PASS — attack damage selected |
 | Exactly one measured blocker selected | PASS — Level progression has no gameplay consequence |
 | Exactly one READY WO generated | PASS — `WO-S35-001` only |
-| WO execution | NOT PERFORMED by authorization boundary |
+| WO execution | NOT PERFORMED at the discovery boundary; later authorized execution recorded below |
 | Sprint 36 entry | NOT PERFORMED by authorization boundary |
 
-Sprint 35 discovery is complete. The repository is stopped with Sprint 34
-frozen, `WO-S35-001` READY for a separately authorized execution step, and no
-additional work order or Sprint 36 transition.
+Sprint 35 discovery was complete at the original boundary with Sprint 34
+frozen and `WO-S35-001` READY. The current repository state is recorded in the
+execution section below; no additional work order or Sprint 36 transition is
+performed here.
+
+## WO-S35-001 Execution and Fresh Sprint 35 Gap Analysis
+
+Execution authorization: Human/CTO authorization on 2026-09-01
+Architecture: v1.184 → v1.185
+Code Complete: **YES**
+Product Verified: **YES**
+
+The existing deterministic Survival RuleSet now composes two mutually
+exclusive progression-conditioned offense variants using the generic
+`NUMBER_COMPARE(gameState.level)` condition and `DAMAGE_ENTITY` action:
+
+`level < 2 → amount 25`
+`level >= 2 → amount 50`
+
+The Runtime reads the committed progression snapshot when evaluating the
+attack event. The existing Space edge, nearest target/range-48 selection,
+Health mutation, defeat/XP/Level chain, fair-start replacement, committed
+feedback, Observatory projection, and Platformer `Space → Jump` behavior were
+preserved. No StatsEngine/modifier framework, Runtime Survival/Level branch,
+new UI, provider/image call, or additional threshold was introduced.
+
+Automated acceptance coverage passed:
+
+- AI RuleSet composition and create-world integration: 10/10 focused tests;
+- Runtime gameplay execution regression: 22/22 focused tests;
+- Web production Survival offense and outcome feedback: 11/11 focused tests;
+- Full affected-package suites: AI 9430/9430, Runtime 711/711, Renderer
+  510/510, and Web 3575/3575;
+- exact one-rule selection at Level 1, Level 2, and Level > 2;
+- Level 1 lethal event without duplicate Level 2 damage;
+- Level 2 replacement defeat in two attacks with committed `-50` feedback;
+- existing Level 1 committed `-25` feedback and Platformer regression.
+
+Real Studio Product Verification used the exact request
+`生成一个幸存者游戏`: Level 1 attack changed Enemy Health `100 → 75` with
+`-25`; the same active world/session reached committed `XP 1 / Level 2`
+without rebuild; the next valid Enemy took `100 → 50` with `-50`, and the
+second Level 2 hit defeated it and produced the existing replacement/fair-start
+chain. Observatory continued to show current world, XP, Level, event stream,
+and `v1.185 / Sprint 35` metadata. Platformer `Space → Jump` remained intact;
+browser diagnostics were empty.
+
+Fresh Sprint 35 Gap Analysis: **PASS**. The selected blocker—Level progression
+having no gameplay consequence—is resolved by the bounded damage-selection
+proof. No immediate P0 blocker was found that justifies expanding this WO.
+Do not add further thresholds, range/speed/Health scaling, upgrades, or a
+progression UI in this continuation. The repository stops at
+`SPRINT35_FREEZE_REVIEW` for Human/CTO review; Sprint 36 is not entered.

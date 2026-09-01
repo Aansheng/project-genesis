@@ -36,8 +36,8 @@
 **Sprint 32** — Survival Playability Gap (**FROZEN — `WO-S32-001` Code Complete = YES; Product Verified = YES; v1.182; Human/CTO accepted 2026-09-01**)
 **Sprint 33** — Survival Playability Gap (**FROZEN — `WO-S33-001` Code Complete = YES; Product Verified = YES; v1.183; Human/CTO accepted 2026-09-01**)
 **Sprint 34** — Survival Playability Gap (**FROZEN — `WO-S34-001` Code Complete = YES; Product Verified = YES; v1.184; Human/CTO accepted 2026-09-01**)
-**Sprint 35** — Progression Meaning Discovery (**DONE — `WO-S35-001` READY; v1.184; not executed; Sprint 36 not entered**)
-**Current WO** - `WO-S35-001` — READY; execution not authorized in this continuation
+**Sprint 35** — Progression Meaning (**ACTIVE — `WO-S35-001` Code Complete = YES; Product Verified = YES; v1.185; `SPRINT35_FREEZE_REVIEW` READY**)
+**Current WO** - `SPRINT35_FREEZE_REVIEW` — READY for Human/CTO review; Sprint 36 not entered
 
 ---
 
@@ -45,21 +45,22 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, and Sprint 34 is FROZEN at v1.184 by Human/CTO decisions. Sprint 35 discovery is DONE with exactly one READY `WO-S35-001`; it is not executed and Sprint 36 is not entered. |
-| Architecture Version | v1.184; Runtime remains authoritative for gameplay and now applies a deterministic, spatial fair-start policy to Survival Enemy replacements before normal pursuit. |
-| Last Completed WO | WO-S34-001 — Generic Runtime Replacement Fair-Start Policy; Code Complete = YES; Product Verified = YES; v1.184. |
-| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge still selects one nearby valid Enemy within range 48 and applies the existing Runtime damage/defeat/progression path; committed nonlethal damage shows a transient `-25`/ring cue, lethal removal shows a distinct defeat cue, and replacement shows a spawn cue. Survival Enemy replacements now start at a deterministic Runtime Position at least 96 units from the current Player when a fair candidate exists, with Runtime AABB non-overlap, then resume existing pursuit. No target is a no-op, contact danger is not mislabeled as Player offense, and feedback is bound to Runtime entity IDs rather than visual asset identity. Full Observatory remains current; Platformer remains unchanged with `Space — 跳跃`. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → top-down `Space` edge → `PlayerAttackRequestSystem` current Position/Health target selection → `ENTITY_ATTACK_REQUESTED` → post-system GameplayRuleExecutor → trusted `DAMAGE_ENTITY` / defeat / progression → `ENTITY_REMOVED` → `SPAWN_ENTITY` → current Runtime Player resolution → deterministic fair-start Position/AABB selection → `RuntimeEntityComposition` → `WorldMutator.addEntity` → Runtime WorldStore → `ExecutionTickResult.gameplayRuleResults` → `projectRuntimeGameplayOutcomeFeedback` → Runtime visualization loop → Pixi feedback layer, alongside binding-only entity rendering and current Observatory data projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | **LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE** — committed XP/Level changes currently do not select or mutate any gameplay capability. The single bounded response is `WO-S35-001`; timers/waves/projectiles/scaling remain deferred. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN — Runtime 711/711, Renderer 510/510, Web 3574/3574; TypeScript, ESLint, Web build, real multi-cycle Studio Survival fair-start/replacement and Platformer smoke all passed, with empty browser error logs. Fresh Sprint 34 post-WO Gap Analysis: PASS. Sprint 35 discovery: PASS; `WO-S35-001` remains unexecuted. |
-| Next Recommended Verification | Separately authorize and execute `WO-S35-001`; do not execute it implicitly and do not enter Sprint 36. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, and Sprint 34 is FROZEN at v1.184 by Human/CTO decisions. Sprint 35 `WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES at v1.185; `SPRINT35_FREEZE_REVIEW` is READY and Sprint 36 is not entered. |
+| Architecture Version | v1.185; Runtime remains authoritative for gameplay. Survival offense now selects 25 damage below Level 2 and 50 damage at Level 2 or above through mutually exclusive generic Gameplay Rule conditions. |
+| Last Completed WO | WO-S35-001 — Generic Progression-Conditioned Gameplay Capability; Code Complete = YES; Product Verified = YES; v1.185. |
+| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge selects one nearby valid Enemy within range 48. At Level 1 the committed hit changes Enemy Health `100 → 75` and presents `-25`; after the existing defeat/XP chain commits Level 2, the same attack path changes a fresh Enemy `100 → 50` and presents `-50`, with the second hit defeating it. Lethal removal and fair-start replacement cues remain active, contact danger remains separate, and Observatory projects current world/XP/Level/events/`v1.185 / Sprint 35` truth. Platformer remains unchanged with `Space — 跳跃`. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → top-down `Space` edge → `PlayerAttackRequestSystem` current Position/Health target selection → `ENTITY_ATTACK_REQUESTED` → post-system GameplayRuleExecutor → current progression snapshot evaluates mutually exclusive `level < 2` / `level >= 2` offense Rules → trusted `DAMAGE_ENTITY` / defeat / progression → `ENTITY_REMOVED` → `SPAWN_ENTITY` → current Runtime Player resolution → deterministic fair-start Position/AABB selection → `RuntimeEntityComposition` → `WorldMutator.addEntity` → Runtime WorldStore → `ExecutionTickResult.gameplayRuleResults` → `projectRuntimeGameplayOutcomeFeedback` → Runtime visualization loop → Pixi feedback layer, alongside binding-only entity rendering and current Observatory data projection. AI/provider calls remain generation-time only. |
+| Current Blocking Issue | **No immediate P0 blocker identified after WO-S35-001.** The bounded Level consequence is complete; `SPRINT35_FREEZE_REVIEW` is pending Human/CTO review. Further thresholds, scaling, upgrades, range/speed/Health changes, and timers/waves remain deferred. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS — focused and affected tests, TypeScript, ESLint, Web build, real Studio Level 1 → Level 2 damage/hit-count/replacement verification, Platformer smoke, current Observatory truth, and empty browser diagnostics all passed. Fresh Sprint 35 Gap Analysis: PASS. |
+| Next Recommended Verification | Human/CTO `SPRINT35_FREEZE_REVIEW`; if accepted, stop before any Sprint 36 discovery or implementation. |
 
 ## Sprint 35 Progression Meaning Discovery
 
 Human/CTO froze Sprint 34 at v1.184 and authorized Sprint 35 discovery on
-2026-09-01. The source audit and real Survival evidence show that Runtime
-progression is authoritative and truthful, but a committed Level change emits
-only `NUMERIC_STATE_UPDATED`; it does not change a gameplay capability.
+2026-09-01. The source audit and real Survival evidence showed that Runtime
+progression was authoritative and truthful, but a committed Level change
+initially emitted only `NUMERIC_STATE_UPDATED`; it did not change a gameplay
+capability.
 
 The measured blocker is **LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**. The
 smallest meaningful candidate is a generic, progression-conditioned Gameplay
@@ -69,12 +70,41 @@ damage `50`, making the existing Enemy defeat loop require fewer attacks. The
 candidate ranking and exact audit are recorded in
 [`SPRINT35_PRODUCT_GAP_DISCOVERY.md`](SPRINT35_PRODUCT_GAP_DISCOVERY.md).
 
-Discovery is DONE and generated exactly one READY work order,
-`WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`. No product
-code for that consequence was implemented, no new architecture version was
-introduced, and Sprint 36 was not entered. The current app metadata now
-truthfully projects `v1.184 / Sprint 35`; Runtime gameplay behavior remains
-unchanged.
+Discovery is DONE and generated exactly one work order,
+`WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`. Human/CTO
+subsequently authorized its execution. The bounded RuleSet composition is
+complete at v1.185 and the current app metadata truthfully projects
+`v1.185 / Sprint 35`; Runtime gameplay behavior now selects 25 damage below
+Level 2 and 50 damage at Level 2 or above without changing target selection or
+introducing a stat framework. Sprint 36 is not entered.
+
+## Sprint 35 WO-S35-001 Execution and Product Verification
+
+`WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES.
+Architecture advances from v1.184 to v1.185. The existing deterministic
+Survival RuleSet composes mutually exclusive `NUMBER_COMPARE(gameState.level)`
+conditions with the existing `DAMAGE_ENTITY` action:
+
+- `level < 2` → damage `25`;
+- `level >= 2` → damage `50`.
+
+The executor reads the current committed progression snapshot while evaluating
+the attack event. The existing input/target-selection, range 48, Health 100,
+contact danger, defeat/XP/Level chain, fair-start replacement, committed
+feedback, Observatory, and Platformer jump behavior remain unchanged. The
+production regression proves exactly one offense rule at Level 1, Level 2,
+and Level > 2, and no duplicate damage on the lethal Level 1 event.
+
+Real Studio Product Verification used `生成一个幸存者游戏`: Level 1 changed
+Enemy Health `100 → 75` with `-25`; the same active world/session reached
+committed `XP 1 / Level 2`; the next valid Enemy changed `100 → 50` with `-50`,
+and the second Level 2 hit defeated it through the existing replacement path.
+Observatory world/XP/Level/event/metadata truth remained current, Platformer
+`Space → Jump` remained intact, and browser diagnostics were empty. The fresh
+Sprint 35 Gap Analysis is PASS with no immediate P0 blocker.
+
+The repository is stopped at `SPRINT35_FREEZE_REVIEW` for Human/CTO decision;
+it does not enter Sprint 36 automatically.
 
 ## Sprint 34 Product Gap Discovery — Survival Playability
 

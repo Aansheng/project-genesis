@@ -1,5 +1,26 @@
 # Changelog
 
+### Sprint 35 — WO-S35-001 Progression-Conditioned Gameplay Capability (v1.185, 2026-09-01)
+
+- Human/CTO authorized and execution completed for the single Sprint 35
+  `WO-S35-001`. Architecture advances from v1.184 to v1.185.
+- The deterministic Survival RuleSet now composes mutually exclusive generic
+  `NUMBER_COMPARE(gameState.level)` conditions: Level 1 uses
+  `DAMAGE_ENTITY.amount = 25`, while Level 2 and above use `amount = 50`.
+  Runtime reads the current committed progression snapshot at attack time;
+  no modifier/stat framework or deep Survival/Level Runtime branch was added.
+- Existing Space target selection/range 48, Health 100, contact danger,
+  defeat/XP/Level, fair-start replacement, committed `-25`/`-50` feedback,
+  Observatory truth, and Platformer `Space — 跳跃` behavior remain intact.
+- Regression coverage proves exact one-rule selection at Level 1, Level 2, and
+  Level > 2, no same-event lethal double damage, Level 2 two-hit replacement
+  defeat, and committed feedback amounts. AI/Runtime/Web focused tests,
+  affected package gates, TypeScript, ESLint, Web build, real Studio Product
+  Verification, and browser diagnostics passed.
+- Fresh Sprint 35 Gap Analysis is PASS with no immediate P0 blocker. The
+  repository stops at `SPRINT35_FREEZE_REVIEW` for Human/CTO review; Sprint 36
+  is not entered.
+
 ### Sprint 35 — Progression Meaning Discovery (v1.184, 2026-09-01)
 
 - Human/CTO froze Sprint 34 at v1.184 after `WO-S34-001` completed with Code

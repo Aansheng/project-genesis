@@ -6,12 +6,12 @@ not a database or task service.
 queue_version: 1
 updated: 2026-09-01
 current_sprint: Sprint 35
-current_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
-current_work_order_status: READY — discovery complete; execution not authorized
-current_control_plane_work_order: SPRINT35_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE — exactly one READY product WO generated
-last_completed_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
-next_work_order: WO-S35-001 — READY; execution requires separate authorization
+current_work_order: SPRINT35_FREEZE_REVIEW
+current_work_order_status: READY — WO-S35-001 complete; Human/CTO review pending
+current_control_plane_work_order: SPRINT35_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — fresh S35 Gap Analysis PASS
+last_completed_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
+next_work_order: SPRINT35_FREEZE_REVIEW — READY; do not enter Sprint 36
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -152,9 +152,9 @@ next_gate: `SPRINT35_PRODUCT_GAP_DISCOVERY` — authorized and complete below.
 
 ## SPRINT35_AUTHORIZATION — Progression Meaning Discovery
 
-status: DONE — Human/CTO decision 2026-09-01; discovery complete
+status: DONE — Human/CTO decision 2026-09-01; discovery and authorized execution complete
 architecture_at_authorization: v1.184
-current_architecture: v1.184
+current_architecture: v1.185
 goal: Audit the current progression authority and real Survival behavior, rank
   candidate gameplay consequences, generate exactly one READY WO, and stop.
 discovery_policy: Do not implement a progression feature before auditing XP,
@@ -186,15 +186,15 @@ candidate_ranking: Attack damage is selected for high immediate perceptibility,
   movement speed, and Health require larger Runtime/configuration or semantic
   changes and are not selected.
 selected_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
-next_gate: WO-S35-001 is READY only; do not execute it in this continuation and
-  do not enter Sprint 36.
+next_gate_at_discovery_boundary: WO-S35-001 was READY only; the separately
+  authorized execution result is recorded below. Do not enter Sprint 36.
 
 ## WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
 
-status: READY — not executed
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / selected Sprint 35 blocker
 architecture_before: v1.184
-architecture_after: v1.185 proposed only; not applied
+architecture_after: v1.185
 allowed_scope: Add one pure, declarative, reusable progression-conditioned
   Gameplay Rule builder composition that reuses `NUMBER_COMPARE(gameState)`
   and `DAMAGE_ENTITY`; Level 1 selects damage 25 and committed Level 2 selects
@@ -211,9 +211,46 @@ forbidden_scope: StatsEngine, modifier framework, weapon/projectile, range,
   progression UI, randomized reward, provider/image call, deep Survival/Level
   branch in Runtime mechanics, Platformer/global Level behavior, second WO, or
   Sprint 36.
-execution_gate: Separate authorization required. This queue entry is a READY
-  contract only; no product code or architecture change was executed during
-  Sprint 35 discovery.
+execution_gate: Human/CTO authorized execution on 2026-09-01. Execute only the
+  bounded RuleSet composition, complete all automated and real Studio gates,
+  perform a fresh Sprint 35 Gap Analysis, then stop at `SPRINT35_FREEZE_REVIEW`.
+result: Deterministic Survival composition now emits mutually exclusive
+  `NUMBER_COMPARE(gameState.level)` offense variants: Level < 2 commits
+  `DAMAGE_ENTITY.amount = 25`, while Level >= 2 commits `amount = 50`. The
+  existing attack-request/target-selection, Runtime action, defeat, XP/Level,
+  fair-start replacement, feedback, Observatory, and Platformer paths remain
+  authoritative and unchanged. The production path proves exactly one
+  offense rule at Level 1, Level 2, and Level > 2; a lethal Level 1 event does
+  not receive duplicate damage; a Level 2 replacement is defeated in two
+  attacks.
+verification: AI focused 10/10; Runtime gameplay execution 22/22; Web
+  Survival offense/feedback 11/11; full affected-package suites AI 9430/9430,
+  Runtime 711/711, Renderer 510/510, and Web 3575/3575; TypeScript, ESLint,
+  Web build, `git diff --check`, and real Studio Product Verification passed.
+  Fresh Sprint 35 Gap Analysis is PASS with no immediate blocker.
+next_gate: `SPRINT35_FREEZE_REVIEW` — Human/CTO review; do not enter Sprint 36.
+
+## SPRINT35_FREEZE_REVIEW
+
+status: READY — WO-S35-001 complete; Human/CTO review pending
+architecture_before: v1.184
+architecture_after: v1.185
+decision: The selected Sprint 35 blocker is resolved within the bounded
+  progression-conditioned capability slice. Code Complete = YES and Product
+  Verified = YES. The repository is stopped for Human/CTO freeze review.
+evidence: Level 1 real Space attack commits 25 damage (`100 → 75`); the first
+  lethal attack commits XP `0 → 1` and Level `1 → 2` without duplicate damage;
+  the next valid Level 2 attack commits 50 (`100 → 50`) and its second attack
+  defeats the replacement through the existing removal/XP/fair-start path;
+  committed feedback reports `-25` and `-50`; Level 1/2/>2 rule selection,
+  Runtime replacement, Observatory truth, Platformer Space jump, full quality
+  gates, and browser diagnostics passed.
+constraints: Keep the bounded `level < 2` / `level >= 2` RuleSet variants and
+  existing generic Runtime authority. Do not add Level 3+ scaling, stats or
+  modifiers, attack-range/movement/Health changes, weapons/projectiles,
+  timers/waves, progression UI, or a second WO. Do not enter Sprint 36.
+next_gate: Human/CTO freeze decision for Sprint 35; if accepted, stop before
+  any Sprint 36 discovery or implementation.
 
 ## SPRINT32_FREEZE_REVIEW
 

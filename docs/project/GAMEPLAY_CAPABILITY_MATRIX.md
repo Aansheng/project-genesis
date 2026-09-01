@@ -1,9 +1,10 @@
-# Gameplay Capability Matrix — Sprint 35 Discovery Complete / WO Ready
+# Gameplay Capability Matrix — Sprint 35 WO Complete / Freeze Review Ready
 
-Architecture version: v1.184 (Sprint 30 through Sprint 34 FROZEN;
+Architecture version: v1.185 (Sprint 30 through Sprint 34 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
-Sprint 34 post-WO Gap Analysis PASS; Sprint 35 discovery DONE;
-`WO-S35-001` READY and unexecuted; Sprint 36 not entered)
+Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
+Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
+`SPRINT35_FREEZE_REVIEW` READY; Sprint 36 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -30,11 +31,12 @@ spatial policy on the existing generic `SPAWN_ENTITY` path. It preserves
 Runtime authority and is not a WaveManager, timer, wave, or Survival-specific
 system.
 
-Sprint 35 discovery does not promote a new capability. It records one measured
-gap: committed Level changes currently produce only `NUMERIC_STATE_UPDATED` and
-do not select a gameplay capability. `WO-S35-001` is READY to compose
-progression-conditioned action variants using existing generic primitives; no
-progression modifier is supported yet.
+Sprint 35 promotes one bounded progression-conditioned capability selection at
+the existing Gameplay Rule builder seam. Committed Level 1 selects a 25-damage
+Survival offense action and committed Level 2 or above selects a 50-damage
+action through mutually exclusive generic `NUMBER_COMPARE(gameState.level)`
+conditions. This is not a progression modifier, stat system, scaling curve, or
+new Runtime authority.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -62,7 +64,7 @@ progression modifier is supported yet.
 | `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
 | `SET_ENTITY_PROPERTY` | Gameplay action schema | `deferred` | No generic gameplay property executor exists. |
 | `DAMAGE_ENTITY` | Gameplay action schema | `supported` | Trusted generic action validates positive finite damage, resolves current Health, uses immutable `WorldMutator.replaceEntity`, and commits Runtime session `failed` when a player reaches zero. Failed execution pauses later gameplay rules until explicit same-world respawn. |
-| Player-directed short-range offense | Generic top-down Runtime input + Gameplay Rule composition | `supported` | One `Space` edge selects one positive-Health Enemy within finite range `48` by nearest distance and stable ID tie-break, emits `ENTITY_ATTACK_REQUESTED`, and applies 25 damage through trusted `DAMAGE_ENTITY`; four attacks use the existing defeat/XP/Level/replacement path. |
+| Player-directed short-range offense | Generic top-down Runtime input + Gameplay Rule composition | `supported` | One `Space` edge selects one positive-Health Enemy within finite range `48` by nearest distance and stable ID tie-break, emits `ENTITY_ATTACK_REQUESTED`, and applies trusted `DAMAGE_ENTITY`; Level 1 commits 25 damage, while Level 2+ commits 50 through mutually exclusive `NUMBER_COMPARE(gameState.level)` Rule variants. The existing defeat/XP/fair-start/replacement path remains active. |
 | Enemy contact danger | Survival composition over generic rule primitives | `supported` | `ENTITY_CONTACT_STARTED` remains a separate Enemy→Player contact rule that applies 1 damage to Player Health; it is no longer the Player's automatic Enemy-offense path. |
 | `COMPLETE_GOAL` | Gameplay action schema | `supported` | Trusted goal-contact rules commit `RuntimeGameplaySessionState` from `active` to `completed`; repeated completion is an idempotent no-op and failed sessions cannot complete before respawn. |
 | Contact direction condition | Gameplay condition schema | `supported` | `ENTITY_CONTACT_STARTED.direction` is required and derived from Runtime-owned AABB crossing/overlap geometry; evaluator supports top/non-top and narrow negation. |
@@ -80,8 +82,8 @@ progression modifier is supported yet.
 | Goals / checkpoints / win | Goal intent and semantic entities | `partially supported` | Player contact with the validated goal commits Runtime session `completed`; Studio projects that committed state as a Victory overlay. No next level, restart, deletion, or progression flow exists. |
 | Player death / failure | Failure-condition intent | `partially supported` | Trusted lethal player damage commits Runtime `failed`; Studio projects it as a Game Over overlay and exposes only the existing Runtime respawn. No lives/checkpoints or generic reset framework exists. |
 | Timer / survive duration | Loop and goal intent | `deferred` | Duration is descriptive; no gameplay timer or expiry system exists. |
-| Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. The committed Level currently has no gameplay consequence; skill/upgrade state and later thresholds remain deferred. |
-| Progression-conditioned gameplay capability selection | Runtime progression state → existing Gameplay Rule action variants | `deferred` | `WO-S35-001` is READY only. Existing `NUMBER_COMPARE(gameState.level)` and `DAMAGE_ENTITY` can compose the first bounded proof, but no current RuleSet binds Level to a capability value. |
+| Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. The committed Level 2 now selects the bounded 50-damage Survival offense variant; skill/upgrade state and later thresholds remain deferred. |
+| Progression-conditioned gameplay capability selection | Runtime progression state → existing Gameplay Rule action variants | `supported` | `WO-S35-001` is complete at v1.185: current Runtime progression is read at attack evaluation time; mutually exclusive `level < 2` / `level >= 2` conditions select fixed `DAMAGE_ENTITY` values 25 / 50. No modifier/stat framework or additional threshold is implied. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
 | Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
 
@@ -134,6 +136,7 @@ animation system.
 Sprint 34 is FROZEN at v1.184. `WO-S34-001` is a supported generic Runtime
 spatial fair-start placement policy only: Runtime committed outcomes and
 composition stay authoritative, and no new combat/feedback manager, gameplay
-timer, world-bounds authority, or wave system exists. Sprint 35 discovery is
-complete without code or architecture change; `WO-S35-001` remains the only
-READY work order and is not executed.
+timer, world-bounds authority, or wave system exists. Sprint 35
+`WO-S35-001` is complete at v1.185 with a PASS fresh Gap Analysis; the
+repository is stopped at the sole next gate `SPRINT35_FREEZE_REVIEW` and does
+not enter Sprint 36.

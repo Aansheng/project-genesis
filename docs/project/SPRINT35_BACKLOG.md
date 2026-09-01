@@ -2,8 +2,8 @@
 
 **Authorization:** Human/CTO decision, 2026-09-01  
 **Architecture at authorization:** v1.184  
-**Current architecture:** v1.184  
-**Status:** DISCOVERY DONE — `WO-S35-001` READY; not executed; Sprint 36 not entered
+**Current architecture:** v1.185
+**Status:** `WO-S35-001` DONE — Code Complete = YES; Product Verified = YES; `SPRINT35_FREEZE_REVIEW` READY; Sprint 36 not entered
 
 ## Product goal
 
@@ -45,10 +45,10 @@ primitive, and stop gates.
 
 ## WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
 
-**Status:** READY — not executed  
+**Status:** DONE — Code Complete = YES; Product Verified = YES
 **Priority:** P0 / selected Sprint 35 product gap  
 **Architecture before:** v1.184  
-**Architecture after:** v1.185 proposed only; not applied  
+**Architecture after:** v1.185
 **Owner boundary:** existing Gameplay Rule builder/composition seam, reusing
 `packages/shared` Rule semantics and `packages/runtime` executor contracts  
 **Dependencies:** Sprint 34 FROZEN at v1.184; Sprint 35 discovery DONE
@@ -101,16 +101,35 @@ and `DAMAGE_ENTITY` action to select mutually exclusive fixed values `25` and
   Platformer/global Level behavior.
 - A second work order, Sprint 36, or unrelated cleanup.
 
-### Later execution verification
+### Execution result
 
-Run focused RuleSet/executor tests, affected package tests, TypeScript, ESLint,
-Web build, relevant regressions, then real Studio `生成一个幸存者游戏` play to
-Level 2 and verify the changed committed damage amount/hit count. Report Code
-Complete and Product Verified separately. This backlog entry is a READY
-contract only; those checks have not been run for this unexecuted WO.
+The Human/CTO authorization was accepted on 2026-09-01. The existing
+deterministic Survival RuleSet now composes two mutually exclusive offense
+variants over the generic `NUMBER_COMPARE(gameState.level)` and
+`DAMAGE_ENTITY` primitives:
+
+- `level < 2` → `DAMAGE_ENTITY.amount = 25`;
+- `level >= 2` → `DAMAGE_ENTITY.amount = 50`.
+
+The current Runtime progression snapshot is read at attack evaluation time.
+The existing target-selection, Health, defeat, XP/Level, fair-start
+replacement, feedback, Observatory, and Platformer paths were preserved. No
+new Runtime branch, modifier system, or progression UI was added.
+
+Focused and affected tests passed, including exact one-rule selection at
+Level 1, Level 2, and Level > 2; same-event lethal no-double-damage; Level 2
+two-hit replacement defeat; committed `-25`/`-50` feedback; and Platformer
+regression. Real Studio verification passed for the full authorized matrix.
+
+### Verification result
+
+Code Complete = YES. Product Verified = YES. Fresh Sprint 35 Gap Analysis =
+PASS with no immediate blocker. Detailed evidence is recorded in
+[`SPRINT35_PRODUCT_GAP_DISCOVERY.md`](SPRINT35_PRODUCT_GAP_DISCOVERY.md).
 
 ## Stop condition
 
-Sprint 35 discovery is DONE. Sprint 34 is FROZEN at v1.184. Exactly one
-work order, `WO-S35-001`, is READY. This continuation stops before its
-implementation and does not enter Sprint 36.
+Sprint 35 implementation is complete at v1.185. Sprint 34 remains FROZEN at
+v1.184. `WO-S35-001` is DONE and `SPRINT35_FREEZE_REVIEW` is the only READY
+next gate. This continuation stops for Human/CTO freeze review and does not
+enter Sprint 36.

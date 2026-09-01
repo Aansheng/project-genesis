@@ -110,14 +110,14 @@ separation/non-overlap before normal pursuit. No temporal pacing, product-wide
 bounds authority, WaveManager, timer framework, or progression effect was
 introduced.
 
-Sprint 35 Progression Meaning Discovery is now complete at the unchanged
-architecture v1.184. The repeated measured blocker is **LEVEL PROGRESSION HAS
-NO GAMEPLAY CONSEQUENCE**: Runtime commits Level truth, but no gameplay
-capability changes. Audit and real Survival evidence selected exactly one
-READY work order, `WO-S35-001 — Generic Progression-Conditioned Gameplay
-Capability`, using existing `NUMBER_COMPARE(gameState.level)` and
-`DAMAGE_ENTITY` semantics to make Level 2 offense mechanically stronger. The
-WO is not executed, and Sprint 36 is not entered.
+Sprint 35 Progression Meaning execution is complete at v1.185. The selected
+blocker—**LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**—is resolved by the
+bounded `WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`.
+The existing Survival RuleSet now uses mutually exclusive
+`NUMBER_COMPARE(gameState.level)` conditions to select `DAMAGE_ENTITY` amount
+25 below Level 2 and 50 at Level 2 or above. Code Complete and Product
+Verified are YES; the fresh Sprint 35 Gap Analysis is PASS. The only next gate
+is `SPRINT35_FREEZE_REVIEW`; Sprint 36 is not entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

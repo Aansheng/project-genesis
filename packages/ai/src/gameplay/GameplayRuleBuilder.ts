@@ -264,8 +264,23 @@ function deterministicRules(
         categoryCondition(player, 'player'),
         categoryCondition(target, 'enemy'),
         componentCondition(target, 'health'),
+        numericStateCondition('level', 'lt', 2),
       ],
       [Object.freeze({ type: 'DAMAGE_ENTITY', target, amount: 25 })],
+      'all',
+      attackTrigger,
+    ))
+    rules.push(rule(
+      'survival-player-offense-level-2',
+      'Survival player-directed offense at Level 2+',
+      playerOffenseMechanicId,
+      [
+        categoryCondition(player, 'player'),
+        categoryCondition(target, 'enemy'),
+        componentCondition(target, 'health'),
+        numericStateCondition('level', 'gte', 2),
+      ],
+      [Object.freeze({ type: 'DAMAGE_ENTITY', target, amount: 50 })],
       'all',
       attackTrigger,
     ))

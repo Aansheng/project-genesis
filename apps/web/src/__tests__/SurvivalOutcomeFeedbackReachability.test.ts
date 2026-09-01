@@ -189,12 +189,12 @@ describe('WO-S33-001: Survival outcome feedback production reachability', () => 
     ))
     pressSpace(runtime)
 
-    expect(health(runtime.store.getWorld(), replacement.id)).toBe(75)
+    expect(health(runtime.store.getWorld(), replacement.id)).toBe(50)
     const replacementHit = outcomes(runtime).find(item => item.kind === 'hit' && item.entityId === replacement.id)!
     expect(replacementHit).toEqual(expect.objectContaining({
       kind: 'hit',
       entityId: replacement.id,
-      damageAmount: 25,
+      damageAmount: 50,
     }))
     expect(replacementHit.position).toMatchObject({ y: playerPosition.y })
     expect(replacementHit.position.x).toBeGreaterThan(playerPosition.x)
