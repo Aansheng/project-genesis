@@ -1,9 +1,9 @@
-# Sprint 33 — Survival Playability Gap Discovery
+# Sprint 33 — Survival Playability Gap / Freeze Review
 
 **Authorization:** Human/CTO decision, 2026-09-01  
 **Architecture at authorization:** v1.182  
-**Current architecture:** v1.182  
-**Status:** ACTIVE — discovery complete; exactly one `READY` WO; no implementation executed
+**Current architecture:** v1.183
+**Status:** FREEZE REVIEW READY — `WO-S33-001` Code Complete = YES; Product Verified = YES; no Sprint 34 entered
 
 ## Product goal
 
@@ -28,32 +28,33 @@ These are evidence and constraints, not systems to rebuild.
 
 The real play session and source audit are recorded in
 [`SPRINT33_PRODUCT_GAP_DISCOVERY.md`](SPRINT33_PRODUCT_GAP_DISCOVERY.md).
-The selected bottleneck is:
+The selected bottleneck was:
 
 > **PRODUCT_GAP — generic gameplay outcome feedback/readability.** Explicit
 > attack input and authoritative outcomes work, but the normal Game canvas is
 > silent on hit, damage, defeat, and replacement. Every attack requires an
 > Inspector or Observatory read to confirm what happened.
 
-Replacement pacing and progression meaning are real secondary observations;
-timers, waves, projectiles, scaling, and genre-specific combat systems remain
-deferred.
+`WO-S33-001` resolved that bounded presentation gap. Replacement pacing and
+progression meaning are real secondary observations; timers, waves,
+projectiles, scaling, and genre-specific combat systems remain deferred.
 
 ## WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
 
-**Status:** READY — not executed in this continuation  
+**Status:** DONE — Code Complete = YES; Product Verified = YES
 **Priority:** P0 / Sprint 33 primary WO  
 **Architecture before:** v1.182  
-**Expected architecture after:** v1.183, only if the WO is authorized and
-implemented; a bounded Runtime-outcome-to-Game presentation projection  
+**Architecture after:** v1.183 — bounded Runtime-outcome-to-Game presentation
+projection
 **Dependencies:** Sprint 32 FROZEN at v1.182; Sprint 33 discovery DONE; the
 existing Runtime event collector, Gameplay Rule results, WorldStore mutation,
 Runtime visualization loop, and Game Viewport are available. No unresolved
 architecture or provider decision is required for the minimum slice.  
-**Human decision gate:** Discovery is authorized, but execution is intentionally
-deferred by the current decision; `READY` does not mean executed.
+**Human decision gate:** Human/CTO separately authorized execution on
+2026-09-01. The bounded WO is complete; the next gate is
+`SPRINT33_FREEZE_REVIEW`, and Sprint 34 is not entered.
 
-### Measured bottleneck
+### Historical measured bottleneck
 
 The production path emits and commits the correct attack facts and mutations,
 but the Game surface does not communicate them. In the real session, the
@@ -133,7 +134,8 @@ existing observer seam is sufficient, no new event vocabulary is needed.
 - An out-of-range/no-target Space edge creates no positive hit or defeat cue.
 - Enemy contact danger is not mislabeled as Player attack success.
 - The same Runtime WorldStore, Health, XP/Level, replacement composition,
-  active session, Observatory event/rule facts, and `v1.182` baseline remain
+  active session, Observatory event/rule facts, and the v1.182 gameplay
+  semantics baseline remain
   truthful; the cue is projection-only.
 - Platformer movement/jump, visual binding, and current diagnostics remain
   unchanged.
@@ -184,4 +186,72 @@ The eventual completion report must include architecture before → after,
 files created/modified, actual call chain, tests and TypeScript/ESLint/build
 results, constraints honored, known gaps, exact manual Product Verification
 steps/results, Code Complete, and Product Verified. This discovery step reports
-only `READY`; it does not mark the WO complete.
+only `READY`; the execution result is recorded below.
+
+## WO-S33-001 Execution and Product Verification
+
+Human/CTO authorized execution of this exact WO on 2026-09-01. The bounded
+implementation advances architecture from v1.182 to v1.183:
+
+`committed Runtime GameplayRule result → pure outcome projector → existing
+Runtime visualization loop → dedicated Pixi feedback layer`
+
+The projector emits only committed `HEALTH_UPDATED` hit outcomes,
+authoritative lethal `ENTITY_REMOVED` defeat outcomes using the last
+authoritative pre-removal Position, and committed `ENTITY_ADDED` replacement
+outcomes. Failed, uncommitted, attack-request-only, ordinary-removal, and
+contact-only facts emit no Player-attack cue. Feedback is transient renderer
+presentation time; it does not add Runtime timers, gameplay state, target
+selection, damage authority, asset identity, or provider/image operations.
+The Web viewport owns the presentation layer lifecycle and clears it when the
+Runtime world identity changes. Platformer controls and Observatory projection
+remain on their existing paths.
+
+Files created:
+
+- `packages/renderer/src/model/GameplayOutcomeFeedback.ts`
+- `packages/renderer/src/runtime/RuntimeGameplayOutcomeFeedback.ts`
+- `packages/renderer/src/runtime/__tests__/RuntimeGameplayOutcomeFeedback.test.ts`
+- `packages/renderer/src/view/__tests__/GameplayOutcomeFeedbackRendering.test.ts`
+- `apps/web/src/__tests__/SurvivalOutcomeFeedbackReachability.test.ts`
+- `docs/adr/ADR-0293-generic-runtime-gameplay-outcome-feedback.md`
+
+Files modified:
+
+- Renderer model/runtime/public exports and `PixiEntityRenderer`
+- `packages/renderer/src/runtime/DefaultRuntimeVisualizationLoop.ts`
+- `apps/web/src/components/studio/GameViewportPanel.vue`
+- `apps/web/src/projectMetadata.ts`
+- Sprint 33 control-plane, project-state, capability, changelog, and roadmap
+  documentation
+
+Automated verification completed on the final implementation:
+
+- Runtime: 708/708 tests; TypeScript passes.
+- Renderer: 510/510 tests; TypeScript passes; ESLint passes with existing
+  warnings only and zero errors.
+- Web: 3573/3573 tests; TypeScript passes; ESLint passes with existing
+  warnings only and zero errors; Vite production build passes.
+- `git diff --check` passes.
+
+Real Studio Product Verification used a fresh exact Survival request
+`生成一个幸存者游戏`. The Game surface visibly showed a `-25` hit cue and
+target ring, a distinct amber defeat ring/X, a replacement cue, and the same
+generic hit cue after the replacement. Runtime Inspector/Event Stream
+correlation confirmed committed Health, removal, add, XP/Level, and active
+session truth. Full Observatory retained `world-1`, `v1.183 / Sprint 33`, and
+the live event stream; Platformer `创建 MarioWorld` retained seven entities
+and `Space — 跳跃`; final browser error/warning diagnostics were empty.
+The out-of-range/no-target case is covered by the production-path regression
+at distance 49 (no feedback); pursuit made a sustained manual separation
+window unstable, so that observation is recorded rather than overstated.
+
+Fresh post-WO Sprint 33 Gap Analysis: **PASS**. The selected original blocker
+is resolved and the success question is YES. Progression meaning, replacement
+pacing, and evasion readability remain secondary candidates rather than new
+Sprint 33 WOs. Select `SPRINT33_FREEZE_REVIEW` as the next gate; do not enter
+Sprint 34.
+
+Code Complete: **YES**
+Product Verified: **YES**
+Next gate: **`SPRINT33_FREEZE_REVIEW` — READY for Human/CTO review**

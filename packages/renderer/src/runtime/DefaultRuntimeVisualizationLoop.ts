@@ -15,7 +15,8 @@
  *   - tick():  only executes the pipeline when running === true
  *   - Immutable: the stored currentWorld is always frozen
  *   - Deterministic: same initial world + same systems = same visual output
- *   - No animation: raw state snapshots only, no interpolation
+ *   - Entity state stays raw and authoritative; only the separate feedback
+ *     layer uses local presentation timing
  *   - No scheduling: does not manage RAF or setInterval
  */
 import type { World } from '@genesis/shared'
@@ -27,6 +28,7 @@ import type { PixiEnvironmentRenderer } from '../view'
 import type { RuntimeVisualizationLoop } from './RuntimeVisualizationLoop'
 import type { VisualizationTickResult } from './VisualizationTickResult'
 import type { VisualizationWorldProvider } from './VisualizationWorldProvider'
+import { projectRuntimeGameplayOutcomeFeedback } from './RuntimeGameplayOutcomeFeedback'
 import type {
   RuntimeGameplayProgressionStateObserver,
   RuntimeGameplaySessionStateObserver,
@@ -169,7 +171,7 @@ export class DefaultRuntimeVisualizationLoop
     }
 
     // Step 1: Execute runtime systems
-    const executionResult = this.gameplayEventObserver || this.gameplayRuleExecutionObserver || this.gameplaySessionStateObserver || this.gameplayProgressionStateObserver
+    const executionResult = this.gameplayEventObserver || this.gameplayRuleExecutionObserver || this.gameplaySessionStateObserver || this.gameplayProgressionStateObserver || this.entityRenderer.presentGameplayOutcomes
       ? this.executionLoop.tickWithResult(this._currentWorld)
       : { world: this.executionLoop.tick(this._currentWorld), gameplayEvents: [], gameplayRuleResults: [], gameplaySessionState: undefined, gameplayProgressionState: undefined }
     const newWorld = executionResult.world
@@ -187,6 +189,12 @@ export class DefaultRuntimeVisualizationLoop
     // Runtime world; publishing after observation would expose the prior tick.
     this._currentWorld = newWorld
     this.worldSink?.setWorld(newWorld)
+
+    // Feedback is a projection of committed Runtime action mutations. Publish
+    // it only after the authoritative World has been stored.
+    this.entityRenderer.presentGameplayOutcomes?.(
+      projectRuntimeGameplayOutcomeFeedback(executionResult.gameplayRuleResults),
+    )
 
     // Step 5: Publish observations after the Runtime result is authoritative.
     this.gameplayEventObserver?.observe(executionResult.gameplayEvents ?? [])

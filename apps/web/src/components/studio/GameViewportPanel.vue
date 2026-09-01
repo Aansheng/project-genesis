@@ -133,7 +133,8 @@ onMounted(() => {
 
   const entityContainer = new Container()
   const environmentContainer = new Container()
-  pixiApp.stage.addChild(environmentContainer, entityContainer)
+  const feedbackContainer = new Container()
+  pixiApp.stage.addChild(environmentContainer, entityContainer, feedbackContainer)
 
   const systemRegistry = new DefaultRuntimeSystemRegistry()
   inputProvider = new KeyboardInputProvider(window)
@@ -159,8 +160,11 @@ onMounted(() => {
   })
   const cameraController = new DefaultCameraController()
   watch(() => store.worldRevision, () => cameraController.reset?.(), { flush: 'sync' })
-  watch(() => store.currentWorldId, (worldId) => {
+  watch(() => store.currentWorldId, (worldId, previousWorldId) => {
     store.gameplayEventCollector.setWorldId(worldId || undefined)
+    if (previousWorldId !== undefined && previousWorldId !== worldId) {
+      entityRenderer?.clearGameplayFeedback?.()
+    }
   }, { flush: 'sync', immediate: true })
   try {
     if (typeof PixiEnvironmentRenderer === 'function') {
@@ -187,6 +191,7 @@ onMounted(() => {
     assetManifest: store.assetManifest,
     assetStore: store.assetStore,
     onAssetApplication: store.reportAssetApplication,
+    feedbackContainer,
   })
   entityRenderer = renderer
   watch(() => store.renderVersion, () => {

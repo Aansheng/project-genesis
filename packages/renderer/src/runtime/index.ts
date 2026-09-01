@@ -21,6 +21,12 @@ export type { RuntimeGameplaySessionStateObserver } from './RuntimeVisualization
 export type { RuntimeGameplayProgressionStateObserver } from './RuntimeVisualizationLoop'
 export { DefaultRuntimeVisualizationLoop } from './DefaultRuntimeVisualizationLoop'
 export type { VisualizationTickResult } from './VisualizationTickResult'
+export type {
+  GameplayOutcomeFeedback,
+  GameplayOutcomeFeedbackKind,
+  GameplayOutcomeFeedbackPosition,
+} from '../model'
+export { projectRuntimeGameplayOutcomeFeedback } from './RuntimeGameplayOutcomeFeedback'
 
 // Runtime World Injection Foundation (WO-S10-003)
 export type { VisualizationWorldProvider } from './VisualizationWorldProvider'

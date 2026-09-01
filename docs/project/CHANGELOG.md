@@ -1,5 +1,30 @@
 # Changelog
 
+### Sprint 33 — WO-S33-001 Generic Runtime Gameplay Outcome Feedback (v1.183, 2026-09-01)
+
+- Human/CTO authorized and execution completed for the single Sprint 33
+  product WO. Architecture advances from v1.182 to v1.183 while preserving
+  the v1.182 Runtime gameplay semantics and authority boundaries.
+- Committed Runtime `HEALTH_UPDATED` results now project to an ID-bound hit
+  cue with optional authoritative damage, lethal `ENTITY_REMOVED` results to
+  a distinct defeat cue at the last authoritative Position, and committed
+  `ENTITY_ADDED` results to a replacement cue. Failed/uncommitted,
+  attack-request-only, ordinary-removal, and contact-only facts produce no
+  Player-attack cue.
+- The existing Runtime visualization loop publishes feedback after the new
+  WorldStore state and before observers. Pixi owns only transient presentation
+  time; the Web viewport clears feedback when the Runtime world identity
+  changes. No gameplay timer, combat manager, new asset identity, or provider/
+  image operation was introduced.
+- Final automated verification passed: Runtime 708/708, Renderer 510/510,
+  Web 3573/3573; affected TypeScript checks; package ESLint with existing
+  warnings only and zero errors; Web production build; `git diff --check`.
+- Real Studio verification passed visible hit, defeat, replacement, and
+  post-replacement hit cues for `生成一个幸存者游戏`, retained Full Observatory
+  `world-1`/event/progression/`v1.183 / Sprint 33` truth, preserved Platformer
+  `Space — 跳跃`, and returned empty browser diagnostics. Fresh gap analysis
+  is PASS; `SPRINT33_FREEZE_REVIEW` is selected and Sprint 34 is not entered.
+
 ### Sprint 32 Freeze + Sprint 33 Product Gap Discovery (v1.182, 2026-09-01)
 
 - Human/CTO froze Sprint 32 at v1.182. `WO-S32-001` remains DONE with Code

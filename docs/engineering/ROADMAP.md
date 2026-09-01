@@ -94,17 +94,17 @@ Keep the end-to-end pipeline playable, truthful, and visually composable:
 Natural language → Intent → Semantic World → Game DSL → Runtime → Renderer
 → playable game → targeted natural-language evolution.
 
-Sprint 33 is currently authorized only for Product Gap Discovery over the
-generated Survival experience. The fresh session selected one user-visible
-blocker—generic gameplay outcome feedback/combat readability—and generated
-exactly one READY work order, WO-S33-001. Its execution is deliberately
-deferred pending a later explicit decision; this direction does not authorize
-weapons, projectiles, waves, timers, upgrades, or a new combat authority.
+Sprint 33 Product Gap Discovery selected generic gameplay outcome feedback as
+the largest remaining Game-surface blocker. Human/CTO then authorized the
+single bounded `WO-S33-001`, which is complete at v1.183 and Product Verified.
+Committed Runtime results now project to transient generic hit, defeat, and
+replacement cues; this direction does not authorize weapons, projectiles,
+waves, timers, upgrades, or a new combat authority.
 
-The selected slice must remain a projection of Runtime truth: no UI-owned
-gameplay state, generic combat manager, lifecycle framework, campaign flow, or
-game menus. If implementation is later authorized, re-measure the real Game
-surface first and stop if a different blocker is stronger.
+The selected slice remains a projection of Runtime truth: no UI-owned gameplay
+state, generic combat manager, lifecycle framework, campaign flow, or game
+menus were added. `SPRINT33_FREEZE_REVIEW` is READY for Human/CTO review, and
+Sprint 34 is not entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

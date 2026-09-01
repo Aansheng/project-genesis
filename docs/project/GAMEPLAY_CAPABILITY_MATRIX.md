@@ -1,16 +1,16 @@
-# Gameplay Capability Matrix — Sprint 32 Frozen / Sprint 33 Discovery Complete
+# Gameplay Capability Matrix — Sprint 33 Freeze Review Ready
 
-Architecture version: v1.182 (Sprint 30, Sprint 31, and Sprint 32 FROZEN;
-WO-S30-001, WO-S31-001, WO-S31-002, and WO-S32-001 Code Complete; Product
-Verified; Sprint 33 discovery complete; `WO-S33-001` READY and not executed)
+Architecture version: v1.183 (Sprint 30, Sprint 31, and Sprint 32 FROZEN;
+`WO-S33-001` Code Complete = YES; Product Verified = YES; Sprint 33 freeze
+review READY; Sprint 34 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
 nearby current Runtime Enemy and emits an attack fact consumed by the existing
 trusted damage rule path. No weapon, projectile, timer, cooldown, or
-genre-specific combat system is implied. Sprint 33 discovery changes no
-capability status; it records a single remaining Game-surface feedback gap and
-one deferred READY work order.
+genre-specific combat system is implied. Sprint 33 adds only a supported
+presentation projection from committed Runtime results to a transient generic
+Game feedback layer; it does not add a gameplay capability or second authority.
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -39,6 +39,7 @@ general Runtime capability.
 | Entity mutation events | Runtime event observation | `supported` | `RuntimeWorldStore` emits `ENTITY_ADDED`/`ENTITY_REMOVED` after committed ID-set changes. |
 | Entity contact-start event | Runtime event observation | `supported` | Explicit Runtime `collision-bounds` AABBs produce de-duplicated `ENTITY_CONTACT_STARTED` facts with typed direction derived from Runtime geometry; the supported contact-danger rule may consume the fact after the event boundary. |
 | Entity attack-request event | Runtime event observation | `supported` | The top-down generic `PlayerAttackRequestSystem` emits one `ENTITY_ATTACK_REQUESTED` fact per accepted `Space` key edge after deterministic current Runtime target selection. |
+| Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue at the last authoritative Position, and `ENTITY_ADDED` to a replacement cue; uncommitted/no-op/contact-only facts produce no Player-attack cue. |
 | Gameplay rule description | `GameplayRuleSpecification` + `GameplayRuleSet` | `supported` | Shared immutable Trigger/Condition/Action data is validated and stored beside `GameplaySpecification`; supported rules can enter the bounded Runtime executor. |
 | Rule event vocabulary | Rule trigger | `supported` | `ENTITY_CONTACT_STARTED`, `ENTITY_ATTACK_REQUESTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
 | Rule entity selectors | Rule condition/target references | `supported` | Event actor/target, exact current ID, category, current semantic name/archetype, and category-backed role selectors are normalized by Genesis. |
@@ -114,3 +115,7 @@ coverage. Sprint 19 is frozen at v1.167 with Runtime-reachable Player
 idle/run/jump/facing and two-frame temporal run presentation Product Verified.
 This remains a bounded presentation capability, not a generic gameplay
 animation system.
+
+Sprint 33 is ready for freeze review at v1.183. `WO-S33-001` is a supported
+generic Renderer presentation projection only: Runtime committed outcomes stay
+authoritative, and no new combat/feedback manager or gameplay timer exists.

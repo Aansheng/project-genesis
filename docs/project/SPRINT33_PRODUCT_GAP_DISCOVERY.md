@@ -1,16 +1,17 @@
 # Sprint 33 Product Gap Discovery — Survival Playability
 
 Discovery date: 2026-09-01  
-Architecture: v1.182  
-Status: **DONE — exactly one `READY` WO generated; no implementation executed**  
+Architecture: v1.182 discovery baseline; current architecture v1.183
+Status: **DONE — `WO-S33-001` executed and verified; freeze review READY**
 Authority: Human/CTO decision froze Sprint 32 and authorized Sprint 33 Product Gap Discovery
 
 ## Discovery boundary
 
 Sprint 32 is frozen at v1.182 with a mechanically complete bounded Survival
-loop. Sprint 33 begins by measuring the player experience of that loop, not by
-selecting a familiar Survivor feature in advance. This discovery does not
-change product code, architecture version, or the verified Runtime baseline.
+loop. Sprint 33 began by measuring the player experience of that loop, not by
+selecting a familiar Survivor feature in advance. The discovery section below
+records the v1.182 baseline; the separately authorized execution result is
+recorded after the historical stop condition.
 
 The current verified loop is:
 
@@ -104,9 +105,48 @@ acceptance criteria, verification plan, and non-goals.
 | Valid dependency chain | PASS — Sprint 32 is frozen at v1.182 |
 | Human-decision status | PASS — discovery authorized; WO execution intentionally not performed |
 
-## Stop condition
+## Historical discovery stop condition
 
-Sprint 32 is **FROZEN = YES** at v1.182. Sprint 33 Product Gap Discovery is
-complete, exactly one `READY` WO exists, and the current execution stops here.
-`WO-S33-001` must not be executed until a later explicit continuation/decision
-authorizes that bounded slice. Sprint 34 is not entered.
+At the discovery boundary, Sprint 32 was **FROZEN = YES** at v1.182. Sprint 33
+Product Gap Discovery was complete, exactly one `READY` WO existed, and that
+continuation stopped before implementation. A later Human/CTO decision then
+authorized the bounded WO; Sprint 34 was not entered.
+
+## WO-S33-001 execution and fresh Sprint 33 Gap Analysis
+
+Human/CTO authorized `WO-S33-001 — Generic Runtime Gameplay Outcome Feedback`
+on 2026-09-01. The implementation advances architecture from v1.182 to
+v1.183 and closes the selected blocker with this bounded flow:
+
+`committed Runtime GameplayRule result → pure outcome projector → existing
+Runtime visualization loop → dedicated Pixi feedback layer`
+
+Committed `HEALTH_UPDATED` results project to an ID-bound hit cue with
+optional authoritative damage; lethal `ENTITY_REMOVED` results with Health
+zero project to a defeat cue at the last authoritative pre-removal Position;
+and committed `ENTITY_ADDED` results project to a replacement cue. Failed or
+uncommitted results, attack-request-only facts, ordinary removals, and
+contact-only damage emit no Player-attack cue. The Renderer owns only local
+transient presentation time, and the Web viewport clears feedback when the
+Runtime world identity changes. Runtime gameplay authority, WorldStore truth,
+Observatory projection, asset identity, and provider boundaries are unchanged.
+
+Final automated verification passed: Runtime 708/708, Renderer 510/510, Web
+3573/3573; affected TypeScript checks; package ESLint with existing warnings
+only and zero errors; Web production build; and `git diff --check`.
+
+Fresh real Studio verification used the exact request `生成一个幸存者游戏`.
+The Game surface showed a visible `-25`/ring hit, a distinct amber defeat
+ring/X, a replacement cue, and the same generic hit cue after replacement.
+Full Observatory retained `world-1`, the live event stream, XP/Level, and
+`v1.183 / Sprint 33`; `创建 MarioWorld` retained the seven-entity Platformer
+composition and `Space — 跳跃`; browser error/warning diagnostics were empty.
+The no-target/out-of-range behavior is production-path verified at distance 49
+with no feedback. Pursuit made a sustained manual separation window unstable,
+so it remains an observation rather than an overstated visual claim.
+
+Fresh gap analysis: **PASS**. The original selected blocker is resolved and
+the product-success question is YES. Progression meaning, replacement pacing,
+and evasion readability remain secondary candidates, with no new Sprint 33 WO.
+Next gate: `SPRINT33_FREEZE_REVIEW` — READY for Human/CTO review. Sprint 34 is
+not entered.

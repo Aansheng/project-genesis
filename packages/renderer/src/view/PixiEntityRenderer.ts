@@ -29,12 +29,14 @@
  *   - If no catalog provided: fall back to 20×20 rectangle (backward compatible)
  *
  * Primitive Graphics remains the fallback for all missing or failed assets.
- */
+ * Transient gameplay feedback is rendered in a separate presentation layer
+ * and never changes the authoritative entity snapshot.
+*/
 
-import { Container, Graphics, Sprite, type Texture } from 'pixi.js'
+import { Container, Graphics, Sprite, Text, type Texture } from 'pixi.js'
 import type { AssetManifest, AssetManifestEntry, AssetVisualState, WorldSpatialMode } from '@genesis/shared'
 import type { AssetStore } from '@genesis/assets'
-import type { RenderWorld } from '../model'
+import type { GameplayOutcomeFeedback, RenderWorld } from '../model'
 import type { RenderEntity } from '../model'
 import type { RenderEntityView } from './RenderEntityView'
 import type { RenderWorldView } from './RenderWorldView'
@@ -56,6 +58,11 @@ const DEFAULT_VISUAL: EntityVisualDefinition = Object.freeze({
 
 /** Bounded Player-only cadence for switching between separate run images. */
 const PLAYER_RUN_FRAME_TICKS = 8
+
+/** Presentation-only lifetimes. These do not participate in Runtime timing. */
+const HIT_FEEDBACK_DURATION_MS = 640
+const DEFEAT_FEEDBACK_DURATION_MS = 820
+const SPAWN_FEEDBACK_DURATION_MS = 820
 
 /**
  * Per-entity-type fill colors.
@@ -117,13 +124,46 @@ export interface PixiEntityRendererOptions {
     readonly status: 'applied' | 'failed'
     readonly reason?: 'resolution' | 'renderer'
   }) => void
+
+  /** Optional stage layer for feedback so it stays above entity views. */
+  readonly feedbackContainer?: Container
+
+  /** Test seam for the primitive used by transient gameplay feedback. */
+  readonly createFeedbackGraphics?: () => Graphics
+
+  /** Test seam for the optional authoritative damage label. */
+  readonly createFeedbackText?: (text: string) => Text
+
+  /** Presentation clock only. It never drives Runtime gameplay. */
+  readonly now?: () => number
 }
 
 export interface PixiEntityRenderer {
   render(world: RenderWorld): RenderWorldView
   clear(): void
+  /** Project already-committed Runtime outcomes into transient visuals. */
+  presentGameplayOutcomes?(outcomes: readonly GameplayOutcomeFeedback[]): void
+  /** Clear presentation-only effects when the active world/session changes. */
+  clearGameplayFeedback?(): void
   destroy?(): void
   setAssetManifest?(manifest: AssetManifest | undefined): void
+}
+
+interface FeedbackView {
+  readonly feedback: GameplayOutcomeFeedback
+  readonly graphics: Graphics
+  readonly label?: Text
+  readonly startedAt: number
+  readonly durationMs: number
+}
+
+interface FeedbackGraphicsPrimitives {
+  readonly lineStyle?: (width: number, color: number, alpha?: number) => unknown
+  readonly drawCircle?: (x: number, y: number, radius: number) => unknown
+  readonly moveTo?: (x: number, y: number) => unknown
+  readonly lineTo?: (x: number, y: number) => unknown
+  readonly beginFill?: (color: number, alpha?: number) => unknown
+  readonly endFill?: () => unknown
 }
 
 export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
@@ -140,9 +180,14 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private readonly _assetAdapter: PixiAssetAdapter | null
   private readonly _createSprite: (texture: Texture) => Sprite
   private readonly _onAssetApplication?: PixiEntityRendererOptions['onAssetApplication']
+  private readonly _feedbackContainer: Container
+  private readonly _createFeedbackGraphics: () => Graphics
+  private readonly _createFeedbackText: (text: string) => Text
+  private readonly _now: () => number
   private _entityViews: RenderEntityView[] = []
   private _renderGeneration = 0
   private readonly _runFrameTicks = new Map<string, number>()
+  private _feedbackViews: FeedbackView[] = []
 
   constructor(
     container: Container,
@@ -164,17 +209,31 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       (this._assetStore ? new DefaultPixiAssetAdapter() : null)
     this._createSprite = options?.createSprite ?? ((texture) => new Sprite(texture))
     this._onAssetApplication = options?.onAssetApplication
+    this._feedbackContainer = options?.feedbackContainer ?? container
+    this._createFeedbackGraphics = options?.createFeedbackGraphics ?? (() => new Graphics())
+    this._createFeedbackText = options?.createFeedbackText ?? ((text) => new Text(text, {
+      fill: 0xf4f7fb,
+      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+      fontSize: 14,
+      fontWeight: '700',
+      stroke: 0x0c0d10,
+      strokeThickness: 3,
+    }))
+    this._now = options?.now ?? (() => Date.now())
   }
 
   // ─── Public API ─────────────────────────────────────────────────────
 
   render(world: RenderWorld): RenderWorldView {
+    this.advanceGameplayFeedback(this._now())
+
     // Apply camera offset before rendering
     if (this._cameraController) {
       const camera = this._cameraController.update(world)
       this._container.position.x = this._cameraAnchor.x - camera.x
       this._container.position.y = this._cameraAnchor.y - camera.y
     }
+    this.syncFeedbackContainerPosition()
 
     // Keep an already-visible generated Sprite while a state/frame replacement
     // texture is loading. Primitive-only views still follow the existing
@@ -236,6 +295,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     }
 
     this._entityViews = views
+    this.bringFeedbackToFront()
 
     return { entities: views }
   }
@@ -270,8 +330,51 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
     this._entityViews = []
   }
 
+  presentGameplayOutcomes(outcomes: readonly GameplayOutcomeFeedback[]): void {
+    if (outcomes.length === 0) return
+
+    const startedAt = this._now()
+    for (const feedback of outcomes) {
+      if (!Number.isFinite(feedback.position.x) || !Number.isFinite(feedback.position.y)) continue
+
+      const graphics = this._createFeedbackGraphics()
+      drawFeedbackPrimitive(graphics, feedback.kind)
+      graphics.x = feedback.position.x
+      graphics.y = feedback.position.y
+      graphics.alpha = 1
+      setDisplayScale(graphics, feedback.kind === 'spawn' ? 0.35 : 1)
+
+      const label = feedback.kind === 'hit' && feedback.damageAmount !== undefined
+        ? this._createFeedbackText(`-${formatFeedbackNumber(feedback.damageAmount)}`)
+        : undefined
+      if (label) {
+        label.anchor.set(0.5, 1)
+        label.x = feedback.position.x
+        label.y = feedback.position.y - 18
+        label.alpha = 1
+      }
+
+      this._feedbackContainer.addChild(graphics)
+      if (label) this._feedbackContainer.addChild(label)
+      this._feedbackViews.push(Object.freeze({
+        feedback,
+        graphics,
+        ...(label ? { label } : {}),
+        startedAt,
+        durationMs: durationForFeedback(feedback.kind),
+      }))
+    }
+    this.bringFeedbackToFront()
+  }
+
+  clearGameplayFeedback(): void {
+    for (const view of this._feedbackViews) this.destroyFeedbackView(view)
+    this._feedbackViews = []
+  }
+
   destroy(): void {
     this.clear()
+    this.clearGameplayFeedback()
     this._assetAdapter?.clear()
   }
 
@@ -464,6 +567,43 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
   private resolveColor(entityType: string): number {
     return ENTITY_COLORS[entityType] ?? DEFAULT_ENTITY_COLOR
   }
+
+  private advanceGameplayFeedback(now: number): void {
+    for (let index = this._feedbackViews.length - 1; index >= 0; index -= 1) {
+      const view = this._feedbackViews[index]
+      if (!view) continue
+      const elapsed = Math.max(0, now - view.startedAt)
+      if (elapsed >= view.durationMs) {
+        this.destroyFeedbackView(view)
+        this._feedbackViews.splice(index, 1)
+        continue
+      }
+      updateFeedbackView(view, elapsed / view.durationMs)
+    }
+  }
+
+  private destroyFeedbackView(view: FeedbackView): void {
+    this._feedbackContainer.removeChild(view.graphics)
+    view.graphics.destroy()
+    if (view.label) {
+      this._feedbackContainer.removeChild(view.label)
+      view.label.destroy()
+    }
+  }
+
+  private syncFeedbackContainerPosition(): void {
+    if (this._feedbackContainer === this._container) return
+    this._feedbackContainer.position.x = this._container.position.x
+    this._feedbackContainer.position.y = this._container.position.y
+  }
+
+  private bringFeedbackToFront(): void {
+    if (this._feedbackContainer !== this._container) return
+    for (const view of this._feedbackViews) {
+      this._container.addChild(view.graphics)
+      if (view.label) this._container.addChild(view.label)
+    }
+  }
 }
 
 const TOP_DOWN_ACTOR_TYPES = new Set(['player', 'enemy', 'npc', 'animal', 'merchant', 'boss'])
@@ -474,5 +614,59 @@ function directionToRotation(direction: NonNullable<RenderEntity['presentationDi
     case 'up': return Math.PI
     case 'left': return -Math.PI / 2
     default: return 0
+  }
+}
+
+function durationForFeedback(kind: GameplayOutcomeFeedback['kind']): number {
+  if (kind === 'hit') return HIT_FEEDBACK_DURATION_MS
+  if (kind === 'defeat') return DEFEAT_FEEDBACK_DURATION_MS
+  return SPAWN_FEEDBACK_DURATION_MS
+}
+
+function formatFeedbackNumber(value: number): string {
+  return Number.isInteger(value) ? String(value) : String(value)
+}
+
+function setDisplayScale(displayObject: { scale: { x: number; y: number } }, value: number): void {
+  displayObject.scale.x = value
+  displayObject.scale.y = value
+}
+
+function drawFeedbackPrimitive(graphics: Graphics, kind: GameplayOutcomeFeedback['kind']): void {
+  const primitive = graphics as unknown as FeedbackGraphicsPrimitives
+  const color = kind === 'hit' ? 0xf4f7fb : kind === 'defeat' ? 0xffcf66 : 0x6ca8ff
+  const radius = kind === 'hit' ? 16 : kind === 'defeat' ? 20 : 22
+
+  if (primitive.lineStyle && primitive.drawCircle) {
+    primitive.lineStyle(2, color, 0.95)
+    primitive.drawCircle(0, 0, radius)
+    if (kind === 'defeat' && primitive.moveTo && primitive.lineTo) {
+      primitive.moveTo(-12, -12)
+      primitive.lineTo(12, 12)
+      primitive.moveTo(12, -12)
+      primitive.lineTo(-12, 12)
+    }
+    return
+  }
+
+  primitive.beginFill?.(color, 0.8)
+  primitive.drawCircle?.(0, 0, radius)
+  primitive.endFill?.()
+}
+
+function updateFeedbackView(view: FeedbackView, progress: number): void {
+  const clampedProgress = Math.min(1, Math.max(0, progress))
+  const { graphics, label, feedback } = view
+  graphics.alpha = 1 - clampedProgress
+
+  if (feedback.kind === 'spawn') {
+    setDisplayScale(graphics, 0.35 + clampedProgress * 0.65)
+    return
+  }
+
+  setDisplayScale(graphics, 1 + clampedProgress * (feedback.kind === 'defeat' ? 0.85 : 0.55))
+  if (label) {
+    label.alpha = 1 - clampedProgress
+    label.y = feedback.position.y - 18 - clampedProgress * 14
   }
 }

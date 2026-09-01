@@ -34,6 +34,11 @@ export type { PixiRendererOptions } from './core'
 // Model types
 export type { RenderEntity } from './model'
 export type { RenderWorld } from './model'
+export type {
+  GameplayOutcomeFeedback,
+  GameplayOutcomeFeedbackKind,
+  GameplayOutcomeFeedbackPosition,
+} from './model'
 export { EMPTY_RENDER_WORLD } from './model'
 
 // Adapter
