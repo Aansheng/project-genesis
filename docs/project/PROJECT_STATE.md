@@ -36,8 +36,9 @@
 **Sprint 32** — Survival Playability Gap (**FROZEN — `WO-S32-001` Code Complete = YES; Product Verified = YES; v1.182; Human/CTO accepted 2026-09-01**)
 **Sprint 33** — Survival Playability Gap (**FROZEN — `WO-S33-001` Code Complete = YES; Product Verified = YES; v1.183; Human/CTO accepted 2026-09-01**)
 **Sprint 34** — Survival Playability Gap (**FROZEN — `WO-S34-001` Code Complete = YES; Product Verified = YES; v1.184; Human/CTO accepted 2026-09-01**)
-**Sprint 35** — Progression Meaning (**ACTIVE — `WO-S35-001` Code Complete = YES; Product Verified = YES; v1.185; `SPRINT35_FREEZE_REVIEW` READY**)
-**Current WO** - `SPRINT35_FREEZE_REVIEW` — READY for Human/CTO review; Sprint 36 not entered
+**Sprint 35** — Progression Meaning (**FROZEN — `WO-S35-001` Code Complete = YES; Product Verified = YES; v1.185; Human/CTO accepted 2026-09-01**)
+**Sprint 36** — Active-World New-World Intent Correctness (**ACTIVE — discovery complete; v1.185; `SPRINT36_FREEZE_REVIEW` READY**)
+**Current WO** - `SPRINT36_FREEZE_REVIEW` — READY for Human/CTO review; `WO-S36-001` is READY but not executed; Sprint 37 not entered
 
 ---
 
@@ -45,14 +46,45 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, and Sprint 34 is FROZEN at v1.184 by Human/CTO decisions. Sprint 35 `WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES at v1.185; `SPRINT35_FREEZE_REVIEW` is READY and Sprint 36 is not entered. |
-| Architecture Version | v1.185; Runtime remains authoritative for gameplay. Survival offense now selects 25 damage below Level 2 and 50 damage at Level 2 or above through mutually exclusive generic Gameplay Rule conditions. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 discovery is complete; `SPRINT36_FREEZE_REVIEW` is READY, `WO-S36-001` is not executed, and Sprint 37 is not entered. |
+| Architecture Version | v1.185; Sprint 36 discovery introduced no architecture change. Runtime remains authoritative for gameplay. Survival offense selects 25 damage below Level 2 and 50 damage at Level 2 or above through mutually exclusive generic Gameplay Rule conditions. |
 | Last Completed WO | WO-S35-001 — Generic Progression-Conditioned Gameplay Capability; Code Complete = YES; Product Verified = YES; v1.185. |
-| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge selects one nearby valid Enemy within range 48. At Level 1 the committed hit changes Enemy Health `100 → 75` and presents `-25`; after the existing defeat/XP chain commits Level 2, the same attack path changes a fresh Enemy `100 → 50` and presents `-50`, with the second hit defeating it. Lethal removal and fair-start replacement cues remain active, contact danger remains separate, and Observatory projects current world/XP/Level/events/`v1.185 / Sprint 35` truth. Platformer remains unchanged with `Space — 跳跃`. |
+| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge selects one nearby valid Enemy within range 48. At Level 1 the committed hit changes Enemy Health `100 → 75` and presents `-25`; after the existing defeat/XP chain commits Level 2, the same attack path changes a fresh Enemy `100 → 50` and presents `-50`, with the second hit defeating it. Lethal removal and fair-start replacement cues remain active, contact danger remains separate, and Observatory projects current world/XP/Level/events/`v1.185 / Sprint 36` truth. With an active world, explicit new-world requests still replace the world; named/whole-world requests such as `创建 MarioWorld` currently enter active-world evolution and fail instead of creating a replacement. Platformer remains unchanged with `Space — 跳跃`. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → Semantic World → Game DSL → Runtime projection / generic composition → top-down `Space` edge → `PlayerAttackRequestSystem` current Position/Health target selection → `ENTITY_ATTACK_REQUESTED` → post-system GameplayRuleExecutor → current progression snapshot evaluates mutually exclusive `level < 2` / `level >= 2` offense Rules → trusted `DAMAGE_ENTITY` / defeat / progression → `ENTITY_REMOVED` → `SPAWN_ENTITY` → current Runtime Player resolution → deterministic fair-start Position/AABB selection → `RuntimeEntityComposition` → `WorldMutator.addEntity` → Runtime WorldStore → `ExecutionTickResult.gameplayRuleResults` → `projectRuntimeGameplayOutcomeFeedback` → Runtime visualization loop → Pixi feedback layer, alongside binding-only entity rendering and current Observatory data projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | **No immediate P0 blocker identified after WO-S35-001.** The bounded Level consequence is complete; `SPRINT35_FREEZE_REVIEW` is pending Human/CTO review. Further thresholds, scaling, upgrades, range/speed/Health changes, and timers/waves remain deferred. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS — focused and affected tests, TypeScript, ESLint, Web build, real Studio Level 1 → Level 2 damage/hit-count/replacement verification, Platformer smoke, current Observatory truth, and empty browser diagnostics all passed. Fresh Sprint 35 Gap Analysis: PASS. |
-| Next Recommended Verification | Human/CTO `SPRINT35_FREEZE_REVIEW`; if accepted, stop before any Sprint 36 discovery or implementation. |
+| Current Blocking Issue | **ACTIVE-WORLD NAMED/WHOLE-WORLD CREATION IS ROUTED AS EVOLUTION.** `DefaultIntentRouter` returns `unknown` for active `创建 MarioWorld`, `创建一个 RPG`, and `生成一个幸存者游戏`; `gameStore.send` then invokes the existing mutation-only World Evolution planner, which fails without replacing the world. This is the selected Sprint 36 product gap. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN — focused and affected tests, TypeScript, ESLint, Web build, real Studio Level 1 → Level 2 damage/hit-count/replacement verification, Platformer smoke, current Observatory truth, and empty browser diagnostics all passed. Sprint 36 discovery: MANUAL VERIFIED — real active-world route divergence measured; no product WO executed. |
+| Next Recommended Verification | Human/CTO `SPRINT36_FREEZE_REVIEW`; review `WO-S36-001`, then explicitly authorize its execution if accepted. Do not enter Sprint 37. |
+
+## Sprint 36 Active-World New-World Intent Correctness Discovery
+
+Human/CTO froze Sprint 35 at v1.185 and authorized Sprint 36 discovery on
+2026-09-01. The discovery followed the real Studio front door and source call
+chain rather than modifying the routing implementation.
+
+The selected blocker is **ACTIVE-WORLD NAMED/WHOLE-WORLD CREATION IS ROUTED AS
+EVOLUTION**. The current router distinguishes explicit new/reset markers from
+current-world entity/property mutation, but it has no positive active-world
+branch for a named or whole-world archetype creation request. As a result,
+`创建 MarioWorld`, `创建一个 RPG`, and `生成一个幸存者游戏` become active-world
+`unknown` and are handed to World Evolution. The evolution prompt is expressly
+mutation-only; in the observed local Studio session structured generation
+failed and the deterministic evolution fallback did not support whole-world
+replacement. The active world ID and entity set remained unchanged.
+
+The same session verified the preserved boundaries: `再加五只怪` and
+`再创建5个怪物` applied through World Evolution in the same world, while
+`创建一个新的游戏` reached CreateWorld and replaced the active world. The
+issue is a generic Intent/front-door classification gap, not a Mario, Survival,
+RPG, Farm, Runtime, Renderer, or provider-authority feature.
+
+Discovery generated exactly one product work order,
+`WO-S36-001 — Generic Active-World New-World Intent Classification`, as
+`READY`; it is not executed. Architecture remains v1.185. Full evidence is in
+[`SPRINT36_PRODUCT_GAP_DISCOVERY.md`](SPRINT36_PRODUCT_GAP_DISCOVERY.md), with
+the one-item execution backlog in [`SPRINT36_BACKLOG.md`](SPRINT36_BACKLOG.md).
+
+The repository stops at `SPRINT36_FREEZE_REVIEW` for Human/CTO review. Sprint
+37 is not entered.
 
 ## Sprint 35 Progression Meaning Discovery
 
@@ -73,10 +105,11 @@ candidate ranking and exact audit are recorded in
 Discovery is DONE and generated exactly one work order,
 `WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`. Human/CTO
 subsequently authorized its execution. The bounded RuleSet composition is
-complete at v1.185 and the current app metadata truthfully projects
-`v1.185 / Sprint 35`; Runtime gameplay behavior now selects 25 damage below
-Level 2 and 50 damage at Level 2 or above without changing target selection or
-introducing a stat framework. Sprint 36 is not entered.
+complete at v1.185. At that historical Sprint 35 boundary the app metadata
+projected `v1.185 / Sprint 35`; Runtime gameplay behavior now selects 25 damage
+below Level 2 and 50 damage at Level 2 or above without changing target
+selection or introducing a stat framework. Human/CTO subsequently froze Sprint
+35 and authorized Sprint 36 discovery.
 
 ## Sprint 35 WO-S35-001 Execution and Product Verification
 

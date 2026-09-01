@@ -110,14 +110,26 @@ separation/non-overlap before normal pursuit. No temporal pacing, product-wide
 bounds authority, WaveManager, timer framework, or progression effect was
 introduced.
 
-Sprint 35 Progression Meaning execution is complete at v1.185. The selected
-blocker—**LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**—is resolved by the
-bounded `WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`.
-The existing Survival RuleSet now uses mutually exclusive
-`NUMBER_COMPARE(gameState.level)` conditions to select `DAMAGE_ENTITY` amount
-25 below Level 2 and 50 at Level 2 or above. Code Complete and Product
-Verified are YES; the fresh Sprint 35 Gap Analysis is PASS. The only next gate
-is `SPRINT35_FREEZE_REVIEW`; Sprint 36 is not entered.
+Sprint 35 Progression Meaning execution is complete and frozen at v1.185. The
+selected blocker—**LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**—was
+resolved by the bounded `WO-S35-001 — Generic Progression-Conditioned
+Gameplay Capability`. The existing Survival RuleSet now uses mutually
+exclusive `NUMBER_COMPARE(gameState.level)` conditions to select
+`DAMAGE_ENTITY` amount 25 below Level 2 and 50 at Level 2 or above. Code
+Complete and Product Verified are YES; Human/CTO accepted the Sprint 35
+freeze on 2026-09-01.
+
+Sprint 36 is now authorized for **Active-World New-World Intent Correctness**.
+Fresh repository and real Studio discovery selected exactly one product gap:
+when a world is active, named/whole-world archetype creation such as `创建
+MarioWorld`, `创建一个 RPG`, or `生成一个幸存者游戏` is classified as
+`unknown` and the existing active-world fallback sends it to World Evolution,
+where the evolution planner cannot create a replacement world. The existing
+entity-scoped evolution and explicit new-world paths are already reachable and
+verified. Discovery generated exactly one product item,
+`WO-S36-001 — Generic Active-World New-World Intent Classification`, as
+READY. No routing implementation was executed, architecture remains v1.185,
+and the repository stops at `SPRINT36_FREEZE_REVIEW`; Sprint 37 is not entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

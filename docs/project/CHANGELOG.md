@@ -1,5 +1,26 @@
 # Changelog
 
+### Sprint 36 — Active-World New-World Intent Correctness Discovery (v1.185, 2026-09-01)
+
+- Human/CTO froze Sprint 35 at v1.185 and authorized Sprint 36 Intent
+  Discovery. The Sprint 35 Level-conditioned Survival offense capability
+  remains frozen with Code Complete = YES and Product Verified = YES.
+- A repository-grounded audit traced the real path
+  `StudioCommandBar → gameStore.send → DefaultIntentRouter → CreateWorld or
+  World Evolution`. Fresh Studio evidence confirmed that current-world entity
+  mutations preserve the active world, and explicit `创建一个新的游戏`
+  reaches CreateWorld and replaces it.
+- The single selected blocker is **ACTIVE-WORLD NAMED/WHOLE-WORLD CREATION IS
+  ROUTED AS EVOLUTION**. Active `创建 MarioWorld`, `创建一个 RPG`, and
+  `生成一个幸存者游戏` become `unknown`, enter the mutation-only Evolution
+  planner, and fail without replacing the world. This is a generic signal and
+  precedence gap, not a genre-specific feature.
+- Exactly one product work order was generated:
+  `WO-S36-001 — Generic Active-World New-World Intent Classification`, status
+  `READY`. No routing implementation, architecture change, second WO, or
+  Sprint 37 work was executed. The repository stops at
+  `SPRINT36_FREEZE_REVIEW` for Human/CTO review.
+
 ### Sprint 35 — WO-S35-001 Progression-Conditioned Gameplay Capability (v1.185, 2026-09-01)
 
 - Human/CTO authorized and execution completed for the single Sprint 35

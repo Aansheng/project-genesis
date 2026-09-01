@@ -33,6 +33,29 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-01 | Execute `WO-S34-001` — Generic Runtime Replacement Fair-Start Policy. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded spatial Runtime fair-start policy, preserve current Runtime/Renderer authority and cross-genre behavior, complete real Studio Product Verification and a fresh Sprint 34 Gap Analysis, then stop at `SPRINT34_FREEZE_REVIEW`; do not enter Sprint 35. |
 | 2026-09-01 | Freeze Sprint 34 at v1.184 and authorize Sprint 35 — Progression Meaning Discovery. | ACCEPTED — FREEZE SPRINT 34 / ENTER SPRINT 35 DISCOVERY | Human / CTO | `WO-S34-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 34 Gap Analysis is PASS. Audit XP/Level authority and real Survival behavior, rank candidate consequences, generate exactly one READY WO, do not execute it, and do not enter Sprint 36. |
 | 2026-09-01 | Execute `WO-S35-001` — Generic Progression-Conditioned Gameplay Capability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded Level-conditioned Survival offense composition: Level 1 damage 25, Level 2+ damage 50, using existing generic `NUMBER_COMPARE` and `DAMAGE_ENTITY` semantics. Complete real Studio Product Verification and a fresh Sprint 35 Gap Analysis, then stop at `SPRINT35_FREEZE_REVIEW`; do not add scaling, a modifier framework, or enter Sprint 36. |
+| 2026-09-01 | Freeze Sprint 35 at v1.185 and authorize Sprint 36 — Active-World New-World Intent Correctness Discovery. | ACCEPTED — FREEZE SPRINT 35 / ENTER SPRINT 36 DISCOVERY | Human / CTO | `WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 35 Gap Analysis is PASS. Audit the real active-world Intent path, generate exactly one READY WO, do not modify routing during discovery, and do not enter Sprint 37. |
+
+## Sprint 36 Active-World New-World Intent Correctness discovery decision
+
+Date: 2026-09-01
+
+Result: **PASS — discovery complete; `SPRINT36_FREEZE_REVIEW` READY**
+
+The repository audit and real Studio evidence agree on one front-door gap. With
+an active Survival world, `创建 MarioWorld`, `创建一个 RPG`, and `生成一个
+幸存者游戏` are returned by `DefaultIntentRouter` as `unknown`; the Web
+`gameStore` then deliberately sends active-world `unknown` input to the
+existing World Evolution planner. The planner prompt is constrained to mutate
+the current world, and the named whole-world request fails at structured
+generation/fallback rather than reaching the existing CreateWorld pipeline.
+The same session successfully preserves entity-scoped evolution and replaces
+the world for explicit `创建一个新的游戏`.
+
+Exactly one product work order was generated:
+`WO-S36-001 — Generic Active-World New-World Intent Classification`, status
+`READY`, not executed. This discovery changes no Runtime, Renderer, Semantic
+World, AI authority, or architecture contract; v1.185 remains current. The
+next control-plane action is Human/CTO review at `SPRINT36_FREEZE_REVIEW`.
 
 ## Sprint 17 Goal Authorization
 

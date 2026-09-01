@@ -5,13 +5,14 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-01
-current_sprint: Sprint 35
-current_work_order: SPRINT35_FREEZE_REVIEW
-current_work_order_status: READY — WO-S35-001 complete; Human/CTO review pending
-current_control_plane_work_order: SPRINT35_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — fresh S35 Gap Analysis PASS
+current_sprint: Sprint 36
+current_work_order: SPRINT36_FREEZE_REVIEW
+current_work_order_status: READY — Sprint 36 discovery complete; WO-S36-001 not executed
+current_control_plane_work_order: SPRINT36_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — discovery PASS; Human/CTO review pending
 last_completed_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
-next_work_order: SPRINT35_FREEZE_REVIEW — READY; do not enter Sprint 36
+last_completed_control_plane_work_order: SPRINT36_PRODUCT_GAP_DISCOVERY
+next_work_order: SPRINT36_FREEZE_REVIEW — READY; review WO-S36-001 before execution; do not enter Sprint 37
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -228,16 +229,18 @@ verification: AI focused 10/10; Runtime gameplay execution 22/22; Web
   Runtime 711/711, Renderer 510/510, and Web 3575/3575; TypeScript, ESLint,
   Web build, `git diff --check`, and real Studio Product Verification passed.
   Fresh Sprint 35 Gap Analysis is PASS with no immediate blocker.
-next_gate: `SPRINT35_FREEZE_REVIEW` — Human/CTO review; do not enter Sprint 36.
+next_gate: `SPRINT35_FREEZE_REVIEW` — Human/CTO review; this historical gate
+  was subsequently accepted and Sprint 36 discovery was authorized.
 
 ## SPRINT35_FREEZE_REVIEW
 
-status: READY — WO-S35-001 complete; Human/CTO review pending
+status: DONE — Human/CTO froze Sprint 35 at v1.185 on 2026-09-01
 architecture_before: v1.184
 architecture_after: v1.185
 decision: The selected Sprint 35 blocker is resolved within the bounded
   progression-conditioned capability slice. Code Complete = YES and Product
-  Verified = YES. The repository is stopped for Human/CTO freeze review.
+  Verified = YES. Human/CTO accepted the freeze at v1.185 and authorized
+  Sprint 36 discovery separately.
 evidence: Level 1 real Space attack commits 25 damage (`100 → 75`); the first
   lethal attack commits XP `0 → 1` and Level `1 → 2` without duplicate damage;
   the next valid Level 2 attack commits 50 (`100 → 50`) and its second attack
@@ -248,9 +251,197 @@ evidence: Level 1 real Space attack commits 25 damage (`100 → 75`); the first
 constraints: Keep the bounded `level < 2` / `level >= 2` RuleSet variants and
   existing generic Runtime authority. Do not add Level 3+ scaling, stats or
   modifiers, attack-range/movement/Health changes, weapons/projectiles,
-  timers/waves, progression UI, or a second WO. Do not enter Sprint 36.
-next_gate: Human/CTO freeze decision for Sprint 35; if accepted, stop before
-  any Sprint 36 discovery or implementation.
+  timers/waves, progression UI, or a second WO. This historical Sprint 35
+  gate is closed; Sprint 36 discovery is now active under its own gate.
+next_gate: `SPRINT36_PRODUCT_GAP_DISCOVERY` — authorized and complete; current
+  stop is `SPRINT36_FREEZE_REVIEW`.
+
+## SPRINT36_AUTHORIZATION — Active-World New-World Intent Correctness
+
+status: DONE — Human/CTO decision 2026-09-01; discovery complete; no implementation
+architecture_at_authorization: v1.185
+current_architecture: v1.185
+goal: Distinguish current-world modification intent from new/switch-world
+  intent at the real Studio front door, rank exactly one smallest measured
+  product gap, generate exactly one READY product WO, and stop.
+discovery_policy: Trace `StudioCommandBar → gameStore.send → IntentRouter →
+  deterministic route / active-world fallback → CreateWorld or World
+  Evolution` and audit the exact A/B/C/D command matrix from the Human/CTO
+  authorization. Inspect existing AI candidate and deterministic fallback
+  behavior, then verify the divergence in a real active-world Studio session.
+  Do not modify routing, add a Mario/genre route, or enter Sprint 37.
+constraints: Preserve current-world entity/property evolution, explicit
+  new/reset CreateWorld behavior, AI-candidate validation, Runtime/Renderer
+  authority, and the existing CreateWorld replacement contract. No
+  phrase-specific MarioWorld special case, `contains 创建 → CreateWorld`,
+  `activeWorld ? evolution : create`, second router, manager rewrite, NLP
+  framework, genre registry, multi-world system, persistence, or product WO
+  execution is authorized by discovery.
+
+## SPRINT36_PRODUCT_GAP_DISCOVERY
+
+status: DONE — one measured blocker selected; exactly one READY product WO generated
+architecture_before: v1.185
+architecture_after: v1.185 — discovery introduced no architecture change
+evidence: Fresh source audit and real Studio active-world session. No active
+  world → `创建 MarioWorld` reached CreateWorld and produced `world-1` with
+  seven entities. After creating active Survival `world-2`, `再加五只怪`
+  increased the same world from six to eleven entities and
+  `再创建5个怪物` increased it from eleven to sixteen through World
+  Evolution. Active `创建 MarioWorld`, `创建一个 RPG`, and `生成一个幸存者游戏`
+  remained on their existing world and failed as World Evolution structured
+  generation. Active `创建一个新的游戏` reached CreateWorld and replaced
+  `world-2` with `world-3` and a new world projection.
+first_divergence: `DefaultIntentRouter.route(input, { activeWorld: true })`
+  computes `hasCreate`/genre/world scope but treats the named whole-world
+  requests as not explicit-new. They return `unknown`; `gameStore.send` then
+  treats active `unknown` as `shouldAttemptEvolution` and calls
+  `planEvolution`. CreateWorld is never invoked for that input.
+selected_bottleneck: ACTIVE-WORLD NAMED/WHOLE-WORLD CREATION IS ROUTED AS EVOLUTION
+root_cause: The active router has a positive branch for explicit new/reset
+  language and for entity/evolution mutations, but no positive branch for a
+  creation/construction request whose subject is a whole world or game
+  archetype. `hasWorldScope` currently blocks the entity-scoped path but does
+  not authorize CreateWorld. The active-world `unknown` fallback then crosses
+  the wrong boundary: `WorldEvolutionPromptBuilder` instructs the AI to mutate
+  the current world, while the deterministic evolution provider has no
+  whole-world replacement candidate.
+candidate_ranking:
+  1. Active-world named/whole-world creation classification — selected. It
+     blocks every active named archetype request before semantic generation,
+     is reproducible at the front door, and has the smallest generic fix.
+  2. Deterministic target vocabulary coverage for less-common entity words —
+     real secondary robustness debt; existing active-world fallback already
+     keeps many free-form mutations reachable, so it is not selected.
+  3. Bare creation ambiguity (`创建`, `生成一个`, `做一个新的`) — preserve as
+     non-replacing/ambiguous; it lacks enough whole-world evidence for a safe
+     CreateWorld decision and is not a reason to broaden routing globally.
+  4. Provider/fallback resilience — the observed provider failure is a
+     consequence of the wrong route, not the selected product bottleneck;
+     offline evolution fallback remains bounded resilience debt.
+signal_audit: Entity count/target and quantity indicate current-world entity
+  mutation; property/evolution verbs indicate World Evolution; new/reset
+  markers indicate CreateWorld; world/game scope plus a named/archetype or
+  whole-world construction request indicates a new world; continuation terms
+  such as `再`, `增加`, `删除`, `改成`, and `把` must not be treated as world
+  replacement. The selected WO must compose these signals generically and
+  must not register individual genres or names.
+ai_and_fallback_audit: For active `创建 MarioWorld`, the primary trace is
+  `World Evolution · ai` and fails at `STRUCTURED_GENERATION`; no candidate is
+  produced and no CreateWorld request is made. `gameStore.planEvolution` only
+  asks the deterministic evolution fallback after `provider_error`; that
+  provider cannot express a named whole-world replacement, so no validated
+  evolution plan is selected. AI remains a candidate provider only; Genesis
+  validates candidates and no provider may replace a world directly.
+create_world_contract_audit: The existing successful CreateWorld path calls
+  `DefaultCreateWorldRuntimeExecutor`, which commits `worldStore.setWorld`.
+  `gameStore.send` then assigns a new `world-${worldRevision}` identity,
+  replaces semantic/gameplay state, marks the session active, resets runtime
+  and visual revisions/transient visual executions, resets prior evolution
+  Observatory state, and reloads the Runtime projection. WO-S36-001 must reuse
+  this contract rather than inventing a second replacement path.
+selected_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
+next_gate_at_discovery_boundary: `WO-S36-001` is READY but not executed;
+  `SPRINT36_FREEZE_REVIEW` is the current Human/CTO gate. Sprint 37 is not
+  entered.
+
+## WO-S36-001 — Generic Active-World New-World Intent Classification
+
+status: READY — discovery-selected; not executed
+priority: P0 / selected Sprint 36 product gap
+architecture_before: v1.185
+architecture_expected_after: v1.186 — proposed only; confirm the architecture
+  version after implementation review
+mission: Make the existing Intent/front-door boundary distinguish a generic
+  new whole-world/game request from a mutation of the active world, while
+  preserving all existing World Evolution, CreateWorld, AI-candidate, Runtime,
+  Renderer, and session/replacement contracts.
+measured_bottleneck: With an active world, named/whole-world creation is
+  returned as `unknown` by `DefaultIntentRouter`; `gameStore.send` sends active
+  unknown input to the mutation-only World Evolution planner, so the current
+  world is not replaced and the request fails instead of reaching CreateWorld.
+allowed_scope: Minimal changes at the existing IntentRouter and Web front-door
+  decision boundary; generic signal predicates/precedence; unit and production
+  integration regressions; route/evolution/CreateWorld observability needed
+  to prove the selected path; current-state and changelog updates.
+routing_contract: First preserve current-world mutation signals: entity target
+  and quantity, property/evolution intent, and continuation language remain
+  World Evolution. Explicit new/reset language remains CreateWorld. A generic
+  whole-world/game scope plus a creation/construction or named/archetype signal
+  with no current-world mutation signal routes to the existing CreateWorld
+  path even when a world is active. Bare/underspecified creation remains
+  non-replacing and ambiguous; if the existing active-world AI fallback is
+  retained for such input, only an AI-validated World Evolution delta may be
+  applied under existing guards. No provider may directly replace a world.
+acceptance: Active `创建 MarioWorld`, `创建一个 RPG`, `生成一个幸存者游戏`,
+  and the generic whole-world construction form `做一个农场游戏` reach the
+  existing CreateWorld path, replace the current world identity, and do not
+  create a World Evolution operation. Active `创建一个新的游戏`,
+  `重新创建一个平台跳跃游戏`, and `新建一个农场游戏` remain CreateWorld.
+  Active `再加五只怪`, `再创建5个怪物`, `再加两个金币`, `增加一个 Boss`,
+  and `删除一个敌人` remain current-world World Evolution candidates and do
+  not replace the world. Ambiguous `创建`, `生成一个`, and `做一个新的`
+  do not replace the current world. No genre/name registry or phrase-specific
+  Mario route is allowed.
+ai_boundary: CreateWorld requests continue through the existing generation
+  provider/fallback and validated world pipeline. World Evolution requests
+  continue through the existing AI candidate provider and Genesis validation;
+  no second router, provider-direct mutation, or AI-generated world authority
+  is introduced.
+observability_expectations: The active named/whole-world request must show the
+  world-generation/CreateWorld lifecycle and a new current world ID, not a
+  world-evolution trace. Current-world mutations must retain their existing
+  operation/world/semantic-revision lineage. Rejected/ambiguous requests must
+  leave the current world ID and committed Runtime state unchanged.
+automated_tests: Extend `DefaultIntentRouter` coverage for active and inactive
+  contexts using the authorized A/B/C/D matrix and generic signal precedence;
+  add Web front-door integration proving active CreateWorld replacement versus
+  same-world Evolution, explicit-new preservation, ambiguous non-replacement,
+  AI candidate validation, and no direct provider replacement. Run focused
+  package tests, affected package suites, TypeScript, ESLint, Web build, and
+  relevant regression suites.
+product_verification: PENDING — after separate Human/CTO execution
+  authorization, use the real StudioCommandBar in an active Survival session;
+  inspect world ID/entity count, Game activity, Full Observatory request source
+  and trace, and browser diagnostics for all four command classes. Re-run the
+  Platformer `Space — 跳跃` smoke and verify the current-world mutation path.
+forbidden_scope: MarioWorld/Mario/Survival/Farm/RPG special cases or registry;
+  `contains 创建 → CreateWorld`; `activeWorld ? evolution : create`; new
+  IntentManager/ConversationManager/RoutingEngine/NLP framework; second
+  router; Runtime/Renderer/gameplay/semantic-world redesign; multi-world,
+  save/load, persistence, session-history architecture; provider/image
+  operations outside existing pipelines; broad ambiguity/NLU expansion; a
+  generic manager/factory/hydrator; Sprint 37 work; or a second WO.
+completion_report_requirements: architecture before → after; files created and
+  modified; real route flow; tests, TypeScript, ESLint, build; constraints;
+  remaining gaps; manual Studio steps; Code Complete; Product Verified; and
+  explicit proof that the active named request used CreateWorld while active
+  entity mutations stayed on World Evolution.
+human_decision_required: YES — execution requires a separate Human/CTO
+  authorization after this discovery/freeze review.
+next_gate: `SPRINT36_FREEZE_REVIEW` — Human/CTO review; do not execute this WO
+  or enter Sprint 37.
+
+## SPRINT36_FREEZE_REVIEW
+
+status: READY — Sprint 36 discovery complete; Human/CTO review pending
+architecture_before: v1.185
+architecture_after: v1.185 — no implementation executed
+decision: Discovery PASS. Sprint 36 generated exactly one READY product WO,
+  `WO-S36-001`, and stops before its execution. The measured front-door gap is
+  recorded with real Studio evidence; v1.185 remains current.
+code_complete: N/A — discovery only; WO-S36-001 not executed
+product_verification: MANUAL VERIFIED — discovery evidence only; no Sprint 36
+  product capability is claimed complete
+evidence: Source trace of `StudioCommandBar → gameStore.send →
+  DefaultIntentRouter → World Evolution/CreateWorld`, active-world
+  `world-2` failure for named archetype requests, same-world successful entity
+  mutations, and active `创建一个新的游戏` replacement to `world-3`.
+constraints: Do not execute `WO-S36-001`, enter Sprint 37, special-case a
+  genre/name, redesign Intent or AI architecture, or change Runtime/Renderer
+  behavior before separate Human/CTO authorization.
+next_gate: Human/CTO freeze decision for Sprint 36; if accepted, authorize
+  execution of `WO-S36-001` explicitly and remain within its bounded contract.
 
 ## SPRINT32_FREEZE_REVIEW
 

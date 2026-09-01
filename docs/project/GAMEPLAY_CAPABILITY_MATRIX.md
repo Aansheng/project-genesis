@@ -1,10 +1,11 @@
-# Gameplay Capability Matrix — Sprint 35 WO Complete / Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 36 Discovery Complete / Freeze Review Ready
 
-Architecture version: v1.185 (Sprint 30 through Sprint 34 FROZEN;
+Architecture version: v1.185 (Sprint 30 through Sprint 35 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
-`SPRINT35_FREEZE_REVIEW` READY; Sprint 36 not entered)
+Sprint 36 Intent Discovery PASS; `WO-S36-001` READY but not executed;
+`SPRINT36_FREEZE_REVIEW` READY; Sprint 37 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -37,6 +38,14 @@ Survival offense action and committed Level 2 or above selects a 50-damage
 action through mutually exclusive generic `NUMBER_COMPARE(gameState.level)`
 conditions. This is not a progression modifier, stat system, scaling curve, or
 new Runtime authority.
+
+Sprint 36 discovery promotes no new Runtime capability. It records a measured
+front-door Intent gap: active-world named/whole-world creation currently falls
+through `unknown` into the existing mutation-only World Evolution planner,
+while current-world mutations and explicit new-world requests remain separate
+verified paths. The proposed `WO-S36-001` is a future classification change;
+the capability catalog and Runtime authority remain v1.185 until it is
+explicitly authorized and executed.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
