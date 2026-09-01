@@ -1,16 +1,18 @@
 # Sprint 32 Product Gap Discovery — Survival Playability
 
 Discovery date: 2026-08-31  
-Architecture: v1.181  
-Status: **DONE — one measured blocker; `WO-S32-001` READY; execution not started**  
+Architecture: v1.182 (discovery at v1.181; implementation completed at v1.182)
+Status: **DONE — discovery led to `WO-S32-001` execution; Code Complete = YES;
+Product Verified = YES; fresh gap PASS; `SPRINT32_FREEZE_REVIEW` READY**
 Authority: Human/CTO decision froze Sprint 31 and authorized Sprint 32 Product Gap Discovery
 
 ## Discovery boundary
 
-Sprint 31 is frozen at v1.181 with both Observatory truth work orders complete
-and Product Verified. Sprint 32 begins with product measurement, not a
-pre-selected feature. This discovery does not execute a product WO, enter
-Sprint 33, or turn the observed gap into a multi-feature Survival roadmap.
+At the time of discovery, Sprint 31 was frozen at v1.181 with both Observatory
+truth work orders complete and Product Verified. Sprint 32 began with product
+measurement, not a pre-selected feature. The discovery itself did not execute a
+product WO or enter Sprint 33; the separately authorized follow-up then
+executed the one generated WO described below.
 
 The verified baseline is intentionally retained:
 
@@ -92,6 +94,30 @@ contract, acceptance criteria, verification plan, and non-goals.
 
 ## Stop condition
 
-Sprint 31 is FROZEN at v1.181. Sprint 32 Product Gap Discovery is complete.
-`WO-S32-001` is READY, but no implementation, test modification, ADR, or
-Sprint 33 entry is performed in this discovery step.
+Sprint 31 remains FROZEN at v1.181. Sprint 32 Product Gap Discovery selected
+exactly one blocker, and the separately authorized implementation of
+`WO-S32-001` completed at v1.182. The fresh post-implementation gap analysis is
+PASS: explicit offensive agency is now reachable, while replacement pacing,
+progression meaning, richer presentation, timers, waves, projectiles, and
+scaling remain deferred/non-blocking. `SPRINT32_FREEZE_REVIEW` is READY; Sprint
+33 is not entered.
+
+## WO-S32-001 execution result
+
+The selected slice is implemented as a generic Runtime `Space` key-edge
+request. The top-down Studio composition selects one current positive-Health
+Enemy within a finite 48-unit Euclidean range, choosing the nearest target and
+breaking equal-distance ties by stable entity ID. It emits
+`ENTITY_ATTACK_REQUESTED`; the existing Gameplay Rule path then applies the
+trusted `DAMAGE_ENTITY` action. Survival Player→Enemy contact offense was
+replaced as the primary path; Enemy contact remains the separate
+Enemy→Player danger rule. Platformer continues to use `Space` for jump.
+
+Automated production reachability and package checks pass. Real Studio
+verification confirmed the visible attack hint, non-contact damage,
+contact-only Player damage, defeat/progression/replacement continuity, current
+Observatory metadata and session truth, and clean browser diagnostics. The
+production-path no-target check confirmed an out-of-range Space input is a
+no-op.
+The fresh Sprint 32 Gap Analysis is **PASS**, and the next human-controlled
+gate is `SPRINT32_FREEZE_REVIEW`.

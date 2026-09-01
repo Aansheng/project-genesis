@@ -1,13 +1,14 @@
-# Gameplay Capability Matrix — Sprint 31 Frozen / Sprint 32 Product Gap Discovery
+# Gameplay Capability Matrix — Sprint 32 WO-S32-001 Complete / Freeze Review Ready
 
-Architecture version: v1.181 (Sprint 30 FROZEN; WO-S30-001, WO-S31-001, and
-WO-S31-002 Code Complete; Product Verified; Sprint 31 FROZEN; one Sprint 32
-primary WO READY)
+Architecture version: v1.182 (Sprint 30 and Sprint 31 FROZEN; WO-S30-001,
+WO-S31-001, WO-S31-002, and WO-S32-001 Code Complete; Product Verified; Sprint
+32 active; `SPRINT32_FREEZE_REVIEW` READY)
 
-Sprint 32 discovery measured a product gap in how the already-supported
-Survival contact offense is initiated and understood. No new gameplay
-capability has been implemented or promoted by this discovery record;
-`WO-S32-001` is the only READY implementation candidate.
+Sprint 32 implemented the smallest measured generic Player-directed offense
+capability. Survival now exposes a top-down `Space` edge that selects one
+nearby current Runtime Enemy and emits an attack fact consumed by the existing
+trusted damage rule path. No weapon, projectile, timer, cooldown, or
+genre-specific combat system is implied.
 
 This matrix records the boundary between gameplay intent and executable
 Runtime behavior. `supported` means the production path already executes the
@@ -34,9 +35,10 @@ general Runtime capability.
 | Accepted jump event | Runtime event observation | `supported` | `DefaultJumpSystem` emits one `ENTITY_JUMPED` only after a grounded jump is accepted. |
 | Landing transition event | Runtime event observation | `supported` | `DefaultGroundCollisionSystem` emits one `ENTITY_LANDED` on airborne → ground transition. |
 | Entity mutation events | Runtime event observation | `supported` | `RuntimeWorldStore` emits `ENTITY_ADDED`/`ENTITY_REMOVED` after committed ID-set changes. |
-| Entity contact-start event | Runtime event observation | `supported` | Explicit Runtime `collision-bounds` AABBs produce de-duplicated `ENTITY_CONTACT_STARTED` facts with typed direction derived from Runtime geometry; the supported non-top damage rule may consume the fact after the event boundary. |
+| Entity contact-start event | Runtime event observation | `supported` | Explicit Runtime `collision-bounds` AABBs produce de-duplicated `ENTITY_CONTACT_STARTED` facts with typed direction derived from Runtime geometry; the supported contact-danger rule may consume the fact after the event boundary. |
+| Entity attack-request event | Runtime event observation | `supported` | The top-down generic `PlayerAttackRequestSystem` emits one `ENTITY_ATTACK_REQUESTED` fact per accepted `Space` key edge after deterministic current Runtime target selection. |
 | Gameplay rule description | `GameplayRuleSpecification` + `GameplayRuleSet` | `supported` | Shared immutable Trigger/Condition/Action data is validated and stored beside `GameplaySpecification`; supported rules can enter the bounded Runtime executor. |
-| Rule event vocabulary | Rule trigger | `supported` | Only `ENTITY_CONTACT_STARTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
+| Rule event vocabulary | Rule trigger | `supported` | `ENTITY_CONTACT_STARTED`, `ENTITY_ATTACK_REQUESTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
 | Rule entity selectors | Rule condition/target references | `supported` | Event actor/target, exact current ID, category, current semantic name/archetype, and category-backed role selectors are normalized by Genesis. |
 | `REMOVE_ENTITY` rule primitive | Gameplay action schema | `supported` | The bounded executor resolves a current target, protects Player, and calls the immutable `WorldMutator`. |
 | `SPAWN_ENTITY` rule primitive | Gameplay action schema | `supported` | Trusted executor resolves an existing semantic template, composes one Runtime entity, and commits immutable `WorldMutator.addEntity()`; no Semantic World rebuild or provider call occurs. |
@@ -44,7 +46,8 @@ general Runtime capability.
 | `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
 | `SET_ENTITY_PROPERTY` | Gameplay action schema | `deferred` | No generic gameplay property executor exists. |
 | `DAMAGE_ENTITY` | Gameplay action schema | `supported` | Trusted generic action validates positive finite damage, resolves current Health, uses immutable `WorldMutator.replaceEntity`, and commits Runtime session `failed` when a player reaches zero. Failed execution pauses later gameplay rules until explicit same-world respawn. |
-| Contact offense | Survival composition over generic rule primitives | `supported` | A distinct Player→Enemy contact applies 25 damage to Enemy Health; a following typed zero-Health rule atomically removes the Enemy and adds one Runtime XP. Production-chain and real Studio evidence pass. No timed/ranged/projectile capability is implied. |
+| Player-directed short-range offense | Generic top-down Runtime input + Gameplay Rule composition | `supported` | One `Space` edge selects one positive-Health Enemy within finite range `48` by nearest distance and stable ID tie-break, emits `ENTITY_ATTACK_REQUESTED`, and applies 25 damage through trusted `DAMAGE_ENTITY`; four attacks use the existing defeat/XP/Level/replacement path. |
+| Enemy contact danger | Survival composition over generic rule primitives | `supported` | `ENTITY_CONTACT_STARTED` remains a separate Enemy→Player contact rule that applies 1 damage to Player Health; it is no longer the Player's automatic Enemy-offense path. |
 | `COMPLETE_GOAL` | Gameplay action schema | `supported` | Trusted goal-contact rules commit `RuntimeGameplaySessionState` from `active` to `completed`; repeated completion is an idempotent no-op and failed sessions cannot complete before respawn. |
 | Contact direction condition | Gameplay condition schema | `supported` | `ENTITY_CONTACT_STARTED.direction` is required and derived from Runtime-owned AABB crossing/overlap geometry; evaluator supports top/non-top and narrow negation. |
 | `NUMBER_COMPARE` condition | Gameplay condition schema | `supported` | Runtime evaluates finite typed event-payload, entity-property, and Runtime `gameState` references with `eq/neq/gt/gte/lt/lte`; no expression language or arbitrary evaluation is introduced. |
@@ -71,8 +74,10 @@ general Runtime capability.
   Health mutation, lethal player failure/same-world respawn, current-session
   completion state, immutable keyed finite
   numeric progression state with additive deltas, bounded normalized event
-  observation for jump, landing, contact-start, add, and remove facts, and one
-  trusted generic Runtime entity-creation action with reusable composition.
+  observation for jump, landing, contact-start, attack-request, add, and remove
+  facts, deterministic generic Player-directed short-range target selection,
+  and one trusted generic Runtime entity-creation action with reusable
+  composition.
 - **RULE DESCRIPTION IMPLEMENTED:** immutable Trigger/Condition/Action rules,
   deterministic RuleSet mapping, candidate validation, selector validation, and
   capability-derived support status.
@@ -92,8 +97,7 @@ general Runtime capability.
 - **NOT EXECUTED:** skill/modifier state, score policy, lives,
   checkpoints, enemy AI,
   timers, periodic/wave spawn execution, progression beyond the bounded numeric primitive,
-  failure flow beyond the bounded player failure/respawn slice, player-directed
-  short-range offense, property actions,
+  failure flow beyond the bounded player failure/respawn slice, property actions,
   unrelated rich multi-action transactions, next-level/restart
   behavior, and win/lose orchestration beyond current session-completed truth.
 

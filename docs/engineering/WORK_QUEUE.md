@@ -4,14 +4,14 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-08-31
+updated: 2026-09-01
 current_sprint: Sprint 32
-current_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
-current_work_order_status: READY — execution not started
-current_control_plane_work_order: SPRINT32_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE
-last_completed_work_order: WO-S31-002 — Current Observatory Metadata Source
-next_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
+current_work_order: SPRINT32_FREEZE_REVIEW
+current_work_order_status: READY — Human/CTO freeze review
+current_control_plane_work_order: SPRINT32_FREEZE_REVIEW
+current_control_plane_work_order_status: READY
+last_completed_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
+next_work_order: SPRINT32_FREEZE_REVIEW
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -127,9 +127,10 @@ decision_required: RESOLVED — Human/CTO accepted the Sprint 31 freeze at v1.18
 
 ## SPRINT32_AUTHORIZATION — Survival Playability Gap
 
-status: AUTHORIZED — Human/CTO decision 2026-08-31; Sprint 31 FROZEN at v1.181
+status: ACTIVE — Human/CTO decision 2026-08-31; Sprint 31 FROZEN at v1.181;
+WO-S32-001 complete at v1.182; freeze review ready
 architecture_at_authorization: v1.181
-current_architecture: v1.181
+current_architecture: v1.182
 goal: Identify and address the single largest remaining user-visible Survival
   playability blocker; do not preselect weapons, projectiles, waves, timers,
   attack animation, or difficulty scaling.
@@ -138,13 +139,14 @@ verified_baseline: Natural-language Survival generation, top-down movement,
   Runtime-only replacement, visual reuse, active session, and Observatory
   inspection are already verified and must not be rebuilt.
 discovery_policy: Run the real Studio with `生成一个幸存者游戏`, play multiple
-  cycles, rank only measured user-visible gaps, generate exactly one primary WO,
-  and stop before executing it. Do not enter Sprint 33.
+cycles, rank only measured user-visible gaps, generate exactly one primary WO,
+execute only that bounded WO after authorization, and stop at the freeze-review
+gate. Do not enter Sprint 33.
 
 ## SPRINT32_PRODUCT_GAP_DISCOVERY
 
 status: DONE — one measured blocker selected; exactly one primary WO generated
-  READY; no implementation performed in this discovery step.
+  and executed; Code Complete = YES; Product Verified = YES; fresh gap PASS.
 evidence: Real local Studio produced deterministic-fallback `world-1` with six
   entities. The visible Game control was only `Arrow Keys — Move`. Before an
   explicit attack, contact changed Enemy Health `100 → 75` and Player Health
@@ -163,12 +165,12 @@ source_audit: Existing Space input, Runtime Position/Health/collision,
   Gameplay Rule execution are reusable. No nearest/range selector or attack
   input fact exists. A projectile or timer is larger than the measured need.
 selected_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
-next_gate: WO-S32-001 READY — execute only in a later bounded step, then perform
-  real Studio Product Verification and Observatory truth regression.
+next_gate: WO-S32-001 DONE — proceed to `SPRINT32_FREEZE_REVIEW` after the
+recorded real Studio Product Verification and Observatory truth regression.
 
 ## WO-S32-001 — Generic Player-Directed Short-Range Offense
 
-status: READY — Sprint 32 primary WO; not executed
+status: DONE — Code Complete = YES; Product Verified = YES; v1.182
 priority: P0
 architecture_before: v1.181
 architecture_expected_after: v1.182 (bounded generic input → Runtime offense
@@ -223,8 +225,28 @@ observability: Keep Runtime facts, rule results, World mutation, renderer
 completion_requirements: eventual report must include architecture before →
   after, files, real call chain, tests, TypeScript/ESLint/build, constraints,
   remaining gaps, manual PV steps/results, Code Complete, and Product Verified.
-next_gate: STOP — this WO is READY only; no implementation is executed in the
-  discovery step and Sprint 33 is not entered.
+implementation_result: The top-down composition registers the generic
+  `PlayerAttackRequestSystem` on the existing `Space` input. One input edge
+  selects one positive-Health Runtime Enemy within finite range `48`, using
+  nearest distance and stable ID tie-breaking, then emits
+  `ENTITY_ATTACK_REQUESTED`. Existing Gameplay Rule matching commits trusted
+  `DAMAGE_ENTITY`; contact remains Enemy→Player danger. Platformer `Space`
+  jump is unchanged. The exact generated Survival session remains `world-1`.
+verification_result: Automated production reachability and relevant package
+  checks pass. The production path confirmed non-contact damage, no-target
+  no-op, deterministic replacement targeting, and repeated independent
+  outcomes. Real Studio verification confirmed the attack affordance, contact
+  danger separation, defeat/XP/Level/replacement continuity, current
+  Observatory metadata/session truth, no new attack-time provider/image calls,
+  and clean browser diagnostics. The browser runner required explicit key-edge
+  timing for repeated input, so the repeated attack count is also covered by
+  the real production-path Runtime verification.
+fresh_gap_analysis: PASS — explicit offensive agency is now reachable and
+  distinguishable from contact danger. Replacement pacing, progression meaning,
+  richer presentation, timers, waves, projectiles, and scaling remain deferred
+  and do not generate another Sprint 32 WO.
+next_gate: SPRINT32_FREEZE_REVIEW — READY; Human/CTO review is required before
+  Sprint 32 is frozen. Sprint 33 is not entered.
 
 ## SPRINT29_FREEZE_REVIEW
 

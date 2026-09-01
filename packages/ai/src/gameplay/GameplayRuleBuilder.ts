@@ -244,22 +244,35 @@ function deterministicRules(
     }
   }
 
-  if (world.worldType === 'survival' && enemy && hasMechanic(specification, 'contact-offense')) {
+  const playerOffenseMechanicId = hasMechanic(specification, 'player-directed-offense')
+    ? 'player-directed-offense'
+    : hasMechanic(specification, 'contact-offense')
+      ? 'contact-offense'
+      : undefined
+
+  if (world.worldType === 'survival' && enemy && playerOffenseMechanicId) {
+    const attackTrigger = Object.freeze({
+      eventType: 'ENTITY_ATTACK_REQUESTED' as const,
+      actor: player,
+      target,
+    })
     rules.push(rule(
-      'survival-contact-offense',
-      'Survival contact offense',
-      'contact-offense',
+      'survival-player-offense',
+      'Survival player-directed offense',
+      playerOffenseMechanicId,
       [
         categoryCondition(player, 'player'),
         categoryCondition(target, 'enemy'),
         componentCondition(target, 'health'),
       ],
       [Object.freeze({ type: 'DAMAGE_ENTITY', target, amount: 25 })],
+      'all',
+      attackTrigger,
     ))
     rules.push(rule(
       'survival-enemy-defeat',
       'Survival enemy defeat',
-      'contact-offense',
+      playerOffenseMechanicId,
       [
         categoryCondition(player, 'player'),
         categoryCondition(target, 'enemy'),
@@ -271,6 +284,8 @@ function deterministicRules(
           ? [Object.freeze({ type: 'CHANGE_NUMERIC_STATE' as const, state: 'experience', amount: 1 })]
           : []),
       ],
+      'all',
+      attackTrigger,
     ))
     if (hasMechanic(specification, 'level-up')) {
       rules.push(rule(
@@ -282,6 +297,8 @@ function deterministicRules(
           numericStateCondition('level', 'lt', 2),
         ],
         [Object.freeze({ type: 'CHANGE_NUMERIC_STATE', state: 'level', amount: 1 })],
+        'all',
+        attackTrigger,
       ))
     }
   }

@@ -14,6 +14,7 @@ import {
   DefaultGravitySystem,
   DefaultGroundCollisionSystem,
   DefaultJumpSystem,
+  DefaultPlayerAttackRequestSystem,
   DefaultPlayerControllerSystem,
   DefaultTargetDirectedMovementSystem,
   DefaultVelocityMotionSystem,
@@ -39,10 +40,10 @@ export function resolveStudioMotionProfile(
 /**
  * Register the current Studio motion systems in deterministic order.
  *
- * The survival profile reuses four-direction input, target-directed movement,
- * generic velocity motion, and contact. Platformer-only jump, gravity, and
- * ground collision systems are omitted. All other WorldTypes preserve the
- * established platformer set.
+ * The survival profile reuses four-direction input, one generic player-directed
+ * offense request, target-directed movement, generic velocity motion, and
+ * contact. Platformer-only jump, gravity, and ground collision systems are
+ * omitted. All other WorldTypes preserve the established platformer set.
  */
 export function registerStudioRuntimeSystems(
   registry: RuntimeSystemRegistry,
@@ -61,6 +62,9 @@ export function registerStudioRuntimeSystems(
   }
 
   if (motionProfile === 'top-down') {
+    registry.register(new DefaultPlayerAttackRequestSystem(inputProvider, {
+      targetCategory: 'enemy',
+    }))
     registry.register(new DefaultTargetDirectedMovementSystem())
     registry.register(new DefaultVelocityMotionSystem())
   } else {

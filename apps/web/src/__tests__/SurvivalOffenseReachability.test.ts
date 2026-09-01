@@ -11,16 +11,28 @@ import {
   isHealthComponent,
   isPositionComponent,
   type Entity,
+  type GameWorldModel,
   type World,
 } from '@genesis/shared'
 import {
   DefaultRuntimeExecutionLoop,
+  DefaultRuntimeGameplayEventCollector,
   DefaultRuntimeProjection,
   DefaultRuntimeSystemRegistry,
   DefaultRuntimeWorldStore,
 } from '@genesis/runtime'
-import { DefaultRuntimeRendererAdapter, KeyboardInputProvider } from '@genesis/renderer'
+import { KeyboardInputProvider } from '@genesis/renderer'
 import { registerStudioRuntimeSystems } from '../components/studio/runtimeMotionProfile'
+
+function createPipeline() {
+  return new DefaultCreateWorldPipeline(
+    new DefaultIntentRouter(),
+    new DefaultGameIntentExtractor(),
+    new DefaultSemanticWorldGenerator(),
+    new DefaultSemanticGameDslBuilder(),
+    new DefaultRuntimeProjection(),
+  )
+}
 
 function replacePosition(world: World, entityId: string, x: number, y: number): World {
   return Object.freeze({
@@ -34,98 +46,180 @@ function replacePosition(world: World, entityId: string, x: number, y: number): 
   }) as unknown as World
 }
 
+function addRuntimeEntity(world: World, entity: Entity): World {
+  return Object.freeze({
+    entities: Object.freeze([...world.entities, entity]),
+  }) as unknown as World
+}
+
 function health(world: World, entityId: string): number | undefined {
   return world.entities.find(entity => entity.id === entityId)?.components?.find(isHealthComponent)?.properties.current
 }
 
-describe('WO-S30-001: generated Survival replenishment production reachability', () => {
-  it('defeats an Enemy, replenishes it, and preserves pressure/offense through the Studio Runtime composition', () => {
-    const pipeline = new DefaultCreateWorldPipeline(
-      new DefaultIntentRouter(),
-      new DefaultGameIntentExtractor(),
-      new DefaultSemanticWorldGenerator(),
-      new DefaultSemanticGameDslBuilder(),
-      new DefaultRuntimeProjection(),
-    )
-    const generated = pipeline.execute({ input: '生成一个幸存者游戏' })
-    const semanticWorld = generated.semanticWorld!
-    const rules = generated.gameplayRuleSet!
-    const playerId = semanticWorld.entities.find(entity => entity.category === 'player')!.id
-    const enemyId = semanticWorld.entities.find(entity => entity.category === 'enemy')!.id
-    const registry = new DefaultRuntimeSystemRegistry()
-    registerStudioRuntimeSystems(registry, new KeyboardInputProvider(new EventTarget()), 'survival')
-    const loop = new DefaultRuntimeExecutionLoop(registry, undefined, {
-      getRuleSet: () => rules,
-      getWorldId: () => 'world-1',
-      getSessionId: () => 'world-1',
-      getSemanticRevision: () => 0,
-      getSemanticWorld: () => semanticWorld,
-    })
+function position(world: World, entityId: string): Readonly<{ x: number; y: number }> {
+  return world.entities.find(entity => entity.id === entityId)!.components!.find(isPositionComponent)!.properties
+}
 
-    const playerPosition = generated.world.entities
-      .find(entity => entity.id === playerId)!
-      .components!.find(isPositionComponent)!.properties
-    let world = generated.world
-    let worldBeforeDefeat = generated.world
-    let finalResult: ReturnType<typeof loop.tickWithResult> | undefined
-    for (let contact = 0; contact < 4; contact += 1) {
-      if (contact === 3) worldBeforeDefeat = world
-      world = replacePosition(world, enemyId, playerPosition.x + 1, playerPosition.y)
-      finalResult = loop.tickWithResult(world)
-      world = finalResult.world
-      if (contact < 3) expect(health(world, enemyId)).toBe(75 - contact * 25)
+interface ProductionRuntime {
+  readonly semanticWorld: GameWorldModel
+  readonly playerId: string
+  readonly enemyId: string
+  readonly store: DefaultRuntimeWorldStore
+  readonly target: EventTarget
+  readonly input: KeyboardInputProvider
+  readonly loop: DefaultRuntimeExecutionLoop
+}
+
+function createProductionRuntime(enemyDistance = 40): ProductionRuntime {
+  const generated = createPipeline().execute({ input: '生成一个幸存者游戏' })
+  const semanticWorld = generated.semanticWorld!
+  const playerId = semanticWorld.entities.find(entity => entity.category === 'player')!.id
+  const enemyId = semanticWorld.entities.find(entity => entity.category === 'enemy')!.id
+  const playerPosition = position(generated.world, playerId)
+  const initialWorld = replacePosition(
+    generated.world,
+    enemyId,
+    playerPosition.x + enemyDistance,
+    playerPosition.y,
+  )
+  const collector = new DefaultRuntimeGameplayEventCollector('world-1')
+  const store = new DefaultRuntimeWorldStore(initialWorld, collector)
+  const target = new EventTarget()
+  const input = new KeyboardInputProvider(target)
+  input.attach()
+  const registry = new DefaultRuntimeSystemRegistry()
+  registerStudioRuntimeSystems(registry, input, 'survival')
+  const rules = generated.gameplayRuleSet!
+  const loop = new DefaultRuntimeExecutionLoop(registry, collector, {
+    getRuleSet: () => rules,
+    getWorldId: () => 'world-1',
+    getSessionId: () => 'world-1',
+    getSemanticRevision: () => 0,
+    getSemanticWorld: () => semanticWorld,
+  })
+  return { semanticWorld, playerId, enemyId, store, target, input, loop }
+}
+
+function tick(runtime: ProductionRuntime): ReturnType<DefaultRuntimeExecutionLoop['tickWithResult']> {
+  const result = runtime.loop.tickWithResult(runtime.store.getWorld())
+  runtime.store.setWorld(result.world)
+  return result
+}
+
+function pressSpace(runtime: ProductionRuntime): ReturnType<DefaultRuntimeExecutionLoop['tickWithResult']> {
+  runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+  const attack = tick(runtime)
+  runtime.target.dispatchEvent(new KeyboardEvent('keyup', { key: ' ', bubbles: true }))
+  tick(runtime)
+  return attack
+}
+
+describe('WO-S32-001: generated Survival directed offense production reachability', () => {
+  it('routes an explicit non-contact Space press through Runtime target selection and DAMAGE_ENTITY', () => {
+    const runtime = createProductionRuntime(40)
+    const result = pressSpace(runtime)
+
+    expect(result.gameplayEvents).toContainEqual(expect.objectContaining({
+      type: 'ENTITY_ATTACK_REQUESTED',
+      actorEntityId: runtime.playerId,
+      targetEntityId: runtime.enemyId,
+    }))
+    expect((result.gameplayEvents ?? []).some(event => event.type === 'ENTITY_CONTACT_STARTED')).toBe(false)
+    expect(health(result.world, runtime.enemyId)).toBe(75)
+    expect(health(result.world, runtime.playerId)).toBe(100)
+    expect(result.gameplayRuleResults?.find(item => item.ruleId === 'survival-player-offense')).toMatchObject({
+      status: 'executed',
+      committed: true,
+      actionResults: [{ actionType: 'DAMAGE_ENTITY', status: 'executed' }],
+    })
+  })
+
+  it('does nothing on a valid Space edge when no target is within the finite range', () => {
+    const runtime = createProductionRuntime(49)
+    const before = runtime.store.getWorld()
+    const result = pressSpace(runtime)
+
+    expect((result.gameplayEvents ?? []).some(event => event.type === 'ENTITY_ATTACK_REQUESTED')).toBe(false)
+    expect(health(result.world, runtime.enemyId)).toBe(health(before, runtime.enemyId))
+    expect(health(result.world, runtime.playerId)).toBe(health(before, runtime.playerId))
+  })
+
+  it('keeps contact as Enemy-to-Player pressure without automatic Enemy offense', () => {
+    const runtime = createProductionRuntime(0)
+    const result = tick(runtime)
+
+    expect(result.gameplayEvents).toContainEqual(expect.objectContaining({
+      type: 'ENTITY_CONTACT_STARTED',
+      actorEntityId: runtime.playerId,
+      targetEntityId: runtime.enemyId,
+    }))
+    expect((result.gameplayEvents ?? []).some(event => event.type === 'ENTITY_ATTACK_REQUESTED')).toBe(false)
+    expect(health(result.world, runtime.enemyId)).toBe(100)
+    expect(health(result.world, runtime.playerId)).toBe(99)
+  })
+
+  it('defeats one Enemy after four explicit attacks, preserves progression, and replenishes it', () => {
+    const runtime = createProductionRuntime(40)
+    let defeatResult: ReturnType<DefaultRuntimeExecutionLoop['tickWithResult']> | undefined
+
+    for (let attack = 0; attack < 4; attack += 1) {
+      defeatResult = pressSpace(runtime)
     }
 
-    expect(world.entities.some(entity => entity.id === enemyId)).toBe(false)
-    expect(finalResult?.gameplayRuleResults?.find(result => result.ruleId === 'survival-enemy-defeat')).toMatchObject({
+    expect(defeatResult?.world.entities.some(entity => entity.id === runtime.enemyId)).toBe(false)
+    expect(defeatResult?.gameplayRuleResults?.find(item => item.ruleId === 'survival-enemy-defeat')).toMatchObject({
       status: 'executed',
       committed: true,
     })
-    expect(finalResult?.gameplayProgressionState?.values).toMatchObject({ experience: 1, level: 2 })
-    expect(finalResult?.gameplaySessionState?.status).toBe('active')
+    expect(defeatResult?.gameplayProgressionState?.values).toMatchObject({ experience: 1, level: 2 })
+    expect(runtime.store.getWorld().entities.some(entity => entity.type === 'enemy' && entity.id !== runtime.enemyId)).toBe(true)
+  })
 
-    const worldStore = new DefaultRuntimeWorldStore(worldBeforeDefeat, loop.gameplayEventCollector)
-    worldStore.setWorld(world)
-    const replenishment = loop.tickWithResult(worldStore.getWorld())
-    const replacement = replenishment.world.entities.find(entity =>
-      entity.type === 'enemy' && entity.id !== enemyId,
-    )
+  it('can target a replenished Enemy through the same Space path', () => {
+    const runtime = createProductionRuntime(40)
+    for (let attack = 0; attack < 4; attack += 1) pressSpace(runtime)
 
-    expect(replenishment.gameplayEvents).toContainEqual(expect.objectContaining({
-      type: 'ENTITY_REMOVED',
-      targetEntityId: enemyId,
-      payload: expect.objectContaining({ entityType: 'enemy', health: 0 }),
+    const replacement = runtime.store.getWorld().entities.find(entity => entity.type === 'enemy' && entity.id !== runtime.enemyId)!
+    const playerPosition = position(runtime.store.getWorld(), runtime.playerId)
+    runtime.store.setWorld(replacePosition(
+      runtime.store.getWorld(),
+      replacement.id,
+      playerPosition.x + 40,
+      playerPosition.y,
+    ))
+    const result = pressSpace(runtime)
+
+    expect(result.gameplayEvents).toContainEqual(expect.objectContaining({
+      type: 'ENTITY_ATTACK_REQUESTED',
+      targetEntityId: replacement.id,
     }))
-    expect(replenishment.gameplayRuleResults?.find(result => result.ruleId === 'survival-enemy-replenishment')).toMatchObject({
-      status: 'executed',
-      committed: true,
-      actionResults: [{ actionType: 'SPAWN_ENTITY', status: 'executed' }],
-    })
-    expect(replacement?.components?.map(component => component.type)).toEqual(expect.arrayContaining([
-      'semantic',
-      'position',
-      'health',
-      'collision-bounds',
-      'target-directed-movement',
-    ]))
-    expect(replacement?.components?.find(component => component.type === 'target-directed-movement')?.properties)
-      .toMatchObject({ targetEntityId: playerId })
-    expect(health(replenishment.world, replacement!.id)).toBe(100)
+    expect(health(result.world, replacement.id)).toBe(75)
+  })
 
-    const replacementPosition = replacement!.components!.find(isPositionComponent)!.properties
-    const playerHealthBeforeReplacement = health(replenishment.world, playerId)!
-    const pressureWorld = replacePosition(replenishment.world, replacement!.id, playerPosition.x + 1, playerPosition.y)
-    const replacementContact = loop.tickWithResult(pressureWorld)
-    expect(health(replacementContact.world, replacement!.id)).toBe(75)
-    expect(health(replacementContact.world, playerId)).toBe(playerHealthBeforeReplacement - 1)
-    expect(replacementPosition).not.toEqual(playerPosition)
+  it('selects exactly one nearest target from multiple Runtime Enemies', () => {
+    const runtime = createProductionRuntime(40)
+    const originalEnemy = runtime.store.getWorld().entities.find(entity => entity.id === runtime.enemyId)!
+    const playerPosition = position(runtime.store.getWorld(), runtime.playerId)
+    const secondEnemy = Object.freeze({
+      ...originalEnemy,
+      id: 'enemy-2',
+      x: playerPosition.x + 30,
+      y: playerPosition.y,
+      components: Object.freeze(originalEnemy.components!.map(component =>
+        isPositionComponent(component)
+          ? createPositionComponent(playerPosition.x + 30, playerPosition.y)
+          : component,
+      )),
+    }) as unknown as Entity
+    runtime.store.setWorld(addRuntimeEntity(runtime.store.getWorld(), secondEnemy))
+    const result = pressSpace(runtime)
 
-    const renderWorld = new DefaultRuntimeRendererAdapter({ getWorldSpatialMode: () => 'top-down' })
-      .adapt(replenishment.world)
-    expect(renderWorld.entities.find(entity => entity.id === replacement!.id)).toMatchObject({
-      id: replacement!.id,
-      type: 'enemy',
-      position: replacementPosition,
-    })
+    expect(result.gameplayEvents).toContainEqual(expect.objectContaining({
+      type: 'ENTITY_ATTACK_REQUESTED',
+      targetEntityId: 'enemy-2',
+    }))
+    expect(health(result.world, 'enemy-2')).toBe(75)
+    expect(health(result.world, runtime.enemyId)).toBe(100)
+    expect(result.gameplayRuleResults?.filter(item => item.ruleId === 'survival-player-offense')).toHaveLength(1)
   })
 })

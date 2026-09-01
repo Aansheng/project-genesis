@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 32 — WO-S32-001 Generic Player-Directed Short-Range Offense (v1.182, 2026-09-01)
+
+- Implemented the bounded generic top-down `Space` attack path. One key edge
+  selects one current positive-Health Enemy within finite Runtime range `48`
+  using nearest-distance and stable-ID tie-breaking, emits
+  `ENTITY_ATTACK_REQUESTED`, and reuses trusted `DAMAGE_ENTITY` for the
+  authoritative outcome.
+- Survival Player contact offense is no longer the primary damage path;
+  Enemy contact remains a separate Player danger rule. Platformer `Space` jump,
+  Runtime replacement, progression, active-session continuity, and visual
+  binding remain unchanged.
+- Added the `Space — 攻击` / `Space — Attack` control hint and Observatory event
+  projection for the committed attack fact. Production-path tests cover
+  non-contact damage, range/no-target behavior, input edges, deterministic
+  multi-target selection, defeat/XP/Level/replacement, and replacement
+  targeting.
+- Real Studio Product Verification and the fresh Sprint 32 Gap Analysis pass;
+  `WO-S32-001` is DONE with Code Complete = YES and Product Verified = YES.
+  `SPRINT32_FREEZE_REVIEW` is READY. Sprint 33 is not entered.
+
 ### Sprint 31 Freeze + Sprint 32 Product Gap Discovery (2026-08-31)
 
 - Human/CTO froze Sprint 31 at architecture v1.181. WO-S31-001 and

@@ -6,6 +6,6 @@
  * state is intentionally separate from this immutable metadata.
  */
 export const PROJECT_METADATA = Object.freeze({
-  architectureVersion: 'v1.181',
-  currentSprint: 'Sprint 31',
+  architectureVersion: 'v1.182',
+  currentSprint: 'Sprint 32',
 })

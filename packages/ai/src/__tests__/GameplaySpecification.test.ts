@@ -76,7 +76,7 @@ describe('GameplaySpecification foundation', () => {
       supportStatus: 'supported',
     })
     expect(survivor.mechanics.some(item => item.id === 'enemy-chase')).toBe(true)
-    expect(survivor.mechanics.find(item => item.id === 'contact-offense')?.supportStatus).toBe('supported')
+    expect(survivor.mechanics.find(item => item.id === 'player-directed-offense')?.supportStatus).toBe('supported')
     expect(survivor.mechanics.find(item => item.id === 'enemy-spawn')?.supportStatus).toBe('supported')
     expect(survivor.mechanics.find(item => item.id === 'auto-attack')?.supportStatus).toBe('deferred')
     expect(survivor.mechanics.find(item => item.id === 'gain-experience')?.supportStatus).toBe('supported')
@@ -158,6 +158,7 @@ describe('GameplaySpecification foundation', () => {
     expect(request.context.game.worldType).toBe('platformer')
     expect(request.context.semanticWorld.entities.map(entity => entity.id)).toEqual(['player', 'enemy', 'goal'])
     expect(request.context.capabilities.supportedMechanicIds).toContain('player-jump')
+    expect(request.context.capabilities.supportedMechanicIds).toContain('player-directed-offense')
     expect(request.context.capabilities.supportedMechanicIds).toContain('contact-offense')
     expect(prompt.system).toContain('Return structured JSON only')
     expect(prompt.system).toContain('Do not generate engine code')

@@ -122,6 +122,7 @@ describe('Genesis Studio Shell Foundation', () => {
     expect(wrapper.find('.viewport-status').text()).toBe('Empty')
     expect(wrapper.find('.viewport-controls').text()).toContain('Arrow Keys')
     expect(wrapper.find('.viewport-controls').text()).toContain('Space')
+    expect(wrapper.find('.viewport-controls').text()).toContain('跳跃')
     expect(wrapper.find('.game-container').attributes('tabindex')).toBe('0')
     expect(wrapper.find('.studio-command-bar button').text()).toBe('Generate')
     expect(useGameStore().commandStatus).toBe('idle')
@@ -138,7 +139,8 @@ describe('Genesis Studio Shell Foundation', () => {
     await nextTick()
 
     expect(wrapper.find('.viewport-controls').text()).toContain('Arrow Keys')
-    expect(wrapper.find('.viewport-controls').text()).not.toContain('Space')
+    expect(wrapper.find('.viewport-controls').text()).toContain('Space')
+    expect(wrapper.find('.viewport-controls').text()).toContain('攻击')
 
     wrapper.unmount()
   })

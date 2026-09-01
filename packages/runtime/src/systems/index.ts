@@ -36,6 +36,10 @@ export { DefaultVerticalMotionSystem } from './DefaultVerticalMotionSystem'
 export { DefaultTargetDirectedMovementSystem } from './DefaultTargetDirectedMovementSystem'
 export { DefaultVelocityMotionSystem } from './DefaultVelocityMotionSystem'
 
+// Generic player-directed Runtime offense request (WO-S32-001)
+export type { PlayerAttackRequestOptions } from './DefaultPlayerAttackRequestSystem'
+export { DEFAULT_PLAYER_ATTACK_RANGE, DefaultPlayerAttackRequestSystem } from './DefaultPlayerAttackRequestSystem'
+
 // Jump System Foundation (WO-S9-014)
 export type { JumpSystem } from './JumpSystem'
 export type { JumpSystemResult } from './JumpSystemResult'

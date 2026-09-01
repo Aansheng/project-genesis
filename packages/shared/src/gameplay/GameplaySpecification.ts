@@ -175,7 +175,7 @@ export interface GameplayCapabilityCatalog {
 }
 
 export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRulePrimitiveCapability[] = Object.freeze([
-  ...(['ENTITY_CONTACT_STARTED', 'ENTITY_JUMPED', 'ENTITY_LANDED', 'ENTITY_ADDED', 'ENTITY_REMOVED'] as const).map(type => Object.freeze({
+  ...(['ENTITY_CONTACT_STARTED', 'ENTITY_ATTACK_REQUESTED', 'ENTITY_JUMPED', 'ENTITY_LANDED', 'ENTITY_ADDED', 'ENTITY_REMOVED'] as const).map(type => Object.freeze({
     id: `event-${type.toLowerCase().replace(/_/gu, '-')}`,
     kind: 'event' as const,
     description: `${type} is emitted as a truthful Runtime gameplay fact.`,
@@ -250,14 +250,19 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
       mechanicIds: Object.freeze(['event-entity-contact-started']),
     }),
     Object.freeze({
+      id: 'player-directed-offense',
+      description: 'A Runtime input edge selects one nearby target deterministically and emits an ENTITY_ATTACK_REQUESTED fact.',
+      mechanicIds: Object.freeze(['player-directed-offense', 'event-entity-attack-requested']),
+    }),
+    Object.freeze({
       id: 'enemy-stomp',
       description: 'A supported generic contact rule removes an enemy target and applies an upward player velocity.',
       mechanicIds: Object.freeze(['enemy-stomp']),
     }),
     Object.freeze({
       id: 'damage-health',
-      description: 'Trusted generic contact rules can decrease entity Health; bounded composition may remove a defeated non-player entity.',
-      mechanicIds: Object.freeze(['enemy-side-damage', 'contact-offense']),
+      description: 'Trusted generic gameplay rules can decrease entity Health; bounded composition may remove a defeated non-player entity.',
+      mechanicIds: Object.freeze(['enemy-side-damage', 'player-directed-offense', 'contact-offense']),
     }),
     Object.freeze({
       id: 'goal-completion',
@@ -291,10 +296,12 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'event-player-jump',
     'event-entity-landed',
     'event-entity-contact-started',
+    'event-entity-attack-requested',
     'event-entity-added',
     'event-entity-removed',
     'enemy-stomp',
     'enemy-side-damage',
+    'player-directed-offense',
     'contact-offense',
     'enemy-spawn',
     'reach-goal',

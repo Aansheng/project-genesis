@@ -137,7 +137,7 @@ describe('GameplayRule foundation', () => {
     })
   })
 
-  it('composes bounded Survival contact offense, defeat, XP, level, and threat rules', () => {
+  it('composes bounded Survival directed offense, defeat, XP, level, and threat rules', () => {
     const survivalWorld: GameWorldModel = Object.freeze({
       worldType: 'survival',
       entities: Object.freeze([
@@ -152,14 +152,19 @@ describe('GameplayRule foundation', () => {
     })
 
     expect(ruleSet.rules.map(rule => rule.ruleId)).toEqual([
-      'survival-contact-offense',
+      'survival-player-offense',
       'survival-enemy-defeat',
       'survival-level-up-at-experience-threshold',
       'survival-enemy-contact',
       'survival-enemy-replenishment',
     ])
-    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-contact-offense')).toMatchObject({
+    expect(ruleSet.rules.find(rule => rule.ruleId === 'survival-player-offense')).toMatchObject({
       supportStatus: 'supported',
+      trigger: {
+        eventType: 'ENTITY_ATTACK_REQUESTED',
+        actor: { kind: 'eventActor' },
+        target: { kind: 'eventTarget' },
+      },
       actions: [{ type: 'DAMAGE_ENTITY', target: { kind: 'eventTarget' }, amount: 25 }],
     })
     const defeatRule = ruleSet.rules.find(rule => rule.ruleId === 'survival-enemy-defeat')

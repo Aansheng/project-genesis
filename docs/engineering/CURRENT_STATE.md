@@ -3,22 +3,23 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.181 (Sprint 31 frozen; Sprint 32 Product Gap Discovery complete; one primary WO ready)
+architecture_version: v1.182 (Sprint 32 active; WO-S32-001 done; freeze review ready)
 current_sprint: Sprint 32 (Survival Playability Gap)
-current_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
-current_work_order_status: READY — execution not started
-current_control_plane_work_order: SPRINT32_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE
-last_completed_work_order: WO-S31-002 — Current Observatory Metadata Source
-last_completed_product_work_order: WO-S31-002
+current_work_order: SPRINT32_FREEZE_REVIEW
+current_work_order_status: READY — Human/CTO freeze review
+current_control_plane_work_order: SPRINT32_FREEZE_REVIEW
+current_control_plane_work_order_status: READY
+last_completed_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
+last_completed_product_work_order: WO-S32-001
 last_completed_control_plane_work_order: SPRINT32_PRODUCT_GAP_DISCOVERY
-next_ready_work_order: WO-S32-001 — Generic Player-Directed Short-Range Offense
-product_architecture_changed: NO — Sprint 32 discovery only; implementation remains pending
+next_ready_work_order: SPRINT32_FREEZE_REVIEW
+product_architecture_changed: YES — v1.181 → v1.182 bounded generic attack request capability
 sprint_status: Sprint 30 is FROZEN at v1.180 and Sprint 31 is FROZEN at v1.181
   by Human/CTO decision on 2026-08-31. Sprint 32 is AUTHORIZED for Product Gap
-  Discovery; discovery is complete and exactly one primary product WO is READY.
-code_complete: YES for WO-S31-001 and WO-S31-002; product_verified: YES for
-WO-S31-001 and WO-S31-002; Sprint 32 WO-S32-001 is READY and not executed
+  Discovery and bounded WO-S32-001 is complete; Sprint 32 remains active at
+  v1.182 and Sprint 33 is not entered.
+code_complete: YES for WO-S31-001, WO-S31-002, and WO-S32-001; product_verified:
+ YES for WO-S31-001, WO-S31-002, and WO-S32-001
 
 ## Sprint 32 Product Gap Discovery and selected primary WO
 
@@ -44,10 +45,32 @@ attack input fact, or projectile requirement. Timers, waves, projectiles,
 upgrades, scaling, and a Survival-specific combat system are explicitly outside
 the selected slice.
 
-Exactly one next WO is generated:
-`WO-S32-001 — Generic Player-Directed Short-Range Offense`, READY for execution
-in a later step. This discovery step does not execute it, enter Sprint 33, or
-change the architecture version.
+Exactly one primary WO was generated:
+`WO-S32-001 — Generic Player-Directed Short-Range Offense`. Its separately
+authorized implementation is complete at v1.182. The fresh post-WO gap
+analysis passes explicit offensive agency and selects
+`SPRINT32_FREEZE_REVIEW`; Sprint 33 is not entered.
+
+## Sprint 32 Implementation and Product Verification
+
+`WO-S32-001` is complete at v1.182. The top-down Studio composition registers
+the generic `PlayerAttackRequestSystem` on the existing `Space` input. On one
+input edge it reads current Runtime Position/Health, chooses one positive-
+Health Enemy within the finite 48-unit range by nearest distance and stable ID
+tie-break, and emits `ENTITY_ATTACK_REQUESTED`. The existing post-system
+Gameplay Rule path consumes that fact and commits the trusted `DAMAGE_ENTITY`
+action. Survival contact remains Enemy→Player danger only; it is no longer the
+Player's automatic offense. Platformer `Space` jump registration is unchanged.
+
+The exact generated Survival request remains active as `world-1`. Automated
+production reachability covers non-contact damage, out-of-range no-op, contact
+danger separation, four-hit defeat with XP/Level and replacement, replacement
+targeting, and one-target deterministic selection. Real Studio verification
+confirmed the visible `Space — 攻击` affordance, non-contact attack outcome,
+no-target no-op, contact danger, active-session/Observatory continuity,
+current `v1.182 / Sprint 32` metadata, no new provider/image attack calls, and
+empty browser error/warning diagnostics. The fresh Sprint 32 Gap Analysis is
+**PASS**. `SPRINT32_FREEZE_REVIEW` is READY; no Sprint 33 entry is authorized.
 
 ## Sprint 31 Gap Analysis, completed WOs, and selected freeze review
 

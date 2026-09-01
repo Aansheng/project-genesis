@@ -111,6 +111,11 @@ export const zhCN: MessageCatalog = {
     },
   },
   studio: {
+    controls: {
+      move: '移动',
+      attack: '攻击',
+      jump: '跳跃',
+    },
     lifecycle: {
       gameOver: '游戏结束',
       gameOverDetail: '本次挑战已结束。重生后可继续当前世界。',

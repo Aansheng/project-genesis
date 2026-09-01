@@ -110,6 +110,11 @@ export const enUS: MessageCatalog = {
     },
   },
   studio: {
+    controls: {
+      move: 'Move',
+      attack: 'Attack',
+      jump: 'Jump',
+    },
     lifecycle: {
       gameOver: 'Game Over',
       gameOverDetail: 'Your run has ended. Respawn to continue this world.',

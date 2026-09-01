@@ -85,7 +85,7 @@ describe('Gameplay create-world integration', () => {
     expect(result.success).toBe(true)
     expect(result.semanticWorld?.worldType).toBe('survival')
     expect(result.gameplayRuleSet?.rules.map(rule => rule.ruleId)).toEqual([
-      'survival-contact-offense',
+      'survival-player-offense',
       'survival-enemy-defeat',
       'survival-level-up-at-experience-threshold',
       'survival-enemy-contact',

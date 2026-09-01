@@ -49,6 +49,7 @@ describe('WO-S26-002: WorldType-selected generic motion profile', () => {
 
     expect(runtime.registry.getSystems().map((system) => system.name)).toEqual([
       'PlayerControllerSystem',
+      'PlayerAttackRequestSystem',
       'TargetDirectedMovementSystem',
       'VelocityMotionSystem',
       'EntityContactSystem',

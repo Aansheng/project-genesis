@@ -368,6 +368,8 @@ function gameplayEventMessage(event: GameplayEvent): string {
   switch (event.type) {
     case 'ENTITY_CONTACT_STARTED':
       return `${event.type} · ${event.actorEntityId} → ${event.targetEntityId} · direction=${event.direction}`
+    case 'ENTITY_ATTACK_REQUESTED':
+      return `${event.type} · ${event.actorEntityId} → ${event.targetEntityId} · distance=${event.payload?.distance ?? 'unknown'}`
     case 'ENTITY_LANDED':
     case 'ENTITY_JUMPED':
       return `${event.type} · ${event.actorEntityId}`

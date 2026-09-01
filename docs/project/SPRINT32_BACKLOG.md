@@ -2,9 +2,9 @@
 
 **Authorization:** Human/CTO decision, 2026-08-31  
 **Architecture at authorization:** v1.181  
-**Current architecture:** v1.181  
-**Status:** AUTHORIZED — Product Gap Discovery DONE; exactly one primary WO
-READY; execution not started
+**Current architecture:** v1.182
+**Status:** ACTIVE — `WO-S32-001` DONE; Code Complete = YES; Product Verified = YES;
+fresh Sprint 32 Gap Analysis = PASS; `SPRINT32_FREEZE_REVIEW` READY
 
 ## Product goal
 
@@ -24,7 +24,8 @@ The current real product already provides:
 - natural-language generation into a Survival semantic world;
 - top-down spatial composition and Player X/Y movement;
 - target-directed Enemy pursuit and contact pressure;
-- Player contact offense, Enemy Health, defeat/removal, XP, and Level;
+- explicit Player-directed short-range offense, Enemy contact danger, Enemy
+  Health, defeat/removal, XP, and Level;
 - Runtime-only replacement Enemy spawning with reused composition/visuals;
 - an ongoing active session and truthful Observatory inspection.
 
@@ -50,8 +51,7 @@ observations and do not receive separate work orders in this horizon.
 
 ## WO-S32-001 — Generic Player-Directed Short-Range Offense
 
-**Status:** READY — generated after Product Gap Discovery; not executed in this
-step  
+**Status:** DONE — Code Complete = YES; Product Verified = YES; v1.182
 **Priority:** P0 / Sprint 32 primary WO  
 **Architecture before:** v1.181  
 **Expected architecture after:** v1.182 (bounded generic input → Runtime
@@ -59,9 +59,8 @@ offense capability only)
 **Dependencies:** Sprint 31 FROZEN at v1.181; Sprint 32 Product Gap Discovery
 DONE; existing `DAMAGE_ENTITY`, Runtime Position, collision, input, and
 Gameplay Rule paths available  
-**Human decision gate:** Satisfied for this bounded direction by the explicit
-Sprint 32 authorization; execution is intentionally deferred until after this
-discovery report
+**Human decision gate:** Satisfied by the explicit Human/CTO authorization to
+execute `WO-S32-001`.
 
 ### Measured bottleneck
 
@@ -164,9 +163,8 @@ smaller existing seam. It must not introduce a parallel combat authority.
 - The action is visible enough in the real Game surface to distinguish an
   accepted attack from an idle frame; no attack animation is required.
 - Full Observatory continues to show current Runtime world/session,
-  progression, current `v1.181` metadata until the implementation's deliberate
-  version transition, and truthful event/rule outcomes. It must not regain
-  default/stale values.
+  progression, current `v1.182` metadata, and truthful event/rule outcomes. It
+  must not regain default/stale values.
 - Platformer, existing movement, replacement composition, asset binding, and
   clean browser diagnostics remain intact.
 
@@ -183,7 +181,7 @@ smaller existing seam. It must not introduce a parallel combat authority.
 - Relevant package test suites, TypeScript checks, package ESLint, Web build,
   and `git diff --check`.
 
-### Product Verification
+### Product Verification plan and execution result
 
 In a fresh real Studio session, submit `生成一个幸存者游戏` and exercise at
 least four independent attack inputs at controlled short range. Record:
@@ -197,6 +195,22 @@ least four independent attack inputs at controlled short range. Record:
 - current metadata, Runtime truth, progression truth, and event/rule facts;
 - provider/image-generation operation counts and browser error/warning
   diagnostics.
+
+Execution result: **PASS**. A fresh real Studio session used the exact request,
+showed `Arrow Keys — 移动` and `Space — 攻击`, and the production path applied
+one `DAMAGE_ENTITY` result to a nearby Enemy without overlap. The production-
+path reachability check confirmed an out-of-range Space input was a no-op; the
+real Studio session confirmed co-located contact damaged only the Player. Four
+explicit Runtime attack inputs defeated the Enemy, committed XP/Level `1/2`,
+and produced a one-for-one replacement in the same `world-1` session. The
+replacement was targetable through the same attack path, and a multiple-Enemy
+check damaged exactly the deterministic nearest target. Game ↔ Full Observatory
+navigation retained Runtime/session/progression truth and showed `v1.182 /
+Sprint 32`. Provider/image operation counts did not increase during attack
+interaction, and browser error/warning diagnostics were empty. The automated
+browser runner required explicit key-edge timing for repeated presses; the
+independent-input result was confirmed through the production-path runtime
+reachability test and the real Studio first-attack/no-target/contact flow.
 
 Do not claim Product Verified from unit tests alone. If the real session reveals
 a different first blocker, stop and report it rather than expanding this WO.
@@ -218,6 +232,7 @@ only `READY`; it does not mark the WO complete.
 
 ## Sprint 32 execution boundary
 
-`WO-S32-001` is the only generated primary WO. It is READY but intentionally
-not executed in the same Product Gap Discovery step. Sprint 32 remains the
-current Sprint; Sprint 33 is not entered.
+`WO-S32-001` was the only generated primary WO and is now DONE after the
+authorized bounded implementation and Product Verification. Sprint 32 remains
+the current Sprint; `SPRINT32_FREEZE_REVIEW` is READY and Sprint 33 is not
+entered.

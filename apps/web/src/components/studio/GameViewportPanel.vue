@@ -312,8 +312,9 @@ onUnmounted(() => {
       class="viewport-controls"
       aria-label="Game controls"
     >
-      <span>Arrow Keys <em>Move</em></span>
-      <span v-if="!isTopDownWorld">Space <em>Jump</em></span>
+      <span>Arrow Keys <em>{{ i18n.t('studio.controls.move') }}</em></span>
+      <span v-if="isTopDownWorld">Space <em>{{ i18n.t('studio.controls.attack') }}</em></span>
+      <span v-else>Space <em>{{ i18n.t('studio.controls.jump') }}</em></span>
     </footer>
   </section>
 </template>

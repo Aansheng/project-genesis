@@ -7,6 +7,7 @@
 
 export type GameplayEventType =
   | 'ENTITY_CONTACT_STARTED'
+  | 'ENTITY_ATTACK_REQUESTED'
   | 'ENTITY_LANDED'
   | 'ENTITY_JUMPED'
   | 'ENTITY_ADDED'
@@ -29,6 +30,13 @@ export type GameplayEventDraft =
       readonly targetEntityId: string
       /** The side of the target from which the actor entered contact. */
       readonly direction: GameplayContactDirection
+      readonly position?: GameplayEventPosition
+      readonly payload?: GameplayEventPayload
+    }
+  | {
+      readonly type: 'ENTITY_ATTACK_REQUESTED'
+      readonly actorEntityId: string
+      readonly targetEntityId: string
       readonly position?: GameplayEventPosition
       readonly payload?: GameplayEventPayload
     }

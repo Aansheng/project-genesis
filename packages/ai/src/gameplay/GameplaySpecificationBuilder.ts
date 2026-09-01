@@ -185,7 +185,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanic('player-move', 'movement', 'Player moves to avoid pressure.', 'supported', playerId),
       mechanic('enemy-spawn', 'spawn', 'A defeated Enemy is replaced through Runtime-authoritative gameplay rules.', 'supported'),
       mechanic('enemy-chase', 'movement', 'Enemies pursue the player.', 'deferred', 'enemy', playerId),
-      mechanic('contact-offense', 'combat', 'Player contact damages an enemy through generic Runtime Health rules.', 'supported', playerId, 'enemy'),
+      mechanic('player-directed-offense', 'combat', 'Player explicitly attacks one nearby enemy through generic Runtime Health rules.', 'supported', playerId, 'enemy'),
       mechanic('enemy-side-damage', 'combat', 'Enemy contact damages the Player through generic Runtime Health rules.', 'supported', 'enemy', playerId),
       mechanic('auto-attack', 'combat', 'Player attacks threats automatically at range.', 'deferred', playerId, 'enemy'),
       mechanic('gain-experience', 'progression', 'Enemy defeat grants Runtime experience.', 'supported', playerId),
