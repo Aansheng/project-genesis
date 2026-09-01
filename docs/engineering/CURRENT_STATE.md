@@ -3,25 +3,48 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.184 (Sprint 34 WO complete; freeze review ready)
-current_sprint: Sprint 34 (SPRINT34_FREEZE_REVIEW)
-current_work_order: SPRINT34_FREEZE_REVIEW — Sprint 34 Freeze Review
-current_work_order_status: READY — WO-S34-001 complete; Human/CTO freeze gate pending
-current_control_plane_work_order: SPRINT34_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — Sprint 34 boundary review
+architecture_version: v1.184 (Sprint 34 frozen; Sprint 35 discovery complete)
+current_sprint: Sprint 35 (SPRINT35_PRODUCT_GAP_DISCOVERY)
+current_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
+current_work_order_status: READY — discovery complete; execution not authorized
+current_control_plane_work_order: SPRINT35_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE — exactly one READY product WO generated
 last_completed_work_order: WO-S34-001 — Generic Runtime Replacement Fair-Start Policy
 last_completed_product_work_order: WO-S34-001
-last_completed_control_plane_work_order: SPRINT34_PRODUCT_GAP_DISCOVERY_POST_WO
-next_ready_work_order: none — stop at Sprint 34 freeze review
-product_architecture_changed: YES — v1.183 → v1.184
+last_completed_control_plane_work_order: SPRINT35_PRODUCT_GAP_DISCOVERY
+next_ready_work_order: WO-S35-001 — execution requires separate authorization
+product_architecture_changed: NO — Sprint 35 discovery preserves v1.184
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
-  Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and selected
-  `SPRINT34_FREEZE_REVIEW`; Sprint 35 is not entered.
+  Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and FROZEN at
+  v1.184. Sprint 35 discovery is complete with exactly one READY
+  `WO-S35-001`; Sprint 36 is not entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001, and
   WO-S34-001
 product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001, and
-  WO-S34-001; fresh Sprint 34 post-WO Gap Analysis PASS
+  WO-S34-001; fresh Sprint 34 post-WO Gap Analysis PASS; Sprint 35 discovery
+  PASS
+
+## Sprint 35 — Progression Meaning Discovery
+
+Human/CTO froze Sprint 34 at v1.184 and authorized Sprint 35 discovery on
+2026-09-01. The audit found that Runtime progression is authoritative and
+commits `NUMERIC_STATE_UPDATED` for Level, but no current Gameplay Rule,
+Runtime component, or composition parameter changes when Level changes.
+
+The measured blocker is **LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**.
+After auditing damage, range, movement speed, and Health, the smallest useful
+proof is a generic progression-conditioned RuleSet composition that keeps
+Survival offense at damage `25` through Level 1 and selects `50` at committed
+Level 2 using existing `NUMBER_COMPARE(gameState.level)` and
+`DAMAGE_ENTITY` semantics. This is a RuleSet capability-selection seam, not a
+StatsEngine or live modifier framework.
+
+Discovery is DONE. Exactly one work order is READY:
+`WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`. It has not
+been executed, v1.184 remains the architecture version, and Sprint 36 has not
+been entered. Full evidence is in
+`docs/project/SPRINT35_PRODUCT_GAP_DISCOVERY.md`.
 
 ## Sprint 34 — Survival Playability Gap Discovery
 
@@ -67,10 +90,11 @@ targeting, contact semantics, and Runtime authority. It must not add a
 WaveManager, timer, wave scheduler, cooldown, or Survival-specific system.
 
 The executed work order was `WO-S34-001 — Generic Runtime Replacement
-Fair-Start Policy`. Human/CTO authorized execution on 2026-09-01. It is DONE
-at v1.184 with Code Complete = YES and Product Verified = YES; the next gate
-is `SPRINT34_FREEZE_REVIEW`. Sprint 35 is not entered, and no temporal pacing
-system is in scope.
+Fair-Start Policy`. Human/CTO authorized execution on 2026-09-01. It was DONE
+at v1.184 with Code Complete = YES and Product Verified = YES; the historical
+next gate was `SPRINT34_FREEZE_REVIEW`. Human/CTO subsequently accepted that
+freeze and authorized Sprint 35 discovery. No temporal pacing system is in
+scope.
 
 ## Sprint 34 — WO-S34-001 Completion and Freeze-Review Readiness
 
@@ -96,9 +120,9 @@ Verification is complete: Runtime 711/711, Renderer 510/510, Web 3574/3574;
 Runtime/Web TypeScript pass; ESLint zero errors with existing Web warnings
 only; Web build pass; real Studio two-cycle Survival replacement/combat and
 Platformer smoke pass; browser error logs empty. Fresh post-WO Gap Analysis is
-PASS with no new immediate P0 blocker. `SPRINT34_FREEZE_REVIEW` is READY for
-Human/CTO review; Sprint 34 is not silently frozen and Sprint 35 is not
-entered.
+PASS with no new immediate P0 blocker. Human/CTO subsequently froze Sprint 34
+at v1.184 and authorized Sprint 35 discovery; this accepted implementation
+result is unchanged.
 
 ## Sprint 33 WO-S33-001 — Generic Runtime Gameplay Outcome Feedback
 
@@ -841,16 +865,18 @@ own capability-focused work item rather than broadening WO-META-003.
 
 ## Current product gaps
 
-Fresh Sprint 34 post-WO Gap Analysis (2026-09-01):
+Fresh Sprint 34 post-WO Gap Analysis (2026-09-01), followed by Human/CTO
+freeze and Sprint 35 discovery:
 
 - **Resolved PRODUCT_GAP:** Runtime Survival replacements now begin with a
   deterministic player-relative minimum distance and Runtime AABB non-overlap
   before existing pursuit. The current Runtime Player is resolved by identity
   at spawn time, and unavailable fair placement fails closed.
-- **Secondary PRODUCT_GAP:** Level 1 → 2 still has no visible Game-surface
-  consequence. This remains deferred and did not generate another WO.
-- **Current gate:** `SPRINT34_FREEZE_REVIEW` is READY for Human/CTO review.
-  Sprint 35 is not entered.
+- **Selected Sprint 35 PRODUCT_GAP:** Level 1 → 2 still has no mechanically
+  observable gameplay consequence. The source audit and real Survival evidence
+  generated exactly one READY item: `WO-S35-001`.
+- **Current state:** Sprint 34 is FROZEN at v1.184; Sprint 35 discovery is
+  DONE; `WO-S35-001` is READY and unexecuted. Sprint 36 is not entered.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
 

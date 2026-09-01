@@ -152,7 +152,7 @@ describe('WO-OBS-001 Observatory truthfulness', () => {
     const text = mount(ObservatoryOverview).text()
     expect(PROJECT_METADATA).toEqual({
       architectureVersion: 'v1.184',
-      currentSprint: 'Sprint 34',
+      currentSprint: 'Sprint 35',
     })
     expect(text).toContain(PROJECT_METADATA.architectureVersion)
     expect(text).toContain(PROJECT_METADATA.currentSprint)

@@ -7,5 +7,5 @@
  */
 export const PROJECT_METADATA = Object.freeze({
   architectureVersion: 'v1.184',
-  currentSprint: 'Sprint 34',
+  currentSprint: 'Sprint 35',
 })

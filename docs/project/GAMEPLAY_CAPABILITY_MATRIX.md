@@ -1,9 +1,9 @@
-# Gameplay Capability Matrix — Sprint 34 WO Complete / Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 35 Discovery Complete / WO Ready
 
-Architecture version: v1.184 (Sprint 30, Sprint 31, Sprint 32, and Sprint 33
-FROZEN; `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified =
-YES; Sprint 34 post-WO Gap Analysis PASS; `SPRINT34_FREEZE_REVIEW` ready;
-Sprint 35 not entered)
+Architecture version: v1.184 (Sprint 30 through Sprint 34 FROZEN;
+`WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
+Sprint 34 post-WO Gap Analysis PASS; Sprint 35 discovery DONE;
+`WO-S35-001` READY and unexecuted; Sprint 36 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -29,6 +29,12 @@ Sprint 34 promotes one bounded capability into this matrix:
 spatial policy on the existing generic `SPAWN_ENTITY` path. It preserves
 Runtime authority and is not a WaveManager, timer, wave, or Survival-specific
 system.
+
+Sprint 35 discovery does not promote a new capability. It records one measured
+gap: committed Level changes currently produce only `NUMERIC_STATE_UPDATED` and
+do not select a gameplay capability. `WO-S35-001` is READY to compose
+progression-conditioned action variants using existing generic primitives; no
+progression modifier is supported yet.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -74,7 +80,8 @@ system.
 | Goals / checkpoints / win | Goal intent and semantic entities | `partially supported` | Player contact with the validated goal commits Runtime session `completed`; Studio projects that committed state as a Victory overlay. No next level, restart, deletion, or progression flow exists. |
 | Player death / failure | Failure-condition intent | `partially supported` | Trusted lethal player damage commits Runtime `failed`; Studio projects it as a Game Over overlay and exposes only the existing Runtime respawn. No lives/checkpoints or generic reset framework exists. |
 | Timer / survive duration | Loop and goal intent | `deferred` | Duration is descriptive; no gameplay timer or expiry system exists. |
-| Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. Skill/upgrade state and later thresholds remain deferred. |
+| Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. The committed Level currently has no gameplay consequence; skill/upgrade state and later thresholds remain deferred. |
+| Progression-conditioned gameplay capability selection | Runtime progression state → existing Gameplay Rule action variants | `deferred` | `WO-S35-001` is READY only. Existing `NUMBER_COMPARE(gameState.level)` and `DAMAGE_ENTITY` can compose the first bounded proof, but no current RuleSet binds Level to a capability value. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
 | Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
 
@@ -124,7 +131,9 @@ idle/run/jump/facing and two-frame temporal run presentation Product Verified.
 This remains a bounded presentation capability, not a generic gameplay
 animation system.
 
-Sprint 34 is ready for freeze review at v1.184. `WO-S34-001` is a supported
-generic Runtime spatial fair-start placement policy only: Runtime committed
-outcomes and composition stay authoritative, and no new combat/feedback
-manager, gameplay timer, world-bounds authority, or wave system exists.
+Sprint 34 is FROZEN at v1.184. `WO-S34-001` is a supported generic Runtime
+spatial fair-start placement policy only: Runtime committed outcomes and
+composition stay authoritative, and no new combat/feedback manager, gameplay
+timer, world-bounds authority, or wave system exists. Sprint 35 discovery is
+complete without code or architecture change; `WO-S35-001` remains the only
+READY work order and is not executed.

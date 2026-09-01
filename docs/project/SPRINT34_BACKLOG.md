@@ -3,7 +3,7 @@
 **Authorization:** Human/CTO decision, 2026-09-01  
 **Architecture at authorization:** v1.183  
 **Current architecture:** v1.184
-**Status:** ACTIVE — `WO-S34-001` DONE; `SPRINT34_FREEZE_REVIEW` READY for Human/CTO review; do not enter Sprint 35
+**Status:** FROZEN — Human/CTO accepted 2026-09-01 at v1.184; `WO-S34-001` Code Complete = YES; Product Verified = YES; Sprint 35 discovery is recorded separately
 
 ## Product goal
 
@@ -122,9 +122,17 @@ non-overlapping replacement approach window, continued replacement combat,
 and Platformer `创建 MarioWorld` with seven entities and `Space — 跳跃`.
 Browser error logs were empty. Fresh Sprint 34 post-WO Gap Analysis is PASS.
 
-## Stop condition
+## Freeze result
+
+Human/CTO froze Sprint 34 at v1.184 on 2026-09-01. `WO-S34-001` is DONE with
+Code Complete = YES and Product Verified = YES, the fresh post-WO Gap Analysis
+is PASS, and the verified replacement path remains the frozen product
+baseline. No Sprint 34 work was extended into timers, waves, difficulty
+scaling, world-bounds architecture, or progression effects.
+
+## Historical stop condition
 
 `WO-S34-001` is complete at v1.184. The fresh post-WO Gap Analysis is PASS and
-the selected next control-plane item is `SPRINT34_FREEZE_REVIEW`, pending
-Human/CTO review. Do not silently freeze Sprint 34, generate another WO, or
-enter Sprint 35.
+the pre-freeze continuation stopped at `SPRINT34_FREEZE_REVIEW`. The later
+Human/CTO decision froze Sprint 34 and authorized Sprint 35 discovery. No
+second Sprint 34 work order was generated.

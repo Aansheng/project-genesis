@@ -1,5 +1,23 @@
 # Changelog
 
+### Sprint 35 — Progression Meaning Discovery (v1.184, 2026-09-01)
+
+- Human/CTO froze Sprint 34 at v1.184 after `WO-S34-001` completed with Code
+  Complete = YES, Product Verified = YES, and a PASS post-WO Gap Analysis;
+  Sprint 35 discovery was authorized.
+- Repository audit and real Survival evidence confirmed the repeated gap:
+  **LEVEL PROGRESSION HAS NO GAMEPLAY CONSEQUENCE**. Runtime XP/Level truth is
+  committed and observable, but no gameplay capability changes at Level 2.
+- Attack damage, attack range, movement speed, and Health were audited as
+  candidates. Attack damage was selected because existing generic
+  `NUMBER_COMPARE(gameState.level)` and `DAMAGE_ENTITY` semantics can make the
+  smallest mechanically visible proof: damage `25` at Level 1 and `50` at
+  committed Level 2.
+- Exactly one READY work order was generated:
+  `WO-S35-001 — Generic Progression-Conditioned Gameplay Capability`. No
+  product code, progression feature, new architecture version, second WO, or
+  Sprint 36 work was executed.
+
 ### Sprint 34 — WO-S34-001 Generic Runtime Replacement Fair-Start Policy (v1.184, 2026-09-01)
 
 - Human/CTO authorized and execution completed for the single Sprint 34
