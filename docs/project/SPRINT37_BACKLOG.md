@@ -2,8 +2,9 @@
 
 This is a one-item Sprint 37 backlog. It contains exactly one product work
 order generated from the measured semantic-fidelity gap. Sprint 36 is FROZEN
-at v1.186. The item below is complete, and the repository stops at
-`SPRINT37_FREEZE_REVIEW`; Sprint 38 is not entered.
+at v1.186 and Sprint 37 is now FROZEN at v1.187. The item below is complete;
+Sprint 38 Cross-Genre Playability Fidelity Discovery is authorized and
+recorded separately.
 
 ## WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
 
@@ -111,4 +112,5 @@ Platformer/Survival/RPG/unknown regressions, Observatory truth, and empty
 browser diagnostics passed. Fresh Sprint 37 Gap Analysis is PASS with no
 immediate P0 blocker.
 
-next_gate: `SPRINT37_FREEZE_REVIEW` — Human/CTO decision; do not enter Sprint 38
+next_gate: Sprint 37 freeze accepted; Sprint 38 discovery is complete with
+`WO-S38-001` READY. Do not enter Sprint 39 from this backlog.

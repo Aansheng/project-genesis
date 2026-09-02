@@ -37,6 +37,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-01 | Execute `WO-S36-001` — Generic Active-World New-World Intent Classification. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Intent/Web front-door classification. Preserve current-world mutations, explicit-new behavior, AI candidate validation, and the existing CreateWorld replacement contract; complete real Studio Product Verification and a fresh Sprint 36 Gap Analysis, then stop at `SPRINT36_FREEZE_REVIEW`; do not add a genre registry, second router, broad ambiguity/NLU expansion, or enter Sprint 37. |
 | 2026-09-02 | Freeze Sprint 36 at v1.186 and authorize Sprint 37 — CreateWorld Semantic Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 36 / ENTER SPRINT 37 DISCOVERY | Human / CTO | `WO-S36-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 36 Gap Analysis is PASS. Trace semantic interpretation after CreateWorld, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 38. |
 | 2026-09-02 | Execute `WO-S37-001` — Generic CreateWorld Supported-Archetype Intent Preservation. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded existing typed supported-archetype extraction change. Preserve CreateWorld routing, current-world mutation precedence, provider candidate validation, deterministic fallback, Farm template/DSL, Runtime/Renderer authority, and Sandbox for unknown input; complete real Studio Product Verification and a fresh Sprint 37 Gap Analysis, then stop at `SPRINT37_FREEZE_REVIEW`; do not add Farm mechanics, a classifier framework, a provider architecture, or enter Sprint 38. |
+| 2026-09-02 | Freeze Sprint 37 at v1.187 and authorize Sprint 38 — Cross-Genre Playability Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 37 / ENTER SPRINT 38 DISCOVERY | Human / CTO | `WO-S37-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 37 Gap Analysis is PASS. Play the real Platformer, Survival, Farm, and RPG Studio paths, select exactly one highest-priority blocker, generate exactly one READY WO, do not implement it in this continuation, and do not enter Sprint 39. |
 
 ## Sprint 36 freeze and Sprint 37 semantic-fidelity discovery decision
 
@@ -131,8 +132,43 @@ Web build, `git diff --check`, and real Studio clean Farm plus active
 Survival → Farm world-identity verification. Platformer, Survival, RPG,
 unknown-to-Sandbox, Observatory truth, and browser diagnostics remained clean.
 
-Fresh Sprint 37 Gap Analysis is PASS with no immediate P0 blocker. The next
-gate is `SPRINT37_FREEZE_REVIEW`; Sprint 38 is not entered automatically.
+Fresh Sprint 37 Gap Analysis is PASS with no immediate P0 blocker. Human/CTO
+subsequently accepted the `SPRINT37_FREEZE_REVIEW` freeze and authorized Sprint
+38 discovery, recorded below.
+
+## Sprint 37 freeze and Sprint 38 cross-genre playability discovery decision
+
+Date: 2026-09-02
+
+Result: **ACCEPTED — Sprint 37 FROZEN at v1.187; Sprint 38 discovery DONE;
+`WO-S38-001` READY**
+
+Sprint 37 is frozen with `WO-S37-001` Code Complete = YES, Product Verified =
+YES, and fresh Gap Analysis PASS. Sprint 38 discovery used the real Studio
+front door with `创建 MarioWorld`, `生成一个幸存者游戏`, `做一个农场游戏`, and
+`创建一个 RPG`.
+
+Platformer preserved its seven-entity side-view baseline and Survival
+preserved its six-entity top-down movement/attack baseline. Farm preserved
+the eight-entity semantic composition but exposed only generic movement/jump;
+its Full Observatory reported one deferred `farm-interaction` rule. RPG
+preserved the nine-entity semantic composition but exposed only generic
+movement/jump; its Full Observatory reported zero Gameplay Rules. Actual
+Runtime Player movement was observed, while Farm/RPG characteristic entities
+did not change state after the available controls were exercised. Browser
+diagnostics were empty.
+
+The single selected blocker is **SUPPORTED ARCHETYPE ENTITIES ARE NOT
+PLAYER-REACHABLE THROUGH AN EXPLICIT PLAYER INTERACTION PATH**. The smallest
+candidate shared primitive is discoverable Player action → deterministic
+finite-range target → Gameplay Rule → authoritative Runtime result → visible
+feedback and truthful Observatory state. The exact control key is not
+preselected, and no Farm/RPG system or genre parity is proposed.
+
+Exactly one work order was generated:
+`WO-S38-001 — Generic Player-Directed Entity Interaction Reachability`, status
+`READY`, not executed. Sprint 38 stops at this READY item; Sprint 39 is not
+entered.
 
 ## Sprint 17 Goal Authorization
 

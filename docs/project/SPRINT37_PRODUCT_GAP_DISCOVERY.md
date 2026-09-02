@@ -6,7 +6,7 @@ and Product Verified. Human/CTO subsequently authorized execution of the
 single Sprint 37 work order after this discovery.
 
 Status: **DONE — WO-S37-001 Code Complete = YES; Product Verified = YES;
-fresh Gap Analysis PASS; SPRINT37_FREEZE_REVIEW READY; Sprint 38 not entered**
+fresh Gap Analysis PASS; Sprint 37 FROZEN; Sprint 38 discovery authorized**
 
 Architecture: **v1.186 → v1.187** through the existing typed intent-extraction
 boundary. No gameplay, Runtime, Renderer, routing, or provider architecture
@@ -245,8 +245,9 @@ not evolved. Platformer, Survival, RPG, unknown-to-Sandbox, and Observatory
 truth regressions passed, with empty browser error/warning diagnostics.
 
 Fresh Sprint 37 Gap Analysis: **PASS**. The selected semantic-fidelity gap is
-resolved, no immediate P0 blocker was found, and the repository stops at
-`SPRINT37_FREEZE_REVIEW` for Human/CTO decision. Sprint 38 is not entered.
+resolved and no immediate P0 blocker was found. Human/CTO subsequently froze
+Sprint 37 at v1.187 and authorized Sprint 38 discovery; the current one-item
+Sprint 38 boundary is recorded separately.
 
 ## Explicit non-goals
 
@@ -265,8 +266,9 @@ resolved, no immediate P0 blocker was found, and the repository stops at
 ## Stop boundary and discovery verification
 
 Sprint 36 is FROZEN at v1.186. Sprint 37 discovery and the single authorized
-work order are complete. The repository stops at `SPRINT37_FREEZE_REVIEW` for
-the next Human/CTO decision, without entering Sprint 38.
+work order are complete. Human/CTO subsequently froze Sprint 37 at v1.187 and
+authorized Sprint 38 Cross-Genre Playability Fidelity Discovery. This document
+is historical; the current one-item Sprint 38 boundary is recorded separately.
 
 Code Complete for `WO-S37-001`: **YES**
 Product Verified for `WO-S37-001`: **YES**

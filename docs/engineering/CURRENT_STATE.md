@@ -3,35 +3,67 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.187 (Sprint 36 frozen; Sprint 37 WO complete; freeze review ready)
-current_sprint: Sprint 37 (SPRINT37_FREEZE_REVIEW)
-current_work_order: SPRINT37_FREEZE_REVIEW
-current_work_order_status: READY — Human/CTO decision after WO-S37-001 completion
-current_control_plane_work_order: SPRINT37_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — WO-S37-001 complete; fresh Gap Analysis PASS
+architecture_version: v1.187 (Sprint 37 frozen; Sprint 38 discovery complete; one WO ready)
+current_sprint: Sprint 38 (SPRINT38_PRODUCT_GAP_DISCOVERY)
+current_work_order: WO-S38-001
+current_work_order_status: READY — discovery complete; Human/CTO authorization required
+current_control_plane_work_order: SPRINT38_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE — one READY product WO generated; not executed
 last_completed_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
 last_completed_product_work_order: WO-S37-001
-last_completed_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
-next_ready_work_order: SPRINT37_FREEZE_REVIEW — do not enter Sprint 38
-product_architecture_changed: YES — Sprint 36 v1.185 → v1.186 at the
-  Intent/Web front-door boundary; Sprint 37 v1.186 → v1.187 at the existing
-  typed CreateWorld supported-archetype extraction boundary
+last_completed_control_plane_work_order: SPRINT37_FREEZE_REVIEW
+next_ready_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability; do not execute without authorization; do not enter Sprint 39
+product_architecture_changed: NO — Sprint 38 discovery remains at v1.187 and
+  introduces no product capability or architecture change. Sprint 36 and
+  Sprint 37 changes remain frozen at their existing boundaries.
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
   Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and FROZEN at
   v1.184. Sprint 35 `WO-S35-001` is complete at v1.185 with the freeze review
   ready; Human/CTO subsequently froze Sprint 35. Sprint 36
   `WO-S36-001` is complete and FROZEN at v1.186. Sprint 37
-  `WO-S37-001` is complete at v1.187 with Code Complete/Product Verified = YES
-  and fresh Gap Analysis PASS; the freeze review is ready and Sprint 38 is not
-  entered.
+  `WO-S37-001` is FROZEN at v1.187 with Code Complete/Product Verified = YES.
+  Sprint 38 discovery is complete at v1.187 with one READY `WO-S38-001`; no
+  implementation is executed and Sprint 39 is not entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, WO-S35-001, WO-S36-001, and WO-S37-001
 product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, and WO-S35-001; fresh Sprint 34 post-WO Gap Analysis PASS;
   Sprint 35 discovery PASS; fresh Sprint 35 post-WO Gap Analysis PASS;
   WO-S36-001; fresh Sprint 36 post-WO Gap Analysis PASS; WO-S37-001;
-  fresh Sprint 37 post-WO Gap Analysis PASS
+  fresh Sprint 37 post-WO Gap Analysis PASS. Sprint 38 discovery is complete
+  with real Studio Platformer/Survival baseline verification, Farm/RPG gap
+  reproduction, Full Observatory evidence, and empty browser diagnostics; no
+  Sprint 38 implementation WO is complete.
+
+## Sprint 38 — Cross-Genre Playability Fidelity Discovery
+
+Human/CTO froze Sprint 37 at v1.187 and authorized Sprint 38 discovery on
+2026-09-02. The real Studio front door was exercised with
+`创建 MarioWorld`, `生成一个幸存者游戏`, `做一个农场游戏`, and `创建一个 RPG`.
+
+Platformer preserved the seven-entity side-view baseline and Survival
+preserved the six-entity top-down movement/attack baseline. Farm preserved
+the eight-entity semantic composition but normal play exposed only Arrow Key
+movement and Space jump; its Full Observatory showed one deferred
+`farm-interaction` rule. RPG preserved the nine-entity semantic composition
+but normal play exposed only movement/jump; its Full Observatory showed one
+movement mechanic and zero Gameplay Rules. Actual Player movement changed
+authoritative Runtime positions, while Farm/RPG characteristic entities did
+not change state after the available controls were exercised.
+
+The selected product blocker is **SUPPORTED ARCHETYPE ENTITIES ARE NOT
+PLAYER-REACHABLE THROUGH AN EXPLICIT PLAYER INTERACTION PATH**. The candidate
+shared primitive is discoverable Player action → deterministic finite-range
+target → Gameplay Rule → authoritative Runtime result → visible feedback and
+truthful Observatory state. The exact key is not preselected, and no genre
+system is proposed.
+
+Exactly one READY item was generated:
+`WO-S38-001 — Generic Player-Directed Entity Interaction Reachability`.
+It is not executed. See `docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md` for
+the matrix and `docs/project/SPRINT38_BACKLOG.md` for the complete one-item
+execution boundary. Sprint 39 is not entered.
 
 ## Sprint 37 — CreateWorld Semantic Fidelity Discovery and WO-S37-001 Execution
 
@@ -65,8 +97,9 @@ path was added.
 v1.187. AI 9441/9441 and Web 3583/3583, focused regressions, AI/Web
 TypeScript, AI/Web ESLint with zero errors, Web build, `git diff --check`, and
 real Studio clean/active Farm verification passed. Fresh Sprint 37 Gap
-Analysis is PASS with no immediate P0 blocker. The repository stops at
-`SPRINT37_FREEZE_REVIEW` and does not enter Sprint 38.
+Analysis is PASS with no immediate P0 blocker. Human/CTO subsequently froze
+Sprint 37 at v1.187 and authorized Sprint 38 discovery; the current Sprint 38
+result is recorded above.
 
 ## Sprint 36 — Active-World New-World Intent Correctness Discovery
 
@@ -1030,9 +1063,10 @@ Human/CTO froze Sprint 36 at v1.186:
   therefore selects the existing eight-entity Farm template rather than
   Sandbox. `WO-S37-001` is DONE at v1.187 with Code Complete/Product Verified
   = YES.
-- **Current gate:** Sprint 37 fresh post-WO Gap Analysis is PASS with no
-  immediate P0 blocker. `SPRINT37_FREEZE_REVIEW` is READY for Human/CTO
-  decision; do not enter Sprint 38.
+- **Current gate:** Sprint 37 is FROZEN at v1.187. Sprint 38 discovery is
+  complete with one READY `WO-S38-001` for the shared Player-directed Farm/RPG
+  interaction gap; do not execute without Human/CTO authorization and do not
+  enter Sprint 39.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
 
@@ -1164,10 +1198,10 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 ## Next Recommended Verification
 
 Review and explicitly authorize the single current READY item,
-`WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`.
-If authorized later, verify the clean Farm and active Survival → Farm
-semantic-fidelity cases plus the existing Platformer/Survival/RPG matrix. Do
-not execute it in this continuation and do not enter Sprint 38.
+`WO-S38-001 — Generic Player-Directed Entity Interaction Reachability`.
+If authorized later, execute only the bounded Farm/RPG interaction proof,
+preserve the Platformer/Survival baselines, and perform a fresh Sprint 38 Gap
+Analysis. Do not execute it in this continuation and do not enter Sprint 39.
 
 ## Authority
 

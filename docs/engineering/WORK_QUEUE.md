@@ -5,26 +5,85 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-02
-current_sprint: Sprint 37
-current_work_order: SPRINT37_FREEZE_REVIEW
-current_work_order_status: READY — Human/CTO decision after WO-S37-001 completion
-current_control_plane_work_order: SPRINT37_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — WO-S37-001 complete; fresh Gap Analysis PASS
+current_sprint: Sprint 38
+current_work_order: WO-S38-001
+current_work_order_status: READY — Sprint 38 discovery complete; Human/CTO authorization required
+current_control_plane_work_order: SPRINT38_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE — one READY product WO generated; not executed
 last_completed_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
-last_completed_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
-next_work_order: SPRINT37_FREEZE_REVIEW — do not enter Sprint 38
+last_completed_control_plane_work_order: SPRINT37_FREEZE_REVIEW
+next_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability; do not execute without authorization; do not enter Sprint 39
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
+## SPRINT38_PRODUCT_GAP_DISCOVERY
+
+status: DONE — discovery complete; exactly one READY product WO generated
+architecture_before: v1.187
+architecture_after: v1.187
+decision: Human/CTO froze Sprint 37 at v1.187 and authorized Sprint 38
+  Cross-Genre Playability Fidelity Discovery on 2026-09-02. The real Studio
+  front door was exercised for Platformer, Survival, Farm, and RPG. No product
+  implementation or architecture change was authorized in this pass.
+trace: `StudioCommandBar → gameStore.send → CreateWorld executor → provider /
+  deterministic fallback → Semantic World → Game DSL → Runtime projection →
+  Runtime motion/gameplay systems → GameplayRuleSet → Pixi / Observatory`.
+matrix_result: Platformer (7) and Survival (6) pass the existing bounded
+  playability baselines. Farm (8) and RPG (9) preserve the correct semantic
+  compositions but expose only generic movement/jump; Farm has one deferred
+  interaction rule and RPG has zero Gameplay Rules. Real Runtime position
+  changes were observed for Player movement, but no characteristic Farm/RPG
+  interaction committed a result.
+selected_blocker: SUPPORTED ARCHETYPE ENTITIES ARE NOT PLAYER-REACHABLE
+  THROUGH AN EXPLICIT PLAYER INTERACTION PATH
+selected_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
+selected_work_order_status: READY — not executed
+non_goals: No Farm or RPG system, genre parity, preselected input key, new
+  classifier/ontology, provider authority, Renderer-only patch, legacy
+  reconnection, second WO, or Sprint 39 entry.
+evidence: Real Studio exact-request matrix, Explorer/Runtime entity inspection,
+  Farm/RPG Full Observatory specification/rule evidence, visual canvas review,
+  actual Arrow/Space play input, and zero browser errors/warnings. Full detail
+  is in `docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md`.
+next_gate: Human/CTO authorization of `WO-S38-001`; execute only that item,
+  then run a fresh Sprint 38 Gap Analysis. Do not enter Sprint 39.
+
+## WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
+
+status: READY — discovery complete; not executed
+priority: P0 / highest-priority shared Farm and RPG playability blocker
+architecture_before: v1.187
+architecture_after: v1.187 unless implementation evidence requires an accepted change
+mission: Establish the smallest generic explicit Player-directed interaction
+  path at the existing input → Runtime event → GameplayRule → authoritative
+  result → Renderer/Observatory boundary, then prove one characteristic Farm
+  interaction and one characteristic RPG interaction.
+acceptance: Farm remains the existing eight-entity `farm` composition and
+  supports one discoverable Player interaction with a characteristic Farm
+  entity that changes authoritative Runtime state and presents a meaningful
+  result. RPG remains the existing nine-entity `rpg` composition and supports
+  the equivalent minimum interaction with an NPC, quest, enemy, or other
+  characteristic RPG entity. Platformer/Survival baselines, Runtime
+  authority, Observatory truth, provider candidate-only behavior, and browser
+  diagnostics remain clean. Exact key/range/target policy is selected only
+  after the implementation audit.
+forbidden_scope: Farm engine, farming simulation, inventory/economy, RPG
+  dialogue/quest/combat systems, genre parity, arbitrary interaction ontology,
+  E/F/Enter/Space preselection, Renderer-only or Observatory-only interaction,
+  second input authority, provider-direct mutation, legacy reconnection, second
+  WO, or Sprint 39.
+execution_boundary: READY only. Human/CTO authorization is required; no code
+  or gameplay implementation was executed during Sprint 38 discovery.
+
 ## SPRINT37_PRODUCT_GAP_DISCOVERY
 
-status: DONE — discovery complete; WO-S37-001 subsequently executed and verified
+status: DONE — discovery complete; WO-S37-001 subsequently executed and verified; Sprint 37 later frozen
 architecture_before: v1.186
 architecture_after: v1.187 after WO-S37-001 execution
 decision: Human/CTO froze Sprint 36 at v1.186 and authorized Sprint 37
   CreateWorld Semantic Fidelity Discovery. Discovery generated exactly one
-  bounded product WO; its execution is complete at v1.187. Sprint 38 is not
-  entered.
+  bounded product WO; its execution is complete at v1.187. Human/CTO later
+  froze Sprint 37 and authorized Sprint 38 discovery.
 trace: After `IntentRouter = CreateWorld`, the production path is
   `StudioCommandBar → gameStore.send → DefaultCommandExecutor →
   DefaultCreateWorldRuntimeExecutor → DefaultCreateWorldPipeline → provider /
@@ -45,8 +104,8 @@ selected_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 non_goals: No Farm/RPG mechanics, arbitrary genre understanding, IntentRouter
   change, new provider architecture, validator weakening, legacy reconnection,
   second WO, or Sprint 38 entry.
-next_gate: `SPRINT37_FREEZE_REVIEW` after WO-S37-001 completion; do not enter
-  Sprint 38.
+next_gate: Historical `SPRINT37_FREEZE_REVIEW` was subsequently accepted;
+  Sprint 38 discovery is complete with `WO-S38-001` READY.
 
 ## WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
 
@@ -87,29 +146,31 @@ verification_result: AI 9441/9441 and Web 3583/3583; focused semantic,
   active Survival → Farm replacement; Platformer/Survival/RPG/unknown
   regressions; current Observatory truth; and empty browser diagnostics all
   passed. Fresh Sprint 37 Gap Analysis: PASS with no immediate P0 blocker.
-stop: `SPRINT37_FREEZE_REVIEW` is READY for Human/CTO decision. Do not
-  generate a second Sprint 37 work order or enter Sprint 38.
+stop: `SPRINT37_FREEZE_REVIEW` was subsequently accepted. Do not generate a
+  second Sprint 37 work order; Sprint 38 discovery now owns the current stop.
 
 ## SPRINT37_FREEZE_REVIEW
 
-status: READY — Sprint 37 WO complete; Human/CTO decision pending
+status: DONE — Human/CTO froze Sprint 37 at v1.187 on 2026-09-02
 architecture_before: v1.186
 architecture_after: v1.187
 decision: `WO-S37-001` is DONE with Code Complete = YES and Product Verified
   = YES. The selected CreateWorld semantic-fidelity gap is closed by the
   existing typed extractor boundary; fresh Sprint 37 Gap Analysis is PASS.
+  Human/CTO accepted the freeze and authorized Sprint 38 discovery.
 evidence: AI 9441/9441 and Web 3583/3583 full suites; focused extractor,
   CreateWorld, fallback, active-world, and regression tests; AI/Web
   TypeScript; AI/Web ESLint with zero errors; Web build; `git diff --check`;
   real Studio clean Farm and active Survival → Farm replacement; Platformer,
   Survival, RPG, unknown-to-Sandbox, Observatory truth; empty browser
   diagnostics.
-constraints: Freeze review only. Preserve the ordered local alias table,
+constraints: Historical freeze review. Preserve the ordered local alias table,
   current typed-intent authority, provider candidate validation, deterministic
   fallback, CreateWorld/Evolution boundary, Runtime/Renderer authority, and
   one-WO Sprint boundary. Do not add Farm mechanics, a classifier/registry,
-  router/provider architecture, legacy reconnection, or Sprint 38 work.
-next_gate: Human/CTO freeze decision; do not enter Sprint 38 automatically.
+  router/provider architecture, legacy reconnection, or additional Sprint 37
+  work. Sprint 38 is recorded in the current control-plane section above.
+next_gate: `SPRINT38_PRODUCT_GAP_DISCOVERY` — DONE; `WO-S38-001` READY.
 
 ## SPRINT33_FREEZE_REVIEW
 
@@ -515,7 +576,8 @@ completion_report_requirements: architecture before → after; files created and
   entity mutations stayed on World Evolution.
 human_decision_required: NO — execution was separately authorized by Human/CTO.
 next_gate: Historical Sprint 36 freeze review; it was subsequently accepted.
-  Sprint 37 discovery is current and `WO-S37-001` is the only READY item.
+  Sprint 37 discovery/execution then completed, and Sprint 38 discovery is now
+  the current control-plane item with `WO-S38-001` READY.
 
 ## SPRINT36_FREEZE_REVIEW
 
@@ -542,8 +604,8 @@ constraints: Preserve current-world mutation precedence, explicit-new behavior,
   Renderer authority, one-WO control, and Sprint boundary. No genre/name
   registry, phrase special case, second router, broad ambiguity/NLU expansion,
   or Sprint 37 work was introduced.
-next_gate: Sprint 37 CreateWorld Semantic Fidelity Discovery is complete;
-  `WO-S37-001` is the only READY item and Sprint 38 is not entered.
+next_gate: Historical gate closed; Sprint 37 discovery/execution is complete
+  and Sprint 38 discovery is now the current control-plane item.
 
 ## SPRINT32_FREEZE_REVIEW
 

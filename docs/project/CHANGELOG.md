@@ -1,5 +1,28 @@
 # Changelog
 
+### Sprint 38 — Cross-Genre Playability Fidelity Discovery (v1.187, 2026-09-02)
+
+- Human/CTO froze Sprint 37 at v1.187 and authorized discovery across the
+  existing Platformer, Survival, Farm, and RPG Studio front-door requests.
+- Real Studio play confirmed the bounded Platformer and Survival baselines:
+  Platformer exposes side-view movement/jump with 7 entities and Survival
+  exposes top-down movement/attack with 6 entities, including an observed
+  `100 → 75` Enemy Health mutation through the existing Runtime rule path.
+- Farm now preserves its correct 8-entity semantic composition, but only
+  exposes generic movement/jump. Observatory reports one deferred
+  `farm-interaction` rule and no Player-triggered Farm result. RPG preserves
+  its 9-entity composition, but exposes only movement/jump and has zero
+  Gameplay Rules; NPC/quest/enemy entities remain passive.
+- The single selected blocker is **SUPPORTED ARCHETYPE ENTITIES ARE NOT
+  PLAYER-REACHABLE THROUGH AN EXPLICIT PLAYER INTERACTION PATH**. The exact
+  input key is not preselected. The smallest candidate is a shared explicit
+  Player action → finite-range target → Gameplay Rule → authoritative Runtime
+  result → visible feedback path.
+- Exactly one READY work order was generated:
+  `WO-S38-001 — Generic Player-Directed Entity Interaction Reachability`.
+  No product code, gameplay capability, architecture, second WO, or Sprint 39
+  work was executed. Browser diagnostics were empty.
+
 ### Sprint 37 — WO-S37-001 Generic CreateWorld Supported-Archetype Intent Preservation (v1.187, 2026-09-02)
 
 - Human/CTO authorized and execution completed for the single Sprint 37 work

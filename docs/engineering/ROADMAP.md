@@ -148,9 +148,27 @@ deterministic fallback reach the existing eight-entity Farm composition. Code
 Complete and Product Verified are YES; focused/full tests, quality gates,
 real Studio clean/active Farm verification, regression behavior, Observatory
 truth, and empty browser diagnostics passed. Fresh Sprint 37 Gap Analysis is
-PASS. The repository stops at `SPRINT37_FREEZE_REVIEW`; no Farm/RPG mechanics,
-router/provider architecture, legacy reconnection, second WO, or Sprint 38
-entry is introduced.
+PASS. Human/CTO subsequently froze Sprint 37 at v1.187 and authorized Sprint
+38 discovery. No Farm/RPG mechanics, router/provider architecture, legacy
+reconnection, or second Sprint 37 WO was introduced.
+
+Sprint 38 Cross-Genre Playability Fidelity Discovery is complete at v1.187.
+Real Studio generation and play confirmed that Platformer and Survival still
+meet their bounded baselines. Farm produces the correct eight-entity semantic
+composition but exposes only generic movement/jump; its Full Observatory
+shows one deferred interaction rule. RPG produces the correct nine-entity
+composition but exposes only generic movement/jump and has zero Gameplay
+Rules. The single selected blocker is **SUPPORTED ARCHETYPE ENTITIES ARE NOT
+PLAYER-REACHABLE THROUGH AN EXPLICIT PLAYER INTERACTION PATH**.
+
+Exactly one READY work order was generated: `WO-S38-001 — Generic
+Player-Directed Entity Interaction Reachability`. It is not executed in this
+continuation. The exact input key is not preselected; the candidate path is
+discoverable Player action → finite-range target → Gameplay Rule →
+authoritative Runtime result → visible feedback and truthful Observatory
+state. Sprint 39 is not entered. Full evidence is in
+`docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md` and the one-item execution
+boundary is in `docs/project/SPRINT38_BACKLOG.md`.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

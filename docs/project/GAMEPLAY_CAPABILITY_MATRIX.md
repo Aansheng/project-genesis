@@ -1,4 +1,4 @@
-# Gameplay Capability Matrix — Sprint 37 WO Complete / Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 38 Discovery Complete / WO Ready
 
 Architecture version: v1.187 (Sprint 30 through Sprint 36 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
@@ -6,8 +6,8 @@ Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 `WO-S36-001` Code Complete = YES; Product Verified = YES; fresh Sprint 36 Gap
 Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
-Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 freeze
-review ready; Sprint 38 not entered)
+Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
+Sprint 38 discovery complete; `WO-S38-001` READY; no implementation executed)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -55,6 +55,16 @@ table now preserves `农场 → farm` for `做一个农场游戏`. The existing 
 catalog still contains `farm`, `platformer`, `rpg`, `survival`, and `sandbox`;
 deterministic/provider-failure fallback now reaches the existing eight-entity
 Farm composition instead of Sandbox. No Farm mechanics are added.
+
+Sprint 38 adds no gameplay capability. Real Studio discovery measured the
+existing cross-genre playability boundary: Platformer and Survival pass their
+bounded baselines, while Farm and RPG preserve their semantic entities but
+lack an explicit Player-directed interaction path to an authoritative
+characteristic result. `WO-S38-001 — Generic Player-Directed Entity
+Interaction Reachability` is READY and unexecuted. The exact input key is not
+preselected; the candidate must be evaluated through the existing input,
+Runtime, GameplayRule, Renderer, and Observatory contracts. No Farm/RPG
+system or genre parity is implied.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -159,6 +169,8 @@ composition stay authoritative, and no new combat/feedback manager, gameplay
 timer, world-bounds authority, or wave system exists. Sprint 35
 `WO-S35-001` is FROZEN at v1.185 with a PASS fresh Gap Analysis. Sprint 36
 `WO-S36-001` is FROZEN at v1.186 with a PASS fresh Gap Analysis. `WO-S37-001`
-is complete at v1.187 with Code Complete/Product Verified = YES and a PASS
-fresh Gap Analysis; it adds semantic reachability only, no gameplay
-capability. Sprint 37 is ready for freeze review and Sprint 38 is not entered.
+is FROZEN at v1.187 with Code Complete/Product Verified = YES and a PASS fresh
+Gap Analysis; it adds semantic reachability only, no gameplay capability.
+Sprint 38 discovery adds no capability and leaves exactly one READY,
+unexecuted item: `WO-S38-001 — Generic Player-Directed Entity Interaction
+Reachability`.
