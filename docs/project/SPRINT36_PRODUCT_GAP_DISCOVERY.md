@@ -4,7 +4,7 @@ Date: 2026-09-01
 Human/CTO authorization: Freeze Sprint 35 at v1.185 and enter Sprint 36
 Intent Discovery; subsequent authorization executed `WO-S36-001`
 Architecture: v1.185 → v1.186
-Status: **PASS — discovery, execution, Product Verification, and fresh Gap Analysis complete; `SPRINT36_FREEZE_REVIEW` READY**
+Status: **PASS — discovery, execution, Product Verification, and fresh Gap Analysis complete; Sprint 36 FROZEN at v1.186; Sprint 37 entered**
 
 ## Discovery boundary
 
@@ -236,7 +236,7 @@ diagnostics were empty.
 
 ## Fresh Sprint 36 Gap Analysis
 
-Result: **PASS — no immediate P0 blocker; `SPRINT36_FREEZE_REVIEW` READY**
+Result: **PASS — no immediate P0 blocker; historical `SPRINT36_FREEZE_REVIEW` READY**
 
 The selected gap is closed at the authorized boundary: active named and
 whole-world requests now reach CreateWorld, receive a new world identity, and
@@ -249,8 +249,9 @@ than a routing failure.
 The existing ambiguity and target-vocabulary boundaries remain intentionally
 deferred: bare `创建`, `生成一个`, and `做一个新的` still do not replace the
 active world, and less-common entity terms remain an existing fallback concern.
-Neither justifies another Sprint 36 product WO. The repository stops at the
-single Human/CTO gate `SPRINT36_FREEZE_REVIEW`; Sprint 37 is not entered.
+Neither justified another Sprint 36 product WO. Human/CTO subsequently
+accepted `SPRINT36_FREEZE_REVIEW`, froze Sprint 36 at v1.186, and authorized
+Sprint 37 semantic-fidelity discovery.
 
 ## Stop state
 
@@ -258,6 +259,7 @@ single Human/CTO gate `SPRINT36_FREEZE_REVIEW`; Sprint 37 is not entered.
 - Sprint 36 `WO-S36-001`: DONE; Code Complete = YES; Product Verified = YES;
   architecture v1.186.
 - Fresh Sprint 36 Gap Analysis: PASS; no immediate P0 blocker.
-- Current gate: `SPRINT36_FREEZE_REVIEW`.
-- Sprint 37: not entered.
+- Sprint 36 freeze: ACCEPTED — FROZEN at v1.186.
+- Current control-plane item: Sprint 37 semantic-fidelity discovery;
+  `WO-S37-001` is the only READY item and is not executed.
 - ADR-0296 records the accepted active-world Intent boundary change.

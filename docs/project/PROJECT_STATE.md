@@ -37,8 +37,9 @@
 **Sprint 33** — Survival Playability Gap (**FROZEN — `WO-S33-001` Code Complete = YES; Product Verified = YES; v1.183; Human/CTO accepted 2026-09-01**)
 **Sprint 34** — Survival Playability Gap (**FROZEN — `WO-S34-001` Code Complete = YES; Product Verified = YES; v1.184; Human/CTO accepted 2026-09-01**)
 **Sprint 35** — Progression Meaning (**FROZEN — `WO-S35-001` Code Complete = YES; Product Verified = YES; v1.185; Human/CTO accepted 2026-09-01**)
-**Sprint 36** — Active-World New-World Intent Correctness (**ACTIVE — `WO-S36-001` Code Complete = YES; Product Verified = YES; v1.186; `SPRINT36_FREEZE_REVIEW` READY**)
-**Current WO** - `SPRINT36_FREEZE_REVIEW` — READY for Human/CTO freeze review after completed `WO-S36-001`; Sprint 37 not entered
+**Sprint 36** — Active-World New-World Intent Correctness (**FROZEN — `WO-S36-001` Code Complete = YES; Product Verified = YES; v1.186; Human/CTO accepted 2026-09-02**)
+**Sprint 37** — CreateWorld Semantic Fidelity (**DISCOVERY COMPLETE — `WO-S37-001` READY; v1.186; execution not authorized**)
+**Current WO** - `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation` — READY; Sprint 37 discovery complete; do not execute or enter Sprint 38
 
 ---
 
@@ -46,14 +47,52 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is complete and the fresh post-WO Gap Analysis is PASS; `SPRINT36_FREEZE_REVIEW` is READY and Sprint 37 is not entered. |
-| Architecture Version | v1.186; the active-world Intent boundary now classifies generic whole-world creation before the existing active-world Evolution fallback. Runtime remains authoritative for gameplay. Survival offense selects 25 damage below Level 2 and 50 damage at Level 2 or above through mutually exclusive generic Gameplay Rule conditions. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 semantic-fidelity discovery is complete; `WO-S37-001` is the only READY item and Sprint 38 is not entered. |
+| Architecture Version | v1.186; the active-world Intent boundary now classifies generic whole-world creation before the existing active-world Evolution fallback. Sprint 37 discovery introduced no architecture change. Runtime remains authoritative for gameplay. Survival offense selects 25 damage below Level 2 and 50 damage at Level 2 or above through mutually exclusive generic Gameplay Rule conditions. |
 | Last Completed WO | WO-S36-001 — Generic Active-World New-World Intent Classification; Code Complete = YES; Product Verified = YES; v1.186. |
-| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge selects one nearby valid Enemy within range 48. At Level 1 the committed hit changes Enemy Health `100 → 75` and presents `-25`; after the existing defeat/XP chain commits Level 2, the same attack path changes a fresh Enemy `100 → 50` and presents `-50`, with the second hit defeating it. Lethal removal and fair-start replacement cues remain active, contact danger remains separate, and Observatory projects current world/XP/Level/events/`v1.186 / Sprint 36` truth. With an active world, clear named/whole-world creation such as `创建 MarioWorld`, `创建一个 RPG`, `生成一个幸存者游戏`, and `做一个农场游戏` reaches CreateWorld and replaces the current world; entity-scoped mutations remain same-world Evolution; Platformer remains unchanged with `Space — 跳跃`. |
+| Current User-Visible Behavior | Top-down Survival exposes `Arrow Keys — 移动` and `Space — 攻击`. One Space edge selects one nearby valid Enemy within range 48. At Level 1 the committed hit changes Enemy Health `100 → 75` and presents `-25`; after the existing defeat/XP chain commits Level 2, the same attack path changes a fresh Enemy `100 → 50` and presents `-50`, with the second hit defeating it. Lethal removal and fair-start replacement cues remain active, contact danger remains separate, and Observatory projects current world/XP/Level/events/`v1.186 / Sprint 37` truth. With an active world, clear named/whole-world creation reaches CreateWorld and replaces the current world; entity-scoped mutations remain same-world Evolution; Platformer remains unchanged with `Space — 跳跃`. The measured `做一个农场游戏` route is correct, but current deterministic fallback still reports `Design: sandbox` and one generic Player because the typed extractor does not preserve the Chinese Farm archetype. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → current-world mutation precedence or generic whole-world CreateWorld classification → Semantic World → Game DSL → Runtime projection / generic composition → top-down `Space` edge → `PlayerAttackRequestSystem` current Position/Health target selection → `ENTITY_ATTACK_REQUESTED` → post-system GameplayRuleExecutor → current progression snapshot evaluates mutually exclusive `level < 2` / `level >= 2` offense Rules → trusted `DAMAGE_ENTITY` / defeat / progression → `ENTITY_REMOVED` → `SPAWN_ENTITY` → current Runtime Player resolution → deterministic fair-start Position/AABB selection → `RuntimeEntityComposition` → `WorldMutator.addEntity` → Runtime WorldStore → `ExecutionTickResult.gameplayRuleResults` → `projectRuntimeGameplayOutcomeFeedback` → Runtime visualization loop → Pixi feedback layer, alongside binding-only entity rendering and current Observatory data projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | No immediate P0 blocker remains after `WO-S36-001`; the current gate is Human/CTO `SPRINT36_FREEZE_REVIEW`. Broader natural-language ambiguity and deterministic target-vocabulary coverage remain bounded follow-up discovery topics. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS — AI 9439/9439, Web 3581/3581, focused routing/integration tests, TypeScript, ESLint, Web build, real Studio active-world replacement and same-world Evolution verification, current Observatory v1.186/Sprint 36 truth, and empty browser diagnostics. |
-| Next Recommended Verification | Human/CTO `SPRINT36_FREEZE_REVIEW`; decide whether to freeze Sprint 36 at v1.186. Do not enter Sprint 37 automatically. |
+| Current Blocking Issue | Sprint 37 has one selected semantic-fidelity gap: clear supported Farm intent can collapse to Sandbox on provider failure/deterministic fallback. `WO-S37-001` is READY; no implementation is authorized in this continuation. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN — AI 9439/9439, Web 3581/3581, focused routing/integration tests, TypeScript, ESLint, Web build, real Studio active-world replacement and same-world Evolution verification, current Observatory v1.186/Sprint 36 truth, and empty browser diagnostics. Sprint 37 discovery: PASS — source trace, semantic matrix, clean Farm, active Survival → Farm replacement, and empty browser diagnostics. |
+| Next Recommended Verification | Human/CTO execution authorization for `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`. Do not execute it in this continuation and do not enter Sprint 38. |
+
+## Sprint 37 CreateWorld Semantic Fidelity Discovery
+
+Human/CTO froze Sprint 36 at v1.186 and authorized Sprint 37 discovery on
+2026-09-02. This discovery starts after the verified CreateWorld route and
+traces the production semantic path:
+
+`StudioCommandBar → gameStore.send → IntentRouter = CreateWorld →
+CreateWorld planner/provider/fallback → typed GameIntent → Semantic World /
+worldType → current template/default entities and capabilities → Game DSL →
+Runtime projection`.
+
+The bounded matrix used `创建 MarioWorld`, `生成一个平台跳跃游戏`,
+`生成一个幸存者游戏`, `做一个农场游戏`, and `创建一个 RPG`. All five
+correctly selected CreateWorld. Platformer, Survival, and RPG preserved their
+supported types through the deterministic fallback. Farm was the only measured
+semantic-fidelity failure: `DefaultGameIntentExtractor` recognizes `farm` but
+not the clear Chinese `农场` signal, so `GameIntent.genre` becomes `sandbox`.
+The provider context, sync baseline, and deterministic fallback inherit that
+typed loss, and the fallback selects the one-entity Sandbox template. The
+current eight-entity Farm template is present; a controlled valid provider
+candidate with `genre: farm` reaches it through the existing validator/builder.
+
+Real Studio verification confirmed both the clean request and active
+Survival → Farm request still use CreateWorld and replace the world identity;
+the observed local provider failure enters the existing deterministic fallback
+and presents Sandbox semantics. Browser error and warning diagnostics were
+empty. This is semantic interpretation/fallback fidelity, not routing.
+
+Exactly one product work order was generated:
+`WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`,
+status `READY`, not executed. The item is limited to the existing generic
+supported-archetype extraction seam. It does not add Farm/RPG mechanics,
+change `IntentRouter`, add provider architecture, reconnect legacy paths, or
+enter Sprint 38.
+
+Sprint 37 discovery is complete. The current architecture remains v1.186 and
+the repository stops at the single READY work order.
 
 ## Sprint 36 Active-World New-World Intent Correctness Discovery
 
@@ -83,8 +122,8 @@ Discovery generated exactly one product work order,
 [`SPRINT36_PRODUCT_GAP_DISCOVERY.md`](SPRINT36_PRODUCT_GAP_DISCOVERY.md), with
 the one-item execution backlog in [`SPRINT36_BACKLOG.md`](SPRINT36_BACKLOG.md).
 
-The repository stops at `SPRINT36_FREEZE_REVIEW` for Human/CTO review. Sprint
-37 is not entered.
+Human/CTO subsequently froze Sprint 36 at v1.186. Sprint 37 discovery is now
+the current sprint and is recorded above.
 
 ## Sprint 36 WO-S36-001 Execution, Product Verification, and Fresh Gap Analysis
 
@@ -122,9 +161,9 @@ state with no browser error or warning diagnostics.
 All automated and quality gates passed: AI 9439/9439, Web 3581/3581,
 focused router/integration/regression tests, AI/Web TypeScript, AI/Web ESLint
 with zero errors, Web build, and `git diff --check`. Fresh Sprint 36 Gap
-Analysis is **PASS** with no immediate P0 product blocker. The repository is
-ready for `SPRINT36_FREEZE_REVIEW`; Sprint 36 is not yet marked FROZEN and
-Sprint 37 is not entered.
+Analysis is **PASS** with no immediate P0 product blocker. Human/CTO
+subsequently froze Sprint 36 at v1.186 and authorized Sprint 37
+semantic-fidelity discovery; the current state is recorded above.
 
 ## Sprint 35 Progression Meaning Discovery
 

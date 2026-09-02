@@ -119,7 +119,7 @@ exclusive `NUMBER_COMPARE(gameState.level)` conditions to select
 Complete and Product Verified are YES; Human/CTO accepted the Sprint 35
 freeze on 2026-09-01.
 
-Sprint 36 is active at v1.186 after the authorized
+Sprint 36 reached v1.186 through the authorized
 `WO-S36-001 — Generic Active-World New-World Intent Classification`. The
 existing IntentRouter/Web front door now preserves current-world
 entity/property/continuation mutations for World Evolution while generic
@@ -129,9 +129,21 @@ AI candidate validation, Runtime/Renderer authority, and ambiguous
 non-replacement remain intact. Focused and full package tests, quality gates,
 real Studio world-identity/cross-genre verification, Platformer Space smoke,
 Observatory truth, and empty browser diagnostics passed. Fresh Sprint 36 Gap
-Analysis is PASS with no immediate P0 blocker. The repository stops at
-`SPRINT36_FREEZE_REVIEW` pending Human/CTO freeze decision; Sprint 37 is not
-entered.
+Analysis is PASS with no immediate P0 blocker. Human/CTO froze Sprint 36 at
+v1.186 and authorized Sprint 37 CreateWorld Semantic Fidelity Discovery.
+
+Sprint 37 discovery traced the post-routing path through typed `GameIntent`,
+provider candidate/validation, deterministic fallback, the current semantic
+template catalog, DSL, and Runtime projection. The five clear requests all
+reached CreateWorld. Platformer, Survival, and RPG preserved their supported
+types on fallback; `做一个农场游戏` was the only measured divergence because
+`DefaultGameIntentExtractor` did not recognize `农场`, so both provider context
+and deterministic fallback inherited `sandbox`. The current Farm template is
+already present, and a controlled valid `farm` provider candidate reaches it.
+The single generated next item is `WO-S37-001 — Generic CreateWorld
+Supported-Archetype Intent Preservation`, READY but not executed. No Farm/RPG
+mechanics, router change, provider architecture, legacy reconnection, second
+WO, or Sprint 38 entry is authorized at this boundary.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

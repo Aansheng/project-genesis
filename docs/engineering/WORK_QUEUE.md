@@ -5,16 +5,75 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-02
-current_sprint: Sprint 36
-current_work_order: SPRINT36_FREEZE_REVIEW
-current_work_order_status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
-current_control_plane_work_order: SPRINT36_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
+current_sprint: Sprint 37
+current_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
+current_work_order_status: READY — discovery complete; execution not authorized
+current_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
+current_control_plane_work_order_status: DONE — exactly one READY product WO generated; stop before execution
 last_completed_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
-last_completed_control_plane_work_order: SPRINT36_PRODUCT_GAP_DISCOVERY
-next_work_order: SPRINT36_FREEZE_REVIEW — READY; Human/CTO freeze decision pending; do not enter Sprint 37
+last_completed_control_plane_work_order: SPRINT36_FREEZE_REVIEW
+next_work_order: WO-S37-001 — READY; do not execute; do not enter Sprint 38
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## SPRINT37_PRODUCT_GAP_DISCOVERY
+
+status: DONE — discovery complete; exactly one READY product WO generated
+architecture_before: v1.186
+architecture_after: v1.186 — discovery introduced no architecture change
+decision: Human/CTO froze Sprint 36 at v1.186 and authorized Sprint 37
+  CreateWorld Semantic Fidelity Discovery. The repository remains at v1.186;
+  Sprint 38 is not entered.
+trace: After `IntentRouter = CreateWorld`, the production path is
+  `StudioCommandBar → gameStore.send → DefaultCommandExecutor →
+  DefaultCreateWorldRuntimeExecutor → DefaultCreateWorldPipeline → provider /
+  deterministic fallback → Semantic World → worldType → template/default
+  entities and capabilities → Game DSL → Runtime projection`.
+matrix_result: `创建 MarioWorld`, `生成一个平台跳跃游戏`, `生成一个幸存者游戏`,
+  `做一个农场游戏`, and `创建一个 RPG` all route to CreateWorld. Platformer,
+  Survival, and RPG preserve their supported semantic types through the
+  deterministic fallback. Farm is the only measured divergence: the existing
+  extractor does not recognize `农场`, so `GameIntent.genre` becomes `sandbox`.
+farm_root_cause: The lost typed intent is passed to both provider context and
+  deterministic fallback. The fallback then resolves `sandbox` and selects the
+  one-entity Sandbox template. The current eight-entity Farm template is
+  present and a controlled valid provider candidate with `genre: farm` is
+  already accepted by the existing provider/validator path.
+selected_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
+selected_work_order_status: READY — not executed
+non_goals: No Farm/RPG mechanics, arbitrary genre understanding, IntentRouter
+  change, new provider architecture, validator weakening, legacy reconnection,
+  second WO, or Sprint 38 entry.
+next_gate: Human/CTO execution authorization for `WO-S37-001`; do not execute
+  during this discovery continuation.
+
+## WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
+
+status: READY — discovery generated; execution not authorized
+priority: P0 / first smallest measured Sprint 37 semantic gap
+architecture_before: v1.186
+architecture_after: v1.187 if executed and accepted
+mission: Extend the existing supported-archetype intent extraction seam so
+  clear requests for already supported `GameGenre` values survive into
+  provider context, deterministic fallback, sync baseline, Semantic World, and
+  DSL. Preserve current routing, candidate validation, Runtime authority, and
+  world replacement contracts.
+acceptance: `做一个农场游戏` must preserve `farm` and select the existing Farm
+  template / `Farm World` on provider failure and deterministic fallback;
+  Platformer, Survival, and RPG rows must remain unchanged; unsupported or
+  open-ended requests must not be force-classified. Clean Studio and active
+  Survival → Farm replacement must show a new world identity and truthful
+  Observatory state.
+forbidden_scope: Farm mechanics, crops, inventory, NPC schedules, RPG combat,
+  quest expansion, arbitrary genre generation, `IntentRouter` changes,
+  GenreClassifier/GenreRegistry/WorldTypeManager/ontology/NL framework, new
+  provider architecture, provider-direct replacement, validator relaxation,
+  legacy path reconnection, or Sprint 38.
+verification: Focused AI semantic matrix and Web production tests; affected
+  package suites; TypeScript; ESLint; Web build; relevant regressions; and
+  `git diff --check`, followed by clean and active real Studio verification.
+stop: READY only. Do not execute this work order or generate a second Sprint
+  37 work order in the current continuation.
 
 ## SPRINT33_FREEZE_REVIEW
 
@@ -341,9 +400,9 @@ create_world_contract_audit: The existing successful CreateWorld path calls
   Observatory state, and reloads the Runtime projection. WO-S36-001 must reuse
   this contract rather than inventing a second replacement path.
 selected_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
-next_gate_at_discovery_boundary: `WO-S36-001` is READY but not executed;
-  `SPRINT36_FREEZE_REVIEW` is the current Human/CTO gate. Sprint 37 is not
-  entered.
+next_gate_at_discovery_boundary: Historical `WO-S36-001` discovery boundary;
+  `SPRINT36_FREEZE_REVIEW` was the then-current gate. It was subsequently
+  accepted, and Sprint 37 discovery is now complete.
 
 ## WO-S36-001 — Generic Active-World New-World Intent Classification
 
@@ -419,18 +478,18 @@ completion_report_requirements: architecture before → after; files created and
   explicit proof that the active named request used CreateWorld while active
   entity mutations stayed on World Evolution.
 human_decision_required: NO — execution was separately authorized by Human/CTO.
-next_gate: `SPRINT36_FREEZE_REVIEW` — Human/CTO freeze review; do not enter
-  Sprint 37.
+next_gate: Historical Sprint 36 freeze review; it was subsequently accepted.
+  Sprint 37 discovery is current and `WO-S37-001` is the only READY item.
 
 ## SPRINT36_FREEZE_REVIEW
 
-status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
+status: DONE — Human/CTO froze Sprint 36 at v1.186 on 2026-09-02
 architecture_before: v1.185
 architecture_after: v1.186
 decision: Discovery PASS and the separately authorized `WO-S36-001` execution
   are complete. The active-world front-door gap is closed with the existing
   CreateWorld/Evolution boundaries; the fresh post-WO Gap Analysis is PASS.
-  Sprint 36 remains ACTIVE until Human/CTO explicitly freezes it at v1.186.
+  Human/CTO explicitly froze Sprint 36 at v1.186.
 code_complete: YES — WO-S36-001
 product_verification: YES — WO-S36-001; real Studio route, world identity,
   current-world mutation, Platformer control, Observatory, asset, and browser
@@ -447,7 +506,8 @@ constraints: Preserve current-world mutation precedence, explicit-new behavior,
   Renderer authority, one-WO control, and Sprint boundary. No genre/name
   registry, phrase special case, second router, broad ambiguity/NLU expansion,
   or Sprint 37 work was introduced.
-next_gate: Human/CTO freeze decision for Sprint 36; do not enter Sprint 37.
+next_gate: Sprint 37 CreateWorld Semantic Fidelity Discovery is complete;
+  `WO-S37-001` is the only READY item and Sprint 38 is not entered.
 
 ## SPRINT32_FREEZE_REVIEW
 

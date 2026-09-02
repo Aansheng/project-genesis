@@ -35,12 +35,40 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-01 | Execute `WO-S35-001` — Generic Progression-Conditioned Gameplay Capability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded Level-conditioned Survival offense composition: Level 1 damage 25, Level 2+ damage 50, using existing generic `NUMBER_COMPARE` and `DAMAGE_ENTITY` semantics. Complete real Studio Product Verification and a fresh Sprint 35 Gap Analysis, then stop at `SPRINT35_FREEZE_REVIEW`; do not add scaling, a modifier framework, or enter Sprint 36. |
 | 2026-09-01 | Freeze Sprint 35 at v1.185 and authorize Sprint 36 — Active-World New-World Intent Correctness Discovery. | ACCEPTED — FREEZE SPRINT 35 / ENTER SPRINT 36 DISCOVERY | Human / CTO | `WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 35 Gap Analysis is PASS. Audit the real active-world Intent path, generate exactly one READY WO, do not modify routing during discovery, and do not enter Sprint 37. |
 | 2026-09-01 | Execute `WO-S36-001` — Generic Active-World New-World Intent Classification. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Intent/Web front-door classification. Preserve current-world mutations, explicit-new behavior, AI candidate validation, and the existing CreateWorld replacement contract; complete real Studio Product Verification and a fresh Sprint 36 Gap Analysis, then stop at `SPRINT36_FREEZE_REVIEW`; do not add a genre registry, second router, broad ambiguity/NLU expansion, or enter Sprint 37. |
+| 2026-09-02 | Freeze Sprint 36 at v1.186 and authorize Sprint 37 — CreateWorld Semantic Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 36 / ENTER SPRINT 37 DISCOVERY | Human / CTO | `WO-S36-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 36 Gap Analysis is PASS. Trace semantic interpretation after CreateWorld, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 38. |
+
+## Sprint 36 freeze and Sprint 37 semantic-fidelity discovery decision
+
+Date: 2026-09-02
+
+Result: **ACCEPTED — Sprint 36 FROZEN at v1.186; Sprint 37 discovery PASS**
+
+Sprint 36 is frozen with `WO-S36-001` DONE, Code Complete = YES, Product
+Verified = YES, and the fresh Gap Analysis PASS. Sprint 37 starts after the
+verified CreateWorld route; its scope is semantic interpretation and fallback
+fidelity only.
+
+The bounded matrix found one semantic gap. All five clear requests reached
+CreateWorld. Platformer, Survival, and RPG preserved their supported types on
+the deterministic fallback. `做一个农场游戏` was extracted as `sandbox`
+because `DefaultGameIntentExtractor` recognizes `farm` but not the clear
+Chinese `农场` signal. The same typed loss reaches provider context, sync
+generation, and deterministic fallback; the fallback therefore selects the
+one-entity Sandbox template. The current Farm template is present, and a
+controlled valid provider candidate with `genre: farm` is accepted into the
+existing eight-entity Farm composition.
+
+Exactly one READY work order was generated:
+`WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`.
+It is not executed. No Farm/RPG mechanics, `IntentRouter` change, provider
+architecture, legacy reconnection, second WO, or Sprint 38 entry is authorized
+by this discovery decision.
 
 ## Sprint 36 Active-World New-World Intent Correctness discovery decision
 
 Date: 2026-09-01
 
-Result: **PASS — discovery complete; `SPRINT36_FREEZE_REVIEW` READY**
+Result: **PASS — discovery complete; historical `SPRINT36_FREEZE_REVIEW` READY**
 
 The repository audit and real Studio evidence agree on one front-door gap. With
 an active Survival world, `创建 MarioWorld`, `创建一个 RPG`, and `生成一个
@@ -55,8 +83,10 @@ the world for explicit `创建一个新的游戏`.
 Exactly one product work order was generated:
 `WO-S36-001 — Generic Active-World New-World Intent Classification`, status
 `READY`, not executed. This discovery changes no Runtime, Renderer, Semantic
-World, AI authority, or architecture contract; v1.185 remains current. The
-next control-plane action is Human/CTO review at `SPRINT36_FREEZE_REVIEW`.
+World, AI authority, or architecture contract; v1.185 remained current at
+that historical boundary. The next control-plane action was Human/CTO review
+at `SPRINT36_FREEZE_REVIEW`; that gate is now accepted and Sprint 37 discovery
+is current.
 
 ## WO-S36-001 execution decision and result
 
@@ -73,8 +103,10 @@ creation remains ambiguous and non-replacing. The real Studio sequence
 verified same-world entity Evolution, active Survival → MarioWorld → Survival
 replacement, RPG/Farm and explicit-new replacements, ambiguous preservation,
 Platformer Space input, current Observatory truth/assets, and empty browser
-diagnostics. The repository remains at `SPRINT36_FREEZE_REVIEW` pending the
-separate Human/CTO freeze decision; Sprint 37 is not entered.
+diagnostics. At this historical execution boundary, the repository remained at
+`SPRINT36_FREEZE_REVIEW` pending the separate Human/CTO freeze decision. That
+decision is now accepted: Sprint 36 is FROZEN and Sprint 37 discovery is
+current.
 
 ## Sprint 17 Goal Authorization
 

@@ -1,12 +1,12 @@
-# Gameplay Capability Matrix — Sprint 36 WO Complete / Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 36 FROZEN / Sprint 37 Discovery Complete
 
 Architecture version: v1.186 (Sprint 30 through Sprint 35 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 `WO-S36-001` Code Complete = YES; Product Verified = YES; fresh Sprint 36 Gap
-Analysis PASS;
-`SPRINT36_FREEZE_REVIEW` READY; Sprint 37 not entered)
+Analysis PASS; Sprint 36 FROZEN; Sprint 37 semantic-fidelity discovery
+complete; `WO-S37-001` READY; Sprint 38 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -47,6 +47,13 @@ CreateWorld replacement contract, after current-world mutation precedence.
 Explicit-new behavior, AI candidate validation, ambiguous non-replacement,
 and Runtime authority remain unchanged. The capability catalog still records
 Runtime semantics separately from this Intent/Web boundary.
+
+Sprint 37 discovery adds no gameplay capability. The existing semantic catalog
+still contains `farm`, `platformer`, `rpg`, `survival`, and `sandbox`. The
+measured Farm issue is upstream typed-intent preservation: `做一个农场游戏`
+routes to CreateWorld but currently extracts as `sandbox`, so deterministic
+fallback selects Sandbox. `WO-S37-001` is READY to address that generic
+supported-archetype extraction gap; no mechanics are added by discovery.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -149,6 +156,6 @@ spatial fair-start placement policy only: Runtime committed outcomes and
 composition stay authoritative, and no new combat/feedback manager, gameplay
 timer, world-bounds authority, or wave system exists. Sprint 35
 `WO-S35-001` is FROZEN at v1.185 with a PASS fresh Gap Analysis. Sprint 36
-`WO-S36-001` is complete at v1.186 with a PASS fresh Gap Analysis; the
-repository is stopped at the sole next gate `SPRINT36_FREEZE_REVIEW` and does
-not enter Sprint 37.
+`WO-S36-001` is FROZEN at v1.186 with a PASS fresh Gap Analysis. Sprint 37
+discovery is complete with `WO-S37-001` READY; no gameplay capability was
+added and Sprint 38 is not entered.

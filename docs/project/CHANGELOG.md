@@ -1,5 +1,26 @@
 # Changelog
 
+### Sprint 37 — CreateWorld Semantic Fidelity Discovery (v1.186, 2026-09-02)
+
+- Human/CTO froze Sprint 36 at v1.186 and authorized discovery only for
+  CreateWorld semantic fidelity. No production architecture or product
+  capability changed.
+- The production trace after the already-correct CreateWorld route is
+  `GameIntent` extraction → provider candidate/validation or deterministic
+  fallback → Semantic World/template → Game DSL → Runtime projection.
+- A bounded matrix verified CreateWorld routing for MarioWorld, Platformer,
+  Survival, Farm, and RPG requests. Platformer, Survival, and RPG preserve
+  their supported types on fallback. `做一个农场游戏` is the only measured
+  semantic loss: `DefaultGameIntentExtractor` does not recognize `农场`, so
+  the typed intent becomes `sandbox` and the fallback selects the one-entity
+  Sandbox template. The existing Farm template remains reachable from a valid
+  `farm` provider candidate.
+- Exactly one READY work order was generated:
+  `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`.
+  It is not executed. Farm/RPG mechanics, `IntentRouter` changes, provider
+  architecture, legacy reconnection, a second WO, and Sprint 38 are out of
+  scope.
+
 ### Sprint 36 — WO-S36-001 Generic Active-World New-World Intent Classification (v1.186, 2026-09-01)
 
 - Human/CTO authorized execution of the single Sprint 36 product work order
@@ -18,8 +39,10 @@
   TypeScript, ESLint with zero errors, Web build, `git diff --check`, real
   Studio cross-genre/world-identity verification, current Observatory truth,
   Platformer Space smoke, and empty browser diagnostics.
-- Fresh Sprint 36 Gap Analysis is PASS with no immediate P0 blocker. The
-  repository stops at `SPRINT36_FREEZE_REVIEW`; Sprint 36 is not yet frozen.
+- Fresh Sprint 36 Gap Analysis is PASS with no immediate P0 blocker. At this
+  historical entry the repository stopped at `SPRINT36_FREEZE_REVIEW`; the
+  gate was subsequently accepted and Sprint 36 was frozen at v1.186 before
+  Sprint 37 discovery.
 
 ### Sprint 36 — Active-World New-World Intent Correctness Discovery (v1.185, 2026-09-01)
 
