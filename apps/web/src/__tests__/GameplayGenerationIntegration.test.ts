@@ -94,6 +94,28 @@ describe('Gameplay generation web integration', () => {
     expect(result.gameplayRuleSet?.metadata.source).toBe('deterministic')
   })
 
+  it('preserves the Chinese Farm archetype through deterministic CreateWorld fallback', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ error: 'unavailable' }), { status: 502 }))
+    const store = new DefaultRuntimeWorldStore()
+    const { executor } = createCommandExecutor(
+      store,
+      { VITE_AI_GATEWAY_URL: 'http://gateway.test/world-generation' },
+      fetcher,
+    )
+
+    const result = await executor.executeAsync!('做一个农场游戏')
+
+    expect(result.success).toBe(true)
+    expect(result.semanticWorld?.worldType).toBe('farm')
+    expect(result.semanticWorld?.entities).toHaveLength(8)
+    expect(store.getWorld().entities).toHaveLength(8)
+    expect(result.generationDiagnostics?.source).toBe('deterministic')
+    expect(result.generationDiagnostics?.selectionOutcome).toBe('deterministic_fallback')
+    expect(result.generationDiagnostics?.candidateDisposition).toBe('provider_failed')
+    expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
+    expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('deferred')
+  })
+
   it('replaces the gameplay authority together with the active world', async () => {
     const store = useGameStore()
 

@@ -138,12 +138,19 @@ template catalog, DSL, and Runtime projection. The five clear requests all
 reached CreateWorld. Platformer, Survival, and RPG preserved their supported
 types on fallback; `做一个农场游戏` was the only measured divergence because
 `DefaultGameIntentExtractor` did not recognize `农场`, so both provider context
-and deterministic fallback inherited `sandbox`. The current Farm template is
-already present, and a controlled valid `farm` provider candidate reaches it.
-The single generated next item is `WO-S37-001 — Generic CreateWorld
-Supported-Archetype Intent Preservation`, READY but not executed. No Farm/RPG
-mechanics, router change, provider architecture, legacy reconnection, second
-WO, or Sprint 38 entry is authorized at this boundary.
+and deterministic fallback inherited `sandbox`. The current Farm template was
+already present, and a controlled valid `farm` provider candidate reached it.
+
+The authorized `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent
+Preservation` is now complete at v1.187. The existing immutable supported
+archetype alias boundary recognizes `农场 → farm`, so provider failure and
+deterministic fallback reach the existing eight-entity Farm composition. Code
+Complete and Product Verified are YES; focused/full tests, quality gates,
+real Studio clean/active Farm verification, regression behavior, Observatory
+truth, and empty browser diagnostics passed. Fresh Sprint 37 Gap Analysis is
+PASS. The repository stops at `SPRINT37_FREEZE_REVIEW`; no Farm/RPG mechanics,
+router/provider architecture, legacy reconnection, second WO, or Sprint 38
+entry is introduced.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

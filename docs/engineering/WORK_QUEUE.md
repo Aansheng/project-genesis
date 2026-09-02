@@ -6,24 +6,25 @@ not a database or task service.
 queue_version: 1
 updated: 2026-09-02
 current_sprint: Sprint 37
-current_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
-current_work_order_status: READY — discovery complete; execution not authorized
-current_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE — exactly one READY product WO generated; stop before execution
-last_completed_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
-last_completed_control_plane_work_order: SPRINT36_FREEZE_REVIEW
-next_work_order: WO-S37-001 — READY; do not execute; do not enter Sprint 38
+current_work_order: SPRINT37_FREEZE_REVIEW
+current_work_order_status: READY — Human/CTO decision after WO-S37-001 completion
+current_control_plane_work_order: SPRINT37_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — WO-S37-001 complete; fresh Gap Analysis PASS
+last_completed_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
+last_completed_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
+next_work_order: SPRINT37_FREEZE_REVIEW — do not enter Sprint 38
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT37_PRODUCT_GAP_DISCOVERY
 
-status: DONE — discovery complete; exactly one READY product WO generated
+status: DONE — discovery complete; WO-S37-001 subsequently executed and verified
 architecture_before: v1.186
-architecture_after: v1.186 — discovery introduced no architecture change
+architecture_after: v1.187 after WO-S37-001 execution
 decision: Human/CTO froze Sprint 36 at v1.186 and authorized Sprint 37
-  CreateWorld Semantic Fidelity Discovery. The repository remains at v1.186;
-  Sprint 38 is not entered.
+  CreateWorld Semantic Fidelity Discovery. Discovery generated exactly one
+  bounded product WO; its execution is complete at v1.187. Sprint 38 is not
+  entered.
 trace: After `IntentRouter = CreateWorld`, the production path is
   `StudioCommandBar → gameStore.send → DefaultCommandExecutor →
   DefaultCreateWorldRuntimeExecutor → DefaultCreateWorldPipeline → provider /
@@ -40,19 +41,19 @@ farm_root_cause: The lost typed intent is passed to both provider context and
   present and a controlled valid provider candidate with `genre: farm` is
   already accepted by the existing provider/validator path.
 selected_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
-selected_work_order_status: READY — not executed
+selected_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 non_goals: No Farm/RPG mechanics, arbitrary genre understanding, IntentRouter
   change, new provider architecture, validator weakening, legacy reconnection,
   second WO, or Sprint 38 entry.
-next_gate: Human/CTO execution authorization for `WO-S37-001`; do not execute
-  during this discovery continuation.
+next_gate: `SPRINT37_FREEZE_REVIEW` after WO-S37-001 completion; do not enter
+  Sprint 38.
 
 ## WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
 
-status: READY — discovery generated; execution not authorized
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / first smallest measured Sprint 37 semantic gap
 architecture_before: v1.186
-architecture_after: v1.187 if executed and accepted
+architecture_after: v1.187
 mission: Extend the existing supported-archetype intent extraction seam so
   clear requests for already supported `GameGenre` values survive into
   provider context, deterministic fallback, sync baseline, Semantic World, and
@@ -72,8 +73,43 @@ forbidden_scope: Farm mechanics, crops, inventory, NPC schedules, RPG combat,
 verification: Focused AI semantic matrix and Web production tests; affected
   package suites; TypeScript; ESLint; Web build; relevant regressions; and
   `git diff --check`, followed by clean and active real Studio verification.
-stop: READY only. Do not execute this work order or generate a second Sprint
-  37 work order in the current continuation.
+execution_result: The existing ordered immutable supported-archetype alias
+  table now recognizes `农场 → farm` alongside `farm`. The typed intent reaches
+  provider context and deterministic fallback, so provider failure for
+  `做一个农场游戏` selects the existing eight-entity Farm template / Farm
+  World DSL. Platformer, Survival, RPG, unknown Sandbox fallback, provider
+  candidate validation, CreateWorld replacement, Runtime/Renderer authority,
+  and Observatory truth remain unchanged. No classifier/registry, router
+  change, provider architecture, or legacy path was added.
+verification_result: AI 9441/9441 and Web 3583/3583; focused semantic,
+  fallback, and active-world regressions; AI/Web TypeScript; AI/Web ESLint with
+  zero errors; Web build; `git diff --check`; real Studio clean Farm and
+  active Survival → Farm replacement; Platformer/Survival/RPG/unknown
+  regressions; current Observatory truth; and empty browser diagnostics all
+  passed. Fresh Sprint 37 Gap Analysis: PASS with no immediate P0 blocker.
+stop: `SPRINT37_FREEZE_REVIEW` is READY for Human/CTO decision. Do not
+  generate a second Sprint 37 work order or enter Sprint 38.
+
+## SPRINT37_FREEZE_REVIEW
+
+status: READY — Sprint 37 WO complete; Human/CTO decision pending
+architecture_before: v1.186
+architecture_after: v1.187
+decision: `WO-S37-001` is DONE with Code Complete = YES and Product Verified
+  = YES. The selected CreateWorld semantic-fidelity gap is closed by the
+  existing typed extractor boundary; fresh Sprint 37 Gap Analysis is PASS.
+evidence: AI 9441/9441 and Web 3583/3583 full suites; focused extractor,
+  CreateWorld, fallback, active-world, and regression tests; AI/Web
+  TypeScript; AI/Web ESLint with zero errors; Web build; `git diff --check`;
+  real Studio clean Farm and active Survival → Farm replacement; Platformer,
+  Survival, RPG, unknown-to-Sandbox, Observatory truth; empty browser
+  diagnostics.
+constraints: Freeze review only. Preserve the ordered local alias table,
+  current typed-intent authority, provider candidate validation, deterministic
+  fallback, CreateWorld/Evolution boundary, Runtime/Renderer authority, and
+  one-WO Sprint boundary. Do not add Farm mechanics, a classifier/registry,
+  router/provider architecture, legacy reconnection, or Sprint 38 work.
+next_gate: Human/CTO freeze decision; do not enter Sprint 38 automatically.
 
 ## SPRINT33_FREEZE_REVIEW
 

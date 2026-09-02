@@ -183,6 +183,12 @@ describe('genre detection — farm', () => {
     expect(result.genre).toBe('farm')
   })
 
+  it('should detect farm from the Chinese archetype alias', () => {
+    const extractor = new DefaultGameIntentExtractor()
+    const result = extractor.extract(createModel('做一个农场游戏'))
+    expect(result.genre).toBe('farm')
+  })
+
   it('should detect farm from word containing "farm"', () => {
     const extractor = new DefaultGameIntentExtractor()
     const result = extractor.extract(createModel('farming simulation'))
@@ -331,6 +337,12 @@ describe('genre detection — sandbox (fallback)', () => {
   it('should default to sandbox for unrecognized title', () => {
     const extractor = new DefaultGameIntentExtractor()
     const result = extractor.extract(createModel('My Custom Game'))
+    expect(result.genre).toBe('sandbox')
+  })
+
+  it('should default to sandbox for an unsupported archetype', () => {
+    const extractor = new DefaultGameIntentExtractor()
+    const result = extractor.extract(createModel('创建一个解谜游戏'))
     expect(result.genre).toBe('sandbox')
   })
 

@@ -1,5 +1,25 @@
 # Changelog
 
+### Sprint 37 — WO-S37-001 Generic CreateWorld Supported-Archetype Intent Preservation (v1.187, 2026-09-02)
+
+- Human/CTO authorized and execution completed for the single Sprint 37 work
+  order. Architecture advances from v1.186 to v1.187 at the existing typed
+  `DefaultGameIntentExtractor` boundary.
+- The ordered immutable supported-archetype alias table now recognizes the
+  clear Chinese Farm signal `农场` alongside `farm`. `GameIntent.genre = farm`
+  survives provider context and the existing deterministic fallback, selecting
+  the existing eight-entity `Farm World` composition and DSL when the provider
+  is unavailable. Provider candidates remain validated and candidate-only.
+- Platformer, Survival, RPG, unknown-to-Sandbox behavior, active-world
+  CreateWorld replacement, Runtime/Renderer authority, and Observatory truth
+  remain unchanged. No Farm mechanics, router change, classifier framework,
+  provider architecture, or legacy path was added.
+- AI 9441/9441 and Web 3583/3583 passed, plus focused regressions, AI/Web
+  TypeScript, AI/Web ESLint with zero errors, Web build, `git diff --check`,
+  real Studio clean and active Survival → Farm verification, and empty browser
+  diagnostics. Fresh Sprint 37 Gap Analysis is PASS; the repository stops at
+  `SPRINT37_FREEZE_REVIEW` and does not enter Sprint 38.
+
 ### Sprint 37 — CreateWorld Semantic Fidelity Discovery (v1.186, 2026-09-02)
 
 - Human/CTO froze Sprint 36 at v1.186 and authorized discovery only for
@@ -15,11 +35,11 @@
   the typed intent becomes `sandbox` and the fallback selects the one-entity
   Sandbox template. The existing Farm template remains reachable from a valid
   `farm` provider candidate.
-- Exactly one READY work order was generated:
+- Exactly one READY work order was generated (and subsequently executed):
   `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`.
-  It is not executed. Farm/RPG mechanics, `IntentRouter` changes, provider
-  architecture, legacy reconnection, a second WO, and Sprint 38 are out of
-  scope.
+  The execution result is recorded in the v1.187 entry above. Farm/RPG
+  mechanics, `IntentRouter` changes, provider architecture, legacy
+  reconnection, a second WO, and Sprint 38 remain out of scope.
 
 ### Sprint 36 — WO-S36-001 Generic Active-World New-World Intent Classification (v1.186, 2026-09-01)
 

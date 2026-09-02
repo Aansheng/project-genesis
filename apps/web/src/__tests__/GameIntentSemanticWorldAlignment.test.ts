@@ -20,7 +20,7 @@ function createPipeline(): DefaultCreateWorldPipeline {
 
 describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
   it.each([
-    ['创建农场', 'farm'],
+    ['做一个农场游戏', 'farm'],
     ['create RPG world', 'rpg'],
     ['create survival world', 'survival'],
     ['帮我生成一个2D幸存者游戏', 'survival'],
@@ -35,12 +35,17 @@ describe('WO-S10-008: Game Intent → Semantic World alignment', () => {
     expect(result.route).toBe('create-world')
     expect(result.success).toBe(true)
     expect(result.world.entities.length).toBeGreaterThan(0)
+    expect(result.semanticWorld?.worldType).toBe(expectedWorldType)
 
     if (expectedWorldType === 'platformer') {
       expect(result.world.entities.length).toBe(7)
       expect(result.world.entities.map((entity) => entity.type)).toEqual([
         'player', 'terrain', 'terrain', 'enemy', 'item', 'item', 'item',
       ])
+    }
+
+    if (expectedWorldType === 'farm') {
+      expect(result.world.entities).toHaveLength(8)
     }
   })
 

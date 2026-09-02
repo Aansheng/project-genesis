@@ -2,14 +2,15 @@
 
 Human/CTO decision: Sprint 36 is FROZEN at v1.186 with
 `WO-S36-001 — Generic Active-World New-World Intent Classification` complete
-and Product Verified. Sprint 37 is authorized for CreateWorld semantic-fidelity
-discovery only.
+and Product Verified. Human/CTO subsequently authorized execution of the
+single Sprint 37 work order after this discovery.
 
-Status: **PASS — discovery complete; exactly one READY WO generated; WO not
-executed; Sprint 38 not entered**
+Status: **DONE — WO-S37-001 Code Complete = YES; Product Verified = YES;
+fresh Gap Analysis PASS; SPRINT37_FREEZE_REVIEW READY; Sprint 38 not entered**
 
-Architecture: **v1.186 → v1.186** for this discovery. No production
-architecture or product capability changed.
+Architecture: **v1.186 → v1.187** through the existing typed intent-extraction
+boundary. No gameplay, Runtime, Renderer, routing, or provider architecture
+changed.
 
 ## Discovery boundary
 
@@ -193,7 +194,7 @@ reconnected by this discovery.
 
 `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`
 
-Status: **READY — generated only; not executed**
+Status: **DONE — Code Complete = YES; Product Verified = YES**
 
 The work order should make the smallest generic change at the existing
 `DefaultGameIntentExtractor` supported-alias boundary so clear requests for
@@ -203,9 +204,49 @@ and current-world mutation precedence. The implementation acceptance should
 include the measured Chinese Farm request and the five-row semantic matrix,
 with no regression for unsupported/open-ended input remaining Sandbox.
 
-Expected implementation architecture: **v1.186 → v1.187 only if the
-authorized work order changes the production semantic output**. The current
-discovery state remains v1.186.
+The authorized implementation advanced the architecture from **v1.186 →
+v1.187** because the production semantic output now preserves the clear Farm
+archetype on the existing CreateWorld path.
+
+## WO-S37-001 execution, Product Verification, and fresh Gap Analysis
+
+Human/CTO authorized `WO-S37-001 — Generic CreateWorld Supported-Archetype
+Intent Preservation` on 2026-09-02. The implementation made one bounded
+change at `DefaultGameIntentExtractor`: the existing ordered substring checks
+are represented by a local immutable alias table for the supported
+non-fallback genres, with `农场` added beside `farm`. The existing precedence,
+lowercase normalization, typed-intent authority, provider candidate
+validation, deterministic fallback, Farm template, DSL, Runtime projection,
+and CreateWorld replacement contract are unchanged. Unknown input still falls
+back to Sandbox. No classifier, registry, second semantic layer, or routing
+branch was introduced.
+
+The verified production flow is:
+
+```text
+StudioCommandBar → gameStore.send → CreateWorld
+  → DefaultGameIntentExtractor (农场 → farm)
+  → provider candidate/validation or deterministic fallback
+  → DefaultSemanticWorldGenerator(farm)
+  → existing eight-entity Farm template / Farm World DSL
+  → Runtime / Observatory
+```
+
+Automated verification passed: AI 9441/9441 and Web 3583/3583 full suites;
+focused extractor/CreateWorld/fallback/active-world tests 117/117 and 44/44;
+AI/Web TypeScript; AI/Web ESLint with zero errors; Web build; and
+`git diff --check`.
+
+Real Studio Product Verification passed for clean `做一个农场游戏` and active
+Survival → Farm replacement. Each request reached CreateWorld; deterministic
+provider failure produced a new Farm world with `Design: farm`, `Farm World`,
+and eight entities. The active Survival world was replaced by a new world ID,
+not evolved. Platformer, Survival, RPG, unknown-to-Sandbox, and Observatory
+truth regressions passed, with empty browser error/warning diagnostics.
+
+Fresh Sprint 37 Gap Analysis: **PASS**. The selected semantic-fidelity gap is
+resolved, no immediate P0 blocker was found, and the repository stops at
+`SPRINT37_FREEZE_REVIEW` for Human/CTO decision. Sprint 38 is not entered.
 
 ## Explicit non-goals
 
@@ -223,13 +264,13 @@ discovery state remains v1.186.
 
 ## Stop boundary and discovery verification
 
-Sprint 36 is FROZEN at v1.186. Sprint 37 discovery is complete. Exactly one
-READY WO is recorded in `SPRINT37_BACKLOG.md`; it is deliberately not
-executed. The repository must stop here pending explicit execution
-authorization, without entering Sprint 38.
+Sprint 36 is FROZEN at v1.186. Sprint 37 discovery and the single authorized
+work order are complete. The repository stops at `SPRINT37_FREEZE_REVIEW` for
+the next Human/CTO decision, without entering Sprint 38.
 
-Code Complete for `WO-S37-001`: **N/A — not executed**  
-Product Verified for `WO-S37-001`: **N/A — not executed**  
+Code Complete for `WO-S37-001`: **YES**
+Product Verified for `WO-S37-001`: **YES**
 Discovery evidence: **PASS** — source trace, focused semantic matrix, clean
 Farm Studio verification, active Survival → Farm replacement verification,
-and empty browser error/warning diagnostics.
+automated quality gates, fresh post-WO Gap Analysis, and empty browser
+error/warning diagnostics.

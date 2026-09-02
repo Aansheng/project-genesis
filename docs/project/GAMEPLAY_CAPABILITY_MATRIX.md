@@ -1,12 +1,13 @@
-# Gameplay Capability Matrix — Sprint 36 FROZEN / Sprint 37 Discovery Complete
+# Gameplay Capability Matrix — Sprint 37 WO Complete / Freeze Review Ready
 
-Architecture version: v1.186 (Sprint 30 through Sprint 35 FROZEN;
+Architecture version: v1.187 (Sprint 30 through Sprint 36 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 `WO-S36-001` Code Complete = YES; Product Verified = YES; fresh Sprint 36 Gap
-Analysis PASS; Sprint 36 FROZEN; Sprint 37 semantic-fidelity discovery
-complete; `WO-S37-001` READY; Sprint 38 not entered)
+Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
+Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 freeze
+review ready; Sprint 38 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -48,12 +49,12 @@ Explicit-new behavior, AI candidate validation, ambiguous non-replacement,
 and Runtime authority remain unchanged. The capability catalog still records
 Runtime semantics separately from this Intent/Web boundary.
 
-Sprint 37 discovery adds no gameplay capability. The existing semantic catalog
-still contains `farm`, `platformer`, `rpg`, `survival`, and `sandbox`. The
-measured Farm issue is upstream typed-intent preservation: `做一个农场游戏`
-routes to CreateWorld but currently extracts as `sandbox`, so deterministic
-fallback selects Sandbox. `WO-S37-001` is READY to address that generic
-supported-archetype extraction gap; no mechanics are added by discovery.
+Sprint 37 adds no gameplay capability. It closes one semantic reachability gap
+at the existing typed-intent boundary: the immutable supported-archetype alias
+table now preserves `农场 → farm` for `做一个农场游戏`. The existing semantic
+catalog still contains `farm`, `platformer`, `rpg`, `survival`, and `sandbox`;
+deterministic/provider-failure fallback now reaches the existing eight-entity
+Farm composition instead of Sandbox. No Farm mechanics are added.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -73,6 +74,7 @@ supported-archetype extraction gap; no mechanics are added by discovery.
 | Entity attack-request event | Runtime event observation | `supported` | The top-down generic `PlayerAttackRequestSystem` emits one `ENTITY_ATTACK_REQUESTED` fact per accepted `Space` key edge after deterministic current Runtime target selection. |
 | Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue at the last authoritative Position, and `ENTITY_ADDED` to a replacement cue; uncommitted/no-op/contact-only facts produce no Player-attack cue. |
 | Active-world whole-world Intent classification | Studio command → IntentRouter/Web front door | `supported` | `WO-S36-001` is complete at v1.186: current-world entity/property/continuation mutations retain World Evolution, while clear whole-world/game construction, named-world, and explicit new/reset requests use the existing CreateWorld replacement contract even with an active world. Bare creation remains ambiguous and non-replacing; no genre registry or second router exists. |
+| Supported CreateWorld archetype intent preservation | `GameIntent` extraction → provider/fallback semantic world | `supported` | `WO-S37-001` is complete at v1.187: the existing ordered alias boundary preserves `farm` for both English `farm` and Chinese `农场`, while Platformer, Survival, RPG, and Sandbox fallback remain bounded. |
 | Gameplay rule description | `GameplayRuleSpecification` + `GameplayRuleSet` | `supported` | Shared immutable Trigger/Condition/Action data is validated and stored beside `GameplaySpecification`; supported rules can enter the bounded Runtime executor. |
 | Rule event vocabulary | Rule trigger | `supported` | `ENTITY_CONTACT_STARTED`, `ENTITY_ATTACK_REQUESTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
 | Rule entity selectors | Rule condition/target references | `supported` | Event actor/target, exact current ID, category, current semantic name/archetype, and category-backed role selectors are normalized by Genesis. |
@@ -156,6 +158,7 @@ spatial fair-start placement policy only: Runtime committed outcomes and
 composition stay authoritative, and no new combat/feedback manager, gameplay
 timer, world-bounds authority, or wave system exists. Sprint 35
 `WO-S35-001` is FROZEN at v1.185 with a PASS fresh Gap Analysis. Sprint 36
-`WO-S36-001` is FROZEN at v1.186 with a PASS fresh Gap Analysis. Sprint 37
-discovery is complete with `WO-S37-001` READY; no gameplay capability was
-added and Sprint 38 is not entered.
+`WO-S36-001` is FROZEN at v1.186 with a PASS fresh Gap Analysis. `WO-S37-001`
+is complete at v1.187 with Code Complete/Product Verified = YES and a PASS
+fresh Gap Analysis; it adds semantic reachability only, no gameplay
+capability. Sprint 37 is ready for freeze review and Sprint 38 is not entered.

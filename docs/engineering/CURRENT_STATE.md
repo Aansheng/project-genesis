@@ -3,38 +3,43 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.186 (Sprint 36 frozen; Sprint 37 semantic-fidelity discovery complete)
-current_sprint: Sprint 37 (SPRINT37_PRODUCT_GAP_DISCOVERY)
-current_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
-current_work_order_status: READY — discovery complete; execution not authorized
-current_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE — exactly one READY product WO generated; stop before execution
-last_completed_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
-last_completed_product_work_order: WO-S36-001
-last_completed_control_plane_work_order: SPRINT36_FREEZE_REVIEW
-next_ready_work_order: WO-S37-001 — READY; do not execute; do not enter Sprint 38
-product_architecture_changed: YES — historical Sprint 36 v1.185 → v1.186 at
-  the Intent/Web front-door boundary; Sprint 37 discovery v1.186 → v1.186
+architecture_version: v1.187 (Sprint 36 frozen; Sprint 37 WO complete; freeze review ready)
+current_sprint: Sprint 37 (SPRINT37_FREEZE_REVIEW)
+current_work_order: SPRINT37_FREEZE_REVIEW
+current_work_order_status: READY — Human/CTO decision after WO-S37-001 completion
+current_control_plane_work_order: SPRINT37_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — WO-S37-001 complete; fresh Gap Analysis PASS
+last_completed_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
+last_completed_product_work_order: WO-S37-001
+last_completed_control_plane_work_order: SPRINT37_PRODUCT_GAP_DISCOVERY
+next_ready_work_order: SPRINT37_FREEZE_REVIEW — do not enter Sprint 38
+product_architecture_changed: YES — Sprint 36 v1.185 → v1.186 at the
+  Intent/Web front-door boundary; Sprint 37 v1.186 → v1.187 at the existing
+  typed CreateWorld supported-archetype extraction boundary
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
   Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and FROZEN at
   v1.184. Sprint 35 `WO-S35-001` is complete at v1.185 with the freeze review
   ready; Human/CTO subsequently froze Sprint 35. Sprint 36
-  `WO-S36-001` is complete and FROZEN at v1.186. Sprint 37 semantic-fidelity
-  discovery is complete with `WO-S37-001` READY; Sprint 38 is not entered.
+  `WO-S36-001` is complete and FROZEN at v1.186. Sprint 37
+  `WO-S37-001` is complete at v1.187 with Code Complete/Product Verified = YES
+  and fresh Gap Analysis PASS; the freeze review is ready and Sprint 38 is not
+  entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
-  WO-S34-001, WO-S35-001, and WO-S36-001
+  WO-S34-001, WO-S35-001, WO-S36-001, and WO-S37-001
 product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, and WO-S35-001; fresh Sprint 34 post-WO Gap Analysis PASS;
   Sprint 35 discovery PASS; fresh Sprint 35 post-WO Gap Analysis PASS;
-  WO-S36-001; fresh Sprint 36 post-WO Gap Analysis PASS
+  WO-S36-001; fresh Sprint 36 post-WO Gap Analysis PASS; WO-S37-001;
+  fresh Sprint 37 post-WO Gap Analysis PASS
 
-## Sprint 37 — CreateWorld Semantic Fidelity Discovery
+## Sprint 37 — CreateWorld Semantic Fidelity Discovery and WO-S37-001 Execution
 
 Human/CTO froze Sprint 36 at v1.186 and authorized Sprint 37 discovery on
-2026-09-02. This pass begins after CreateWorld routing and traces semantic
+2026-09-02. This pass began after CreateWorld routing and traced semantic
 interpretation through provider/fallback, Semantic World, DSL, and Runtime
-projection. No production code or architecture changed.
+projection. It identified the first semantic divergence and generated the
+single work order below.
 
 The five-request matrix confirms that `创建 MarioWorld`,
 `生成一个平台跳跃游戏`, `生成一个幸存者游戏`, `做一个农场游戏`, and
@@ -47,15 +52,21 @@ inherit Sandbox. The existing Farm template remains present, and a controlled
 valid provider candidate with `genre: farm` reaches the existing eight-entity
 Farm composition.
 
-Exactly one product work order was generated:
-`WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`,
-status `READY`, not executed. The work order is limited to the existing typed
-supported-archetype extraction seam; it does not add Farm/RPG mechanics,
-change `IntentRouter`, add provider architecture, or reconnect legacy paths.
+`WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation` was
+subsequently authorized and completed. The existing ordered immutable alias
+table now recognizes `农场 → farm` beside `farm`, preserving the current
+Platformer, Survival, RPG, and Sandbox fallback behavior. The typed intent
+continues through provider context or deterministic fallback into the
+existing Farm template, DSL, Runtime, and world-replacement contract. No
+Farm/RPG mechanics, `IntentRouter` change, provider architecture, or legacy
+path was added.
 
-The current architecture remains v1.186. Sprint 37 discovery is complete, and
-the repository stops with `WO-S37-001` READY. Do not execute it in this
-continuation and do not enter Sprint 38.
+`WO-S37-001` is DONE with Code Complete = YES and Product Verified = YES at
+v1.187. AI 9441/9441 and Web 3583/3583, focused regressions, AI/Web
+TypeScript, AI/Web ESLint with zero errors, Web build, `git diff --check`, and
+real Studio clean/active Farm verification passed. Fresh Sprint 37 Gap
+Analysis is PASS with no immediate P0 blocker. The repository stops at
+`SPRINT37_FREEZE_REVIEW` and does not enter Sprint 38.
 
 ## Sprint 36 — Active-World New-World Intent Correctness Discovery
 
@@ -1013,14 +1024,15 @@ Human/CTO froze Sprint 36 at v1.186:
   `做一个农场游戏`) now reaches CreateWorld and replaces the current world;
   current-world entity mutations retain World Evolution and the same world.
   `WO-S36-001` is DONE at v1.186 with Code Complete/Product Verified = YES.
-- **Current PRODUCT_GAP:** `做一个农场游戏` reaches CreateWorld correctly,
-  but `DefaultGameIntentExtractor` does not preserve the clear Chinese Farm
-  archetype. `GameIntent.genre` becomes `sandbox`, so provider context and
-  deterministic fallback select the one-entity Sandbox template. The existing
-  Farm template is present and accepts a valid `farm` provider candidate.
-- **Current gate:** Sprint 37 discovery is PASS and exactly one item,
-  `WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation`,
-  is READY. It is not executed; do not enter Sprint 38.
+- **Resolved Sprint 37 PRODUCT_GAP:** `做一个农场游戏` reaches CreateWorld
+  and the existing typed intent extractor now preserves `GameIntent.genre =
+  farm` through provider context and deterministic fallback. Provider failure
+  therefore selects the existing eight-entity Farm template rather than
+  Sandbox. `WO-S37-001` is DONE at v1.187 with Code Complete/Product Verified
+  = YES.
+- **Current gate:** Sprint 37 fresh post-WO Gap Analysis is PASS with no
+  immediate P0 blocker. `SPRINT37_FREEZE_REVIEW` is READY for Human/CTO
+  decision; do not enter Sprint 38.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
 

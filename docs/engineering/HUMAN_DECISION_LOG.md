@@ -36,6 +36,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-01 | Freeze Sprint 35 at v1.185 and authorize Sprint 36 — Active-World New-World Intent Correctness Discovery. | ACCEPTED — FREEZE SPRINT 35 / ENTER SPRINT 36 DISCOVERY | Human / CTO | `WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 35 Gap Analysis is PASS. Audit the real active-world Intent path, generate exactly one READY WO, do not modify routing during discovery, and do not enter Sprint 37. |
 | 2026-09-01 | Execute `WO-S36-001` — Generic Active-World New-World Intent Classification. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Intent/Web front-door classification. Preserve current-world mutations, explicit-new behavior, AI candidate validation, and the existing CreateWorld replacement contract; complete real Studio Product Verification and a fresh Sprint 36 Gap Analysis, then stop at `SPRINT36_FREEZE_REVIEW`; do not add a genre registry, second router, broad ambiguity/NLU expansion, or enter Sprint 37. |
 | 2026-09-02 | Freeze Sprint 36 at v1.186 and authorize Sprint 37 — CreateWorld Semantic Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 36 / ENTER SPRINT 37 DISCOVERY | Human / CTO | `WO-S36-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 36 Gap Analysis is PASS. Trace semantic interpretation after CreateWorld, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 38. |
+| 2026-09-02 | Execute `WO-S37-001` — Generic CreateWorld Supported-Archetype Intent Preservation. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded existing typed supported-archetype extraction change. Preserve CreateWorld routing, current-world mutation precedence, provider candidate validation, deterministic fallback, Farm template/DSL, Runtime/Renderer authority, and Sandbox for unknown input; complete real Studio Product Verification and a fresh Sprint 37 Gap Analysis, then stop at `SPRINT37_FREEZE_REVIEW`; do not add Farm mechanics, a classifier framework, a provider architecture, or enter Sprint 38. |
 
 ## Sprint 36 freeze and Sprint 37 semantic-fidelity discovery decision
 
@@ -107,6 +108,31 @@ diagnostics. At this historical execution boundary, the repository remained at
 `SPRINT36_FREEZE_REVIEW` pending the separate Human/CTO freeze decision. That
 decision is now accepted: Sprint 36 is FROZEN and Sprint 37 discovery is
 current.
+
+## WO-S37-001 execution and Sprint 37 fresh Gap Analysis
+
+Date: 2026-09-02
+
+Result: **DONE — Code Complete = YES; Product Verified = YES; v1.187; fresh
+Sprint 37 Gap Analysis PASS**
+
+The authorized work order closed the measured semantic divergence at the
+existing `DefaultGameIntentExtractor` boundary. Its ordered immutable local
+alias table now recognizes `农场 → farm` alongside `farm`; the existing
+Platformer, Survival, RPG, and Sandbox fallback aliases and precedence remain
+unchanged. The typed intent continues through provider context and the
+deterministic fallback into the current eight-entity Farm template / `Farm
+World` DSL. No `IntentRouter`, provider architecture, Runtime, Renderer,
+mechanics, or legacy path changed.
+
+AI 9441/9441 and Web 3583/3583 passed, as did focused semantic/fallback/
+active-world regressions, AI/Web TypeScript, AI/Web ESLint with zero errors,
+Web build, `git diff --check`, and real Studio clean Farm plus active
+Survival → Farm world-identity verification. Platformer, Survival, RPG,
+unknown-to-Sandbox, Observatory truth, and browser diagnostics remained clean.
+
+Fresh Sprint 37 Gap Analysis is PASS with no immediate P0 blocker. The next
+gate is `SPRINT37_FREEZE_REVIEW`; Sprint 38 is not entered automatically.
 
 ## Sprint 17 Goal Authorization
 

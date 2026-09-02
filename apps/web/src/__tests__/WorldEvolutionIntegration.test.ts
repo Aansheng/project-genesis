@@ -600,6 +600,29 @@ describe('World Evolution Studio integration', () => {
     expect(controlled.requestKinds.filter(kind => kind === 'world-generation')).toHaveLength(2)
   })
 
+  it('preserves Farm semantics when active Survival is replaced through deterministic fallback', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: 'unavailable' }), { status: 502 })) as typeof fetch)
+    const game = useGameStore()
+
+    const survival = await game.send('生成一个幸存者游戏')
+    expect(survival.success).toBe(true)
+    expect(game.semanticWorld?.worldType).toBe('survival')
+    const previousWorldId = game.currentWorldId
+
+    const result = await game.send('做一个农场游戏')
+
+    expect(result.success).toBe(true)
+    expect(result.message).toContain('Created world')
+    expect(result.evolutionPlan).toBeUndefined()
+    expect(result.generationDiagnostics?.selectionOutcome).toBe('deterministic_fallback')
+    expect(game.currentWorldId).not.toBe(previousWorldId)
+    expect(game.semanticWorld?.worldType).toBe('farm')
+    expect(game.semanticWorld?.entities).toHaveLength(8)
+    expect(game.worldStore.getWorld().entities).toHaveLength(8)
+    expect(game.gameplaySpecification?.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
+    expect(game.gameplaySpecification?.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('deferred')
+  })
+
   it('routes an explicit new-world request through CreateWorld after an active world exists', async () => {
     const requestKinds: string[] = []
     const backend = gateway()

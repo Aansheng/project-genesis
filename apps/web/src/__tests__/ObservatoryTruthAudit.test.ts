@@ -151,7 +151,7 @@ describe('WO-OBS-001 Observatory truthfulness', () => {
   it('uses the centralized current architecture and Sprint metadata', () => {
     const text = mount(ObservatoryOverview).text()
     expect(PROJECT_METADATA).toEqual({
-      architectureVersion: 'v1.186',
+      architectureVersion: 'v1.187',
       currentSprint: 'Sprint 37',
     })
     expect(text).toContain(PROJECT_METADATA.architectureVersion)

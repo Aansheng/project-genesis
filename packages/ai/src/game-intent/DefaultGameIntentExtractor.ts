@@ -3,7 +3,7 @@
  *
  * Detection rules:
  * - contains "mario", "platformer", or the Chinese platformer phrase → genre = platformer
- * - contains "farm"  → genre = farm
+ * - contains "farm" or "农场" → genre = farm
  * - contains "rpg"   → genre = rpg
  * - contains "survival", "survivor", "生存", or "幸存者" → genre = survival
  * - otherwise        → genre = sandbox
@@ -19,23 +19,31 @@ import type { GameGenre, GameIntent } from './GameIntent'
 import type { GameIntentExtractor } from './GameIntentExtractor'
 
 // ---------------------------------------------------------------------------
-// Detection keywords (lowercase)
+// Ordered detection aliases (lowercase where applicable)
 // ---------------------------------------------------------------------------
 
-/** Platformer detection keyword. */
-const KEYWORD_PLATFORMER = 'mario'
-
-/** Direct platformer wording used by the Studio and Chinese product examples. */
-const PLATFORMER_ALIASES: readonly string[] = Object.freeze(['platformer', '平台跳跃', '平台游戏', '平台'])
-
-/** Farm detection keyword. */
-const KEYWORD_FARM = 'farm'
-
-/** RPG detection keyword. */
-const KEYWORD_RPG = 'rpg'
-
-/** Survival genre aliases, including the Chinese Studio vocabulary. */
-const SURVIVAL_ALIASES = Object.freeze(['survival', 'survivor', '生存', '幸存者'])
+/**
+ * Immutable, ordered aliases for the currently supported non-fallback genres.
+ * The order preserves the extractor's existing precedence for overlapping text.
+ */
+const GENRE_ALIAS_RULES = Object.freeze([
+  Object.freeze({
+    genre: 'platformer' as const,
+    aliases: Object.freeze(['mario', 'platformer', '平台跳跃', '平台游戏', '平台']),
+  }),
+  Object.freeze({
+    genre: 'farm' as const,
+    aliases: Object.freeze(['farm', '农场']),
+  }),
+  Object.freeze({
+    genre: 'rpg' as const,
+    aliases: Object.freeze(['rpg']),
+  }),
+  Object.freeze({
+    genre: 'survival' as const,
+    aliases: Object.freeze(['survival', 'survivor', '生存', '幸存者']),
+  }),
+])
 
 // ---------------------------------------------------------------------------
 // Fallback
@@ -102,22 +110,11 @@ export class DefaultGameIntentExtractor implements GameIntentExtractor {
     const title = extractTitle(model)
     const resolvedTitle = title ?? FALLBACK_TITLE
 
-    // Detect genre from title
+    // Detect genre from title using the existing ordered substring semantics.
     const lowerTitle = resolvedTitle.toLowerCase()
-
-    let genre: GameGenre
-
-    if (lowerTitle.includes(KEYWORD_PLATFORMER) || PLATFORMER_ALIASES.some(keyword => lowerTitle.includes(keyword))) {
-      genre = 'platformer'
-    } else if (lowerTitle.includes(KEYWORD_FARM)) {
-      genre = 'farm'
-    } else if (lowerTitle.includes(KEYWORD_RPG)) {
-      genre = 'rpg'
-    } else if (SURVIVAL_ALIASES.some(keyword => lowerTitle.includes(keyword))) {
-      genre = 'survival'
-    } else {
-      genre = FALLBACK_GENRE
-    }
+    const genre: GameGenre = GENRE_ALIAS_RULES.find(({ aliases }) =>
+      aliases.some(alias => lowerTitle.includes(alias)),
+    )?.genre ?? FALLBACK_GENRE
 
     return Object.freeze({ genre, title: resolvedTitle })
   }
