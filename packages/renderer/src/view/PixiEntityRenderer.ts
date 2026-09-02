@@ -63,6 +63,7 @@ const PLAYER_RUN_FRAME_TICKS = 8
 const HIT_FEEDBACK_DURATION_MS = 640
 const DEFEAT_FEEDBACK_DURATION_MS = 820
 const SPAWN_FEEDBACK_DURATION_MS = 820
+const INTERACTION_FEEDBACK_DURATION_MS = 640
 
 /**
  * Per-entity-type fill colors.
@@ -346,6 +347,8 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
 
       const label = feedback.kind === 'hit' && feedback.damageAmount !== undefined
         ? this._createFeedbackText(`-${formatFeedbackNumber(feedback.damageAmount)}`)
+        : feedback.kind === 'interaction'
+          ? this._createFeedbackText('✓')
         : undefined
       if (label) {
         label.anchor.set(0.5, 1)
@@ -620,6 +623,7 @@ function directionToRotation(direction: NonNullable<RenderEntity['presentationDi
 function durationForFeedback(kind: GameplayOutcomeFeedback['kind']): number {
   if (kind === 'hit') return HIT_FEEDBACK_DURATION_MS
   if (kind === 'defeat') return DEFEAT_FEEDBACK_DURATION_MS
+  if (kind === 'interaction') return INTERACTION_FEEDBACK_DURATION_MS
   return SPAWN_FEEDBACK_DURATION_MS
 }
 
@@ -635,7 +639,7 @@ function setDisplayScale(displayObject: { scale: { x: number; y: number } }, val
 function drawFeedbackPrimitive(graphics: Graphics, kind: GameplayOutcomeFeedback['kind']): void {
   const primitive = graphics as unknown as FeedbackGraphicsPrimitives
   const color = kind === 'hit' ? 0xf4f7fb : kind === 'defeat' ? 0xffcf66 : 0x6ca8ff
-  const radius = kind === 'hit' ? 16 : kind === 'defeat' ? 20 : 22
+  const radius = kind === 'hit' ? 16 : kind === 'defeat' ? 20 : kind === 'interaction' ? 16 : 22
 
   if (primitive.lineStyle && primitive.drawCircle) {
     primitive.lineStyle(2, color, 0.95)
@@ -645,6 +649,11 @@ function drawFeedbackPrimitive(graphics: Graphics, kind: GameplayOutcomeFeedback
       primitive.lineTo(12, 12)
       primitive.moveTo(12, -12)
       primitive.lineTo(-12, 12)
+    }
+    if (kind === 'interaction' && primitive.moveTo && primitive.lineTo) {
+      primitive.moveTo(-7, 0)
+      primitive.lineTo(-2, 5)
+      primitive.lineTo(8, -6)
     }
     return
   }

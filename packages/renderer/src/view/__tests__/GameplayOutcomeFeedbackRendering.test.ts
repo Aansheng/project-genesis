@@ -126,6 +126,17 @@ describe('Pixi gameplay outcome feedback', () => {
     expect((feedbackLayer.children[1] as Graphics).scale.x).toBe(0.35)
   })
 
+  it('renders a target-bound interaction cue with a confirmation mark', () => {
+    const feedbackLayer = container()
+    const outcomeRenderer = renderer(() => 0, feedbackLayer)
+
+    outcomeRenderer.presentGameplayOutcomes([feedback('interaction', 'npc-1')])
+
+    expect(feedbackLayer.children).toHaveLength(2)
+    expect((feedbackLayer.children[0] as Graphics & { _state: MockDisplayState })._state.circleRadius).toBe(16)
+    expect((feedbackLayer.children[1] as Text).text).toBe('✓')
+  })
+
   it('expires presentation-only feedback without retaining a dead Runtime entity', () => {
     let currentTime = 0
     const feedbackLayer = container()

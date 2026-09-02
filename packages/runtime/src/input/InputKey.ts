@@ -5,7 +5,7 @@
  * Architecture version v1.82
  *
  * This is a union type of all supported input keys.
- * Currently limited to directionals and Space.
+ * Currently limited to directionals, Space, and the explicit interaction key.
  */
 export type InputKey =
   | 'ArrowUp'
@@ -13,3 +13,4 @@ export type InputKey =
   | 'ArrowLeft'
   | 'ArrowRight'
   | 'Space'
+  | 'Enter'

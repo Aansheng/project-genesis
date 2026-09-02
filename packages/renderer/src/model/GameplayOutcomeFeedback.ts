@@ -7,7 +7,7 @@
  * feedback state.
  */
 
-export type GameplayOutcomeFeedbackKind = 'hit' | 'defeat' | 'spawn'
+export type GameplayOutcomeFeedbackKind = 'hit' | 'defeat' | 'spawn' | 'interaction'
 
 export interface GameplayOutcomeFeedbackPosition {
   readonly x: number

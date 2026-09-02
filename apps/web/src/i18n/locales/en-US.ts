@@ -114,6 +114,7 @@ export const enUS: MessageCatalog = {
       move: 'Move',
       attack: 'Attack',
       jump: 'Jump',
+      interact: 'Interact',
     },
     lifecycle: {
       gameOver: 'Game Over',

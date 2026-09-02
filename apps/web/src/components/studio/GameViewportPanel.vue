@@ -42,6 +42,7 @@ const gameContainer = ref<HTMLDivElement | null>(null)
 const runtimeMounted = ref(false)
 const gameplaySessionStatus = computed<RuntimeGameplaySessionStatus>(() => store.gameplaySessionState.status)
 const isTopDownWorld = computed(() => resolveWorldSpatialMode(store.semanticWorld?.worldType) === 'top-down')
+const isEntityInteractionWorld = computed(() => store.semanticWorld?.worldType === 'farm' || store.semanticWorld?.worldType === 'rpg')
 const entityCount = computed(() => {
   void store.renderVersion
   return store.worldStore.getWorld().entities.length
@@ -318,6 +319,7 @@ onUnmounted(() => {
       aria-label="Game controls"
     >
       <span>Arrow Keys <em>{{ i18n.t('studio.controls.move') }}</em></span>
+      <span v-if="isEntityInteractionWorld">Enter <em>{{ i18n.t('studio.controls.interact') }}</em></span>
       <span v-if="isTopDownWorld">Space <em>{{ i18n.t('studio.controls.attack') }}</em></span>
       <span v-else>Space <em>{{ i18n.t('studio.controls.jump') }}</em></span>
     </footer>

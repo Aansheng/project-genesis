@@ -29,6 +29,7 @@ function positionOf(world: World, entityId: string): GameplayOutcomeFeedbackPosi
  * - ENTITY_REMOVED is a defeat only when the authoritative removal snapshot
  *   records Health == 0.
  * - ENTITY_ADDED is a committed Runtime spawn outcome.
+ * - ENTITY_PROPERTY_UPDATED is an interaction outcome only for `activated`.
  *
  * Attack-request events, failed actions, rolled-back actions, and ordinary
  * removals intentionally produce no positive feedback.
@@ -70,6 +71,11 @@ export function projectRuntimeGameplayOutcomeFeedback(
         entityId = mutation.targetEntityId
         kind = 'spawn'
         position = positionOf(actionResult.worldAfter, entityId)
+      } else if (mutation.type === 'ENTITY_PROPERTY_UPDATED' && mutation.property === 'activated') {
+        entityId = mutation.targetEntityId
+        kind = 'interaction'
+        position = positionOf(actionResult.worldAfter, entityId)
+          ?? positionOf(actionResult.worldBefore, entityId)
       }
 
       if (!kind || !entityId || !position) return

@@ -113,7 +113,7 @@ describe('Gameplay generation web integration', () => {
     expect(result.generationDiagnostics?.selectionOutcome).toBe('deterministic_fallback')
     expect(result.generationDiagnostics?.candidateDisposition).toBe('provider_failed')
     expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
-    expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('deferred')
+    expect(result.gameplaySpecification?.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('supported')
   })
 
   it('replaces the gameplay authority together with the active world', async () => {

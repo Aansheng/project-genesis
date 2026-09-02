@@ -620,7 +620,7 @@ describe('World Evolution Studio integration', () => {
     expect(game.semanticWorld?.entities).toHaveLength(8)
     expect(game.worldStore.getWorld().entities).toHaveLength(8)
     expect(game.gameplaySpecification?.mechanics.find(item => item.id === 'player-move')?.supportStatus).toBe('supported')
-    expect(game.gameplaySpecification?.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('deferred')
+    expect(game.gameplaySpecification?.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('supported')
   })
 
   it('routes an explicit new-world request through CreateWorld after an active world exists', async () => {

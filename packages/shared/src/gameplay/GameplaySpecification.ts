@@ -175,7 +175,7 @@ export interface GameplayCapabilityCatalog {
 }
 
 export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRulePrimitiveCapability[] = Object.freeze([
-  ...(['ENTITY_CONTACT_STARTED', 'ENTITY_ATTACK_REQUESTED', 'ENTITY_JUMPED', 'ENTITY_LANDED', 'ENTITY_ADDED', 'ENTITY_REMOVED'] as const).map(type => Object.freeze({
+  ...(['ENTITY_CONTACT_STARTED', 'ENTITY_ATTACK_REQUESTED', 'ENTITY_INTERACTION_REQUESTED', 'ENTITY_JUMPED', 'ENTITY_LANDED', 'ENTITY_ADDED', 'ENTITY_REMOVED'] as const).map(type => Object.freeze({
     id: `event-${type.toLowerCase().replace(/_/gu, '-')}`,
     kind: 'event' as const,
     description: `${type} is emitted as a truthful Runtime gameplay fact.`,
@@ -191,7 +191,7 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   Object.freeze({ id: 'action-remove-entity', kind: 'action' as const, description: 'Remove an entity through the existing immutable World mutation primitive.', status: 'supported' as const }),
   Object.freeze({ id: 'action-spawn-entity', kind: 'action' as const, description: 'Create one composed Runtime entity through trusted immutable gameplay mutation.', status: 'supported' as const }),
   Object.freeze({ id: 'action-change-numeric-state', kind: 'action' as const, description: 'Apply a finite additive delta to the current Runtime-owned numeric progression state.', status: 'supported' as const }),
-  Object.freeze({ id: 'action-set-entity-property', kind: 'action' as const, description: 'Set a whitelisted entity property; rule execution is not active.', status: 'deferred' as const }),
+  Object.freeze({ id: 'action-set-entity-property', kind: 'action' as const, description: 'Set a whitelisted entity property through immutable Runtime World mutation.', status: 'supported' as const }),
   Object.freeze({ id: 'action-apply-velocity', kind: 'action' as const, description: 'Set or add a Runtime VelocityComponent through immutable World mutation.', status: 'supported' as const }),
   Object.freeze({ id: 'action-complete-goal', kind: 'action' as const, description: 'Commit the current Runtime session from active to completed for a trusted goal contact; repeated completion is a no-op.', status: 'supported' as const }),
   Object.freeze({ id: 'action-damage-entity', kind: 'action' as const, description: 'Decrease a target Health component through immutable Runtime mutation; zero is state only.', status: 'supported' as const }),
@@ -255,6 +255,11 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
       mechanicIds: Object.freeze(['player-directed-offense', 'event-entity-attack-requested']),
     }),
     Object.freeze({
+      id: 'player-directed-interaction',
+      description: 'A Runtime input edge selects one nearby eligible entity deterministically and emits an ENTITY_INTERACTION_REQUESTED fact.',
+      mechanicIds: Object.freeze(['player-directed-interaction', 'event-entity-interaction-requested', 'farm-interact', 'rpg-interact']),
+    }),
+    Object.freeze({
       id: 'enemy-stomp',
       description: 'A supported generic contact rule removes an enemy target and applies an upward player velocity.',
       mechanicIds: Object.freeze(['enemy-stomp']),
@@ -297,11 +302,15 @@ export const DEFAULT_GAMEPLAY_CAPABILITY_CATALOG: GameplayCapabilityCatalog = Ob
     'event-entity-landed',
     'event-entity-contact-started',
     'event-entity-attack-requested',
+    'event-entity-interaction-requested',
     'event-entity-added',
     'event-entity-removed',
     'enemy-stomp',
     'enemy-side-damage',
     'player-directed-offense',
+    'player-directed-interaction',
+    'farm-interact',
+    'rpg-interact',
     'contact-offense',
     'enemy-spawn',
     'reach-goal',

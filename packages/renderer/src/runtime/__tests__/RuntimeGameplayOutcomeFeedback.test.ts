@@ -98,6 +98,51 @@ describe('Runtime gameplay outcome feedback projection', () => {
     expect(projectRuntimeGameplayOutcomeFeedback(undefined)).toEqual([])
   })
 
+  it('projects an activated entity property mutation as interaction feedback', () => {
+    const target = entity('npc-1', 'npc', 120, 300)
+    const activated = Object.freeze({
+      ...target,
+      components: Object.freeze([
+        ...(target.components ?? []),
+        Object.freeze({ type: 'gameplay-state', properties: Object.freeze({ activated: true }) }),
+      ]),
+    }) as unknown as Entity
+
+    const result = projectRuntimeGameplayOutcomeFeedback([
+      rule([
+        actionResult('SET_ENTITY_PROPERTY', {
+          type: 'ENTITY_PROPERTY_UPDATED',
+          targetEntityId: 'npc-1',
+          property: 'activated',
+          value: true,
+        }, world(target), world(activated)),
+      ]),
+    ])
+
+    expect(result).toEqual([
+      expect.objectContaining({ kind: 'interaction', entityId: 'npc-1', position: { x: 120, y: 300 } }),
+    ])
+  })
+
+  it('does not create interaction feedback for a no-op property action or another property', () => {
+    const target = entity('npc-1', 'npc', 120, 300)
+    const mutation = {
+      type: 'ENTITY_PROPERTY_UPDATED' as const,
+      targetEntityId: 'npc-1',
+      property: 'activated' as const,
+      value: true,
+    }
+    const noOp = actionResult('SET_ENTITY_PROPERTY', mutation, world(target), world(target), 'no_op')
+    const otherProperty = actionResult('SET_ENTITY_PROPERTY', {
+      type: 'ENTITY_PROPERTY_UPDATED',
+      targetEntityId: 'npc-1',
+      property: 'visible',
+      value: true,
+    }, world(target), world(target))
+
+    expect(projectRuntimeGameplayOutcomeFeedback([rule([noOp]), rule([otherProperty])])).toEqual([])
+  })
+
   it('uses the last authoritative position for lethal defeat after removal', () => {
     const enemy = entity('enemy-1', 'enemy', 120, 300, 0)
     const result = projectRuntimeGameplayOutcomeFeedback([

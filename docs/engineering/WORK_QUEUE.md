@@ -7,18 +7,19 @@ queue_version: 1
 updated: 2026-09-02
 current_sprint: Sprint 38
 current_work_order: WO-S38-001
-current_work_order_status: READY — Sprint 38 discovery complete; Human/CTO authorization required
-current_control_plane_work_order: SPRINT38_PRODUCT_GAP_DISCOVERY
-current_control_plane_work_order_status: DONE — one READY product WO generated; not executed
-last_completed_work_order: WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation
+current_work_order_status: DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check
+current_control_plane_work_order: SPRINT38_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — Human/CTO freeze decision pending
+last_completed_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 last_completed_control_plane_work_order: SPRINT37_FREEZE_REVIEW
-next_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability; do not execute without authorization; do not enter Sprint 39
+next_work_order: SPRINT38_FREEZE_REVIEW — finish Product Verification/Gap Analysis evidence, then await Human/CTO; do not enter Sprint 39
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT38_PRODUCT_GAP_DISCOVERY
 
 status: DONE — discovery complete; exactly one READY product WO generated
+  (historical discovery-boundary state)
 architecture_before: v1.187
 architecture_after: v1.187
 decision: Human/CTO froze Sprint 37 at v1.187 and authorized Sprint 38
@@ -37,7 +38,7 @@ matrix_result: Platformer (7) and Survival (6) pass the existing bounded
 selected_blocker: SUPPORTED ARCHETYPE ENTITIES ARE NOT PLAYER-REACHABLE
   THROUGH AN EXPLICIT PLAYER INTERACTION PATH
 selected_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
-selected_work_order_status: READY — not executed
+selected_work_order_status: READY — not executed at the discovery boundary
 non_goals: No Farm or RPG system, genre parity, preselected input key, new
   classifier/ontology, provider authority, Renderer-only patch, legacy
   reconnection, second WO, or Sprint 39 entry.
@@ -46,14 +47,19 @@ evidence: Real Studio exact-request matrix, Explorer/Runtime entity inspection,
   actual Arrow/Space play input, and zero browser errors/warnings. Full detail
   is in `docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md`.
 next_gate: Human/CTO authorization of `WO-S38-001`; execute only that item,
-  then run a fresh Sprint 38 Gap Analysis. Do not enter Sprint 39.
+then run a fresh Sprint 38 Gap Analysis. Do not enter Sprint 39.
+
+This section preserves the state at the end of discovery. The work order was
+subsequently authorized and executed; its current result and freeze-review
+gate are recorded in the `WO-S38-001` and `SPRINT38_FREEZE_REVIEW` sections
+above.
 
 ## WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 
-status: READY — discovery complete; not executed
+status: DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check
 priority: P0 / highest-priority shared Farm and RPG playability blocker
 architecture_before: v1.187
-architecture_after: v1.187 unless implementation evidence requires an accepted change
+architecture_after: v1.188
 mission: Establish the smallest generic explicit Player-directed interaction
   path at the existing input → Runtime event → GameplayRule → authoritative
   result → Renderer/Observatory boundary, then prove one characteristic Farm
@@ -72,8 +78,27 @@ forbidden_scope: Farm engine, farming simulation, inventory/economy, RPG
   E/F/Enter/Space preselection, Renderer-only or Observatory-only interaction,
   second input authority, provider-direct mutation, legacy reconnection, second
   WO, or Sprint 39.
-execution_boundary: READY only. Human/CTO authorization is required; no code
-  or gameplay implementation was executed during Sprint 38 discovery.
+execution_boundary: DONE under the 2026-09-02 Human/CTO authorization. Code
+  Complete = YES. Product Verification remains pending the final normal-play
+  browser input-edge result; after that result, perform the fresh Sprint 38
+  Gap Analysis and stop at `SPRINT38_FREEZE_REVIEW`. Sprint 39 is not entered.
+
+## SPRINT38_FREEZE_REVIEW
+
+status: READY — implementation complete; Human/CTO freeze decision pending
+architecture: v1.188
+evidence: `WO-S38-001` adds one generic Runtime interaction request path for
+  Farm/RPG. Farm targets one nearby `npc`; RPG targets one nearby `quest`; both
+  use `Enter`, finite range `48`, nearest/stable-ID targeting,
+  `ENTITY_INTERACTION_REQUESTED`, supported Gameplay Rules, trusted immutable
+  `SET_ENTITY_PROPERTY`, and committed Renderer feedback. Full and focused
+  automated production-path regressions, package TypeScript/ESLint, Web build,
+  and browser UI/Observatory checks pass; final normal-play browser input-edge
+  evidence and fresh Gap Analysis are pending. No second Sprint 38 WO or
+  Sprint 39 entry is allowed.
+next_action: Complete the final real Studio input-edge proof, record
+  `docs/project/SPRINT38_GAP_ANALYSIS.md`, and wait for Human/CTO freeze
+  decision. Do not enter Sprint 39.
 
 ## SPRINT37_PRODUCT_GAP_DISCOVERY
 

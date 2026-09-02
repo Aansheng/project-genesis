@@ -1,18 +1,19 @@
 # Sprint 38 Backlog — Cross-Genre Playability Fidelity
 
-This is a one-item Sprint 38 backlog generated from the real Studio discovery.
-Sprint 37 is FROZEN at v1.187. The item below is READY and has not been
-implemented. Sprint 39 is not entered.
+This is a one-item Sprint 38 backlog generated from the real Studio discovery
+and executed under the explicit Human/CTO authorization. Sprint 37 is FROZEN
+at v1.187. `WO-S38-001` is code-complete at v1.188; final normal-play Product
+Verification and the fresh Gap Analysis remain pending the browser input-edge
+check. Sprint 39 is not entered.
 
 ## WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 
-status: **READY — discovery complete; not executed**
+status: **DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check**
 priority: **P0 / highest-priority shared Farm and RPG playability blocker**
 architecture_before: **v1.187**
-architecture_after: **v1.187 unless implementation evidence requires an
-accepted architecture change**
-code_complete: **NO — not executed**
-product_verified: **PENDING — execution not authorized in this continuation**
+architecture_after: **v1.188**
+code_complete: **YES — implementation complete**
+product_verified: **PENDING — final normal-play browser input-edge check**
 
 ### Product blocker
 
@@ -91,9 +92,15 @@ selector, mutation, feedback, and observability contracts where they fit.
   measured blocker proves it is required.
 - No second Sprint 38 WO and no Sprint 39 entry.
 
-### Execution boundary
+### Execution result
 
-This work order is **READY only**. Human/CTO authorization is required before
-execution. The next action is to execute this single WO, verify the two
-characteristic interactions in the real Studio, and then perform a fresh
-Sprint 38 Gap Analysis before any Sprint 39 decision.
+Human/CTO authorized this single work order on 2026-09-02. The implementation
+uses `Enter — Interact` only for Farm/RPG, selects one nearest finite-range
+Runtime target (`npc` for Farm, `quest` for RPG), emits
+`ENTITY_INTERACTION_REQUESTED`, executes one bounded Gameplay Rule, commits
+`gameplay-state.activated = true` through trusted immutable Runtime mutation,
+and projects committed activation as a transient generic interaction cue.
+The production CreateWorld → Runtime regression, full package suites, quality
+gates, Web build, and browser UI/Observatory checks pass. Final normal-play
+browser input-edge evidence is pending; the next gate is
+`SPRINT38_FREEZE_REVIEW`. Sprint 39 is not entered.

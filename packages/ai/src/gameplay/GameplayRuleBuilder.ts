@@ -57,6 +57,17 @@ function targetSelector(): { readonly kind: 'eventTarget' } {
   return Object.freeze({ kind: 'eventTarget' })
 }
 
+function interactionTrigger(
+  player: ReturnType<typeof playerSelector>,
+  target: ReturnType<typeof targetSelector>,
+): GameplayTrigger {
+  return Object.freeze({
+    eventType: 'ENTITY_INTERACTION_REQUESTED' as const,
+    actor: player,
+    target,
+  })
+}
+
 function categoryCondition(
   entity: ReturnType<typeof playerSelector> | ReturnType<typeof targetSelector>,
   category: EntityCategory,
@@ -232,7 +243,7 @@ function deterministicRules(
   }
 
   if (world.worldType === 'farm' && hasMechanic(specification, 'farm-interact')) {
-    const interactable = world.entities.find(entity => entity.category === 'npc' || entity.category === 'item')
+    const interactable = world.entities.find(entity => entity.category === 'npc')
     if (interactable) {
       rules.push(rule(
         'farm-interaction',
@@ -240,6 +251,23 @@ function deterministicRules(
         'farm-interact',
         [categoryCondition(player, 'player'), categoryCondition(target, interactable.category)],
         [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true })],
+        'all',
+        interactionTrigger(player, target),
+      ))
+    }
+  }
+
+  if (world.worldType === 'rpg' && hasMechanic(specification, 'rpg-interact')) {
+    const interactable = world.entities.find(entity => entity.category === 'quest')
+    if (interactable) {
+      rules.push(rule(
+        'rpg-interaction',
+        'RPG quest interaction',
+        'rpg-interact',
+        [categoryCondition(player, 'player'), categoryCondition(target, interactable.category)],
+        [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true })],
+        'all',
+        interactionTrigger(player, target),
       ))
     }
   }

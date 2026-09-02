@@ -250,8 +250,28 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       playerMechanics: Object.freeze(['player-move']),
       mechanics: Object.freeze([
         mechanic('player-move', 'movement', 'Player moves around the farm.', 'supported', playerId),
-        mechanic('farm-interact', 'interaction', 'Player interacts with farm entities.', 'deferred', playerId, 'farm entity'),
+        mechanic('farm-interact', 'interaction', 'Player can explicitly interact with one nearby farm NPC.', 'supported', playerId, 'npc'),
         mechanic('tend-resource', 'interaction', 'Player tends or harvests a farm resource.', 'deferred', playerId, 'resource'),
+      ]),
+    })
+  }
+
+  if (world.worldType === 'rpg') {
+    return Object.freeze({
+      gameLoop: Object.freeze({
+        objective: 'Explore the world and interact with its quest characters.',
+        repeatableActions: Object.freeze(['move', 'observe', 'interact']),
+        challengeSources: Object.freeze(['world traversal', 'quest characters']),
+        rewardSources: Object.freeze(['world progress']),
+        progressionModes: Object.freeze(['none' as const]),
+        completionMode: 'open-ended' as const,
+        success: 'Complete the requested interaction.',
+        failure: 'No failure condition is currently defined.',
+      }),
+      playerMechanics: Object.freeze(['player-move']),
+      mechanics: Object.freeze([
+        mechanic('player-move', 'movement', 'Player moves through the RPG world.', 'supported', playerId),
+        mechanic('rpg-interact', 'interaction', 'Player can explicitly interact with one nearby RPG quest entity.', 'supported', playerId, 'quest'),
       ]),
     })
   }

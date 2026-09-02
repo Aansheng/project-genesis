@@ -3,6 +3,7 @@ import type {
   EntityCategory,
   GameWorldModel,
   GameplayAction,
+  GameplayActionValue,
   GameplayContactDirection,
   GameplayCondition,
   GameplayEvent,
@@ -43,6 +44,7 @@ import type {
 } from './RuntimeGameplaySessionState'
 
 const SEMANTIC_COMPONENT_TYPE = 'semantic'
+const GAMEPLAY_STATE_COMPONENT_TYPE = 'gameplay-state'
 const MAX_CONSUMED_EVENT_RULES = 512
 const ENTITY_CATEGORIES: readonly EntityCategory[] = Object.freeze([
   'player',
@@ -143,6 +145,13 @@ export interface GameplayActionExecutionResult {
         readonly targetEntityId: string
         readonly health: { readonly current: number; readonly max: number }
         readonly damageAmount: number
+      }
+    | {
+        readonly type: 'ENTITY_PROPERTY_UPDATED'
+        readonly targetEntityId: string
+        readonly property: 'activated' | 'enabled' | 'visible'
+        readonly value: GameplayActionValue
+        readonly previousValue?: GameplayActionValue
       }
     | {
         readonly type: 'GOAL_COMPLETED'
@@ -677,6 +686,76 @@ export class DefaultGameplayActionExecutor implements GameplayActionExecutor {
         targetEntityIds: Object.freeze([id]),
         worldAfter,
         mutation: Object.freeze({ type: 'ENTITY_ADDED' as const, targetEntityId: id }),
+      })
+    }
+
+    if (action.type === 'SET_ENTITY_PROPERTY') {
+      if (typeof action.value === 'number' && !Number.isFinite(action.value)) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'entity_property_value_must_be_finite',
+        })
+      }
+
+      const target = resolveSelector(action.target, event, context)
+      if (!target) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'target_entity_not_found',
+        })
+      }
+
+      const existingState = target.components?.find(component => component.type === GAMEPLAY_STATE_COMPONENT_TYPE)
+      const previousValue = existingState?.properties[action.property]
+      if (previousValue === action.value) {
+        return Object.freeze({
+          ...base,
+          status: 'no_op' as const,
+          reason: 'entity_property_already_set',
+        })
+      }
+
+      const nextState = Object.freeze({
+        type: GAMEPLAY_STATE_COMPONENT_TYPE,
+        properties: Object.freeze({
+          ...(existingState?.properties ?? {}),
+          [action.property]: action.value,
+        }),
+      })
+      const components = [...(target.components ?? [])]
+      const stateIndex = components.findIndex(component => component.type === GAMEPLAY_STATE_COMPONENT_TYPE)
+      if (stateIndex === -1) components.push(nextState)
+      else components[stateIndex] = nextState
+      const worldAfter = this.worldMutator.replaceEntity(context.world, Object.freeze({
+        ...target,
+        components: Object.freeze(components),
+      }) as unknown as Entity)
+      const updated = worldAfter.entities.find(entity => entity.id === target.id)
+      const updatedState = updated?.components?.find(component => component.type === GAMEPLAY_STATE_COMPONENT_TYPE)
+      if (updatedState?.properties[action.property] !== action.value) {
+        return Object.freeze({
+          ...base,
+          status: 'failed' as const,
+          failureReason: 'runtime_mutation_failed',
+        })
+      }
+
+      return Object.freeze({
+        ...base,
+        status: 'executed' as const,
+        targetEntityIds: Object.freeze([target.id]),
+        worldAfter,
+        mutation: Object.freeze({
+          type: 'ENTITY_PROPERTY_UPDATED' as const,
+          targetEntityId: target.id,
+          property: action.property,
+          value: action.value,
+          ...(typeof previousValue === 'string' || typeof previousValue === 'number' || typeof previousValue === 'boolean'
+            ? { previousValue }
+            : {}),
+        }),
       })
     }
 

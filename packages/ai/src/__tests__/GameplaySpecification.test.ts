@@ -83,6 +83,16 @@ describe('GameplaySpecification foundation', () => {
     expect(farm.mechanics.some(item => item.id === 'enemy-stomp')).toBe(false)
     expect(farm.mechanics.some(item => item.id === 'choose-skill')).toBe(false)
     expect(farm.mechanics.some(item => item.id === 'enemy-spawn')).toBe(false)
+    expect(farm.mechanics.find(item => item.id === 'farm-interact')?.supportStatus).toBe('supported')
+
+    const rpg = new DefaultGameplaySpecificationBuilder().build({
+      semanticWorld: {
+        worldType: 'rpg',
+        entities: [{ id: 'player', category: 'player', name: 'Player' }, { id: 'quest', category: 'quest', name: 'Main Quest' }],
+      },
+    })
+    expect(rpg.mechanics.find(item => item.id === 'rpg-interact')?.supportStatus).toBe('supported')
+    expect(rpg.mechanics.some(item => item.id === 'enemy-stomp')).toBe(false)
   })
 
   it('does not promote an arbitrary enemy-contact interaction by concept alone', () => {

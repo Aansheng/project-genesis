@@ -40,6 +40,13 @@ export { DefaultVelocityMotionSystem } from './DefaultVelocityMotionSystem'
 export type { PlayerAttackRequestOptions } from './DefaultPlayerAttackRequestSystem'
 export { DEFAULT_PLAYER_ATTACK_RANGE, DefaultPlayerAttackRequestSystem } from './DefaultPlayerAttackRequestSystem'
 
+// Generic player-directed entity interaction reachability (WO-S38-001)
+export type { PlayerInteractionRequestOptions } from './DefaultPlayerInteractionRequestSystem'
+export {
+  DEFAULT_PLAYER_INTERACTION_RANGE,
+  DefaultPlayerInteractionRequestSystem,
+} from './DefaultPlayerInteractionRequestSystem'
+
 // Jump System Foundation (WO-S9-014)
 export type { JumpSystem } from './JumpSystem'
 export type { JumpSystemResult } from './JumpSystemResult'

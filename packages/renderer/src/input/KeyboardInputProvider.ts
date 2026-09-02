@@ -107,6 +107,7 @@ export class KeyboardInputProvider implements InputProvider {
       'ArrowLeft',
       'ArrowRight',
       'Space',
+      'Enter',
     ])
     return validKeys.has(key) ? (key as InputKey) : null
   }

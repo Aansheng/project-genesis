@@ -194,3 +194,13 @@ Sprint 38 WO, no product implementation, no architecture redesign, and no
 Sprint 39 entry is authorized by this discovery.
 
 See [`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md) for the single READY item.
+
+## Post-discovery disposition
+
+The preceding sections intentionally preserve the discovery-boundary record:
+at that point `WO-S38-001` was READY and had not been executed. The Human/CTO
+authorization that followed was accepted, and the work order is now Code
+Complete at v1.188. Its pending final real-Studio input-edge evidence, fresh
+Gap Analysis, and `SPRINT38_FREEZE_REVIEW` gate are recorded in
+[`SPRINT38_GAP_ANALYSIS.md`](SPRINT38_GAP_ANALYSIS.md) and
+[`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md). Sprint 39 remains unentered.

@@ -14,6 +14,7 @@ import {
   DefaultGravitySystem,
   DefaultGroundCollisionSystem,
   DefaultJumpSystem,
+  DefaultPlayerInteractionRequestSystem,
   DefaultPlayerAttackRequestSystem,
   DefaultPlayerControllerSystem,
   DefaultTargetDirectedMovementSystem,
@@ -21,9 +22,21 @@ import {
   DefaultVerticalMotionSystem,
 } from '@genesis/runtime'
 import { resolveWorldSpatialMode } from '@genesis/shared'
-import type { WorldType } from '@genesis/shared'
+import type { EntityCategory, WorldType } from '@genesis/shared'
 
 export type StudioMotionProfile = 'platformer' | 'top-down'
+
+const FARM_INTERACTION_TARGET_CATEGORIES = Object.freeze(['npc'] as const)
+const RPG_INTERACTION_TARGET_CATEGORIES = Object.freeze(['quest'] as const)
+
+/** Resolve the explicit Runtime categories eligible for Studio interaction. */
+export function resolveStudioInteractionTargetCategories(
+  worldType: WorldType | null | undefined,
+): readonly EntityCategory[] {
+  if (worldType === 'farm') return FARM_INTERACTION_TARGET_CATEGORIES
+  if (worldType === 'rpg') return RPG_INTERACTION_TARGET_CATEGORIES
+  return Object.freeze([])
+}
 
 /**
  * Resolve the generic motion profile for the current semantic world.
@@ -73,6 +86,14 @@ export function registerStudioRuntimeSystems(
 
   if (motionProfile === 'platformer') {
     registry.register(new DefaultGroundCollisionSystem(400))
+  }
+
+  const interactionTargetCategories = resolveStudioInteractionTargetCategories(worldType)
+  if (interactionTargetCategories.length > 0) {
+    registry.register(new DefaultPlayerInteractionRequestSystem(inputProvider, {
+      inputKey: 'Enter',
+      targetCategories: interactionTargetCategories,
+    }))
   }
 
   registry.register(new DefaultEntityContactSystem())

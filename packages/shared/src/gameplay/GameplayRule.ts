@@ -166,6 +166,7 @@ export interface GameplayRuleSetBindingInput {
 export const GAMEPLAY_RULE_EVENT_TYPES: readonly GameplayEventType[] = Object.freeze([
   'ENTITY_CONTACT_STARTED',
   'ENTITY_ATTACK_REQUESTED',
+  'ENTITY_INTERACTION_REQUESTED',
   'ENTITY_JUMPED',
   'ENTITY_LANDED',
   'ENTITY_ADDED',

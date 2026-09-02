@@ -38,6 +38,30 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-02 | Freeze Sprint 36 at v1.186 and authorize Sprint 37 — CreateWorld Semantic Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 36 / ENTER SPRINT 37 DISCOVERY | Human / CTO | `WO-S36-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 36 Gap Analysis is PASS. Trace semantic interpretation after CreateWorld, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 38. |
 | 2026-09-02 | Execute `WO-S37-001` — Generic CreateWorld Supported-Archetype Intent Preservation. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded existing typed supported-archetype extraction change. Preserve CreateWorld routing, current-world mutation precedence, provider candidate validation, deterministic fallback, Farm template/DSL, Runtime/Renderer authority, and Sandbox for unknown input; complete real Studio Product Verification and a fresh Sprint 37 Gap Analysis, then stop at `SPRINT37_FREEZE_REVIEW`; do not add Farm mechanics, a classifier framework, a provider architecture, or enter Sprint 38. |
 | 2026-09-02 | Freeze Sprint 37 at v1.187 and authorize Sprint 38 — Cross-Genre Playability Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 37 / ENTER SPRINT 38 DISCOVERY | Human / CTO | `WO-S37-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 37 Gap Analysis is PASS. Play the real Platformer, Survival, Farm, and RPG Studio paths, select exactly one highest-priority blocker, generate exactly one READY WO, do not implement it in this continuation, and do not enter Sprint 39. |
+| 2026-09-02 | Execute `WO-S38-001` — Generic Player-Directed Entity Interaction Reachability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Player interaction path. Preserve Platformer `Space` Jump, Survival `Space` Attack, Runtime/Renderer authority, provider candidate-only behavior, and existing Farm/RPG compositions; complete real Studio Product Verification and a fresh Sprint 38 Gap Analysis, then stop at `SPRINT38_FREEZE_REVIEW`; do not add genre systems, a universal ontology, a second input authority, a legacy reconnection, or enter Sprint 39. |
+
+## WO-S38-001 execution decision and result
+
+Date: 2026-09-02
+
+Result: **IMPLEMENTATION COMPLETE — Code Complete = YES; Product Verified =
+PENDING final real Studio input-edge check; v1.188**
+
+The authorized work order adds one generic Runtime interaction path. Farm
+selects one nearby `npc`; RPG selects one nearby `quest`; both use the same
+`Enter` request, finite range `48`, nearest/stable-ID targeting,
+`ENTITY_INTERACTION_REQUESTED`, trusted `SET_ENTITY_PROPERTY`, immutable
+Runtime state, and committed Renderer feedback. The normal production
+CreateWorld → Runtime regression passes for both archetypes, as do all full
+package suites, package TypeScript/ESLint checks, the Web build, and browser
+UI/Observatory checks with empty diagnostics. Final normal-play browser
+input-edge evidence is pending because the current in-app control session did
+not expose a stable held/polled keyboard edge; no false Product Verified claim
+is made here.
+
+The next control-plane gate is `SPRINT38_FREEZE_REVIEW`. The fresh Gap
+Analysis is recorded in `docs/project/SPRINT38_GAP_ANALYSIS.md` after the
+input-edge evidence is closed. Sprint 39 is not entered.
 
 ## Sprint 36 freeze and Sprint 37 semantic-fidelity discovery decision
 

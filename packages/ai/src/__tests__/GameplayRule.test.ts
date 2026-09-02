@@ -212,6 +212,62 @@ describe('GameplayRule foundation', () => {
     })
   })
 
+  it('composes one generic interaction rule for Farm NPCs and one for RPG quest entities', () => {
+    const farmWorld: GameWorldModel = Object.freeze({
+      worldType: 'farm',
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+        Object.freeze({ id: 'merchant', category: 'npc', name: 'Merchant' }),
+      ]),
+    })
+    const farmSpecification = new DefaultGameplaySpecificationBuilder().build({ semanticWorld: farmWorld })
+    const farmRules = new DefaultGameplayRuleBuilder().build({
+      semanticWorld: farmWorld,
+      gameplaySpecification: farmSpecification,
+    })
+    expect(farmRules.rules).toHaveLength(1)
+    expect(farmRules.rules[0]).toMatchObject({
+      ruleId: 'farm-interaction',
+      sourceMechanicId: 'farm-interact',
+      supportStatus: 'supported',
+      trigger: {
+        eventType: 'ENTITY_INTERACTION_REQUESTED',
+        actor: { kind: 'eventActor' },
+        target: { kind: 'eventTarget' },
+      },
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'npc' },
+      ],
+      actions: [{ type: 'SET_ENTITY_PROPERTY', target: { kind: 'eventTarget' }, property: 'activated', value: true }],
+    })
+
+    const rpgWorld: GameWorldModel = Object.freeze({
+      worldType: 'rpg',
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+        Object.freeze({ id: 'main-quest', category: 'quest', name: 'Main Quest' }),
+      ]),
+    })
+    const rpgSpecification = new DefaultGameplaySpecificationBuilder().build({ semanticWorld: rpgWorld })
+    const rpgRules = new DefaultGameplayRuleBuilder().build({
+      semanticWorld: rpgWorld,
+      gameplaySpecification: rpgSpecification,
+    })
+    expect(rpgRules.rules).toHaveLength(1)
+    expect(rpgRules.rules[0]).toMatchObject({
+      ruleId: 'rpg-interaction',
+      sourceMechanicId: 'rpg-interact',
+      supportStatus: 'supported',
+      trigger: { eventType: 'ENTITY_INTERACTION_REQUESTED' },
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
+      ],
+      actions: [{ type: 'SET_ENTITY_PROPERTY', property: 'activated', value: true }],
+    })
+  })
+
   it('normalizes IDs and rejects unknown events, actions, exact references, and code', () => {
     const validator = new DefaultGameplayRuleValidator()
     const invalid = validator.validate([
@@ -239,6 +295,7 @@ describe('GameplayRule foundation', () => {
     })
 
     expect(context.ruleVocabulary.eventTypes).toContain('ENTITY_CONTACT_STARTED')
+    expect(context.ruleVocabulary.eventTypes).toContain('ENTITY_INTERACTION_REQUESTED')
     expect(context.ruleVocabulary.conditionTypes).toContain('CONTACT_DIRECTION_EQUALS')
     expect(context.ruleVocabulary.actionTypes).toContain('DAMAGE_ENTITY')
     expect(DEFAULT_GAMEPLAY_CAPABILITY_CATALOG.supportedMechanicIds).toContain('enemy-stomp')
@@ -248,6 +305,7 @@ describe('GameplayRule foundation', () => {
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-apply-velocity')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-damage-entity')?.status).toBe('supported')
     expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-spawn-entity')?.status).toBe('supported')
+    expect(context.ruleVocabulary.primitiveCapabilities.find(item => item.id === 'action-set-entity-property')?.status).toBe('supported')
     expect(context).not.toHaveProperty('runtimeHistory')
     expect(context).not.toHaveProperty('pixi')
   })

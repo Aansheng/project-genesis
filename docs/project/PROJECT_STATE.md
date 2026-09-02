@@ -39,8 +39,8 @@
 **Sprint 35** — Progression Meaning (**FROZEN — `WO-S35-001` Code Complete = YES; Product Verified = YES; v1.185; Human/CTO accepted 2026-09-01**)
 **Sprint 36** — Active-World New-World Intent Correctness (**FROZEN — `WO-S36-001` Code Complete = YES; Product Verified = YES; v1.186; Human/CTO accepted 2026-09-02**)
 **Sprint 37** — CreateWorld Semantic Fidelity (**FROZEN — `WO-S37-001` Code Complete = YES; Product Verified = YES; v1.187; Human/CTO accepted 2026-09-02**)
-**Sprint 38** — Cross-Genre Playability Fidelity Discovery (**ACTIVE — discovery DONE; `WO-S38-001` READY; no implementation; Sprint 39 not entered**)
-**Current WO** - `WO-S38-001` — READY for Human/CTO authorization; Sprint 38 discovery complete; do not enter Sprint 39
+**Sprint 38** — Cross-Genre Playability Fidelity (**ACTIVE — `WO-S38-001` Code Complete = YES; Product Verified = PENDING real Studio input-edge check; Sprint 39 not entered**)
+**Current WO** - `WO-S38-001` — implementation complete; Product Verification and fresh Gap Analysis remain pending the final real Studio input check; next gate is `SPRINT38_FREEZE_REVIEW`
 
 ---
 
@@ -48,14 +48,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 discovery is complete at v1.187 with exactly one READY `WO-S38-001`; no Sprint 38 implementation or Sprint 39 entry has occurred. |
-| Architecture Version | v1.187; the existing typed CreateWorld intent boundary preserves `农场 → farm` through provider context and deterministic fallback. The active-world Intent boundary still classifies generic whole-world creation before the existing Evolution fallback. Runtime remains authoritative for gameplay. Sprint 38 changes no architecture or gameplay capability; it measures that Farm and RPG semantic entities lack a shared explicit Player interaction path. |
-| Last Completed WO | WO-S37-001 — Generic CreateWorld Supported-Archetype Intent Preservation; Code Complete = YES; Product Verified = YES; v1.187. |
-| Current User-Visible Behavior | Platformer remains the bounded side-view baseline with 7 entities, Arrow Keys movement, Space jump, and supported movement/goal/enemy/collection rules. Survival remains the bounded top-down baseline with 6 entities, Arrow Keys movement, Space attack, enemy pressure, Health damage, XP/Level, and replacement. `做一个农场游戏` now correctly produces the existing 8-entity Farm World, but only generic movement/jump is player-reachable; Farm interaction is deferred. `创建一个 RPG` produces the existing 9-entity RPG World, but only generic movement/jump is player-reachable and its Gameplay Rule set is empty. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → Semantic World → Game DSL → Runtime projection → world-specific registered systems (Platformer movement/jump/physics; Survival top-down movement/attack/pursuit; Farm/RPG generic movement/jump) → finalized Runtime events → GameplayRuleSet supported slice → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only; Farm/RPG currently stop before a characteristic Player interaction event/result. |
-| Current Blocking Issue | **SUPPORTED ARCHETYPE ENTITIES ARE NOT PLAYER-REACHABLE THROUGH AN EXPLICIT PLAYER INTERACTION PATH.** Farm and RPG contain the expected semantic entities, but normal Studio play exposes only generic movement/jump and does not commit a characteristic Farm/RPG interaction result. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN — prior AI 9441/9441 and Web 3583/3583, quality gates, real Studio semantic verification, current Observatory v1.187/Sprint 37 truth, and empty browser diagnostics. Sprint 38 discovery: real Studio matrix completed; Platformer/Survival baselines passed, Farm/RPG interaction gap reproduced, Full Observatory truth captured, and browser diagnostics remained empty. No S38 implementation was executed. |
-| Next Recommended Verification | Human/CTO authorization of the single READY `WO-S38-001 — Generic Player-Directed Entity Interaction Reachability`; execute only that WO, then perform a fresh Sprint 38 Gap Analysis. Do not enter Sprint 39. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 `WO-S38-001` implementation is complete at v1.188 with Code Complete = YES; Product Verification and fresh Gap Analysis are pending the final real Studio input-edge check. Sprint 39 is not entered. |
+| Architecture Version | v1.188; the existing typed CreateWorld intent boundary preserves `农场 → farm` through provider context and deterministic fallback. The active-world Intent boundary still classifies generic whole-world creation before the existing Evolution fallback. Runtime remains authoritative for gameplay. Sprint 38 adds one bounded generic Player-directed interaction capability over the existing input → event → GameplayRule → World mutation → Renderer feedback path. |
+| Last Completed WO | WO-S38-001 — Generic Player-Directed Entity Interaction Reachability; Code Complete = YES; Product Verified = PENDING final real Studio input-edge check; v1.188. |
+| Current User-Visible Behavior | Platformer remains the bounded side-view baseline with 7 entities, Arrow Keys movement, Space jump, and supported movement/goal/enemy/collection rules. Survival remains the bounded top-down baseline with 6 entities, Arrow Keys movement, Space attack, enemy pressure, Health damage, XP/Level, and replacement. `做一个农场游戏` produces the existing 8-entity Farm World and exposes `Enter — 交互` for one nearby NPC; `创建一个 RPG` produces the existing 9-entity RPG World and exposes the same generic control for one nearby quest entity. A committed activation is projected as a transient interaction cue; final real Studio key-edge evidence is still pending. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → Semantic World → Game DSL → Runtime projection → world-specific registered systems (Platformer movement/jump/physics; Survival top-down movement/attack/pursuit; Farm/RPG generic movement/jump plus bounded interaction request) → finalized Runtime events → GameplayRuleSet supported slice → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only. |
+| Current Blocking Issue | No new product P0 blocker has been identified by the automated production-chain audit. The final real Studio input-edge verification for Farm/RPG and the fresh Sprint 38 Gap Analysis remain pending before the freeze review gate. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN — prior AI 9441/9441 and Web 3583/3583, quality gates, real Studio semantic verification, current Observatory v1.187/Sprint 37 truth, and empty browser diagnostics. WO-S38-001 code path: focused and full package tests, TypeScript, ESLint, Web build, and production CreateWorld → Runtime → Enter → Rule → World regressions pass; browser UI shows v1.188, Farm/RPG controls, and supported rules with empty diagnostics. Product Verified remains PENDING until the browser input edge produces the authoritative interaction result in normal play. |
+| Next Recommended Verification | Complete the real Studio Farm/RPG input-edge result check, record the fresh Gap Analysis, then stop at `SPRINT38_FREEZE_REVIEW` for Human/CTO decision. Do not enter Sprint 39. |
 
 ## Sprint 38 Cross-Genre Playability Fidelity Discovery
 
@@ -81,14 +81,44 @@ truthful Observatory state. The exact key is intentionally not selected in
 discovery. This is not a Farm engine, RPG system, new classifier, or
 Renderer-only task.
 
-Exactly one work order is READY: `WO-S38-001 — Generic Player-Directed Entity
-Interaction Reachability`. It is not executed. Full evidence and the required
+At the discovery boundary, exactly one work order was READY:
+`WO-S38-001 — Generic Player-Directed Entity Interaction Reachability`. It was
+not executed during discovery. The subsequent authorization and execution are
+recorded in the section below. Full discovery evidence and the required
 non-goals are recorded in
 [`SPRINT38_PRODUCT_GAP_DISCOVERY.md`](SPRINT38_PRODUCT_GAP_DISCOVERY.md), and
 the one-item backlog is in [`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md).
 
 Sprint 38 discovery is complete; the repository stops at the one READY WO and
 does not enter Sprint 39.
+
+## Sprint 38 — WO-S38-001 Execution and Fresh Gap Analysis
+
+The authorized `WO-S38-001` implementation is complete at v1.188. The
+production Studio composition now exposes `Enter — 交互` for Farm and RPG
+only. The generic Runtime request system selects one nearest explicitly
+eligible target within range `48`, with stable Runtime ID tie-breaking, and
+emits `ENTITY_INTERACTION_REQUESTED`. Farm targets `npc`; RPG targets
+`quest`. The matching deterministic rules use the existing trusted
+`SET_ENTITY_PROPERTY` action to commit `gameplay-state.activated = true` on
+the target. Only a committed activation is projected as a transient Renderer
+interaction cue.
+
+The same generic path is covered by the real CreateWorld production pipeline
+for `做一个农场游戏` and `创建一个 RPG`, including the existing 8- and
+9-entity compositions, Runtime movement, finite targeting, rule execution,
+immutable World result, no-target behavior, and repeated no-op behavior. The
+focused production regression passes. Full package suites pass: Shared
+211/211, Runtime 711/711, AI 9442/9442, Renderer 513/513, and Web 3585/3585;
+all package TypeScript checks and ESLint checks pass with zero errors, and the
+Web build passes. Final normal-play browser input-edge evidence is still being
+closed; therefore Code Complete is YES and Product Verified is PENDING.
+
+No Farm/RPG engine, dialogue/quest/combat framework, universal interaction
+ontology, second input authority, provider runtime call, legacy reconnection,
+second Sprint 38 WO, or Sprint 39 entry was introduced. See
+[`SPRINT38_GAP_ANALYSIS.md`](SPRINT38_GAP_ANALYSIS.md) for the final gate
+record once the browser input check is closed.
 
 ## Sprint 37 CreateWorld Semantic Fidelity Discovery
 

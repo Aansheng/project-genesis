@@ -82,7 +82,7 @@ describe('KeyboardInputProvider', () => {
       expect(provider.getState().isPressed('Space')).toBe(true)
     })
 
-    it('ignores non-tracked keys', () => {
+    it('tracks the explicit interaction key and ignores other non-tracked keys', () => {
       fireKeyDown(target, 'Enter')
       fireKeyDown(target, 'Escape')
       fireKeyDown(target, 'a')
@@ -92,6 +92,7 @@ describe('KeyboardInputProvider', () => {
       expect(state.isPressed('ArrowLeft')).toBe(false)
       expect(state.isPressed('ArrowRight')).toBe(false)
       expect(state.isPressed('Space')).toBe(false)
+      expect(state.isPressed('Enter')).toBe(true)
     })
 
     it.each(['input', 'textarea', 'select', 'button'])('ignores %s keyboard events', (tagName) => {

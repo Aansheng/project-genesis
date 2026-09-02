@@ -1,13 +1,15 @@
-# Gameplay Capability Matrix — Sprint 38 Discovery Complete / WO Ready
+# Gameplay Capability Matrix — Sprint 38 WO Complete / Freeze Review Pending
 
-Architecture version: v1.187 (Sprint 30 through Sprint 36 FROZEN;
+Architecture version: v1.188 (Sprint 30 through Sprint 37 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 `WO-S36-001` Code Complete = YES; Product Verified = YES; fresh Sprint 36 Gap
 Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
-Sprint 38 discovery complete; `WO-S38-001` READY; no implementation executed)
+`WO-S38-001` Code Complete = YES; Product Verified = PENDING final real
+Studio input-edge check; fresh Sprint 38 Gap Analysis pending; Sprint 39 not
+entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -56,15 +58,16 @@ catalog still contains `farm`, `platformer`, `rpg`, `survival`, and `sandbox`;
 deterministic/provider-failure fallback now reaches the existing eight-entity
 Farm composition instead of Sandbox. No Farm mechanics are added.
 
-Sprint 38 adds no gameplay capability. Real Studio discovery measured the
-existing cross-genre playability boundary: Platformer and Survival pass their
-bounded baselines, while Farm and RPG preserve their semantic entities but
-lack an explicit Player-directed interaction path to an authoritative
-characteristic result. `WO-S38-001 — Generic Player-Directed Entity
-Interaction Reachability` is READY and unexecuted. The exact input key is not
-preselected; the candidate must be evaluated through the existing input,
-Runtime, GameplayRule, Renderer, and Observatory contracts. No Farm/RPG
-system or genre parity is implied.
+Sprint 38 promotes one bounded generic Player-directed interaction capability
+at the existing input → Runtime event → GameplayRule → authoritative World
+boundary. `WO-S38-001 — Generic Player-Directed Entity Interaction
+Reachability` uses `Enter` only in the Farm/RPG Studio compositions, selects
+one nearest finite-range target with stable Runtime-ID tie-breaking, and emits
+`ENTITY_INTERACTION_REQUESTED`. Farm targets one `npc`; RPG targets one
+`quest`. The existing trusted `SET_ENTITY_PROPERTY` action commits a bounded
+`gameplay-state.activated` mutation and the Renderer presents only that
+committed result. No Farm/RPG system or genre parity is implied; final normal
+play Product Verification is pending the browser input-edge check.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -82,17 +85,18 @@ system or genre parity is implied.
 | Entity mutation events | Runtime event observation | `supported` | `RuntimeWorldStore` emits `ENTITY_ADDED`/`ENTITY_REMOVED` after committed ID-set changes. |
 | Entity contact-start event | Runtime event observation | `supported` | Explicit Runtime `collision-bounds` AABBs produce de-duplicated `ENTITY_CONTACT_STARTED` facts with typed direction derived from Runtime geometry; the supported contact-danger rule may consume the fact after the event boundary. |
 | Entity attack-request event | Runtime event observation | `supported` | The top-down generic `PlayerAttackRequestSystem` emits one `ENTITY_ATTACK_REQUESTED` fact per accepted `Space` key edge after deterministic current Runtime target selection. |
-| Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue at the last authoritative Position, and `ENTITY_ADDED` to a replacement cue; uncommitted/no-op/contact-only facts produce no Player-attack cue. |
+| Entity interaction-request event | Runtime event observation | `supported` | The generic `PlayerInteractionRequestSystem` emits one `ENTITY_INTERACTION_REQUESTED` fact per accepted `Enter` edge after explicit category allowlisting, finite-range Position targeting, nearest selection, and stable Runtime-ID tie-breaking. |
+| Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue, `ENTITY_ADDED` to a replacement cue, and committed `ENTITY_PROPERTY_UPDATED(activated)` to a generic interaction cue; uncommitted/no-op/contact-only facts produce no positive interaction cue. |
 | Active-world whole-world Intent classification | Studio command → IntentRouter/Web front door | `supported` | `WO-S36-001` is complete at v1.186: current-world entity/property/continuation mutations retain World Evolution, while clear whole-world/game construction, named-world, and explicit new/reset requests use the existing CreateWorld replacement contract even with an active world. Bare creation remains ambiguous and non-replacing; no genre registry or second router exists. |
 | Supported CreateWorld archetype intent preservation | `GameIntent` extraction → provider/fallback semantic world | `supported` | `WO-S37-001` is complete at v1.187: the existing ordered alias boundary preserves `farm` for both English `farm` and Chinese `农场`, while Platformer, Survival, RPG, and Sandbox fallback remain bounded. |
 | Gameplay rule description | `GameplayRuleSpecification` + `GameplayRuleSet` | `supported` | Shared immutable Trigger/Condition/Action data is validated and stored beside `GameplaySpecification`; supported rules can enter the bounded Runtime executor. |
-| Rule event vocabulary | Rule trigger | `supported` | `ENTITY_CONTACT_STARTED`, `ENTITY_ATTACK_REQUESTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
+| Rule event vocabulary | Rule trigger | `supported` | `ENTITY_CONTACT_STARTED`, `ENTITY_ATTACK_REQUESTED`, `ENTITY_INTERACTION_REQUESTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
 | Rule entity selectors | Rule condition/target references | `supported` | Event actor/target, exact current ID, category, current semantic name/archetype, and category-backed role selectors are normalized by Genesis. |
 | `REMOVE_ENTITY` rule primitive | Gameplay action schema | `supported` | The bounded executor resolves a current target, protects Player, and calls the immutable `WorldMutator`. |
 | `SPAWN_ENTITY` rule primitive | Gameplay action schema | `supported` | Trusted executor resolves an existing semantic template, composes one Runtime entity, and commits immutable `WorldMutator.addEntity()`; no Semantic World rebuild or provider call occurs. |
 | `APPLY_VELOCITY` rule primitive | Gameplay action schema | `supported` | Generic trusted action reuses `VelocityComponent` and immutable `WorldMutator.replaceEntity`; set/add modes are bounded and deterministic. |
 | `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
-| `SET_ENTITY_PROPERTY` | Gameplay action schema | `deferred` | No generic gameplay property executor exists. |
+| `SET_ENTITY_PROPERTY` | Gameplay action schema | `supported` | Trusted Runtime execution sets the bounded `activated`, `enabled`, or `visible` property in an immutable `gameplay-state` component and emits `ENTITY_PROPERTY_UPDATED`; equal values are truthful no-ops. |
 | `DAMAGE_ENTITY` | Gameplay action schema | `supported` | Trusted generic action validates positive finite damage, resolves current Health, uses immutable `WorldMutator.replaceEntity`, and commits Runtime session `failed` when a player reaches zero. Failed execution pauses later gameplay rules until explicit same-world respawn. |
 | Player-directed short-range offense | Generic top-down Runtime input + Gameplay Rule composition | `supported` | One `Space` edge selects one positive-Health Enemy within finite range `48` by nearest distance and stable ID tie-break, emits `ENTITY_ATTACK_REQUESTED`, and applies trusted `DAMAGE_ENTITY`; Level 1 commits 25 damage, while Level 2+ commits 50 through mutually exclusive `NUMBER_COMPARE(gameState.level)` Rule variants. The existing defeat/XP/fair-start/replacement path remains active. |
 | Enemy contact danger | Survival composition over generic rule primitives | `supported` | `ENTITY_CONTACT_STARTED` remains a separate Enemy→Player contact rule that applies 1 damage to Player Health; it is no longer the Player's automatic Enemy-offense path. |
@@ -101,7 +105,8 @@ system or genre parity is implied.
 | `NUMBER_COMPARE` condition | Gameplay condition schema | `supported` | Runtime evaluates finite typed event-payload, entity-property, and Runtime `gameState` references with `eq/neq/gt/gte/lt/lte`; no expression language or arbitrary evaluation is introduced. |
 | Trigger matching / condition evaluation / action execution | Gameplay rule execution | `partially supported` | `DefaultGameplayRuleMatcher`, `DefaultGameplayConditionEvaluator`, and trusted generic actions run after the event batch; the two-action stomp uses staged all-or-nothing commit; no eval, scripts, generated code, or generic workflow engine exists. |
 | Platformer loop | `GameLoopSpecification` + defaults | `partially supported` | Move/jump/physics, contact facts, collectible removal, collect-reward `experience +1`, enemy stomp, non-top Health damage, Runtime failure/respawn, and current-session goal completion execute; score and game-over remain deferred. |
-| Farm interaction | Mechanics and interaction intent | `deferred` | Farm entities are semantically modeled; no production interaction executor exists. |
+| Farm interaction | Mechanics and interaction intent | `supported` | `WO-S38-001` exposes `Enter — Interact`, selects one nearby `npc`, and commits `gameplay-state.activated = true` through the generic interaction event and `farm-interaction` Rule. Crop simulation, inventory, economy, and resource tending remain deferred. |
+| RPG interaction | Mechanics and interaction intent | `supported` | `WO-S38-001` exposes the same `Enter — Interact` path, selects one nearby `quest`, and commits `gameplay-state.activated = true` through the generic interaction event and one `rpg-interaction` Rule. Dialogue, quest progression, combat, and stats remain deferred. |
 | Collection / collectibles | Mechanics, optional goals/targets | `partially supported` | A player contact with semantic category `item` can remove the target and the bounded collect-reward rule can add `experience`; inventory, score, and `ITEM_COLLECTED` remain absent. |
 | Damage / health | Combat and failure intent | `partially supported` | Player/enemy/npc Health is a generic Runtime component and non-top contact can decrease current Health; lethal player damage commits Runtime `failed`, and same-world respawn restores Health/active play. |
 | Enemy spawn | Spawn rule intent | `supported` | Bounded `ENTITY_REMOVED` with authoritative `health <= 0` triggers one generic Runtime replacement Enemy in the active Survival session; periodic waves/count/timer semantics remain deferred. |
@@ -115,7 +120,7 @@ system or genre parity is implied.
 | Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. The committed Level 2 now selects the bounded 50-damage Survival offense variant; skill/upgrade state and later thresholds remain deferred. |
 | Progression-conditioned gameplay capability selection | Runtime progression state → existing Gameplay Rule action variants | `supported` | `WO-S35-001` is complete at v1.185: current Runtime progression is read at attack evaluation time; mutually exclusive `level < 2` / `level >= 2` conditions select fixed `DAMAGE_ENTITY` values 25 / 50. No modifier/stat framework or additional threshold is implied. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
-| Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
+| Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, bounded SET_ENTITY_PROPERTY, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
 
 ## Audit classification
 
@@ -126,15 +131,17 @@ system or genre parity is implied.
   numeric progression state with additive deltas, bounded normalized event
   observation for jump, landing, contact-start, attack-request, add, and remove
   facts, deterministic generic Player-directed short-range target selection,
-  and one trusted generic Runtime entity-creation action with reusable
-  composition.
+  deterministic generic Player-directed interaction target selection, bounded
+  Runtime entity property state, and one trusted generic Runtime
+  entity-creation action with reusable composition.
 - **RULE DESCRIPTION IMPLEMENTED:** immutable Trigger/Condition/Action rules,
   deterministic RuleSet mapping, candidate validation, selector validation, and
   capability-derived support status.
 - **RULE EXECUTION IMPLEMENTED:** bounded post-system matching, category/
   archetype/ID/component/direction evaluation, generic `REMOVE_ENTITY`,
-  `APPLY_VELOCITY`, `DAMAGE_ENTITY`, `COMPLETE_GOAL`, finite additive
-  `CHANGE_NUMERIC_STATE`, and bounded removal-triggered `SPAWN_ENTITY` actions,
+  `APPLY_VELOCITY`, `DAMAGE_ENTITY`, `SET_ENTITY_PROPERTY`, `COMPLETE_GOAL`,
+  finite additive `CHANGE_NUMERIC_STATE`, and bounded removal-triggered
+  `SPAWN_ENTITY` actions,
   current-world/semantic binding, Player
   protection, exactly-once consumption, and next-boundary mutation observation.
   Multi-action rules stage immutable worlds and commit only when all actions
@@ -147,7 +154,7 @@ system or genre parity is implied.
 - **NOT EXECUTED:** skill/modifier state, score policy, lives,
   checkpoints, enemy AI,
   timers, periodic/wave spawn execution, progression beyond the bounded numeric primitive,
-  failure flow beyond the bounded player failure/respawn slice, property actions,
+  failure flow beyond the bounded player failure/respawn slice,
   unrelated rich multi-action transactions, next-level/restart
   behavior, and win/lose orchestration beyond current session-completed truth.
 
@@ -171,6 +178,7 @@ timer, world-bounds authority, or wave system exists. Sprint 35
 `WO-S36-001` is FROZEN at v1.186 with a PASS fresh Gap Analysis. `WO-S37-001`
 is FROZEN at v1.187 with Code Complete/Product Verified = YES and a PASS fresh
 Gap Analysis; it adds semantic reachability only, no gameplay capability.
-Sprint 38 discovery adds no capability and leaves exactly one READY,
-unexecuted item: `WO-S38-001 — Generic Player-Directed Entity Interaction
-Reachability`.
+`WO-S38-001` adds the bounded generic Player-directed interaction capability at
+v1.188. Code Complete is YES; final normal-play Product Verification and the
+fresh Sprint 38 Gap Analysis remain pending the browser input-edge check. The
+repository does not enter Sprint 39.

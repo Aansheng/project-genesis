@@ -115,6 +115,7 @@ export const zhCN: MessageCatalog = {
       move: '移动',
       attack: '攻击',
       jump: '跳跃',
+      interact: '交互',
     },
     lifecycle: {
       gameOver: '游戏结束',

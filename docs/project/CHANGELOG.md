@@ -1,5 +1,31 @@
 # Changelog
 
+### Sprint 38 — WO-S38-001 Generic Player-Directed Entity Interaction Reachability (v1.188, 2026-09-02)
+
+- Human/CTO authorized and implementation completed for the single Sprint 38
+  work order. Architecture advances from v1.187 to v1.188 at the existing
+  input → Runtime event → GameplayRule → authoritative World boundary.
+- The generic Runtime request system tracks `Enter` only where the Studio
+  composition explicitly enables it, selects one nearest eligible target
+  within finite range `48` with stable Runtime-ID tie-breaking, and emits
+  `ENTITY_INTERACTION_REQUESTED`. Farm targets one `npc`; RPG targets one
+  `quest` entity.
+- Farm and RPG each compose exactly one supported rule over the same request
+  path. The trusted existing `SET_ENTITY_PROPERTY` action now commits the
+  bounded immutable `gameplay-state.activated` property, and the Renderer
+  projects only committed activation as a transient generic interaction cue.
+- Farm remains the existing 8-entity composition and RPG remains the existing
+  9-entity composition. The Studio footer exposes `Enter — 交互` / `Enter —
+  Interact`; Platformer `Space — Jump` and Survival `Space — Attack` remain
+  unchanged. No Farm/RPG engine, dialogue/quest/combat framework, provider
+  runtime authority, universal ontology, second input path, or legacy
+  reconnection was introduced.
+- Shared 211/211, Runtime 711/711, AI 9442/9442, Renderer 513/513, and Web
+  3585/3585 tests pass. Package TypeScript and ESLint checks pass with zero
+  errors, the Web build passes, and `git diff --check` passes. The final
+  normal-play browser input-edge check and fresh Gap Analysis remain pending;
+  Sprint 39 is not entered.
+
 ### Sprint 38 — Cross-Genre Playability Fidelity Discovery (v1.187, 2026-09-02)
 
 - Human/CTO froze Sprint 37 at v1.187 and authorized discovery across the
