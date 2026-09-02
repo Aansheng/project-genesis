@@ -205,4 +205,9 @@ fresh PASS Gap Analysis, and `SPRINT38_FREEZE_REVIEW` gate are recorded in
 [`SPRINT38_GAP_ANALYSIS.md`](SPRINT38_GAP_ANALYSIS.md) and
 [`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md). The Provider-accepted Farm
 5-vs-8 composition variance is recorded separately and is not a blocker.
-Sprint 39 remains unentered.
+Sprint 39 remains unentered at that historical discovery boundary.
+
+Human/CTO later froze Sprint 38 at v1.188 and authorized Sprint 39 discovery;
+the current state and its single READY WO are recorded in
+[`SPRINT39_PRODUCT_GAP_DISCOVERY.md`](SPRINT39_PRODUCT_GAP_DISCOVERY.md) and
+[`SPRINT39_BACKLOG.md`](SPRINT39_BACKLOG.md).

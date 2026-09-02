@@ -5,16 +5,113 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-02
-current_sprint: Sprint 38
-current_work_order: WO-S38-001
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
-current_control_plane_work_order: SPRINT38_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — Human/CTO freeze decision pending
+current_sprint: Sprint 39
+current_work_order: WO-S39-001
+current_work_order_status: READY — discovery complete; not executed
+current_control_plane_work_order: SPRINT39_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — one discovery WO generated; Human/CTO execution review pending
 last_completed_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
-last_completed_control_plane_work_order: SPRINT37_FREEZE_REVIEW
-next_work_order: SPRINT38_FREEZE_REVIEW — fresh Gap Analysis PASS; await Human/CTO freeze decision; do not enter Sprint 39
+last_completed_control_plane_work_order: SPRINT38_FREEZE_REVIEW
+next_work_order: WO-S39-001 — Generic Archetype Interaction Consequence (first bounded slice); do not execute in this continuation or enter Sprint 40
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
+
+## SPRINT39_AUTHORIZATION — Cross-Genre Interaction Meaning Discovery
+
+status: ACCEPTED — discovery-only Sprint 39; no implementation executed
+architecture_before: v1.188
+architecture_after: v1.188 for discovery; no product architecture change
+decision: Human/CTO froze Sprint 38 at v1.188 and authorized Sprint 39
+  Cross-Genre Interaction Meaning Discovery on 2026-09-02. Play the real
+  Farm/RPG front doors, audit the meaning of the now-reachable interaction,
+  select exactly one blocker, generate exactly one READY WO, and stop before
+  implementation. Do not enter Sprint 40.
+next_gate: SPRINT39_FREEZE_REVIEW
+
+## SPRINT39_PRODUCT_GAP_DISCOVERY
+
+status: DONE — discovery complete; exactly one READY product WO generated
+architecture_before: v1.188
+architecture_after: v1.188
+trace: StudioCommandBar → gameStore.send → IntentRouter/CreateWorld →
+  Provider candidate or deterministic fallback → Semantic World → Game DSL →
+  Runtime entities → Enter target selection → ENTITY_INTERACTION_REQUESTED →
+  archetype GameplayRule → trusted Runtime action → authoritative World →
+  Pixi/Observatory projection.
+matrix_result: Repeated normal Farm creation produced two
+  Provider-accepted five-entity candidates. The deterministic comparison
+  retained the existing eight-entity Farm composition. The normal RPG
+  request produced the existing nine-entity deterministic fallback after a
+  structurally invalid Provider candidate. In-range Sprint 38 proofs remain
+  the accepted reachability evidence; current discovery Enter probes from
+  out-of-range starts truthfully produced no event or mutation.
+selected_blocker: SUPPORTED ARCHETYPE INTERACTIONS LACK MECHANICALLY
+  MEANINGFUL CONSEQUENCES
+selected_work_order: WO-S39-001 — Generic Archetype Interaction Consequence (first bounded slice)
+selected_work_order_status: READY — not executed
+non_goals: No product code, architecture change, Farm/RPG system, preselected
+  Farm mechanic or quest, Provider completeness repair, spatial/control
+  redesign, speculative framework, second WO, or Sprint 40 entry.
+evidence: Real Studio Farm/RPG front-door generation, Explorer/Runtime
+  inspection, before/after Enter observations, Full Observatory RPG rule and
+  runtime truth, repeated Provider Farm composition capture, source call-chain
+  audit, canvas review, and empty browser warn/error diagnostics. Full detail
+  is in docs/project/SPRINT39_PRODUCT_GAP_DISCOVERY.md.
+next_gate: SPRINT39_FREEZE_REVIEW; review and authorize only WO-S39-001 if
+  execution is desired. Do not execute it in this continuation or enter
+  Sprint 40.
+
+## WO-S39-001 — Generic Archetype Interaction Consequence (first bounded slice)
+
+status: READY — not executed
+priority: P0 / highest-priority shared Farm and RPG meaning blocker
+architecture_before: v1.188
+architecture_after: v1.189 expected only if later authorized and executed
+mission: Reuse the existing Player input → Runtime event → GameplayRule →
+  trusted action → authoritative World → Renderer/Observatory boundary so one
+  existing supported Farm or RPG interaction commits a characteristic,
+  mechanically meaningful state transition beyond activated=true. Select the
+  smallest archetype and existing typed action/state mechanism during the
+  implementation audit; do not preselect the domain consequence.
+dependencies: Sprint 38 is frozen at v1.188 and WO-S38-001 reachability is
+  the prerequisite. Existing Runtime targeting, interaction event, Rule
+  matcher, immutable World store, and committed feedback remain the only
+  required seams. Deterministic Farm 8-entity and RPG 9-entity paths remain
+  regression baselines; Provider candidates remain candidate-only.
+allowed_scope: Audit/reuse an existing trusted action/state contract; compose
+  through the existing generic interaction request and Rule path; preserve
+  Runtime authority, no-target truth, repeated no-op behavior, and committed
+  feedback; verify through the normal front door and Observatory.
+acceptance: At least one selected Farm or RPG interaction commits a
+  characteristic authoritative state transition beyond activated=true and
+  makes the result understandable on the Game surface without Observatory.
+  Farm/RPG front doors, Sprint 38 reachability, no-target/repeated-input
+  truth, Platformer/Survival baselines, candidate-only Provider behavior,
+  and Observatory truth remain clean.
+forbidden_scope: No Farm engine, FarmingSystem, crop/inventory/economy loop,
+  RPG dialogue/quest/combat/progression framework, Provider completeness gate,
+  entity-count requirement, spatial redesign, FarmRenderer/RPGRenderer,
+  universal ontology, InteractionManager, new input authority, legacy
+  reconnection, second Sprint 39 WO, or Sprint 40.
+verification: Focused production-path regression with front door, target,
+  event, Rule, trusted action, authoritative diff, feedback, no-target, and
+  repeated-input truth; affected tests, TypeScript, ESLint, regressions, Web
+  build when applicable; real Studio Product Verification and browser
+  warning/error capture.
+completion: Record architecture transition, files, real flow, tests,
+  TypeScript, ESLint, remaining gaps, manual Product Verification, Code
+  Complete, and Product Verified. This item is not executed here.
+
+## SPRINT39_FREEZE_REVIEW
+
+status: READY — discovery complete; one READY WO; execution pending
+architecture: v1.188
+evidence: SPRINT39_PRODUCT_GAP_DISCOVERY.md and WO-S39-001 record that
+  Farm/RPG reachability is present but current meaning stops at
+  gameplay-state.activated=true. Provider 5-vs-8 composition and
+  platformer-style Space/Jump inheritance are separate observations.
+next_action: Human/CTO review of WO-S39-001. Do not execute it in this
+  continuation and do not enter Sprint 40.
 
 ## SPRINT38_PRODUCT_GAP_DISCOVERY
 
@@ -92,7 +189,7 @@ separate Provider composition observation. Stop at
 
 ## SPRINT38_FREEZE_REVIEW
 
-status: READY — Product Verified complete; Human/CTO freeze decision pending
+status: DONE — Sprint 38 FROZEN; Human/CTO accepted 2026-09-02
 architecture: v1.188
 evidence: `WO-S38-001` adds one generic Runtime interaction request path for
   Farm/RPG. Farm targets one nearby `npc`; RPG targets one nearby `quest`; both
@@ -105,8 +202,9 @@ evidence: `WO-S38-001` adds one generic Runtime interaction request path for
   8-entity baseline remains covered; a 5-entity Provider candidate is recorded
   separately and is not a blocker. Fresh Gap Analysis = PASS. No second
   Sprint 38 WO or Sprint 39 entry is allowed.
-next_action: Await Human/CTO freeze decision at `SPRINT38_FREEZE_REVIEW`.
-  Do not enter Sprint 39.
+next_action: Freeze recorded. Sprint 39 discovery is authorized and is
+  recorded in SPRINT39_PRODUCT_GAP_DISCOVERY; do not execute its READY WO
+  or enter Sprint 40 from this continuation.
 
 ## SPRINT37_PRODUCT_GAP_DISCOVERY
 

@@ -109,3 +109,10 @@ Provider-accepted Farm PV candidate had 5 entities; the deterministic fallback
 the difference as a separate Provider composition observation, not a blocker.
 The fresh Gap Analysis is PASS; the next gate is `SPRINT38_FREEZE_REVIEW`.
 Sprint 39 is not entered.
+
+## Post-freeze disposition
+
+Human/CTO subsequently accepted the freeze on 2026-09-02. Sprint 38 is
+FROZEN at v1.188, and Sprint 39 discovery was authorized. The current
+control-plane state is recorded in
+docs/engineering/WORK_QUEUE.md and the one-item Sprint 39 discovery/backlog.

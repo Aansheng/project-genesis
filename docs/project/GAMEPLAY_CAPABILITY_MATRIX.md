@@ -1,4 +1,4 @@
-# Gameplay Capability Matrix — Sprint 38 WO Complete / Freeze Review Pending
+# Gameplay Capability Matrix — Sprint 38 Frozen / Sprint 39 Discovery Complete
 
 Architecture version: v1.188 (Sprint 30 through Sprint 37 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
@@ -8,7 +8,8 @@ Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
 `WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Sprint 38
-Gap Analysis PASS; `SPRINT38_FREEZE_REVIEW` pending; Sprint 39 not entered)
+Gap Analysis PASS; Sprint 38 FROZEN; Sprint 39 discovery complete; exactly
+one READY WO-S39-001; Sprint 40 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -181,9 +182,14 @@ is FROZEN at v1.187 with Code Complete/Product Verified = YES and a PASS fresh
 Gap Analysis; it adds semantic reachability only, no gameplay capability.
 `WO-S38-001` adds the bounded generic Player-directed interaction capability at
 v1.188. Code Complete and Product Verified are YES; the fresh Sprint 38 Gap
-Analysis is PASS. Real Studio Farm and RPG input edges committed the expected
-target-specific Runtime outcomes, and repeated interactions were truthful
-no-ops. The Provider-accepted Farm verification candidate had 5 entities while
-the deterministic 8-entity baseline remains covered; this is a separate
-Provider composition completeness observation, not a blocker for the WO. The
-repository stops at `SPRINT38_FREEZE_REVIEW` and does not enter Sprint 39.
+Analysis is PASS and Sprint 38 is FROZEN. Real Studio Farm and RPG input edges
+committed the expected target-specific Runtime outcomes, and repeated
+interactions were truthful no-ops. The Provider-accepted Farm verification
+candidate had 5 entities while the deterministic 8-entity baseline remains
+covered; this is a separate Provider composition completeness observation, not
+a blocker for the WO.
+
+Sprint 39 discovery adds no gameplay capability. It records that the current
+Farm/RPG target-specific result stops at gameplay-state.activated=true and
+generates exactly one READY WO-S39-001 to audit an existing trusted
+action/state mechanism. The WO is not executed here; Sprint 40 is not entered.

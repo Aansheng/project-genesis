@@ -40,6 +40,33 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-02 | Freeze Sprint 37 at v1.187 and authorize Sprint 38 — Cross-Genre Playability Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 37 / ENTER SPRINT 38 DISCOVERY | Human / CTO | `WO-S37-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 37 Gap Analysis is PASS. Play the real Platformer, Survival, Farm, and RPG Studio paths, select exactly one highest-priority blocker, generate exactly one READY WO, do not implement it in this continuation, and do not enter Sprint 39. |
 | 2026-09-02 | Execute `WO-S38-001` — Generic Player-Directed Entity Interaction Reachability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Player interaction path. Preserve Platformer `Space` Jump, Survival `Space` Attack, Runtime/Renderer authority, provider candidate-only behavior, and existing Farm/RPG compositions; complete real Studio Product Verification and a fresh Sprint 38 Gap Analysis, then stop at `SPRINT38_FREEZE_REVIEW`; do not add genre systems, a universal ontology, a second input authority, a legacy reconnection, or enter Sprint 39. |
 | 2026-09-02 | Close `WO-S38-001` after Human/CTO clarification of the real Farm/RPG Product Verification evidence. | ACCEPTED — PRODUCT VERIFIED / CLOSE | Human / CTO | Farm and RPG both prove the generic normal-play interaction path. The Provider-accepted Farm 5-vs-8 composition variance is a separate observation, not a WO blocker; preserve the deterministic 8-entity regression, mark Code Complete/Product Verified/DONE, record a fresh Sprint 38 Gap Analysis PASS, select `SPRINT38_FREEZE_REVIEW`, and do not enter Sprint 39 or fix Provider composition in this WO. |
+| 2026-09-02 | Freeze Sprint 38 at v1.188 and authorize Sprint 39 — Cross-Genre Interaction Meaning Discovery. | ACCEPTED — FREEZE SPRINT 38 / ENTER SPRINT 39 DISCOVERY | Human / CTO | `WO-S38-001` is FROZEN with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Run real Farm/RPG interaction-meaning discovery, select exactly one highest-priority blocker, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 40. |
+
+## Sprint 39 discovery result and READY work order
+
+Date: 2026-09-02
+
+Result: **DISCOVERY COMPLETE — exactly one READY WO; no implementation
+executed; v1.188 remains current**
+
+Real Studio front-door sessions for 做一个农场游戏 and 创建一个 RPG confirmed
+the Sprint 38 interaction path. The accepted in-range proofs show that both
+archetypes currently stop at the generic gameplay-state.activated=true
+mutation; no Farm field/resource consequence or RPG quest/NPC/progression
+consequence follows. Two Provider-accepted Farm candidates contained 5
+entities versus the deterministic 8-entity baseline; the candidates retained
+an npc, so the variance remains a separate observation. Farm/RPG also inherit
+Space — Jump from the platformer-style Studio composition, but that is not
+the selected blocker.
+
+The single selected blocker is **SUPPORTED ARCHETYPE INTERACTIONS LACK
+MECHANICALLY MEANINGFUL CONSEQUENCES**. Exactly one READY item was generated:
+`WO-S39-001 — Generic Archetype Interaction Consequence (first bounded slice)`.
+It must audit the existing trusted action/state seam and is not executed in
+this continuation. Full evidence is in
+`docs/project/SPRINT39_PRODUCT_GAP_DISCOVERY.md`; the one-item backlog is in
+`docs/project/SPRINT39_BACKLOG.md`. The next gate is
+`SPRINT39_FREEZE_REVIEW`; Sprint 40 is not entered.
 
 ## WO-S38-001 execution decision and result
 
