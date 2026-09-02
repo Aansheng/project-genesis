@@ -34,6 +34,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-01 | Freeze Sprint 34 at v1.184 and authorize Sprint 35 — Progression Meaning Discovery. | ACCEPTED — FREEZE SPRINT 34 / ENTER SPRINT 35 DISCOVERY | Human / CTO | `WO-S34-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 34 Gap Analysis is PASS. Audit XP/Level authority and real Survival behavior, rank candidate consequences, generate exactly one READY WO, do not execute it, and do not enter Sprint 36. |
 | 2026-09-01 | Execute `WO-S35-001` — Generic Progression-Conditioned Gameplay Capability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded Level-conditioned Survival offense composition: Level 1 damage 25, Level 2+ damage 50, using existing generic `NUMBER_COMPARE` and `DAMAGE_ENTITY` semantics. Complete real Studio Product Verification and a fresh Sprint 35 Gap Analysis, then stop at `SPRINT35_FREEZE_REVIEW`; do not add scaling, a modifier framework, or enter Sprint 36. |
 | 2026-09-01 | Freeze Sprint 35 at v1.185 and authorize Sprint 36 — Active-World New-World Intent Correctness Discovery. | ACCEPTED — FREEZE SPRINT 35 / ENTER SPRINT 36 DISCOVERY | Human / CTO | `WO-S35-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 35 Gap Analysis is PASS. Audit the real active-world Intent path, generate exactly one READY WO, do not modify routing during discovery, and do not enter Sprint 37. |
+| 2026-09-01 | Execute `WO-S36-001` — Generic Active-World New-World Intent Classification. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Intent/Web front-door classification. Preserve current-world mutations, explicit-new behavior, AI candidate validation, and the existing CreateWorld replacement contract; complete real Studio Product Verification and a fresh Sprint 36 Gap Analysis, then stop at `SPRINT36_FREEZE_REVIEW`; do not add a genre registry, second router, broad ambiguity/NLU expansion, or enter Sprint 37. |
 
 ## Sprint 36 Active-World New-World Intent Correctness discovery decision
 
@@ -56,6 +57,24 @@ Exactly one product work order was generated:
 `READY`, not executed. This discovery changes no Runtime, Renderer, Semantic
 World, AI authority, or architecture contract; v1.185 remains current. The
 next control-plane action is Human/CTO review at `SPRINT36_FREEZE_REVIEW`.
+
+## WO-S36-001 execution decision and result
+
+Date: 2026-09-01
+
+Result: **DONE — Code Complete = YES; Product Verified = YES; v1.186; fresh
+Sprint 36 Gap Analysis PASS**
+
+The separately authorized work order changed only the existing IntentRouter
+and Web front-door classification boundary. Current-world mutation signals
+remain higher precedence; generic whole-world/game creation and named-world
+signals use the existing CreateWorld path even with an active world; bare
+creation remains ambiguous and non-replacing. The real Studio sequence
+verified same-world entity Evolution, active Survival → MarioWorld → Survival
+replacement, RPG/Farm and explicit-new replacements, ambiguous preservation,
+Platformer Space input, current Observatory truth/assets, and empty browser
+diagnostics. The repository remains at `SPRINT36_FREEZE_REVIEW` pending the
+separate Human/CTO freeze decision; Sprint 37 is not entered.
 
 ## Sprint 17 Goal Authorization
 

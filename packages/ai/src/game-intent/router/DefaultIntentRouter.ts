@@ -2,9 +2,12 @@
  * DefaultIntentRouter — default implementation of IntentRouter.
  *
  * Routing rules:
- * - without an active world, contains "create", "创建", "生成", "generate", or "build" → route = create-world
+ * - without an active world, a creation or whole-world construction request → route = create-world
  * - with an active world, entity-scoped mutation requests use world-evolution;
- *   a creation verb alone is not sufficient to replace the current world
+ *   clear whole-world creation requests use create-world
+ * - a creation/construction verb plus a whole-world/game scope is sufficient
+ *   for create-world; a creation verb alone is not sufficient to replace the
+ *   current world
  * - explicit new-world/reset semantics → route = create-world in either context
  * - additional genre keyword confidence boost:
  *   - contains "mario", "farm", "rpg", "survival", "survivor", "生存", or "幸存者" → confidence = 1.0 (with creation keyword)
@@ -72,6 +75,12 @@ const ENTITY_MUTATION_KEYWORDS = [
 
 /** Terms that make the object of a request the world/game rather than an entity. */
 const WORLD_SCOPE_KEYWORDS = ['世界', '游戏', 'world', 'game'] as const
+
+/** Small construction shape for whole-world requests that do not use create/generate. */
+const WHOLE_WORLD_CONSTRUCTION_PATTERN = /(?:做|制作|打造)\s*(?:一个|一款|个)/iu
+
+/** A visibly named Latin label following a creation verb can name an archetype/world. */
+const NAMED_WORLD_LABEL_PATTERN = /(?:创建|生成|新建|create|generate|build)\s*(?:一个|一款|a|an|one)?\s*[A-Z][A-Za-z0-9_-]*\s*$/u
 
 /** Generic quantity + entity shape; deliberately independent of entity names. */
 const ENTITY_QUANTITY_PATTERN = /(?:\d+|一个|一|两个|两|三个|三|四个|四|五个|五|六个|六|七个|七|八个|八|九个|九|十个|十)\s*(?:个|只|名|枚|件|位)?\s*[a-z\u4e00-\u9fff]/iu
@@ -169,6 +178,16 @@ function hasEntityScopedMutation(input: string): boolean {
   )
 }
 
+function hasNamedWorldLabel(input: string): boolean {
+  return NAMED_WORLD_LABEL_PATTERN.test(input)
+}
+
+function hasWholeWorldConstructionIntent(input: string): boolean {
+  const hasCreationIntent = hasCreateKeyword(input) || WHOLE_WORLD_CONSTRUCTION_PATTERN.test(input)
+  if (!hasCreationIntent || hasEntityScopedMutation(input) || hasEvolutionKeyword(input)) return false
+  return hasWorldScope(input) || hasNamedWorldLabel(input)
+}
+
 function hasEvolutionKeyword(input: string): boolean {
   const lower = input.toLowerCase()
   return EVOLUTION_KEYWORDS.some(keyword => lower.includes(keyword.toLowerCase())) &&
@@ -182,7 +201,7 @@ function hasEvolutionKeyword(input: string): boolean {
 /**
  * DefaultIntentRouter — rule-based natural language request routing.
  *
- * Scans the input for creation and genre-indicative keywords.
+ * Scans the input for creation, construction, scope, and genre-indicative signals.
  * Returns a frozen IntentRoutingResult.
  */
 export class DefaultIntentRouter implements IntentRouter {
@@ -196,8 +215,8 @@ export class DefaultIntentRouter implements IntentRouter {
     const hasCreate = hasCreateKeyword(input)
     const hasGenre = hasGenreKeyword(input)
 
-    // New-world/reset language is the only creation override that is valid
-    // when a current world is active.
+    // Explicit new-world/reset language always remains a valid CreateWorld
+    // override when a current world is active.
     if (hasExplicitNewWorldIntent(input)) {
       const confidence = hasGenre ? CONFIDENCE_DEFINITE : CONFIDENCE_STRONG
       return Object.freeze({ route: ROUTE_CREATE_WORLD, confidence })
@@ -211,13 +230,18 @@ export class DefaultIntentRouter implements IntentRouter {
         return Object.freeze({ route: ROUTE_WORLD_EVOLUTION, confidence: CONFIDENCE_STRONG })
       }
 
+      if (hasWholeWorldConstructionIntent(input)) {
+        const confidence = hasGenre ? CONFIDENCE_DEFINITE : CONFIDENCE_STRONG
+        return Object.freeze({ route: ROUTE_CREATE_WORLD, confidence })
+      }
+
       if (hasCreate) {
         return Object.freeze({ route: ROUTE_UNKNOWN, confidence: CONFIDENCE_UNKNOWN })
       }
     }
 
     // With no active world, preserve the original creation fast path.
-    if (hasCreate) {
+    if (hasCreate || hasWholeWorldConstructionIntent(input)) {
       const confidence = hasGenre ? CONFIDENCE_DEFINITE : CONFIDENCE_STRONG
       return Object.freeze({ route: ROUTE_CREATE_WORLD, confidence })
     }

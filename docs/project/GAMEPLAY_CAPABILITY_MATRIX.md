@@ -1,10 +1,11 @@
-# Gameplay Capability Matrix — Sprint 36 Discovery Complete / Freeze Review Ready
+# Gameplay Capability Matrix — Sprint 36 WO Complete / Freeze Review Ready
 
-Architecture version: v1.185 (Sprint 30 through Sprint 35 FROZEN;
+Architecture version: v1.186 (Sprint 30 through Sprint 35 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
-Sprint 36 Intent Discovery PASS; `WO-S36-001` READY but not executed;
+`WO-S36-001` Code Complete = YES; Product Verified = YES; fresh Sprint 36 Gap
+Analysis PASS;
 `SPRINT36_FREEZE_REVIEW` READY; Sprint 37 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
@@ -39,13 +40,13 @@ action through mutually exclusive generic `NUMBER_COMPARE(gameState.level)`
 conditions. This is not a progression modifier, stat system, scaling curve, or
 new Runtime authority.
 
-Sprint 36 discovery promotes no new Runtime capability. It records a measured
-front-door Intent gap: active-world named/whole-world creation currently falls
-through `unknown` into the existing mutation-only World Evolution planner,
-while current-world mutations and explicit new-world requests remain separate
-verified paths. The proposed `WO-S36-001` is a future classification change;
-the capability catalog and Runtime authority remain v1.185 until it is
-explicitly authorized and executed.
+Sprint 36 promotes one bounded front-door classification capability without
+adding a Runtime capability: `WO-S36-001` routes generic active-world
+whole-world/game construction and named-world requests to the existing
+CreateWorld replacement contract, after current-world mutation precedence.
+Explicit-new behavior, AI candidate validation, ambiguous non-replacement,
+and Runtime authority remain unchanged. The capability catalog still records
+Runtime semantics separately from this Intent/Web boundary.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -64,6 +65,7 @@ explicitly authorized and executed.
 | Entity contact-start event | Runtime event observation | `supported` | Explicit Runtime `collision-bounds` AABBs produce de-duplicated `ENTITY_CONTACT_STARTED` facts with typed direction derived from Runtime geometry; the supported contact-danger rule may consume the fact after the event boundary. |
 | Entity attack-request event | Runtime event observation | `supported` | The top-down generic `PlayerAttackRequestSystem` emits one `ENTITY_ATTACK_REQUESTED` fact per accepted `Space` key edge after deterministic current Runtime target selection. |
 | Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue at the last authoritative Position, and `ENTITY_ADDED` to a replacement cue; uncommitted/no-op/contact-only facts produce no Player-attack cue. |
+| Active-world whole-world Intent classification | Studio command → IntentRouter/Web front door | `supported` | `WO-S36-001` is complete at v1.186: current-world entity/property/continuation mutations retain World Evolution, while clear whole-world/game construction, named-world, and explicit new/reset requests use the existing CreateWorld replacement contract even with an active world. Bare creation remains ambiguous and non-replacing; no genre registry or second router exists. |
 | Gameplay rule description | `GameplayRuleSpecification` + `GameplayRuleSet` | `supported` | Shared immutable Trigger/Condition/Action data is validated and stored beside `GameplaySpecification`; supported rules can enter the bounded Runtime executor. |
 | Rule event vocabulary | Rule trigger | `supported` | `ENTITY_CONTACT_STARTED`, `ENTITY_ATTACK_REQUESTED`, `ENTITY_JUMPED`, `ENTITY_LANDED`, `ENTITY_ADDED`, and `ENTITY_REMOVED` are allowed. |
 | Rule entity selectors | Rule condition/target references | `supported` | Event actor/target, exact current ID, category, current semantic name/archetype, and category-backed role selectors are normalized by Genesis. |
@@ -146,6 +148,7 @@ Sprint 34 is FROZEN at v1.184. `WO-S34-001` is a supported generic Runtime
 spatial fair-start placement policy only: Runtime committed outcomes and
 composition stay authoritative, and no new combat/feedback manager, gameplay
 timer, world-bounds authority, or wave system exists. Sprint 35
-`WO-S35-001` is complete at v1.185 with a PASS fresh Gap Analysis; the
-repository is stopped at the sole next gate `SPRINT35_FREEZE_REVIEW` and does
-not enter Sprint 36.
+`WO-S35-001` is FROZEN at v1.185 with a PASS fresh Gap Analysis. Sprint 36
+`WO-S36-001` is complete at v1.186 with a PASS fresh Gap Analysis; the
+repository is stopped at the sole next gate `SPRINT36_FREEZE_REVIEW` and does
+not enter Sprint 37.

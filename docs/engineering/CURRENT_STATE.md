@@ -3,29 +3,30 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.185 (Sprint 35 frozen; Sprint 36 discovery complete; freeze review ready)
+architecture_version: v1.186 (Sprint 35 frozen; Sprint 36 WO complete; freeze review ready)
 current_sprint: Sprint 36 (SPRINT36_FREEZE_REVIEW)
 current_work_order: SPRINT36_FREEZE_REVIEW
-current_work_order_status: READY — Sprint 36 discovery complete; WO-S36-001 not executed
+current_work_order_status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
 current_control_plane_work_order: SPRINT36_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — discovery PASS; Human/CTO review pending
-last_completed_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
-last_completed_product_work_order: WO-S35-001
+current_control_plane_work_order_status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
+last_completed_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
+last_completed_product_work_order: WO-S36-001
 last_completed_control_plane_work_order: SPRINT36_PRODUCT_GAP_DISCOVERY
-next_ready_work_order: SPRINT36_FREEZE_REVIEW — Human/CTO review; do not execute WO-S36-001 or enter Sprint 37
-product_architecture_changed: NO — Sprint 36 discovery only; v1.185 retained
+next_ready_work_order: SPRINT36_FREEZE_REVIEW — Human/CTO freeze decision; do not enter Sprint 37
+product_architecture_changed: YES — v1.185 → v1.186 at the Intent/Web front-door boundary
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
   Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and FROZEN at
   v1.184. Sprint 35 `WO-S35-001` is complete at v1.185 with the freeze review
-  ready; Human/CTO subsequently froze Sprint 35. Sprint 36 discovery is
-  complete at v1.185 with the freeze review ready; Sprint 37 is not entered.
+  ready; Human/CTO subsequently froze Sprint 35. Sprint 36
+  `WO-S36-001` is complete at v1.186 with the freeze review ready; Sprint 37
+  is not entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
-  WO-S34-001, and WO-S35-001
+  WO-S34-001, WO-S35-001, and WO-S36-001
 product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, and WO-S35-001; fresh Sprint 34 post-WO Gap Analysis PASS;
   Sprint 35 discovery PASS; fresh Sprint 35 post-WO Gap Analysis PASS;
-  Sprint 36 discovery MANUAL VERIFIED (discovery only; no product WO executed)
+  WO-S36-001; fresh Sprint 36 post-WO Gap Analysis PASS
 
 ## Sprint 36 — Active-World New-World Intent Correctness Discovery
 
@@ -57,6 +58,43 @@ and the one-item backlog in [`SPRINT36_BACKLOG.md`](../project/SPRINT36_BACKLOG.
 
 The repository is stopped at `SPRINT36_FREEZE_REVIEW` for Human/CTO review;
 Sprint 37 is not entered.
+
+## Sprint 36 — WO-S36-001 Execution and Fresh Gap Analysis
+
+Human/CTO authorized `WO-S36-001 — Generic Active-World New-World Intent
+Classification` after the discovery gate. The implementation advances the
+architecture from v1.185 to v1.186 at the existing IntentRouter/Web front
+door. Current-world entity/property/continuation signals remain first; a
+generic whole-world/game construction or named-world signal then reaches the
+existing CreateWorld path even with an active world; bare creation remains
+ambiguous and non-replacing.
+
+The real flow is:
+
+`StudioCommandBar → gameStore.send → DefaultIntentRouter → mutation precedence
+or whole-world CreateWorld classification → existing CreateWorld replacement
+contract / existing World Evolution candidate path`
+
+No genre registry, phrase-specific Mario route, second router, provider-direct
+replacement, or Runtime/Renderer/session architecture was introduced. AI
+continues to provide candidates only; Genesis validates them, and correctly
+routed CreateWorld provider failures remain generation/provider failures rather
+than routing failures.
+
+Code Complete = YES. Product Verified = YES. AI full tests passed 9439/9439;
+Web full tests passed 3581/3581; focused router/planner/routing/gameplay/
+Observatory regressions, AI/Web TypeScript, AI/Web ESLint with zero errors, Web
+build, and `git diff --check` passed. Real Studio verification confirmed
+Survival `world-1` (6 entities) → same-world `再创建5个怪物` (11 entities) →
+Mario `world-2` (7 entities, `Space — 跳跃`) → Survival `world-3` (6 entities,
+`Space — 攻击`), plus RPG/Farm/explicit-new replacements, three ambiguous
+non-replacing inputs, `再加五只怪`, Platformer Space input, current Observatory
+metadata/assets, and empty browser diagnostics.
+
+Fresh Sprint 36 Gap Analysis = PASS with no immediate P0 blocker. Broader
+ambiguity and less-common entity-target coverage remain deferred. The current
+gate is `SPRINT36_FREEZE_REVIEW`; Sprint 36 is not yet FROZEN and Sprint 37 is
+not entered.
 
 ## Sprint 35 — Progression Meaning Discovery
 
@@ -942,11 +980,13 @@ freeze and Sprint 35 discovery:
   existing generic RuleSet condition/action path.
 - **Resolved Sprint 36 discovery predecessor:** Sprint 35 is FROZEN at
   v1.185; `WO-S35-001` is DONE with Code Complete/Product Verified = YES.
-- **Current PRODUCT_GAP:** with an active world, named/whole-world creation
-  (`创建 MarioWorld`, `创建一个 RPG`, `生成一个幸存者游戏`) is routed as
-  active-world World Evolution and fails instead of reaching CreateWorld. The
-  selected `WO-S36-001` is READY but not executed; `SPRINT36_FREEZE_REVIEW`
-  is the current gate.
+- **Resolved Sprint 36 PRODUCT_GAP:** with an active world, named/whole-world
+  creation (`创建 MarioWorld`, `创建一个 RPG`, `生成一个幸存者游戏`, and
+  `做一个农场游戏`) now reaches CreateWorld and replaces the current world;
+  current-world entity mutations retain World Evolution and the same world.
+  `WO-S36-001` is DONE at v1.186 with Code Complete/Product Verified = YES.
+- **Current gate:** fresh Sprint 36 Gap Analysis is PASS with no immediate P0
+  blocker; `SPRINT36_FREEZE_REVIEW` awaits Human/CTO freeze decision.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
 
@@ -1077,11 +1117,11 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Review Sprint 36 discovery at `SPRINT36_FREEZE_REVIEW`. Confirm the v1.185
-Sprint 35 freeze, the real active-world route divergence, the preserved
-same-world mutation and explicit-new paths, and the exactly-one READY
-`WO-S36-001` boundary. Do not execute it or enter Sprint 37 before a separate
-Human/CTO authorization.
+Review the completed v1.186 `WO-S36-001` at
+`SPRINT36_FREEZE_REVIEW`. Confirm the real active-world CreateWorld versus
+same-world Evolution evidence, fresh Sprint 36 Gap Analysis PASS, and the
+preserved ambiguity/authority boundaries. Do not enter Sprint 37 before the
+Human/CTO freeze decision.
 
 ## Authority
 

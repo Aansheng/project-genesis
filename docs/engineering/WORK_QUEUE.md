@@ -4,15 +4,15 @@ Git-tracked queue for the Supervisor. It is intentionally a Markdown document,
 not a database or task service.
 
 queue_version: 1
-updated: 2026-09-01
+updated: 2026-09-02
 current_sprint: Sprint 36
 current_work_order: SPRINT36_FREEZE_REVIEW
-current_work_order_status: READY — Sprint 36 discovery complete; WO-S36-001 not executed
+current_work_order_status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
 current_control_plane_work_order: SPRINT36_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — discovery PASS; Human/CTO review pending
-last_completed_work_order: WO-S35-001 — Generic Progression-Conditioned Gameplay Capability
+current_control_plane_work_order_status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
+last_completed_work_order: WO-S36-001 — Generic Active-World New-World Intent Classification
 last_completed_control_plane_work_order: SPRINT36_PRODUCT_GAP_DISCOVERY
-next_work_order: SPRINT36_FREEZE_REVIEW — READY; review WO-S36-001 before execution; do not enter Sprint 37
+next_work_order: SPRINT36_FREEZE_REVIEW — READY; Human/CTO freeze decision pending; do not enter Sprint 37
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -347,11 +347,10 @@ next_gate_at_discovery_boundary: `WO-S36-001` is READY but not executed;
 
 ## WO-S36-001 — Generic Active-World New-World Intent Classification
 
-status: READY — discovery-selected; not executed
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / selected Sprint 36 product gap
 architecture_before: v1.185
-architecture_expected_after: v1.186 — proposed only; confirm the architecture
-  version after implementation review
+architecture_after: v1.186
 mission: Make the existing Intent/front-door boundary distinguish a generic
   new whole-world/game request from a mutation of the active world, while
   preserving all existing World Evolution, CreateWorld, AI-candidate, Runtime,
@@ -400,11 +399,13 @@ automated_tests: Extend `DefaultIntentRouter` coverage for active and inactive
   AI candidate validation, and no direct provider replacement. Run focused
   package tests, affected package suites, TypeScript, ESLint, Web build, and
   relevant regression suites.
-product_verification: PENDING — after separate Human/CTO execution
-  authorization, use the real StudioCommandBar in an active Survival session;
-  inspect world ID/entity count, Game activity, Full Observatory request source
-  and trace, and browser diagnostics for all four command classes. Re-run the
-  Platformer `Space — 跳跃` smoke and verify the current-world mutation path.
+product_verification: PASS — authorized real Studio verification used the
+  actual command bar in an active Survival session; active named/whole-world
+  requests changed world IDs through CreateWorld, entity mutations preserved
+  their world through Evolution, explicit-new requests remained CreateWorld,
+  ambiguous requests did not replace the world, Platformer `Space — 跳跃`
+  smoke remained clean, Observatory projected v1.186 / Sprint 36 truth, and
+  browser error/warning diagnostics were empty.
 forbidden_scope: MarioWorld/Mario/Survival/Farm/RPG special cases or registry;
   `contains 创建 → CreateWorld`; `activeWorld ? evolution : create`; new
   IntentManager/ConversationManager/RoutingEngine/NLP framework; second
@@ -417,31 +418,36 @@ completion_report_requirements: architecture before → after; files created and
   remaining gaps; manual Studio steps; Code Complete; Product Verified; and
   explicit proof that the active named request used CreateWorld while active
   entity mutations stayed on World Evolution.
-human_decision_required: YES — execution requires a separate Human/CTO
-  authorization after this discovery/freeze review.
-next_gate: `SPRINT36_FREEZE_REVIEW` — Human/CTO review; do not execute this WO
-  or enter Sprint 37.
+human_decision_required: NO — execution was separately authorized by Human/CTO.
+next_gate: `SPRINT36_FREEZE_REVIEW` — Human/CTO freeze review; do not enter
+  Sprint 37.
 
 ## SPRINT36_FREEZE_REVIEW
 
-status: READY — Sprint 36 discovery complete; Human/CTO review pending
+status: READY — WO-S36-001 complete; fresh Gap Analysis PASS; Human/CTO freeze review pending
 architecture_before: v1.185
-architecture_after: v1.185 — no implementation executed
-decision: Discovery PASS. Sprint 36 generated exactly one READY product WO,
-  `WO-S36-001`, and stops before its execution. The measured front-door gap is
-  recorded with real Studio evidence; v1.185 remains current.
-code_complete: N/A — discovery only; WO-S36-001 not executed
-product_verification: MANUAL VERIFIED — discovery evidence only; no Sprint 36
-  product capability is claimed complete
-evidence: Source trace of `StudioCommandBar → gameStore.send →
-  DefaultIntentRouter → World Evolution/CreateWorld`, active-world
-  `world-2` failure for named archetype requests, same-world successful entity
-  mutations, and active `创建一个新的游戏` replacement to `world-3`.
-constraints: Do not execute `WO-S36-001`, enter Sprint 37, special-case a
-  genre/name, redesign Intent or AI architecture, or change Runtime/Renderer
-  behavior before separate Human/CTO authorization.
-next_gate: Human/CTO freeze decision for Sprint 36; if accepted, authorize
-  execution of `WO-S36-001` explicitly and remain within its bounded contract.
+architecture_after: v1.186
+decision: Discovery PASS and the separately authorized `WO-S36-001` execution
+  are complete. The active-world front-door gap is closed with the existing
+  CreateWorld/Evolution boundaries; the fresh post-WO Gap Analysis is PASS.
+  Sprint 36 remains ACTIVE until Human/CTO explicitly freezes it at v1.186.
+code_complete: YES — WO-S36-001
+product_verification: YES — WO-S36-001; real Studio route, world identity,
+  current-world mutation, Platformer control, Observatory, asset, and browser
+  diagnostics checks passed.
+fresh_gap_analysis: PASS — no immediate P0 blocker; ambiguity and target
+  vocabulary coverage remain deferred and do not generate another Sprint 36 WO.
+evidence: AI 9439/9439 and Web 3581/3581 full suites; focused router,
+  planner, routing, gameplay, and Observatory regressions; AI/Web TypeScript;
+  AI/Web ESLint with zero errors; Web build; `git diff --check`; real Studio
+  Survival → MarioWorld → Survival and RPG/Farm/explicit-new/ambiguous route
+  checks; current `v1.186 / Sprint 36` Observatory; empty browser diagnostics.
+constraints: Preserve current-world mutation precedence, explicit-new behavior,
+  AI candidate validation, CreateWorld replacement/session contract, Runtime /
+  Renderer authority, one-WO control, and Sprint boundary. No genre/name
+  registry, phrase special case, second router, broad ambiguity/NLU expansion,
+  or Sprint 37 work was introduced.
+next_gate: Human/CTO freeze decision for Sprint 36; do not enter Sprint 37.
 
 ## SPRINT32_FREEZE_REVIEW
 

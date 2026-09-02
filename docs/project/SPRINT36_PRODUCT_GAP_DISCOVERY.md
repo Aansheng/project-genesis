@@ -2,9 +2,9 @@
 
 Date: 2026-09-01  
 Human/CTO authorization: Freeze Sprint 35 at v1.185 and enter Sprint 36
-Intent Discovery  
-Architecture: v1.185 → v1.185 (discovery only)  
-Status: **PASS — discovery complete; `SPRINT36_FREEZE_REVIEW` READY**
+Intent Discovery; subsequent authorization executed `WO-S36-001`
+Architecture: v1.185 → v1.186
+Status: **PASS — discovery, execution, Product Verification, and fresh Gap Analysis complete; `SPRINT36_FREEZE_REVIEW` READY**
 
 ## Discovery boundary
 
@@ -178,10 +178,9 @@ router are needed.
 
 ### `WO-S36-001 — Generic Active-World New-World Intent Classification`
 
-Status: **READY — discovery-selected; not executed**  
+Status: **DONE — Code Complete = YES; Product Verified = YES**
 Priority: P0  
-Architecture expectation: v1.185 → v1.186 (proposed; confirm during
-implementation review)
+Architecture: v1.185 → v1.186
 
 The work order is intentionally generic:
 
@@ -200,17 +199,65 @@ The work order is intentionally generic:
   second route, registry, provider authority, or session architecture.
 
 Acceptance and test requirements are recorded in
-[`SPRINT36_BACKLOG.md`](SPRINT36_BACKLOG.md). Product Verification is pending
-because this discovery does not execute the WO.
+[`SPRINT36_BACKLOG.md`](SPRINT36_BACKLOG.md). The separately authorized
+execution and post-WO verification are recorded below; the discovery boundary
+itself introduced no implementation.
+
+## Authorized WO execution and Product Verification
+
+Human/CTO authorized execution of `WO-S36-001` after the discovery decision.
+The implementation stayed at the existing `DefaultIntentRouter` and Web
+front-door boundary. Current-world entity/property/continuation signals are
+checked first; a clear whole-world/game construction or named-world signal
+then uses the existing CreateWorld route even when a world is active; bare
+creation remains ambiguous and non-replacing. No genre registry, phrase
+special case, second router, provider-direct replacement, or Runtime/Renderer
+change was introduced.
+
+Automated coverage completed with AI focused `IntentRouter` 163/163, Web
+World Evolution integration 26/26, AI planner regression 15/15, Web
+routing/gameplay/Observatory regressions 29/29, full AI 9439/9439, and full
+Web 3581/3581. AI/Web TypeScript, AI/Web ESLint (zero errors), Web build, and
+`git diff --check` also passed.
+
+Real Studio Product Verification used the actual command bar on a fresh local
+session. Survival `world-1` started with 6 entities; `再创建5个怪物` preserved
+that ID and produced 11 entities with “Semantic change applied / Add Enemy ×5”.
+`创建 MarioWorld` produced `world-2` with 7 Platformer entities and
+`Space — 跳跃`; `生成一个幸存者游戏` produced `world-3` with 6 Survival
+entities and `Space — 攻击`. Active `创建一个 RPG` produced `world-4`,
+`做一个农场游戏` produced `world-5`, and `创建一个新的游戏` produced
+`world-6`, each through “World created” with a new ID. `再加五只怪`
+preserved `world-6` and applied a same-world `Add Enemy ×5` change. A final
+cross-genre switch reached Mario `world-7` and Survival `world-8`. Observatory
+confirmed current Survival, 6 entities, deterministic generation fallback,
+current rules/assets, `v1.186 / Sprint 36`, and browser error/warning
+diagnostics were empty.
+
+## Fresh Sprint 36 Gap Analysis
+
+Result: **PASS — no immediate P0 blocker; `SPRINT36_FREEZE_REVIEW` READY**
+
+The selected gap is closed at the authorized boundary: active named and
+whole-world requests now reach CreateWorld, receive a new world identity, and
+rebind the existing semantic/gameplay/Runtime/Observatory state. Current-world
+entity mutations remain on World Evolution with the same world identity. The
+existing CreateWorld provider/fallback remains responsible for world content;
+if that content path fails, the result is a provider/generation failure rather
+than a routing failure.
+
+The existing ambiguity and target-vocabulary boundaries remain intentionally
+deferred: bare `创建`, `生成一个`, and `做一个新的` still do not replace the
+active world, and less-common entity terms remain an existing fallback concern.
+Neither justifies another Sprint 36 product WO. The repository stops at the
+single Human/CTO gate `SPRINT36_FREEZE_REVIEW`; Sprint 37 is not entered.
 
 ## Stop state
 
 - Sprint 35: FROZEN at v1.185; Code Complete = YES; Product Verified = YES.
-- Sprint 36 discovery: PASS; architecture unchanged; route divergence
-  MANUAL VERIFIED in real Studio.
-- Exactly one READY product WO: `WO-S36-001`.
+- Sprint 36 `WO-S36-001`: DONE; Code Complete = YES; Product Verified = YES;
+  architecture v1.186.
+- Fresh Sprint 36 Gap Analysis: PASS; no immediate P0 blocker.
 - Current gate: `SPRINT36_FREEZE_REVIEW`.
 - Sprint 37: not entered.
-- ADR: not created; discovery introduces no architecture change. An ADR is
-  only appropriate if the future routing implementation changes the accepted
-  architecture boundary.
+- ADR-0296 records the accepted active-world Intent boundary change.

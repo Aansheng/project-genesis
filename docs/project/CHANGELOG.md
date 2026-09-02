@@ -1,5 +1,26 @@
 # Changelog
 
+### Sprint 36 — WO-S36-001 Generic Active-World New-World Intent Classification (v1.186, 2026-09-01)
+
+- Human/CTO authorized execution of the single Sprint 36 product work order
+  after discovery. Architecture advances from v1.185 to v1.186 at the
+  existing IntentRouter/Web front-door boundary.
+- Generic whole-world/game construction and named-world signals now reach the
+  existing CreateWorld pipeline while a world is active, after current-world
+  entity/property/continuation mutation precedence. Active
+  `创建 MarioWorld`, `创建一个 RPG`, `生成一个幸存者游戏`, and
+  `做一个农场游戏` replace the world; `再创建5个怪物` and `再加五只怪`
+  remain same-world World Evolution. Bare `创建`, `生成一个`, and `做一个新的`
+  remain ambiguous and non-replacing.
+- No genre/name registry, Mario special case, second router, provider-direct
+  replacement, Runtime/Renderer redesign, or Sprint 37 work was introduced.
+- AI 9439/9439 and Web 3581/3581 passed, along with focused regressions,
+  TypeScript, ESLint with zero errors, Web build, `git diff --check`, real
+  Studio cross-genre/world-identity verification, current Observatory truth,
+  Platformer Space smoke, and empty browser diagnostics.
+- Fresh Sprint 36 Gap Analysis is PASS with no immediate P0 blocker. The
+  repository stops at `SPRINT36_FREEZE_REVIEW`; Sprint 36 is not yet frozen.
+
 ### Sprint 36 — Active-World New-World Intent Correctness Discovery (v1.185, 2026-09-01)
 
 - Human/CTO froze Sprint 35 at v1.185 and authorized Sprint 36 Intent

@@ -394,7 +394,31 @@ describe('route detection — active-world semantic precedence', () => {
     expect(router.route(input, activeWorld).route).toBe('create-world')
   })
 
-  it.each(['创建', '生成', 'create', 'generate'])('does not treat a bare creation verb as replacement: %s', input => {
+  it.each([
+    '创建 MarioWorld',
+    '创建一个 RPG',
+    '生成一个幸存者游戏',
+    '创建一个平台跳跃游戏',
+  ])('routes a named or archetype whole-world request to create-world: %s', input => {
+    const router = new DefaultIntentRouter()
+    expect(router.route(input, activeWorld).route).toBe('create-world')
+  })
+
+  it.each([
+    '创建一个塔防游戏',
+    '做一个钓鱼小游戏',
+    '生成一个太空探索游戏',
+  ])('uses generic whole-world scope instead of a genre registry: %s', input => {
+    const router = new DefaultIntentRouter()
+    expect(router.route(input, activeWorld).route).toBe('create-world')
+  })
+
+  it('routes a whole-world construction request without an active world', () => {
+    const router = new DefaultIntentRouter()
+    expect(router.route('做一个农场游戏').route).toBe('create-world')
+  })
+
+  it.each(['创建', '生成', 'create', 'generate', 'create something'])('does not treat ambiguous creation as replacement: %s', input => {
     const router = new DefaultIntentRouter()
     expect(router.route(input, activeWorld)).toEqual({ route: 'unknown', confidence: 0.0 })
   })

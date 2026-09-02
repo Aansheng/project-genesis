@@ -119,17 +119,19 @@ exclusive `NUMBER_COMPARE(gameState.level)` conditions to select
 Complete and Product Verified are YES; Human/CTO accepted the Sprint 35
 freeze on 2026-09-01.
 
-Sprint 36 is now authorized for **Active-World New-World Intent Correctness**.
-Fresh repository and real Studio discovery selected exactly one product gap:
-when a world is active, named/whole-world archetype creation such as `创建
-MarioWorld`, `创建一个 RPG`, or `生成一个幸存者游戏` is classified as
-`unknown` and the existing active-world fallback sends it to World Evolution,
-where the evolution planner cannot create a replacement world. The existing
-entity-scoped evolution and explicit new-world paths are already reachable and
-verified. Discovery generated exactly one product item,
-`WO-S36-001 — Generic Active-World New-World Intent Classification`, as
-READY. No routing implementation was executed, architecture remains v1.185,
-and the repository stops at `SPRINT36_FREEZE_REVIEW`; Sprint 37 is not entered.
+Sprint 36 is active at v1.186 after the authorized
+`WO-S36-001 — Generic Active-World New-World Intent Classification`. The
+existing IntentRouter/Web front door now preserves current-world
+entity/property/continuation mutations for World Evolution while generic
+whole-world/game construction and named-world signals use the existing
+CreateWorld replacement path even with an active world. Explicit-new behavior,
+AI candidate validation, Runtime/Renderer authority, and ambiguous
+non-replacement remain intact. Focused and full package tests, quality gates,
+real Studio world-identity/cross-genre verification, Platformer Space smoke,
+Observatory truth, and empty browser diagnostics passed. Fresh Sprint 36 Gap
+Analysis is PASS with no immediate P0 blocker. The repository stops at
+`SPRINT36_FREEZE_REVIEW` pending Human/CTO freeze decision; Sprint 37 is not
+entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

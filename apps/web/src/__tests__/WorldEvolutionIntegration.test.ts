@@ -170,6 +170,88 @@ function survivalGatewayWithImages(): ReturnType<typeof gatewayWithImages> {
   return { fetcher, imageRequests: controlled.imageRequests }
 }
 
+function activeWorldRoutingGateway(): { readonly fetcher: typeof fetch; readonly requestKinds: readonly string[] } {
+  const imageGateway = gatewayWithImages()
+  const requestKinds: string[] = []
+  const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body ?? '{}')) as {
+      assetId?: string
+      kind?: string
+      input?: string
+      instruction?: string
+    }
+    if (body.assetId) return imageGateway.fetcher(_input, init)
+    requestKinds.push(body.kind ?? 'world-generation')
+
+    if (body.kind === 'world-evolution') {
+      return Response.json({
+        candidate: {
+          kind: 'add-entity',
+          semantic: { name: 'Enemy', category: 'enemy' },
+          count: 5,
+        },
+      })
+    }
+
+    const input = (body.input ?? '').toLocaleLowerCase()
+    if (input.includes('幸存者') || input.includes('survival')) {
+      return Response.json({
+        candidate: {
+          title: 'Survival',
+          genre: 'survival',
+          entities: [
+            { id: 'player', category: 'player', name: 'Player' },
+            { id: 'enemy', category: 'enemy', name: 'Enemy' },
+            { id: 'terrain', category: 'terrain', name: 'Arena' },
+          ],
+        },
+      })
+    }
+    if (input.includes('mario') || input.includes('平台跳跃') || input.includes('platformer')) {
+      return Response.json({
+        candidate: {
+          title: 'MarioWorld',
+          genre: 'platformer',
+          entities: [
+            { id: 'player', category: 'player', name: 'Player' },
+            { id: 'ground', category: 'terrain', name: 'Ground' },
+            { id: 'platform', category: 'terrain', name: 'Platform' },
+            { id: 'enemy', category: 'enemy', name: 'Enemy' },
+            { id: 'collectible', category: 'item', name: 'Coin' },
+            { id: 'goal', category: 'item', name: 'Goal' },
+            { id: 'checkpoint', category: 'item', name: 'Checkpoint' },
+          ],
+        },
+      })
+    }
+    if (input.includes('rpg')) {
+      return Response.json({
+        candidate: {
+          title: 'RPG',
+          genre: 'rpg',
+          entities: [
+            { id: 'player', category: 'player', name: 'Player' },
+            { id: 'merchant', category: 'npc', name: 'Merchant' },
+            { id: 'boss', category: 'enemy', name: 'Boss' },
+          ],
+        },
+      })
+    }
+    return Response.json({
+      candidate: {
+        title: 'Farm',
+        genre: 'farm',
+        entities: [
+          { id: 'player', category: 'player', name: 'Player' },
+          { id: 'cow', category: 'npc', name: 'Cow' },
+          { id: 'crop', category: 'terrain', name: 'Crop' },
+        ],
+      },
+    })
+  }) as typeof fetch
+  return { fetcher, requestKinds }
+}
+
 describe('World Evolution Studio integration', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -457,6 +539,67 @@ describe('World Evolution Studio integration', () => {
     expect(game.worldStore.getWorld().entities.filter(entity => entity.type === 'enemy')).toHaveLength(beforeEnemyCount + 5)
   })
 
+  it('switches from active Survival to MarioWorld and back through the CreateWorld front door', async () => {
+    const controlled = activeWorldRoutingGateway()
+    vi.stubGlobal('fetch', controlled.fetcher)
+    const game = useGameStore()
+
+    const initial = await game.send('生成一个幸存者游戏')
+    expect(initial.success).toBe(true)
+    expect(game.semanticWorld?.worldType).toBe('survival')
+    expect(game.gameplaySpecification?.mechanics.some(item => item.id === 'player-directed-offense')).toBe(true)
+    expect(game.gameplaySpecification?.mechanics.some(item => item.id === 'player-jump')).toBe(false)
+    const survivalWorldId = game.currentWorldId
+    const initialEnemyCount = game.semanticWorld?.entities.filter(entity => entity.category === 'enemy').length ?? 0
+
+    const mutation = await game.send('再创建5个怪物')
+    expect(mutation.success).toBe(true)
+    expect(mutation.evolutionPlan?.status).toBe('validated')
+    expect(game.currentWorldId).toBe(survivalWorldId)
+    expect(game.semanticWorld?.entities.filter(entity => entity.category === 'enemy')).toHaveLength(initialEnemyCount + 5)
+    expect(controlled.requestKinds.filter(kind => kind === 'world-evolution')).toHaveLength(1)
+
+    const mario = await game.send('创建 MarioWorld')
+    expect(mario.success).toBe(true)
+    expect(mario.message).toContain('Created world')
+    expect(mario.evolutionPlan).toBeUndefined()
+    expect(game.currentWorldId).not.toBe(survivalWorldId)
+    expect(game.semanticWorld?.worldType).toBe('platformer')
+    expect(game.gameplaySpecification?.mechanics.some(item => item.id === 'player-jump')).toBe(true)
+    expect(game.gameplaySpecification?.mechanics.some(item => item.id === 'player-directed-offense')).toBe(false)
+    const marioWorldId = game.currentWorldId
+    expect(controlled.requestKinds.filter(kind => kind === 'world-generation')).toHaveLength(2)
+    expect(controlled.requestKinds.filter(kind => kind === 'world-evolution')).toHaveLength(1)
+
+    const replacement = await game.send('生成一个幸存者游戏')
+    expect(replacement.success).toBe(true)
+    expect(replacement.message).toContain('Created world')
+    expect(replacement.evolutionPlan).toBeUndefined()
+    expect(game.currentWorldId).not.toBe(marioWorldId)
+    expect(game.semanticWorld?.worldType).toBe('survival')
+    expect(game.gameplaySpecification?.mechanics.some(item => item.id === 'player-directed-offense')).toBe(true)
+    expect(game.gameplaySpecification?.mechanics.some(item => item.id === 'player-jump')).toBe(false)
+    expect(controlled.requestKinds.filter(kind => kind === 'world-generation')).toHaveLength(3)
+    expect(controlled.requestKinds.filter(kind => kind === 'world-evolution')).toHaveLength(1)
+  })
+
+  it.each(['创建一个 RPG', '做一个农场游戏'])('routes active whole-world archetype creation to CreateWorld: %s', async input => {
+    const controlled = activeWorldRoutingGateway()
+    vi.stubGlobal('fetch', controlled.fetcher)
+    const game = useGameStore()
+    await game.send('生成一个幸存者游戏')
+    const previousWorldId = game.currentWorldId
+
+    const result = await game.send(input)
+
+    expect(result.success).toBe(true)
+    expect(result.message).toContain('Created world')
+    expect(result.evolutionPlan).toBeUndefined()
+    expect(game.currentWorldId).not.toBe(previousWorldId)
+    expect(controlled.requestKinds.filter(kind => kind === 'world-evolution')).toHaveLength(0)
+    expect(controlled.requestKinds.filter(kind => kind === 'world-generation')).toHaveLength(2)
+  })
+
   it('routes an explicit new-world request through CreateWorld after an active world exists', async () => {
     const requestKinds: string[] = []
     const backend = gateway()
@@ -479,6 +622,30 @@ describe('World Evolution Studio integration', () => {
     expect(game.semanticWorld?.entities.map(entity => entity.id)).not.toEqual(previousEntityIds)
     expect(requestKinds).toContain('world-generation')
     expect(requestKinds).not.toContain('world-evolution')
+  })
+
+  it.each(['创建', '生成一个', '做一个新的'])('does not replace the active world for ambiguous creation: %s', async instruction => {
+    const requestKinds: string[] = []
+    const backend = gateway()
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? '{}')) as { kind?: string }
+      requestKinds.push(body.kind ?? 'world-generation')
+      if (body.kind === 'world-evolution') return Response.json({})
+      return backend(input, init)
+    }) as typeof fetch)
+    const game = useGameStore()
+    await game.send('生成一个2D平台跳跃游戏')
+    const beforeWorldId = game.currentWorldId
+    const beforeSemanticIds = game.semanticWorld?.entities.map(entity => entity.id)
+    const beforeRuntime = JSON.stringify(game.worldStore.getWorld())
+
+    const result = await game.send(instruction)
+
+    expect(result.message).not.toContain('Created world')
+    expect(game.currentWorldId).toBe(beforeWorldId)
+    expect(game.semanticWorld?.entities.map(entity => entity.id)).toEqual(beforeSemanticIds)
+    expect(JSON.stringify(game.worldStore.getWorld())).toBe(beforeRuntime)
+    expect(requestKinds.filter(kind => kind === 'world-evolution')).toHaveLength(1)
   })
 
   it('removes the targeted Runtime entity without changing unrelated entities', async () => {
