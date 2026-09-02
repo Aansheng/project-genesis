@@ -14,17 +14,23 @@
   path. The trusted existing `SET_ENTITY_PROPERTY` action now commits the
   bounded immutable `gameplay-state.activated` property, and the Renderer
   projects only committed activation as a transient generic interaction cue.
-- Farm remains the existing 8-entity composition and RPG remains the existing
-  9-entity composition. The Studio footer exposes `Enter — 交互` / `Enter —
-  Interact`; Platformer `Space — Jump` and Survival `Space — Attack` remain
-  unchanged. No Farm/RPG engine, dialogue/quest/combat framework, provider
-  runtime authority, universal ontology, second input path, or legacy
-  reconnection was introduced.
+- The deterministic Farm fallback remains the existing 8-entity composition
+  and RPG remains the existing 9-entity composition. The verified Provider
+  Farm candidate was accepted as `farm` with 5 entities and still exposed the
+  supported interaction; this 5-vs-8 difference is recorded as a separate
+  Provider candidate semantic-composition completeness variance, not a blocker
+  for this WO. The Studio footer exposes `Enter — 交互` / `Enter — Interact`;
+  Platformer `Space — Jump` and Survival `Space — Attack` remain unchanged.
+  No Farm/RPG engine, dialogue/quest/combat framework, provider runtime
+  authority, universal ontology, second input path, or legacy reconnection was
+  introduced.
 - Shared 211/211, Runtime 711/711, AI 9442/9442, Renderer 513/513, and Web
   3585/3585 tests pass. Package TypeScript and ESLint checks pass with zero
-  errors, the Web build passes, and `git diff --check` passes. The final
-  normal-play browser input-edge check and fresh Gap Analysis remain pending;
-  Sprint 39 is not entered.
+  errors, the Web build passes, and `git diff --check` passes. Real Studio
+  Farm/RPG normal-play input and committed Runtime outcomes are Product
+  Verified; repeated Enter is a truthful no-op and browser diagnostics are
+  empty. Fresh Sprint 38 Gap Analysis is PASS. Sprint 39 is not entered; the
+  repository stops at `SPRINT38_FREEZE_REVIEW`.
 
 ### Sprint 38 — Cross-Genre Playability Fidelity Discovery (v1.187, 2026-09-02)
 

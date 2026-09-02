@@ -6,7 +6,7 @@ Work order: **`WO-S38-001 — Generic Player-Directed Entity Interaction Reachab
 
 Architecture: **v1.187 → v1.188**
 
-Result: **PENDING — implementation complete; final real Studio input-edge evidence required before `SPRINT38_FREEZE_REVIEW`**
+Result: **PASS — Code Complete = YES; Product Verified = YES; `SPRINT38_FREEZE_REVIEW` selected**
 
 ## Execution result
 
@@ -18,17 +18,18 @@ trusted `SET_ENTITY_PROPERTY`, immutable Runtime World mutation, and a
 committed Renderer feedback projection.
 
 The mapping is explicit and bounded: Farm selects one nearest `npc`; RPG
-selects one nearest `quest`; both use `Enter — Interact`. Farm and RPG keep
-their existing semantic entity compositions and receive different
-target-specific Gameplay Rules over the same request path. Platformer keeps
-`Space — Jump`; Survival keeps `Space — Attack`.
+selects one nearest `quest`; both use `Enter — Interact`. Farm and RPG receive
+different target-specific Gameplay Rules over the same request path. The
+deterministic Farm fallback and RPG baseline remain covered by their existing
+production regressions; Provider candidate entity-count variance is recorded
+separately. Platformer keeps `Space — Jump`; Survival keeps `Space — Attack`.
 
 ## Fresh acceptance matrix
 
 | Surface | Evidence | Result |
 | --- | --- | --- |
-| Farm front door | Automated production-path regression: `做一个农场游戏` → CreateWorld → existing 8-entity `farm` world → Runtime movement → Enter near one `npc` → `ENTITY_INTERACTION_REQUESTED` → `farm-interaction` → committed `gameplay-state.activated = true` → interaction cue. Final browser input-edge action remains pending. | **AUTOMATED PASS / BROWSER PENDING** |
-| RPG front door | Automated production-path regression: `创建一个 RPG` → CreateWorld → existing 9-entity `rpg` world → Runtime movement → Enter near one `quest` → the same generic request path → `rpg-interaction` → committed `gameplay-state.activated = true` → interaction cue. Final browser input-edge action remains pending. | **AUTOMATED PASS / BROWSER PENDING** |
+| Farm front door | Automated deterministic-fallback regression: `做一个农场游戏` → CreateWorld → existing 8-entity `farm` world → Runtime movement → Enter near one `npc` → `ENTITY_INTERACTION_REQUESTED` → `farm-interaction` → committed `gameplay-state.activated = true` → interaction cue. Real Studio Provider-accepted Farm verification also committed the same result in a 5-entity candidate. | **PASS** |
+| RPG front door | Automated production-path regression and real Studio verification: `创建一个 RPG` → CreateWorld → 9-entity `rpg` world → Runtime movement → Enter near one `quest` → `ENTITY_INTERACTION_REQUESTED` → `rpg-interaction` → committed `gameplay-state.activated = true` → interaction cue. | **PASS** |
 | Determinism / truth | nearest eligible target, stable Runtime-ID tie-break, finite range, no-target no event/no rule/no mutation, repeated activation is a Runtime no-op without duplicate positive feedback | **PASS** |
 | Platformer baseline | side-view movement, gravity, Ground/Platform collision, Space Jump, stomp, goal, and current gameplay rules remain covered by existing regressions | **PASS** |
 | Survival baseline | top-down X/Y movement, Space Attack, pursuit, Health/progression/replacement, fair-start, and feedback remain covered; Enter does not steal Space | **PASS** |
@@ -37,6 +38,18 @@ target-specific Gameplay Rules over the same request path. Platformer keeps
 No universal interaction ontology, Farm/RPG engine, dialogue/quest/combat
 framework, second input architecture, legacy-path reconnection, or Sprint 39
 work was introduced.
+
+## Separate product observation — Provider candidate composition variance
+
+The real Studio Farm verification used a Provider-accepted `farm` candidate
+with 5 entities. The deterministic fallback path remains covered by the
+production regression with the historical 8-entity Farm composition. The
+5-vs-8 difference is classified as **PROVIDER CANDIDATE SEMANTIC COMPOSITION
+COMPLETENESS VARIANCE**, not as an interaction-reachability failure and not as
+a blocker for this WO. No fallback forcing, candidate-acceptance weakening,
+Farm-template patch, entity-count patch, or Provider retry was introduced.
+This may become a future measured Product Gap only if fresh evidence shows it
+is frequent and the highest-priority user-visible blocker.
 
 ## Quality evidence
 
@@ -48,15 +61,15 @@ work was introduced.
 - ESLint completed with zero errors; existing warnings remain.
 - The production Web regression covers both real CreateWorld entry paths and
   no-target behavior.
-- Real Studio browser UI verification currently confirms v1.188, the
-  discoverable controls, supported Farm/RPG rule compositions, and empty
-  diagnostics. The browser control session has not yet produced a stable
-  polled input edge for the final Farm/RPG mutation check, so Product Verified
-  remains pending.
+- Real Studio verification confirms both normal-play input edges and committed
+  outcomes: Farm `player-farmer → npc-merchant` at distance `31` committed
+  `farm-interaction`, RPG `player → quest-giver` at distance approximately
+  `36.67` committed `rpg-interaction`, and both target entities show
+  `gameplay-state.activated = true`. Repeated interactions are truthful
+  `no_op` results, and browser warning/error diagnostics are empty.
 
 ## Next control-plane gate
 
-The fresh Gap Analysis is pending the final real Studio input-edge evidence.
-After that check, record PASS/FAIL and stop at `SPRINT38_FREEZE_REVIEW` for
-Human/CTO review. Sprint 39 is not entered, and no additional Sprint 38 work
-order is generated here.
+The fresh Gap Analysis is **PASS**. The repository stops at
+`SPRINT38_FREEZE_REVIEW` for Human/CTO review. Sprint 39 is not entered, and
+no additional Sprint 38 work order is generated here.

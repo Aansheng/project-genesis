@@ -200,7 +200,9 @@ See [`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md) for the single READY item.
 The preceding sections intentionally preserve the discovery-boundary record:
 at that point `WO-S38-001` was READY and had not been executed. The Human/CTO
 authorization that followed was accepted, and the work order is now Code
-Complete at v1.188. Its pending final real-Studio input-edge evidence, fresh
-Gap Analysis, and `SPRINT38_FREEZE_REVIEW` gate are recorded in
+Complete and Product Verified at v1.188. Its real-Studio Farm/RPG evidence,
+fresh PASS Gap Analysis, and `SPRINT38_FREEZE_REVIEW` gate are recorded in
 [`SPRINT38_GAP_ANALYSIS.md`](SPRINT38_GAP_ANALYSIS.md) and
-[`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md). Sprint 39 remains unentered.
+[`SPRINT38_BACKLOG.md`](SPRINT38_BACKLOG.md). The Provider-accepted Farm
+5-vs-8 composition variance is recorded separately and is not a blocker.
+Sprint 39 remains unentered.

@@ -1,6 +1,6 @@
 # ADR-0298 — Generic Player-Directed Entity Interaction Reachability
 
-- **Status:** Accepted / implementation complete; Product Verification pending
+- **Status:** Accepted / implemented / Product Verified
 - **Date:** 2026-09-02
 - **Architecture:** v1.187 → v1.188
 - **Work order:** `WO-S38-001`
@@ -76,6 +76,11 @@ The production regression enters through `做一个农场游戏` and `创建一�
 registers the normal Studio systems, moves the Runtime Player, presses Enter,
 and verifies one target-specific authoritative mutation. Focused Runtime,
 AI, Renderer, and Web tests cover deterministic targeting, rule execution,
-feedback, no-target behavior, and Platformer/Survival non-regression. Full
-quality and real Studio verification are recorded in
+feedback, no-target behavior, and Platformer/Survival non-regression. Real
+Studio verification observed committed Farm and RPG interaction results,
+truthful repeated `no_op` behavior, and empty browser warning/error
+diagnostics. The Provider-accepted Farm candidate used for that verification
+had 5 entities; the deterministic fallback 8-entity baseline remains
+covered, and this separate Provider composition variance is outside the WO
+scope. Full quality and verification are recorded in
 `docs/project/SPRINT38_GAP_ANALYSIS.md`.

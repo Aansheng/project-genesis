@@ -7,9 +7,8 @@ Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 `WO-S36-001` Code Complete = YES; Product Verified = YES; fresh Sprint 36 Gap
 Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
-`WO-S38-001` Code Complete = YES; Product Verified = PENDING final real
-Studio input-edge check; fresh Sprint 38 Gap Analysis pending; Sprint 39 not
-entered)
+`WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Sprint 38
+Gap Analysis PASS; `SPRINT38_FREEZE_REVIEW` pending; Sprint 39 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -66,8 +65,10 @@ one nearest finite-range target with stable Runtime-ID tie-breaking, and emits
 `ENTITY_INTERACTION_REQUESTED`. Farm targets one `npc`; RPG targets one
 `quest`. The existing trusted `SET_ENTITY_PROPERTY` action commits a bounded
 `gameplay-state.activated` mutation and the Renderer presents only that
-committed result. No Farm/RPG system or genre parity is implied; final normal
-play Product Verification is pending the browser input-edge check.
+committed result. No Farm/RPG system or genre parity is implied. Farm and RPG
+normal-play Product Verification is PASS; the Provider-accepted Farm
+5-entity candidate versus the deterministic 8-entity baseline is recorded as
+a separate composition-completeness observation.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -179,6 +180,10 @@ timer, world-bounds authority, or wave system exists. Sprint 35
 is FROZEN at v1.187 with Code Complete/Product Verified = YES and a PASS fresh
 Gap Analysis; it adds semantic reachability only, no gameplay capability.
 `WO-S38-001` adds the bounded generic Player-directed interaction capability at
-v1.188. Code Complete is YES; final normal-play Product Verification and the
-fresh Sprint 38 Gap Analysis remain pending the browser input-edge check. The
-repository does not enter Sprint 39.
+v1.188. Code Complete and Product Verified are YES; the fresh Sprint 38 Gap
+Analysis is PASS. Real Studio Farm and RPG input edges committed the expected
+target-specific Runtime outcomes, and repeated interactions were truthful
+no-ops. The Provider-accepted Farm verification candidate had 5 entities while
+the deterministic 8-entity baseline remains covered; this is a separate
+Provider composition completeness observation, not a blocker for the WO. The
+repository stops at `SPRINT38_FREEZE_REVIEW` and does not enter Sprint 39.

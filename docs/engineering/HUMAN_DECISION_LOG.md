@@ -39,29 +39,38 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-02 | Execute `WO-S37-001` — Generic CreateWorld Supported-Archetype Intent Preservation. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded existing typed supported-archetype extraction change. Preserve CreateWorld routing, current-world mutation precedence, provider candidate validation, deterministic fallback, Farm template/DSL, Runtime/Renderer authority, and Sandbox for unknown input; complete real Studio Product Verification and a fresh Sprint 37 Gap Analysis, then stop at `SPRINT37_FREEZE_REVIEW`; do not add Farm mechanics, a classifier framework, a provider architecture, or enter Sprint 38. |
 | 2026-09-02 | Freeze Sprint 37 at v1.187 and authorize Sprint 38 — Cross-Genre Playability Fidelity Discovery. | ACCEPTED — FREEZE SPRINT 37 / ENTER SPRINT 38 DISCOVERY | Human / CTO | `WO-S37-001` is DONE with Code Complete = YES and Product Verified = YES; the fresh Sprint 37 Gap Analysis is PASS. Play the real Platformer, Survival, Farm, and RPG Studio paths, select exactly one highest-priority blocker, generate exactly one READY WO, do not implement it in this continuation, and do not enter Sprint 39. |
 | 2026-09-02 | Execute `WO-S38-001` — Generic Player-Directed Entity Interaction Reachability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Player interaction path. Preserve Platformer `Space` Jump, Survival `Space` Attack, Runtime/Renderer authority, provider candidate-only behavior, and existing Farm/RPG compositions; complete real Studio Product Verification and a fresh Sprint 38 Gap Analysis, then stop at `SPRINT38_FREEZE_REVIEW`; do not add genre systems, a universal ontology, a second input authority, a legacy reconnection, or enter Sprint 39. |
+| 2026-09-02 | Close `WO-S38-001` after Human/CTO clarification of the real Farm/RPG Product Verification evidence. | ACCEPTED — PRODUCT VERIFIED / CLOSE | Human / CTO | Farm and RPG both prove the generic normal-play interaction path. The Provider-accepted Farm 5-vs-8 composition variance is a separate observation, not a WO blocker; preserve the deterministic 8-entity regression, mark Code Complete/Product Verified/DONE, record a fresh Sprint 38 Gap Analysis PASS, select `SPRINT38_FREEZE_REVIEW`, and do not enter Sprint 39 or fix Provider composition in this WO. |
 
 ## WO-S38-001 execution decision and result
 
 Date: 2026-09-02
 
-Result: **IMPLEMENTATION COMPLETE — Code Complete = YES; Product Verified =
-PENDING final real Studio input-edge check; v1.188**
+Result: **DONE — Code Complete = YES; Product Verified = YES; fresh Sprint 38
+Gap Analysis = PASS; v1.188**
 
 The authorized work order adds one generic Runtime interaction path. Farm
 selects one nearby `npc`; RPG selects one nearby `quest`; both use the same
 `Enter` request, finite range `48`, nearest/stable-ID targeting,
 `ENTITY_INTERACTION_REQUESTED`, trusted `SET_ENTITY_PROPERTY`, immutable
-Runtime state, and committed Renderer feedback. The normal production
-CreateWorld → Runtime regression passes for both archetypes, as do all full
-package suites, package TypeScript/ESLint checks, the Web build, and browser
-UI/Observatory checks with empty diagnostics. Final normal-play browser
-input-edge evidence is pending because the current in-app control session did
-not expose a stable held/polled keyboard edge; no false Product Verified claim
-is made here.
+Runtime state, and committed Renderer feedback. Real Studio normal play
+confirmed Farm `player-farmer → npc-merchant` at distance `31` and RPG
+`player → quest-giver` at approximately `36.67`; both committed the expected
+authoritative activation and repeated Enter was a truthful `no_op`. The
+normal production CreateWorld → Runtime regression passes for both archetypes,
+as do all full package suites, package TypeScript/ESLint checks, the Web build,
+and browser UI/Observatory checks with empty diagnostics.
 
-The next control-plane gate is `SPRINT38_FREEZE_REVIEW`. The fresh Gap
-Analysis is recorded in `docs/project/SPRINT38_GAP_ANALYSIS.md` after the
-input-edge evidence is closed. Sprint 39 is not entered.
+The Provider-accepted Farm verification world contained 5 entities rather than
+the historical deterministic 8-entity Farm baseline. The deterministic
+8-entity path remains covered by regression, and this variance is classified
+as Provider candidate semantic composition completeness variance, not an
+interaction-reachability failure or a blocker for this WO. No Provider
+composition fix, fallback forcing, candidate-acceptance weakening, Farm
+template change, or retry was introduced.
+
+The fresh Gap Analysis is PASS and recorded in
+`docs/project/SPRINT38_GAP_ANALYSIS.md`. The next control-plane gate is
+`SPRINT38_FREEZE_REVIEW`; Sprint 39 is not entered.
 
 ## Sprint 36 freeze and Sprint 37 semantic-fidelity discovery decision
 

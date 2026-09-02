@@ -2,18 +2,18 @@
 
 This is a one-item Sprint 38 backlog generated from the real Studio discovery
 and executed under the explicit Human/CTO authorization. Sprint 37 is FROZEN
-at v1.187. `WO-S38-001` is code-complete at v1.188; final normal-play Product
-Verification and the fresh Gap Analysis remain pending the browser input-edge
-check. Sprint 39 is not entered.
+at v1.187. `WO-S38-001` is complete and Product Verified at v1.188; the fresh
+Sprint 38 Gap Analysis is PASS and the repository stops at the freeze review.
+Sprint 39 is not entered.
 
 ## WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 
-status: **DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check**
+status: **DONE — Code Complete = YES; Product Verified = YES**
 priority: **P0 / highest-priority shared Farm and RPG playability blocker**
 architecture_before: **v1.187**
 architecture_after: **v1.188**
 code_complete: **YES — implementation complete**
-product_verified: **PENDING — final normal-play browser input-edge check**
+product_verified: **YES — Farm and RPG normal-play interaction proofs passed**
 
 ### Product blocker
 
@@ -56,8 +56,10 @@ selector, mutation, feedback, and observability contracts where they fit.
 
 ### Required acceptance contract
 
-1. `做一个农场游戏` still reaches CreateWorld and the existing `farm`
-   eight-entity composition.
+1. `做一个农场游戏` still reaches CreateWorld and the deterministic fallback
+   retains the existing `farm` eight-entity composition. Provider candidate
+   entity-count completeness is a separate observation unless the interaction
+   contract explicitly makes it normative.
 2. In normal Studio play, the Player can perform at least one discoverable,
    characteristic Farm interaction with a field, NPC, quest, or other
    semantically Farm-relevant entity; the result changes authoritative Runtime
@@ -101,6 +103,9 @@ Runtime target (`npc` for Farm, `quest` for RPG), emits
 `gameplay-state.activated = true` through trusted immutable Runtime mutation,
 and projects committed activation as a transient generic interaction cue.
 The production CreateWorld → Runtime regression, full package suites, quality
-gates, Web build, and browser UI/Observatory checks pass. Final normal-play
-browser input-edge evidence is pending; the next gate is
-`SPRINT38_FREEZE_REVIEW`. Sprint 39 is not entered.
+gates, Web build, and real Studio Farm/RPG input-edge proofs pass. The
+Provider-accepted Farm PV candidate had 5 entities; the deterministic fallback
+8-entity baseline remains covered and the Human/CTO clarification classifies
+the difference as a separate Provider composition observation, not a blocker.
+The fresh Gap Analysis is PASS; the next gate is `SPRINT38_FREEZE_REVIEW`.
+Sprint 39 is not entered.

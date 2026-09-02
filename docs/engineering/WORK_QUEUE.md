@@ -7,12 +7,12 @@ queue_version: 1
 updated: 2026-09-02
 current_sprint: Sprint 38
 current_work_order: WO-S38-001
-current_work_order_status: DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: SPRINT38_FREEZE_REVIEW
 current_control_plane_work_order_status: READY — Human/CTO freeze decision pending
 last_completed_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 last_completed_control_plane_work_order: SPRINT37_FREEZE_REVIEW
-next_work_order: SPRINT38_FREEZE_REVIEW — finish Product Verification/Gap Analysis evidence, then await Human/CTO; do not enter Sprint 39
+next_work_order: SPRINT38_FREEZE_REVIEW — fresh Gap Analysis PASS; await Human/CTO freeze decision; do not enter Sprint 39
 continuation_mode: SPRINT_CONTINUOUS
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -56,7 +56,7 @@ above.
 
 ## WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 
-status: DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / highest-priority shared Farm and RPG playability blocker
 architecture_before: v1.187
 architecture_after: v1.188
@@ -64,10 +64,13 @@ mission: Establish the smallest generic explicit Player-directed interaction
   path at the existing input → Runtime event → GameplayRule → authoritative
   result → Renderer/Observatory boundary, then prove one characteristic Farm
   interaction and one characteristic RPG interaction.
-acceptance: Farm remains the existing eight-entity `farm` composition and
-  supports one discoverable Player interaction with a characteristic Farm
-  entity that changes authoritative Runtime state and presents a meaningful
-  result. RPG remains the existing nine-entity `rpg` composition and supports
+acceptance: The deterministic fallback retains the existing eight-entity
+  `farm` composition, and Farm supports one discoverable Player interaction
+  with a characteristic Farm entity that changes authoritative Runtime state
+  and presents a meaningful result. Provider candidate entity-count
+  completeness is a separate observation unless the interaction contract
+  explicitly makes it normative. RPG remains the existing nine-entity `rpg`
+  composition and supports
   the equivalent minimum interaction with an NPC, quest, enemy, or other
   characteristic RPG entity. Platformer/Survival baselines, Runtime
   authority, Observatory truth, provider candidate-only behavior, and browser
@@ -79,13 +82,17 @@ forbidden_scope: Farm engine, farming simulation, inventory/economy, RPG
   second input authority, provider-direct mutation, legacy reconnection, second
   WO, or Sprint 39.
 execution_boundary: DONE under the 2026-09-02 Human/CTO authorization. Code
-  Complete = YES. Product Verification remains pending the final normal-play
-  browser input-edge result; after that result, perform the fresh Sprint 38
-  Gap Analysis and stop at `SPRINT38_FREEZE_REVIEW`. Sprint 39 is not entered.
+Complete = YES; Product Verified = YES; fresh Sprint 38 Gap Analysis = PASS.
+Real Studio Farm and RPG input edges committed the target-specific
+authoritative outcomes, with repeated interaction producing truthful no-op
+results. The Provider-accepted Farm PV candidate had 5 entities; the
+deterministic 8-entity baseline remains covered and the difference is a
+separate Provider composition observation. Stop at
+`SPRINT38_FREEZE_REVIEW`; Sprint 39 is not entered.
 
 ## SPRINT38_FREEZE_REVIEW
 
-status: READY — implementation complete; Human/CTO freeze decision pending
+status: READY — Product Verified complete; Human/CTO freeze decision pending
 architecture: v1.188
 evidence: `WO-S38-001` adds one generic Runtime interaction request path for
   Farm/RPG. Farm targets one nearby `npc`; RPG targets one nearby `quest`; both
@@ -93,12 +100,13 @@ evidence: `WO-S38-001` adds one generic Runtime interaction request path for
   `ENTITY_INTERACTION_REQUESTED`, supported Gameplay Rules, trusted immutable
   `SET_ENTITY_PROPERTY`, and committed Renderer feedback. Full and focused
   automated production-path regressions, package TypeScript/ESLint, Web build,
-  and browser UI/Observatory checks pass; final normal-play browser input-edge
-  evidence and fresh Gap Analysis are pending. No second Sprint 38 WO or
-  Sprint 39 entry is allowed.
-next_action: Complete the final real Studio input-edge proof, record
-  `docs/project/SPRINT38_GAP_ANALYSIS.md`, and wait for Human/CTO freeze
-  decision. Do not enter Sprint 39.
+  and real Studio Farm/RPG input-edge checks pass; repeated interactions are
+  truthful no-ops and browser diagnostics are empty. The deterministic Farm
+  8-entity baseline remains covered; a 5-entity Provider candidate is recorded
+  separately and is not a blocker. Fresh Gap Analysis = PASS. No second
+  Sprint 38 WO or Sprint 39 entry is allowed.
+next_action: Await Human/CTO freeze decision at `SPRINT38_FREEZE_REVIEW`.
+  Do not enter Sprint 39.
 
 ## SPRINT37_PRODUCT_GAP_DISCOVERY
 

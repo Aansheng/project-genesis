@@ -163,14 +163,18 @@ the trusted `SET_ENTITY_PROPERTY` action commits immutable
 `gameplay-state.activated` state and the Renderer presents committed feedback.
 
 Platformer `Space — Jump` and Survival `Space — Attack` remain unchanged.
-Farm and RPG retain their existing 8- and 9-entity compositions. Full and
-focused automated production-path tests, package quality gates, Web build, and
-browser UI/Observatory checks pass; final normal-play browser input-edge
-evidence and fresh Gap Analysis are pending. The repository stops at
-`SPRINT38_FREEZE_REVIEW`; Sprint 39 is not entered. Full discovery evidence
-is in `docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md`, execution evidence is
-in `docs/project/SPRINT38_BACKLOG.md`, and the fresh-gap record is
-`docs/project/SPRINT38_GAP_ANALYSIS.md`.
+The deterministic Farm path retains its existing 8-entity composition and RPG
+retains its 9-entity composition. Real Studio normal play confirmed committed
+Farm and RPG interaction outcomes, truthful repeated no-ops, and empty browser
+diagnostics. The Provider-accepted Farm PV candidate contained 5 entities;
+this is recorded as a separate Provider candidate composition completeness
+variance and is not a blocker for WO-S38-001. Full and focused automated
+production-path tests, package quality gates, Web build, and browser
+UI/Observatory checks pass; the fresh Sprint 38 Gap Analysis is PASS. The
+repository stops at `SPRINT38_FREEZE_REVIEW`; Sprint 39 is not entered. Full
+discovery evidence is in `docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md`,
+execution evidence is in `docs/project/SPRINT38_BACKLOG.md`, and the fresh-gap
+record is `docs/project/SPRINT38_GAP_ANALYSIS.md`.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

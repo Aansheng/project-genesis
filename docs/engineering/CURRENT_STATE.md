@@ -3,16 +3,16 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.188 (Sprint 37 frozen; WO-S38-001 implementation complete; freeze review pending)
+architecture_version: v1.188 (Sprint 37 frozen; WO-S38-001 DONE/Product Verified; freeze review pending)
 current_sprint: Sprint 38 (SPRINT38_FREEZE_REVIEW)
 current_work_order: WO-S38-001
-current_work_order_status: DONE — Code Complete = YES; Product Verified = PENDING final real Studio input-edge check
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 current_control_plane_work_order: SPRINT38_FREEZE_REVIEW
 current_control_plane_work_order_status: READY — Human/CTO freeze decision pending
 last_completed_work_order: WO-S38-001 — Generic Player-Directed Entity Interaction Reachability
 last_completed_product_work_order: WO-S38-001
 last_completed_control_plane_work_order: SPRINT37_FREEZE_REVIEW
-next_ready_work_order: SPRINT38_FREEZE_REVIEW — complete final Product Verification/Gap Analysis evidence, then await Human/CTO; do not enter Sprint 39
+next_ready_work_order: SPRINT38_FREEZE_REVIEW — fresh Gap Analysis PASS; await Human/CTO freeze decision; do not enter Sprint 39
 product_architecture_changed: YES — v1.187 → v1.188 adds one bounded generic
   Player-directed interaction capability at the existing input/event/Rule/
   Runtime mutation boundary. Sprint 36 and Sprint 37 changes remain frozen at
@@ -24,19 +24,22 @@ sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   ready; Human/CTO subsequently froze Sprint 35. Sprint 36
   `WO-S36-001` is complete and FROZEN at v1.186. Sprint 37
   `WO-S37-001` is FROZEN at v1.187 with Code Complete/Product Verified = YES.
-  Sprint 38 `WO-S38-001` implementation is complete at v1.188 with Code
-  Complete = YES; final Product Verification and fresh Gap Analysis await the
-  real Studio input-edge check; Sprint 39 is not entered.
+  Sprint 38 `WO-S38-001` is DONE at v1.188 with Code Complete/Product Verified
+  = YES and fresh Gap Analysis PASS; `SPRINT38_FREEZE_REVIEW` is pending and
+  Sprint 39 is not entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, WO-S35-001, WO-S36-001, WO-S37-001, and WO-S38-001
 product_verified: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, and WO-S35-001; fresh Sprint 34 post-WO Gap Analysis PASS;
   Sprint 35 discovery PASS; fresh Sprint 35 post-WO Gap Analysis PASS;
   WO-S36-001; fresh Sprint 36 post-WO Gap Analysis PASS; WO-S37-001;
-  fresh Sprint 37 post-WO Gap Analysis PASS. WO-S38-001 has passing full and
-  focused automated production-path evidence, package quality gates, Web
-  build, and browser UI/Observatory checks with empty diagnostics; final
-  normal-play browser input-edge evidence remains pending.
+  fresh Sprint 37 post-WO Gap Analysis PASS; WO-S38-001; fresh Sprint 38
+  post-WO Gap Analysis PASS. WO-S38-001 has passing full and focused
+  automated production-path evidence, package quality gates, Web build, and
+  real Studio Farm/RPG interaction proofs with empty diagnostics. The
+  Provider-accepted Farm PV candidate had 5 entities while the deterministic
+  baseline remains 8; this is a separate Provider composition observation,
+  not a blocker for the WO.
 
 ## Sprint 38 — Cross-Genre Playability Fidelity Discovery
 
@@ -79,18 +82,22 @@ trusted `SET_ENTITY_PROPERTY` action; immutable Runtime state stores
 projected as a transient Renderer interaction cue.
 
 The production CreateWorld → Runtime regression passes for both `做一个农场
-游戏` (8 entities) and `创建一个 RPG` (9 entities), including no-target and
-repeated no-op behavior. Shared 211/211, Runtime 711/711, AI 9442/9442,
-Renderer 513/513, and Web 3585/3585 pass; package TypeScript, ESLint, Web
-build, and `git diff --check` pass. Browser UI/Full Observatory show v1.188,
-the generic controls, supported Farm/RPG rules, and no diagnostics. The final
-normal-play browser input-edge result is still pending, so Code Complete is
-YES and Product Verified remains PENDING.
+游戏` (deterministic 8-entity baseline) and `创建一个 RPG` (9 entities),
+including no-target and repeated no-op behavior. Real Studio verification
+committed Farm `player-farmer → npc-merchant` at distance `31` in a
+Provider-accepted 5-entity candidate and RPG `player → quest-giver` at
+approximately `36.67`; both targets show `gameplay-state.activated = true`,
+and repeated Enter is a truthful `no_op`. Shared 211/211, Runtime 711/711,
+AI 9442/9442, Renderer 513/513, and Web 3585/3585 pass; package TypeScript,
+ESLint, Web build, and `git diff --check` pass. Browser UI/Full Observatory
+show v1.188, the generic controls, supported Farm/RPG rules, and no
+diagnostics. Product Verified is YES and the fresh Gap Analysis is PASS.
 
 No Farm/RPG engine, dialogue/quest/combat framework, universal interaction
 ontology, second input authority, provider runtime call, legacy reconnection,
-second Sprint 38 WO, or Sprint 39 entry was introduced. The next gate is
-`SPRINT38_FREEZE_REVIEW`.
+second Sprint 38 WO, or Sprint 39 entry was introduced. The Provider candidate
+5-vs-8 composition variance is recorded for future measurement only. The next
+gate is `SPRINT38_FREEZE_REVIEW`.
 
 ## Sprint 37 — CreateWorld Semantic Fidelity Discovery and WO-S37-001 Execution
 
@@ -1090,9 +1097,18 @@ Human/CTO froze Sprint 36 at v1.186:
   therefore selects the existing eight-entity Farm template rather than
   Sandbox. `WO-S37-001` is DONE at v1.187 with Code Complete/Product Verified
   = YES.
-- **Current gate:** Sprint 37 is FROZEN at v1.187. Sprint 38 discovery is
-  complete with one READY `WO-S38-001` for the shared Player-directed Farm/RPG
-  interaction gap; do not execute without Human/CTO authorization and do not
+- **Resolved Sprint 38 PRODUCT_GAP:** Farm and RPG now expose the same generic
+  explicit Player interaction path. Real Studio normal play committed
+  `farm-interaction` for Farm and `rpg-interaction` for RPG through
+  `ENTITY_INTERACTION_REQUESTED`, with truthful repeated no-op behavior and
+  empty browser diagnostics. `WO-S38-001` is DONE at v1.188 with Code
+  Complete/Product Verified = YES and fresh Gap Analysis PASS.
+- **Separate product observation:** the Provider-accepted Farm verification
+  candidate contained 5 entities while the deterministic Farm baseline remains
+  8. This Provider candidate semantic-composition completeness variance is not
+  a blocker for WO-S38-001 and is not fixed in Sprint 38.
+- **Current gate:** Sprint 37 is FROZEN at v1.187. Sprint 38 is complete at
+  the product-WO level and awaits Human/CTO `SPRINT38_FREEZE_REVIEW`; do not
   enter Sprint 39.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
@@ -1224,10 +1240,9 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Complete the final real Studio Farm/RPG input-edge check, record the resulting
-PASS/FAIL in `docs/project/SPRINT38_GAP_ANALYSIS.md`, and then await the
-Human/CTO `SPRINT38_FREEZE_REVIEW` decision. Preserve the Platformer/Survival
-baselines. Sprint 39 is not entered.
+Await the Human/CTO `SPRINT38_FREEZE_REVIEW` decision. Preserve the
+Platformer/Survival baselines and retain the Provider Farm composition
+variance as a separate future observation. Sprint 39 is not entered.
 
 ## Authority
 
