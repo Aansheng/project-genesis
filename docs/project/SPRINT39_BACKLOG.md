@@ -3,9 +3,10 @@
 This was a one-item Sprint 39 backlog generated from the real Studio
 interaction-meaning discovery. Sprint 38 is FROZEN at v1.188 with
 WO-S38-001 Code Complete = YES, Product Verified = YES, and the fresh Gap
-Analysis PASS. The authorized item below is complete at v1.189; the
-repository is ready for `SPRINT39_FREEZE_REVIEW`, and Sprint 40 is not
-entered.
+Analysis PASS. The authorized item below is complete at v1.189; Sprint 39 was
+subsequently FROZEN by Human/CTO decision on 2026-09-03. Sprint 40 discovery
+is now complete in `SPRINT40_BACKLOG.md` with exactly one READY item; no
+Sprint 40 WO was executed and Sprint 41 was not entered.
 
 ## WO-S39-001 — Generic Archetype Interaction Consequence (first bounded slice)
 
@@ -93,5 +94,5 @@ diagnostics. Full details are in `docs/project/SPRINT39_GAP_ANALYSIS.md` and
 `docs/adr/ADR-0299-generic-archetype-interaction-consequence.md`.
 
 **Execution boundary:** This was the only authorized Sprint 39 WO and is now
-complete. Stop at `SPRINT39_FREEZE_REVIEW` for Human/CTO review. Do not enter
-Sprint 40.
+complete. Sprint 39 is FROZEN at v1.189. The subsequent Sprint 40 discovery
+generated one READY item, but did not execute it or enter Sprint 41.

@@ -1,4 +1,4 @@
-# Gameplay Capability Matrix — Sprint 39 Execution Complete / Freeze Review Pending
+# Gameplay Capability Matrix — Sprint 39 Frozen / Sprint 40 Discovery Complete
 
 Architecture version: v1.189 (Sprint 30 through Sprint 38 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
@@ -9,8 +9,9 @@ Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
 `WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Sprint 38
 Gap Analysis PASS; Sprint 38 FROZEN; `WO-S39-001` Code Complete = YES;
-Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189; freeze
-review pending; Sprint 40 not entered)
+Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189; Sprint 39
+FROZEN; Sprint 40 discovery complete with exactly one READY WO; Sprint 41 not
+entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -81,6 +82,15 @@ authority, and no-op truth unchanged. Farm targets eligible field-like
 feedback derives `Harvested` / `Quest accepted` only from committed
 mutations. This does not add a Farm/RPG engine, resource/inventory/economy
 loop, dialogue/quest framework, or generic interaction-outcome framework.
+
+Sprint 40 discovery adds no Runtime capability. Real Studio traces confirm
+that Farm and RPG stop after the first characteristic property commit: no
+downstream GameplayRule, target, objective, numeric/goal transition, or
+Player-readable next action is currently defined. Existing generic primitives
+remain available for a later bounded continuation audit. Exactly one READY
+work order, `WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity
+(first bounded slice)`, is recorded outside this capability matrix and has not
+been executed.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -205,5 +215,6 @@ Sprint 39 `WO-S39-001` advances the same capability to v1.189: Farm commits
 quest targets, with committed labeled feedback. Code Complete and Product
 Verified are YES and the fresh Sprint 39 Gap Analysis is PASS. The Provider
 5-vs-8 composition variance and inherited Farm/RPG side-view/Space-jump
-behavior remain separate observations. `SPRINT39_FREEZE_REVIEW` is pending;
-Sprint 40 is not entered.
+behavior remain separate observations. Sprint 39 is FROZEN at v1.189 by
+Human/CTO decision. Sprint 40 discovery adds no capability and has generated
+exactly one READY `WO-S40-001`; Sprint 41 is not entered.

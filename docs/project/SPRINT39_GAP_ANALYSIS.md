@@ -115,5 +115,13 @@ deliberately deferred or separately measured:
 ## Next control-plane gate
 
 Fresh Gap Analysis is **PASS**. `WO-S39-001` is **DONE** with Code Complete
-and Product Verified both **YES**. Select `SPRINT39_FREEZE_REVIEW` for
-Human/CTO review and stop there. Do not enter Sprint 40.
+and Product Verified both **YES**. Human/CTO subsequently accepted the freeze
+review on 2026-09-03, so Sprint 39 is **FROZEN at v1.189**.
+
+## Post-freeze disposition
+
+Sprint 40 — Cross-Genre Gameplay Loop Continuity Discovery was then
+authorized as discovery-only. Its real Studio Farm/RPG follow-up audit is
+recorded in `docs/project/SPRINT40_PRODUCT_GAP_DISCOVERY.md`; it generated
+exactly one READY item, `WO-S40-001`, without modifying product code or
+executing a new WO. Sprint 41 was not entered.

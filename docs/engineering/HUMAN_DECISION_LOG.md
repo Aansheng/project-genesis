@@ -42,6 +42,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-02 | Close `WO-S38-001` after Human/CTO clarification of the real Farm/RPG Product Verification evidence. | ACCEPTED — PRODUCT VERIFIED / CLOSE | Human / CTO | Farm and RPG both prove the generic normal-play interaction path. The Provider-accepted Farm 5-vs-8 composition variance is a separate observation, not a WO blocker; preserve the deterministic 8-entity regression, mark Code Complete/Product Verified/DONE, record a fresh Sprint 38 Gap Analysis PASS, select `SPRINT38_FREEZE_REVIEW`, and do not enter Sprint 39 or fix Provider composition in this WO. |
 | 2026-09-02 | Freeze Sprint 38 at v1.188 and authorize Sprint 39 — Cross-Genre Interaction Meaning Discovery. | ACCEPTED — FREEZE SPRINT 38 / ENTER SPRINT 39 DISCOVERY | Human / CTO | `WO-S38-001` is FROZEN with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Run real Farm/RPG interaction-meaning discovery, select exactly one highest-priority blocker, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 40. |
 | 2026-09-03 | Execute `WO-S39-001` — Generic Archetype Interaction Consequence (first bounded slice). | ACCEPTED — EXECUTE | Human / CTO | Execute only this Sprint 39 WO. Reuse the existing generic Enter → finite-range target → `ENTITY_INTERACTION_REQUESTED` → GameplayRule → Runtime-authoritative mutation path; preserve no-target/repeat truth, Platformer `Space` Jump, Survival `Space` Attack, Provider candidate-only behavior, and all forbidden-scope boundaries. Complete real Farm/RPG Studio Product Verification and a fresh Sprint 39 Gap Analysis, then stop at `SPRINT39_FREEZE_REVIEW`; do not enter Sprint 40. |
+| 2026-09-03 | Freeze Sprint 39 at v1.189 and authorize Sprint 40 — Cross-Genre Gameplay Loop Continuity Discovery. | ACCEPTED — FREEZE SPRINT 39 / ENTER SPRINT 40 DISCOVERY | Human / CTO | `WO-S39-001` is DONE with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Perform discovery only in real Studio, select exactly one shared blocker, generate exactly one READY WO, do not modify product code, do not execute a new WO, and do not enter Sprint 41. |
 
 ## Sprint 39 discovery result and READY work order
 
@@ -88,8 +89,43 @@ contained 5 entities; deterministic Farm/RPG baselines remain covered and the
 variance is separate from this WO.
 
 Fresh Gap Analysis is recorded in `docs/project/SPRINT39_GAP_ANALYSIS.md`.
-The next control-plane gate is `SPRINT39_FREEZE_REVIEW`; Sprint 40 is not
-entered.
+Human/CTO accepted `SPRINT39_FREEZE_REVIEW` on 2026-09-03, freezing Sprint 39
+at v1.189. Sprint 40 discovery is recorded below; the product remains at
+v1.189 because discovery does not modify product code.
+
+## Sprint 40 discovery result and READY work order
+
+Date: 2026-09-03
+
+Result: **DISCOVERY COMPLETE — exactly one READY WO; no product code modified;
+no WO executed; v1.189 remains current; Sprint 41 not entered**
+
+Real Studio Farm `做一个农场游戏` used the deterministic 8-entity baseline.
+Harvest committed `activated=true, harvested=true` through the sole supported
+`farm-interaction` Rule. Real Studio RPG `创建一个 RPG` used the 9-entity
+deterministic fallback. Quest Accept committed
+`activated=true, questAccepted=true` through the sole supported
+`rpg-interaction` Rule. Full Observatory showed one Rule and two property
+actions in each case; Runtime remained at XP 0 / Level 1. No downstream Rule,
+target, objective, numeric state, goal completion, or Player-readable next
+action followed. The RPG `main-quest` and additional Farm content are
+potential targets, not defined continuation stages.
+
+The generic audit covered GameplayRule conditions, entity properties, numeric
+state, `NUMBER_COMPARE`, gameplay events, `SET_ENTITY_PROPERTY`,
+`REMOVE_ENTITY`, `SPAWN_ENTITY`, XP/Level, and goal/completion semantics. The
+single selected blocker is **SUPPORTED ARCHETYPE INTERACTIONS DO NOT CONTINUE
+INTO A BOUNDED MULTI-STEP GAMEPLAY LOOP**. Provider Farm composition variance,
+inherited spatial/control composition, and next-state readability were
+recorded as secondary observations.
+
+Exactly one READY work order was generated:
+`WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (first bounded
+slice)`. It is awaiting separate Human/CTO execution authorization. Evidence
+and the one-item backlog are recorded in
+`docs/project/SPRINT40_PRODUCT_GAP_DISCOVERY.md` and
+`docs/project/SPRINT40_BACKLOG.md`. The next gate is
+`SPRINT40_DISCOVERY_REVIEW`; do not execute the item or enter Sprint 41.
 
 ## WO-S38-001 execution decision and result
 
