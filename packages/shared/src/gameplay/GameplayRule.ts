@@ -33,9 +33,23 @@ export type GameplayNumericReference =
   | { readonly kind: 'entityProperty'; readonly entity: GameplayEntitySelector; readonly property: 'x' | 'y' | 'velocityX' | 'velocityY' | 'health' }
   | { readonly kind: 'gameState'; readonly key: string }
 
+/**
+ * Runtime-owned boolean entity state supported by the generic property action.
+ *
+ * The archetype-specific entries remain data properties on the existing
+ * gameplay-state component; they do not introduce a genre-specific Runtime
+ * system or a second mutation contract.
+ */
+export type GameplayEntityProperty =
+  | 'activated'
+  | 'enabled'
+  | 'visible'
+  | 'harvested'
+  | 'questAccepted'
+
 export type GameplayBooleanReference =
   | { readonly kind: 'eventPayload'; readonly key: 'isGrounded' | 'isActive' }
-  | { readonly kind: 'entityProperty'; readonly entity: GameplayEntitySelector; readonly property: 'enabled' | 'activated' | 'visible' }
+  | { readonly kind: 'entityProperty'; readonly entity: GameplayEntitySelector; readonly property: GameplayEntityProperty }
   | { readonly kind: 'gameState'; readonly key: string }
 
 export type GameplayCondition =
@@ -89,7 +103,7 @@ export type GameplayAction =
   | { readonly type: 'REMOVE_ENTITY'; readonly target: GameplayEntitySelector }
   | { readonly type: 'SPAWN_ENTITY'; readonly entity: GameplaySpawnDescriptor }
   | { readonly type: 'CHANGE_NUMERIC_STATE'; readonly state: string; readonly amount: number }
-  | { readonly type: 'SET_ENTITY_PROPERTY'; readonly target: GameplayEntitySelector; readonly property: 'activated' | 'enabled' | 'visible'; readonly value: GameplayActionValue }
+  | { readonly type: 'SET_ENTITY_PROPERTY'; readonly target: GameplayEntitySelector; readonly property: GameplayEntityProperty; readonly value: GameplayActionValue }
   | { readonly type: 'APPLY_VELOCITY'; readonly target: GameplayEntitySelector; readonly velocity: { readonly x?: number; readonly y?: number; readonly mode?: 'set' | 'add' } }
   | { readonly type: 'COMPLETE_GOAL'; readonly goalId?: string }
   | { readonly type: 'DAMAGE_ENTITY'; readonly target: GameplayEntitySelector; readonly amount: number }

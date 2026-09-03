@@ -1,5 +1,31 @@
 # Changelog
 
+### Sprint 39 — WO-S39-001 Generic Archetype Interaction Consequence (v1.189, 2026-09-03)
+
+- Human/CTO authorized execution of the single Sprint 39 work order. The
+  architecture advances from v1.188 to v1.189 by reusing the existing typed
+  `SET_ENTITY_PROPERTY` seam; no new interaction framework or genre system was
+  introduced.
+- Farm now selects one nearby eligible field-like `terrain` target and the
+  existing `farm-interaction` Rule commits `activated=true` and
+  `harvested=true`. RPG retains its nearby `quest` target and commits
+  `activated=true` and `questAccepted=true` through the same generic Enter →
+  Runtime event → GameplayRule path.
+- Renderer feedback derives `Harvested` and `Quest accepted` from committed
+  Runtime mutations. Enter/range-48/nearest/stable-ID/no-target/repeat
+  semantics, Runtime authority, Platformer `Space — Jump`, and Survival
+  `Space — Attack` remain unchanged.
+- Shared 211/211, AI 9442/9442, Runtime 714/714, Renderer 516/516, and Web
+  3585/3585 full suites pass; focused AI/Runtime/Renderer/Web checks pass
+  11/11, 25/25, 17/17, and 2/2. TypeScript, ESLint with zero errors, and Web
+  production build pass.
+- Real Studio Product Verification passed: Provider-accepted Farm at distance
+  47 committed `harvested=true`; RPG deterministic fallback at distance
+  42.154 committed `questAccepted=true`; Full Observatory matched Runtime
+  state and repeated RPG Enter produced truthful no-ops. Fresh Sprint 39 Gap
+  Analysis is PASS. The next gate is `SPRINT39_FREEZE_REVIEW`; Sprint 40 is
+  not entered.
+
 ### Sprint 39 — Cross-Genre Interaction Meaning Discovery (v1.188, 2026-09-02)
 
 - Human/CTO froze Sprint 38 at v1.188 with WO-S38-001 Code Complete = YES,

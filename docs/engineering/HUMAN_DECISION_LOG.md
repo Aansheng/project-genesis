@@ -41,6 +41,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-02 | Execute `WO-S38-001` — Generic Player-Directed Entity Interaction Reachability. | ACCEPTED — EXECUTE | Human / CTO | Execute only the bounded generic Player interaction path. Preserve Platformer `Space` Jump, Survival `Space` Attack, Runtime/Renderer authority, provider candidate-only behavior, and existing Farm/RPG compositions; complete real Studio Product Verification and a fresh Sprint 38 Gap Analysis, then stop at `SPRINT38_FREEZE_REVIEW`; do not add genre systems, a universal ontology, a second input authority, a legacy reconnection, or enter Sprint 39. |
 | 2026-09-02 | Close `WO-S38-001` after Human/CTO clarification of the real Farm/RPG Product Verification evidence. | ACCEPTED — PRODUCT VERIFIED / CLOSE | Human / CTO | Farm and RPG both prove the generic normal-play interaction path. The Provider-accepted Farm 5-vs-8 composition variance is a separate observation, not a WO blocker; preserve the deterministic 8-entity regression, mark Code Complete/Product Verified/DONE, record a fresh Sprint 38 Gap Analysis PASS, select `SPRINT38_FREEZE_REVIEW`, and do not enter Sprint 39 or fix Provider composition in this WO. |
 | 2026-09-02 | Freeze Sprint 38 at v1.188 and authorize Sprint 39 — Cross-Genre Interaction Meaning Discovery. | ACCEPTED — FREEZE SPRINT 38 / ENTER SPRINT 39 DISCOVERY | Human / CTO | `WO-S38-001` is FROZEN with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Run real Farm/RPG interaction-meaning discovery, select exactly one highest-priority blocker, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 40. |
+| 2026-09-03 | Execute `WO-S39-001` — Generic Archetype Interaction Consequence (first bounded slice). | ACCEPTED — EXECUTE | Human / CTO | Execute only this Sprint 39 WO. Reuse the existing generic Enter → finite-range target → `ENTITY_INTERACTION_REQUESTED` → GameplayRule → Runtime-authoritative mutation path; preserve no-target/repeat truth, Platformer `Space` Jump, Survival `Space` Attack, Provider candidate-only behavior, and all forbidden-scope boundaries. Complete real Farm/RPG Studio Product Verification and a fresh Sprint 39 Gap Analysis, then stop at `SPRINT39_FREEZE_REVIEW`; do not enter Sprint 40. |
 
 ## Sprint 39 discovery result and READY work order
 
@@ -67,6 +68,28 @@ this continuation. Full evidence is in
 `docs/project/SPRINT39_PRODUCT_GAP_DISCOVERY.md`; the one-item backlog is in
 `docs/project/SPRINT39_BACKLOG.md`. The next gate is
 `SPRINT39_FREEZE_REVIEW`; Sprint 40 is not entered.
+
+## WO-S39-001 execution result
+
+Date: 2026-09-03
+
+Result: **DONE — Code Complete = YES; Product Verified = YES; fresh Sprint 39
+Gap Analysis = PASS; v1.189**
+
+The authorized item reused the existing typed `SET_ENTITY_PROPERTY` seam.
+Farm now targets eligible field-like `terrain` and commits
+`activated=true, harvested=true`; RPG retains `quest` targeting and commits
+`activated=true, questAccepted=true`. The Game surface derives labeled
+feedback from committed Runtime mutations. Real Studio Farm and RPG input
+edges, Full Observatory, Runtime entity inspection, full package quality
+gates, Web build, and empty browser diagnostics passed. Repeated RPG Enter
+produced truthful `no_op` actions. The Provider-accepted Farm PV candidate
+contained 5 entities; deterministic Farm/RPG baselines remain covered and the
+variance is separate from this WO.
+
+Fresh Gap Analysis is recorded in `docs/project/SPRINT39_GAP_ANALYSIS.md`.
+The next control-plane gate is `SPRINT39_FREEZE_REVIEW`; Sprint 40 is not
+entered.
 
 ## WO-S38-001 execution decision and result
 

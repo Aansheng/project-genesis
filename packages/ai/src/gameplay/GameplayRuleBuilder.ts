@@ -160,6 +160,14 @@ function collectible(world: GameWorldModel, excludedId: string | undefined): Gam
   )
 }
 
+function farmHarvestable(world: GameWorldModel): GameWorldModel['entities'][number] | undefined {
+  const harvestable = /field|crop|farmland|wheat|corn/iu
+  return world.entities.find(entity =>
+    entity.category === 'terrain'
+      && (harvestable.test(entity.id) || harvestable.test(entity.name)),
+  ) ?? world.entities.find(entity => entity.category === 'terrain')
+}
+
 function deterministicRules(
   specification: GameplaySpecification,
   world: GameWorldModel,
@@ -243,14 +251,17 @@ function deterministicRules(
   }
 
   if (world.worldType === 'farm' && hasMechanic(specification, 'farm-interact')) {
-    const interactable = world.entities.find(entity => entity.category === 'npc')
+    const interactable = farmHarvestable(world)
     if (interactable) {
       rules.push(rule(
         'farm-interaction',
-        'Farm entity interaction',
+        'Harvest farm field',
         'farm-interact',
         [categoryCondition(player, 'player'), categoryCondition(target, interactable.category)],
-        [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true })],
+        [
+          Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true }),
+          Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'harvested', value: true }),
+        ],
         'all',
         interactionTrigger(player, target),
       ))
@@ -262,10 +273,13 @@ function deterministicRules(
     if (interactable) {
       rules.push(rule(
         'rpg-interaction',
-        'RPG quest interaction',
+        'Accept RPG quest',
         'rpg-interact',
         [categoryCondition(player, 'player'), categoryCondition(target, interactable.category)],
-        [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true })],
+        [
+          Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true }),
+          Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'questAccepted', value: true }),
+        ],
         'all',
         interactionTrigger(player, target),
       ))

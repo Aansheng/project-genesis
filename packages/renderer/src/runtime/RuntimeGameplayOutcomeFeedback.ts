@@ -29,7 +29,8 @@ function positionOf(world: World, entityId: string): GameplayOutcomeFeedbackPosi
  * - ENTITY_REMOVED is a defeat only when the authoritative removal snapshot
  *   records Health == 0.
  * - ENTITY_ADDED is a committed Runtime spawn outcome.
- * - ENTITY_PROPERTY_UPDATED is an interaction outcome only for `activated`.
+ * - ENTITY_PROPERTY_UPDATED is an interaction outcome for the generic
+ *   activation property and the supported archetype state properties.
  *
  * Attack-request events, failed actions, rolled-back actions, and ordinary
  * removals intentionally produce no positive feedback.
@@ -44,6 +45,12 @@ export function projectRuntimeGameplayOutcomeFeedback(
   results.forEach((result, resultIndex) => {
     if (!result.committed) return
 
+    const hasCharacteristicInteraction = result.actionResults.some(actionResult =>
+      actionResult.status === 'executed'
+      && actionResult.mutation?.type === 'ENTITY_PROPERTY_UPDATED'
+      && (actionResult.mutation.property === 'harvested' || actionResult.mutation.property === 'questAccepted'),
+    )
+
     result.actionResults.forEach((actionResult, actionIndex) => {
       if (actionResult.status !== 'executed' || !actionResult.mutation) return
 
@@ -52,6 +59,7 @@ export function projectRuntimeGameplayOutcomeFeedback(
       let kind: GameplayOutcomeFeedback['kind'] | undefined
       let position: GameplayOutcomeFeedbackPosition | undefined
       let damageAmount: number | undefined
+      let label: string | undefined
 
       if (mutation.type === 'HEALTH_UPDATED') {
         entityId = mutation.targetEntityId
@@ -71,9 +79,23 @@ export function projectRuntimeGameplayOutcomeFeedback(
         entityId = mutation.targetEntityId
         kind = 'spawn'
         position = positionOf(actionResult.worldAfter, entityId)
-      } else if (mutation.type === 'ENTITY_PROPERTY_UPDATED' && mutation.property === 'activated') {
+      } else if (mutation.type === 'ENTITY_PROPERTY_UPDATED'
+        && mutation.property === 'activated'
+        && !hasCharacteristicInteraction) {
         entityId = mutation.targetEntityId
         kind = 'interaction'
+        position = positionOf(actionResult.worldAfter, entityId)
+          ?? positionOf(actionResult.worldBefore, entityId)
+      } else if (mutation.type === 'ENTITY_PROPERTY_UPDATED' && mutation.property === 'harvested') {
+        entityId = mutation.targetEntityId
+        kind = 'interaction'
+        label = 'Harvested'
+        position = positionOf(actionResult.worldAfter, entityId)
+          ?? positionOf(actionResult.worldBefore, entityId)
+      } else if (mutation.type === 'ENTITY_PROPERTY_UPDATED' && mutation.property === 'questAccepted') {
+        entityId = mutation.targetEntityId
+        kind = 'interaction'
+        label = 'Quest accepted'
         position = positionOf(actionResult.worldAfter, entityId)
           ?? positionOf(actionResult.worldBefore, entityId)
       }
@@ -87,6 +109,7 @@ export function projectRuntimeGameplayOutcomeFeedback(
         entityId,
         position,
         ...(damageAmount !== undefined ? { damageAmount } : {}),
+        ...(label ? { label } : {}),
       }))
     })
   })

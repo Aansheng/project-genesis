@@ -348,7 +348,7 @@ export class DefaultPixiEntityRenderer implements PixiEntityRenderer {
       const label = feedback.kind === 'hit' && feedback.damageAmount !== undefined
         ? this._createFeedbackText(`-${formatFeedbackNumber(feedback.damageAmount)}`)
         : feedback.kind === 'interaction'
-          ? this._createFeedbackText('✓')
+          ? this._createFeedbackText(feedback.label ?? '✓')
         : undefined
       if (label) {
         label.anchor.set(0.5, 1)

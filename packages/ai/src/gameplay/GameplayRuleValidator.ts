@@ -7,6 +7,7 @@ import type {
   GameplayCapabilityCatalog,
   GameplayCondition,
   GameplayContactDirection,
+  GameplayEntityProperty,
   GameplayEntitySelector,
   GameplayNumericReference,
   GameplayRuleConditionMode,
@@ -43,7 +44,13 @@ const ENTITY_CATEGORIES: readonly EntityCategory[] = ['player', 'npc', 'enemy', 
 const DIRECTIONS: readonly GameplayContactDirection[] = ['top', 'bottom', 'left', 'right']
 const OPERATORS = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte'] as const
 const COMPONENTS = ['position', 'velocity', 'collision-bounds', 'semantic', 'health'] as const
-const PROPERTY_NAMES = ['activated', 'enabled', 'visible'] as const
+const PROPERTY_NAMES: readonly GameplayEntityProperty[] = [
+  'activated',
+  'enabled',
+  'visible',
+  'harvested',
+  'questAccepted',
+]
 const NUMERIC_PAYLOAD_KEYS = ['x', 'y', 'velocityX', 'velocityY', 'amount', 'health'] as const
 const BOOLEAN_PAYLOAD_KEYS = ['isGrounded', 'isActive'] as const
 
@@ -220,9 +227,9 @@ function normalizeBooleanReference(
   }
   if (value.kind === 'entityProperty') {
     const entity = normalizeSelector(value.entity ?? value.selector, world, errors, `${path}.entity`)
-    if (!PROPERTY_NAMES.includes(value.property as typeof PROPERTY_NAMES[number])) errors.push(`${path}.property must be a supported boolean entity property`)
-    if (!entity || !PROPERTY_NAMES.includes(value.property as typeof PROPERTY_NAMES[number])) return undefined
-    return Object.freeze({ kind: 'entityProperty', entity, property: value.property as typeof PROPERTY_NAMES[number] })
+    if (!PROPERTY_NAMES.includes(value.property as GameplayEntityProperty)) errors.push(`${path}.property must be a supported boolean entity property`)
+    if (!entity || !PROPERTY_NAMES.includes(value.property as GameplayEntityProperty)) return undefined
+    return Object.freeze({ kind: 'entityProperty', entity, property: value.property as GameplayEntityProperty })
   }
   if (value.kind === 'gameState') {
     if (!nonEmptyString(value.key)) errors.push(`${path}.key must be a non-empty game-state key`)
@@ -322,10 +329,10 @@ function normalizeAction(
       return typeof value.amount === 'number' && Number.isFinite(value.amount) && value.amount > 0 ? Object.freeze({ type, target, amount: value.amount }) : undefined
     }
     if (type === 'SET_ENTITY_PROPERTY') {
-      if (!PROPERTY_NAMES.includes(value.property as typeof PROPERTY_NAMES[number])) errors.push(`${path}.property must be activated, enabled, or visible`)
+      if (!PROPERTY_NAMES.includes(value.property as GameplayEntityProperty)) errors.push(`${path}.property must be activated, enabled, visible, harvested, or questAccepted`)
       if (!primitive(value.value)) errors.push(`${path}.value must be a JSON primitive`)
-      return PROPERTY_NAMES.includes(value.property as typeof PROPERTY_NAMES[number]) && primitive(value.value)
-        ? Object.freeze({ type, target, property: value.property as typeof PROPERTY_NAMES[number], value: value.value })
+      return PROPERTY_NAMES.includes(value.property as GameplayEntityProperty) && primitive(value.value)
+        ? Object.freeze({ type, target, property: value.property as GameplayEntityProperty, value: value.value })
         : undefined
     }
     const velocityValue = value.velocity

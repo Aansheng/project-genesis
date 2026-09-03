@@ -1,6 +1,6 @@
-# Gameplay Capability Matrix — Sprint 38 Frozen / Sprint 39 Discovery Complete
+# Gameplay Capability Matrix — Sprint 39 Execution Complete / Freeze Review Pending
 
-Architecture version: v1.188 (Sprint 30 through Sprint 37 FROZEN;
+Architecture version: v1.189 (Sprint 30 through Sprint 38 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
@@ -8,8 +8,9 @@ Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
 Analysis PASS; Sprint 36 FROZEN; `WO-S37-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
 `WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Sprint 38
-Gap Analysis PASS; Sprint 38 FROZEN; Sprint 39 discovery complete; exactly
-one READY WO-S39-001; Sprint 40 not entered)
+Gap Analysis PASS; Sprint 38 FROZEN; `WO-S39-001` Code Complete = YES;
+Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189; freeze
+review pending; Sprint 40 not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -68,8 +69,18 @@ one nearest finite-range target with stable Runtime-ID tie-breaking, and emits
 `gameplay-state.activated` mutation and the Renderer presents only that
 committed result. No Farm/RPG system or genre parity is implied. Farm and RPG
 normal-play Product Verification is PASS; the Provider-accepted Farm
-5-entity candidate versus the deterministic 8-entity baseline is recorded as
-a separate composition-completeness observation.
+  5-entity candidate versus the deterministic 8-entity baseline is recorded as
+  a separate composition-completeness observation.
+
+Sprint 39 promotes one bounded archetype-specific consequence at the same
+generic property-action seam. `WO-S39-001` keeps Enter, finite range `48`,
+nearest/stable-ID targeting, `ENTITY_INTERACTION_REQUESTED`, Runtime
+authority, and no-op truth unchanged. Farm targets eligible field-like
+`terrain` and commits `activated=true` plus `harvested=true`; RPG targets
+`quest` and commits `activated=true` plus `questAccepted=true`. Renderer
+feedback derives `Harvested` / `Quest accepted` only from committed
+mutations. This does not add a Farm/RPG engine, resource/inventory/economy
+loop, dialogue/quest framework, or generic interaction-outcome framework.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -88,7 +99,7 @@ a separate composition-completeness observation.
 | Entity contact-start event | Runtime event observation | `supported` | Explicit Runtime `collision-bounds` AABBs produce de-duplicated `ENTITY_CONTACT_STARTED` facts with typed direction derived from Runtime geometry; the supported contact-danger rule may consume the fact after the event boundary. |
 | Entity attack-request event | Runtime event observation | `supported` | The top-down generic `PlayerAttackRequestSystem` emits one `ENTITY_ATTACK_REQUESTED` fact per accepted `Space` key edge after deterministic current Runtime target selection. |
 | Entity interaction-request event | Runtime event observation | `supported` | The generic `PlayerInteractionRequestSystem` emits one `ENTITY_INTERACTION_REQUESTED` fact per accepted `Enter` edge after explicit category allowlisting, finite-range Position targeting, nearest selection, and stable Runtime-ID tie-breaking. |
-| Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue, `ENTITY_ADDED` to a replacement cue, and committed `ENTITY_PROPERTY_UPDATED(activated)` to a generic interaction cue; uncommitted/no-op/contact-only facts produce no positive interaction cue. |
+| Runtime gameplay outcome feedback | Committed Runtime result → Renderer presentation | `supported` | `HEALTH_UPDATED` projects to an ID-bound hit cue, lethal `ENTITY_REMOVED` with Health zero to a defeat cue, `ENTITY_ADDED` to a replacement cue, and committed `ENTITY_PROPERTY_UPDATED(activated/harvested/questAccepted)` to a generic or labeled interaction cue (`Harvested` / `Quest accepted`); uncommitted/no-op/contact-only facts produce no positive interaction cue. |
 | Active-world whole-world Intent classification | Studio command → IntentRouter/Web front door | `supported` | `WO-S36-001` is complete at v1.186: current-world entity/property/continuation mutations retain World Evolution, while clear whole-world/game construction, named-world, and explicit new/reset requests use the existing CreateWorld replacement contract even with an active world. Bare creation remains ambiguous and non-replacing; no genre registry or second router exists. |
 | Supported CreateWorld archetype intent preservation | `GameIntent` extraction → provider/fallback semantic world | `supported` | `WO-S37-001` is complete at v1.187: the existing ordered alias boundary preserves `farm` for both English `farm` and Chinese `农场`, while Platformer, Survival, RPG, and Sandbox fallback remain bounded. |
 | Gameplay rule description | `GameplayRuleSpecification` + `GameplayRuleSet` | `supported` | Shared immutable Trigger/Condition/Action data is validated and stored beside `GameplaySpecification`; supported rules can enter the bounded Runtime executor. |
@@ -98,7 +109,7 @@ a separate composition-completeness observation.
 | `SPAWN_ENTITY` rule primitive | Gameplay action schema | `supported` | Trusted executor resolves an existing semantic template, composes one Runtime entity, and commits immutable `WorldMutator.addEntity()`; no Semantic World rebuild or provider call occurs. |
 | `APPLY_VELOCITY` rule primitive | Gameplay action schema | `supported` | Generic trusted action reuses `VelocityComponent` and immutable `WorldMutator.replaceEntity`; set/add modes are bounded and deterministic. |
 | `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
-| `SET_ENTITY_PROPERTY` | Gameplay action schema | `supported` | Trusted Runtime execution sets the bounded `activated`, `enabled`, or `visible` property in an immutable `gameplay-state` component and emits `ENTITY_PROPERTY_UPDATED`; equal values are truthful no-ops. |
+| `SET_ENTITY_PROPERTY` | Gameplay action schema | `supported` | Trusted Runtime execution sets the bounded `activated`, `enabled`, `visible`, `harvested`, or `questAccepted` property in an immutable `gameplay-state` component and emits `ENTITY_PROPERTY_UPDATED`; equal values are truthful no-ops. |
 | `DAMAGE_ENTITY` | Gameplay action schema | `supported` | Trusted generic action validates positive finite damage, resolves current Health, uses immutable `WorldMutator.replaceEntity`, and commits Runtime session `failed` when a player reaches zero. Failed execution pauses later gameplay rules until explicit same-world respawn. |
 | Player-directed short-range offense | Generic top-down Runtime input + Gameplay Rule composition | `supported` | One `Space` edge selects one positive-Health Enemy within finite range `48` by nearest distance and stable ID tie-break, emits `ENTITY_ATTACK_REQUESTED`, and applies trusted `DAMAGE_ENTITY`; Level 1 commits 25 damage, while Level 2+ commits 50 through mutually exclusive `NUMBER_COMPARE(gameState.level)` Rule variants. The existing defeat/XP/fair-start/replacement path remains active. |
 | Enemy contact danger | Survival composition over generic rule primitives | `supported` | `ENTITY_CONTACT_STARTED` remains a separate Enemy→Player contact rule that applies 1 damage to Player Health; it is no longer the Player's automatic Enemy-offense path. |
@@ -107,8 +118,8 @@ a separate composition-completeness observation.
 | `NUMBER_COMPARE` condition | Gameplay condition schema | `supported` | Runtime evaluates finite typed event-payload, entity-property, and Runtime `gameState` references with `eq/neq/gt/gte/lt/lte`; no expression language or arbitrary evaluation is introduced. |
 | Trigger matching / condition evaluation / action execution | Gameplay rule execution | `partially supported` | `DefaultGameplayRuleMatcher`, `DefaultGameplayConditionEvaluator`, and trusted generic actions run after the event batch; the two-action stomp uses staged all-or-nothing commit; no eval, scripts, generated code, or generic workflow engine exists. |
 | Platformer loop | `GameLoopSpecification` + defaults | `partially supported` | Move/jump/physics, contact facts, collectible removal, collect-reward `experience +1`, enemy stomp, non-top Health damage, Runtime failure/respawn, and current-session goal completion execute; score and game-over remain deferred. |
-| Farm interaction | Mechanics and interaction intent | `supported` | `WO-S38-001` exposes `Enter — Interact`, selects one nearby `npc`, and commits `gameplay-state.activated = true` through the generic interaction event and `farm-interaction` Rule. Crop simulation, inventory, economy, and resource tending remain deferred. |
-| RPG interaction | Mechanics and interaction intent | `supported` | `WO-S38-001` exposes the same `Enter — Interact` path, selects one nearby `quest`, and commits `gameplay-state.activated = true` through the generic interaction event and one `rpg-interaction` Rule. Dialogue, quest progression, combat, and stats remain deferred. |
+| Farm interaction | Mechanics and interaction intent | `supported` | `WO-S39-001` exposes `Enter — Interact`, selects one nearby eligible field-like `terrain`, and commits `gameplay-state.activated = true` plus `harvested = true` through the generic interaction event and `farm-interaction` Rule. The committed result projects `Harvested`; crop lifecycle, resources, inventory, and economy remain deferred. |
+| RPG interaction | Mechanics and interaction intent | `supported` | `WO-S39-001` exposes the same `Enter — Interact` path, selects one nearby `quest`, and commits `gameplay-state.activated = true` plus `questAccepted = true` through the generic interaction event and `rpg-interaction` Rule. The committed result projects `Quest accepted`; dialogue, quest progression, combat, and stats remain deferred. |
 | Collection / collectibles | Mechanics, optional goals/targets | `partially supported` | A player contact with semantic category `item` can remove the target and the bounded collect-reward rule can add `experience`; inventory, score, and `ITEM_COLLECTED` remain absent. |
 | Damage / health | Combat and failure intent | `partially supported` | Player/enemy/npc Health is a generic Runtime component and non-top contact can decrease current Health; lethal player damage commits Runtime `failed`, and same-world respawn restores Health/active play. |
 | Enemy spawn | Spawn rule intent | `supported` | Bounded `ENTITY_REMOVED` with authoritative `health <= 0` triggers one generic Runtime replacement Enemy in the active Survival session; periodic waves/count/timer semantics remain deferred. |
@@ -180,16 +191,19 @@ timer, world-bounds authority, or wave system exists. Sprint 35
 `WO-S36-001` is FROZEN at v1.186 with a PASS fresh Gap Analysis. `WO-S37-001`
 is FROZEN at v1.187 with Code Complete/Product Verified = YES and a PASS fresh
 Gap Analysis; it adds semantic reachability only, no gameplay capability.
-`WO-S38-001` adds the bounded generic Player-directed interaction capability at
-v1.188. Code Complete and Product Verified are YES; the fresh Sprint 38 Gap
-Analysis is PASS and Sprint 38 is FROZEN. Real Studio Farm and RPG input edges
-committed the expected target-specific Runtime outcomes, and repeated
-interactions were truthful no-ops. The Provider-accepted Farm verification
-candidate had 5 entities while the deterministic 8-entity baseline remains
-covered; this is a separate Provider composition completeness observation, not
-a blocker for the WO.
+  `WO-S38-001` adds the bounded generic Player-directed interaction capability at
+  v1.188. Code Complete and Product Verified are YES; the fresh Sprint 38 Gap
+  Analysis is PASS and Sprint 38 is FROZEN. Real Studio Farm and RPG input edges
+  committed the expected target-specific Runtime outcomes, and repeated
+  interactions were truthful no-ops. The Provider-accepted Farm verification
+  candidate had 5 entities while the deterministic 8-entity baseline remains
+  covered; this is a separate Provider composition completeness observation, not
+  a blocker for the WO.
 
-Sprint 39 discovery adds no gameplay capability. It records that the current
-Farm/RPG target-specific result stops at gameplay-state.activated=true and
-generates exactly one READY WO-S39-001 to audit an existing trusted
-action/state mechanism. The WO is not executed here; Sprint 40 is not entered.
+Sprint 39 `WO-S39-001` advances the same capability to v1.189: Farm commits
+`harvested=true` on eligible terrain and RPG commits `questAccepted=true` on
+quest targets, with committed labeled feedback. Code Complete and Product
+Verified are YES and the fresh Sprint 39 Gap Analysis is PASS. The Provider
+5-vs-8 composition variance and inherited Farm/RPG side-view/Space-jump
+behavior remain separate observations. `SPRINT39_FREEZE_REVIEW` is pending;
+Sprint 40 is not entered.

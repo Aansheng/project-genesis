@@ -26,4 +26,6 @@ export interface GameplayOutcomeFeedback {
   readonly position: GameplayOutcomeFeedbackPosition
   /** Present only when Runtime exposed the committed damage amount. */
   readonly damageAmount?: number
+  /** Optional target-specific interaction label derived from committed state. */
+  readonly label?: string
 }

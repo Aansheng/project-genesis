@@ -26,7 +26,7 @@ import type { EntityCategory, WorldType } from '@genesis/shared'
 
 export type StudioMotionProfile = 'platformer' | 'top-down'
 
-const FARM_INTERACTION_TARGET_CATEGORIES = Object.freeze(['npc'] as const)
+const FARM_INTERACTION_TARGET_CATEGORIES = Object.freeze(['terrain'] as const)
 const RPG_INTERACTION_TARGET_CATEGORIES = Object.freeze(['quest'] as const)
 
 /** Resolve the explicit Runtime categories eligible for Studio interaction. */

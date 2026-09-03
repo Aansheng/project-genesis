@@ -124,6 +124,41 @@ describe('Runtime gameplay outcome feedback projection', () => {
     ])
   })
 
+  it.each([
+    ['harvested', 'Harvested'],
+    ['questAccepted', 'Quest accepted'],
+  ] as const)('projects a committed %s state as target-specific interaction feedback', (property, label) => {
+    const target = entity('target-1', 'terrain', 120, 300)
+    const after = Object.freeze({
+      ...target,
+      components: Object.freeze([
+        ...(target.components ?? []),
+        Object.freeze({ type: 'gameplay-state', properties: Object.freeze({ activated: true, [property]: true }) }),
+      ]),
+    }) as unknown as Entity
+
+    const result = projectRuntimeGameplayOutcomeFeedback([
+      rule([
+        actionResult('SET_ENTITY_PROPERTY', {
+          type: 'ENTITY_PROPERTY_UPDATED',
+          targetEntityId: 'target-1',
+          property: 'activated',
+          value: true,
+        }, world(target), world(after)),
+        actionResult('SET_ENTITY_PROPERTY', {
+          type: 'ENTITY_PROPERTY_UPDATED',
+          targetEntityId: 'target-1',
+          property,
+          value: true,
+        }, world(target), world(after)),
+      ]),
+    ])
+
+    expect(result).toEqual([
+      expect.objectContaining({ kind: 'interaction', entityId: 'target-1', label, position: { x: 120, y: 300 } }),
+    ])
+  })
+
   it('does not create interaction feedback for a no-op property action or another property', () => {
     const target = entity('npc-1', 'npc', 120, 300)
     const mutation = {

@@ -73,7 +73,7 @@ function world(): RenderWorld {
   return { entities: [{ id: 'enemy-1', type: 'enemy', position: { x: 120, y: 300 } }] }
 }
 
-function feedback(kind: GameplayOutcomeFeedback['kind'], entityId = 'enemy-1'): GameplayOutcomeFeedback {
+function feedback(kind: GameplayOutcomeFeedback['kind'], entityId = 'enemy-1', label?: string): GameplayOutcomeFeedback {
   return Object.freeze({
     feedbackId: `${kind}-1`,
     sourceEventId: 'event-1',
@@ -81,6 +81,7 @@ function feedback(kind: GameplayOutcomeFeedback['kind'], entityId = 'enemy-1'): 
     entityId,
     position: Object.freeze({ x: 120, y: 300 }),
     ...(kind === 'hit' ? { damageAmount: 25 } : {}),
+    ...(label ? { label } : {}),
   })
 }
 
@@ -135,6 +136,15 @@ describe('Pixi gameplay outcome feedback', () => {
     expect(feedbackLayer.children).toHaveLength(2)
     expect((feedbackLayer.children[0] as Graphics & { _state: MockDisplayState })._state.circleRadius).toBe(16)
     expect((feedbackLayer.children[1] as Text).text).toBe('✓')
+  })
+
+  it('renders a target-specific interaction label from committed gameplay state', () => {
+    const feedbackLayer = container()
+    const outcomeRenderer = renderer(() => 0, feedbackLayer)
+
+    outcomeRenderer.presentGameplayOutcomes([feedback('interaction', 'wheat-field', 'Harvested')])
+
+    expect((feedbackLayer.children[1] as Text).text).toBe('Harvested')
   })
 
   it('expires presentation-only feedback without retaining a dead Runtime entity', () => {

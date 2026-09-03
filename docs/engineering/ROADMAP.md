@@ -176,17 +176,22 @@ Full discovery evidence is in `docs/project/SPRINT38_PRODUCT_GAP_DISCOVERY.md`,
 execution evidence is in `docs/project/SPRINT38_BACKLOG.md`, and the fresh-gap
 record is `docs/project/SPRINT38_GAP_ANALYSIS.md`.
 
-Sprint 39 Cross-Genre Interaction Meaning Discovery is complete at v1.188
-without product-code or architecture change. Real Farm/RPG front-door
-sessions confirmed that the reachable interaction path currently stops at
-generic gameplay-state.activated=true; no characteristic Farm or RPG
-consequence or next loop follows. Two Provider-accepted Farm candidates had
-5 entities versus the deterministic 8-entity baseline, and Farm/RPG inherit
-Space — Jump from the platformer-style composition; both remain separate
-observations. The single selected blocker is **SUPPORTED ARCHETYPE
-INTERACTIONS LACK MECHANICALLY MEANINGFUL CONSEQUENCES**. Exactly one READY
-WO-S39-001 was generated, not executed; the repository stops at
-SPRINT39_FREEZE_REVIEW and does not enter Sprint 40.
+Sprint 39 Cross-Genre Interaction Meaning Discovery selected the blocker
+**SUPPORTED ARCHETYPE INTERACTIONS LACK MECHANICALLY MEANINGFUL
+CONSEQUENCES**. Under the explicit 2026-09-03 authorization, the single
+`WO-S39-001` execution advances the architecture to v1.189 by reusing the
+existing typed `SET_ENTITY_PROPERTY` seam: Farm targets eligible field-like
+terrain and commits `harvested=true`, while RPG targets `quest` and commits
+`questAccepted=true`, both alongside `activated=true`. The generic Enter /
+range-48 / nearest / stable-ID / no-target / repeat path and Runtime authority
+remain unchanged, and Renderer feedback derives the committed labels.
+
+Full production-path suites, TypeScript, ESLint, Web build, and real Studio
+Farm/RPG Product Verification pass. A Provider-accepted 5-entity Farm world
+and the 9-entity RPG deterministic fallback both produced the characteristic
+committed state; Full Observatory agreed and repeated RPG input was a truthful
+no-op. Fresh Sprint 39 Gap Analysis is PASS. The repository stops at
+`SPRINT39_FREEZE_REVIEW` for Human/CTO review and does not enter Sprint 40.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

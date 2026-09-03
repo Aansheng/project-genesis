@@ -34,6 +34,7 @@ export type {
   GameplayActionValue,
   GameplayBooleanReference,
   GameplayCondition,
+  GameplayEntityProperty,
   GameplayRuleConditionMode,
   GameplayConditionType,
   GameplayEntitySelector,

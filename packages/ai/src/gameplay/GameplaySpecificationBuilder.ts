@@ -250,7 +250,7 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       playerMechanics: Object.freeze(['player-move']),
       mechanics: Object.freeze([
         mechanic('player-move', 'movement', 'Player moves around the farm.', 'supported', playerId),
-        mechanic('farm-interact', 'interaction', 'Player can explicitly interact with one nearby farm NPC.', 'supported', playerId, 'npc'),
+        mechanic('farm-interact', 'interaction', 'Player can explicitly harvest one nearby farm field.', 'supported', playerId, 'terrain'),
         mechanic('tend-resource', 'interaction', 'Player tends or harvests a farm resource.', 'deferred', playerId, 'resource'),
       ]),
     })

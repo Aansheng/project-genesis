@@ -6,6 +6,7 @@ import type {
   GameplayActionValue,
   GameplayContactDirection,
   GameplayCondition,
+  GameplayEntityProperty,
   GameplayEvent,
   GameplayEntitySelector,
   GameplayNumericReference,
@@ -149,7 +150,7 @@ export interface GameplayActionExecutionResult {
     | {
         readonly type: 'ENTITY_PROPERTY_UPDATED'
         readonly targetEntityId: string
-        readonly property: 'activated' | 'enabled' | 'visible'
+        readonly property: GameplayEntityProperty
         readonly value: GameplayActionValue
         readonly previousValue?: GameplayActionValue
       }

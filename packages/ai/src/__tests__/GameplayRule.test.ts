@@ -212,12 +212,12 @@ describe('GameplayRule foundation', () => {
     })
   })
 
-  it('composes one generic interaction rule for Farm NPCs and one for RPG quest entities', () => {
+  it('composes one Farm harvest rule and one RPG quest-acceptance rule', () => {
     const farmWorld: GameWorldModel = Object.freeze({
       worldType: 'farm',
       entities: Object.freeze([
         Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
-        Object.freeze({ id: 'merchant', category: 'npc', name: 'Merchant' }),
+        Object.freeze({ id: 'wheat-field', category: 'terrain', name: 'Wheat Field' }),
       ]),
     })
     const farmSpecification = new DefaultGameplaySpecificationBuilder().build({ semanticWorld: farmWorld })
@@ -237,9 +237,12 @@ describe('GameplayRule foundation', () => {
       },
       conditions: [
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
-        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'npc' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'terrain' },
       ],
-      actions: [{ type: 'SET_ENTITY_PROPERTY', target: { kind: 'eventTarget' }, property: 'activated', value: true }],
+      actions: [
+        { type: 'SET_ENTITY_PROPERTY', target: { kind: 'eventTarget' }, property: 'activated', value: true },
+        { type: 'SET_ENTITY_PROPERTY', target: { kind: 'eventTarget' }, property: 'harvested', value: true },
+      ],
     })
 
     const rpgWorld: GameWorldModel = Object.freeze({
@@ -264,7 +267,10 @@ describe('GameplayRule foundation', () => {
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
       ],
-      actions: [{ type: 'SET_ENTITY_PROPERTY', property: 'activated', value: true }],
+      actions: [
+        { type: 'SET_ENTITY_PROPERTY', property: 'activated', value: true },
+        { type: 'SET_ENTITY_PROPERTY', property: 'questAccepted', value: true },
+      ],
     })
   })
 

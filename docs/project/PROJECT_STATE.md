@@ -40,8 +40,8 @@
 **Sprint 36** — Active-World New-World Intent Correctness (**FROZEN — `WO-S36-001` Code Complete = YES; Product Verified = YES; v1.186; Human/CTO accepted 2026-09-02**)
 **Sprint 37** — CreateWorld Semantic Fidelity (**FROZEN — `WO-S37-001` Code Complete = YES; Product Verified = YES; v1.187; Human/CTO accepted 2026-09-02**)
 **Sprint 38** — Cross-Genre Playability Fidelity (**FROZEN — `WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.188; Human/CTO accepted 2026-09-02**)
-**Sprint 39** — Cross-Genre Interaction Meaning Discovery (**ACTIVE — discovery complete; exactly one READY WO; no implementation executed; v1.188; Sprint 40 not entered**)
-**Current WO** - `WO-S39-001` — READY; discovery complete; not executed; next gate is `SPRINT39_FREEZE_REVIEW`
+**Sprint 39** — Cross-Genre Interaction Meaning (**ACTIVE — `WO-S39-001` Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.189; freeze review pending; Sprint 40 not entered**)
+**Current WO** - `WO-S39-001` — DONE; Code Complete = YES; Product Verified = YES; next gate is `SPRINT39_FREEZE_REVIEW`
 
 ---
 
@@ -49,16 +49,16 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 `WO-S38-001` is FROZEN at v1.188 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 39 discovery is complete with exactly one READY WO; `SPRINT39_FREEZE_REVIEW` is ready. Sprint 40 is not entered. |
-| Architecture Version | v1.188; the existing typed CreateWorld intent boundary preserves `农场 → farm` through provider context and deterministic fallback. The active-world Intent boundary still classifies generic whole-world creation before the existing Evolution fallback. Runtime remains authoritative for gameplay. Sprint 38 adds one bounded generic Player-directed interaction capability over the existing input → event → GameplayRule → World mutation → Renderer feedback path. Sprint 39 discovery adds no product capability or architecture change. |
-| Last Completed WO | WO-S38-001 — Generic Player-Directed Entity Interaction Reachability; Code Complete = YES; Product Verified = YES; fresh Sprint 38 Gap Analysis PASS; v1.188. |
-| Current User-Visible Behavior | Platformer remains the bounded side-view baseline with 7 entities, Arrow Keys movement, Space jump, and supported movement/goal/enemy/collection rules. Survival remains the bounded top-down baseline with 6 entities, Arrow Keys movement, Space attack, enemy pressure, Health damage, XP/Level, and replacement. The deterministic fallback for `做一个农场游戏` preserves the existing 8-entity Farm World; two Provider-accepted Farm candidates observed in discovery contained 5 entities and retained an npc, so the 5-vs-8 variance remains a separate observation. `创建一个 RPG` produced the existing 9-entity RPG World in the current fallback session. Farm/RPG expose `Enter — 交互` for one nearby target, but the committed meaning currently stops at `gameplay-state.activated = true` plus a generic transient cue; no characteristic Farm/RPG consequence or next loop is currently present. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → Semantic World → Game DSL → Runtime projection → world-specific registered systems (Platformer movement/jump/physics; Survival top-down movement/attack/pursuit; Farm/RPG generic movement/jump plus bounded interaction request) → finalized Runtime events → GameplayRuleSet supported slice → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only. Sprint 39 discovery confirmed the first post-reachability meaning break at the target-specific Rule action. |
-| Current Blocking Issue | **SUPPORTED ARCHETYPE INTERACTIONS LACK MECHANICALLY MEANINGFUL CONSEQUENCES.** Farm and RPG can reach their bounded interaction rules, but the committed result only activates a generic target property. Provider Farm 5-vs-8 composition variance and inherited Space/Jump platformer presentation remain separate observations. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN. WO-S38-001: PASS — Farm and RPG real normal-play Enter interactions committed authoritative `gameplay-state.activated = true`, repeated Enter was a truthful `no_op`, full quality gates passed, and browser warning/error diagnostics were empty. Sprint 39 discovery Product Verified = YES for the real Farm/RPG front-door observations; WO-S39-001 is not executed and therefore Product Verified is PENDING. |
-| Next Recommended Verification | Human/CTO review at `SPRINT39_FREEZE_REVIEW` for the single READY `WO-S39-001`. Execute no Sprint 39 product WO in this continuation and do not enter Sprint 40. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 `WO-S38-001` is FROZEN at v1.188 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 39 `WO-S39-001` is DONE at v1.189 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS; `SPRINT39_FREEZE_REVIEW` is pending. Sprint 40 is not entered. |
+| Architecture Version | v1.189; the existing typed CreateWorld intent boundary preserves `农场 → farm` through provider context and deterministic fallback. The active-world Intent boundary still classifies generic whole-world creation before the existing Evolution fallback. Runtime remains authoritative for gameplay. Sprint 38 added the bounded generic Player-directed interaction capability; Sprint 39 reuses its typed `SET_ENTITY_PROPERTY` seam so Farm commits `harvested=true` on a nearby field-like terrain target and RPG commits `questAccepted=true` on a nearby quest target. |
+| Last Completed WO | WO-S39-001 — Generic Archetype Interaction Consequence; Code Complete = YES; Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189. |
+| Current User-Visible Behavior | Platformer remains the bounded side-view baseline with 7 entities, Arrow Keys movement, Space jump, and supported movement/goal/enemy/collection rules. Survival remains the bounded top-down baseline with 6 entities, Arrow Keys movement, Space attack, enemy pressure, Health damage, XP/Level, and replacement. The deterministic fallback for `做一个农场游戏` preserves the existing 8-entity Farm World; a Provider-accepted Farm PV candidate had 5 entities, which remains a separate composition observation. Farm exposes `Enter — 交互`; within range it targets eligible terrain and commits `activated=true, harvested=true`, with `Harvested` feedback. `创建一个 RPG` retains the 9-entity fallback; within range Enter targets a quest and commits `activated=true, questAccepted=true`, with `Quest accepted` feedback. No-target and repeated input remain truthful no-ops. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → Semantic World → Game DSL → Runtime projection → world-specific registered systems (Platformer movement/jump/physics; Survival top-down movement/attack/pursuit; Farm/RPG generic movement plus bounded interaction request) → finalized Runtime events → GameplayRuleSet supported slice → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only. Sprint 39 now commits characteristic Farm/RPG state through the existing typed property action. |
+| Current Blocking Issue | The Sprint 39 blocker **SUPPORTED ARCHETYPE INTERACTIONS LACK MECHANICALLY MEANINGFUL CONSEQUENCES** is resolved for the bounded slice. Provider Farm 5-vs-8 composition variance and inherited Farm/RPG side-view/Space-jump presentation remain separate deferred observations; broader Farm resources/inventory/economy and RPG quest/dialogue progression remain out of scope. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN. WO-S38-001: PASS/FROZEN. WO-S39-001: PASS — Farm real Provider-accepted input committed `harvested=true`; RPG real deterministic-fallback input committed `questAccepted=true`; Runtime/Full Observatory agreed, repeated RPG Enter was a truthful `no_op`, full quality gates passed, and browser warning/error diagnostics were empty. |
+| Next Recommended Verification | Human/CTO review at `SPRINT39_FREEZE_REVIEW` for the completed `WO-S39-001` and v1.189. Stop there; do not enter Sprint 40. |
 
-## Sprint 39 — Cross-Genre Interaction Meaning Discovery
+## Sprint 39 — WO-S39-001 Execution and Fresh Gap Analysis
 
 Human/CTO froze Sprint 38 at v1.188 and authorized Sprint 39 discovery on
 2026-09-02. The real Studio front door was exercised for
@@ -68,24 +68,34 @@ world was generated through the same front door for comparison. The RPG
 request produced the nine-entity deterministic fallback after a structurally
 invalid Provider candidate.
 
-Sprint 38 reachability remains real: in-range Farm and RPG interaction proofs
-commit activated=true through the shared Enter → Runtime target →
-ENTITY_INTERACTION_REQUESTED → GameplayRule → trusted action path. In the
-current discovery sessions, starting targets were outside the 48-unit range,
-so Enter truthfully produced no event, mutation, feedback, or fake success.
-The first meaning break after a reachable target is selected is the Rule
-action that stops at activated=true. Neither archetype gains a field/resource
-or quest/NPC/progression consequence or a next loop.
+The discovery-selected blocker **SUPPORTED ARCHETYPE INTERACTIONS LACK
+MECHANICALLY MEANINGFUL CONSEQUENCES** was executed under the explicit
+2026-09-03 Human/CTO authorization. The existing path remains
+Enter → finite-range Runtime target → `ENTITY_INTERACTION_REQUESTED` →
+archetype GameplayRule → trusted `SET_ENTITY_PROPERTY` → immutable
+`gameplay-state` → Renderer/Observatory projection.
 
-The single selected blocker is **SUPPORTED ARCHETYPE INTERACTIONS LACK
-MECHANICALLY MEANINGFUL CONSEQUENCES**. Provider composition variance and
-platformer-style Space/Jump inheritance are recorded but not selected.
-Exactly one READY work order was generated:
-WO-S39-001 — Generic Archetype Interaction Consequence (first bounded slice).
-It is not executed in this continuation. Full evidence and non-goals are in
-SPRINT39_PRODUCT_GAP_DISCOVERY.md; the one-item backlog is in
-SPRINT39_BACKLOG.md. The repository stops at SPRINT39_FREEZE_REVIEW and does
-not enter Sprint 40.
+The bounded v1.189 result is characteristic state, not a new domain engine:
+Farm selects one nearby field-like `terrain` target and commits
+`harvested=true`; RPG keeps the nearby `quest` target and commits
+`questAccepted=true`. Both retain `activated=true`. The Game surface derives
+`Harvested` / `Quest accepted` from committed state. Enter/range `48`, nearest
+and stable-ID targeting, no-target truth, repeated no-op behavior, Runtime
+authority, Platformer `Space — Jump`, and Survival `Space — Attack` remain
+unchanged.
+
+Real Studio Product Verification passed for both paths. A Provider-accepted
+Farm candidate reached `terrain-farmland` at distance 47 and committed both
+properties; the RPG normal request resolved to the 9-entity deterministic
+fallback, reached `quest-giver` at distance 42.154, and committed both RPG
+properties. Repeated RPG Enter produced two `no_op` actions and
+`not-committed`. Full quality gates, Full Observatory/Runtime truth, and
+browser diagnostics passed. Details are in
+`docs/project/SPRINT39_GAP_ANALYSIS.md`, the implementation record is
+`docs/project/SPRINT39_BACKLOG.md`, and the architecture decision is
+`docs/adr/ADR-0299-generic-archetype-interaction-consequence.md`.
+
+The repository stops at `SPRINT39_FREEZE_REVIEW` and does not enter Sprint 40.
 
 ## Sprint 38 Cross-Genre Playability Fidelity Discovery
 

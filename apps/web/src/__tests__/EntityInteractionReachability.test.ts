@@ -103,11 +103,11 @@ function pressEnter(runtime: ProductionInteractionRuntime) {
   return result
 }
 
-describe('WO-S38-001: generic Player-directed entity interaction reachability', () => {
+describe('WO-S39-001: generic archetype interaction consequence', () => {
   it.each([
-    ['做一个农场游戏', 'farm', 'farm-interaction', 'npc'] as const,
-    ['创建一个 RPG', 'rpg', 'rpg-interaction', 'quest'] as const,
-  ])('traverses CreateWorld, normal movement, Enter, targeting, Rule execution, and authoritative result for %s', (input, worldType, ruleId, targetCategory) => {
+    ['做一个农场游戏', 'farm', 'farm-interaction', 'terrain', 'harvested'] as const,
+    ['创建一个 RPG', 'rpg', 'rpg-interaction', 'quest', 'questAccepted'] as const,
+  ])('traverses CreateWorld, normal movement, Enter, archetype Rule consequence, and authoritative result for %s', (input, worldType, ruleId, targetCategory, characteristicProperty) => {
     const runtime = createProductionRuntime(input, worldType)
     settle(runtime)
 
@@ -125,21 +125,34 @@ describe('WO-S38-001: generic Player-directed entity interaction reachability', 
       ruleId,
       status: 'executed',
       committed: true,
-      actionResults: [expect.objectContaining({
-        actionType: 'SET_ENTITY_PROPERTY',
-        status: 'executed',
-        mutation: {
-          type: 'ENTITY_PROPERTY_UPDATED',
-          targetEntityId: targetId,
-          property: 'activated',
-          value: true,
-        },
-      })],
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({
+          actionType: 'SET_ENTITY_PROPERTY',
+          status: 'executed',
+          mutation: expect.objectContaining({
+            type: 'ENTITY_PROPERTY_UPDATED',
+            targetEntityId: targetId,
+            property: characteristicProperty,
+            value: true,
+          }),
+        }),
+      ]),
     }))
-    expect(runtime.store.getWorld().entities.find(entity => entity.id === targetId)?.components).toContainEqual({
+    expect(runtime.store.getWorld().entities.find(entity => entity.id === targetId)?.components).toContainEqual(expect.objectContaining({
       type: 'gameplay-state',
-      properties: { activated: true },
-    })
+      properties: expect.objectContaining({ activated: true, [characteristicProperty]: true }),
+    }))
+
+    const repeated = pressEnter(runtime)
+    expect(repeated.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId,
+      status: 'executed',
+      committed: false,
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' }),
+        expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' }),
+      ]),
+    }))
 
     movePlayerAway(runtime, targetId!)
     const beforeNoTarget = runtime.store.getWorld()
