@@ -245,9 +245,33 @@ BIND THE APPROPRIATE EXISTING RPG RULE**. Exactly one READY item exists:
 `WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract`. It is not
 executed. The current rule is not concrete-ID-bound, but is entity-specific in
 effect through semantic name matching; category-wide broadening and full rule
-rebuilds are not justified. Sprint 42 stops at `SPRINT42_DISCOVERY_REVIEW`,
-and Sprint 43 is not entered. See
+rebuilds are not justified. At the Discovery boundary Sprint 42 stopped at
+`SPRINT42_DISCOVERY_REVIEW`, and Sprint 43 was not entered. See
 `docs/project/SPRINT42_GAMEPLAY_RULE_BINDING_DISCOVERY.md`.
+
+The authorized `WO-S42-001` closes that first divergence at v1.192 with the
+smallest existing-path contract: a Genesis-owned deterministic RPG
+`GameplayEntityRole` projection (`quest-acceptor` versus `quest-objective`)
+and one `ENTITY_GAMEPLAY_ROLE_EQUALS` GameplayRule condition. CreateWorld and
+World Evolution now converge on the same semantic/Runtime role fact;
+targeted reconciliation fingerprints the role, and the authoritative Runtime
+evaluator binds the existing completion Rule to any objective-role quest.
+Quest Giver acceptance remains distinct and still requires the acceptor role.
+
+Real Studio verification passed: `创建一个 RPG` → Quest Giver acceptance →
+`再加一个任务` preserved world-1 and prior state, rendered `quest-1`, and
+normal Enter committed `questCompleted=true`; repeated Enter was a truthful
+no-op. Farm evolved-field harvest, Survival exact +5 pursuit/contact damage/
+visual reuse, negative role semantics, package gates, TypeScript, ESLint, the
+direct Web build, full Renderer (27 files / 517 tests), and browser diagnostics
+passed.
+
+`WO-S42-001` is DONE with Code Complete = YES, Product Verified = YES, and
+fresh Sprint 42 Gap Analysis = PASS. The current control-plane gate is
+`SPRINT42_FREEZE_REVIEW`; no inventory/resources/rewards/economy/dialogue,
+third-stage progression, new framework, or Sprint 43 is entered. Detailed
+evidence is in `docs/project/SPRINT42_WO_S42_001_EXECUTION.md` and
+`docs/adr/ADR-0302-evolved-entity-gameplay-role-binding.md`.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

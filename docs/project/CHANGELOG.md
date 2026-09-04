@@ -1,5 +1,31 @@
 # Changelog
 
+### Sprint 42 — WO-S42-001 Evolved-Entity Gameplay Capability Binding Contract (v1.192, 2026-09-04)
+
+- Human/CTO authorized the single `WO-S42-001` after Sprint 42 Discovery
+  measured the first RPG evolved-quest Rule-binding divergence.
+- The existing semantic, Runtime, validator, evaluator, and targeted
+  reconciliation paths now share one bounded Genesis-owned RPG role contract:
+  `quest-acceptor` for Quest Giver and `quest-objective` for other RPG quests.
+  `ENTITY_GAMEPLAY_ROLE_EQUALS` is the only new GameplayRule condition.
+- The change preserves exact Quest Giver/Main Quest semantics, ignores
+  provider-authored free-form roles as authority, avoids per-ID rules and full
+  world/RuleSet rebuilds, and keeps Runtime as the gameplay authority.
+- Real Studio `创建一个 RPG` → accept Quest Giver → `再加一个任务` retained
+  world-1 and `questAccepted=true`, displayed `quest-1` with the objective role,
+  and normal Enter committed `questCompleted=true`; repeated Enter was a
+  truthful no-op. Farm evolved-field harvest and Survival +5 pursuit/contact
+  damage/visual controls remained green.
+- Full package tests, affected regressions, TypeScript, ESLint, direct Web
+  production build, full Renderer (27 files / 517 tests), and browser
+  diagnostics passed.
+- `WO-S42-001`: Code Complete = YES; Product Verified = YES; fresh Sprint 42
+  Gap Analysis = PASS; DONE. Current gate: `SPRINT42_FREEZE_REVIEW`. Sprint 43
+  is not entered.
+- Detailed execution evidence is recorded in
+  `docs/project/SPRINT42_WO_S42_001_EXECUTION.md` and the architecture decision
+  is recorded in `docs/adr/ADR-0302-evolved-entity-gameplay-role-binding.md`.
+
 ### Sprint 42 — World Evolution Gameplay Rule Binding Continuity Discovery (v1.191, 2026-09-04)
 
 - Human/CTO froze Sprint 41 at v1.191 (`WO-S41-001` Code Complete = YES,

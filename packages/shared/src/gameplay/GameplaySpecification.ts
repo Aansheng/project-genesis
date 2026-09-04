@@ -183,6 +183,7 @@ export const DEFAULT_GAMEPLAY_RULE_PRIMITIVE_CAPABILITIES: readonly GameplayRule
   })),
   Object.freeze({ id: 'condition-entity-category-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity category.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-entity-archetype-equals', kind: 'condition' as const, description: 'Compare an event participant with a current semantic entity name/archetype.', status: 'supported' as const }),
+  Object.freeze({ id: 'condition-entity-gameplay-role-equals', kind: 'condition' as const, description: 'Compare an event participant with a bounded Genesis gameplay role derived from semantic composition.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-entity-id-equals', kind: 'condition' as const, description: 'Compare an event participant with an existing stable semantic entity ID.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-contact-direction-equals', kind: 'condition' as const, description: 'Compare the typed Runtime AABB contact direction, including a narrow negated form.', status: 'supported' as const }),
   Object.freeze({ id: 'condition-number-compare', kind: 'condition' as const, description: 'Compare finite numeric Runtime, event, or entity values with a typed operator.', status: 'supported' as const }),

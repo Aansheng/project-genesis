@@ -584,6 +584,8 @@ describe('Gameplay rule execution vertical slice', () => {
         Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
         Object.freeze({ id: 'quest-giver', category: 'quest', name: 'Quest Giver' }),
         Object.freeze({ id: 'main-quest', category: 'quest', name: 'Main Quest' }),
+        Object.freeze({ id: 'quest-1', category: 'quest', name: 'Quest' }),
+        Object.freeze({ id: 'merchant', category: 'npc', name: 'Merchant' }),
       ]),
     })
     const initialWorld = Object.freeze({
@@ -591,6 +593,8 @@ describe('Gameplay rule execution vertical slice', () => {
         entity('player', 'player', 'Player', 0, 0),
         entity('quest-giver', 'quest', 'Quest Giver', 8, 0),
         entity('main-quest', 'quest', 'Main Quest', 16, 0),
+        entity('quest-1', 'quest', 'Quest', 24, 0),
+        entity('merchant', 'npc', 'Merchant', 32, 0),
       ]),
     }) as unknown as World
     const actor = Object.freeze({ kind: 'eventActor' as const })
@@ -627,7 +631,8 @@ describe('Gameplay rule execution vertical slice', () => {
         conditionMode: 'all' as const,
         conditions: Object.freeze([
           Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS' as const, entity: actor, category: 'player' as const }),
-          Object.freeze({ type: 'ENTITY_ARCHETYPE_EQUALS' as const, entity: target, archetype: 'Main Quest' }),
+          Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS' as const, entity: target, category: 'quest' as const }),
+          Object.freeze({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS' as const, entity: target, role: 'quest-objective' as const }),
           Object.freeze({
             type: 'BOOLEAN_EQUALS' as const,
             value: Object.freeze({
@@ -679,6 +684,22 @@ describe('Gameplay rule execution vertical slice', () => {
       type: 'gameplay-state',
     }))
 
+    const beforeEvolvedPrerequisite = executor.executeEvent(
+      interact('world-1:1:1', 'quest-1', 1),
+      rules,
+      executionContext(initialWorld),
+    )
+    expect(beforeEvolvedPrerequisite.results).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-complete-main-quest',
+      status: 'conditions_failed',
+      committed: false,
+      conditionResult: expect.objectContaining({
+        conditions: expect.arrayContaining([
+          expect.objectContaining({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', status: 'passed' }),
+        ]),
+      }),
+    }))
+
     const accepted = executor.executeEvent(
       interact('world-1:2:0', 'quest-giver', 2),
       rules,
@@ -722,6 +743,37 @@ describe('Gameplay rule execution vertical slice', () => {
         expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' }),
       ]),
     }))
+
+    const evolvedCompleted = executor.executeEvent(
+      interact('world-1:5:0', 'quest-1', 5),
+      rules,
+      executionContext(repeated.world),
+    )
+    expect(evolvedCompleted.results).toMatchObject([
+      { ruleId: 'rpg-interaction', status: 'conditions_failed', committed: false },
+      {
+        ruleId: 'rpg-complete-main-quest',
+        status: 'executed',
+        committed: true,
+        conditionResult: expect.objectContaining({
+          conditions: expect.arrayContaining([
+            expect.objectContaining({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', status: 'passed' }),
+          ]),
+        }),
+        actionResults: [{ mutation: { targetEntityId: 'quest-1', property: 'questCompleted', value: true } }],
+      },
+    ])
+    expect(evolvedCompleted.world.entities.find(item => item.id === 'quest-1')?.components).toContainEqual(expect.objectContaining({
+      type: 'gameplay-state',
+      properties: expect.objectContaining({ questCompleted: true }),
+    }))
+
+    const merchantAttempt = executor.executeEvent(
+      interact('world-1:6:0', 'merchant', 6),
+      rules,
+      executionContext(evolvedCompleted.world),
+    )
+    expect(merchantAttempt.results.every(result => result.committed === false)).toBe(true)
   })
 
   it('evaluates contact direction with truthful negation and no guessing', () => {

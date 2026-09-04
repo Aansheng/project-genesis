@@ -9,7 +9,7 @@
 
 import { describe, it, expect } from 'vitest'
 import type { GameWorldModel, GameWorldEntity, WorldType, EntityCategory } from '../game-world'
-import { EMPTY_GAME_WORLD_MODEL } from '../game-world'
+import { EMPTY_GAME_WORLD_MODEL, resolveGameplayEntityRole } from '../game-world'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -256,6 +256,30 @@ describe('entity categories', () => {
     const categories: EntityCategory[] = ['player', 'npc', 'enemy', 'terrain', 'building', 'item', 'quest']
     const uniqueCategories = new Set(categories)
     expect(uniqueCategories.size).toBe(7)
+  })
+})
+
+describe('trusted gameplay role resolution', () => {
+  it('keeps RPG acceptance and completion eligibility distinct from archetype names', () => {
+    expect(resolveGameplayEntityRole('rpg', { category: 'quest', name: 'Quest Giver' }))
+      .toBe('quest-acceptor')
+    expect(resolveGameplayEntityRole('rpg', { category: 'quest', name: 'Main Quest' }))
+      .toBe('quest-objective')
+    expect(resolveGameplayEntityRole('rpg', { category: 'quest', name: 'Quest' }))
+      .toBe('quest-objective')
+    expect(resolveGameplayEntityRole('rpg', { category: 'npc', name: 'Merchant' }))
+      .toBeUndefined()
+    expect(resolveGameplayEntityRole('farm', { category: 'quest', name: 'Quest' }))
+      .toBeUndefined()
+  })
+
+  it('derives the role from semantic name rather than concrete entity identity', () => {
+    const evolvedEntity = { id: 'evolved-quest-7', category: 'quest' as const, name: 'Quest Giver' }
+    const renamedEntity = { id: 'quest-giver', category: 'quest' as const, name: 'Quest' }
+    expect(resolveGameplayEntityRole('rpg', evolvedEntity))
+      .toBe('quest-acceptor')
+    expect(resolveGameplayEntityRole('rpg', renamedEntity))
+      .toBe('quest-objective')
   })
 })
 

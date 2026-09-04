@@ -8,6 +8,7 @@ import type {
   GameplayContactDirection,
   GameplayCondition,
   GameplayEntityProperty,
+  GameplayEntityRole,
   GameplayEvent,
   GameplayEntitySelector,
   GameplayNumericReference,
@@ -20,8 +21,10 @@ import type {
 import {
   createHealthComponent,
   createVelocityComponent,
+  isGameplayEntityRole,
   isHealthComponent,
   isVelocityComponent,
+  resolveGameplayEntityRole,
 } from '@genesis/shared'
 import { DefaultWorldMutator } from '../mutation'
 import type { WorldMutator } from '../mutation'
@@ -223,6 +226,7 @@ export interface GameplayRuleExecutionObserver {
 interface SemanticFacts {
   readonly category?: EntityCategory
   readonly name?: string
+  readonly gameplayRole?: GameplayEntityRole
 }
 
 function isEntityCategory(value: unknown): value is EntityCategory {
@@ -241,6 +245,12 @@ function semanticFactsOf(
   const component = entity.components?.find(item => item.type === SEMANTIC_COMPONENT_TYPE)
   const componentCategory = component?.properties.category
   const componentName = component?.properties.name
+  const componentRole = component?.properties.gameplayRole
+  const gameplayRole = authoritative
+    ? resolveGameplayEntityRole(semanticWorld?.worldType ?? 'sandbox', authoritative)
+    : isGameplayEntityRole(componentRole)
+      ? componentRole
+      : undefined
   return {
     ...(authoritative?.category
       ? { category: authoritative.category }
@@ -254,6 +264,7 @@ function semanticFactsOf(
       : typeof componentName === 'string'
         ? { name: componentName }
         : {}),
+    ...(gameplayRole ? { gameplayRole } : {}),
   }
 }
 
@@ -548,6 +559,13 @@ export class DefaultGameplayConditionEvaluator implements GameplayConditionEvalu
         condition.type,
         normalizeArchetype(semanticFactsOf(entity, context.semanticWorld).name ?? '') === normalizeArchetype(condition.archetype) ? 'passed' : 'failed',
         'archetype_mismatch',
+      )
+    }
+    if (condition.type === 'ENTITY_GAMEPLAY_ROLE_EQUALS') {
+      return conditionResult(
+        condition.type,
+        semanticFactsOf(entity, context.semanticWorld).gameplayRole === condition.role ? 'passed' : 'failed',
+        'gameplay_role_mismatch',
       )
     }
     if (condition.type === 'ENTITY_ID_EQUALS') {

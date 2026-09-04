@@ -6,6 +6,7 @@ import type {
   GameplayBooleanReference,
   GameplayCapabilityCatalog,
   GameplayCondition,
+  GameplayEntityRole,
   GameplayContactDirection,
   GameplayEntityProperty,
   GameplayEntitySelector,
@@ -17,6 +18,8 @@ import {
   GAMEPLAY_RULE_ACTION_TYPES,
   GAMEPLAY_RULE_CONDITION_TYPES,
   GAMEPLAY_RULE_EVENT_TYPES,
+  isGameplayEntityRole,
+  resolveGameplayEntityRole,
 } from '@genesis/shared'
 import type { GameplayRuleCandidate } from './GameplayRuleCandidate'
 
@@ -267,6 +270,16 @@ function normalizeCondition(
     if (!valueText || !entityNames(world).has(archetype(valueText))) errors.push(`${path}.archetype must match a current semantic entity name`)
     if (!entity || !valueText || !entityNames(world).has(archetype(valueText))) return undefined
     return Object.freeze({ type, entity, archetype: valueText })
+  }
+  if (type === 'ENTITY_GAMEPLAY_ROLE_EQUALS') {
+    const entity = normalizeSelector(value.entity ?? value.selector, world, errors, `${path}.entity`)
+    const role = value.role
+    if (!isGameplayEntityRole(role)) errors.push(`${path}.role must be a supported Genesis gameplay role`)
+    if (isGameplayEntityRole(role) && !world.entities.some(item => resolveGameplayEntityRole(world.worldType, item) === role)) {
+      errors.push(`${path}.role must match a current semantic gameplay role`)
+    }
+    if (!entity || !isGameplayEntityRole(role)) return undefined
+    return Object.freeze({ type, entity, role: role as GameplayEntityRole })
   }
   if (type === 'ENTITY_ID_EQUALS') {
     const entity = normalizeSelector(value.entity ?? value.selector, world, errors, `${path}.entity`)

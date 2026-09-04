@@ -608,3 +608,51 @@ Read-only source-contract tests executed after the audit:
 - architecture remains v1.191.
 
 The discovery stops here at exactly one READY WO. It does not enter Sprint 43.
+
+## 18. Post-discovery execution record
+
+The historical discovery boundary above is intentionally unchanged: at
+v1.191 it generated exactly one READY WO and did not modify product code.
+After the explicit Human/CTO authorization, `WO-S42-001` was executed as the
+single Sprint 42 product slice and advanced the architecture to **v1.192**.
+
+The implementation closes the measured first divergence with one bounded
+Genesis-owned semantic role projection:
+
+```text
+RPG Quest Giver / quest-giver → quest-acceptor
+other RPG quest              → quest-objective
+```
+
+The role is derived from trusted world type/category/name/identity, not from a
+provider-supplied free-form role. `ENTITY_GAMEPLAY_ROLE_EQUALS` is added to
+the existing condition catalog. The acceptance Rule remains acceptor-only;
+the completion Rule uses objective-role plus the existing authoritative
+`questAccepted=true` prerequisite. CreateWorld and World Evolution project the
+same role, targeted reconciliation fingerprints it, and the Runtime evaluator
+reads the authoritative semantic world first. No per-ID Rule copy, full
+RuleSet/world rebuild, or new gameplay framework was introduced.
+
+Real Studio verification completed the RPG path that Discovery measured as a
+dead end:
+
+- `创建一个 RPG` → normal Quest Giver Enter committed
+  `activated=true, questAccepted=true` in world-1.
+- `再加一个任务` remained World Evolution in world-1, preserved the Quest
+  Giver acceptance state, added visible Runtime `quest-1`, and exposed
+  `gameplayRole=quest-objective` in the Inspector.
+- Normal movement plus Enter reached `quest-1` and committed
+  `questCompleted=true`; repeating Enter preserved the state as a truthful
+  no-op. The original Quest Giver still showed `questAccepted=true` afterward.
+
+Farm evolved-field harvest, Survival exact +5 pursuit/contact damage/canonical
+visual reuse, RPG pre-acceptance, negative Merchant/NPC/Enemy semantics,
+same-world identity, state preservation, and no-duplicate/full-rebuild
+regressions are covered by automated tests. Shared/AI/Runtime/Web full package
+suites, affected Renderer tests, all TypeScript checks, all ESLint checks, the
+direct Web production build, and the full Renderer suite (27 files / 517 tests)
+pass. Browser warn/error diagnostics were empty.
+
+Fresh Sprint 42 Gap Analysis is **PASS**. `WO-S42-001` is **DONE** with Code
+Complete = **YES** and Product Verified = **YES**. The current gate is
+`SPRINT42_FREEZE_REVIEW`; no Sprint 43 is entered.

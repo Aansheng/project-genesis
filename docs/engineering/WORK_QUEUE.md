@@ -5,17 +5,20 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-04
-current_sprint: Sprint 42 (DISCOVERY ONLY; EXACTLY ONE READY WO)
+current_sprint: Sprint 42 (IMPLEMENTATION COMPLETE; FREEZE REVIEW)
 current_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
-current_work_order_status: READY — not executed
-current_control_plane_work_order: SPRINT42_DISCOVERY_REVIEW
-current_control_plane_work_order_status: DONE — exactly one Product blocker and one READY WO; stop before Sprint 43
-last_completed_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
-last_completed_product_work_order: WO-S41-001
-last_completed_control_plane_work_order: SPRINT41_FREEZE_REVIEW
-next_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract (READY; not executed)
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+current_control_plane_work_order: SPRINT42_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — fresh Sprint 42 Gap Analysis PASS; stop before Sprint 43
+last_completed_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
+last_completed_product_work_order: WO-S42-001
+last_completed_control_plane_work_order: SPRINT42_DISCOVERY_REVIEW
+next_work_order: none — Human/CTO freeze review required
 continuation_mode: WORK_ORDER_COMPLETE_STOP
 primary_architecture_changing_work_items_in_progress: 0
+git_checkpoint: HEAD `8c0b65f` is the committed Sprint 42 Discovery checkpoint;
+  WO-S42-001 implementation/documentation remain uncommitted; no staged
+  Discovery content was discarded
 
 ## SPRINT40_DISCOVERY_REVIEW
 
@@ -312,6 +315,34 @@ non_goals: No product code, GameplayRuleRebuilder, DynamicRuleRegistry,
   dialogue, third-stage progression, workflow/state-machine framework, or
   Sprint 43.
 next_action: Human/CTO review of `WO-S42-001`; do not execute automatically.
+
+## WO-S42-001_EXECUTION
+
+status: DONE — Code Complete = YES; Product Verified = YES; fresh Sprint 42 Gap Analysis PASS
+architecture_before: v1.191
+architecture_after: v1.192
+scope: Add one bounded Genesis-owned semantic gameplay-role contract for RPG
+  quest entities and one generic `ENTITY_GAMEPLAY_ROLE_EQUALS` condition.
+  Preserve Quest Giver/Main Quest distinction, same-world evolution, retained
+  state, existing Rule IDs, and Runtime authority.
+implementation: `GameplayEntityRole` derives `quest-acceptor` for the
+  designated Quest Giver and `quest-objective` for other RPG quest entities.
+  The role is projected during CreateWorld and World Evolution, validated and
+  evaluated against authoritative semantic facts, and included in targeted
+  GameplayRule reconciliation. No provider-authored free-form role is trusted.
+real_studio: `创建一个 RPG` → Quest Giver Enter acceptance → `再加一个任务`
+  retained world-1 and `questAccepted=true`, added visible Runtime `quest-1`
+  with `gameplayRole=quest-objective`, and normal movement plus Enter
+  committed `questCompleted=true`; repeated Enter remained a truthful no-op.
+regression_controls: Farm evolved `wheat-field-1` harvest, Survival exact +5
+  Enemy pursuit/contact damage/canonical visual reuse, RPG pre-acceptance,
+  Quest Giver/Main Quest/merchant/Enemy negative semantics, same-world/state
+  preservation, and no per-ID/full-rebuild behavior pass.
+quality_gates: Full Shared/AI/Runtime/Web tests pass; affected Renderer tests
+  pass; all TypeScript and ESLint checks pass; direct Web production build and
+  full Renderer (27 files / 517 tests) pass; browser warn/error diagnostics are
+  empty.
+next_action: Human/CTO review of `SPRINT42_FREEZE_REVIEW`; no Sprint 43.
 
 ## SPRINT39_AUTHORIZATION — Cross-Genre Interaction Meaning Discovery
 

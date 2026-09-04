@@ -99,6 +99,26 @@ export type EntityCategory =
   | 'quest'
 
 // ---------------------------------------------------------------------------
+// GameplayEntityRole
+// ---------------------------------------------------------------------------
+
+/**
+ * GameplayEntityRole — the bounded gameplay capability eligibility derived
+ * from trusted semantic composition.
+ *
+ * This is deliberately smaller than an entity ontology or a free-form tag
+ * list. It separates the current RPG interaction functions from the
+ * human-readable archetype name:
+ * - quest-acceptor — may accept the current RPG quest
+ * - quest-objective — may receive the current RPG completion consequence
+ */
+export type GameplayEntityRole = 'quest-acceptor' | 'quest-objective'
+
+export function isGameplayEntityRole(value: unknown): value is GameplayEntityRole {
+  return value === 'quest-acceptor' || value === 'quest-objective'
+}
+
+// ---------------------------------------------------------------------------
 // GameWorldEntity
 // ---------------------------------------------------------------------------
 
@@ -122,6 +142,27 @@ export interface GameWorldEntity {
 
   /** Human-readable entity name (e.g., "Villager", "Oak Tree"). */
   readonly name: string
+}
+
+/**
+ * Resolve the current bounded gameplay eligibility from semantic identity.
+ *
+ * The resolver is Genesis-owned and deterministic. Provider/design `role`
+ * strings are intentionally not consulted, so they remain candidate metadata
+ * rather than live gameplay authority. Origins converge: a CreateWorld RPG
+ * entity and the same semantic entity added through World Evolution receive
+ * the same role.
+ */
+export function resolveGameplayEntityRole(
+  worldType: WorldType,
+  entity: Pick<GameWorldEntity, 'category' | 'name'>,
+): GameplayEntityRole | undefined {
+  if (worldType !== 'rpg' || entity.category !== 'quest') return undefined
+  const normalizedName = entity.name.trim().toLowerCase().replace(/[\s_-]+/gu, '')
+  if (normalizedName === 'questgiver') {
+    return 'quest-acceptor'
+  }
+  return 'quest-objective'
 }
 
 // ---------------------------------------------------------------------------

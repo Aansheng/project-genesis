@@ -337,7 +337,7 @@ describe('GameplayRule foundation', () => {
       conditions: [
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
-        { type: 'ENTITY_ARCHETYPE_EQUALS', entity: { kind: 'eventTarget' }, archetype: 'Main Quest' },
+        { type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', entity: { kind: 'eventTarget' }, role: 'quest-objective' },
         {
           type: 'BOOLEAN_EQUALS',
           value: {

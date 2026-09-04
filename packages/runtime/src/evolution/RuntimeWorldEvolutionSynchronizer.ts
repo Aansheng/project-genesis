@@ -1,6 +1,8 @@
 import {
   type Entity,
   type EntityCategory,
+  type GameplayEntityRole,
+  resolveGameplayEntityRole,
   type RuntimeEvolutionFailureReason,
   type RuntimeEvolutionResult,
   type RuntimeEvolutionSynchronizationOptions,
@@ -50,6 +52,7 @@ function replaceSemantic(
   entity: Entity,
   name: string,
   category: EntityCategory,
+  gameplayRole?: GameplayEntityRole,
 ): Entity {
   const components = entity.components
   if (!components) {
@@ -60,13 +63,16 @@ function replaceSemantic(
   const updatedComponents = components.map(component => {
     if (component.type !== SEMANTIC_COMPONENT_TYPE) return component
     foundSemantic = true
+    const properties: Record<string, unknown> = {
+      ...component.properties,
+      category,
+      name,
+    }
+    if (gameplayRole) properties.gameplayRole = gameplayRole
+    else delete properties.gameplayRole
     return Object.freeze({
       ...component,
-      properties: Object.freeze({
-        ...component.properties,
-        category,
-        name,
-      }),
+      properties: Object.freeze(properties),
     })
   })
 
@@ -266,7 +272,15 @@ export class DefaultRuntimeWorldEvolutionSynchronizer
           }
           const replacement = operation.replacement
           const before = semanticFactsOf(current)
-          const updated = replaceSemantic(current, replacement.name, replacement.category)
+          const updated = replaceSemantic(
+            current,
+            replacement.name,
+            replacement.category,
+            resolveGameplayEntityRole(semanticMutation.updatedWorld.worldType, {
+              name: replacement.name,
+              category: replacement.category,
+            }),
+          )
           const after = semanticFactsOf(updated)
           working.entities[entityIndex] = updated
           working.affectedEntityIds.push(id)

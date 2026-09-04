@@ -15,6 +15,7 @@ import type {
 } from '@genesis/shared'
 import {
   DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
+  resolveGameplayEntityRole,
 } from '@genesis/shared'
 import type { GameplayRuleBuilder } from './GameplayRuleBuilder'
 import type { GameplayRuleCandidate } from './GameplayRuleCandidate'
@@ -64,6 +65,8 @@ function conditionDependency(condition: GameplayCondition, world: GameWorldModel
       return `category-condition:${condition.category}:${entityIds(world, entity => entity.category === condition.category).join(',')}:${selectorDependency(condition.entity, world)}`
     case 'ENTITY_ARCHETYPE_EQUALS':
       return `archetype-condition:${archetype(condition.archetype)}:${entityIds(world, entity => archetype(entity.name) === archetype(condition.archetype)).join(',')}:${selectorDependency(condition.entity, world)}`
+    case 'ENTITY_GAMEPLAY_ROLE_EQUALS':
+      return `gameplay-role-condition:${condition.role}:${entityIds(world, entity => resolveGameplayEntityRole(world.worldType, entity) === condition.role).join(',')}:${selectorDependency(condition.entity, world)}`
     case 'ENTITY_ID_EQUALS':
       return `id-condition:${condition.entityId}:${world.entities.some(entity => entity.id === condition.entityId)}:${selectorDependency(condition.entity, world)}`
     case 'CONTACT_DIRECTION_EQUALS':

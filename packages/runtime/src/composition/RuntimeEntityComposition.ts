@@ -5,6 +5,7 @@ import {
   createTargetDirectedMovementComponent,
   DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED,
   isCollisionBoundsComponent,
+  resolveGameplayEntityRole,
   type Entity,
   type EntityCategory,
   type GameWorldEntity,
@@ -59,10 +60,19 @@ const CATEGORY_X: Readonly<Record<string, number>> = Object.freeze({
   quest: 440,
 })
 
-function semanticComponent(name: string, category: EntityCategory): RuntimeComponent {
+function semanticComponent(
+  name: string,
+  category: EntityCategory,
+  worldType: WorldType,
+): RuntimeComponent {
+  const gameplayRole = resolveGameplayEntityRole(worldType, { name, category })
   return Object.freeze({
     type: SEMANTIC_COMPONENT_TYPE,
-    properties: Object.freeze({ category, name }),
+    properties: Object.freeze({
+      category,
+      name,
+      ...(gameplayRole ? { gameplayRole } : {}),
+    }),
   })
 }
 
@@ -258,7 +268,7 @@ export function createComposedRuntimeEntity(input: {
     x: 0,
     y: 0,
     components: Object.freeze([
-      semanticComponent(semanticEntity.name, semanticEntity.category),
+      semanticComponent(semanticEntity.name, semanticEntity.category, worldType),
       createPositionComponent(position.x, position.y),
       ...(health ? [health] : []),
       ...(collisionBounds ? [collisionBounds] : []),

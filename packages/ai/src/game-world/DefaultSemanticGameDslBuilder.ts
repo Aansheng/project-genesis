@@ -54,6 +54,7 @@ import {
   createPositionComponent,
   createTargetDirectedMovementComponent,
   DEFAULT_TARGET_DIRECTED_MOVEMENT_SPEED,
+  resolveGameplayEntityRole,
 } from '@genesis/shared'
 import type { SemanticGameDslBuilder } from './SemanticGameDslBuilder'
 import { DefaultWorldLayoutGenerator } from './layout'
@@ -187,7 +188,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
         continue
       }
 
-      result.push(this.createEntityDsl(entity, positions[entity.id], targetEntityId))
+      result.push(this.createEntityDsl(entity, positions[entity.id], targetEntityId, world.worldType))
     }
 
     return Object.freeze(result)
@@ -205,6 +206,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
     entity: GameWorldEntity,
     position: { readonly x: number; readonly y: number } | undefined,
     targetEntityId: string | undefined,
+    worldType: GameWorldModel['worldType'],
   ): EntityDsl {
     const health = createDefaultHealthComponentForType(entity.category)
     const collisionBounds = createDefaultCollisionBoundsForSemanticEntity(entity.category, entity.name)
@@ -215,7 +217,7 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
       id: String(entity.id ?? ''),
       type: String(entity.category ?? ''),
       components: Object.freeze([
-        this.createSemanticComponent(entity),
+        this.createSemanticComponent(entity, worldType),
         createPositionComponent(position?.x ?? 0, position?.y ?? 0),
         ...(health ? [health] : []),
         ...(collisionBounds ? [collisionBounds] : []),
@@ -240,12 +242,14 @@ export class DefaultSemanticGameDslBuilder implements SemanticGameDslBuilder {
    * - properties.category: the entity's category (e.g., "player", "npc")
    * - properties.name: the entity's human-readable name (e.g., "Hero")
    */
-  private createSemanticComponent(entity: GameWorldEntity): ComponentDsl {
+  private createSemanticComponent(entity: GameWorldEntity, worldType: GameWorldModel['worldType']): ComponentDsl {
+    const gameplayRole = resolveGameplayEntityRole(worldType, entity)
     return Object.freeze({
       type: SEMANTIC_COMPONENT_TYPE,
       properties: Object.freeze({
         category: entity.category,
         name: entity.name,
+        ...(gameplayRole ? { gameplayRole } : {}),
       }),
     })
   }

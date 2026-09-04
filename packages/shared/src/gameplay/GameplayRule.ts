@@ -1,4 +1,4 @@
-import type { EntityCategory } from '../game-world'
+import type { EntityCategory, GameplayEntityRole } from '../game-world'
 import type { GameplayContactDirection, GameplayEventType } from './GameplayEvent'
 export type { GameplayContactDirection } from './GameplayEvent'
 import type {
@@ -63,6 +63,11 @@ export type GameplayCondition =
       readonly type: 'ENTITY_ARCHETYPE_EQUALS'
       readonly entity: GameplayEntitySelector
       readonly archetype: string
+    }
+  | {
+      readonly type: 'ENTITY_GAMEPLAY_ROLE_EQUALS'
+      readonly entity: GameplayEntitySelector
+      readonly role: GameplayEntityRole
     }
   | {
       readonly type: 'ENTITY_ID_EQUALS'
@@ -191,6 +196,7 @@ export const GAMEPLAY_RULE_EVENT_TYPES: readonly GameplayEventType[] = Object.fr
 export const GAMEPLAY_RULE_CONDITION_TYPES: readonly GameplayConditionType[] = Object.freeze([
   'ENTITY_CATEGORY_EQUALS',
   'ENTITY_ARCHETYPE_EQUALS',
+  'ENTITY_GAMEPLAY_ROLE_EQUALS',
   'ENTITY_ID_EQUALS',
   'CONTACT_DIRECTION_EQUALS',
   'NUMBER_COMPARE',

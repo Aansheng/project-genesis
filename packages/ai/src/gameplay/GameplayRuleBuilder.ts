@@ -4,6 +4,7 @@ import type {
   GameplayAction,
   GameplayCapabilityCatalog,
   GameplayCondition,
+  GameplayEntityRole,
   GameplayEntitySelector,
   GameplayRuleSet,
   GameplayRuleSpecification,
@@ -82,6 +83,10 @@ function categoryCondition(
 
 function archetypeCondition(entity: GameplayEntitySelector, archetype: string): GameplayCondition {
   return Object.freeze({ type: 'ENTITY_ARCHETYPE_EQUALS', entity, archetype })
+}
+
+function gameplayRoleCondition(entity: GameplayEntitySelector, role: GameplayEntityRole): GameplayCondition {
+  return Object.freeze({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', entity, role })
 }
 
 function idCondition(
@@ -374,7 +379,7 @@ function deterministicRules(
         [
           categoryCondition(player, 'player'),
           categoryCondition(target, completionTarget.category),
-          archetypeCondition(target, completionTarget.name),
+          gameplayRoleCondition(target, 'quest-objective'),
           booleanEntityCondition(archetypeSelector(interactable.name), 'questAccepted', true),
         ],
         [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'questCompleted', value: true })],
