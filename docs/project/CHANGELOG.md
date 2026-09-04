@@ -1,5 +1,30 @@
 # Changelog
 
+### Sprint 42 — World Evolution Gameplay Rule Binding Continuity Discovery (v1.191, 2026-09-04)
+
+- Human/CTO froze Sprint 41 at v1.191 (`WO-S41-001` Code Complete = YES,
+  Product Verified = YES, fresh Gap Analysis PASS) and authorized Sprint 42
+  as Discovery only. No product code changed and no WO was executed.
+- Real Studio comparison confirms Farm `再加一块麦田` creates a same-world,
+  visible `wheat-field-1` that normal Enter can harvest; Survival
+  `再加五只怪` retains same-world +5 Enemy, pursuit, contact damage, and
+  canonical visual reuse.
+- RPG `再加一个任务` creates same-world `quest-1` with semantic
+  `category=quest`, `name=Quest`, and normal Enter reaches it, but the
+  existing `rpg-interaction` Rule requires exact archetype `Quest Giver` and
+  returns `archetype_mismatch` / `conditions_failed`. The rule is not
+  concrete-ID-bound; it is entity-specific in effect through semantic name
+  matching, while the semantic model has no separate gameplay role/capability
+  field.
+- The single selected Product blocker is **EVOLVED RPG QUEST ENTITIES DO NOT
+  CARRY AN EXPLICIT GAMEPLAY ROLE/CAPABILITY CONTRACT, SO WORLD EVOLUTION
+  CANNOT SAFELY BIND THE APPROPRIATE EXISTING RPG RULE**. Exactly one READY
+  work order was generated: `WO-S42-001 — Evolved-Entity Gameplay Capability
+  Binding Contract`. It is not executed; Sprint 43 is not entered.
+- Focused read-only contract tests passed: AI 15/15, Runtime 26/26, Web
+  34/34. Full discovery evidence is in
+  `docs/project/SPRINT42_GAMEPLAY_RULE_BINDING_DISCOVERY.md`.
+
 ### Sprint 41 — WO-S41-001 Generic Archetype-Native World Evolution Entity Reachability (v1.191, 2026-09-04)
 
 - Human/CTO authorized the single `WO-S41-001` after Sprint 41 discovery

@@ -3,17 +3,17 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.191 (Sprint 41 WO COMPLETE; freeze review pending)
-current_sprint: Sprint 41 (WO COMPLETE; FRESH_GAP_ANALYSIS_PASS)
-current_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
-current_control_plane_work_order: SPRINT41_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — fresh Sprint 41 Gap Analysis PASS; Human/CTO freeze review pending; stop before Sprint 42
+architecture_version: v1.191 (Sprint 41 FROZEN; Sprint 42 DISCOVERY COMPLETE)
+current_sprint: Sprint 42 (DISCOVERY ONLY; EXACTLY ONE READY WO)
+current_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
+current_work_order_status: READY — not executed
+current_control_plane_work_order: SPRINT42_DISCOVERY_REVIEW
+current_control_plane_work_order_status: DONE — exactly one Product blocker and one READY WO; stop before Sprint 43
 last_completed_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
 last_completed_product_work_order: WO-S41-001
-last_completed_control_plane_work_order: SPRINT41_DISCOVERY_REVIEW
-next_ready_work_order: NONE — downstream RPG evolved-quest Rule-binding gap recorded; no second WO generated automatically
-product_architecture_changed: YES during Sprint 41 — bounded deterministic archetype-native World Evolution fallback advanced v1.190 → v1.191
+last_completed_control_plane_work_order: SPRINT41_FREEZE_REVIEW
+next_ready_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract (READY; not executed)
+product_architecture_changed: YES during Sprint 41 — bounded deterministic archetype-native World Evolution fallback advanced v1.190 → v1.191; NO change during Sprint 42 Discovery
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Sprint 32 is FROZEN at v1.182, and Sprint 33 is FROZEN at v1.183 by
   Human/CTO decisions. Sprint 34 `WO-S34-001` is complete and FROZEN at
@@ -29,8 +29,9 @@ sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   2026-09-04; checkpoint commit `04c3090`. Sprint 41 discovery was complete at
   the v1.190 boundary and Sprint 42 was not entered. Human/CTO subsequently
   authorized `WO-S41-001`; the bounded implementation is complete at v1.191,
-  fresh Sprint 41 Gap Analysis is PASS, and `SPRINT41_FREEZE_REVIEW` is
-  pending. Sprint 42 is not entered.
+  fresh Sprint 41 Gap Analysis is PASS, and Human/CTO froze Sprint 41. Sprint
+  42 Discovery then measured the downstream RPG evolved-quest binding gap,
+  generated exactly one READY `WO-S42-001`, and stopped before Sprint 43.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, WO-S35-001, WO-S36-001, WO-S37-001, WO-S38-001, WO-S39-001,
   WO-S40-001, and WO-S41-001
@@ -185,6 +186,35 @@ no second WO is generated automatically and Sprint 42 is not entered. Full
 details are in
 `docs/project/SPRINT41_WO_S41_001_EXECUTION.md` and the discovery-boundary
 record `docs/project/SPRINT41_WORLD_EVOLUTION_DISCOVERY.md`.
+
+## Sprint 42 — World Evolution Gameplay Rule Binding Continuity Discovery
+
+Human/CTO froze Sprint 41 at v1.191 and authorized Sprint 42 as Discovery only.
+The real Studio evidence for Farm, RPG, and Survival was compared with the
+current source wiring. Farm `做一个农场游戏` → `再加一块麦田` keeps the same
+world, adds `wheat-field-1`, and commits `harvested=true` on the new field.
+Survival `生成一个幸存者游戏` → `再加五只怪` keeps the same world, adds
+exactly five Enemies, and retains pursuit/contact damage/visual reuse.
+
+RPG `创建一个 RPG` → `再加一个任务` keeps the same world, preserves
+`quest-giver.questAccepted=true`, and adds visible Runtime `quest-1` with
+semantic `category=quest`, `name=Quest`. Enter emits
+`ENTITY_INTERACTION_REQUESTED(player → quest-1)` at distance 16, but the
+current `rpg-interaction` rule requires target archetype `Quest Giver`. The
+first failed condition is `ENTITY_ARCHETYPE_EQUALS` with
+`archetype_mismatch`; no `questAccepted=true` commits for the evolved entity.
+
+The rule is not concrete-ID-bound, but is entity-specific in effect through
+exact semantic name matching. `GameWorldEntity` has no separate gameplay role
+or capability field, and the current `role` selector is only a category alias.
+The single blocker is **EVOLVED RPG QUEST ENTITIES DO NOT CARRY AN EXPLICIT
+GAMEPLAY ROLE/CAPABILITY CONTRACT, SO WORLD EVOLUTION CANNOT SAFELY BIND THE
+APPROPRIATE EXISTING RPG RULE**. Exactly one READY work order exists:
+`WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract`.
+
+No product code changed, no WO was executed, and no Sprint 43 was entered.
+Full evidence and the explicit non-goals are in
+`docs/project/SPRINT42_GAMEPLAY_RULE_BINDING_DISCOVERY.md`.
 
 ## Sprint 38 — Cross-Genre Playability Fidelity Discovery
 
@@ -1269,11 +1299,15 @@ Human/CTO froze Sprint 36 at v1.186:
   subsequently accepted the freeze at v1.190. Provider Farm composition
   variance, inherited Farm/RPG Space — Jump behavior, and future continuation
   breadth remain separate observations.
-- **Current Sprint 41 gate:** `WO-S41-001` is DONE at v1.191 with Code Complete
-  = YES, Product Verified = YES, and fresh Sprint 41 Gap Analysis PASS.
-  `SPRINT41_FREEZE_REVIEW` is pending Human/CTO acceptance. The evolved RPG
-  quest Rule-binding gap is recorded as the next measured Product issue; no
-  second WO is generated automatically and Sprint 42 is not entered.
+- **Resolved Sprint 41 gate:** `WO-S41-001` is DONE at v1.191 with Code
+  Complete = YES, Product Verified = YES, and fresh Sprint 41 Gap Analysis
+  PASS. Human/CTO accepted `SPRINT41_FREEZE_REVIEW` and froze Sprint 41.
+- **Current Sprint 42 gate:** Discovery measured one downstream RPG
+  evolved-quest Rule-binding blocker. `quest-1` is Enter-reachable but the
+  exact `Quest Giver` archetype condition returns `archetype_mismatch`; the
+  semantic model has no separate gameplay role/capability fact. Exactly one
+  READY `WO-S42-001` is recorded, not executed; `SPRINT42_DISCOVERY_REVIEW`
+  is complete and Sprint 43 is not entered.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
 
@@ -1404,10 +1438,10 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Human/CTO review of `SPRINT41_FREEZE_REVIEW` and the measured downstream RPG
-evolved-quest Rule-binding gap. Preserve the Platformer/Survival baselines,
+Human/CTO review of the single READY `WO-S42-001 — Evolved-Entity Gameplay
+Capability Binding Contract`. Preserve the Platformer/Survival baselines,
 retain the provider/TLS environment limitation as separate from the Product
-gap, do not generate a second WO automatically, and do not enter Sprint 42.
+gap, do not execute the WO automatically, and do not enter Sprint 43.
 
 ## Authority
 

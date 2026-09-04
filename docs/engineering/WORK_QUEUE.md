@@ -5,15 +5,15 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-04
-current_sprint: Sprint 41 (WO COMPLETE; FRESH_GAP_ANALYSIS_PASS)
-current_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
-current_control_plane_work_order: SPRINT41_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — fresh Sprint 41 Gap Analysis PASS; Human/CTO freeze review pending; stop before Sprint 42
+current_sprint: Sprint 42 (DISCOVERY ONLY; EXACTLY ONE READY WO)
+current_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
+current_work_order_status: READY — not executed
+current_control_plane_work_order: SPRINT42_DISCOVERY_REVIEW
+current_control_plane_work_order_status: DONE — exactly one Product blocker and one READY WO; stop before Sprint 43
 last_completed_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
 last_completed_product_work_order: WO-S41-001
-last_completed_control_plane_work_order: SPRINT41_DISCOVERY_REVIEW
-next_work_order: NONE — downstream RPG evolved-quest Rule-binding gap recorded; no second WO generated automatically
+last_completed_control_plane_work_order: SPRINT41_FREEZE_REVIEW
+next_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract (READY; not executed)
 continuation_mode: WORK_ORDER_COMPLETE_STOP
 primary_architecture_changing_work_items_in_progress: 0
 
@@ -245,7 +245,7 @@ fresh_gap_analysis: PASS for the authorized first divergence. The next
 
 ## SPRINT41_FREEZE_REVIEW
 
-status: READY — Human/CTO freeze decision pending
+status: FROZEN — Human/CTO accepted 2026-09-04; `WO-S41-001` DONE; fresh Sprint 41 Gap Analysis PASS
 architecture: v1.191
 evidence: `WO-S41-001`,
   `docs/project/SPRINT41_WO_S41_001_EXECUTION.md`, and
@@ -253,10 +253,65 @@ evidence: `WO-S41-001`,
   The first provider-error divergence is closed; Farm's evolved field is
   harvestable; RPG's evolved quest is measurable but not yet bound to the
   existing exact-archetype consequence Rule.
-next_action: Human/CTO may accept the Sprint 41 freeze and separately decide
-  whether the measured RPG evolved-quest Rule-binding gap should become a
-  future bounded work item. Do not generate it automatically and do not enter
-  Sprint 42.
+next_action: Sprint 41 freeze is closed. The separately authorized Sprint 42
+  Discovery is complete; review the single READY `WO-S42-001` without
+  executing it or entering Sprint 43.
+
+## SPRINT42_AUTHORIZATION — World Evolution Gameplay Rule Binding Continuity
+
+status: ACCEPTED — DISCOVERY ONLY; discovery complete
+architecture: v1.191 (unchanged during Discovery)
+decision: Human/CTO froze Sprint 41 at v1.191 and authorized Sprint 42
+  Discovery only. Use the real Studio Farm/RPG/Survival comparison, identify
+  the first Rule-binding divergence, select exactly one blocker, generate
+  exactly one READY WO, and stop before Sprint 43.
+constraints: Do not modify product code, execute a WO, broaden the RPG rule
+  blindly, rebuild the world/RuleSet, add a new gameplay framework, or enter
+  Sprint 43.
+
+## SPRINT42_DISCOVERY_REVIEW
+
+status: DONE — exactly one Product blocker; exactly one READY WO; no product code modified; no WO executed
+architecture_before: v1.191
+architecture_after: v1.191 (Discovery only)
+evidence: `docs/project/SPRINT42_GAMEPLAY_RULE_BINDING_DISCOVERY.md`
+real_studio: Farm world-5 `做一个农场游戏` → `再加一块麦田` kept the
+  same world, added `wheat-field-1`, and committed `harvested=true` on the
+  new field. RPG world-6 `创建一个 RPG` → `再加一个任务` kept the same
+  world, preserved `quest-giver.questAccepted=true`, added `quest-1`, and
+  reached it with Enter at distance 16; the RPG rules returned
+  `conditions_failed`. Survival world-4 `生成一个幸存者游戏` → `再加五只怪`
+  retained same-world +5 Enemy, pursuit, contact damage, and visual reuse.
+first_divergence: After the truthful `ENTITY_INTERACTION_REQUESTED` event
+  targets `quest-1`, `rpg-interaction` first fails
+  `ENTITY_ARCHETYPE_EQUALS(eventTarget, "Quest Giver")` because the evolved
+  semantic name is `Quest`; evaluator reason is `archetype_mismatch`.
+binding_finding: The RPG rule is not concrete-ID-bound, but it is
+  entity-specific in effect through exact semantic name matching. The current
+  semantic model has no separate gameplay role/capability field; `role` is
+  only a category alias. Farm succeeds through compatible `terrain/Wheat
+  Field` facts; Survival succeeds through category/component-driven Runtime
+  composition and rules.
+selected_blocker: EVOLVED RPG QUEST ENTITIES DO NOT CARRY AN EXPLICIT
+  GAMEPLAY ROLE/CAPABILITY CONTRACT, SO WORLD EVOLUTION CANNOT SAFELY BIND THE
+  APPROPRIATE EXISTING RPG RULE.
+selected_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
+selected_work_order_status: READY — not executed
+state_preservation: Same-world identity and retained Farm harvested/RPG
+  questAccepted state were observed; the future WO must also re-run and
+  preserve existing Farm/RPG questCompleted state, original rule IDs, and
+  independent `quest-1` state without a world rebuild.
+alternatives_deprioritized: Category-wide broadening is unsafe because
+  Quest Giver/Main Quest are distinct; current role selectors are category
+  aliases; per-ID rule copies are non-generic; full RuleSet rebuild/dynamic
+  registry is larger than the measured semantic binding gap; spatial/control,
+  Provider/TLS, Farm, and Survival are not the first break.
+non_goals: No product code, GameplayRuleRebuilder, DynamicRuleRegistry,
+  CapabilityInheritanceSystem, QuestEngine, FarmRuntime, RPGRuntime, generic
+  rule ontology, full world rebuild, inventory/resources/rewards/economy,
+  dialogue, third-stage progression, workflow/state-machine framework, or
+  Sprint 43.
+next_action: Human/CTO review of `WO-S42-001`; do not execute automatically.
 
 ## SPRINT39_AUTHORIZATION — Cross-Genre Interaction Meaning Discovery
 

@@ -229,8 +229,25 @@ The Survival control `生成一个幸存者游戏` → `再加五只怪` still p
 same-world +5 Enemy, pursuit, contact damage, and canonical visual reuse.
 Merchant addition and honest unknown-request failure remain intact. `WO-S41-001`
 is DONE with Code Complete = YES and Product Verified = YES; fresh Sprint 41
-Gap Analysis is PASS. `SPRINT41_FREEZE_REVIEW` is pending Human/CTO review;
-no second WO is generated automatically and Sprint 42 is not entered.
+Gap Analysis is PASS. Human/CTO froze Sprint 41 at v1.191; its freeze review
+is closed and the separately authorized Sprint 42 Discovery is recorded next.
+
+Human/CTO subsequently froze Sprint 41 at v1.191 and authorized Sprint 42 —
+World Evolution Gameplay Rule Binding Continuity Discovery. Discovery is
+complete without a product architecture change: Farm's evolved
+`wheat-field-1` is harvestable, Survival's evolved Enemies retain
+pursuit/contact damage/visual reuse, and RPG's evolved `quest-1` is
+Enter-reachable but fails the exact `Quest Giver` archetype condition.
+
+The single measured blocker is **EVOLVED RPG QUEST ENTITIES DO NOT CARRY AN
+EXPLICIT GAMEPLAY ROLE/CAPABILITY CONTRACT, SO WORLD EVOLUTION CANNOT SAFELY
+BIND THE APPROPRIATE EXISTING RPG RULE**. Exactly one READY item exists:
+`WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract`. It is not
+executed. The current rule is not concrete-ID-bound, but is entity-specific in
+effect through semantic name matching; category-wide broadening and full rule
+rebuilds are not justified. Sprint 42 stops at `SPRINT42_DISCOVERY_REVIEW`,
+and Sprint 43 is not entered. See
+`docs/project/SPRINT42_GAMEPLAY_RULE_BINDING_DISCOVERY.md`.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,
