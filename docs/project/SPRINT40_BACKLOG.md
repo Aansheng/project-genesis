@@ -3,8 +3,9 @@
 Sprint 39 is FROZEN at v1.189 with `WO-S39-001` Code Complete = YES,
 Product Verified = YES, and fresh Gap Analysis PASS. Sprint 40
 `WO-S40-001` is now DONE at v1.190 with Code Complete = YES, Product Verified
-= YES, and fresh Gap Analysis PASS. The current gate is
-`SPRINT40_FREEZE_REVIEW`; Sprint 41 was not entered.
+= YES, and fresh Gap Analysis PASS. Human/CTO froze Sprint 40 at v1.190 on
+2026-09-04; checkpoint commit is `04c3090`. Sprint 41 discovery is current
+and no Sprint 42 entry is permitted.
 
 ## WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (first bounded slice)
 
@@ -143,5 +144,6 @@ error; equivalent package-level gates and the direct affected Web build passed.
 ### Execution boundary
 
 This item is **CLOSED** under the explicit Human/CTO authorization dated
-2026-09-03. The current gate is `SPRINT40_FREEZE_REVIEW`; no second WO or
-Sprint 41 entry is permitted.
+2026-09-03. Sprint 40 is FROZEN under the 2026-09-04 Human/CTO decision; no
+second Sprint 40 WO is permitted. Sprint 41 discovery is separately recorded
+in `SPRINT41_WORLD_EVOLUTION_DISCOVERY.md`.

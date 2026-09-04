@@ -7,6 +7,9 @@ replacement for ADRs or PROJECT_STATE.md.
 
 | Date | Decision | Status | Owner | Consequence |
 | --- | --- | --- | --- | --- |
+| 2026-09-04 | Freeze Sprint 40 at v1.190 after WO-S40-001 completion and fresh Gap Analysis PASS. | ACCEPTED — FREEZE SPRINT 40 | Human / CTO | WO-S40-001 is DONE with Code Complete = YES and Product Verified = YES. The v1.190 Git checkpoint is 04c3090; the local root Turbo Keychain/TLS failure does not block the freeze. |
+| 2026-09-04 | Authorize Sprint 41 — World Evolution Gameplay Capability Continuity Discovery. | ACCEPTED — ENTER SPRINT 41 DISCOVERY ONLY | Human / CTO | Use real Studio Farm/RPG evolution and the Survival control, select exactly one blocker, and generate exactly one READY WO. Do not modify product code, execute the WO, extend Sprint 40, or enter Sprint 42. |
+| 2026-09-04 | Record the Sprint 41 discovery disposition and stop at the first measured divergence. | ACCEPTED — DISCOVERY COMPLETE / STOP | Human / CTO | Exact Farm-field and RPG-quest mutations failed at structured planning in the local provider environment; the single Product blocker is missing validated archetype-native delta coverage. WO-S41-001 is READY and not executed; Sprint 42 is not entered. |
 | 2026-08-21 | Select the concrete S15-005 gameplay scenario from a measured Studio bottleneck and approve its acceptance boundary. | ACCEPTED | Human / CTO | ENEMY STOMP is the primary scenario; WO-S15-005 may enter IN_PROGRESS with its bounded generic Runtime contract. |
 | 2026-08-21 | Keep initial Supervisor continuation at ONE_WORK_ITEM. | ACCEPTED | Human / CTO | Supervisor stops after one verified work item. |
 | 2026-08-24 | Select the WO-S15-006 gameplay scenario and acceptance boundary for the next product trial. | ACCEPTED | Human / CTO | DAMAGE / HEALTH is the primary scenario; WO-S15-006 is prepared READY but is not executed by WO-META-004. |
@@ -156,7 +159,8 @@ spatial/control composition, and standalone readability remain recorded
 follow-up observations, not additional WOs.
 
 Fresh Gap Analysis is recorded in `docs/project/SPRINT40_GAP_ANALYSIS.md`.
-The current gate is `SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered.
+At that historical point the gate was `SPRINT40_FREEZE_REVIEW`; Human/CTO
+subsequently froze Sprint 40 at v1.190 and authorized Sprint 41 discovery.
 
 ## WO-S38-001 execution decision and result
 

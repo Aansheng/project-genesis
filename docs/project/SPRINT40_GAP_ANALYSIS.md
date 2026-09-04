@@ -6,7 +6,10 @@ Work order: `WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (f
 Result: **PASS**  
 Code Complete: **YES**  
 Product Verified: **YES**  
-Next gate: `SPRINT40_FREEZE_REVIEW`
+Freeze decision: **ACCEPTED — Sprint 40 FROZEN at v1.190 on 2026-09-04**
+v1.190 Git checkpoint: **04c3090**
+Next gate: **Sprint 41 World Evolution Gameplay Capability Continuity
+Discovery (discovery only)**
 
 ## Product question
 
@@ -130,5 +133,6 @@ Alternative candidates lost priority:
   because its local API client could not initialize TLS without a Keychain;
   equivalent package-level checks and the direct affected build passed.
 
-The architecture is frozen at v1.190 pending `SPRINT40_FREEZE_REVIEW`. No
-second Sprint 40 WO was generated and Sprint 41 was not entered.
+The architecture is frozen at v1.190. No second Sprint 40 WO was generated.
+Sprint 41 discovery is separately authorized and recorded in
+`SPRINT41_WORLD_EVOLUTION_DISCOVERY.md`; no Sprint 42 entry is implied.

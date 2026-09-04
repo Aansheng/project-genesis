@@ -1,4 +1,4 @@
-# Gameplay Capability Matrix — Sprint 40 Execution Complete / Freeze Review
+# Gameplay Capability Matrix — Sprint 40 Frozen / Sprint 41 Discovery Complete
 
 Architecture version: v1.190 (Sprint 30 through Sprint 39 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
@@ -11,8 +11,8 @@ Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
 Gap Analysis PASS; Sprint 38 FROZEN; `WO-S39-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189; Sprint 39
 FROZEN; `WO-S40-001` Code Complete = YES; Product Verified = YES; fresh
-Sprint 40 Gap Analysis PASS; current gate `SPRINT40_FREEZE_REVIEW`; Sprint 41
-not entered)
+Sprint 40 Gap Analysis PASS; Sprint 40 FROZEN at v1.190; Sprint 41 discovery
+complete; no product implementation in Sprint 41)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -92,8 +92,15 @@ Farm composes `wheat-field.harvested=true` → later `harvest-quest` interaction
 `main-quest` interaction → `questCompleted=true`. Each is a separate Player
 interaction moment, and repeated completion is a truthful no-op. No workflow
 engine, domain Runtime, inventory/resources system, or open-ended progression
-framework is implied. The fresh Gap Analysis is PASS and the current gate is
-`SPRINT40_FREEZE_REVIEW`.
+framework is implied. The fresh Gap Analysis is PASS and Sprint 40 is FROZEN
+at v1.190.
+
+Sprint 41 discovery changes no capability status. Exact Farm field and RPG
+quest World Evolution requests failed before semantic delta production in the
+local provider environment. The Survival control passed same-world evolved
+Enemy pursuit, contact damage, and canonical visual reuse. One READY
+WO-S41-001 remains outside this matrix until separately authorized and
+implemented; entity appearance is not promoted to gameplay capability.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -222,5 +229,5 @@ Verified are YES and the fresh Sprint 39 Gap Analysis is PASS. The Provider
 behavior remain separate observations. Sprint 39 is FROZEN at v1.189 by
 Human/CTO decision. Sprint 40 `WO-S40-001` advances the matrix to v1.190 with
 one bounded typed boolean state gate and the Farm/RPG two-step proof. Fresh
-Gap Analysis is PASS; `SPRINT40_FREEZE_REVIEW` is current and Sprint 41 is
-not entered.
+Gap Analysis is PASS; Sprint 40 is FROZEN at v1.190. Sprint 41 discovery
+subsequently recorded one READY WO without changing the capability matrix.

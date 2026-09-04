@@ -210,8 +210,20 @@ generic Runtime contains no Farm/RPG world-type branch; archetype composition
 selects the semantic entities and rules. Provider Farm composition variance,
 inherited spatial/control composition, and next-state readability remain
 secondary observations. Full package gates and the direct Web build pass;
-the fresh Sprint 40 Gap Analysis is PASS. The current control-plane gate is
-`SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered.
+the fresh Sprint 40 Gap Analysis is PASS. Human/CTO froze Sprint 40 at v1.190
+on 2026-09-04, with checkpoint commit 04c3090.
+
+Sprint 41 World Evolution Gameplay Capability Continuity Discovery is now
+complete at the unchanged v1.190 boundary. Real Studio exact Farm
+`再加一块麦田` and RPG `再加一个任务` requests reached World Evolution but
+failed at structured planning with provider_error in the local provider
+environment. The Survival control `生成一个幸存者游戏` → `再加五只怪`
+passed same-world +5 Enemy, pursuit, contact damage, and canonical visual
+reuse. The single selected Product blocker is missing validated
+archetype-native Farm-field/RPG-quest semantic-delta coverage. Exactly one
+READY WO exists: `WO-S41-001 — Generic Archetype-Native World Evolution
+Entity Reachability`. No product code was changed, the WO was not executed,
+and Sprint 42 was not entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

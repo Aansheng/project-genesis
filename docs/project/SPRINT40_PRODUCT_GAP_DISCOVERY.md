@@ -4,7 +4,8 @@ Date: 2026-09-03
 Architecture at discovery boundary: **v1.189**  
 Sprint 39 disposition: **FROZEN — WO-S39-001 Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS**  
 Discovery status: **DONE — historical discovery boundary; exactly one READY WO
-generated; the authorized WO was subsequently executed; Sprint 41 not entered**
+generated; the authorized WO was subsequently executed; Sprint 40 is now
+FROZEN at v1.190**
 
 ## Decision boundary
 
@@ -216,7 +217,8 @@ framework.
 
 Sprint 40 discovery was complete at one READY work order. The subsequent
 Human/CTO authorization executed that one item as `WO-S40-001`, advancing the
-product to v1.190. Its completion and fresh gap result are recorded in
+product to v1.190. Human/CTO subsequently froze Sprint 40 at v1.190; its
+completion and fresh gap result are recorded in
 `docs/project/SPRINT40_BACKLOG.md` and
-`docs/project/SPRINT40_GAP_ANALYSIS.md`; the current gate is
-`SPRINT40_FREEZE_REVIEW`. Sprint 41 was not entered.
+`docs/project/SPRINT40_GAP_ANALYSIS.md`. Sprint 41 discovery is a separate
+current record; Sprint 42 is not entered.

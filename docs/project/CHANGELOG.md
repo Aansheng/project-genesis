@@ -1,5 +1,35 @@
 # Changelog
 
+### Sprint 41 — World Evolution Gameplay Capability Continuity Discovery (v1.190 boundary, 2026-09-04)
+
+- Human/CTO froze Sprint 40 at v1.190. WO-S40-001 is DONE with Code Complete
+  = YES, Product Verified = YES, and fresh Sprint 40 Gap Analysis = PASS.
+  The clear Git checkpoint is 04c3090.
+- Discovery-only real Studio traces reproduced the Farm and RPG two-step
+  baselines. Exact 再加一块麦田 and 再加一个任务 requests routed to World
+  Evolution but failed at structured planning with provider_error before a
+  semantic delta could be produced. Closest 增加一个商人 controls were
+  visible and Runtime-synchronized but not eligible interaction targets.
+- The Survival control 生成一个幸存者游戏 → 再加五只怪 passed with the same
+  world, exactly five added Enemy entities, pursuit, committed contact damage,
+  and canonical visual reuse.
+- The single selected Product blocker is missing validated archetype-native
+  Farm-field/RPG-quest semantic-delta coverage when the provider is
+  unavailable. Exactly one READY WO was generated:
+  WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability.
+  No product code was modified, the WO was not executed, and Sprint 42 was
+  not entered. The root Keychain/TLS limitation remains an environment
+  observation, not the selected Product blocker.
+
+### Sprint 40 — Freeze Review Accepted (v1.190, 2026-09-04)
+
+- Human/CTO froze Sprint 40 at v1.190 after WO-S40-001 completed with Code
+  Complete = YES, Product Verified = YES, and fresh Gap Analysis = PASS.
+- The freeze preserves the verified Farm/RPG two-step loop, Runtime authority,
+  truthful no-target/repeat behavior, and the Platformer/Survival baselines.
+- The v1.190 Git checkpoint is 04c3090. Sprint 41 discovery is separately
+  authorized; no additional Sprint 40 work is implied.
+
 ### Sprint 40 — WO-S40-001 Generic Post-Interaction Gameplay Loop Continuity (v1.190, 2026-09-03)
 
 - Human/CTO authorized the single Sprint 40 work order after Sprint 39 was
@@ -21,8 +51,8 @@
   host because its local API client could not initialize TLS without a
   Keychain; equivalent package-level gates passed.
 - `WO-S40-001`: Code Complete = YES; Product Verified = YES; DONE. Fresh
-  Sprint 40 Gap Analysis = PASS. Current gate is
-  `SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered.
+  Sprint 40 Gap Analysis = PASS. Human/CTO subsequently accepted the v1.190
+  freeze; Sprint 41 discovery is recorded separately.
 
 ### Sprint 40 — Cross-Genre Gameplay Loop Continuity Discovery (v1.189, 2026-09-03)
 

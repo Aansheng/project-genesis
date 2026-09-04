@@ -3,17 +3,17 @@
 This is a concise orchestration projection. PROJECT_STATE.md and actual source
 code remain the product authority.
 
-architecture_version: v1.190 (Sprint 40 active; WO-S40-001 DONE)
-current_sprint: Sprint 40 (SPRINT40_FREEZE_REVIEW)
-current_work_order: NONE — WO-S40-001 DONE
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
-current_control_plane_work_order: SPRINT40_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — fresh Sprint 40 Gap Analysis PASS; Human/CTO freeze review pending
+architecture_version: v1.190 (Sprint 40 FROZEN; Sprint 41 DISCOVERY_COMPLETE)
+current_sprint: Sprint 41 (DISCOVERY_ONLY)
+current_work_order: NONE — Sprint 41 discovery complete; WO-S41-001 READY but not executed
+current_work_order_status: STOP — discovery complete; Human/CTO authorization required before implementation
+current_control_plane_work_order: SPRINT41_DISCOVERY_REVIEW
+current_control_plane_work_order_status: DONE — exactly one Product blocker and one READY WO; stop for Human/CTO review
 last_completed_work_order: WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity
 last_completed_product_work_order: WO-S40-001
-last_completed_control_plane_work_order: SPRINT39_FREEZE_REVIEW
-next_ready_work_order: NONE — stop at SPRINT40_FREEZE_REVIEW; do not enter Sprint 41
-product_architecture_changed: YES — WO-S40-001 advanced v1.189 → v1.190
+last_completed_control_plane_work_order: SPRINT40_FREEZE_REVIEW
+next_ready_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability; READY, not executed
+product_architecture_changed: NO during Sprint 41 discovery — Sprint 40 advanced v1.189 → v1.190
   by enabling typed BOOLEAN_EQUALS evaluation against current Runtime entity
   state and composing one state-gated continuation Rule for Farm and RPG.
 sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
@@ -27,8 +27,9 @@ sprint_status: Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181,
   Verified = YES and fresh Gap Analysis PASS. Sprint 39 `WO-S39-001` is DONE
   at v1.189 with Human/CTO freeze accepted on 2026-09-03. Sprint 40
   `WO-S40-001` is DONE at v1.190 with Code Complete/Product Verified = YES
-  and fresh Gap Analysis PASS; `SPRINT40_FREEZE_REVIEW` is the current gate.
-  Sprint 41 is not entered.
+  and fresh Gap Analysis PASS. Human/CTO froze Sprint 40 at v1.190 on
+  2026-09-04; checkpoint commit `04c3090`. Sprint 41 discovery is complete at
+  the v1.190 boundary and Sprint 42 is not entered.
 code_complete: YES for WO-S31-001, WO-S31-002, WO-S32-001, WO-S33-001,
   WO-S34-001, WO-S35-001, WO-S36-001, WO-S37-001, WO-S38-001, WO-S39-001,
   and WO-S40-001
@@ -89,7 +90,8 @@ browser diagnostics passed. Details are in
 Sprint 39 is FROZEN at v1.189. At that historical Sprint 40 discovery
 boundary, one READY `WO-S40-001` existed and no product code had yet been
 modified. Human/CTO subsequently authorized and completed that item; the
-current Sprint 40 state is recorded below. Sprint 41 is not entered.
+current Sprint 40 state is recorded below. Sprint 41 discovery is recorded
+below; Sprint 42 is not entered.
 
 ## Sprint 40 — WO-S40-001 Execution and Fresh Gap Analysis
 
@@ -134,11 +136,38 @@ inherited spatial/control composition remains a secondary observation; neither
 was promoted over the measured shared blocker in this WO.
 
 `WO-S40-001` is DONE with Code Complete = YES and Product Verified = YES.
-Fresh Sprint 40 Gap Analysis is PASS. The current control-plane gate is
-`SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered. Details are in
+Fresh Sprint 40 Gap Analysis is PASS. Human/CTO froze Sprint 40 at v1.190
+on 2026-09-04. The clear Git checkpoint is commit `04c3090`; the working
+tree was clean before Sprint 41 discovery. Details are in
 `docs/project/SPRINT40_GAP_ANALYSIS.md`,
 `docs/project/SPRINT40_BACKLOG.md`, and
 `docs/adr/ADR-0300-generic-post-interaction-gameplay-loop-continuity.md`.
+
+## Sprint 41 — World Evolution Gameplay Capability Continuity Discovery
+
+Human/CTO authorized Sprint 41 discovery only after the Sprint 40 freeze.
+Real Studio Farm and RPG exact mutation requests reached World Evolution but
+failed at structured generation with provider_error before semantic delta,
+Runtime synchronization, or GameplayRule reconciliation. The exact commands
+were 再加一块麦田 and 再加一个任务. Closest successful deterministic
+增加一个商人 controls were visible and Runtime-synchronized but were not
+eligible Farm terrain/quest or RPG quest interaction targets.
+
+The Survival control 生成一个幸存者游戏 → 再加五只怪 passed with the
+same world, exactly five added Enemy entities, target-directed pursuit,
+committed contact damage, and canonical visual reuse. Source audit confirms
+that successful add-only evolution preserves retained Runtime entities and
+their components. Direct post-baseline Farm/RPG state retention with the
+unavailable exact deltas remains a later execution acceptance proof.
+
+The FIRST divergence is the structured World Evolution planning failure. The
+single Product blocker is the missing production-validated archetype-native
+semantic delta path for Farm fields and RPG quests when the provider is
+unavailable. Exactly one READY WO exists: WO-S41-001 — Generic
+Archetype-Native World Evolution Entity Reachability. It is not executed.
+The full discovery record is in
+docs/project/SPRINT41_WORLD_EVOLUTION_DISCOVERY.md. Sprint 41 stops here;
+Sprint 42 is not entered.
 
 ## Sprint 38 — Cross-Genre Playability Fidelity Discovery
 
@@ -1218,10 +1247,13 @@ Human/CTO froze Sprint 36 at v1.186:
   LOOP** is closed for the tested Farm/RPG baselines. `WO-S40-001` is DONE at
   v1.190 with Code Complete/Product Verified = YES; the existing generic
   `BOOLEAN_EQUALS` condition gates one later interaction per archetype.
-- **Current gate:** Sprint 40 is ready for `SPRINT40_FREEZE_REVIEW` with
-  fresh Gap Analysis PASS. Provider Farm composition variance, inherited
-  Farm/RPG Space — Jump behavior, and future continuation breadth remain
-  separate observations. Do not enter Sprint 41.
+- **Historical Sprint 40 gate:** Sprint 40 was ready for
+  `SPRINT40_FREEZE_REVIEW` with fresh Gap Analysis PASS. Human/CTO
+  subsequently accepted the freeze at v1.190. Provider Farm composition
+  variance, inherited Farm/RPG Space — Jump behavior, and future continuation
+  breadth remain separate observations.
+- **Current Sprint 41 gate:** Discovery is complete at v1.190 with exactly one
+  READY WO-S41-001. Do not execute it automatically or enter Sprint 42.
 
 Historical Sprint 33 Product Gap Discovery (2026-09-01):
 
@@ -1352,10 +1384,10 @@ frozen at v1.167; no Sprint 20 work is entered automatically.
 
 ## Next Recommended Verification
 
-Human/CTO review the completed WO-S40-001 and v1.190 at
-`SPRINT40_FREEZE_REVIEW`. Preserve the Platformer/Survival baselines, retain
-the Provider Farm composition variance and Farm/RPG Space — Jump inheritance
-as separate observations, and do not enter Sprint 41.
+Human/CTO review and separately authorize the single READY WO-S41-001 after
+the Sprint 41 discovery. Preserve the Platformer/Survival baselines, retain
+the provider/TLS environment limitation as separate from the Product blocker,
+and do not execute the WO automatically or enter Sprint 42.
 
 ## Authority
 
