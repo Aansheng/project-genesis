@@ -1,20 +1,20 @@
-# Sprint 40 Backlog — Cross-Genre Gameplay Loop Continuity Discovery
+# Sprint 40 Backlog — Cross-Genre Gameplay Loop Continuity
 
 Sprint 39 is FROZEN at v1.189 with `WO-S39-001` Code Complete = YES,
-Product Verified = YES, and fresh Gap Analysis PASS. Sprint 40 discovery is
-complete and generated exactly one READY work order. This backlog records the
-work order only; it was not executed, no product code was changed, and Sprint
-41 was not entered.
+Product Verified = YES, and fresh Gap Analysis PASS. Sprint 40
+`WO-S40-001` is now DONE at v1.190 with Code Complete = YES, Product Verified
+= YES, and fresh Gap Analysis PASS. The current gate is
+`SPRINT40_FREEZE_REVIEW`; Sprint 41 was not entered.
 
 ## WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (first bounded slice)
 
-status: **READY — discovery output; awaiting Human/CTO execution authorization**
+status: **DONE — Code Complete = YES; Product Verified = YES**
 
 priority: **P0 / highest-priority shared Farm and RPG continuity blocker**
 
 architecture_before: **v1.189**
 
-architecture_after: **TBD — no architecture change is made by discovery**
+architecture_after: **v1.190**
 
 ### Measured product blocker
 
@@ -42,9 +42,9 @@ the existing Runtime event/property/condition/action/goal seams where they
 are sufficient. Preserve Runtime authority and do not invent a domain engine
 before the missing generic capability is proven.
 
-The work order must keep the first consequence intact and must make the
-continuation observable in the normal Game surface and Full Observatory. The
-scope is one bounded next step, not an open-ended progression framework.
+The first consequence remains intact and the continuation is observable in the
+normal Game surface, Runtime inspector, and Full Observatory. The scope is one
+bounded next step, not an open-ended progression framework.
 
 ### Dependencies
 
@@ -107,9 +107,41 @@ Do not expand this item into open-ended resource, inventory, economy, dialogue,
 combat, quest, or progression architecture. Do not create a second Sprint 40
 WO or enter Sprint 41.
 
+### Execution result
+
+The existing typed `BOOLEAN_EQUALS` condition now reads boolean properties from
+the current Runtime World. Farm composes:
+
+```text
+wheat-field.harvested=true
+  → later player interaction with harvest-quest
+  → harvest-quest.questCompleted=true
+```
+
+RPG composes:
+
+```text
+quest-giver.questAccepted=true
+  → later player interaction with main-quest
+  → main-quest.questCompleted=true
+```
+
+Both chains use a separate later `ENTITY_INTERACTION_REQUESTED` event and the
+existing trusted `SET_ENTITY_PROPERTY` action. The Runtime loop remains
+generic; archetype meaning is composed in the GameplayRule builder. Repeating
+either step is idempotent and produces a truthful `no_op` rather than a
+duplicate consequence.
+
+### Verification
+
+Full Shared/AI/Runtime/Renderer/Web suites, package TypeScript, package ESLint,
+direct Web production build, focused production-path tests, real Studio
+Farm/RPG chronology, Observatory/Runtime truth, and browser diagnostics passed.
+Root Turbo orchestration was blocked by the local no-Keychain TLS environment
+error; equivalent package-level gates and the direct affected Web build passed.
+
 ### Execution boundary
 
-This item is **READY only**. Sprint 40 discovery is complete at architecture
-v1.189. Human/CTO must separately authorize execution; no implementation,
-test run for a new WO, architecture advance, or Sprint 41 entry is permitted
-from the current discovery continuation.
+This item is **CLOSED** under the explicit Human/CTO authorization dated
+2026-09-03. The current gate is `SPRINT40_FREEZE_REVIEW`; no second WO or
+Sprint 41 entry is permitted.

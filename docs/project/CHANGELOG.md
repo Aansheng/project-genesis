@@ -1,5 +1,29 @@
 # Changelog
 
+### Sprint 40 — WO-S40-001 Generic Post-Interaction Gameplay Loop Continuity (v1.190, 2026-09-03)
+
+- Human/CTO authorized the single Sprint 40 work order after Sprint 39 was
+  frozen at v1.189. The selected blocker was **SUPPORTED ARCHETYPE
+  INTERACTIONS DO NOT CONTINUE INTO A BOUNDED MULTI-STEP GAMEPLAY LOOP**.
+- The existing typed `BOOLEAN_EQUALS` condition now reads boolean properties
+  from the current Runtime World. Farm composes
+  `wheat-field.harvested=true → harvest-quest.questCompleted=true`; RPG
+  composes `quest-giver.questAccepted=true → main-quest.questCompleted=true`.
+  Each arrow is a separate Player interaction event and uses the trusted
+  `SET_ENTITY_PROPERTY` action.
+- Real Studio Farm and RPG traces proved precondition failure, first-step
+  commit, second-step commit, and repeat no-op through Observatory and Runtime
+  inspectors. No workflow engine, Farm/RPG Runtime, inventory/resources,
+  dialogue/quest engine, or second input authority was introduced.
+- Focused and full package tests, package TypeScript, package ESLint with no
+  errors, direct Web production build, real Studio Product Verification, and
+  browser diagnostics passed. Root Turbo orchestration was unavailable in the
+  host because its local API client could not initialize TLS without a
+  Keychain; equivalent package-level gates passed.
+- `WO-S40-001`: Code Complete = YES; Product Verified = YES; DONE. Fresh
+  Sprint 40 Gap Analysis = PASS. Current gate is
+  `SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered.
+
 ### Sprint 40 — Cross-Genre Gameplay Loop Continuity Discovery (v1.189, 2026-09-03)
 
 - Human/CTO froze Sprint 39 at v1.189 after `WO-S39-001` completed with Code

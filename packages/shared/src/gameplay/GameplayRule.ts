@@ -46,6 +46,7 @@ export type GameplayEntityProperty =
   | 'visible'
   | 'harvested'
   | 'questAccepted'
+  | 'questCompleted'
 
 export type GameplayBooleanReference =
   | { readonly kind: 'eventPayload'; readonly key: 'isGrounded' | 'isActive' }

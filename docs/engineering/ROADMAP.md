@@ -193,22 +193,25 @@ committed state; Full Observatory agreed and repeated RPG input was a truthful
 no-op. Fresh Sprint 39 Gap Analysis is PASS. Human/CTO froze Sprint 39 at
 v1.189 on 2026-09-03.
 
-Sprint 40 Cross-Genre Gameplay Loop Continuity Discovery is now authorized as
-discovery-only. Real Studio Farm `做一个农场游戏` and RPG `创建一个 RPG`
-traces show the same first production break: after the committed
-`harvested=true` or `questAccepted=true` property, there is no downstream
-GameplayRule, target, objective, numeric/goal transition, or Player-readable
-next action. Existing generic conditions, properties, numeric state,
-`NUMBER_COMPARE`, events, property/add/remove/spawn actions, XP/Level, and
-goal/completion semantics were audited; no product code was changed.
+Sprint 40 Cross-Genre Gameplay Loop Continuity Discovery selected the blocker
+**SUPPORTED ARCHETYPE INTERACTIONS DO NOT CONTINUE INTO A BOUNDED
+MULTI-STEP GAMEPLAY LOOP**. Human/CTO then authorized and `WO-S40-001` is
+complete at v1.190 by reusing the existing generic GameplayRule and
+`SET_ENTITY_PROPERTY` seams: `BOOLEAN_EQUALS` reads current Runtime entity
+state, Farm gates quest completion on `wheat-field.gameplay-state.harvested`,
+and RPG gates main-quest completion on
+`quest-giver.gameplay-state.questAccepted`.
 
-The single selected blocker is **SUPPORTED ARCHETYPE INTERACTIONS DO NOT
-CONTINUE INTO A BOUNDED MULTI-STEP GAMEPLAY LOOP**. Provider Farm composition
-variance, inherited spatial/control composition, and next-state readability
-are secondary observations. Exactly one READY item was generated:
-`WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (first
-bounded slice)`. It is not executed, architecture remains v1.189, and the
-repository stops at `SPRINT40_DISCOVERY_REVIEW`; Sprint 41 is not entered.
+Real Studio Farm and RPG both prove two distinct, ordered, committed gameplay
+moments. The second interaction is rejected before the first, succeeds only
+after the first committed state, and repeats are truthful `no_op`s. Full
+Observatory and Runtime inspection agree with the visible outcomes. The
+generic Runtime contains no Farm/RPG world-type branch; archetype composition
+selects the semantic entities and rules. Provider Farm composition variance,
+inherited spatial/control composition, and next-state readability remain
+secondary observations. Full package gates and the direct Web build pass;
+the fresh Sprint 40 Gap Analysis is PASS. The current control-plane gate is
+`SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

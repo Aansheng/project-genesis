@@ -238,6 +238,7 @@ describe('GameplayRule foundation', () => {
       conditions: [
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'terrain' },
+        { type: 'ENTITY_ARCHETYPE_EQUALS', entity: { kind: 'eventTarget' }, archetype: 'Wheat Field' },
       ],
       actions: [
         { type: 'SET_ENTITY_PROPERTY', target: { kind: 'eventTarget' }, property: 'activated', value: true },
@@ -266,11 +267,88 @@ describe('GameplayRule foundation', () => {
       conditions: [
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
+        { type: 'ENTITY_ARCHETYPE_EQUALS', entity: { kind: 'eventTarget' }, archetype: 'Main Quest' },
       ],
       actions: [
         { type: 'SET_ENTITY_PROPERTY', property: 'activated', value: true },
         { type: 'SET_ENTITY_PROPERTY', property: 'questAccepted', value: true },
       ],
+    })
+  })
+
+  it('composes Farm and RPG continuation rules from the same boolean state gate', () => {
+    const farmWorld: GameWorldModel = Object.freeze({
+      worldType: 'farm',
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+        Object.freeze({ id: 'wheat-field', category: 'terrain', name: 'Wheat Field' }),
+        Object.freeze({ id: 'harvest-quest', category: 'quest', name: 'Harvest Quest' }),
+      ]),
+    })
+    const farmSpecification = new DefaultGameplaySpecificationBuilder().build({ semanticWorld: farmWorld })
+    const farmRules = new DefaultGameplayRuleBuilder().build({
+      semanticWorld: farmWorld,
+      gameplaySpecification: farmSpecification,
+    })
+    expect(farmSpecification.mechanics.find(item => item.id === 'farm-complete-harvest-quest')?.supportStatus).toBe('supported')
+    expect(farmRules.rules.map(item => item.ruleId)).toEqual([
+      'farm-interaction',
+      'farm-complete-harvest-quest',
+    ])
+    expect(farmRules.rules[1]).toMatchObject({
+      supportStatus: 'supported',
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
+        { type: 'ENTITY_ARCHETYPE_EQUALS', entity: { kind: 'eventTarget' }, archetype: 'Harvest Quest' },
+        {
+          type: 'BOOLEAN_EQUALS',
+          value: {
+            kind: 'entityProperty',
+            entity: { kind: 'archetype', archetype: 'Wheat Field' },
+            property: 'harvested',
+          },
+          expected: true,
+        },
+      ],
+      actions: [{ type: 'SET_ENTITY_PROPERTY', property: 'questCompleted', value: true }],
+    })
+
+    const rpgWorld: GameWorldModel = Object.freeze({
+      worldType: 'rpg',
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+        Object.freeze({ id: 'quest-giver', category: 'quest', name: 'Quest Giver' }),
+        Object.freeze({ id: 'main-quest', category: 'quest', name: 'Main Quest' }),
+      ]),
+    })
+    const rpgSpecification = new DefaultGameplaySpecificationBuilder().build({ semanticWorld: rpgWorld })
+    const rpgRules = new DefaultGameplayRuleBuilder().build({
+      semanticWorld: rpgWorld,
+      gameplaySpecification: rpgSpecification,
+    })
+    expect(rpgSpecification.mechanics.find(item => item.id === 'rpg-complete-main-quest')?.supportStatus).toBe('supported')
+    expect(rpgRules.rules.map(item => item.ruleId)).toEqual([
+      'rpg-interaction',
+      'rpg-complete-main-quest',
+    ])
+    expect(rpgRules.rules[1]).toMatchObject({
+      supportStatus: 'supported',
+      conditions: [
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
+        { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
+        { type: 'ENTITY_ARCHETYPE_EQUALS', entity: { kind: 'eventTarget' }, archetype: 'Main Quest' },
+        {
+          type: 'BOOLEAN_EQUALS',
+          value: {
+            kind: 'entityProperty',
+            entity: { kind: 'archetype', archetype: 'Quest Giver' },
+            property: 'questAccepted',
+          },
+          expected: true,
+        },
+      ],
+      actions: [{ type: 'SET_ENTITY_PROPERTY', property: 'questCompleted', value: true }],
     })
   })
 

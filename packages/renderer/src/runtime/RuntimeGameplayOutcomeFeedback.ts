@@ -48,7 +48,11 @@ export function projectRuntimeGameplayOutcomeFeedback(
     const hasCharacteristicInteraction = result.actionResults.some(actionResult =>
       actionResult.status === 'executed'
       && actionResult.mutation?.type === 'ENTITY_PROPERTY_UPDATED'
-      && (actionResult.mutation.property === 'harvested' || actionResult.mutation.property === 'questAccepted'),
+      && (
+        actionResult.mutation.property === 'harvested'
+        || actionResult.mutation.property === 'questAccepted'
+        || actionResult.mutation.property === 'questCompleted'
+      ),
     )
 
     result.actionResults.forEach((actionResult, actionIndex) => {
@@ -96,6 +100,12 @@ export function projectRuntimeGameplayOutcomeFeedback(
         entityId = mutation.targetEntityId
         kind = 'interaction'
         label = 'Quest accepted'
+        position = positionOf(actionResult.worldAfter, entityId)
+          ?? positionOf(actionResult.worldBefore, entityId)
+      } else if (mutation.type === 'ENTITY_PROPERTY_UPDATED' && mutation.property === 'questCompleted') {
+        entityId = mutation.targetEntityId
+        kind = 'interaction'
+        label = 'Quest completed'
         position = positionOf(actionResult.worldAfter, entityId)
           ?? positionOf(actionResult.worldBefore, entityId)
       }

@@ -127,6 +127,7 @@ describe('Runtime gameplay outcome feedback projection', () => {
   it.each([
     ['harvested', 'Harvested'],
     ['questAccepted', 'Quest accepted'],
+    ['questCompleted', 'Quest completed'],
   ] as const)('projects a committed %s state as target-specific interaction feedback', (property, label) => {
     const target = entity('target-1', 'terrain', 120, 300)
     const after = Object.freeze({

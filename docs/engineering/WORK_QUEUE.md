@@ -6,51 +6,48 @@ not a database or task service.
 queue_version: 1
 updated: 2026-09-03
 current_sprint: Sprint 40
-current_work_order: WO-S40-001
-current_work_order_status: READY — discovery complete; not executed; architecture remains v1.189
-current_control_plane_work_order: SPRINT40_DISCOVERY_REVIEW
-current_control_plane_work_order_status: READY — one Sprint 40 WO generated; Human/CTO execution review pending
-last_completed_work_order: WO-S39-001 — Generic Archetype Interaction Consequence
-last_completed_product_work_order: WO-S39-001
+current_work_order: NONE — WO-S40-001 DONE
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+current_control_plane_work_order: SPRINT40_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — fresh Sprint 40 Gap Analysis PASS; Human/CTO freeze review pending
+last_completed_work_order: WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity
+last_completed_product_work_order: WO-S40-001
 last_completed_control_plane_work_order: SPRINT39_FREEZE_REVIEW
-next_work_order: WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (first bounded slice); READY only; do not execute in this continuation or enter Sprint 41
-continuation_mode: DISCOVERY_ONLY_STOP
+next_work_order: NONE — stop at SPRINT40_FREEZE_REVIEW; do not enter Sprint 41
+continuation_mode: EXECUTION_COMPLETE_STOP
 primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT40_DISCOVERY_REVIEW
 
-status: READY — Sprint 40 discovery complete; exactly one READY product WO;
-  no implementation executed
+status: DONE — discovery PASS; WO-S40-001 subsequently authorized and completed
 architecture: v1.189
-decision: Human/CTO froze Sprint 39 at v1.189 and authorized Sprint 40
-  Cross-Genre Gameplay Loop Continuity Discovery on 2026-09-03. The real
-  Farm/RPG flows were traced after Harvest and Quest Accept. Select exactly
-  one shared blocker, generate exactly one READY WO, and stop. Do not execute
-  the WO or enter Sprint 41.
+decision: Human/CTO froze Sprint 39 at v1.189, accepted the discovery result,
+  and authorized `WO-S40-001` on 2026-09-03. The single bounded generic
+  continuation was implemented and Product Verified; Sprint 41 is not entered.
 evidence: `docs/project/SPRINT40_PRODUCT_GAP_DISCOVERY.md` records the real
   Studio traces, generic primitive audit, priority decision, Provider/spatial/
   readability observations, and empty browser warn/error diagnostics.
-next_action: Human/CTO review and separately authorize `WO-S40-001` if the
-  selected bounded continuation slice is accepted. No product code change or
-  Sprint 41 entry is allowed from this gate.
+next_action: Historical discovery gate closed by authorization. Current gate
+  is `SPRINT40_FREEZE_REVIEW`; do not execute a second WO or enter Sprint 41.
 
 ## SPRINT40_AUTHORIZATION — Cross-Genre Gameplay Loop Continuity Discovery
 
-status: ACCEPTED — discovery only
+status: ACCEPTED — discovery and subsequent WO execution authorized
 architecture_before: v1.189
-architecture_after: v1.189 for discovery; no product architecture change
+architecture_after: v1.190 after WO-S40-001
 decision: Human/CTO froze Sprint 39 at v1.189 on 2026-09-03 and authorized
   Sprint 40 discovery only. Use real Studio Farm `做一个农场游戏` and RPG
   `创建一个 RPG`; perform the current characteristic interactions; trace
   the first committed consequence and any next Rule/target/objective/state;
   audit existing generic primitives; select exactly one blocker; generate
-  exactly one READY WO; then stop.
+  exactly one READY WO. The later explicit authorization allowed only that
+  WO, followed by fresh Gap Analysis and freeze review.
 constraints: Do not modify product code, execute a new WO, preselect a genre
   system or multi-stage framework, or enter Sprint 41.
 
 ## SPRINT40_PRODUCT_GAP_DISCOVERY
 
-status: DONE — discovery complete; exactly one READY product WO generated
+status: DONE — discovery PASS; selected WO subsequently DONE
 architecture_before: v1.189
 architecture_after: v1.189
 trace: CreateWorld → Semantic World → Game DSL → Runtime → current Enter
@@ -72,7 +69,7 @@ shared_capability: A bounded generic post-interaction continuation consumer
   Runtime truth.
 selected_work_order: WO-S40-001 — Generic Post-Interaction Gameplay Loop
   Continuity (first bounded slice)
-selected_work_order_status: READY — not executed
+selected_work_order_status: DONE — Code Complete = YES; Product Verified = YES
 alternatives_deprioritized: Provider Farm 5-vs-8 composition variance is
   candidate-only and not the first break; inherited Farm/RPG spatial/control
   composition adds travel friction but both first interactions are reachable;
@@ -81,14 +78,14 @@ non_goals: No product code, new architecture, Provider repair, entity-count
   gate, spatial redesign, Renderer-only workaround, InventorySystem,
   ResourceSystem, QuestEngine, ObjectiveManager, DialogueEngine, FarmRuntime,
   RPGRuntime, multi-stage progression framework, second WO, or Sprint 41.
-next_gate: SPRINT40_DISCOVERY_REVIEW; stop after the single READY WO.
+next_gate: SPRINT40_FREEZE_REVIEW; no second WO or Sprint 41.
 
 ## WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity (first bounded slice)
 
-status: READY — discovery output; not authorized for execution
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 / highest-priority shared Farm and RPG continuity blocker
 architecture_before: v1.189
-architecture_after: TBD — discovery makes no architecture change
+architecture_after: v1.190
 mission: After the existing Farm Harvest and RPG Quest Accept consequences,
   implement one bounded shared generic continuation through existing Runtime
   events/properties/conditions/actions/targets/objective semantics. Preserve
@@ -109,8 +106,34 @@ forbidden_scope: No InventorySystem, ResourceSystem, QuestEngine,
   progression framework, Farm/RPG engine, Provider completeness repair,
   entity-count gate, spatial redesign, new input authority, legacy
   reconnection, second Sprint 40 WO, or Sprint 41.
-execution_boundary: READY only. Human/CTO must separately authorize this WO;
-  do not execute it in this continuation and do not advance from v1.189.
+execution_boundary: CLOSED — Human/CTO authorized this single WO on 2026-09-03;
+  no second Sprint 40 WO or Sprint 41 entry.
+
+verification: Full Shared/AI/Runtime/Renderer/Web suites, package TypeScript,
+  package ESLint, direct Web production build, targeted production-path tests,
+  real Studio Farm/RPG verification, Observatory/Runtime truth, and browser
+  diagnostics passed. Root Turbo orchestration was blocked by the local
+  no-Keychain TLS environment error; package-level and direct-build gates
+  passed.
+execution_result: Existing BOOLEAN_EQUALS now reads current Runtime boolean
+  entity state. Farm composes `wheat-field.harvested=true` →
+  `harvest-quest.questCompleted=true`; RPG composes
+  `quest-giver.questAccepted=true` → `main-quest.questCompleted=true`.
+  Real Studio proved precondition failure, first commit, second commit, and
+  repeated no-op for both archetypes. No workflow engine, domain Runtime, or
+  second input authority was added.
+next_gate: SPRINT40_FREEZE_REVIEW
+
+## SPRINT40_FREEZE_REVIEW
+
+status: READY — WO-S40-001 DONE; fresh Sprint 40 Gap Analysis PASS
+architecture: v1.190
+evidence: `WO-S40-001`, `docs/project/SPRINT40_GAP_ANALYSIS.md`, and
+  `docs/adr/ADR-0300-generic-post-interaction-gameplay-loop-continuity.md`.
+  Real Studio Observatory and Runtime inspectors agree for Farm and RPG;
+  repeated second interactions are truthful no-ops; full package gates pass.
+next_action: Human/CTO freeze review only. Do not create another Sprint 40 WO
+  and do not enter Sprint 41.
 
 ## SPRINT39_AUTHORIZATION — Cross-Genre Interaction Meaning Discovery
 

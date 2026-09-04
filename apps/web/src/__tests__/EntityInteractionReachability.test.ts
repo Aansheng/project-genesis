@@ -76,7 +76,7 @@ function movePlayerNear(runtime: ProductionInteractionRuntime, targetId: string)
   const initialPlayer = position(runtime.store.getWorld(), 'player')
   const direction = target.x >= initialPlayer.x ? 'ArrowRight' : 'ArrowLeft'
   runtime.target.dispatchEvent(new KeyboardEvent('keydown', { key: direction, bubbles: true }))
-  for (let index = 0; index < 200; index += 1) {
+  for (let index = 0; index < 300; index += 1) {
     const player = position(runtime.store.getWorld(), 'player')
     if (Math.abs(target.x - player.x) <= 24) break
     tick(runtime)
@@ -103,7 +103,7 @@ function pressEnter(runtime: ProductionInteractionRuntime) {
   return result
 }
 
-describe('WO-S39-001: generic archetype interaction consequence', () => {
+describe('WO-S40-001: generic post-interaction gameplay loop continuity', () => {
   it.each([
     ['做一个农场游戏', 'farm', 'farm-interaction', 'terrain', 'harvested'] as const,
     ['创建一个 RPG', 'rpg', 'rpg-interaction', 'quest', 'questAccepted'] as const,
@@ -160,6 +160,72 @@ describe('WO-S39-001: generic archetype interaction consequence', () => {
     expect(noTarget.gameplayEvents).not.toContainEqual(expect.objectContaining({ type: 'ENTITY_INTERACTION_REQUESTED' }))
     expect(noTarget.gameplayRuleResults).toEqual([])
     expect(noTarget.world.entities).toEqual(beforeNoTarget.entities)
+    runtime.input.detach()
+  })
+
+  it.each([
+    ['做一个农场游戏', 'farm', 'harvest-quest', 'farm-complete-harvest-quest'] as const,
+    ['创建一个 RPG', 'rpg', 'main-quest', 'rpg-complete-main-quest'] as const,
+  ])('proves a bounded second interaction is gated by the first for %s', (input, worldType, completionTargetId, completionRuleId) => {
+    const runtime = createProductionRuntime(input, worldType)
+    settle(runtime)
+
+    const firstTargetId = worldType === 'farm' ? 'wheat-field' : 'quest-giver'
+    expect(runtime.semanticWorld.entities.some(entity => entity.id === firstTargetId)).toBe(true)
+    expect(runtime.semanticWorld.entities.some(entity => entity.id === completionTargetId)).toBe(true)
+
+    // The second target cannot commit before the first interaction.
+    movePlayerNear(runtime, completionTargetId)
+    const beforePrerequisite = pressEnter(runtime)
+    expect(beforePrerequisite.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: completionRuleId,
+      status: 'conditions_failed',
+      committed: false,
+    }))
+    expect(runtime.store.getWorld().entities.find(entity => entity.id === completionTargetId)?.components).not.toContainEqual(expect.objectContaining({
+      type: 'gameplay-state',
+      properties: expect.objectContaining({ questCompleted: true }),
+    }))
+
+    movePlayerNear(runtime, firstTargetId)
+    const first = pressEnter(runtime)
+    expect(first.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: worldType === 'farm' ? 'farm-interaction' : 'rpg-interaction',
+      status: 'executed',
+      committed: true,
+    }))
+
+    movePlayerNear(runtime, completionTargetId)
+    const second = pressEnter(runtime)
+    expect(second.gameplayEvents).toContainEqual(expect.objectContaining({
+      type: 'ENTITY_INTERACTION_REQUESTED',
+      targetEntityId: completionTargetId,
+    }))
+    expect(second.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: completionRuleId,
+      status: 'executed',
+      committed: true,
+      conditionResult: expect.objectContaining({ status: 'passed' }),
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({
+          actionType: 'SET_ENTITY_PROPERTY',
+          status: 'executed',
+          mutation: expect.objectContaining({ property: 'questCompleted', value: true }),
+        }),
+      ]),
+    }))
+    expect(runtime.store.getWorld().entities.find(entity => entity.id === completionTargetId)?.components).toContainEqual(expect.objectContaining({
+      type: 'gameplay-state',
+      properties: expect.objectContaining({ questCompleted: true }),
+    }))
+
+    const repeated = pressEnter(runtime)
+    expect(repeated.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: completionRuleId,
+      status: 'executed',
+      committed: false,
+      actionResults: [expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' })],
+    }))
     runtime.input.detach()
   })
 })

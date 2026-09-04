@@ -1,6 +1,6 @@
-# Gameplay Capability Matrix — Sprint 39 Frozen / Sprint 40 Discovery Complete
+# Gameplay Capability Matrix — Sprint 40 Execution Complete / Freeze Review
 
-Architecture version: v1.189 (Sprint 30 through Sprint 38 FROZEN;
+Architecture version: v1.190 (Sprint 30 through Sprint 39 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
@@ -10,8 +10,9 @@ Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
 `WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Sprint 38
 Gap Analysis PASS; Sprint 38 FROZEN; `WO-S39-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189; Sprint 39
-FROZEN; Sprint 40 discovery complete with exactly one READY WO; Sprint 41 not
-entered)
+FROZEN; `WO-S40-001` Code Complete = YES; Product Verified = YES; fresh
+Sprint 40 Gap Analysis PASS; current gate `SPRINT40_FREEZE_REVIEW`; Sprint 41
+not entered)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -83,14 +84,16 @@ feedback derives `Harvested` / `Quest accepted` only from committed
 mutations. This does not add a Farm/RPG engine, resource/inventory/economy
 loop, dialogue/quest framework, or generic interaction-outcome framework.
 
-Sprint 40 discovery adds no Runtime capability. Real Studio traces confirm
-that Farm and RPG stop after the first characteristic property commit: no
-downstream GameplayRule, target, objective, numeric/goal transition, or
-Player-readable next action is currently defined. Existing generic primitives
-remain available for a later bounded continuation audit. Exactly one READY
-work order, `WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity
-(first bounded slice)`, is recorded outside this capability matrix and has not
-been executed.
+Sprint 40 promotes one bounded generic state-conditioned continuation at the
+existing event → GameplayRule → Runtime property boundary. `BOOLEAN_EQUALS`
+now evaluates typed boolean entity properties from the current Runtime World.
+Farm composes `wheat-field.harvested=true` → later `harvest-quest` interaction
+→ `questCompleted=true`; RPG composes `quest-giver.questAccepted=true` → later
+`main-quest` interaction → `questCompleted=true`. Each is a separate Player
+interaction moment, and repeated completion is a truthful no-op. No workflow
+engine, domain Runtime, inventory/resources system, or open-ended progression
+framework is implied. The fresh Gap Analysis is PASS and the current gate is
+`SPRINT40_FREEZE_REVIEW`.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -119,17 +122,18 @@ been executed.
 | `SPAWN_ENTITY` rule primitive | Gameplay action schema | `supported` | Trusted executor resolves an existing semantic template, composes one Runtime entity, and commits immutable `WorldMutator.addEntity()`; no Semantic World rebuild or provider call occurs. |
 | `APPLY_VELOCITY` rule primitive | Gameplay action schema | `supported` | Generic trusted action reuses `VelocityComponent` and immutable `WorldMutator.replaceEntity`; set/add modes are bounded and deterministic. |
 | `CHANGE_NUMERIC_STATE` | Gameplay action schema | `supported` | Runtime owns an immutable keyed finite-number map and commits deterministic additive deltas through the existing GameplayRuleExecutor; the lifecycle baseline is `experience=0, level=1`, with `experience` and `level` as the bounded Sprint 16 use case. |
-| `SET_ENTITY_PROPERTY` | Gameplay action schema | `supported` | Trusted Runtime execution sets the bounded `activated`, `enabled`, `visible`, `harvested`, or `questAccepted` property in an immutable `gameplay-state` component and emits `ENTITY_PROPERTY_UPDATED`; equal values are truthful no-ops. |
+| `BOOLEAN_EQUALS` condition | Gameplay condition schema | `supported` | `WO-S40-001` evaluates typed boolean event/entity-property references against `true` or `false`; current Runtime entity state is read for a later Rule gate, while unsupported reference shapes fail closed. |
+| `SET_ENTITY_PROPERTY` | Gameplay action schema | `supported` | Trusted Runtime execution sets the bounded `activated`, `enabled`, `visible`, `harvested`, `questAccepted`, or `questCompleted` property in an immutable `gameplay-state` component and emits `ENTITY_PROPERTY_UPDATED`; equal values are truthful no-ops. |
 | `DAMAGE_ENTITY` | Gameplay action schema | `supported` | Trusted generic action validates positive finite damage, resolves current Health, uses immutable `WorldMutator.replaceEntity`, and commits Runtime session `failed` when a player reaches zero. Failed execution pauses later gameplay rules until explicit same-world respawn. |
 | Player-directed short-range offense | Generic top-down Runtime input + Gameplay Rule composition | `supported` | One `Space` edge selects one positive-Health Enemy within finite range `48` by nearest distance and stable ID tie-break, emits `ENTITY_ATTACK_REQUESTED`, and applies trusted `DAMAGE_ENTITY`; Level 1 commits 25 damage, while Level 2+ commits 50 through mutually exclusive `NUMBER_COMPARE(gameState.level)` Rule variants. The existing defeat/XP/fair-start/replacement path remains active. |
 | Enemy contact danger | Survival composition over generic rule primitives | `supported` | `ENTITY_CONTACT_STARTED` remains a separate Enemy→Player contact rule that applies 1 damage to Player Health; it is no longer the Player's automatic Enemy-offense path. |
 | `COMPLETE_GOAL` | Gameplay action schema | `supported` | Trusted goal-contact rules commit `RuntimeGameplaySessionState` from `active` to `completed`; repeated completion is an idempotent no-op and failed sessions cannot complete before respawn. |
 | Contact direction condition | Gameplay condition schema | `supported` | `ENTITY_CONTACT_STARTED.direction` is required and derived from Runtime-owned AABB crossing/overlap geometry; evaluator supports top/non-top and narrow negation. |
-| `NUMBER_COMPARE` condition | Gameplay condition schema | `supported` | Runtime evaluates finite typed event-payload, entity-property, and Runtime `gameState` references with `eq/neq/gt/gte/lt/lte`; no expression language or arbitrary evaluation is introduced. |
+| `NUMBER_COMPARE` condition | Gameplay condition schema | `supported` | Runtime evaluates finite typed event-payload, entity-property, and Runtime `gameState` references with `eq/neq/gt/gte/lt/lte`; no expression language or arbitrary evaluation is introduced. The Sprint 40 boolean gate is a separate typed comparator. |
 | Trigger matching / condition evaluation / action execution | Gameplay rule execution | `partially supported` | `DefaultGameplayRuleMatcher`, `DefaultGameplayConditionEvaluator`, and trusted generic actions run after the event batch; the two-action stomp uses staged all-or-nothing commit; no eval, scripts, generated code, or generic workflow engine exists. |
 | Platformer loop | `GameLoopSpecification` + defaults | `partially supported` | Move/jump/physics, contact facts, collectible removal, collect-reward `experience +1`, enemy stomp, non-top Health damage, Runtime failure/respawn, and current-session goal completion execute; score and game-over remain deferred. |
-| Farm interaction | Mechanics and interaction intent | `supported` | `WO-S39-001` exposes `Enter — Interact`, selects one nearby eligible field-like `terrain`, and commits `gameplay-state.activated = true` plus `harvested = true` through the generic interaction event and `farm-interaction` Rule. The committed result projects `Harvested`; crop lifecycle, resources, inventory, and economy remain deferred. |
-| RPG interaction | Mechanics and interaction intent | `supported` | `WO-S39-001` exposes the same `Enter — Interact` path, selects one nearby `quest`, and commits `gameplay-state.activated = true` plus `questAccepted = true` through the generic interaction event and `rpg-interaction` Rule. The committed result projects `Quest accepted`; dialogue, quest progression, combat, and stats remain deferred. |
+| Farm interaction | Mechanics and interaction intent | `supported` | `WO-S39-001` exposes `Enter — Interact`, selects one nearby eligible field-like `terrain`, and commits `activated=true, harvested=true`; `WO-S40-001` adds a later `harvest-quest` target gated by `wheat-field.harvested=true` and commits `questCompleted=true`. Crop lifecycle, resources, inventory, and economy remain deferred. |
+| RPG interaction | Mechanics and interaction intent | `supported` | `WO-S39-001` exposes the same `Enter — Interact` path, selects one nearby `quest`, and commits `activated=true, questAccepted=true`; `WO-S40-001` adds a later `main-quest` target gated by `quest-giver.questAccepted=true` and commits `questCompleted=true`. Dialogue, quest progression beyond this bounded state, combat, and stats remain deferred. |
 | Collection / collectibles | Mechanics, optional goals/targets | `partially supported` | A player contact with semantic category `item` can remove the target and the bounded collect-reward rule can add `experience`; inventory, score, and `ITEM_COLLECTED` remain absent. |
 | Damage / health | Combat and failure intent | `partially supported` | Player/enemy/npc Health is a generic Runtime component and non-top contact can decrease current Health; lethal player damage commits Runtime `failed`, and same-world respawn restores Health/active play. |
 | Enemy spawn | Spawn rule intent | `supported` | Bounded `ENTITY_REMOVED` with authoritative `health <= 0` triggers one generic Runtime replacement Enemy in the active Survival session; periodic waves/count/timer semantics remain deferred. |
@@ -143,7 +147,7 @@ been executed.
 | Experience / levels | Progression intent | `partially supported` | Supported collect-reward or explicit Survival Enemy defeat adds `experience +1`; a typed `experience >= 1 AND level < 2` rule commits exactly one Level 1 → Level 2 transition. The committed Level 2 now selects the bounded 50-damage Survival offense variant; skill/upgrade state and later thresholds remain deferred. |
 | Progression-conditioned gameplay capability selection | Runtime progression state → existing Gameplay Rule action variants | `supported` | `WO-S35-001` is complete at v1.185: current Runtime progression is read at attack evaluation time; mutually exclusive `level < 2` / `level >= 2` conditions select fixed `DAMAGE_ENTITY` values 25 / 50. No modifier/stat framework or additional threshold is implied. |
 | Waves / escalating pressure | Progression/spawn intent | `deferred` | Survivor defaults describe waves/pressure without a wave executor. |
-| Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, bounded SET_ENTITY_PROPERTY, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
+| Runtime gameplay rule engine | Bounded S15-007 execution seam | `partially supported` | Current supported rules execute after finalized Runtime events; ENEMY STOMP, generic DAMAGE_ENTITY, current-session COMPLETE_GOAL, finite CHANGE_NUMERIC_STATE, typed BOOLEAN_EQUALS, bounded SET_ENTITY_PROPERTY, and one removal-triggered SPAWN_ENTITY slice are bounded, with staged all-or-nothing semantics for multi-action rules. This is not a generic manager, workflow engine, transaction framework, or arbitrary-code runtime. |
 
 ## Audit classification
 
@@ -216,5 +220,7 @@ quest targets, with committed labeled feedback. Code Complete and Product
 Verified are YES and the fresh Sprint 39 Gap Analysis is PASS. The Provider
 5-vs-8 composition variance and inherited Farm/RPG side-view/Space-jump
 behavior remain separate observations. Sprint 39 is FROZEN at v1.189 by
-Human/CTO decision. Sprint 40 discovery adds no capability and has generated
-exactly one READY `WO-S40-001`; Sprint 41 is not entered.
+Human/CTO decision. Sprint 40 `WO-S40-001` advances the matrix to v1.190 with
+one bounded typed boolean state gate and the Farm/RPG two-step proof. Fresh
+Gap Analysis is PASS; `SPRINT40_FREEZE_REVIEW` is current and Sprint 41 is
+not entered.

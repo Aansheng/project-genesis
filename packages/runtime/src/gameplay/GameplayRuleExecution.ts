@@ -4,6 +4,7 @@ import type {
   GameWorldModel,
   GameplayAction,
   GameplayActionValue,
+  GameplayBooleanReference,
   GameplayContactDirection,
   GameplayCondition,
   GameplayEntityProperty,
@@ -320,6 +321,27 @@ function resolveNumericReference(
   return finiteNumber(entity.components?.find(isHealthComponent)?.properties.current)
 }
 
+function resolveBooleanReference(
+  reference: GameplayBooleanReference,
+  event: GameplayEvent,
+  context: GameplayRuleExecutionContext,
+): boolean | undefined {
+  if (reference.kind === 'eventPayload') {
+    const value = event.payload?.[reference.key]
+    return typeof value === 'boolean' ? value : undefined
+  }
+  if (reference.kind === 'gameState') return undefined
+
+  const entity = resolveSelector(reference.entity, event, context)
+  if (!entity) return undefined
+  const state = entity.components?.find(component => component.type === GAMEPLAY_STATE_COMPONENT_TYPE)
+  const value = state?.properties[reference.property]
+  // A missing boolean flag is the typed false/default state. This lets a
+  // later rule be truthfully gated before the first interaction commits it.
+  if (value === undefined) return false
+  return typeof value === 'boolean' ? value : undefined
+}
+
 function numericComparisonMatches(
   value: number,
   operator: GameplayNumericOperator,
@@ -495,7 +517,13 @@ export class DefaultGameplayConditionEvaluator implements GameplayConditionEvalu
     }
 
     if (condition.type === 'BOOLEAN_EQUALS') {
-      return conditionResult(condition.type, 'unsupported', 'condition_not_executable')
+      const value = resolveBooleanReference(condition.value, event, context)
+      if (value === undefined) return conditionResult(condition.type, 'failed', 'boolean_value_unavailable')
+      return conditionResult(
+        condition.type,
+        value === condition.expected ? 'passed' : 'failed',
+        'boolean_comparison_mismatch',
+      )
     }
 
     if (condition.type === 'ENTITY_ID_EQUALS') {

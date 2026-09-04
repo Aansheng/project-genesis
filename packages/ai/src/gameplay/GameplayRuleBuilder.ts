@@ -4,6 +4,7 @@ import type {
   GameplayAction,
   GameplayCapabilityCatalog,
   GameplayCondition,
+  GameplayEntitySelector,
   GameplayRuleSet,
   GameplayRuleSpecification,
   GameplayRuleConditionMode,
@@ -57,6 +58,10 @@ function targetSelector(): { readonly kind: 'eventTarget' } {
   return Object.freeze({ kind: 'eventTarget' })
 }
 
+function archetypeSelector(archetype: string): GameplayEntitySelector {
+  return Object.freeze({ kind: 'archetype', archetype })
+}
+
 function interactionTrigger(
   player: ReturnType<typeof playerSelector>,
   target: ReturnType<typeof targetSelector>,
@@ -69,24 +74,44 @@ function interactionTrigger(
 }
 
 function categoryCondition(
-  entity: ReturnType<typeof playerSelector> | ReturnType<typeof targetSelector>,
+  entity: GameplayEntitySelector,
   category: EntityCategory,
 ): GameplayCondition {
   return Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS', entity, category })
 }
 
+function archetypeCondition(entity: GameplayEntitySelector, archetype: string): GameplayCondition {
+  return Object.freeze({ type: 'ENTITY_ARCHETYPE_EQUALS', entity, archetype })
+}
+
 function idCondition(
-  entity: ReturnType<typeof playerSelector> | ReturnType<typeof targetSelector>,
+  entity: GameplayEntitySelector,
   entityId: string,
 ): GameplayCondition {
   return Object.freeze({ type: 'ENTITY_ID_EQUALS', entity, entityId })
 }
 
 function componentCondition(
-  entity: ReturnType<typeof playerSelector> | ReturnType<typeof targetSelector>,
+  entity: GameplayEntitySelector,
   componentType: 'health',
 ): GameplayCondition {
   return Object.freeze({ type: 'COMPONENT_EXISTS', entity, componentType })
+}
+
+function booleanEntityCondition(
+  entity: GameplayEntitySelector,
+  property: 'harvested' | 'questAccepted' | 'questCompleted',
+  expected: boolean,
+): GameplayCondition {
+  return Object.freeze({
+    type: 'BOOLEAN_EQUALS',
+    value: Object.freeze({
+      kind: 'entityProperty' as const,
+      entity,
+      property,
+    }),
+    expected,
+  })
 }
 
 function contact(direction: 'top' | 'bottom' | 'left' | 'right', negated = false): GameplayCondition {
@@ -166,6 +191,35 @@ function farmHarvestable(world: GameWorldModel): GameWorldModel['entities'][numb
     entity.category === 'terrain'
       && (harvestable.test(entity.id) || harvestable.test(entity.name)),
   ) ?? world.entities.find(entity => entity.category === 'terrain')
+}
+
+function farmCompletionTarget(
+  world: GameWorldModel,
+  excludedId: string | undefined,
+): GameWorldModel['entities'][number] | undefined {
+  return world.entities.find(entity =>
+    entity.category === 'quest'
+      && entity.id !== excludedId
+      && (/harvest|farm|crop|deliver|quest/iu.test(entity.id) || /harvest|farm|crop|deliver|quest/iu.test(entity.name)),
+  ) ?? world.entities.find(entity => entity.category === 'quest' && entity.id !== excludedId)
+}
+
+function rpgQuestGiver(world: GameWorldModel): GameWorldModel['entities'][number] | undefined {
+  return world.entities.find(entity =>
+    entity.category === 'quest'
+      && (/quest.?giver|giver/iu.test(entity.id) || /quest.?giver|giver/iu.test(entity.name)),
+  ) ?? world.entities.find(entity => entity.category === 'quest')
+}
+
+function rpgCompletionTarget(
+  world: GameWorldModel,
+  excludedId: string | undefined,
+): GameWorldModel['entities'][number] | undefined {
+  return world.entities.find(entity =>
+    entity.category === 'quest'
+      && entity.id !== excludedId
+      && (/main.?quest|final.?quest/iu.test(entity.id) || /main.?quest|final.?quest/iu.test(entity.name)),
+  ) ?? world.entities.find(entity => entity.category === 'quest' && entity.id !== excludedId)
 }
 
 function deterministicRules(
@@ -257,7 +311,11 @@ function deterministicRules(
         'farm-interaction',
         'Harvest farm field',
         'farm-interact',
-        [categoryCondition(player, 'player'), categoryCondition(target, interactable.category)],
+        [
+          categoryCondition(player, 'player'),
+          categoryCondition(target, interactable.category),
+          archetypeCondition(target, interactable.name),
+        ],
         [
           Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true }),
           Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'harvested', value: true }),
@@ -266,20 +324,60 @@ function deterministicRules(
         interactionTrigger(player, target),
       ))
     }
+
+    const completionTarget = farmCompletionTarget(world, interactable?.id)
+    if (interactable && completionTarget && hasMechanic(specification, 'farm-complete-harvest-quest')) {
+      rules.push(rule(
+        'farm-complete-harvest-quest',
+        'Complete harvest quest',
+        'farm-complete-harvest-quest',
+        [
+          categoryCondition(player, 'player'),
+          categoryCondition(target, completionTarget.category),
+          archetypeCondition(target, completionTarget.name),
+          booleanEntityCondition(archetypeSelector(interactable.name), 'harvested', true),
+        ],
+        [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'questCompleted', value: true })],
+        'all',
+        interactionTrigger(player, target),
+      ))
+    }
   }
 
   if (world.worldType === 'rpg' && hasMechanic(specification, 'rpg-interact')) {
-    const interactable = world.entities.find(entity => entity.category === 'quest')
+    const interactable = rpgQuestGiver(world)
     if (interactable) {
       rules.push(rule(
         'rpg-interaction',
         'Accept RPG quest',
         'rpg-interact',
-        [categoryCondition(player, 'player'), categoryCondition(target, interactable.category)],
+        [
+          categoryCondition(player, 'player'),
+          categoryCondition(target, interactable.category),
+          archetypeCondition(target, interactable.name),
+        ],
         [
           Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true }),
           Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'questAccepted', value: true }),
         ],
+        'all',
+        interactionTrigger(player, target),
+      ))
+    }
+
+    const completionTarget = rpgCompletionTarget(world, interactable?.id)
+    if (interactable && completionTarget && hasMechanic(specification, 'rpg-complete-main-quest')) {
+      rules.push(rule(
+        'rpg-complete-main-quest',
+        'Complete main quest',
+        'rpg-complete-main-quest',
+        [
+          categoryCondition(player, 'player'),
+          categoryCondition(target, completionTarget.category),
+          archetypeCondition(target, completionTarget.name),
+          booleanEntityCondition(archetypeSelector(interactable.name), 'questAccepted', true),
+        ],
+        [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'questCompleted', value: true })],
         'all',
         interactionTrigger(player, target),
       ))

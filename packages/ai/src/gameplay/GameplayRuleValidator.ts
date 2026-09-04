@@ -50,6 +50,7 @@ const PROPERTY_NAMES: readonly GameplayEntityProperty[] = [
   'visible',
   'harvested',
   'questAccepted',
+  'questCompleted',
 ]
 const NUMERIC_PAYLOAD_KEYS = ['x', 'y', 'velocityX', 'velocityY', 'amount', 'health'] as const
 const BOOLEAN_PAYLOAD_KEYS = ['isGrounded', 'isActive'] as const
@@ -329,7 +330,7 @@ function normalizeAction(
       return typeof value.amount === 'number' && Number.isFinite(value.amount) && value.amount > 0 ? Object.freeze({ type, target, amount: value.amount }) : undefined
     }
     if (type === 'SET_ENTITY_PROPERTY') {
-      if (!PROPERTY_NAMES.includes(value.property as GameplayEntityProperty)) errors.push(`${path}.property must be activated, enabled, visible, harvested, or questAccepted`)
+      if (!PROPERTY_NAMES.includes(value.property as GameplayEntityProperty)) errors.push(`${path}.property must be activated, enabled, visible, harvested, questAccepted, or questCompleted`)
       if (!primitive(value.value)) errors.push(`${path}.value must be a JSON primitive`)
       return PROPERTY_NAMES.includes(value.property as GameplayEntityProperty) && primitive(value.value)
         ? Object.freeze({ type, target, property: value.property as GameplayEntityProperty, value: value.value })

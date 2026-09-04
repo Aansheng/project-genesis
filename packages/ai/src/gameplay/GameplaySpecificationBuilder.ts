@@ -236,6 +236,10 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
   }
 
   if (world.worldType === 'farm') {
+    const harvestQuest = world.entities.find(entity =>
+      entity.category === 'quest'
+      && (/harvest|farm|crop|deliver|quest/iu.test(entity.id) || /harvest|farm|crop|deliver|quest/iu.test(entity.name)),
+    )
     return Object.freeze({
       gameLoop: Object.freeze({
         objective: 'Perform farm activities and interact with the world.',
@@ -251,12 +255,28 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanics: Object.freeze([
         mechanic('player-move', 'movement', 'Player moves around the farm.', 'supported', playerId),
         mechanic('farm-interact', 'interaction', 'Player can explicitly harvest one nearby farm field.', 'supported', playerId, 'terrain'),
+        ...(harvestQuest ? [mechanic(
+          'farm-complete-harvest-quest',
+          'interaction',
+          'After harvesting a field, Player can complete the nearby Harvest Quest through a second explicit interaction.',
+          'supported',
+          playerId,
+          harvestQuest.category,
+        )] : []),
         mechanic('tend-resource', 'interaction', 'Player tends or harvests a farm resource.', 'deferred', playerId, 'resource'),
       ]),
     })
   }
 
   if (world.worldType === 'rpg') {
+    const questGiver = world.entities.find(entity =>
+      entity.category === 'quest' && (/quest.?giver|giver/iu.test(entity.id) || /quest.?giver|giver/iu.test(entity.name)),
+    ) ?? world.entities.find(entity => entity.category === 'quest')
+    const mainQuest = world.entities.find(entity =>
+      entity.category === 'quest'
+      && entity.id !== questGiver?.id
+      && (/main.?quest|final.?quest/iu.test(entity.id) || /main.?quest|final.?quest/iu.test(entity.name)),
+    ) ?? world.entities.find(entity => entity.category === 'quest' && entity.id !== questGiver?.id)
     return Object.freeze({
       gameLoop: Object.freeze({
         objective: 'Explore the world and interact with its quest characters.',
@@ -272,6 +292,14 @@ function defaultsFor(world: GameWorldModel): GameplaySpecificationCandidate {
       mechanics: Object.freeze([
         mechanic('player-move', 'movement', 'Player moves through the RPG world.', 'supported', playerId),
         mechanic('rpg-interact', 'interaction', 'Player can explicitly interact with one nearby RPG quest entity.', 'supported', playerId, 'quest'),
+        ...(questGiver && mainQuest ? [mechanic(
+          'rpg-complete-main-quest',
+          'interaction',
+          'After accepting a quest, Player can complete the next quest objective through a second explicit interaction.',
+          'supported',
+          playerId,
+          mainQuest.category,
+        )] : []),
       ]),
     })
   }

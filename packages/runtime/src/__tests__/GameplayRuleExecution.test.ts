@@ -577,6 +577,153 @@ describe('Gameplay rule execution vertical slice', () => {
     expect(result.status).toBe('passed')
   })
 
+  it('gates a later interaction on an earlier entity-property commit and keeps both steps idempotent', () => {
+    const rpgSemanticWorld: GameWorldModel = Object.freeze({
+      worldType: 'rpg',
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+        Object.freeze({ id: 'quest-giver', category: 'quest', name: 'Quest Giver' }),
+        Object.freeze({ id: 'main-quest', category: 'quest', name: 'Main Quest' }),
+      ]),
+    })
+    const initialWorld = Object.freeze({
+      entities: Object.freeze([
+        entity('player', 'player', 'Player', 0, 0),
+        entity('quest-giver', 'quest', 'Quest Giver', 8, 0),
+        entity('main-quest', 'quest', 'Main Quest', 16, 0),
+      ]),
+    }) as unknown as World
+    const actor = Object.freeze({ kind: 'eventActor' as const })
+    const target = Object.freeze({ kind: 'eventTarget' as const })
+    const interactionTrigger = Object.freeze({
+      eventType: 'ENTITY_INTERACTION_REQUESTED' as const,
+      actor,
+      target,
+    })
+    const rules = ruleSet([
+      Object.freeze({
+        schemaVersion: 1 as const,
+        ruleId: 'rpg-interaction',
+        name: 'Accept RPG quest',
+        enabled: true,
+        trigger: interactionTrigger,
+        conditionMode: 'all' as const,
+        conditions: Object.freeze([
+          Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS' as const, entity: actor, category: 'player' as const }),
+          Object.freeze({ type: 'ENTITY_ARCHETYPE_EQUALS' as const, entity: target, archetype: 'Quest Giver' }),
+        ]),
+        actions: Object.freeze([
+          Object.freeze({ type: 'SET_ENTITY_PROPERTY' as const, target, property: 'questAccepted' as const, value: true }),
+        ]),
+        priority: 0,
+        supportStatus: 'supported' as const,
+      }),
+      Object.freeze({
+        schemaVersion: 1 as const,
+        ruleId: 'rpg-complete-main-quest',
+        name: 'Complete main quest',
+        enabled: true,
+        trigger: interactionTrigger,
+        conditionMode: 'all' as const,
+        conditions: Object.freeze([
+          Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS' as const, entity: actor, category: 'player' as const }),
+          Object.freeze({ type: 'ENTITY_ARCHETYPE_EQUALS' as const, entity: target, archetype: 'Main Quest' }),
+          Object.freeze({
+            type: 'BOOLEAN_EQUALS' as const,
+            value: Object.freeze({
+              kind: 'entityProperty' as const,
+              entity: Object.freeze({ kind: 'archetype' as const, archetype: 'Quest Giver' }),
+              property: 'questAccepted' as const,
+            }),
+            expected: true,
+          }),
+        ]),
+        actions: Object.freeze([
+          Object.freeze({ type: 'SET_ENTITY_PROPERTY' as const, target, property: 'questCompleted' as const, value: true }),
+        ]),
+        priority: 0,
+        supportStatus: 'supported' as const,
+      }),
+    ])
+    const executor = new DefaultGameplayRuleExecutor()
+    const executionContext = (world: World) => Object.freeze({
+      ...context(world),
+      semanticWorld: rpgSemanticWorld,
+    })
+    const interact = (eventId: string, targetEntityId: string, tick: number): GameplayEvent => Object.freeze({
+      eventId,
+      worldId: 'world-1',
+      tick,
+      sequence: 0,
+      type: 'ENTITY_INTERACTION_REQUESTED' as const,
+      actorEntityId: 'player',
+      targetEntityId,
+      payload: Object.freeze({ inputKey: 'Enter', targetCategory: 'quest', distance: 8, range: 48 }),
+    })
+
+    const beforePrerequisite = executor.executeEvent(
+      interact('world-1:1:0', 'main-quest', 1),
+      rules,
+      executionContext(initialWorld),
+    )
+    expect(beforePrerequisite.results).toMatchObject([
+      { ruleId: 'rpg-interaction', status: 'conditions_failed', committed: false },
+      {
+        ruleId: 'rpg-complete-main-quest',
+        status: 'conditions_failed',
+        committed: false,
+        conditionResult: { status: 'failed', reason: 'boolean_comparison_mismatch' },
+      },
+    ])
+    expect(beforePrerequisite.world.entities.find(item => item.id === 'main-quest')?.components).not.toContainEqual(expect.objectContaining({
+      type: 'gameplay-state',
+    }))
+
+    const accepted = executor.executeEvent(
+      interact('world-1:2:0', 'quest-giver', 2),
+      rules,
+      executionContext(beforePrerequisite.world),
+    )
+    expect(accepted.results).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-interaction',
+      status: 'executed',
+      committed: true,
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({ mutation: expect.objectContaining({ property: 'questAccepted', value: true }) }),
+      ]),
+    }))
+
+    const completed = executor.executeEvent(
+      interact('world-1:3:0', 'main-quest', 3),
+      rules,
+      executionContext(accepted.world),
+    )
+    expect(completed.results).toMatchObject([
+      { ruleId: 'rpg-interaction', status: 'conditions_failed', committed: false },
+      {
+        ruleId: 'rpg-complete-main-quest',
+        status: 'executed',
+        committed: true,
+        conditionResult: { status: 'passed' },
+        actionResults: [{ mutation: { property: 'questCompleted', value: true } }],
+      },
+    ])
+
+    const repeated = executor.executeEvent(
+      interact('world-1:4:0', 'main-quest', 4),
+      rules,
+      executionContext(completed.world),
+    )
+    expect(repeated.results).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-complete-main-quest',
+      status: 'executed',
+      committed: false,
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' }),
+      ]),
+    }))
+  })
+
   it('evaluates contact direction with truthful negation and no guessing', () => {
     const evaluator = new DefaultGameplayConditionEvaluator()
     const top = Object.freeze({ ...contactEvent('world-1:2:1'), direction: 'top' as const })

@@ -43,6 +43,7 @@ replacement for ADRs or PROJECT_STATE.md.
 | 2026-09-02 | Freeze Sprint 38 at v1.188 and authorize Sprint 39 — Cross-Genre Interaction Meaning Discovery. | ACCEPTED — FREEZE SPRINT 38 / ENTER SPRINT 39 DISCOVERY | Human / CTO | `WO-S38-001` is FROZEN with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Run real Farm/RPG interaction-meaning discovery, select exactly one highest-priority blocker, generate exactly one READY WO, do not execute it in this continuation, and do not enter Sprint 40. |
 | 2026-09-03 | Execute `WO-S39-001` — Generic Archetype Interaction Consequence (first bounded slice). | ACCEPTED — EXECUTE | Human / CTO | Execute only this Sprint 39 WO. Reuse the existing generic Enter → finite-range target → `ENTITY_INTERACTION_REQUESTED` → GameplayRule → Runtime-authoritative mutation path; preserve no-target/repeat truth, Platformer `Space` Jump, Survival `Space` Attack, Provider candidate-only behavior, and all forbidden-scope boundaries. Complete real Farm/RPG Studio Product Verification and a fresh Sprint 39 Gap Analysis, then stop at `SPRINT39_FREEZE_REVIEW`; do not enter Sprint 40. |
 | 2026-09-03 | Freeze Sprint 39 at v1.189 and authorize Sprint 40 — Cross-Genre Gameplay Loop Continuity Discovery. | ACCEPTED — FREEZE SPRINT 39 / ENTER SPRINT 40 DISCOVERY | Human / CTO | `WO-S39-001` is DONE with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Perform discovery only in real Studio, select exactly one shared blocker, generate exactly one READY WO, do not modify product code, do not execute a new WO, and do not enter Sprint 41. |
+| 2026-09-03 | Execute `WO-S40-001` — Generic Post-Interaction Gameplay Loop Continuity (first bounded slice). | ACCEPTED — EXECUTE | Human / CTO | Execute only the authorized generic continuation slice. Prove ordered Farm/RPG two-step gameplay in real Studio, complete a fresh Sprint 40 Gap Analysis, mark the WO DONE with Code Complete/Product Verified, select `SPRINT40_FREEZE_REVIEW` if PASS, and do not enter Sprint 41. |
 
 ## Sprint 39 discovery result and READY work order
 
@@ -124,8 +125,38 @@ Exactly one READY work order was generated:
 slice)`. It is awaiting separate Human/CTO execution authorization. Evidence
 and the one-item backlog are recorded in
 `docs/project/SPRINT40_PRODUCT_GAP_DISCOVERY.md` and
-`docs/project/SPRINT40_BACKLOG.md`. The next gate is
-`SPRINT40_DISCOVERY_REVIEW`; do not execute the item or enter Sprint 41.
+`docs/project/SPRINT40_BACKLOG.md`. At that discovery boundary, the next
+gate was `SPRINT40_DISCOVERY_REVIEW`; the later execution result is recorded
+above. Sprint 41 was not entered.
+
+## WO-S40-001 execution result
+
+Date: 2026-09-03
+
+Result: **DONE — Code Complete = YES; Product Verified = YES; fresh Sprint 40
+Gap Analysis = PASS; v1.190**
+
+The authorized item reused the existing generic GameplayRule execution path.
+`BOOLEAN_EQUALS` now reads a typed boolean from the current Runtime entity
+state, fails closed for unsupported or unavailable references, and permits
+later interactions to be gated by an earlier committed consequence. Farm
+commits `wheat-field.gameplay-state.harvested=true` on the first interaction,
+then commits `harvest-quest.gameplay-state.questCompleted=true` only after that
+state exists. RPG commits `quest-giver.gameplay-state.questAccepted=true`, then
+commits `main-quest.gameplay-state.questCompleted=true`. The mutation remains
+generic and idempotent; no Farm/RPG Runtime or progression framework was
+introduced.
+
+Real Studio chronology, Full Observatory, Runtime entity inspection, package
+tests, TypeScript, ESLint, the direct Web build, and browser diagnostics passed.
+The root Turbo orchestration was unavailable in this environment because its
+API client could not initialize TLS without a Keychain; equivalent package
+gates and the affected Web build passed. Provider composition variance,
+spatial/control composition, and standalone readability remain recorded
+follow-up observations, not additional WOs.
+
+Fresh Gap Analysis is recorded in `docs/project/SPRINT40_GAP_ANALYSIS.md`.
+The current gate is `SPRINT40_FREEZE_REVIEW`; Sprint 41 is not entered.
 
 ## WO-S38-001 execution decision and result
 
