@@ -1,6 +1,6 @@
-# Gameplay Capability Matrix — Sprint 40 Frozen / Sprint 41 Discovery Complete
+# Gameplay Capability Matrix — Sprint 41 WO Complete / Freeze Review Pending
 
-Architecture version: v1.190 (Sprint 30 through Sprint 39 FROZEN;
+Architecture version: v1.191 (Sprint 30 through Sprint 40 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
 Sprint 34 post-WO Gap Analysis PASS; `WO-S35-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 35 Gap Analysis PASS;
@@ -11,8 +11,9 @@ Product Verified = YES; fresh Sprint 37 Gap Analysis PASS; Sprint 37 FROZEN;
 Gap Analysis PASS; Sprint 38 FROZEN; `WO-S39-001` Code Complete = YES;
 Product Verified = YES; fresh Sprint 39 Gap Analysis PASS; v1.189; Sprint 39
 FROZEN; `WO-S40-001` Code Complete = YES; Product Verified = YES; fresh
-Sprint 40 Gap Analysis PASS; Sprint 40 FROZEN at v1.190; Sprint 41 discovery
-complete; no product implementation in Sprint 41)
+  Sprint 40 Gap Analysis PASS; Sprint 40 FROZEN at v1.190; `WO-S41-001` Code
+  Complete = YES; Product Verified = YES; fresh Sprint 41 Gap Analysis PASS;
+  `SPRINT41_FREEZE_REVIEW` pending)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -95,12 +96,15 @@ engine, domain Runtime, inventory/resources system, or open-ended progression
 framework is implied. The fresh Gap Analysis is PASS and Sprint 40 is FROZEN
 at v1.190.
 
-Sprint 41 discovery changes no capability status. Exact Farm field and RPG
-quest World Evolution requests failed before semantic delta production in the
-local provider environment. The Survival control passed same-world evolved
-Enemy pursuit, contact damage, and canonical visual reuse. One READY
-WO-S41-001 remains outside this matrix until separately authorized and
-implemented; entity appearance is not promoted to gameplay capability.
+Sprint 41 promotes one bounded provider-unavailable semantic-delta capability
+at the existing World Evolution candidate boundary. In a current Farm world,
+clear field aliases produce the normal validated `add-entity` delta for
+`Wheat Field`; in a current RPG world, clear quest aliases produce the normal
+validated delta for `Quest`. Farm's evolved field is gameplay-capable and
+commits `harvested=true`. The evolved RPG quest is semantic/Runtime-present
+and Enter-reachable, but its exact `Quest Giver` consequence Rule does not
+match, so that downstream capability remains deferred. No direct Runtime
+insertion, Provider runtime call, or new gameplay framework is implied.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -111,6 +115,8 @@ implemented; entity appearance is not promoted to gameplay capability.
 | Basic ground collision | `GameplaySpecification.mechanics` | `supported` | `DefaultGroundCollisionSystem` clamps the playable ground plane. |
 | Bounded Platform surface | Semantic `Platform` → Runtime collision bounds | `supported` | Semantic Platform geometry resolves downward Player feet onto the top, retains support in bounds, and releases support at an edge. Generated images remain visual skin. |
 | Entity add/remove | Semantic evolution model | `supported` | Existing semantic-to-Runtime synchronization can add/remove non-player entities. |
+| Provider-unavailable archetype-native World Evolution add | Current semantic archetype + bounded supported-role alias | `supported` (bounded) | `WO-S41-001` keeps clear Farm field and RPG quest additions on the validated semantic-delta path after structured Provider failure; same-world identity and retained Runtime state are preserved. |
+| Evolved RPG quest characteristic consequence | Evolved semantic quest → current RPG GameplayRule | `deferred` | `quest-1` emits `ENTITY_INTERACTION_REQUESTED`, but the existing rule is bound to exact `Quest Giver`; no `questAccepted=true` is committed for the new `Quest`. |
 | Targeted Gameplay Rule reconciliation | Semantic World Evolution + current `GameplayRuleSet` | `supported` | `DefaultGameplayRuleReconciler` preserves unaffected rules, revalidates/rebuilds affected known rules, removes dangling rules, binds the updated semantic revision, and records immutable reconciliation facts without Provider regeneration. |
 | Gameplay event observation | Runtime event domain | `supported` | Runtime emits bounded immutable gameplay facts through `ExecutionTickResult.gameplayEvents`; this is not rule execution. |
 | Accepted jump event | Runtime event observation | `supported` | `DefaultJumpSystem` emits one `ENTITY_JUMPED` only after a grounded jump is accepted. |
@@ -229,5 +235,9 @@ Verified are YES and the fresh Sprint 39 Gap Analysis is PASS. The Provider
 behavior remain separate observations. Sprint 39 is FROZEN at v1.189 by
 Human/CTO decision. Sprint 40 `WO-S40-001` advances the matrix to v1.190 with
 one bounded typed boolean state gate and the Farm/RPG two-step proof. Fresh
-Gap Analysis is PASS; Sprint 40 is FROZEN at v1.190. Sprint 41 discovery
-subsequently recorded one READY WO without changing the capability matrix.
+Gap Analysis is PASS; Sprint 40 is FROZEN at v1.190. Sprint 41 `WO-S41-001`
+advances the matrix to v1.191 with bounded provider-error recovery for current
+archetype Farm field and RPG quest additions. Fresh Sprint 41 Gap Analysis is
+PASS for that first divergence; the newly measurable RPG evolved-quest
+Rule-binding gap is deferred for Human/CTO review and no second WO is
+generated automatically.

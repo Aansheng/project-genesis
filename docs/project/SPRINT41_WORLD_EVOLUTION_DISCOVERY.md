@@ -1,5 +1,9 @@
 # Sprint 41 World Evolution Gameplay Capability Continuity Discovery
 
+> This document records the discovery-boundary evidence at v1.190. The later
+> authorized execution, Product Verification, and fresh post-WO Gap Analysis
+> are recorded in [`SPRINT41_WO_S41_001_EXECUTION.md`](SPRINT41_WO_S41_001_EXECUTION.md).
+
 Date: 2026-09-04
 
 Architecture at discovery boundary: **v1.190**
@@ -12,9 +16,10 @@ integration**. The working tree was clean before this discovery. The earlier
 statement that the Sprint 40 changes were uncommitted was stale; the
 checkpoint already exists and was not amended or replaced.
 
-Discovery status: **DONE — exactly one Product blocker and exactly one READY
-WO generated. No product code was modified, no WO was executed, and Sprint 42
-was not entered.**
+Discovery status: **DONE at the v1.190 boundary — exactly one Product blocker
+and exactly one READY WO generated.** The later execution status is maintained
+in the linked execution record; this discovery phase itself modified no
+product code, executed no WO, and did not enter Sprint 42.
 
 ## Decision boundary
 

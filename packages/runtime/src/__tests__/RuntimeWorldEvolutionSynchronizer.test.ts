@@ -176,6 +176,37 @@ describe('DefaultRuntimeWorldEvolutionSynchronizer', () => {
     expect(result.updatedWorld.entities.slice(0, 4)).toEqual(runtimeWorld.entities)
   })
 
+  it('retains committed gameplay state on existing entities during an add-only evolution', () => {
+    const statefulField = Object.freeze({
+      ...runtimeWorld.entities[3],
+      components: Object.freeze([
+        ...(runtimeWorld.entities[3]?.components ?? []),
+        Object.freeze({
+          type: 'gameplay-state',
+          properties: Object.freeze({ activated: true, harvested: true }),
+        }),
+      ]),
+    })
+    const statefulWorld = Object.freeze({
+      entities: Object.freeze([...runtimeWorld.entities.slice(0, 3), statefulField]),
+    }) as unknown as World
+    const result = synchronizer.synchronize(statefulWorld, mutation([{
+      kind: 'add-entity',
+      scope: 'entity',
+      semantic: { name: 'Wheat Field', category: 'terrain' },
+      count: 1,
+    }]), { worldId: 'world-a', runtimeRevision: 0 })
+
+    const retained = result.updatedWorld.entities.find(entity => entity.id === 'crop-1')
+    expect(result.status).toBe('synchronized')
+    expect(retained).toBe(statefulField)
+    expect(retained?.components).toContainEqual(expect.objectContaining({
+      type: 'gameplay-state',
+      properties: { activated: true, harvested: true },
+    }))
+    expect(result.addedEntityIds).toEqual(['wheat-field-1'])
+  })
+
   it('removes exactly the target and rejects player removal without a partial commit', () => {
     const removeResult = synchronizer.synchronize(runtimeWorld, mutation([{
       kind: 'remove-entity',

@@ -500,6 +500,68 @@ describe('World Evolution Studio integration', () => {
   })
 
   it.each([
+    ['做一个农场游戏', '再加一块麦田', 'terrain', 'Wheat Field'],
+    ['创建一个 RPG', '再加一个任务', 'quest', 'Quest'],
+  ] as const)('recovers archetype-native additions in the same active world when the structured provider is unavailable: %s', async (createInstruction, evolutionInstruction, category, name) => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline') }) as typeof fetch)
+    const game = useGameStore()
+    const initial = await game.send(createInstruction)
+    expect(initial.success).toBe(true)
+
+    const worldId = game.currentWorldId
+    const beforeSemanticIds = game.semanticWorld?.entities.map(entity => entity.id) ?? []
+    const beforeRuntimeWorld = game.worldStore.getWorld()
+    const beforeRuntimeEntities = new Map(beforeRuntimeWorld.entities.map(entity => [entity.id, entity]))
+    const beforeSemanticRevision = game.semanticRevision
+
+    const result = await game.send(evolutionInstruction)
+
+    expect(result.success).toBe(true)
+    expect(result.message).not.toContain('Unknown command')
+    expect(result.evolutionPlan?.status).toBe('validated')
+    if (result.evolutionPlan?.status !== 'validated') throw new Error('expected a validated archetype-native evolution plan')
+    expect(result.evolutionPlan.operation.source).toBe('deterministic')
+    expect(result.evolutionPlan.operation.provider).toBe('deterministic')
+    expect(game.currentWorldId).toBe(worldId)
+    expect(game.semanticRevision).toBe(beforeSemanticRevision + 1)
+    expect(game.semanticWorld?.entities.map(entity => entity.id)).toEqual(expect.arrayContaining(beforeSemanticIds))
+
+    const addedSemantic = game.semanticWorld?.entities.filter(entity =>
+      entity.category === category && entity.name === name && !beforeSemanticIds.includes(entity.id),
+    ) ?? []
+    expect(addedSemantic).toHaveLength(1)
+    expect(addedSemantic[0]?.id).toBe(category === 'terrain' ? 'wheat-field-1' : 'quest-1')
+
+    const addedRuntime = game.worldStore.getWorld().entities.find(entity => entity.id === addedSemantic[0]?.id)
+    expect(addedRuntime).toBeDefined()
+    expect(addedRuntime?.type).toBe(category)
+    expect(addedRuntime?.components?.find(component => component.type === 'semantic')?.properties).toMatchObject({ category, name })
+    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(expect.arrayContaining(beforeRuntimeWorld.entities.map(entity => entity.id)))
+    for (const [entityId, entity] of beforeRuntimeEntities) expect(game.worldStore.getWorld().entities.find(item => item.id === entityId)).toBe(entity)
+    expect(result.evolutionPlan.runtimeSync?.status).toBe('synchronized')
+    expect(result.evolutionPlan.runtimeSync?.preservedEntityIds).toEqual(expect.arrayContaining(beforeRuntimeWorld.entities.map(entity => entity.id)))
+    expect(result.evolutionPlan.visualPlan).toBeDefined()
+  })
+
+  it('fails closed for an unsupported addition when structured planning is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline') }) as typeof fetch)
+    const game = useGameStore()
+    const initial = await game.send('做一个农场游戏')
+    expect(initial.success).toBe(true)
+    const worldId = game.currentWorldId
+    const beforeIds = game.semanticWorld?.entities.map(entity => entity.id) ?? []
+
+    const result = await game.send('再加一只独角兽')
+
+    expect(result.success).toBe(false)
+    expect(result.evolutionPlan?.operation.failureReason).toBe('provider_error')
+    expect(game.currentWorldId).toBe(worldId)
+    expect(game.semanticWorld?.entities.map(entity => entity.id)).toEqual(beforeIds)
+    expect(game.semanticWorld?.entities.some(entity => /unicorn|独角兽/iu.test(entity.name))).toBe(false)
+    expect(game.worldStore.getWorld().entities.map(entity => entity.id)).toEqual(beforeIds)
+  })
+
+  it.each([
     '再生成5个怪物',
     '再创建5个怪物',
     '再添加5个怪物',

@@ -213,17 +213,24 @@ secondary observations. Full package gates and the direct Web build pass;
 the fresh Sprint 40 Gap Analysis is PASS. Human/CTO froze Sprint 40 at v1.190
 on 2026-09-04, with checkpoint commit 04c3090.
 
-Sprint 41 World Evolution Gameplay Capability Continuity Discovery is now
-complete at the unchanged v1.190 boundary. Real Studio exact Farm
-`再加一块麦田` and RPG `再加一个任务` requests reached World Evolution but
-failed at structured planning with provider_error in the local provider
-environment. The Survival control `生成一个幸存者游戏` → `再加五只怪`
-passed same-world +5 Enemy, pursuit, contact damage, and canonical visual
-reuse. The single selected Product blocker is missing validated
-archetype-native Farm-field/RPG-quest semantic-delta coverage. Exactly one
-READY WO exists: `WO-S41-001 — Generic Archetype-Native World Evolution
-Entity Reachability`. No product code was changed, the WO was not executed,
-and Sprint 42 was not entered.
+Sprint 41 World Evolution Gameplay Capability Continuity is complete at v1.191
+for the authorized first divergence. The existing deterministic World
+Evolution candidate provider now has one bounded current-archetype mapping for
+Farm field and RPG quest additions after structured Provider failure. Real
+Studio Farm `再加一块麦田` and RPG `再加一个任务` stayed in the same world,
+created validated semantic deltas, synchronized Runtime entities, and rendered
+the additions. Farm's new field committed `harvested=true`; RPG preserved the
+accepted baseline quest state and emitted an interaction request for the new
+quest, but the current exact `Quest Giver` rule binding returned
+`conditions_failed`. The latter is the fresh downstream gap and was not
+repaired in this WO.
+
+The Survival control `生成一个幸存者游戏` → `再加五只怪` still passes
+same-world +5 Enemy, pursuit, contact damage, and canonical visual reuse.
+Merchant addition and honest unknown-request failure remain intact. `WO-S41-001`
+is DONE with Code Complete = YES and Product Verified = YES; fresh Sprint 41
+Gap Analysis is PASS. `SPRINT41_FREEZE_REVIEW` is pending Human/CTO review;
+no second WO is generated automatically and Sprint 42 is not entered.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

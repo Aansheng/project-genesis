@@ -5,16 +5,16 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-04
-current_sprint: Sprint 41 (DISCOVERY_ONLY)
-current_work_order: NONE — Sprint 41 discovery complete; WO-S41-001 READY but not executed
-current_work_order_status: STOP — discovery complete; Human/CTO authorization required before implementation
-current_control_plane_work_order: SPRINT41_DISCOVERY_REVIEW
-current_control_plane_work_order_status: DONE — exactly one Product blocker and one READY WO; stop for Human/CTO review
-last_completed_work_order: WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity
-last_completed_product_work_order: WO-S40-001
-last_completed_control_plane_work_order: SPRINT40_FREEZE_REVIEW
-next_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability; READY, not executed
-continuation_mode: DISCOVERY_COMPLETE_STOP
+current_sprint: Sprint 41 (WO COMPLETE; FRESH_GAP_ANALYSIS_PASS)
+current_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
+current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
+current_control_plane_work_order: SPRINT41_FREEZE_REVIEW
+current_control_plane_work_order_status: READY — fresh Sprint 41 Gap Analysis PASS; Human/CTO freeze review pending; stop before Sprint 42
+last_completed_work_order: WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
+last_completed_product_work_order: WO-S41-001
+last_completed_control_plane_work_order: SPRINT41_DISCOVERY_REVIEW
+next_work_order: NONE — downstream RPG evolved-quest Rule-binding gap recorded; no second WO generated automatically
+continuation_mode: WORK_ORDER_COMPLETE_STOP
 primary_architecture_changing_work_items_in_progress: 0
 
 ## SPRINT40_DISCOVERY_REVIEW
@@ -135,24 +135,25 @@ evidence: `WO-S40-001`, `docs/project/SPRINT40_GAP_ANALYSIS.md`, and
 next_action: Sprint 40 freeze is closed. Continue only with the separately
   authorized Sprint 41 discovery; do not execute another Sprint 40 WO.
 
-## SPRINT41_AUTHORIZATION — World Evolution Gameplay Capability Continuity Discovery
+## SPRINT41_AUTHORIZATION — World Evolution Gameplay Capability Continuity
 
-status: ACCEPTED — discovery only; no product implementation authorized
-architecture: v1.190 remains unchanged
-decision: Human/CTO froze Sprint 40 at v1.190 on 2026-09-04 and authorized
-  Sprint 41 discovery through the real Studio front door. Test Farm field
-  and RPG quest evolution, compare the Survival enemy-addition control, audit
-  current generic primitives and binding semantics, identify the FIRST
-  divergence, select exactly one blocker, and generate exactly one READY WO.
-constraints: Do not modify product code, execute the READY WO, rebuild the
-  world for continuity, preselect a genre system/framework, extend Sprint 40,
-  or enter Sprint 42.
+status: ACCEPTED — discovery completed; WO-S41-001 subsequently authorized and DONE
+architecture: v1.190 at discovery boundary → v1.191 after WO-S41-001
+decision: Human/CTO froze Sprint 40 at v1.190 on 2026-09-04, authorized Sprint
+  41 discovery, accepted `SPRINT41_DISCOVERY_REVIEW`, and later authorized the
+  single `WO-S41-001` execution. The implementation was limited to the first
+  measured provider-error divergence; the fresh post-WO gap is recorded for
+  the separate `SPRINT41_FREEZE_REVIEW`.
+constraints: Preserve CreateWorld versus World Evolution routing, same-world
+  identity, Runtime authority, candidate validation, provider candidate-only
+  semantics, and the existing Survival control. Do not add a new Router,
+  Runtime, gameplay framework, second WO, or Sprint 42.
 
 ## SPRINT41_PRODUCT_GAP_DISCOVERY
 
-status: DONE — exactly one Product blocker and exactly one READY WO; stop
+status: DONE — discovery boundary; WO-S41-001 subsequently executed
 architecture_before: v1.190
-architecture_after: v1.190 — discovery changed no product architecture
+architecture_after: v1.190 at discovery boundary → v1.191 after execution
 evidence: docs/project/SPRINT41_WORLD_EVOLUTION_DISCOVERY.md
 real_studio: Farm world-1 exact 再加一块麦田 and RPG world-3 exact
   再加一个任务 both routed to World Evolution and failed at
@@ -170,40 +171,40 @@ selected_blocker: The production World Evolution path lacks a validated
   conditions, so evolved-entity gameplay capability continuity cannot begin.
 selected_work_order: WO-S41-001 — Generic Archetype-Native World Evolution
   Entity Reachability
-selected_work_order_status: READY — not executed
-state_preservation: No loss observed. Source preserves current world identity
-  and retained Runtime components during add-only evolution; direct
-  post-baseline Farm/RPG proof with the unavailable exact deltas remains a
-  later acceptance requirement.
+selected_work_order_status: READY at discovery boundary; subsequently authorized and DONE
+state_preservation: Discovery source audit found add-only retention; execution
+  directly verified Farm harvested state and RPG questAccepted state surviving
+  same-world evolution.
 alternatives_deprioritized: Root TLS repair is environment-only; rule
   rebinding is downstream of the first divergence; spatial/control and state
   reset are not measured blockers; Survival control passed; domain systems
   and progression frameworks are out of scope.
-non_goals: No product code, no second WO, no third-stage gameplay, no
+non_goals: No second WO, no third-stage gameplay, no
   inventory/resources/rewards/economy/dialogue/QuestEngine/ObjectiveManager,
-  no FarmRuntime/RPGRuntime, no workflow/state-machine framework, and no
-  Sprint 42.
+  no FarmRuntime/RPGRuntime, no workflow/state-machine framework, no world
+  rebuild, and no Sprint 42.
 
 ## WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability
 
-status: READY — not executed
+status: DONE — Code Complete = YES; Product Verified = YES
 priority: P0 — single Sprint 41 Product blocker
 architecture_before: v1.190
-architecture_after: v1.191 only after separate authorization, implementation,
-  and Product Verification
+architecture_after: v1.191
 mission: Enable one shared production World Evolution add-entity path for
-  a Farm field and an RPG quest, preserve the same world/session and retained
-  gameplay state, synchronize Runtime/visual state, and prove the evolved
-  entities are reachable through normal Player interaction and characteristic
-  consequences. Reuse existing planner/fallback, semantic-delta, Runtime,
-  GameplayRule, input, and visual seams; do not rebuild the world.
-acceptance: Farm field evolves through the real front door and can be
-  harvested into harvested=true; RPG quest evolves through the real front
-  door and reaches an appropriate committed RPG GameplayRule consequence;
-  both retain prior v1.190 state; world IDs remain unchanged; Observatory
-  records route, delta, reconciliation, Runtime, visual, commit/no-op truth;
-  Survival same-world +5 Enemy pursuit/contact-damage/visual regression
-  remains passing.
+  a Farm field and an RPG quest when structured Provider planning is
+  unavailable. Preserve the same world/session and retained gameplay state,
+  synchronize Runtime/visual state, and measure normal Player reachability
+  after entity creation. Reuse existing planner/fallback, semantic-delta,
+  Runtime, GameplayRule, input, and visual seams; do not rebuild the world.
+acceptance: Farm field and RPG quest evolve through the real front door into
+  validated semantic deltas, same-world Runtime entities, and visible output;
+  prior v1.190 state remains authoritative; Farm's new field is measured as
+  harvestable; RPG's new quest is measured as Enter-reachable even though its
+  current Rule binding is not yet capable of committing a quest consequence;
+  Observatory records route, delta, reconciliation, Runtime, visual, and
+  committed/no-op truth; Survival same-world +5 Enemy pursuit/contact-damage/
+  visual regression remains passing. A downstream non-reachability result is
+  recorded for fresh Gap Analysis and is not repaired inside this WO.
 allowed_scope: Minimal existing planner/fallback vocabulary, semantic
   add-entity contract, Runtime composition, current input/event/property/rule
   seams, focused tests, gates, and required documentation.
@@ -215,7 +216,47 @@ forbidden_scope: CapabilityInheritanceSystem, GameplayRuleRebuilder,
   WO, or Sprint 42.
 verification_gate: Targeted and affected package tests, TypeScript, ESLint,
   regression suites, direct Web build, and real Studio Product Verification
-  must pass. Entity appearance alone is not acceptance.
+  pass. Entity appearance alone was not accepted; Farm interaction, RPG
+  interaction-event reachability, state preservation, controls, and
+  Observatory truth were measured.
+
+execution_result: The deterministic provider now recognizes bounded field
+  aliases only in a Farm semantic world and bounded quest aliases only in an
+  RPG semantic world. Farm world-5 kept its world ID, added `wheat-field-1`,
+  preserved the prior harvested field state, and committed harvested=true on
+  the new field. RPG world-6 kept its world ID, preserved
+  `quest-giver.questAccepted=true`, and added `quest-1`; an Enter request at
+  distance 16 reached the new target, while the current exact `Quest Giver`
+  rules returned conditions_failed. Survival world-4 added exactly five
+  enemies and retained pursuit/contact damage/visual reuse. Merchant and
+  unsupported-entity regressions passed.
+
+verification_result: Full and focused tests, package TypeScript, package
+  ESLint (0 errors), direct Web production build, real Studio PV, Full
+  Observatory, and browser diagnostics passed. Root Turbo remains limited by
+  the local Keychain/TLS environment; direct package gates and the Web build
+  are the accepted equivalent gates.
+
+fresh_gap_analysis: PASS for the authorized first divergence. The next
+  measured Product gap is evolved RPG `Quest` capability composition: the
+  interaction event is emitted, but `rpg-interaction` remains bound to the
+  initial exact `Quest Giver` archetype. No second WO is generated
+  automatically; current gate is `SPRINT41_FREEZE_REVIEW`.
+
+## SPRINT41_FREEZE_REVIEW
+
+status: READY — Human/CTO freeze decision pending
+architecture: v1.191
+evidence: `WO-S41-001`,
+  `docs/project/SPRINT41_WO_S41_001_EXECUTION.md`, and
+  `docs/adr/ADR-0301-bounded-archetype-native-world-evolution-recovery.md`.
+  The first provider-error divergence is closed; Farm's evolved field is
+  harvestable; RPG's evolved quest is measurable but not yet bound to the
+  existing exact-archetype consequence Rule.
+next_action: Human/CTO may accept the Sprint 41 freeze and separately decide
+  whether the measured RPG evolved-quest Rule-binding gap should become a
+  future bounded work item. Do not generate it automatically and do not enter
+  Sprint 42.
 
 ## SPRINT39_AUTHORIZATION — Cross-Genre Interaction Meaning Discovery
 

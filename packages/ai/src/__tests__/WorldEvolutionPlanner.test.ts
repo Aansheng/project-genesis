@@ -135,6 +135,55 @@ describe('World Evolution planner', () => {
     if (night.status === 'validated') expect(night.delta.operations[0]).toMatchObject({ kind: 'update-world-property', property: 'timeOfDay', from: 'day', to: 'night' })
   })
 
+  it('recovers bounded archetype-native Farm fields and RPG quests through the normal delta contract', async () => {
+    const farm = await planner().plan(request('再加一块麦田'))
+    const farmEquivalent = await planner().plan(request('再来一块农田'))
+    const rpg = await planner().plan(request('再加一个任务', {
+      worldType: 'rpg',
+      entities: [
+        { id: 'player-1', category: 'player', name: 'Player' },
+        { id: 'quest-giver-1', category: 'quest', name: 'Quest Giver' },
+        { id: 'main-quest-1', category: 'quest', name: 'Main Quest' },
+      ],
+    }))
+    const rpgEquivalent = await planner().plan(request('add one quest', {
+      worldType: 'rpg',
+      entities: [
+        { id: 'player-1', category: 'player', name: 'Player' },
+        { id: 'quest-giver-1', category: 'quest', name: 'Quest Giver' },
+      ],
+    }))
+    const crossGenre = await planner().plan(request('再加一个任务'))
+    const noAddition = await planner().plan(request('麦田在哪里'))
+
+    expect(farm.status).toBe('validated')
+    expect(farmEquivalent.status).toBe('validated')
+    expect(rpg.status).toBe('validated')
+    expect(rpgEquivalent.status).toBe('validated')
+    expect(crossGenre.status).toBe('failed')
+    expect(noAddition.status).toBe('failed')
+    if (crossGenre.status === 'failed') expect(crossGenre.operation.failureReason).toBe('provider_error')
+    if (noAddition.status === 'failed') expect(noAddition.operation.failureReason).toBe('provider_error')
+    if (farm.status === 'validated') {
+      expect(farm.operation.source).toBe('deterministic')
+      expect(farm.delta.operations[0]).toMatchObject({
+        kind: 'add-entity',
+        semantic: { name: 'Wheat Field', category: 'terrain' },
+        count: 1,
+      })
+    }
+    if (farmEquivalent.status === 'validated') expect(farmEquivalent.delta.operations[0]).toMatchObject({ semantic: { name: 'Wheat Field', category: 'terrain' }, count: 1 })
+    if (rpg.status === 'validated') {
+      expect(rpg.operation.source).toBe('deterministic')
+      expect(rpg.delta.operations[0]).toMatchObject({
+        kind: 'add-entity',
+        semantic: { name: 'Quest', category: 'quest' },
+        count: 1,
+      })
+    }
+    if (rpgEquivalent.status === 'validated') expect(rpgEquivalent.delta.operations[0]).toMatchObject({ semantic: { name: 'Quest', category: 'quest' }, count: 1 })
+  })
+
   it('requires clarification for an unknown or ambiguous target', async () => {
     const unknown = await planner({ source: 'deterministic', generate: async () => ({ kind: 'replace-entity-semantic', target: { semantic: 'unicorn', match: 'one' }, replacement: { name: 'robot' } }) }).plan(request('把独角兽改成机器人'))
     const ambiguous = await planner().plan(request('把商人改成机器人', { worldType: 'farm', entities: [{ id: 'merchant-1', category: 'npc', name: 'Merchant' }, { id: 'merchant-2', category: 'npc', name: 'Merchant' }] }))

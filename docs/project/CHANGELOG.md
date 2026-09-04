@@ -1,5 +1,29 @@
 # Changelog
 
+### Sprint 41 — WO-S41-001 Generic Archetype-Native World Evolution Entity Reachability (v1.191, 2026-09-04)
+
+- Human/CTO authorized the single `WO-S41-001` after Sprint 41 discovery
+  passed. The bounded implementation extends the existing deterministic
+  World Evolution candidate provider with current-archetype aliases for Farm
+  fields and RPG quests when structured Provider planning is unavailable.
+- The existing candidate → resolver → semantic delta → GameplayRule
+  reconciliation → Runtime synchronization → visual path remains the only
+  authority chain. No new Router, Runtime, domain engine, or gameplay
+  framework was introduced.
+- Real Studio Farm `做一个农场游戏` → `再加一块麦田` stayed in world-5,
+  preserved existing state, added visible `wheat-field-1`, and committed
+  `harvested=true` on the new field. RPG `创建一个 RPG` → `再加一个任务`
+  stayed in world-6, preserved `quest-giver.questAccepted=true`, and added
+  visible `quest-1`; Enter reached the new quest, while the current exact
+  `Quest Giver` rules returned `conditions_failed`.
+- Survival `生成一个幸存者游戏` → `再加五只怪` remained a same-world,
+  exactly +5 Enemy control with pursuit/contact damage and canonical visual
+  reuse. Merchant addition and honest unknown-request failure did not regress.
+- `WO-S41-001`: Code Complete = YES; Product Verified = YES; DONE. Fresh
+  Sprint 41 Gap Analysis = PASS for the first divergence. The downstream RPG
+  evolved-quest Rule-binding gap is recorded for Human/CTO review; no second
+  WO is generated automatically and Sprint 42 is not entered.
+
 ### Sprint 41 — World Evolution Gameplay Capability Continuity Discovery (v1.190 boundary, 2026-09-04)
 
 - Human/CTO froze Sprint 40 at v1.190. WO-S40-001 is DONE with Code Complete

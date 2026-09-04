@@ -42,8 +42,8 @@
 **Sprint 38** — Cross-Genre Playability Fidelity (**FROZEN — `WO-S38-001` Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.188; Human/CTO accepted 2026-09-02**)
 **Sprint 39** — Cross-Genre Interaction Meaning (**FROZEN — `WO-S39-001` Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.189; Human/CTO accepted 2026-09-03**)
 **Sprint 40** — Cross-Genre Gameplay Loop Continuity (**FROZEN — WO-S40-001 DONE; Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.190; Human/CTO accepted 2026-09-04**)
-**Sprint 41** — World Evolution Gameplay Capability Continuity (**DISCOVERY COMPLETE — architecture remains v1.190; exactly one READY WO; no product implementation**)
-**Current WO** - NONE; Sprint 41 discovery is complete; `WO-S41-001` is READY but not executed; stop before Sprint 42
+**Sprint 41** — World Evolution Gameplay Capability Continuity (**WO-S41-001 DONE — Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.191; pending Human/CTO freeze review**)
+**Current WO** - `WO-S41-001` DONE; current gate is `SPRINT41_FREEZE_REVIEW`; Sprint 42 is not entered
 
 ---
 
@@ -51,14 +51,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 `WO-S38-001` is FROZEN at v1.188 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 39 `WO-S39-001` is FROZEN at v1.189 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 40 `WO-S40-001` is FROZEN at v1.190 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS; v1.190 checkpoint is commit `04c3090`. Sprint 41 discovery is complete at the v1.190 boundary, with exactly one READY WO and no product implementation. |
-| Architecture Version | v1.190. Sprint 40 is frozen and Runtime remains authoritative for gameplay. Sprint 38 added generic Player-directed interaction; Sprint 39 reused typed `SET_ENTITY_PROPERTY` for Farm `harvested=true` and RPG `questAccepted=true`; Sprint 40 enables typed `BOOLEAN_EQUALS` against current Runtime entity state and composes one later state-gated continuation Rule for each archetype. Sprint 41 discovery changed no product architecture. |
-| Last Completed WO | WO-S40-001 — Generic Post-Interaction Gameplay Loop Continuity; Code Complete = YES; Product Verified = YES; fresh Sprint 40 Gap Analysis PASS; v1.190. |
-| Current User-Visible Behavior | Platformer remains the bounded side-view baseline with 7 entities, Arrow Keys movement, Space jump, and supported movement/goal/enemy/collection rules. Survival remains the bounded top-down baseline with 6 entities, Arrow Keys movement, Space attack, enemy pressure, Health damage, XP/Level, and replacement. Farm exposes `Enter — 交互`: Wheat Field commits `activated=true, harvested=true`, then a later Harvest Quest interaction commits `questCompleted=true`. RPG exposes the same generic path: Quest Giver commits `activated=true, questAccepted=true`, then a later Main Quest interaction commits `questCompleted=true`. Both second states are readable through committed Game feedback and Runtime/Observatory inspection; no-target and repeated input remain truthful no-ops. |
-| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → Semantic World → Game DSL → Runtime projection → world-specific registered systems → finalized Runtime events → GameplayRuleSet (including current-World `BOOLEAN_EQUALS` gates) → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | Sprint 41 identified one shared first production blocker: the real World Evolution front door cannot currently produce a validated Farm-field or RPG-quest semantic delta under provider-unavailable conditions, so evolved-entity gameplay continuity cannot begin. The local provider/TLS failure is an environment limitation; the Product blocker is missing archetype-native fallback/delta coverage. |
-| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN. WO-S38-001: PASS/FROZEN. WO-S39-001: PASS/FROZEN. WO-S40-001: PASS — real Studio Farm/RPG negative gate, first commit, second commit, repeat no-op, Observatory/Runtime agreement, full quality gates, and empty browser warn/error diagnostics. |
-| Next Recommended Verification | Human/CTO review and separate authorization of the single READY `WO-S41-001`. Do not execute it automatically, do not create a second Sprint 41 WO, and do not enter Sprint 42. |
+| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 `WO-S38-001` is FROZEN at v1.188 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 39 `WO-S39-001` is FROZEN at v1.189 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 40 `WO-S40-001` is FROZEN at v1.190 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS; v1.190 checkpoint is commit `04c3090`. Sprint 41 `WO-S41-001` is DONE at v1.191 with Code Complete = YES, Product Verified = YES, and fresh Sprint 41 Gap Analysis PASS; `SPRINT41_FREEZE_REVIEW` is pending Human/CTO review. |
+| Architecture Version | v1.191. Sprint 40 remains frozen and Runtime remains authoritative for gameplay. Sprint 41 adds only a bounded deterministic candidate fallback for clear Farm-native field and RPG-native quest additions after structured Provider failure; the candidate still passes the existing resolver/semantic-delta/Runtime synchronization path. |
+| Last Completed WO | WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability; Code Complete = YES; Product Verified = YES; fresh Sprint 41 Gap Analysis PASS; v1.191. |
+| Current User-Visible Behavior | Platformer and Survival baselines remain unchanged. Farm `再加一块麦田` succeeds under Provider-unavailable conditions in the same world, adds a visible `wheat-field-1`, and normal Enter interaction commits `activated=true, harvested=true`; the prior Farm state remains. RPG `再加一个任务` succeeds in the same world, adds visible Runtime `quest-1`, and preserves the prior `quest-giver.questAccepted=true` state. The new RPG quest receives an Enter request, but current `rpg-interaction` remains bound to the exact `Quest Giver` archetype, so the new `Quest` has no committed quest consequence. |
+| Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → structured candidate or bounded deterministic archetype-native fallback → validated Semantic World Delta → GameplayRule reconciliation → Runtime synchronization → world-specific registered systems → finalized Runtime events → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only. |
+| Current Blocking Issue | Fresh post-WO Sprint 41 measurement found one downstream gap: an evolved RPG `Quest` is semantic/Runtime-present and Enter-reachable, but the existing `rpg-interaction` rule is bound to the initial exact `Quest Giver` archetype, so the request ends in `conditions_failed` without `questAccepted=true`. This was intentionally measured, not repaired, because WO-S41-001 was scoped to the earlier provider-error/semantic-delta divergence; no second WO is generated here. |
+| Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN. WO-S38-001: PASS/FROZEN. WO-S39-001: PASS/FROZEN. WO-S40-001: PASS. WO-S41-001: PASS — real Studio Farm/RPG provider-unavailable additions, same-world identity, Runtime/visual presence, Farm new-field harvest, RPG prior-state preservation and new-quest non-reachability measurement, Survival +5 pursuit/contact damage/visual control, merchant/unknown regressions, Observatory truth, full package gates, Web build, and empty browser warn/error diagnostics. |
+| Next Recommended Verification | Human/CTO review of `SPRINT41_FREEZE_REVIEW` and the measured downstream RPG evolved-quest Rule-binding gap. Do not create a second WO automatically and do not enter Sprint 42. |
 
 ## Sprint 39 — WO-S39-001 Execution and Fresh Gap Analysis
 
@@ -139,35 +139,52 @@ Human/CTO froze Sprint 40 at v1.190 on 2026-09-04. The clear Git checkpoint is
 commit `04c3090`; the working tree was clean before the next discovery. The
 Sprint 40 freeze is accepted, and Sprint 41 discovery is recorded below.
 
-## Sprint 41 — World Evolution Gameplay Capability Continuity Discovery
+## Sprint 41 — WO-S41-001 Execution and Fresh Gap Analysis
 
-Human/CTO authorized Sprint 41 discovery only after freezing Sprint 40 at
-v1.190. The discovery used the real Studio front door for Farm, RPG, and the
-Survival control case.
+Human/CTO authorized `WO-S41-001` after the Sprint 40 freeze and the Sprint 41
+discovery review. The implementation advances the architecture from v1.190 to
+v1.191 by extending the existing deterministic World Evolution candidate
+provider with one bounded current-archetype mapping: Farm field aliases resolve
+to a `terrain` / `Wheat Field` add-entity candidate, and RPG quest aliases
+resolve to a `quest` / `Quest` add-entity candidate. The candidate remains
+untrusted until it passes the existing parse, resolver, semantic-delta
+validator, reconciliation, Runtime synchronization, and visual paths. No new
+Router, Runtime, or gameplay framework was added.
 
-Farm `做一个农场游戏` and RPG `创建一个 RPG` reproduced the accepted
-v1.190 two-step baselines. Exact mutations `再加一块麦田` and
-`再加一个任务` routed to World Evolution but failed at
-`STRUCTURED_GENERATION` with `provider_error` in this local provider
-environment, before semantic delta, Runtime mutation, or GameplayRule
-reconciliation. The closest deterministic `增加一个商人` controls proved
-that an added entity can be visible and Runtime-synchronized while remaining
-outside Farm terrain/quest or RPG quest interaction targeting.
+The exact Provider-unavailable Studio sequences now pass the first-slice goal:
 
-Survival `生成一个幸存者游戏` → `再加五只怪` passed as the control:
-same world, exactly five new Enemy entities, target-directed pursuit,
-committed contact damage, and canonical visual reuse. The source audit found
-that evolution preserves retained Runtime entities/components and current
-world identity, but direct post-baseline Farm/RPG state retention with the
-unavailable exact deltas remains a required later acceptance proof.
+- Farm `做一个农场游戏` → `再加一块麦田`: world-5 stayed the same, semantic
+  revision advanced by one, `wheat-field-1` appeared as a Runtime `terrain`
+  entity at (376, 400), and its visual rendered. The previously harvested
+  baseline field state was retained; a normal Enter request on the new field
+  committed `activated=true, harvested=true`.
+- RPG `创建一个 RPG` → `再加一个任务`: world-6 stayed the same, the prior
+  `quest-giver` retained `activated=true, questAccepted=true`, and `quest-1`
+  appeared as a Runtime `quest` named `Quest` at (872, 384) with a visual
+  binding. A normal Enter request reached `quest-1` at distance 16, but both
+  existing RPG interaction rules ended `conditions_failed`; the new quest did
+  not receive `questAccepted=true`.
 
-The single selected blocker is the missing production-validated
-archetype-native semantic delta path for Farm fields and RPG quests under
-provider-unavailable operation. Exactly one WO is READY:
-`WO-S41-001 — Generic Archetype-Native World Evolution Entity Reachability`.
-It is not executed. Details are in
-[`SPRINT41_WORLD_EVOLUTION_DISCOVERY.md`](SPRINT41_WORLD_EVOLUTION_DISCOVERY.md).
-Sprint 41 stops here; Sprint 42 is not entered.
+The Survival control `生成一个幸存者游戏` → `再加五只怪` remained intact in
+world-4: exactly `enemy-1` through `enemy-5` were added, contact events and
+committed `DAMAGE_ENTITY` actions against Player were observed, and the
+canonical visual reuse path remained correct. The existing merchant addition
+still created `merchant-1`; the unsupported `再加一只独角兽` left the world at
+12 entities and failed honestly. Full Observatory event streams agreed with
+the Studio Runtime inspector; browser diagnostics contained no warnings or
+errors attributable to this WO.
+
+Fresh Sprint 41 Gap Analysis is PASS for the authorized first divergence: a
+Provider-unavailable clear supported Farm/RPG addition now reaches a validated
+semantic delta and the same authoritative world. The new Farm field is fully
+reachable through the existing characteristic rule. The newly measurable
+downstream RPG gap is recorded as the next Product issue: current RPG rule
+binding is exact-archetype (`Quest Giver`) rather than a capability-preserving
+binding for the evolved `Quest`. It is not repaired in this WO, no second WO is
+generated automatically, and Sprint 42 is not entered. Details are in
+[`SPRINT41_WORLD_EVOLUTION_DISCOVERY.md`](SPRINT41_WORLD_EVOLUTION_DISCOVERY.md),
+[`SPRINT41_WO_S41_001_EXECUTION.md`](SPRINT41_WO_S41_001_EXECUTION.md), and
+[`ADR-0301`](../adr/ADR-0301-bounded-archetype-native-world-evolution-recovery.md).
 
 ## Sprint 38 Cross-Genre Playability Fidelity Discovery
 
