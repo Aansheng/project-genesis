@@ -43,8 +43,9 @@
 **Sprint 39** — Cross-Genre Interaction Meaning (**FROZEN — `WO-S39-001` Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.189; Human/CTO accepted 2026-09-03**)
 **Sprint 40** — Cross-Genre Gameplay Loop Continuity (**FROZEN — WO-S40-001 DONE; Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.190; Human/CTO accepted 2026-09-04**)
 **Sprint 41** — World Evolution Gameplay Capability Continuity (**FROZEN — `WO-S41-001` Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.191; Human/CTO accepted 2026-09-04**)
-**Sprint 42** — World Evolution Gameplay Rule Binding Continuity (**FREEZE REVIEW READY — `WO-S42-001` DONE; Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.192**)
-**Current WO** - `WO-S42-001` DONE; current gate is `SPRINT42_FREEZE_REVIEW`; Sprint 43 is not entered
+**Sprint 42** — World Evolution Gameplay Rule Binding Continuity (**FROZEN — `WO-S42-001` DONE; Code Complete = YES; Product Verified = YES; fresh Gap Analysis PASS; v1.192**)
+**Sprint 43** — World Evolution Gameplay Composition Expressiveness (**DISCOVERY COMPLETE — exactly one READY `WO-S43-001`; no product code changed; v1.192**)
+**Current WO** - `WO-S43-001 — Trusted Explicit Evolved-Entity Gameplay Role Intent`; READY and not executed; Sprint 44 is not entered
 
 ---
 
@@ -52,14 +53,14 @@
 
 | Item | Status |
 | ----------------------- | --- |
-| Status | Sprint 30 is FROZEN at v1.180, Sprint 31 is FROZEN at v1.181, Sprint 32 is FROZEN at v1.182, Sprint 33 is FROZEN at v1.183, Sprint 34 is FROZEN at v1.184, and Sprint 35 is FROZEN at v1.185 by Human/CTO decisions. Sprint 36 `WO-S36-001` is FROZEN at v1.186 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 37 `WO-S37-001` is FROZEN at v1.187 with Code Complete = YES and Product Verified = YES. Sprint 38 `WO-S38-001` is FROZEN at v1.188 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 39 `WO-S39-001` is FROZEN at v1.189 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS. Sprint 40 `WO-S40-001` is FROZEN at v1.190 with Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS; v1.190 checkpoint is commit `04c3090`. Sprint 41 `WO-S41-001` is FROZEN at v1.191 with Code Complete = YES, Product Verified = YES, and fresh Sprint 41 Gap Analysis PASS; the Human/CTO freeze is accepted. Sprint 42 `WO-S42-001` is DONE at v1.192 with Code Complete = YES, Product Verified = YES, and fresh Sprint 42 Gap Analysis PASS; the freeze review is pending. |
+| Status | Sprint 30 through Sprint 42 are frozen at their accepted architecture checkpoints. Sprint 42 is FROZEN at v1.192 with `WO-S42-001` DONE, Code Complete = YES, Product Verified = YES, and fresh Gap Analysis PASS; checkpoint `e8a4806`. Sprint 43 Discovery is complete at unchanged v1.192 with documentation/control-plane changes only. Exactly one work order, `WO-S43-001`, is READY and not executed. |
 | Architecture Version | v1.192. Sprint 41 remains frozen and Runtime remains authoritative for gameplay. Sprint 42 closes the measured evolved-RPG binding gap with a bounded typed gameplay-role contract; no QuestEngine, full rebuild, or second gameplay authority was added. |
 | Last Completed WO | WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract; Code Complete = YES; Product Verified = YES; fresh Sprint 42 Gap Analysis PASS; v1.192. |
 | Current User-Visible Behavior | Platformer and Survival baselines remain unchanged. Farm `再加一块麦田` preserves the same world and prior Farm state, adds visible `wheat-field-1`, and normal Enter commits `activated=true, harvested=true`. RPG `再加一个任务` preserves `quest-giver.activated=true, questAccepted=true`, adds visible Runtime `quest-1` with `gameplayRole=quest-objective`, and normal Enter commits `questCompleted=true`; repeated Enter is a truthful no-op. The original RPG acceptance path remains limited to `gameplayRole=quest-acceptor`, so Quest Giver/Main Quest semantics stay distinct. |
 | Current End-to-End Pipeline | Genesis Studio → StudioCommandBar → Pinia `gameStore` semantic authority + app-session Runtime progression store → IntentRouter → CreateWorld/Evolution boundary → structured candidate or bounded deterministic archetype-native fallback → validated Semantic World Delta → GameplayRule reconciliation → Runtime synchronization → world-specific registered systems → finalized Runtime events → authoritative WorldStore/session state → Pixi Renderer feedback/entity presentation + Observatory projection. AI/provider calls remain generation-time only. |
-| Current Blocking Issue | No additional product blocker was measured after WO-S42-001. Sprint 42's first divergence is closed: the bounded trusted resolver projects `quest-acceptor` or `quest-objective`, reconciliation binds the existing generic RPG rules, and Runtime evaluates the role against authoritative semantic facts. The remaining gate is Human/CTO freeze review; the local Turbo Keychain/TLS limitation remains environmental and does not block the product result. |
+| Current Blocking Issue | World Evolution cannot preserve explicit `GameplayEntityRole` intent independently of archetype-derived defaults. Real Studio `再加一个任务发布者` became a generic `Quest` with `gameplayRole=quest-objective`; the requested existing `quest-acceptor` meaning was lost before Runtime. Request-authored rules/conditions/actions are also unsupported, but that wider Level-3 gap is downstream. |
 | Product Verification | Sprint 30: PASS/FROZEN. WO-S31-001: PASS. WO-S31-002: PASS. WO-S32-001: PASS/FROZEN. WO-S33-001: PASS/FROZEN. WO-S34-001: PASS/FROZEN. WO-S35-001: PASS/FROZEN. WO-S36-001: PASS/FROZEN. WO-S37-001: PASS/FROZEN. WO-S38-001: PASS/FROZEN. WO-S39-001: PASS/FROZEN. WO-S40-001: PASS/FROZEN. WO-S41-001: PASS/FROZEN. WO-S42-001: PASS — real Studio RPG evolved-quest completion and retained Quest Giver acceptance, Farm/Survival regression controls, focused/full package tests, TypeScript, ESLint, direct Web production build, and empty browser diagnostics. |
-| Next Recommended Verification | Human/CTO review of `SPRINT42_FREEZE_REVIEW`. Freeze Sprint 42 at v1.192 if accepted; do not extend into third-stage gameplay, inventory/resources/rewards/economy/dialogue, or enter Sprint 43. |
+| Next Recommended Verification | Human/CTO review of the single READY `WO-S43-001 — Trusted Explicit Evolved-Entity Gameplay Role Intent`. Do not execute it automatically, generate a second WO, broaden into gameplay-rule mutation, or enter Sprint 44. |
 
 ## Sprint 39 — WO-S39-001 Execution and Fresh Gap Analysis
 
@@ -263,12 +264,41 @@ direct Web production build, full Renderer (27 files / 517 tests), and browser
 error/warning diagnostics passed. Fresh Sprint 42 Gap Analysis is PASS.
 `WO-S42-001` is DONE with Code Complete = YES and Product Verified = YES.
 
-The repository stops at `SPRINT42_FREEZE_REVIEW`. No third-stage gameplay,
-inventory, resources, rewards, economy, dialogue, QuestEngine, genre Runtime,
-workflow/state-machine framework, or Sprint 43 work is authorized by this
-record. Detailed evidence is in
+The repository stopped at `SPRINT42_FREEZE_REVIEW` until the Human/CTO freeze
+decision. No third-stage gameplay, inventory, resources, rewards, economy,
+dialogue, QuestEngine, genre Runtime, or workflow/state-machine framework was
+included. Detailed evidence is in
 [`SPRINT42_WO_S42_001_EXECUTION.md`](SPRINT42_WO_S42_001_EXECUTION.md) and
 [`ADR-0302`](../adr/ADR-0302-evolved-entity-gameplay-role-binding.md).
+
+## Sprint 43 — World Evolution Gameplay Composition Expressiveness Discovery
+
+Human/CTO froze Sprint 42 at v1.192 and authorized Sprint 43 Discovery only.
+Repository truth showed the completed v1.192 checkpoint already exists as
+`e8a4806`; the worktree was clean before Discovery.
+
+The current delta supports entity add/remove/semantic replacement and bounded
+world properties, but not an authoritative explicit `gameplayRole`, gameplay
+rules, conditions/actions, or relationships. Evolved roles are derived later
+from `worldType + category + name`. Evolution retains the initial
+GameplaySpecification and only reconciles known deterministic rules against
+the changed entity set.
+
+Real Studio showed `再加一个任务目标` and `再加一个任务发布者` both collapse to
+`Add Quest ×1`. The first happened to derive the requested
+`quest-objective`; the second incorrectly also derived `quest-objective`, so
+the explicit existing `quest-acceptor` intent was lost. Entity-plus-condition
+requests added only default entities (the Farm example even became a Wheat
+Field rather than a harvest quest), and an existing gameplay-semantic edit
+failed honestly. Browser diagnostics were empty; focused AI 25/25 and Web
+32/32 checks passed.
+
+The first/single blocker is **WORLD EVOLUTION CANNOT PRESERVE EXPLICIT
+GAMEPLAY-ROLE INTENT INDEPENDENTLY OF ARCHETYPE-DERIVED DEFAULTS**. Exactly one
+READY work order was generated: `WO-S43-001 — Trusted Explicit Evolved-Entity
+Gameplay Role Intent`. It is not executed; product architecture remains
+v1.192 and Sprint 44 is not entered. Full evidence is in
+[`SPRINT43_WORLD_EVOLUTION_GAMEPLAY_COMPOSITION_DISCOVERY.md`](SPRINT43_WORLD_EVOLUTION_GAMEPLAY_COMPOSITION_DISCOVERY.md).
 
 ## Sprint 38 Cross-Genre Playability Fidelity Discovery
 

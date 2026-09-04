@@ -256,7 +256,9 @@ and one `ENTITY_GAMEPLAY_ROLE_EQUALS` GameplayRule condition. CreateWorld and
 World Evolution now converge on the same semantic/Runtime role fact;
 targeted reconciliation fingerprints the role, and the authoritative Runtime
 evaluator binds the existing completion Rule to any objective-role quest.
-Quest Giver acceptance remains distinct and still requires the acceptor role.
+Quest Giver acceptance remains distinct and is still exact-archetype-bound;
+the entity carries `quest-acceptor`, but that rule does not consume the role
+in v1.192.
 
 Real Studio verification passed: `创建一个 RPG` → Quest Giver acceptance →
 `再加一个任务` preserved world-1 and prior state, rendered `quest-1`, and
@@ -267,11 +269,34 @@ direct Web build, full Renderer (27 files / 517 tests), and browser diagnostics
 passed.
 
 `WO-S42-001` is DONE with Code Complete = YES, Product Verified = YES, and
-fresh Sprint 42 Gap Analysis = PASS. The current control-plane gate is
-`SPRINT42_FREEZE_REVIEW`; no inventory/resources/rewards/economy/dialogue,
-third-stage progression, new framework, or Sprint 43 is entered. Detailed
+fresh Sprint 42 Gap Analysis = PASS. Human/CTO froze Sprint 42 at v1.192; the
+normal repository checkpoint is `e8a4806`. No inventory/resources/rewards/
+economy/dialogue, third-stage progression, or new framework was included. Detailed
 evidence is in `docs/project/SPRINT42_WO_S42_001_EXECUTION.md` and
 `docs/adr/ADR-0302-evolved-entity-gameplay-role-binding.md`.
+
+Human/CTO then authorized Sprint 43 — World Evolution Gameplay Composition
+Expressiveness Discovery only. The source audit establishes that Evolution
+can mutate semantic structure and reconcile known deterministic rules, but it
+cannot carry an authoritative explicit `GameplayEntityRole`, request-authored
+GameplayRule, condition/action, or entity relationship. Roles are derived
+later from `worldType + category + name`; CreateWorld remains the only path
+with a gameplay-rich candidate contract.
+
+Real Studio measured the first divergence at the narrower role boundary.
+`再加一个任务目标` and `再加一个任务发布者` both became `Add Quest ×1` and
+both derived `quest-objective`; the task-publisher request lost its explicit
+existing `quest-acceptor` meaning. Condition-bearing RPG/Farm requests reduced
+to default structural additions, while an existing gameplay-semantic edit
+failed honestly.
+
+The single selected blocker is **WORLD EVOLUTION CANNOT PRESERVE EXPLICIT
+GAMEPLAY-ROLE INTENT INDEPENDENTLY OF ARCHETYPE-DERIVED DEFAULTS**. Exactly one
+READY item exists: `WO-S43-001 — Trusted Explicit Evolved-Entity Gameplay
+Role Intent`. The wider GameplayRule mutation gap is downstream and excluded
+from this WO. Sprint 43 Discovery is complete at unchanged v1.192; no product
+code changed, the WO is not executed, and Sprint 44 is not entered. Evidence
+is in `docs/project/SPRINT43_WORLD_EVOLUTION_GAMEPLAY_COMPOSITION_DISCOVERY.md`.
 
 Sprint 15's measurable checkpoint is a coherent platformer slice with
 movement/jump continuity, event-driven gameplay, collectible interaction,

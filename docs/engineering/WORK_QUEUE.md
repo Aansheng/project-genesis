@@ -5,20 +5,19 @@ not a database or task service.
 
 queue_version: 1
 updated: 2026-09-04
-current_sprint: Sprint 42 (IMPLEMENTATION COMPLETE; FREEZE REVIEW)
-current_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
-current_work_order_status: DONE — Code Complete = YES; Product Verified = YES
-current_control_plane_work_order: SPRINT42_FREEZE_REVIEW
-current_control_plane_work_order_status: READY — fresh Sprint 42 Gap Analysis PASS; stop before Sprint 43
+current_sprint: Sprint 43 — World Evolution Gameplay Composition Expressiveness
+current_work_order: WO-S43-001 — Trusted Explicit Evolved-Entity Gameplay Role Intent
+current_work_order_status: READY — not executed
+current_control_plane_work_order: SPRINT43_DISCOVERY_REVIEW
+current_control_plane_work_order_status: DONE — exactly one READY WO; stop before implementation/Sprint 44
 last_completed_work_order: WO-S42-001 — Evolved-Entity Gameplay Capability Binding Contract
 last_completed_product_work_order: WO-S42-001
-last_completed_control_plane_work_order: SPRINT42_DISCOVERY_REVIEW
-next_work_order: none — Human/CTO freeze review required
+last_completed_control_plane_work_order: SPRINT43_DISCOVERY_REVIEW
+next_work_order: WO-S43-001 — Human/CTO review required before execution
 continuation_mode: WORK_ORDER_COMPLETE_STOP
 primary_architecture_changing_work_items_in_progress: 0
-git_checkpoint: HEAD `8c0b65f` is the committed Sprint 42 Discovery checkpoint;
-  WO-S42-001 implementation/documentation remain uncommitted; no staged
-  Discovery content was discarded
+git_checkpoint: HEAD `e8a4806` is the committed v1.192 Sprint 42 implementation
+  checkpoint; the worktree was clean before Sprint 43 Discovery
 
 ## SPRINT40_DISCOVERY_REVIEW
 
@@ -342,7 +341,112 @@ quality_gates: Full Shared/AI/Runtime/Web tests pass; affected Renderer tests
   pass; all TypeScript and ESLint checks pass; direct Web production build and
   full Renderer (27 files / 517 tests) pass; browser warn/error diagnostics are
   empty.
-next_action: Human/CTO review of `SPRINT42_FREEZE_REVIEW`; no Sprint 43.
+historical_next_action: Human/CTO review of `SPRINT42_FREEZE_REVIEW`; this gate
+  is now closed by the freeze recorded below.
+
+## SPRINT42_FREEZE_REVIEW
+
+status: FROZEN — Human/CTO accepted 2026-09-04; `WO-S42-001` DONE; Code Complete = YES; Product Verified = YES; fresh Sprint 42 Gap Analysis PASS
+architecture: v1.192
+git_checkpoint: `e8a4806` — Bind evolved RPG quests to gameplay roles
+evidence: `docs/project/SPRINT42_WO_S42_001_EXECUTION.md` and
+  `docs/adr/ADR-0302-evolved-entity-gameplay-role-binding.md`.
+next_action: Sprint 42 freeze is closed. Continue only with the separately
+  authorized Sprint 43 Discovery; do not execute product work automatically.
+
+## SPRINT43_AUTHORIZATION — World Evolution Gameplay Composition Expressiveness
+
+status: ACCEPTED — DISCOVERY ONLY; discovery complete
+architecture: v1.192 (unchanged during Discovery)
+decision: Human/CTO froze Sprint 42 and authorized a bounded audit of whether
+  World Evolution can express entity role and rule composition, with exactly
+  one READY WO and a stop before implementation/Sprint 44.
+constraints: No product code, WO execution, arbitrary Provider authority,
+  world/RuleSet rebuild, gameplay framework, second WO, or Sprint 44.
+
+## SPRINT43_DISCOVERY_REVIEW
+
+status: DONE — exactly one Product blocker; exactly one READY WO; no product code modified; no WO executed
+architecture_before: v1.192
+architecture_after: v1.192 (Discovery only)
+evidence: `docs/project/SPRINT43_WORLD_EVOLUTION_GAMEPLAY_COMPOSITION_DISCOVERY.md`
+contract_truth: World Evolution supports entity add/remove/semantic replace
+  and bounded world-property updates. It cannot carry authoritative explicit
+  `gameplayRole`, GameplayRules, conditions/actions, or relationships. The
+  free-form semantic candidate `role` is dropped by application; Runtime role
+  is derived from `worldType + category + name`.
+rule_composition: Evolution keeps the original GameplaySpecification and uses
+  targeted reconciliation only for known deterministic baseline Rule IDs. It
+  does not invoke gameplay generation or append request-authored rules.
+real_studio: `再加一个任务目标` and `再加一个任务发布者` both became
+  `Add Quest ×1`; both new entities derived `quest-objective`, so the explicit
+  task-publisher/`quest-acceptor` intent was lost. Farm explicit-harvest wording
+  became a default Wheat Field. Condition-bearing requests added only default
+  entities, and an existing gameplay-semantic edit failed honestly. Browser
+  warn/error diagnostics were empty.
+first_divergence: Explicit supported gameplay-role intent is reduced to a
+  structural add candidate before validated semantic application. The
+  authoritative delta has no role fact, so Runtime can only derive the default.
+selected_blocker: WORLD EVOLUTION CANNOT PRESERVE EXPLICIT GAMEPLAY-ROLE INTENT
+  INDEPENDENTLY OF ARCHETYPE-DERIVED DEFAULTS.
+selected_work_order: WO-S43-001 — Trusted Explicit Evolved-Entity Gameplay Role Intent
+selected_work_order_status: READY — not executed
+alternatives_deprioritized: General GameplayRuleDelta is wider and downstream;
+  renaming to Quest Giver conflates archetype and role; consuming the acceptor
+  role alone does not preserve NL intent; trusting Provider strings violates
+  authority; entity-property work is unrelated.
+state_preservation: Same world/session, RPG questAccepted/questCompleted, Farm
+  harvested/questCompleted, Survival Health/XP/Level/session state, unaffected
+  Runtime components, semantic/runtime revisions, and existing Rule IDs must
+  remain stable. No duplicate rules after repeated mutations.
+non_goals: No GameplayRule/condition/action/relationship delta, generic
+  ontology, arbitrary Provider roles, full rebuild, domain Runtime/engine,
+  inventory/resources/rewards/economy/dialogue, second WO, or Sprint 44.
+next_action: Human/CTO review of `WO-S43-001`; do not execute automatically.
+
+## WO-S43-001 — Trusted Explicit Evolved-Entity Gameplay Role Intent
+
+status: READY — not executed
+priority: P0 — single Sprint 43 Product blocker
+architecture_before: v1.192
+architecture_expected_after: v1.193
+mission: Preserve one explicit current `GameplayEntityRole` request through
+  candidate interpretation, Genesis validation, semantic delta/application,
+  Runtime projection, targeted reconciliation, and normal gameplay. Use the
+  existing RPG acceptance consequence to prove mechanical reachability.
+dependencies: Sprint 42 frozen; bounded role union, role condition, Runtime
+  evaluator/projection, semantic delta, and reconciler already exist.
+allowed_scope: Typed optional role on resolved/authoritative semantic entities;
+  finite `quest-acceptor | quest-objective` normalization and compatibility
+  validation; bounded Provider/fallback interpretation; default derivation
+  when absent; existing `rpg-interaction` consumption of
+  `ENTITY_GAMEPLAY_ROLE_EQUALS(quest-acceptor)`; tests, gates, docs, and real
+  Studio verification.
+forbidden_scope: GameplayRule delta, request-authored conditions/actions,
+  arbitrary tags/Provider authority, ontology/inheritance framework, per-ID
+  rules, full world/GameplaySpecification/RuleSet rebuild, QuestEngine,
+  RPGRuntime/FarmRuntime, workflow, inventory/resources/rewards/economy/
+  dialogue, second WO, or Sprint 44.
+acceptance: Real Studio `创建一个 RPG` → `再加一个任务发布者` stays in the same
+  world, creates one visible `quest-acceptor`, and normal Enter commits
+  `questAccepted=true` on it; repeat is a truthful no-op. Explicit objective,
+  original Quest Giver, evolved-objective completion, Farm, Survival, negative
+  roles, state retention, Rule-ID uniqueness, and no-rebuild invariants pass.
+automated_tests: Shared role/delta/application; AI candidate/fallback/builder/
+  validator/reconciliation; Runtime projection/evaluator/preservation; Web
+  real-store front-door, negatives, no-op, and Farm/Survival regressions;
+  affected package suites, TypeScript, ESLint, and direct Web build.
+product_verification: Required through real Studio normal controls, Runtime
+  state, Observatory reconciliation/execution facts, state preservation, and
+  empty browser diagnostics.
+observability: Preserve candidate-versus-authority distinction and record
+  validated role, semantic/runtime projection, rule condition result,
+  committed mutation, and repeated no-op truth.
+completion_report: Architecture before/after, files, actual flow, tests,
+  TypeScript, ESLint, build, constraints, remaining Level-3 gap, manual steps,
+  Code Complete, and Product Verified.
+human_decision_required: YES — execution requires explicit Human/CTO approval.
+next_action: Stop for review; do not execute or enter Sprint 44.
 
 ## SPRINT39_AUTHORIZATION — Cross-Genre Interaction Meaning Discovery
 

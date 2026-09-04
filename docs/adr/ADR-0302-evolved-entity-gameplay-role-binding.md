@@ -1,6 +1,6 @@
 # ADR-0302 — Evolved-Entity Gameplay Role Binding
 
-- **Status:** Implemented / Product Verified; pending `SPRINT42_FREEZE_REVIEW`
+- **Status:** Accepted / implemented / Product Verified / Sprint 42 frozen
 - **Date:** 2026-09-04
 - **Architecture:** v1.191 → v1.192
 - **Work order:** `WO-S42-001`
@@ -52,8 +52,9 @@ ENTITY_GAMEPLAY_ROLE_EQUALS(entity, role)
 
 The existing RPG Rules then remain bounded and distinct:
 
-- `rpg-interaction` requires `eventTarget` role `quest-acceptor` and commits
-  `activated=true, questAccepted=true`.
+- `rpg-interaction` remains bound to the exact `Quest Giver` archetype and
+  commits `activated=true, questAccepted=true`. The entity also carries
+  `quest-acceptor`, but this rule does not consume that role in v1.192.
 - `rpg-complete-main-quest` requires `eventTarget` role `quest-objective` plus
   the existing authoritative `questAccepted=true` prerequisite and commits
   `questCompleted=true`.

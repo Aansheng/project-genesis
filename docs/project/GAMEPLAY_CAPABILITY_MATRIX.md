@@ -1,4 +1,4 @@
-# Gameplay Capability Matrix — Sprint 42 WO Complete / Freeze Review
+# Gameplay Capability Matrix — Sprint 43 Discovery Complete
 
 Architecture version: v1.192 (Sprint 30 through Sprint 41 FROZEN;
 `WO-S33-001` and `WO-S34-001` Code Complete = YES; Product Verified = YES;
@@ -14,8 +14,9 @@ FROZEN; `WO-S40-001` Code Complete = YES; Product Verified = YES; fresh
   Sprint 40 Gap Analysis PASS; Sprint 40 FROZEN at v1.190; `WO-S41-001` Code
   Complete = YES; Product Verified = YES; fresh Sprint 41 Gap Analysis PASS;
   Sprint 41 FROZEN at v1.191; `WO-S42-001` Code Complete = YES; Product
-  Verified = YES; fresh Sprint 42 Gap Analysis PASS; Sprint 42 at v1.192;
-  freeze review pending)
+  Verified = YES; fresh Sprint 42 Gap Analysis PASS; Sprint 42 FROZEN at
+  v1.192; Sprint 43 Discovery complete at unchanged v1.192; exactly one READY
+  `WO-S43-001`, not executed)
 
 Sprint 32 implemented the smallest measured generic Player-directed offense
 capability. Survival now exposes a top-down `Space` edge that selects one
@@ -110,12 +111,13 @@ insertion, Provider runtime call, or new gameplay framework is implied.
 
 Sprint 42 closes the downstream Rule-binding gap at the existing semantic
 composition boundary. `GameplayEntityRole` derives the bounded RPG roles
-`quest-acceptor` and `quest-objective`, and the existing RPG Rules use the
-generic `ENTITY_GAMEPLAY_ROLE_EQUALS` condition without broadening Quest Giver
-to every `quest` or copying rules per ID. CreateWorld and World Evolution
-converge on the same role fact, while Runtime evaluates it against authoritative
-semantic state. `WO-S42-001` is DONE at v1.192; Farm and Survival remain
-passing comparison controls.
+`quest-acceptor` and `quest-objective`; the completion Rule uses the generic
+`ENTITY_GAMEPLAY_ROLE_EQUALS` condition without copying rules per ID. The
+acceptance Rule remains exact-archetype-bound to Quest Giver in v1.192, even
+though that entity also carries `quest-acceptor`. CreateWorld and World
+Evolution converge on the same derived role fact, while Runtime evaluates the
+completion role against authoritative semantic state. `WO-S42-001` is DONE and
+Sprint 42 is frozen at v1.192; Farm and Survival remain passing controls.
 
 | Concept | Domain / semantic status | Runtime capability status | Evidence / treatment |
 | --- | --- | --- | --- |
@@ -129,6 +131,8 @@ passing comparison controls.
 | Provider-unavailable archetype-native World Evolution add | Current semantic archetype + bounded supported-role alias | `supported` (bounded) | `WO-S41-001` keeps clear Farm field and RPG quest additions on the validated semantic-delta path after structured Provider failure; same-world identity and retained Runtime state are preserved. |
 | Evolved RPG quest characteristic consequence | Evolved semantic quest → current RPG GameplayRule | `supported` (bounded) | `quest-1` receives the trusted `quest-objective` role, remains distinct from Quest Giver, and normal Enter commits `questCompleted=true` after the retained `questAccepted=true` prerequisite. |
 | Evolved-entity gameplay capability binding | World Evolution semantic capability/role continuity → existing rule composition | `supported` (bounded) | `WO-S42-001` derives the typed role contract during CreateWorld and World Evolution, reconciles the existing rules without full rebuild, and evaluates role conditions from authoritative semantic facts. |
+| Explicit evolved gameplay-role intent | Natural-language modifier → validated semantic delta → authoritative semantic/Runtime role | `deferred` / first Sprint 43 blocker | `再加一个任务发布者` is reduced to `Add Quest ×1` and derives `quest-objective`; `gameplayRole` is not represented explicitly in the delta or `GameWorldEntity`. `WO-S43-001` is READY and not executed. |
+| Request-authored World Evolution gameplay rule | Natural-language condition/consequence → rule identity/condition/action → reconciliation | `unsupported` / downstream | Evolution has no rule/condition/action/relationship operation and does not invoke gameplay generation. Current reconciliation only updates known deterministic baseline rules. |
 | Targeted Gameplay Rule reconciliation | Semantic World Evolution + current `GameplayRuleSet` | `supported` | `DefaultGameplayRuleReconciler` preserves unaffected rules, revalidates/rebuilds affected known rules, removes dangling rules, binds the updated semantic revision, and records immutable reconciliation facts without Provider regeneration. |
 | Gameplay event observation | Runtime event domain | `supported` | Runtime emits bounded immutable gameplay facts through `ExecutionTickResult.gameplayEvents`; this is not rule execution. |
 | Accepted jump event | Runtime event observation | `supported` | `DefaultJumpSystem` emits one `ENTITY_JUMPED` only after a grounded jump is accepted. |
@@ -255,5 +259,7 @@ then measured the downstream RPG evolved-quest Rule-binding gap. `WO-S42-001`
 now advances the matrix to v1.192: the bounded role contract makes the evolved
 RPG quest completion-capable while preserving Quest Giver/Main Quest
 distinction, same-world state, and Runtime authority. Code Complete and
-Product Verified are YES and fresh Sprint 42 Gap Analysis is PASS. The
-current gate is `SPRINT42_FREEZE_REVIEW`; Sprint 43 is not entered.
+Product Verified are YES and fresh Sprint 42 Gap Analysis is PASS. Human/CTO
+froze Sprint 42 at v1.192. Sprint 43 Discovery measures explicit role-intent
+loss as the first blocker, generates exactly one READY `WO-S43-001`, and stops
+without product implementation or Sprint 44 entry.
