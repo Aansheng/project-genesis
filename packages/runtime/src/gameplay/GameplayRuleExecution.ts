@@ -291,8 +291,7 @@ function selectorMatchesEntity(
       return normalizeArchetype(semanticFactsOf(entity, semanticWorld).name ?? '')
         === normalizeArchetype(selector.archetype)
     case 'role':
-      // The validator defines role as a semantic category alias. Do not infer it from IDs.
-      return semanticFactsOf(entity, semanticWorld).category === selector.role
+      return semanticFactsOf(entity, semanticWorld).gameplayRole === selector.role
   }
 }
 
@@ -343,14 +342,18 @@ function resolveBooleanReference(
   }
   if (reference.kind === 'gameState') return undefined
 
-  const entity = resolveSelector(reference.entity, event, context)
-  if (!entity) return undefined
-  const state = entity.components?.find(component => component.type === GAMEPLAY_STATE_COMPONENT_TYPE)
-  const value = state?.properties[reference.property]
-  // A missing boolean flag is the typed false/default state. This lets a
-  // later rule be truthfully gated before the first interaction commits it.
-  if (value === undefined) return false
-  return typeof value === 'boolean' ? value : undefined
+  const entities = reference.entity.kind === 'role'
+    ? context.world.entities.filter(entity => selectorMatchesEntity(reference.entity, entity, event, context.semanticWorld))
+    : [resolveSelector(reference.entity, event, context)].filter((entity): entity is Entity => entity !== undefined)
+  if (entities.length === 0) return undefined
+  const values = entities.map(entity => entity.components
+    ?.find(component => component.type === GAMEPLAY_STATE_COMPONENT_TYPE)
+    ?.properties[reference.property])
+  if (values.some(value => value !== undefined && typeof value !== 'boolean')) return undefined
+  // A missing boolean flag is the typed false/default state. Role selectors
+  // intentionally use existential truth so any accepted bounded role can
+  // satisfy a shared multi-step prerequisite.
+  return values.some(value => value === true)
 }
 
 function numericComparisonMatches(
@@ -400,7 +403,7 @@ function triggerParticipantMatches(
     const entityType = typeof event.payload?.entityType === 'string' ? event.payload.entityType : undefined
     const entityName = typeof event.payload?.entityName === 'string' ? event.payload.entityName : undefined
     if (selector.kind === 'category') return entityType === selector.category
-    if (selector.kind === 'role') return entityType === selector.role
+    if (selector.kind === 'role') return false
     if (selector.kind === 'archetype') return entityName !== undefined
       && normalizeArchetype(entityName) === normalizeArchetype(selector.archetype)
   }

@@ -1,4 +1,5 @@
 import type { GameWorldEntity, GameWorldModel } from '../game-world'
+import { isGameplayEntityRoleCompatible } from '../game-world'
 import type {
   EvolutionWorldProperty,
   WorldSemanticDelta,
@@ -205,12 +206,18 @@ export class DefaultSemanticWorldDeltaApplier implements SemanticWorldDeltaAppli
         if (!Number.isInteger(operation.count) || operation.count <= 0 || !operation.semantic?.name?.trim() || !operation.semantic.category) {
           return fail('invalid_delta')
         }
+        if (operation.semantic.gameplayRole !== undefined && !isGameplayEntityRoleCompatible(
+          world.worldType,
+          operation.semantic,
+          operation.semantic.gameplayRole,
+        )) return fail('invalid_delta')
         for (let index = 0; index < operation.count; index++) {
           const id = allocateId(operation.semantic.name, usedIds)
           const entity = Object.freeze({
             id,
             category: operation.semantic.category,
             name: operation.semantic.name.trim(),
+            ...(operation.semantic.gameplayRole ? { gameplayRole: operation.semantic.gameplayRole } : {}),
           })
           draftEntities.push(entity)
           addedEntities.push(entity)
@@ -256,17 +263,26 @@ export class DefaultSemanticWorldDeltaApplier implements SemanticWorldDeltaAppli
 
       if (operation.kind === 'replace-entity-semantic') {
         if (!operation.preserveIdentity || !operation.replacement?.name?.trim() || !operation.replacement.category) return fail('unsupported_operation')
+        if (operation.replacement.gameplayRole !== undefined && !isGameplayEntityRoleCompatible(
+          world.worldType,
+          operation.replacement,
+          operation.replacement.gameplayRole,
+        )) return fail('invalid_delta')
         for (const id of operation.targetIds) {
           const index = draftEntities.findIndex(entity => entity.id === id)
           if (index < 0) return fail('entity_not_found')
           const current = draftEntities[index]
           const expected = operation.from[operation.targetIds.indexOf(id)] ?? operation.from[0]
-          if (expected && (expected.name !== current.name || expected.category !== current.category)) return fail('invalid_delta')
+          if (expected && (
+            expected.name !== current.name
+            || expected.category !== current.category
+            || expected.gameplayRole !== current.gameplayRole
+          )) return fail('invalid_delta')
           draftEntities[index] = {
-            ...current,
             id,
             name: operation.replacement.name.trim(),
             category: operation.replacement.category,
+            ...(operation.replacement.gameplayRole ? { gameplayRole: operation.replacement.gameplayRole } : {}),
           }
           affectedEntityIds.push(id)
         }

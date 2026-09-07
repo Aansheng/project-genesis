@@ -174,6 +174,90 @@ describe('WO-S42-001: evolved RPG entity gameplay capability binding', () => {
     runtime.input.detach()
   })
 
+  it('preserves explicit quest-acceptor intent through evolution and real Studio gameplay', async () => {
+    const game = useGameStore()
+    expect((await game.send('创建一个 RPG')).success).toBe(true)
+    const worldId = game.currentWorldId
+    const runtime = createStudioGameplayRuntime(game)
+    settle(game, runtime)
+    const originalRuntimeEntities = game.worldStore.getWorld().entities
+
+    const evolved = await game.send('再加一个任务发布者')
+    expect(evolved.success).toBe(true)
+    if (evolved.evolutionPlan?.status !== 'validated') throw new Error('expected a validated world evolution plan')
+    expect(game.currentWorldId).toBe(worldId)
+    expect(game.semanticWorld?.entities).toContainEqual({
+      id: 'quest-publisher-1',
+      category: 'quest',
+      name: 'Quest Publisher',
+      gameplayRole: 'quest-acceptor',
+    })
+    expect(game.worldStore.getWorld().entities.find(entity => entity.id === 'quest-publisher-1')?.components).toContainEqual(
+      expect.objectContaining({
+        type: 'semantic',
+        properties: expect.objectContaining({ gameplayRole: 'quest-acceptor' }),
+      }),
+    )
+    expect(game.worldStore.getWorld().entities.slice(0, originalRuntimeEntities.length)).toEqual(originalRuntimeEntities)
+    expect(game.gameplayRuleSet?.rules.find(rule => rule.ruleId === 'rpg-interaction')?.conditions).toContainEqual(
+      expect.objectContaining({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', role: 'quest-acceptor' }),
+    )
+
+    movePlayerNear(game, runtime, 'quest-publisher-1')
+    const accepted = pressEnter(game, runtime)
+    expect(accepted.gameplayEvents).toContainEqual(expect.objectContaining({
+      type: 'ENTITY_INTERACTION_REQUESTED',
+      targetEntityId: 'quest-publisher-1',
+    }))
+    expect(accepted.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-interaction',
+      status: 'executed',
+      committed: true,
+      conditionResult: expect.objectContaining({
+        conditions: expect.arrayContaining([
+          expect.objectContaining({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', status: 'passed' }),
+        ]),
+      }),
+    }))
+    expect(gameplayState(game, 'quest-publisher-1')).toEqual(expect.objectContaining({ questAccepted: true }))
+    expect(gameplayState(game, 'quest-giver')).not.toHaveProperty('questAccepted')
+
+    const repeated = pressEnter(game, runtime)
+    expect(repeated.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-interaction',
+      status: 'executed',
+      committed: false,
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' }),
+      ]),
+    }))
+
+    movePlayerNear(game, runtime, 'main-quest')
+    const completed = pressEnter(game, runtime)
+    expect(completed.gameplayRuleResults).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-complete-main-quest',
+      status: 'executed',
+      committed: true,
+    }))
+    expect(gameplayState(game, 'main-quest')).toEqual(expect.objectContaining({ questCompleted: true }))
+
+    const normalQuest = await game.send('再加一个任务')
+    expect(normalQuest.success).toBe(true)
+    expect(game.currentWorldId).toBe(worldId)
+    expect(game.semanticWorld?.entities).toContainEqual({ id: 'quest-1', category: 'quest', name: 'Quest' })
+    expect(game.worldStore.getWorld().entities.find(entity => entity.id === 'quest-1')?.components).toContainEqual(
+      expect.objectContaining({
+        type: 'semantic',
+        properties: expect.objectContaining({ gameplayRole: 'quest-objective' }),
+      }),
+    )
+
+    movePlayerNear(game, runtime, 'merchant')
+    const unrelated = pressEnter(game, runtime)
+    expect(unrelated.gameplayRuleResults?.every(result => result.committed === false)).toBe(true)
+    runtime.input.detach()
+  })
+
   it('does not let an evolved Quest complete before the Quest Giver prerequisite', async () => {
     const game = useGameStore()
     expect((await game.send('创建一个 RPG')).success).toBe(true)

@@ -35,7 +35,8 @@ export class DefaultWorldEvolutionPromptBuilder implements WorldEvolutionPromptB
       'Return structured JSON only; do not return Markdown, explanations, reasoning, or hidden chain-of-thought.',
       'Never fabricate or trust concrete entity IDs. Use semantic selectors; Genesis resolves current IDs.',
       'Preserve entity identity for semantic replacement by setting preserveIdentity to true.',
-      'Supported output shape: {kind, scope, target?, semantic?, replacement?, count?, property?, value?, operation?, preserveIdentity?}.',
+      'Supported output shape: {kind, scope, target?, semantic?: {name, category?, gameplayRole?}, replacement?: {name, category?, gameplayRole?}, count?, property?, value?, operation?, preserveIdentity?}.',
+      'For add/replace semantic data, optional gameplayRole is limited to quest-acceptor or quest-objective; use it only for an RPG quest entity when the instruction explicitly requests that responsibility.',
       `Supported v1 kinds: ${supportedOperations.join(', ')}.`,
       'Entity property updates are a typed extension point and are not executable in v1.',
     ].join('\n')
@@ -49,6 +50,7 @@ export class DefaultWorldEvolutionPromptBuilder implements WorldEvolutionPromptB
           id: entity.id,
           category: entity.category,
           name: entity.name,
+          ...(entity.gameplayRole ? { gameplayRole: entity.gameplayRole } : {}),
         })),
       },
       instruction: request.instruction,

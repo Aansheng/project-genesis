@@ -3,6 +3,7 @@ import type {
   WorldSemanticDelta,
   WorldSemanticDeltaOperation,
 } from '@genesis/shared'
+import { isGameplayEntityRoleCompatible } from '@genesis/shared'
 import type {
   WorldSemanticDeltaValidationResult,
   WorldSemanticDeltaValidator,
@@ -30,6 +31,11 @@ export class DefaultWorldSemanticDeltaValidator implements WorldSemanticDeltaVal
       if (operation.kind === 'add-entity') {
         if (!Number.isInteger(operation.count) || operation.count <= 0) errors.push('add count must be a positive integer')
         if (!operation.semantic.name.trim()) errors.push('added semantic name must not be empty')
+        if (operation.semantic.gameplayRole !== undefined && !isGameplayEntityRoleCompatible(
+          request.context.semanticWorld.worldType,
+          operation.semantic,
+          operation.semantic.gameplayRole,
+        )) errors.push('added semantic gameplay role is incompatible with the current world and category')
         continue
       }
       if (operation.kind === 'update-world-property') {
@@ -48,7 +54,14 @@ export class DefaultWorldSemanticDeltaValidator implements WorldSemanticDeltaVal
         }
         seenTargets.set(id, operation.kind)
       }
-      if (operation.kind === 'replace-entity-semantic' && !operation.replacement.name.trim()) errors.push('replacement semantic name must not be empty')
+      if (operation.kind === 'replace-entity-semantic') {
+        if (!operation.replacement.name.trim()) errors.push('replacement semantic name must not be empty')
+        if (operation.replacement.gameplayRole !== undefined && !isGameplayEntityRoleCompatible(
+          request.context.semanticWorld.worldType,
+          operation.replacement,
+          operation.replacement.gameplayRole,
+        )) errors.push('replacement semantic gameplay role is incompatible with the current world and category')
+      }
       if (operation.kind === 'update-entity-property') errors.push('entity property updates are not executable in v1')
     }
     return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) })

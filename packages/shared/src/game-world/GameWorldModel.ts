@@ -142,21 +142,39 @@ export interface GameWorldEntity {
 
   /** Human-readable entity name (e.g., "Villager", "Oak Tree"). */
   readonly name: string
+
+  /** Optional Genesis-validated gameplay responsibility. */
+  readonly gameplayRole?: GameplayEntityRole
 }
 
 /**
  * Resolve the current bounded gameplay eligibility from semantic identity.
  *
- * The resolver is Genesis-owned and deterministic. Provider/design `role`
- * strings are intentionally not consulted, so they remain candidate metadata
- * rather than live gameplay authority. Origins converge: a CreateWorld RPG
- * entity and the same semantic entity added through World Evolution receive
- * the same role.
+ * A validated explicit role takes precedence over the local archetype default.
+ * Invalid or incompatible explicit data never falls through to a capability-
+ * granting default. Origins converge: a CreateWorld RPG entity and the same
+ * semantic entity added through World Evolution receive the same role.
  */
+export function isGameplayEntityRoleCompatible(
+  worldType: WorldType,
+  entity: Pick<GameWorldEntity, 'category'>,
+  role: GameplayEntityRole,
+): boolean {
+  return worldType === 'rpg'
+    && entity.category === 'quest'
+    && isGameplayEntityRole(role)
+}
+
 export function resolveGameplayEntityRole(
   worldType: WorldType,
-  entity: Pick<GameWorldEntity, 'category' | 'name'>,
+  entity: Pick<GameWorldEntity, 'category' | 'name'> & Partial<Pick<GameWorldEntity, 'gameplayRole'>>,
 ): GameplayEntityRole | undefined {
+  if (entity.gameplayRole !== undefined) {
+    return isGameplayEntityRole(entity.gameplayRole)
+      && isGameplayEntityRoleCompatible(worldType, entity, entity.gameplayRole)
+      ? entity.gameplayRole
+      : undefined
+  }
   if (worldType !== 'rpg' || entity.category !== 'quest') return undefined
   const normalizedName = entity.name.trim().toLowerCase().replace(/[\s_-]+/gu, '')
   if (normalizedName === 'questgiver') {

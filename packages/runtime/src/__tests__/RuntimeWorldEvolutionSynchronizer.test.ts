@@ -176,6 +176,47 @@ describe('DefaultRuntimeWorldEvolutionSynchronizer', () => {
     expect(result.updatedWorld.entities.slice(0, 4)).toEqual(runtimeWorld.entities)
   })
 
+  it('projects a validated explicit evolved gameplay role into Runtime semantics', () => {
+    const rpgSemanticWorld: GameWorldModel = Object.freeze({
+      worldType: 'rpg',
+      entities: Object.freeze([
+        Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+      ]),
+    })
+    const rpgRuntimeWorld = Object.freeze({
+      entities: Object.freeze([runtimeEntity('player', 'player', 80, 400, 'Player')]),
+    }) as unknown as World
+    const semanticMutation = new DefaultSemanticWorldDeltaApplier().apply(rpgSemanticWorld, {
+      operationId: 'rpg-add-acceptor',
+      worldId: 'world-rpg',
+      semanticRevision: 0,
+      operations: [{
+        kind: 'add-entity',
+        scope: 'entity',
+        semantic: { name: 'Guild Registrar', category: 'quest', gameplayRole: 'quest-acceptor' },
+        count: 1,
+      }],
+      summary: 'add an explicit quest acceptor',
+    }, { worldId: 'world-rpg', semanticRevision: 0 })
+
+    const result = synchronizer.synchronize(rpgRuntimeWorld, semanticMutation, {
+      worldId: 'world-rpg',
+      runtimeRevision: 0,
+    })
+
+    expect(result.status).toBe('synchronized')
+    expect(result.updatedWorld.entities.find(entity => entity.id === 'guild-registrar-1')?.components).toContainEqual(
+      expect.objectContaining({
+        type: 'semantic',
+        properties: expect.objectContaining({
+          name: 'Guild Registrar',
+          category: 'quest',
+          gameplayRole: 'quest-acceptor',
+        }),
+      }),
+    )
+  })
+
   it('retains committed gameplay state on existing entities during an add-only evolution', () => {
     const statefulField = Object.freeze({
       ...runtimeWorld.entities[3],

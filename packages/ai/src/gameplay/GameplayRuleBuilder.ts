@@ -16,6 +16,7 @@ import type {
 import {
   DEFAULT_GAMEPLAY_CAPABILITY_CATALOG,
   getGameplayRulePrimitiveCapability,
+  resolveGameplayEntityRole,
 } from '@genesis/shared'
 import type { GameplayRuleCandidate } from './GameplayRuleCandidate'
 
@@ -61,6 +62,10 @@ function targetSelector(): { readonly kind: 'eventTarget' } {
 
 function archetypeSelector(archetype: string): GameplayEntitySelector {
   return Object.freeze({ kind: 'archetype', archetype })
+}
+
+function gameplayRoleSelector(role: GameplayEntityRole): GameplayEntitySelector {
+  return Object.freeze({ kind: 'role', role })
 }
 
 function interactionTrigger(
@@ -210,10 +215,7 @@ function farmCompletionTarget(
 }
 
 function rpgQuestGiver(world: GameWorldModel): GameWorldModel['entities'][number] | undefined {
-  return world.entities.find(entity =>
-    entity.category === 'quest'
-      && (/quest.?giver|giver/iu.test(entity.id) || /quest.?giver|giver/iu.test(entity.name)),
-  ) ?? world.entities.find(entity => entity.category === 'quest')
+  return world.entities.find(entity => resolveGameplayEntityRole(world.worldType, entity) === 'quest-acceptor')
 }
 
 function rpgCompletionTarget(
@@ -359,7 +361,7 @@ function deterministicRules(
         [
           categoryCondition(player, 'player'),
           categoryCondition(target, interactable.category),
-          archetypeCondition(target, interactable.name),
+          gameplayRoleCondition(target, 'quest-acceptor'),
         ],
         [
           Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'activated', value: true }),
@@ -380,7 +382,7 @@ function deterministicRules(
           categoryCondition(player, 'player'),
           categoryCondition(target, completionTarget.category),
           gameplayRoleCondition(target, 'quest-objective'),
-          booleanEntityCondition(archetypeSelector(interactable.name), 'questAccepted', true),
+          booleanEntityCondition(gameplayRoleSelector('quest-acceptor'), 'questAccepted', true),
         ],
         [Object.freeze({ type: 'SET_ENTITY_PROPERTY', target, property: 'questCompleted', value: true })],
         'all',

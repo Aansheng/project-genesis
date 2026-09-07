@@ -29,7 +29,7 @@ export interface WorldEvolutionSemanticResolution {
   readonly semantic?: {
     readonly name: string
     readonly category: import('@genesis/shared').EntityCategory
-    readonly role?: string
+    readonly gameplayRole?: import('@genesis/shared').GameplayEntityRole
   }
   readonly reason?: string
 }
@@ -42,6 +42,7 @@ export interface WorldEvolutionTargetResolver {
 
   resolveSemantic(
     semantic: import('@genesis/shared').EvolutionEntitySemantic,
+    worldType: import('@genesis/shared').WorldType,
     fallbackCategory?: import('@genesis/shared').EntityCategory,
   ): WorldEvolutionSemanticResolution
 }

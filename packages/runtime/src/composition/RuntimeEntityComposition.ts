@@ -61,16 +61,15 @@ const CATEGORY_X: Readonly<Record<string, number>> = Object.freeze({
 })
 
 function semanticComponent(
-  name: string,
-  category: EntityCategory,
+  semanticEntity: Pick<GameWorldEntity, 'name' | 'category' | 'gameplayRole'>,
   worldType: WorldType,
 ): RuntimeComponent {
-  const gameplayRole = resolveGameplayEntityRole(worldType, { name, category })
+  const gameplayRole = resolveGameplayEntityRole(worldType, semanticEntity)
   return Object.freeze({
     type: SEMANTIC_COMPONENT_TYPE,
     properties: Object.freeze({
-      category,
-      name,
+      category: semanticEntity.category,
+      name: semanticEntity.name,
       ...(gameplayRole ? { gameplayRole } : {}),
     }),
   })
@@ -246,7 +245,7 @@ export function findRuntimeEntityPositionWithMinimumSeparation(
  */
 export function createComposedRuntimeEntity(input: {
   readonly id: string
-  readonly semanticEntity: Pick<GameWorldEntity, 'name' | 'category'>
+  readonly semanticEntity: Pick<GameWorldEntity, 'name' | 'category' | 'gameplayRole'>
   readonly position: Readonly<{ x: number; y: number }>
   readonly worldType: WorldType
   readonly targetEntityId?: string
@@ -268,7 +267,7 @@ export function createComposedRuntimeEntity(input: {
     x: 0,
     y: 0,
     components: Object.freeze([
-      semanticComponent(semanticEntity.name, semanticEntity.category, worldType),
+      semanticComponent(semanticEntity, worldType),
       createPositionComponent(position.x, position.y),
       ...(health ? [health] : []),
       ...(collisionBounds ? [collisionBounds] : []),

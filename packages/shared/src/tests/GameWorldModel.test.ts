@@ -281,6 +281,24 @@ describe('trusted gameplay role resolution', () => {
     expect(resolveGameplayEntityRole('rpg', renamedEntity))
       .toBe('quest-objective')
   })
+
+  it('prefers a compatible explicit role and rejects incompatible explicit capability', () => {
+    expect(resolveGameplayEntityRole('rpg', {
+      category: 'quest',
+      name: 'Quest Publisher',
+      gameplayRole: 'quest-acceptor',
+    })).toBe('quest-acceptor')
+    expect(resolveGameplayEntityRole('rpg', {
+      category: 'quest',
+      name: 'Quest Giver',
+      gameplayRole: 'quest-objective',
+    })).toBe('quest-objective')
+    expect(resolveGameplayEntityRole('rpg', {
+      category: 'npc',
+      name: 'Merchant',
+      gameplayRole: 'quest-objective',
+    })).toBeUndefined()
+  })
 })
 
 // ---------------------------------------------------------------------------

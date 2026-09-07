@@ -65,6 +65,33 @@ describe('DefaultSemanticWorldDeltaApplier', () => {
     ])
   })
 
+  it('preserves a trusted explicit RPG gameplay role and rejects incompatible direct deltas', () => {
+    const rpg: GameWorldModel = Object.freeze({
+      worldType: 'rpg',
+      entities: Object.freeze([{ id: 'player', category: 'player' as const, name: 'Player' }]),
+    })
+    const accepted = applier.apply(rpg, delta({
+      kind: 'add-entity',
+      scope: 'entity',
+      semantic: { name: 'Quest Publisher', category: 'quest', gameplayRole: 'quest-acceptor' },
+      count: 1,
+    }))
+    const rejected = applier.apply(rpg, delta({
+      kind: 'add-entity',
+      scope: 'entity',
+      semantic: { name: 'Merchant', category: 'npc', gameplayRole: 'quest-objective' },
+      count: 1,
+    }))
+
+    expect(accepted.addedEntities).toEqual([{
+      id: 'quest-publisher-1',
+      category: 'quest',
+      name: 'Quest Publisher',
+      gameplayRole: 'quest-acceptor',
+    }])
+    expect(rejected).toMatchObject({ status: 'failed', failureReason: 'invalid_delta', updatedWorld: rpg })
+  })
+
   it('removes only selected entities and updates supported world properties', () => {
     const result = applier.apply(world, {
       operationId: 'evolution-1',

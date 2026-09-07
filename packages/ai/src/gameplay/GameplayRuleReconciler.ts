@@ -45,7 +45,7 @@ function selectorDependency(selector: GameplayEntitySelector, world: GameWorldMo
     return `exact:${selector.entityId}:${entity?.category ?? 'missing'}:${entity?.name ?? 'missing'}`
   }
   if (selector.kind === 'category') return `category:${selector.category}:${entityIds(world, entity => entity.category === selector.category).join(',')}`
-  if (selector.kind === 'role') return `role:${selector.role}:${entityIds(world, entity => entity.category === selector.role).join(',')}`
+  if (selector.kind === 'role') return `role:${selector.role}:${entityIds(world, entity => resolveGameplayEntityRole(world.worldType, entity) === selector.role).join(',')}`
   return `archetype:${archetype(selector.archetype)}:${entityIds(world, entity => archetype(entity.name) === archetype(selector.archetype)).join(',')}`
 }
 
@@ -120,6 +120,7 @@ function sameSemanticWorld(left: GameWorldModel, right: GameWorldModel): boolean
       && entity.id === other.id
       && entity.name === other.name
       && entity.category === other.category
+      && entity.gameplayRole === other.gameplayRole
   })
 }
 

@@ -153,6 +153,18 @@ describe('World Evolution planner', () => {
         { id: 'quest-giver-1', category: 'quest', name: 'Quest Giver' },
       ],
     }))
+    const rpgAcceptor = await planner().plan(request('再加一个任务发布者', {
+      worldType: 'rpg',
+      entities: [
+        { id: 'player-1', category: 'player', name: 'Player' },
+        { id: 'quest-giver-1', category: 'quest', name: 'Quest Giver' },
+        { id: 'main-quest-1', category: 'quest', name: 'Main Quest' },
+      ],
+    }))
+    const rpgAcceptorEquivalent = await planner().plan(request('add one quest giver', {
+      worldType: 'rpg',
+      entities: [{ id: 'player-1', category: 'player', name: 'Player' }],
+    }))
     const crossGenre = await planner().plan(request('再加一个任务'))
     const noAddition = await planner().plan(request('麦田在哪里'))
 
@@ -160,6 +172,8 @@ describe('World Evolution planner', () => {
     expect(farmEquivalent.status).toBe('validated')
     expect(rpg.status).toBe('validated')
     expect(rpgEquivalent.status).toBe('validated')
+    expect(rpgAcceptor.status).toBe('validated')
+    expect(rpgAcceptorEquivalent.status).toBe('validated')
     expect(crossGenre.status).toBe('failed')
     expect(noAddition.status).toBe('failed')
     if (crossGenre.status === 'failed') expect(crossGenre.operation.failureReason).toBe('provider_error')
@@ -182,6 +196,55 @@ describe('World Evolution planner', () => {
       })
     }
     if (rpgEquivalent.status === 'validated') expect(rpgEquivalent.delta.operations[0]).toMatchObject({ semantic: { name: 'Quest', category: 'quest' }, count: 1 })
+    if (rpgAcceptor.status === 'validated') {
+      expect(rpgAcceptor.operation.source).toBe('deterministic')
+      expect(rpgAcceptor.delta.operations[0]).toMatchObject({
+        semantic: { name: 'Quest Publisher', category: 'quest', gameplayRole: 'quest-acceptor' },
+        count: 1,
+      })
+    }
+    if (rpgAcceptorEquivalent.status === 'validated') {
+      expect(rpgAcceptorEquivalent.delta.operations[0]).toMatchObject({
+        semantic: { name: 'Quest Publisher', category: 'quest', gameplayRole: 'quest-acceptor' },
+      })
+    }
+  })
+
+  it('accepts only bounded compatible provider gameplay roles as semantic authority', async () => {
+    const rpg: GameWorldModel = {
+      worldType: 'rpg',
+      entities: [{ id: 'player-1', category: 'player', name: 'Player' }],
+    }
+    const explicit = await planner({
+      source: 'ai',
+      generate: async () => ({
+        kind: 'add-entity',
+        semantic: { name: 'Guild Registrar', category: 'quest', gameplayRole: 'quest-acceptor' },
+      }),
+    }).plan(request('add a quest giver', rpg))
+    const incompatible = await planner({
+      source: 'ai',
+      generate: async () => ({
+        kind: 'add-entity',
+        semantic: { name: 'Merchant', category: 'npc', gameplayRole: 'quest-objective' },
+      }),
+    }).plan(request('add a merchant', rpg))
+    const invalid = await planner({
+      source: 'ai',
+      generate: async () => ({
+        kind: 'add-entity',
+        semantic: { name: 'Quest', category: 'quest', gameplayRole: 'untrusted-super-role' },
+      }),
+    }).plan(request('add a quest', rpg))
+
+    expect(explicit.status).toBe('validated')
+    if (explicit.status === 'validated') expect(explicit.delta.operations[0]).toMatchObject({
+      semantic: { name: 'Guild Registrar', category: 'quest', gameplayRole: 'quest-acceptor' },
+    })
+    expect(incompatible.status).toBe('needs_clarification')
+    if (incompatible.status !== 'validated') expect(incompatible.operation.failureReason).toBe('target_unresolved')
+    expect(invalid.status).toBe('failed')
+    if (invalid.status !== 'validated') expect(invalid.operation.failureReason).toBe('candidate_invalid')
   })
 
   it('requires clarification for an unknown or ambiguous target', async () => {

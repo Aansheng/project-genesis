@@ -1,4 +1,4 @@
-import type { EntityCategory, GameWorldModel } from '../game-world'
+import type { EntityCategory, GameplayEntityRole, GameWorldModel } from '../game-world'
 import type { VisualAssetExecutionResult } from '../visual-evolution/VisualEvolution'
 import type {
   GenerationContextTraceMetadata,
@@ -34,7 +34,7 @@ export interface EvolutionTargetSelector {
 export interface EvolutionEntitySemantic {
   readonly name: string
   readonly category?: EntityCategory
-  readonly role?: string
+  readonly gameplayRole?: GameplayEntityRole
 }
 
 /** Semantic fields that are safe to extend later without a JSON-patch system. */
@@ -111,7 +111,7 @@ export interface WorldEvolutionRequest {
 export interface ResolvedEvolutionEntitySemantic {
   readonly name: string
   readonly category: EntityCategory
-  readonly role?: string
+  readonly gameplayRole?: GameplayEntityRole
 }
 
 export type WorldSemanticDeltaOperation =

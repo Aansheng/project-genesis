@@ -15,7 +15,11 @@ import type {
   WorldSemanticDelta,
   WorldSemanticDeltaOperation,
 } from '@genesis/shared'
-import { DefaultWorldEvolutionGenerationContextBuilder, summarizeGenerationContext } from '@genesis/shared'
+import {
+  DefaultWorldEvolutionGenerationContextBuilder,
+  isGameplayEntityRole,
+  summarizeGenerationContext,
+} from '@genesis/shared'
 import type {
   WorldEvolutionCandidateProvider,
   WorldEvolutionPlanResult,
@@ -114,10 +118,14 @@ function readSemantic(value: unknown): EvolutionEntitySemantic | undefined {
   const name = semanticName(value)
   if (!name) return undefined
   if (!isRecord(value)) return Object.freeze({ name })
+  const proposedRole = value.gameplayRole ?? value.role
+  if (proposedRole !== undefined && !isGameplayEntityRole(proposedRole)) {
+    throw new InvalidWorldEvolutionCandidateError()
+  }
   return Object.freeze({
     name,
     ...(isCategory(value.category) ? { category: value.category } : {}),
-    ...(typeof value.role === 'string' && value.role.trim() ? { role: value.role.trim() } : {}),
+    ...(isGameplayEntityRole(proposedRole) ? { gameplayRole: proposedRole } : {}),
   })
 }
 
@@ -252,6 +260,7 @@ export class DeterministicWorldEvolutionCandidateProvider implements WorldEvolut
 
 const FARM_FIELD_ALIASES = ['麦田', '麦地', '小麦田', '农田', '田地', 'farmland', 'farm field', 'wheat field', 'wheat-field', 'field'] as const
 const RPG_QUEST_ALIASES = ['任务', 'quest', 'mission'] as const
+const RPG_QUEST_ACCEPTOR_ALIASES = ['任务发布者', '任务给予者', '发任务的人', 'quest giver', 'quest publisher'] as const
 
 function containsEvolutionAlias(text: string, alias: string): boolean {
   if (/^[a-z -]+$/iu.test(alias)) {
@@ -277,10 +286,13 @@ function deterministicArchetypeNativeAddition(request: WorldEvolutionRequest, te
     })
   }
   if (worldType === 'rpg' && RPG_QUEST_ALIASES.some(alias => containsEvolutionAlias(text, alias))) {
+    const explicitAcceptor = RPG_QUEST_ACCEPTOR_ALIASES.some(alias => containsEvolutionAlias(text, alias))
     return Object.freeze({
       kind: 'add-entity',
       scope: 'entity',
-      semantic: { name: 'Quest', category: 'quest' },
+      semantic: explicitAcceptor
+        ? { name: 'Quest Publisher', category: 'quest', gameplayRole: 'quest-acceptor' }
+        : { name: 'Quest', category: 'quest' },
       count: requestedCount(request.instruction),
     })
   }
@@ -532,7 +544,7 @@ export class DefaultWorldEvolutionPlanner implements WorldEvolutionPlanner {
 
   private resolveOperation(intent: WorldEvolutionIntent, request: WorldEvolutionRequest, resolvedTargetIds: string[]): WorldSemanticDeltaOperation {
     if (intent.kind === 'add-entity') {
-      const semantic = this.resolver.resolveSemantic(intent.semantic)
+      const semantic = this.resolver.resolveSemantic(intent.semantic, request.context.semanticWorld.worldType)
       if (semantic.status !== 'resolved' || !semantic.semantic) throw new ResolutionError('target_unresolved')
       return Object.freeze({ kind: 'add-entity', scope: 'entity', semantic: Object.freeze({ ...semantic.semantic }), count: intent.count })
     }
@@ -546,13 +558,21 @@ export class DefaultWorldEvolutionPlanner implements WorldEvolutionPlanner {
     resolvedTargetIds.push(...target.targetIds)
     if (intent.kind === 'remove-entity') return Object.freeze({ kind: 'remove-entity', scope: intent.scope, targetIds: Object.freeze([...target.targetIds]) })
     const entities = request.context.semanticWorld.entities.filter(entity => target.targetIds.includes(entity.id))
-    const replacement = this.resolver.resolveSemantic(intent.replacement, entities[0]?.category)
+    const replacement = this.resolver.resolveSemantic(
+      intent.replacement,
+      request.context.semanticWorld.worldType,
+      entities[0]?.category,
+    )
     if (replacement.status !== 'resolved' || !replacement.semantic) throw new ResolutionError('target_unresolved')
     return Object.freeze({
       kind: 'replace-entity-semantic',
       scope: intent.scope,
       targetIds: Object.freeze([...target.targetIds]),
-      from: Object.freeze(entities.map(entity => Object.freeze({ name: entity.name, category: entity.category }))),
+      from: Object.freeze(entities.map(entity => Object.freeze({
+        name: entity.name,
+        category: entity.category,
+        ...(entity.gameplayRole ? { gameplayRole: entity.gameplayRole } : {}),
+      }))),
       replacement: Object.freeze({ ...replacement.semantic }),
       preserveIdentity: intent.preserveIdentity,
     })

@@ -1,5 +1,5 @@
 import type { AssetKind, AssetRenderUsage, AssetRequirement, AssetSpecification, AssetTarget, AssetTechnicalProfile, AssetVisualState } from '../asset-specification'
-import type { EntityCategory, GameWorldModel, WorldSpatialMode, WorldType } from '../game-world'
+import type { EntityCategory, GameplayEntityRole, GameWorldModel, WorldSpatialMode, WorldType } from '../game-world'
 import type { GameDifficulty, GameObjectiveType } from '../game-design'
 import type {
   GameplayActionType,
@@ -65,6 +65,7 @@ export interface WorldEvolutionEntityContext {
   readonly id: string
   readonly name: string
   readonly category: EntityCategory
+  readonly gameplayRole?: GameplayEntityRole
 }
 
 /** Minimum current semantic facts needed to interpret an existing-world edit. */
@@ -259,6 +260,7 @@ export class DefaultWorldEvolutionGenerationContextBuilder implements WorldEvolu
       id: entity.id,
       name: entity.name,
       category: entity.category,
+      ...(entity.gameplayRole ? { gameplayRole: entity.gameplayRole } : {}),
     })))
     const selectedEntityId = input.selectedEntityId && entities.some(entity => entity.id === input.selectedEntityId)
       ? input.selectedEntityId
@@ -416,6 +418,7 @@ export class DefaultGameplayGenerationContextBuilder implements GameplayGenerati
       id: entity.id,
       name: entity.name,
       category: entity.category,
+      ...(entity.gameplayRole ? { gameplayRole: entity.gameplayRole } : {}),
     })))
     return Object.freeze({
       ...metadata('gameplay-generation', input.metadata),

@@ -583,6 +583,7 @@ describe('Gameplay rule execution vertical slice', () => {
       entities: Object.freeze([
         Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
         Object.freeze({ id: 'quest-giver', category: 'quest', name: 'Quest Giver' }),
+        Object.freeze({ id: 'quest-publisher', category: 'quest', name: 'Quest Publisher', gameplayRole: 'quest-acceptor' }),
         Object.freeze({ id: 'main-quest', category: 'quest', name: 'Main Quest' }),
         Object.freeze({ id: 'quest-1', category: 'quest', name: 'Quest' }),
         Object.freeze({ id: 'merchant', category: 'npc', name: 'Merchant' }),
@@ -592,9 +593,10 @@ describe('Gameplay rule execution vertical slice', () => {
       entities: Object.freeze([
         entity('player', 'player', 'Player', 0, 0),
         entity('quest-giver', 'quest', 'Quest Giver', 8, 0),
-        entity('main-quest', 'quest', 'Main Quest', 16, 0),
-        entity('quest-1', 'quest', 'Quest', 24, 0),
-        entity('merchant', 'npc', 'Merchant', 32, 0),
+        entity('quest-publisher', 'quest', 'Quest Publisher', 16, 0),
+        entity('main-quest', 'quest', 'Main Quest', 24, 0),
+        entity('quest-1', 'quest', 'Quest', 32, 0),
+        entity('merchant', 'npc', 'Merchant', 40, 0),
       ]),
     }) as unknown as World
     const actor = Object.freeze({ kind: 'eventActor' as const })
@@ -614,7 +616,8 @@ describe('Gameplay rule execution vertical slice', () => {
         conditionMode: 'all' as const,
         conditions: Object.freeze([
           Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS' as const, entity: actor, category: 'player' as const }),
-          Object.freeze({ type: 'ENTITY_ARCHETYPE_EQUALS' as const, entity: target, archetype: 'Quest Giver' }),
+          Object.freeze({ type: 'ENTITY_CATEGORY_EQUALS' as const, entity: target, category: 'quest' as const }),
+          Object.freeze({ type: 'ENTITY_GAMEPLAY_ROLE_EQUALS' as const, entity: target, role: 'quest-acceptor' as const }),
         ]),
         actions: Object.freeze([
           Object.freeze({ type: 'SET_ENTITY_PROPERTY' as const, target, property: 'questAccepted' as const, value: true }),
@@ -637,7 +640,7 @@ describe('Gameplay rule execution vertical slice', () => {
             type: 'BOOLEAN_EQUALS' as const,
             value: Object.freeze({
               kind: 'entityProperty' as const,
-              entity: Object.freeze({ kind: 'archetype' as const, archetype: 'Quest Giver' }),
+              entity: Object.freeze({ kind: 'role' as const, role: 'quest-acceptor' as const }),
               property: 'questAccepted' as const,
             }),
             expected: true,
@@ -701,7 +704,7 @@ describe('Gameplay rule execution vertical slice', () => {
     }))
 
     const accepted = executor.executeEvent(
-      interact('world-1:2:0', 'quest-giver', 2),
+      interact('world-1:2:0', 'quest-publisher', 2),
       rules,
       executionContext(beforePrerequisite.world),
     )
@@ -714,10 +717,24 @@ describe('Gameplay rule execution vertical slice', () => {
       ]),
     }))
 
+    const repeatedAcceptance = executor.executeEvent(
+      interact('world-1:2:1', 'quest-publisher', 2),
+      rules,
+      executionContext(accepted.world),
+    )
+    expect(repeatedAcceptance.results).toContainEqual(expect.objectContaining({
+      ruleId: 'rpg-interaction',
+      status: 'executed',
+      committed: false,
+      actionResults: expect.arrayContaining([
+        expect.objectContaining({ actionType: 'SET_ENTITY_PROPERTY', status: 'no_op' }),
+      ]),
+    }))
+
     const completed = executor.executeEvent(
       interact('world-1:3:0', 'main-quest', 3),
       rules,
-      executionContext(accepted.world),
+      executionContext(repeatedAcceptance.world),
     )
     expect(completed.results).toMatchObject([
       { ruleId: 'rpg-interaction', status: 'conditions_failed', committed: false },

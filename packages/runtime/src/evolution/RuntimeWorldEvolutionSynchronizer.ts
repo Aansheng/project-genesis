@@ -22,6 +22,7 @@ const SEMANTIC_COMPONENT_TYPE = 'semantic'
 interface SemanticFacts {
   readonly name?: string
   readonly category?: EntityCategory
+  readonly gameplayRole?: GameplayEntityRole
 }
 
 interface WorkingResult {
@@ -45,7 +46,10 @@ function semanticFactsOf(entity: Entity): SemanticFacts | undefined {
   const category = typeof component.properties.category === 'string'
     ? component.properties.category as EntityCategory
     : undefined
-  return name || category ? { name, category } : undefined
+  const gameplayRole = typeof component.properties.gameplayRole === 'string'
+    ? component.properties.gameplayRole as GameplayEntityRole
+    : undefined
+  return name || category || gameplayRole ? { name, category, gameplayRole } : undefined
 }
 
 function replaceSemantic(
@@ -161,6 +165,7 @@ function expectedMatches(actual: SemanticFacts | undefined, expected: SemanticFa
   if (!actual || !expected) return true
   return (expected.name === undefined || actual.name === expected.name)
     && (expected.category === undefined || actual.category === expected.category)
+    && (expected.gameplayRole === undefined || actual.gameplayRole === expected.gameplayRole)
 }
 
 /**
@@ -276,10 +281,7 @@ export class DefaultRuntimeWorldEvolutionSynchronizer
             current,
             replacement.name,
             replacement.category,
-            resolveGameplayEntityRole(semanticMutation.updatedWorld.worldType, {
-              name: replacement.name,
-              category: replacement.category,
-            }),
+            resolveGameplayEntityRole(semanticMutation.updatedWorld.worldType, replacement),
           )
           const after = semanticFactsOf(updated)
           working.entities[entityIndex] = updated
@@ -289,6 +291,7 @@ export class DefaultRuntimeWorldEvolutionSynchronizer
             || updated.type !== current.type
             || before?.name !== after?.name
             || before?.category !== after?.category
+            || before?.gameplayRole !== after?.gameplayRole
         }
         continue
       }

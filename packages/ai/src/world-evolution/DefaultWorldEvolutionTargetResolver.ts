@@ -4,6 +4,11 @@ import type {
   EvolutionTargetSelector,
   GameWorldEntity,
   WorldEvolutionRequest,
+  WorldType,
+} from '@genesis/shared'
+import {
+  isGameplayEntityRole,
+  isGameplayEntityRoleCompatible,
 } from '@genesis/shared'
 import type {
   WorldEvolutionSemanticResolution,
@@ -93,6 +98,7 @@ export class DefaultWorldEvolutionTargetResolver implements WorldEvolutionTarget
 
   resolveSemantic(
     semantic: EvolutionEntitySemantic,
+    worldType: WorldType,
     fallbackCategory?: EntityCategory,
   ): WorldEvolutionSemanticResolution {
     const key = normalize(semantic.name)
@@ -101,12 +107,18 @@ export class DefaultWorldEvolutionTargetResolver implements WorldEvolutionTarget
     if (!semantic.name.trim() || !category || !isCategory(category)) {
       return Object.freeze({ status: 'unresolved', reason: 'replacement semantic needs a supported category' })
     }
+    if (semantic.gameplayRole !== undefined && (
+      !isGameplayEntityRole(semantic.gameplayRole)
+      || !isGameplayEntityRoleCompatible(worldType, { category }, semantic.gameplayRole)
+    )) {
+      return Object.freeze({ status: 'unresolved', reason: 'explicit gameplay role is incompatible with the current semantic context' })
+    }
     return Object.freeze({
       status: 'resolved',
       semantic: Object.freeze({
         name: known?.name ?? semantic.name.trim(),
         category,
-        ...(semantic.role?.trim() ? { role: semantic.role.trim() } : {}),
+        ...(semantic.gameplayRole ? { gameplayRole: semantic.gameplayRole } : {}),
       }),
     })
   }

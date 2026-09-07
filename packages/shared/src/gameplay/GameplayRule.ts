@@ -24,7 +24,7 @@ export type GameplayEntitySelector =
   | { readonly kind: 'exactEntityId'; readonly entityId: string }
   | { readonly kind: 'category'; readonly category: EntityCategory }
   | { readonly kind: 'archetype'; readonly archetype: string }
-  | { readonly kind: 'role'; readonly role: string }
+  | { readonly kind: 'role'; readonly role: GameplayEntityRole }
 
 export type GameplayNumericOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
 

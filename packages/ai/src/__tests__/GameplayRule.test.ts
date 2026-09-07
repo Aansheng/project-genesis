@@ -250,6 +250,7 @@ describe('GameplayRule foundation', () => {
       worldType: 'rpg',
       entities: Object.freeze([
         Object.freeze({ id: 'player', category: 'player', name: 'Player' }),
+        Object.freeze({ id: 'quest-giver', category: 'quest', name: 'Quest Giver' }),
         Object.freeze({ id: 'main-quest', category: 'quest', name: 'Main Quest' }),
       ]),
     })
@@ -258,8 +259,8 @@ describe('GameplayRule foundation', () => {
       semanticWorld: rpgWorld,
       gameplaySpecification: rpgSpecification,
     })
-    expect(rpgRules.rules).toHaveLength(1)
-    expect(rpgRules.rules[0]).toMatchObject({
+    expect(rpgRules.rules).toHaveLength(2)
+    expect(rpgRules.rules.find(rule => rule.ruleId === 'rpg-interaction')).toMatchObject({
       ruleId: 'rpg-interaction',
       sourceMechanicId: 'rpg-interact',
       supportStatus: 'supported',
@@ -267,7 +268,7 @@ describe('GameplayRule foundation', () => {
       conditions: [
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventActor' }, category: 'player' },
         { type: 'ENTITY_CATEGORY_EQUALS', entity: { kind: 'eventTarget' }, category: 'quest' },
-        { type: 'ENTITY_ARCHETYPE_EQUALS', entity: { kind: 'eventTarget' }, archetype: 'Main Quest' },
+        { type: 'ENTITY_GAMEPLAY_ROLE_EQUALS', entity: { kind: 'eventTarget' }, role: 'quest-acceptor' },
       ],
       actions: [
         { type: 'SET_ENTITY_PROPERTY', property: 'activated', value: true },
@@ -342,7 +343,7 @@ describe('GameplayRule foundation', () => {
           type: 'BOOLEAN_EQUALS',
           value: {
             kind: 'entityProperty',
-            entity: { kind: 'archetype', archetype: 'Quest Giver' },
+            entity: { kind: 'role', role: 'quest-acceptor' },
             property: 'questAccepted',
           },
           expected: true,

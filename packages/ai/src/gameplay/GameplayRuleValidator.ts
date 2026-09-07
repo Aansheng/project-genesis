@@ -97,7 +97,7 @@ function selectorMatchesKnownEntity(selector: GameplayEntitySelector, world: Gam
     case 'archetype':
       return entityNames(world).has(archetype(selector.archetype))
     case 'role':
-      return world.entities.some(entity => entity.category === selector.role)
+      return world.entities.some(entity => resolveGameplayEntityRole(world.worldType, entity) === selector.role)
   }
 }
 
@@ -141,14 +141,14 @@ function normalizeSelector(
     return selector
   }
   if (kind === 'role') {
-    const role = typeof value.role === 'string' ? value.role.trim() : ''
-    if (!role || !world.entities.some(entity => entity.category === role)) {
-      errors.push(`${path}.role must match a current semantic entity category`)
+    const role = value.role
+    if (!isGameplayEntityRole(role) || !world.entities.some(entity => resolveGameplayEntityRole(world.worldType, entity) === role)) {
+      errors.push(`${path}.role must match a current semantic gameplay role`)
       return undefined
     }
     return Object.freeze({ kind, role })
   }
-  errors.push(`${path}.kind must be eventActor, eventTarget, exactEntityId, category, archetype, or role`)
+  errors.push(`${path}.kind must be eventActor, eventTarget, exactEntityId, category, archetype, or bounded gameplay role`)
   return undefined
 }
 
